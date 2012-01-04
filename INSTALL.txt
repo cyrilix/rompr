@@ -1,0 +1,40 @@
+
+These are basic installation instructions for RompR
+
+RompR is a web-based client for mpd or mopidy. You can use it to control mpd
+or mopidy when they are running on your local computer or on a remote computer.
+
+For mpd or mopidy configuration, see the appropriate website
+
+The following works on Ubuntu 11.10
+
+sudo apt-get install apache2 php5-curl imagemagick mpd
+
+Copy the apache configuration file from apache_conf.d into /etc/apache2/conf.d/
+
+Edit that file so that PATH-TO-ROMPR is the path to your installed copy of RompR
+(i.e. if you copied the RompR files into /home/you/web/rompr change
+PATH-TO-ROMPR to /home/you/web/rompr)
+
+Apache needs WRITE access to prefs and albumart directories.
+The easy way is: (assuming the above installation path)
+chmod -R ugo+rw /home/you/web/rompr/prefs
+chmod -R ugo+rw /home/you/web/rompr/albumart
+
+If you want to be more secure about it, then on ubuntu apache runs as the user www-data, so do
+chown -R www-data /home/you/web/rompr/prefs
+chown -R www-data /home/you/web/rompr/albumart
+
+Enable the required apache modules:
+sudo a2enmod expires
+sudo a2enmod headers
+sudo a2enmod deflate
+
+restart apache:
+sudo service apache2 restart
+
+Now you can use rompr - point your web browser at
+http://localhost/rompr
+
+
+If you're using mopidy in spotify mode, use the search function in RompR to search spotify.
