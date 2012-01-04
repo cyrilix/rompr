@@ -13,4 +13,5 @@ if (!array_key_exists("fast", $_REQUEST)) {
 }
 close_mpd($connection);
 print json_encode($mpd_status);
+//Just testing SVN
 ?>
