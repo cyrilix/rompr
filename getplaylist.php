@@ -65,3 +65,5 @@ function getFileInfo($file) {
     }
     $xml = $xml . '</track>'."\n";    
 }
+
+?>

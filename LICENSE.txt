@@ -40,3 +40,5 @@ There's also Ben Alman's pretty damn good javascript debugging library
 http://benalman.com/projects/javascript-debug-console-log/
 which has two licenses. Presumably this means it can drive a lorry?
 
+The jquery form plugin comes from http://malsup.com/jquery/form/
+and also has two licenses.
