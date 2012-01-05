@@ -3,8 +3,8 @@ function Info(target, source) {
     var target_frame = target;
     var self = this;
     var current_source = source
-    
-    this.slideshow = {  
+
+    this.slideshow = {
         running: false,
         paused: false,
         images: [],
@@ -12,7 +12,7 @@ function Info(target, source) {
         preload: new Image(),
         timer_running: false,
         timer: 0,
-        
+
         slideshowGo: function(data) {
             self.slideshow.images = [];
             if(data.images.image) {
@@ -38,7 +38,7 @@ function Info(target, source) {
             }
 
         },
-        
+
         nextimage: function() {
             if (self.slideshow.timer_running) {
                 clearTimeout(self.slideshow.timer);
@@ -61,7 +61,7 @@ function Info(target, source) {
                 });
             }
         },
-        
+
         previousimage: function() {
             if (self.slideshow.timer_running) {
                 clearTimeout(self.slideshow.timer);
@@ -84,7 +84,7 @@ function Info(target, source) {
                 });
             }
         },
-                    
+
         toggle: function() {
             if (self.slideshow.paused) {
                 $('#lastfmimagecontrol').attr("src", "images/pause.png");
@@ -99,7 +99,7 @@ function Info(target, source) {
                 }
             }
         },
-        
+
         displayimage: function() {
             var windowheight = $("#"+target_frame).height();
             var windowwidth = $("#"+target_frame).width();
@@ -125,7 +125,7 @@ function Info(target, source) {
     this.track = {
         trackinfo: new Object,
         userTags: new Object,
-        
+
         new: function(data) {
             // Called when the track has changed and we have new Last.FM track data
             //debug.log("New track with last.fm", data);
@@ -149,7 +149,7 @@ function Info(target, source) {
                 updateUserTags(self.track.usertags(), "track");
             }
         },
-        
+
         name: function() {
             return this.trackinfo.track.name || "";
         },
@@ -161,11 +161,11 @@ function Info(target, source) {
         listeners: function() {
             return  this.trackinfo.track.listeners || 0;
         },
-        
+
         playcount: function() {
             return  this.trackinfo.track.playcount || 0;
         },
-        
+
         duration: function() {
             return this.trackinfo.track.duration || 0;
         },
@@ -177,7 +177,7 @@ function Info(target, source) {
         url: function() {
             return  this.trackinfo.track.url || 0;
         },
-        
+
         bio: function() {
             if(this.trackinfo.track.wiki) { return formatBio(this.trackinfo.track.wiki.content) }
             else { return ""; }
@@ -187,7 +187,7 @@ function Info(target, source) {
             var loved =  this.trackinfo.track.userloved || 0;
             return (loved == 1) ? true : false;
         },
-        
+
         tags: function() {
             try {
                 return getArray(this.trackinfo.track.toptags.tag);
@@ -195,20 +195,20 @@ function Info(target, source) {
                 return [];
             }
         },
-        
+
         usertags: function() {
             try {
                 return getArray(this.userTags.tags.tag);
             } catch(err) {
                 return [];
             }
-        },        
+        },
     }
-    
+
     this.album = {
         albuminfo: new Object,
         userTags: new Object,
-        
+
         new: function(data) {
             // Called when the album has changed and we have new Last.FM album data
             //debug.log("New album with last.fm",data);
@@ -221,7 +221,7 @@ function Info(target, source) {
                 updateAlbumBrowser();
             }
         },
-        
+
         gotTags: function(data) {
             //debug.log("Got Album UserTags", data);
             if (data.error) {
@@ -232,19 +232,19 @@ function Info(target, source) {
                 updateUserTags(self.album.usertags(), "album");
             }
         },
-        
+
         name: function() {
             return this.albuminfo.album.name || "";
         },
-        
+
         artist: function() {
             return this.albuminfo.album.artist || "";
         },
-        
+
         listeners: function() {
             return  this.albuminfo.album.listeners || 0;
         },
-        
+
         playcount: function() {
             return  this.albuminfo.album.playcount || 0;
         },
@@ -285,7 +285,7 @@ function Info(target, source) {
                 return [];
             }
         },
-        
+
         bio: function() {
             if(this.albuminfo.album.wiki) { return formatBio(this.albuminfo.album.wiki.content) }
             else { return "" }
@@ -311,11 +311,11 @@ function Info(target, source) {
         }
 
     }
-    
+
     this.artist = {
         artistinfo: new Object,
         userTags: new Object,
-        
+
         new: function(data) {
             // Called when the artist has changed and we have new Last.FM artist data
             // Note that "new Last.FM data" can also be an error response
@@ -329,27 +329,27 @@ function Info(target, source) {
                 updateArtistBrowser();
             }
         },
-        
+
         gotTags: function(data) {
             //debug.log("Got Artist UserTags", data);
             if (data.error) {
                 //debug.log("Last.FM Error",data.error,data.message);
                 self.artist.userTags = {tags: {}};
-            } else {            
+            } else {
                 self.artist.userTags = data;
                 updateUserTags(self.artist.usertags(), "artist");
             }
         },
-        
+
         name: function() {
             return this.artistinfo.artist.name || "";
         },
-        
+
         bio: function() {
             if(this.artistinfo.artist.bio) { return formatBio(this.artistinfo.artist.bio.content) }
             else { return "" };
         },
-        
+
         image: function(size) {
             // Get image of the specified size.
             // If no image of that size exists, return a different one - just so we've got one.
@@ -368,19 +368,31 @@ function Info(target, source) {
                 return "";
             }
         },
-        
+
         listeners: function() {
-            return this.artistinfo.artist.stats.listeners || 0;
+            try {
+                return this.artistinfo.artist.stats.listeners || 0;
+            } catch(err) {
+                return 0;
+            }
         },
-        
+
         playcount: function() {
-            return this.artistinfo.artist.stats.playcount || 0;
+            try {
+                return this.artistinfo.artist.stats.playcount || 0;
+            } catch(err) {
+                return 0;
+            }
         },
-        
+
         userplaycount: function() {
-            return this.artistinfo.artist.stats.userplaycount || 0;
+            try {
+                return this.artistinfo.artist.stats.userplaycount || 0;
+            } catch(err) {
+                return 0;
+            }
         },
-        
+
         tags: function() {
             try {
                 return getArray(this.artistinfo.artist.tags.tag);
@@ -396,7 +408,7 @@ function Info(target, source) {
                 return [];
             }
         },
-        
+
         similar: function() {
             try {
                 return getArray(this.artistinfo.artist.similar.artist);
@@ -404,7 +416,7 @@ function Info(target, source) {
                 return [];
             }
         },
-        
+
         similarimage: function(index, size) {
             try {
                 var url = "";
@@ -420,14 +432,14 @@ function Info(target, source) {
             } catch(err) {
                 return "";
             }
-            
+
         },
-        
+
         url: function() {
             return this.artistinfo.artist.url || "";
         }
     }
-    
+
     this.TrackChanged = function(data) {
         // Called when the track has changed and we got a Last.FM Error - either network error or data not found
         self.track.trackinfo = { track: {} };
@@ -439,7 +451,7 @@ function Info(target, source) {
             });
         }
     }
-    
+
     this.AlbumChanged = function(data) {
         // Called when the album has changed and we got a Last.FM Error - either network error or data not found
         //debug.log("New album, no last.fm");
@@ -451,7 +463,7 @@ function Info(target, source) {
             });
         }
     }
-    
+
     this.ArtistChanged = function(data) {
         // Called when the artist has changed and we got a Last.FM Error - either network error or data not found
         self.artist.artistinfo = { artist: {} };
@@ -470,7 +482,7 @@ function Info(target, source) {
             });
         });
     }
-    
+
     this.switchSource = function(source) {
         //debug.log("Switching source to", source);
         doHourglass();
@@ -511,7 +523,7 @@ function Info(target, source) {
                     });
                 });
                 break;
-                
+
             case "lastfm":
                 $('#artistinformation').fadeOut(1000, function() {
                     //debug.log("Artist fadeout complete");
@@ -520,14 +532,14 @@ function Info(target, source) {
                     revertPointer();
                 });
                 break;
-                
+
             case "slideshow":
                 $('#artistinformation').fadeOut(1000, function() {
                     getSlideShow();
                     revertPointer();
                 });
                 break;
-                    
+
         }
     }
 
@@ -536,7 +548,7 @@ function Info(target, source) {
             case "wikipedia":
             case "slideshow":
                 break;
-                
+
             case "lastfm":
                 $('#albuminformation').fadeOut(1000, function() {
                     //debug.log("Album fadeout complete");
@@ -553,7 +565,7 @@ function Info(target, source) {
             case "wikipedia":
             case "slideshow":
                 break;
-                
+
             case "lastfm":
                // debug.log("Starting track fadeout");
                 $('#trackinformation').fadeOut(1000, function() {
@@ -564,7 +576,7 @@ function Info(target, source) {
                 break;
         }
     }
-    
+
     function sectionHeader(data, title) {
         var html = '<div id="infosection">';
         html = html + '<table width="100%"><tr><td width="80%">';
@@ -581,21 +593,21 @@ function Info(target, source) {
         html = html + '<li><b>Your Plays:</b> '+data.userplaycount()+'</li>';
         return html;
     }
-   
+
     function doArtistUpdate() {
         //debug.log("Doing Artist Last.FM information update");
         var html = sectionHeader(self.artist, "Biography");
-        
+
         html = html + '<br><li class="tiny">Hear artists similar to '+self.artist.name()+'&nbsp;&nbsp;<a href="#" onclick="doLastFM(\'lastfmartist\', \''+self.artist.name()+'\')"><img style="vertical-align:middle" src="images/start.png" height="12px"></a></li>';
         html = html + '<br><li class="tiny">Play what fans of '+self.artist.name()+' are listening to&nbsp;&nbsp;<a href="#" onclick="doLastFM(\'lastfmfan\', \''+self.artist.name()+'\')"><img style="vertical-align:middle" src="images/start.png" height="12px"></a></li>';
         html = html + '</ul><br>';
-        
+
         html = html + doTags(self.artist.tags());
         html = html + tagsInput("artist");
         html = html + doUserTags("artist");
-        
-        html = html + '</div><div class="statsbox">';  
-        
+
+        html = html + '</div><div class="statsbox">';
+
         imageurl = self.artist.image("extralarge");
         if (imageurl != '') {
             html = html +  '<img class="stright" src="' + imageurl + '" id="standout" />';
@@ -604,32 +616,32 @@ function Info(target, source) {
         html = html + self.artist.bio();
         html = html + '</p></div>';
         html = html + '</div>';
-        
+
         html = html + '<div id="similarartists"><h3>&nbsp;&nbsp;&nbsp;&nbsp;Similar Artists</h3><table cellspacing="0" id="smlrtst"><tr>';
         var similies = self.artist.similar();
         for(var i in similies) {
             html = html + '<td class="simar" align="center"><a href="'+similies[i].url+'" target="_blank"><img src="'+self.artist.similarimage(i, "medium")+'"></a></td>';
         }
         html = html + '</tr><tr>';
-        for(var i in similies) {        
+        for(var i in similies) {
             html = html + '<td class="simar" align="center">'+similies[i].name+'</td>';
         }
         html = html + '</tr><tr>';
-        for(var i in similies) {        
+        for(var i in similies) {
             html = html + '<td class="simar" align="center"><a href="#" onclick="doLastFM(\'lastfmartist\', \''+similies[i].name+'\')"><img src="images/start.png" height="12px"></a></td>';
         }
         html = html + '</tr></table></div>';
         html = html + '</div>';
-        
+
         $("#artistinformation").html(html);
         $("#artistinformation #frog").click(function() {
             $("#artistinformation #foldup").toggle('slow');
             return false;
         });
-        
-        lastfm.artist.getTags({artist: encodeURIComponent(infobar.nowplaying.artist.name)}, browser.artist.gotTags, browser.gotFailure);        
+
+        lastfm.artist.getTags({artist: encodeURIComponent(infobar.nowplaying.artist.name)}, browser.artist.gotTags, browser.gotFailure);
     }
-    
+
     function doTags(taglist) {
         var html = '<ul><li><b>TOP TAGS:</b></li><li><table width="100%">';
         for(var i in taglist) {
@@ -647,13 +659,13 @@ function Info(target, source) {
         html = html + '<li><button class="topform topformbutton" onclick="browser.addTags(\''+type+'\')">ADD</button></li></ul>';
         return html;
     }
-    
+
     function doUserTags(name) {
         var html = '<ul><li><b>YOUR TAGS:</b></li><li><table name="'+name+'tagtable" width="100%">';
         html = html + '</table></li></ul>';
         return html;
-    }  
-    
+    }
+
     function updateUserTags(taglist, name) {
         //debug.log("Updating user tags", taglist, name);
         $('table[name="'+name+'tagtable"]').find("tr").remove();
@@ -661,7 +673,7 @@ function Info(target, source) {
             appendTag(name, taglist[i].name, taglist[i].url);
         }
     }
-    
+
     this.addTags = function (type) {
         var tagstring = $("#add"+type+"tags").attr("value");
         //debug.log("Add tags",type, tagstring);
@@ -671,32 +683,32 @@ function Info(target, source) {
         options.tags = tagstring;
         lastfm[type].addTags(options, browser.tagsAdded, browser.tagAddFailed);
     }
-    
+
     this.tagsAdded = function(type, tags) {
         //debug.log("Added "+tags+" to "+type);
         var options = new Object;
         options.artist = infobar.nowplaying.artist.name;
         options[type] = infobar.nowplaying[type].name;
-        lastfm[type].getTags(options, browser[type].gotTags, browser[type].gotTags);        
-    }        
-        
+        lastfm[type].getTags(options, browser[type].gotTags, browser[type].gotTags);
+    }
+
     this.tagAddFailed = function(type,tags) {
         alert("Failed to add "+tags+" to "+type);
     }
-    
+
     this.gotFailure = function(data) {
         //debug.log("FAILED with something:",data);
     }
-        
+
     function appendTag(table, name, url) {
         var html = '<tr class="newtag" name="'+table+name+'"><td><a href="'+url+'" target="_blank">'+name+'</a></td>';
-        html = html + '<td><a href="#" id="'+table+'tag" name="'+name+'"><img style="vertical-align:middle" src="images/edit-delete.png" height="12px"></a></td>';               
+        html = html + '<td><a href="#" id="'+table+'tag" name="'+name+'"><img style="vertical-align:middle" src="images/edit-delete.png" height="12px"></a></td>';
         html = html + '<td align="right"><a href="#" onclick="doLastFM(\'lastfmglobaltag\', \''+name+'\')"><img style="vertical-align:middle" src="images/start.png" height="12px"></a></td></tr>';
         $('table[name="'+table+'tagtable"]').append(html);
         $(".newtag").toggle(1000);
         $(".newtag").each( function(index, element) {
                                         $(element).removeClass("newtag");
-                                        $(element).find("#"+table+"tag").click( function() {  
+                                        $(element).find("#"+table+"tag").click( function() {
                                                                 var tag = $(element).find("#"+table+"tag").attr("name");
                                                                 //debug.log("Clicked",tag);
                                                                 var options = new Object;
@@ -704,34 +716,34 @@ function Info(target, source) {
                                                                 options.artist = infobar.nowplaying.artist.name;
                                                                 options[table] = infobar.nowplaying[table].name;
                                                                 lastfm[table].removeTag(options,
-                                                                                        function(tag) { 
+                                                                                        function(tag) {
                                                                                             //debug.log("Success for",tag);
                                                                                             $('tr[name="'+table+tag+'"]').fadeOut(1000, function() {
-                                                                                                                                            $('tr[name="'+table+tag+'"]').remove(); 
+                                                                                                                                            $('tr[name="'+table+tag+'"]').remove();
                                                                                                                                     });
                                                                                         },
-                                                                                        function(tag) { 
-                                                                                            alert("Failed to remove "+tag); 
+                                                                                        function(tag) {
+                                                                                            alert("Failed to remove "+tag);
                                                                                         })
                                                         });
                                         return true;
-                                    });       
+                                    });
 
     }
-    
-    
+
+
     function doAlbumUpdate() {
         //debug.log("Doing Album Last.FM information update");
-        var html = sectionHeader(self.album, "Album");        
+        var html = sectionHeader(self.album, "Album");
 
         html = html + '<br><ul id="buyalbum"><li><b>BUY THIS ALBUM&nbsp;</b><a href="#" onclick="browser.buyAlbum()"><img style="vertical-align:middle" src="images/cart.png"></a></li></ul>';
-        html = html + '</ul><br>';    
-        
+        html = html + '</ul><br>';
+
         html = html + doTags(self.album.tags());
         html = html + tagsInput("album");
         html = html + doUserTags("album");
 
-        html = html + '</div><div class="statsbox">';  
+        html = html + '</div><div class="statsbox">';
         imageurl = self.album.image("large");
         if (imageurl != '') {
             html = html +  '<img class="stright" src="' + imageurl + '" id="standout" />';
@@ -755,42 +767,42 @@ function Info(target, source) {
         }
         html = html + '</table>';
         html = html + '<p>'+self.album.bio()+'</p>';
-        html = html + '</div></div></div>';       
+        html = html + '</div></div></div>';
         $("#albuminformation").html(html);
         $("#albuminformation #frog").click(function() {
             $("#albuminformation #foldup").toggle('slow');
             return false;
         });
         lastfm.album.getTags({artist: encodeURIComponent(infobar.nowplaying.artist.name), album: encodeURIComponent(infobar.nowplaying.album.name)}, browser.album.gotTags, browser.gotFailure);
-        
+
     }
-    
+
     this.buyAlbum = function() {
         doHourglass();
         //mousepos = getPosition();
         //imagePopup.create(200,200,mousepos.x,mousepos.y);
         lastfm.album.getBuylinks({album: infobar.nowplaying.album.name, artist: infobar.nowplaying.artist.name}, browser.showAlbumBuyLinks, browser.noBuyLinks);
     }
-    
+
     this.noBuyLinks = function() {
         revertPointer();
         alert("Could not find any information on buying this album");
     }
-    
+
     function getBuyHtml(data) {
         revertPointer();
         var html = "";
         if (data.affiliations.physicals) {
             html = html + '<li><b>BUY ON CD:</b></li>';
             html = html + doBuyTable(getArray(data.affiliations.physicals.affiliation));
-        }       
+        }
         if (data.affiliations.downloads) {
             html = html + '<li><b>DOWNLOAD:</b></li>';
             html = html + doBuyTable(getArray(data.affiliations.downloads.affiliation));
         }
         return html;
     }
-    
+
     this.showAlbumBuyLinks = function(data) {
         $("#buyalbum").slideUp('fast', function() {
             $("#buyalbum").css("display", "none");
@@ -798,7 +810,7 @@ function Info(target, source) {
             $("#buyalbum").slideDown("fast").show();
         });
     }
-    
+
     function doBuyTable(values) {
         var html = "";
         for(var i in values) {
@@ -811,16 +823,16 @@ function Info(target, source) {
         }
         return html;
     }
-    
+
     function formatBio(bio) {
         bio = bio.replace(/\n/g, "</p><p>");
-        bio = bio.replace(/(<a href="http:\/\/.*?")/g, '$1 target="_blank"');        
+        bio = bio.replace(/(<a href="http:\/\/.*?")/g, '$1 target="_blank"');
         return bio;
     }
-    
+
     function doTrackUpdate() {
         //debug.log("Doing Track Last.FM information update");
-        var html = sectionHeader(self.track, "Track");        
+        var html = sectionHeader(self.track, "Track");
         if (self.track.userloved()) {
             html = html + '<li><b>Loved:</b> Yes';
             html = html+'&nbsp;&nbsp;&nbsp;<a href="#" onclick="lastfm.track.unlove()"><img src="images/lastfm-unlove.png" height="12px"></a>';
@@ -830,7 +842,7 @@ function Info(target, source) {
         }
         html = html  +'</li>';
         html = html + '<br><ul id="buytrack"><li><b>BUY THIS TRACK&nbsp;</b><a href="#" onclick="browser.buyTrack()"><img style="vertical-align:middle" src="images/cart.png"></a></li></ul>';
-        html = html + '</ul><br>';    
+        html = html + '</ul><br>';
 
         html = html + doTags(self.track.tags());
         html = html + tagsInput("track");
@@ -840,20 +852,20 @@ function Info(target, source) {
         html = html + '</div>';
         html = html + '</div>';
         $("#trackinformation").html(html);
-            
+
         $("#trackinformation #frog").click(function() {
             $("#trackinformation #foldup").toggle('slow');
             return false;
         });
         lastfm.track.getTags({artist: encodeURIComponent(infobar.nowplaying.artist.name), track: encodeURIComponent(infobar.nowplaying.track.name)}, browser.track.gotTags, browser.gotFailure);
-        
+
     }
 
     this.buyTrack = function() {
         doHourglass();
         lastfm.track.getBuylinks({track: infobar.nowplaying.track.name, artist: infobar.nowplaying.artist.name}, browser.showTrackBuyLinks, browser.noBuyLinks);
     }
-    
+
     this.showTrackBuyLinks = function(data) {
         $("#buytrack").slideUp('fast', function() {
             $("#buytrack").css("display", "none");
@@ -866,11 +878,11 @@ function Info(target, source) {
     function getSlideShow() {
         lastfm.artist.getImages({artist: infobar.nowplaying.artist.name, track: infobar.nowplaying.track.name}, browser.readySlideShow, browser.noSlideShow);
     }
-    
+
     this.noSlideShow = function(data) {
         $("#artistinformation").html('<h2 align="center">No artist images could be found</h2>');
     }
-    
+
     this.readySlideShow = function(data) {
         //debug.log("We got images", data);
         var html = '<div class="controlholder"><table id="slidecon" class="invisible" border="0" cellpadding="0" cellspacing ="0" width="100%">';
@@ -884,5 +896,5 @@ function Info(target, source) {
         $("#artistinformation").fadeIn(1000);
         browser.slideshow.slideshowGo(data);
     }
-    
+
 }
