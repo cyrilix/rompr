@@ -493,20 +493,26 @@ function Info(target, source) {
                 $("#albuminformation").fadeOut(1000, function() { $("#albuminformation").html(""); } );
                 $("#trackinformation").fadeOut(1000, function() { $("#trackinformation").html(""); });
                 updateArtistBrowser();
-                $("#infopane").css("background-color", "#ffffff");
+                $("#infopane").removeClass("infoslideshow");
+                $("#infopane").addClass("infowiki");
+                //$("#infopane").css("background-color", "#ffffff");
                 break;
             case "lastfm":
                 self.slideshow.running = false;
                 updateArtistBrowser()
                 updateAlbumBrowser();
                 updateTrackBrowser();
-                $("#infopane").css("background-color", "#ffffff");
+                $("#infopane").removeClass("infoslideshow");
+                $("#infopane").addClass("infowiki");
+                //$("#infopane").css("background-color", "#ffffff");
                 break;
             case "slideshow":
                 $("#albuminformation").fadeOut(1000, function() { $("#albuminformation").html(""); } );
                 $("#trackinformation").fadeOut(1000, function() { $("#trackinformation").html(""); });
                 updateArtistBrowser();
-                $("#infopane").css("background-color", "#333333");
+                $("#infopane").removeClass("infowiki");
+                $("#infopane").addClass("infoslideshow");
+                //$("#infopane").css("background-color", "#333333");
                 break;
         }
     }
@@ -617,7 +623,7 @@ function Info(target, source) {
         html = html + '</p></div>';
         html = html + '</div>';
 
-        html = html + '<div id="similarartists"><h3>&nbsp;&nbsp;&nbsp;&nbsp;Similar Artists</h3><table cellspacing="0" id="smlrtst"><tr>';
+        html = html + '<div id="similarartists" class="bordered"><h3>&nbsp;&nbsp;&nbsp;&nbsp;Similar Artists</h3><table cellspacing="0" id="smlrtst"><tr>';
         var similies = self.artist.similar();
         for(var i in similies) {
             html = html + '<td class="simar" align="center"><a href="'+similies[i].url+'" target="_blank"><img src="'+self.artist.similarimage(i, "medium")+'"></a></td>';
@@ -886,11 +892,11 @@ function Info(target, source) {
     this.readySlideShow = function(data) {
         //debug.log("We got images", data);
         var html = '<div class="controlholder"><table id="slidecon" class="invisible" border="0" cellpadding="0" cellspacing ="0" width="100%">';
-        html = html + '<tr height="62px"><td align="center" bgcolor="#333333">';
+        html = html + '<tr height="62px"><td align="center" class="infoslideshow">';
         html = html + '<a href="#" onclick="browser.slideshow.previousimage()"><img src="images/backward.png"></a>';
         html = html + '<a href="#" onclick="browser.slideshow.toggle()"><img id="lastfmimagecontrol" src="images/pause.png"></a>';
         html = html + '<a href="#" onclick="browser.slideshow.nextimage()"><img src="images/forward.png"></a></td></tr></table></div>';
-        html = html + '<table border="0" cellpadding="0" cellspacing ="0" width="100%"><tr><td align="center" bgcolor="#333333"><img id="lastfmimage"></td></tr></table>';
+        html = html + '<table border="0" cellpadding="0" cellspacing ="0" width="100%"><tr><td align="center" class="infoslideshow"><img id="lastfmimage"></td></tr></table>';
         $("#artistinformation").html(html);
         $("#artistinformation").hover(function() { $("#slidecon").fadeIn(500); }, function() { $("#slidecon").fadeOut(500); });
         $("#artistinformation").fadeIn(1000);

@@ -254,10 +254,10 @@ function LastFMRadio(station, index) {
         var unixtimestamp = Math.round(+new Date()/1000);
         for(var i in tracks) {
             if (unixtimestamp > parseInt(tracks[i].expires)) {
-                //debug.log("Expiring track", tracks[i].expires, unixtimestamp);
+                debug.log("Expiring track", tracks[i].expires, unixtimestamp);
                 todelete.push(tracks[i].backendid);
             } else if (previoussong == tracks[i].backendid && currentsong != tracks[i].playlistpos) {
-                //debug.log("Removing track which was playing but has been skipped")
+                debug.log("Removing track which was playing but has been skipped")
                 todelete.push(tracks[i].backendid);
             }
         }
@@ -294,7 +294,8 @@ function LastFMRadio(station, index) {
     
     this.updateRadio = function() {
         if (tracks.length == 1) {
-            playlist.endofradio = tracks[0].playlistpos;
+            playlist.setEndofradio(tracks[0].playlistpos);
+            debug.log("Setting endofradio to",playlist.endofradio);
             lastfm.radio.tune({station: tracks[0].stationurl}, lastFMIsTuned, lastFMTuneFailed);
             return true;
         }
@@ -320,7 +321,7 @@ function LastFMRadio(station, index) {
     
     this.invalidateOnStop = function(songid) {
         if (tracks[0].backendid == songid) {
-            //debug.log("Removing current track, which was playing and has been stopped");
+            debug.log("Removing current track, which was playing and has been stopped");
             infobar.deleteTracksByID([songid], playlist.repopulate);
         }
     }
@@ -340,7 +341,7 @@ function Playlist() {
     this.previoustrack = -1;
     
     this.repopulate = function() {
-        //debug.log("Repopulating Playlist");
+        debug.log("Repopulating Playlist");
         tracklist = [];
         //$.get("getplaylist.php", "{}").done( playlist.newXSPF )
         //                        .fail(function(data, status) { debug.log("Playlist Fail"); debug.log(data, status); } );
@@ -359,7 +360,7 @@ function Playlist() {
     }
     
     this.newXSPF = function(list) {
-        //debug.log("Got Playlist from MPD");
+        debug.log("Got Playlist from MPD");
         var item;
         var count = 0;
         var current_album = "";
@@ -423,7 +424,8 @@ function Playlist() {
 
         });
         if (track) {
-            self.finaltrack = track.playlistpos;
+            self.finaltrack = parseInt(track.playlistpos);
+            debug.log("Setting finaltarck to",self.finaltrack);
         }
         
         var html = ""; 
@@ -486,12 +488,13 @@ function Playlist() {
     // - basically any new track which come in as XML format
     // The albums list does NOT use this. Perhaps it should, but that's just extra work and extra code.
     this.newLastFMRadioStation = function (list) {
-        //debug.log("New Last.FM Playlist");
+        debug.log("New Last.FM Playlist");
         revertPointer();
         $(list).find("track").each( function() { 
-            //debug.log($(this).find("title").text());
+            debug.log($(this).find("title").text());
             cojones.push(encodeURIComponent($(this).find("location").text()));
         });
+        self.justadded = false;
         self.addNewTracks();
     }
     
@@ -504,27 +507,33 @@ function Playlist() {
     }
 
     this.addNewTracks = function() {
-        if (self.justadded && self.endofradio > -1 && self.endofradio < self.finaltrack) {
-            //debug.log("Moving track into position");
+        debug.log("Add New Track : ", "endofradio", self.endofradio, "finaltrack", self.finaltrack, "justadded", self.justadded);
+//        if (self.justadded && self.endofradio > -1 && self.endofradio < self.finaltrack) {
+        if (self.justadded && (self.endofradio > -1) && (self.endofradio < self.finaltrack)) {
+            debug.log("Moving track into position");
             self.justadded = false;
             self.finaltrack++;
             self.endofradio++;
-            infobar.command("command=move&arg="+self.finaltrack+"&arg2="+self.endofradio, playlist.addNewTracks)
+            infobar.command("command=move&arg="+self.finaltrack+"&arg2="+self.endofradio, playlist.addNewTracks);
         } else {
             var t = cojones.shift();
             if (t) {
                 self.justadded = true;
-                //debug.log("Adding Track");
+                debug.log("Adding Track");
                 infobar.command("command=add&arg="+t, playlist.addNewTracks);
             } else {
                 self.endofradio = -1;
-                self.repopulate()
+                self.repopulate();
             }
         }
     }
+
+    this.setEndofradio = function(pos) {
+        self.endofradio = pos;
+    }
     
     this.updateCurrentSong = function(pos, id) {
-        //debug.log("Updating current song");
+        debug.log("Updating current song");
         $(".playlistcurrentitem").attr("class", "playlistitem"); 
         $("#"+pos).attr("class", "playlistcurrentitem");
         currentsong = pos;

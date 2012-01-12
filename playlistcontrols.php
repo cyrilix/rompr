@@ -15,6 +15,15 @@ include ("connection.php");
             <li class="wide"><b>CONFIGURATION</b></li>
             <li class="wide">
                     <ul id="lastfmconfig">
+                        <li class="wide">THEME</li>
+                        <li class="wide"><select id="themeselector" onchange="changetheme()">
+<?php
+                        $themes = glob("*.css");
+                        foreach($themes as $theme) {
+                            print '<option value="'.$theme.'">'.$theme.'</option>';
+                        }
+?>
+                        </select></li>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="infobar.toggle('random')" id="shufflebutton">Playlist Shuffle</input></li>                    
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="infobar.toggle('crossfade')" id="xfadebutton">Crossfade Tracks</input></li>                    
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="infobar.toggle('repeat')" id="repeatbutton">Repeat Playlist</input></li>                    
@@ -22,6 +31,10 @@ include ("connection.php");
                         <li class="wide"><div id="volume" onclick="infobar.setvolume()"></div></li>
 <?php
                 print '<li class="wide"><input type="checkbox" class="topcheck" onclick="lastfm.setscrobblestate()" id="scrobbling">Last.FM Scrobbling Enabled</input></li>';
+?>
+                <li class="wide">Percentage of track to play before scrobbling</li>
+                <li class="wide"><div id="scrobwrangler" onclick="setscrob()"></div></li>
+<?php
                 print '<li class="wide"><input type="checkbox" class="topcheck" onclick="lastfm.setscrobblestate()" id="autocorrect">Last.FM Autocorrect Enabled</input></li>';
                 print '<li class="wide">Last.FM Username</li>';
                 print '<li class="wide"><button class="topform topformbutton" onclick="lastfmlogin()">Login</button><input class="topform" name="user" type="text" size="45" value="'.$prefs['lastfm_user'].'"/></li>';
@@ -34,7 +47,7 @@ include ("connection.php");
 
     <li>
         <a href="#"><img src="images/edit-clear-list.png" height="24px"></a> 
-        <ul class="subnav"> 
+        <ul id="clrplst" class="subnav"> 
             <li><b>Clear Playlist</b></li>
             <li>
                 <form id="clearplaylist" action="ajaxcommand.php" method="get">
@@ -46,7 +59,7 @@ include ("connection.php");
     </li>
     <li>
         <a href="#"><img src="images/document-open-folder.png" height="24px"></a> 
-        <ul class="subnav wide">
+        <ul id="playlistslist" class="subnav wide">
             <li><b>Playlists</b></li>
 <?php
             $playlists = do_mpd_command($connection, "listplaylists", null, true);
@@ -56,18 +69,20 @@ include ("connection.php");
                 $playlists['playlist'][0] = $temp;
             }
             sort($playlists['playlist'], SORT_STRING);
+            print '<li class="tleft wide"><table width="100%">';            
             foreach ($playlists['playlist'] as $pl) {
-                print '<li class="tleft wide">';
-                print '<table width="100%"><tr><td align="left"><a href="#" onclick="infobar.command(\'command=load&arg='.rawurlencode($pl).'\', playlist.repopulate)">'.$pl.'</a></td>';
-                print '<td align="right"><a href="#" onclick="infobar.command(\'command=rm&arg='.rawurlencode($pl).'\', reloadPlaylistControls)"><img src="images/edit-delete.png"></a></td></tr></table>';
-                print "</li>\n";
+
+                print '<tr><td align="left"><a href="#" onclick="infobar.command(\'command=load&arg='.rawurlencode($pl).'\', playlist.repopulate)">'.$pl.'</a></td>';
+                print '<td align="right"><a href="#" onclick="infobar.command(\'command=rm&arg='.rawurlencode($pl).'\', reloadPlaylistControls)"><img src="images/edit-delete.png"></a></td></tr>';
+
             }
+            print '</table></li>';
 ?>
         </ul>  
     </li>  
     <li>
         <a href="#"><img src="images/document-save.png" height="24px"></a> 
-        <ul class="subnav wide">
+        <ul id="saveplst" class="subnav wide">
             <li class="wide"><b>Save Playlist As</b></li>
             <li class="wide">
                 <form id="saveplaylist" action="ajaxcommand.php" method="get">
@@ -84,26 +99,29 @@ include ("connection.php");
 
 <script type="text/javascript"> 
 
-$('#clearplaylist').ajaxForm(function() { 
-    $('#clearplaylist').fadeOut(500);
+$('#clearplaylist').ajaxForm(function() {
+    $('#clearplaylist').parents("ul.subnav").slideToggle('fast');
     playlist.repopulate();
     infobar.update();
+    
 }); 
 
 $('#saveplaylist').ajaxForm(function() { 
-    $('#saveplaylist').fadeOut(500);
     reloadPlaylistControls();
 }); 
 
 $("ul.topnav li a").click(function() { 
-    $(this).parent().find("ul.subnav").slideDown('fast').show();
-    $(this).parent().hover(function() {  
-    }, function(){  
-        $(this).parent().find("ul.subnav").slideUp('slow'); 
-    });    
+    $(this).parent().find("ul.subnav").slideToggle('fast');
 });
 
+$("#playlistslist").hover(function() {}, function() { $("#playlistslist").slideToggle('fast') });
+$("#clrplst").hover(function() {}, function() { $("#clrplst").slideToggle('fast') });
+$("#saveplst").hover(function() {}, function() { $("#saveplst").slideToggle('fast') });
+
 $("#volume").progressbar();
+$("#scrobwrangler").progressbar();
+$("#scrobwrangler").progressbar("option", "value", parseInt(scrobblepercent.toString()));
+
 <?php            
     print '    $("#scrobbling").attr("checked", ';
     if ($prefs['lastfm_scrobbling'] == 0) {
@@ -149,6 +167,9 @@ $("#volume").progressbar();
     print $prefs['volume'];
     print ");\n";
 
+   print '$("#themeselector").val("'.$prefs['theme'].'");'."\n";
+
+    
 ?>
 lastfm.setscrobblestate();
 

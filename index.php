@@ -11,7 +11,10 @@ session_start();
 <head>
 <title>RompR</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="stylesheet" type="text/css" href="stdtheme.css" />
+<?php
+print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme'].'" />'."\n";
+?>
+
 <link type="text/css" href="jqueryui1.8.16/css/start/jquery-ui-1.8.16.custom.css" rel="stylesheet" /> 
 <script type="text/javascript" src="jquery-1.7.1.min.js"></script>
 <script type="text/javascript" src="jquery.form.js"></script>
@@ -24,13 +27,14 @@ session_start();
 <script type="text/javascript" src="lastfm.js"></script>
 <script type="text/javascript" src="playlist.js"></script>
 <script type="text/javascript" src="info.js"></script>
+
 <?php
 if (file_exists("prefs/prefs.js")) {
     print '<script type="text/javascript" src="prefs/prefs.js"></script>'."\n";
 }
 ?>
 <script language="javascript">
-
+debug.setLevel(0);
 var lastfm_api_key = "15f7532dff0b8d84635c757f9f18aaa3";
 var lastfm_session_key;
 var lastfm_country_code = "United Kingdom";
@@ -41,6 +45,7 @@ var gotFriends = false;
 var sourceshidden = false;
 var playlisthidden = false;
 <?php
+ print "var scrobblepercent = ".$prefs['scrobblepercent'].";\n";
  print "var lastfm = new LastFM('".$prefs["lastfm_user"]."');\n";
 ?>
 var browser = new Info("infopane", "lastfm");
@@ -80,7 +85,7 @@ $(document).ready(function(){
         <div id="albumcover">
             <img id="albumpicture" src="images/album-unknown.png">
         </div>
-        <div id="infodiv"></div>
+        <div id="nowplaying"></div>
         <div id="lastfm" class="infobarlayout">
             <div><ul class="topnav"><a id="love" href="javascript:lastfm.track.love()"><img src="images/lastfm-love.png"></a></ul></div>
             <div><ul class="topnav"><a id="ban" href="javascript:lastfm.track.ban()"><img src="images/lastfm-ban.png"></a></ul></div>
@@ -101,7 +106,9 @@ $(document).ready(function(){
 </div>
 
 <div id="bottompage">
+
 <div id="sources" class="tleft column noborder">
+
 <div id="albumlist" class="noborder">
 </div>
 <div id="lastfmlist" class="invisible">
@@ -150,14 +157,17 @@ foreach($x->stations->station as $i => $station) {
 <div id="icecastlist" class="invisible">
 </div>
 </div>
-<div id="infopane" class="tleft cmiddle noborder">
+
+<div id="infopane" class="tleft cmiddle noborder infowiki">
 <div id="artistinformation" class="infotext"><h1 align="center">This is the information panel. Interesting stuff will appear here when you play some music</h1></div>
 <div id="albuminformation" class="infotext"></div>
 <div id="trackinformation" class="infotext"></div>
 </div>
+
 <div id="playlist" class="tright column noborder">
 <ul id="sortable"></ul>
 </div>
+
 </div>
 
 <div id="logindialog" title="Last.FM Login">

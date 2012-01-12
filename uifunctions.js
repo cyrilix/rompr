@@ -1,14 +1,5 @@
 function reloadPlaylistControls() {
-    $('#playlistcontrols').load('playlistcontrols.php', function() {
-        $("ul.subnav").parent().append("<span></span>");
-        $("ul.topnav li a").click(function() { 
-            $(this).parent().find("ul.subnav").slideDown('fast').show(); //Drop down the subnav on click  
-            $(this).parent().hover(function() {  
-            }, function(){  
-                $(this).parent().find("ul.subnav").slideUp('slow'); 
-            });    
-        });
-    });
+    $('#playlistcontrols').load('playlistcontrols.php');
 }
 
 function doCommand(div, url, command) {
@@ -29,8 +20,7 @@ function doMenu(item) {
         });
     } else {
         $('a[name|="'+item+'"]').html("+");
-    }
-        
+    }        
     $('div[name|="'+item+'"]').slideToggle('fast');
 }
 
@@ -43,6 +33,22 @@ function formatTimeString(duration) {
         return "Unknown";
     }
 }
+
+function changetheme() {
+    $("#theme").attr({href: $("#themeselector").val()});
+    savePrefs({theme: $("#themeselector").val()});
+}
+
+function setscrob() {
+    var position = getPosition();
+    var width = $('#scrobwrangler').width();
+    var offset = $('#scrobwrangler').offset();
+    scrobblepercent = ((position.x - offset.left)/width)*100;
+    if (scrobblepercent < 50) { scrobblepercent = 50; }
+    $('#scrobwrangler').progressbar("option", "value", parseInt(scrobblepercent.toString()));
+    savePrefs({scrobblepercent: scrobblepercent});
+}
+
 
 function expandInfo(side) {
     switch(side) {
@@ -177,8 +183,7 @@ function doLastFM(station, value) {
             url = "lastfm://artist/"+value+"/fans";
             break;
         case "lastfmglobaltag":
-            url
-            = "lastfm://globaltags/"+value;
+            url = "lastfm://globaltags/"+value;
             break;
     }
     doHourglass();

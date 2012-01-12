@@ -121,6 +121,7 @@ function infoBar() {
     // If no callback is provided, this function calls that function.
     this.command = function(cmd, callback) {
         clearProgressTimer();
+        debug.log("command : ",cmd);
         $.getJSON("ajaxcommand.php", cmd)
         .done(function(data) {
             mpd_status = {};   
@@ -183,7 +184,7 @@ function infoBar() {
         if (self.nowplaying.album.name) {
             contents=contents+'<p>on <b>'+self.nowplaying.album.name+'</b></p>';
         }
-        $("#infodiv").html(contents);
+        $("#nowplaying").html(contents);
     }
             
     this.setProgressBar = function() {
@@ -198,7 +199,7 @@ function infoBar() {
         $("#playbackTime").html(formatTimeString(prog) + " of " + formatTimeString(duration));
         
         if (prog > 4 && mpd_status.state == "play") { updateNowPlaying() };
-        if (percent > 50 && mpd_status.state == "play") { scrobble(); }
+        if (percent >= scrobblepercent && mpd_status.state == "play") { scrobble(); }
         
         if (mpd_status.state == "play") {
             if (duration > 0) {
@@ -237,6 +238,7 @@ function infoBar() {
                 } else {
                     options.chosenByUser = "0";
                 }
+                debug.log("Scrobbling", options.track);
                 lastfm.track.scrobble( options );
                 self.nowplaying.track.scrobbled = true;
             }
@@ -245,7 +247,8 @@ function infoBar() {
     
     function updateNowPlaying() {
         if (!self.nowplaying.track.nowplaying_updated) {
-            if (self.nowplaying.track.name != "" && self.nowplaying.artist.name != "") {            
+            if (self.nowplaying.track.name != "" && self.nowplaying.artist.name != "") {
+                debug.log("Updating Now Playing", self.nowplaying.track.name);
                 lastfm.track.updateNowPlaying({ track: self.nowplaying.track.name, 
                                                 album: self.nowplaying.album.name,
                                                 artist: self.nowplaying.artist.name

@@ -8,7 +8,9 @@ $prefs = array( "mpd_host" => "localhost",
                 "volume" => 100,
                 "lastfm_user" => "",
                 "lastfm_scrobbling" => 0,
-                "lastfm_autocorrect" => 0
+                "lastfm_autocorrect" => 0,
+                "theme" => "BrushedAluminium.css",
+                "scrobblepercent" => 50
                 );
 loadPrefs();
 

@@ -10,7 +10,9 @@ session_start();
 <head>
 <title>RompR Album Art</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="stylesheet" type="text/css" href="stdtheme.css" />
+<?php
+print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme'].'" />'."\n";
+?>
 <link type="text/css" href="jqueryui1.8.16/css/start/jquery-ui-1.8.16.custom.css" rel="stylesheet" /> 
 <script type="text/javascript" src="jquery-1.7.1.min.js"></script>
 <script type="text/javascript" src="jquery.form.js"></script>
@@ -146,12 +148,12 @@ function doGoogleSearch(artist, album, key) {
     $("#googleinput").append('<div id="holdingcell"><h3>Upload A File</h3>');
     $("#googleinput").append('<form id="uform" action="uploadcover.php" method="post" enctype="multipart/form-data"></form>');
     $("#uform").append('<input type="hidden" name="key" value="'+imagekey+'" />');
-    $("#uform").append('<input type="file" name="ufile" />');
-    $("#uform").append('<input type="submit" value="Upload" /></div>');
+    $("#uform").append('<input class="sourceform" type="file" name="ufile" />');
+    $("#uform").append('<input class="sourceform" type="submit" value="Upload" /></div>');
     $("#googleinput").append('<div id="holdingcell" class="underlined"><h3>Or Search Google Images</h3>');
-    $("#googleinput").append('<input type="text" id="searchphrase" class="tleft" size="80" style="width:60%"></input>');
-    $("#googleinput").append('<button class="tleft" onclick="research()">Search</button>');
-    $("#googleinput").append('<button class="tright" onclick="closeGooglePopup()">Close Window</button></div>');
+    $("#googleinput").append('<input type="text" id="searchphrase" class="tleft sourceform" size="80" style="width:60%"></input>');
+    $("#googleinput").append('<button class="tleft sourceform" onclick="research()">Search</button>');
+    $("#googleinput").append('<button class="tright sourceform" onclick="closeGooglePopup()">Close Window</button></div>');
     $("#coversearch").append('<div id="searchcontent"></div>');
 
     var winsize=getWindowSize();

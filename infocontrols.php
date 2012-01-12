@@ -8,7 +8,7 @@
 <a href="#" onclick="browser.switchSource('wikipedia')"><img height="24px" src="images/Wikipedia-logo.png"></a>
 <a href="#" onclick="browser.switchSource('lastfm')"><img height="24px" src="images/lastfm.png"></a>
 <a href="#" onclick="browser.switchSource('slideshow')"><img height="24px" src="images/slideshow.png"></a>
-<a href="albumart.php" target="_blank"><img src="images/jewel-case-2.png" height="24px"></a>
+<a href="albumart.php" target="_blank"><img src="images/cd_jewel_case.jpg" height="24px"></a>
 </td>
 <td align="right">
 <a href="#" onclick="expandInfo('right')"><img height="24px" id="expandright" src="images/arrow-right-double.png"></a>
