@@ -38,7 +38,7 @@ function Album(artist, album, index) {
                         tracks[trackpointer].title+'</a></td>';
         html = html + '<td class="playlisticon" align="right"><a href="#" onclick="playlist.delete(\''+tracks[trackpointer].playlistpos+'\')">'+
                         '<img src="images/edit-delete.png"></a></td></tr>';
-        if (tracks[trackpointer].compilation) {
+        if (tracks[trackpointer].compilation || (tracks[trackpointer].albumartist != "" && tracks[trackpointer].albumartist != tracks[trackpointer].creator)) {
             html = html + '<tr><td colspan="3" class="playlistrow2">'+tracks[trackpointer].creator+'</td></tr>';
         }
         html = html + '</table></div>';
@@ -370,6 +370,7 @@ function Playlist() {
         $(list).find("track").each( function() { 
             
            track = new Track({ creator: $(this).find("creator").text(),
+                                albumartist: $(this).find("albumartist").text(),
                                 album: $(this).find("album").text(),
                                 title: $(this).find("title").text(),
                                 location: $(this).find("location").text(),
@@ -385,15 +386,17 @@ function Playlist() {
                                 compilation: $(this).find("compilation").text()
            });
             
-           if ((track.creator.toLowerCase() != current_artist.toLowerCase() && track.compilation != "yes") || track.album.toLowerCase() != current_album.toLowerCase()) {
-               current_artist = track.creator;
+            var sortartist = track.creator;
+            if (track.albumartist != "") { sortartist = track.albumartist }
+           if ((sortartist.toLowerCase() != current_artist.toLowerCase() && track.compilation != "yes") || track.album.toLowerCase() != current_album.toLowerCase()) {
+               current_artist = sortartist;
                current_album = track.album;
                switch (track.type) {
                    case "local":
                        if (track.compilation) {
                            item = new Album("Various Artists", track.album, count);
                        } else {
-                            item = new Album(track.creator, track.album, count);
+                            item = new Album(sortartist, track.album, count);
                        }
                        tracklist[count] = item;
                        count++;
@@ -412,7 +415,7 @@ function Playlist() {
                        }
                        break;
                    default:
-                       item = new Album(track.creator, track.album, count);
+                       item = new Album(sortartist, track.album, count);
                        tracklist[count] = item;
                        count++;
                        break;

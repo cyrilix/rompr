@@ -87,7 +87,7 @@ class artist {
 
 class track {
     public function __construct($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
-                                $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station) {
+                                $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, $albumartist) {
 
         $this->artist = $artist;
         $this->album = $album;
@@ -98,6 +98,7 @@ class track {
         $this->datestamp = $date;
         $this->genre = $genre;
         $this->folder = $directory;
+        $this->albumartist = $albumartist;
         // Only used by playlist
         $this->albumobject = null;
         $this->type = $type;
@@ -151,20 +152,22 @@ class musicCollection {
     }
     
     public function newTrack($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
-                                $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station) {
+                                $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, $albumartist) {
+        $sortartist = $artist;
+        if ($albumartist != null) { $sortartist = $albumartist; }
         
-        $artistkey = strtolower(preg_replace('/^The /i', '', $artist));        
+        $artistkey = strtolower(preg_replace('/^The /i', '', $sortartist));        
         $t = new track($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
-                                $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station);
+                                $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, $albumartist);
         // If artist doesn't exist, create it - indexed by all lower case name for convenient sorting and grouping
         if (!array_key_exists($artistkey, $this->artists)) {
             //error_log("Adding Artist : " . strtolower($artist));
-            $this->artists[$artistkey] = new artist($artist);
+            $this->artists[$artistkey] = new artist($sortartist);
         }
         
         // Albums are not indexed by name, since we may have 2 or more albums with the same name by multiple artists
         // Does an album with this name by this aritst already exist?
-        $abm = $this->findAlbum($album, $artist, null);
+        $abm = $this->findAlbum($album, $sortartist, null);
         if ($abm == false) {
             // Does an album with this name where the tracks are in the same directory exist?
             $abm = $this->findAlbum($album, null, $directory);
@@ -184,7 +187,7 @@ class musicCollection {
         }
         if ($abm == false) {
             // We didn't find the album, so create it
-            $abm = new album($album, $artist);
+            $abm = new album($album, $sortartist);
             $this->albums[] = $abm;
             $this->artists[$artistkey]->newAlbum($abm);
         }
@@ -264,8 +267,8 @@ function process_file($collection, $filedata) {
     $file = $filedata['file'];
     
     list ($name, $duration, $number, $date, $genre, $artist, $album, $folder,
-          $type, $image, $expires, $stationurl, $station, $backendid, $playlistpos)
-        = array ( null, 0, "", null, null, null, null, null, "local", null, null, null, null, null, null );
+          $type, $image, $expires, $stationurl, $station, $backendid, $playlistpos, $albumartist)
+        = array ( null, 0, "", null, null, null, null, null, "local", null, null, null, null, null, null, null );
         
     if (preg_match('/^http:\/\//', $file)
         || preg_match('/^mms:\/\//', $file)) {   
@@ -284,6 +287,7 @@ function process_file($collection, $filedata) {
     } else {
         $artist = (array_key_exists('Artist', $filedata)) ? $filedata['Artist'] : basename(dirname(dirname($file)));
         $album = (array_key_exists('Album', $filedata)) ? $filedata['Album'] : basename(dirname($file));
+        $albumartist = (array_key_exists('AlbumArtist', $filedata)) ? $filedata['AlbumArtist'] : null;
         $name = (array_key_exists('Title', $filedata)) ? $filedata['Title'] : basename($file);
         $duration = (array_key_exists('Time', $filedata)) ? $filedata['Time'] : null;
         $number = (array_key_exists('Track', $filedata)) ? format_tracknum($filedata['Track']) : format_tracknum(basename($file));
@@ -303,7 +307,7 @@ function process_file($collection, $filedata) {
     $playlistpos = (array_key_exists('Pos',$filedata)) ? $filedata['Pos'] : null;
     
     $collection->newTrack($name, $file, $duration, $number, $date, $genre, $artist, $album, $folder,
-                            $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station);
+                            $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, $albumartist);
 }
 
 
@@ -440,6 +444,7 @@ function do_albums($artistkey, $compilations, $showartist, $prefix) {
 
     $albumlist = $collection->getAlbumList($artistkey, $compilations);
     if (count($albumlist) > 0) {
+        
         $artist = $collection->artistName($artistkey);
        // We have albums for this artist
         print '<div id="artistname" class="' . $divtype . '">' . "\n";
@@ -474,9 +479,12 @@ function do_albums($artistkey, $compilations, $showartist, $prefix) {
                 print '<a href="#" onclick="infobar.command(\'command=add&arg='.htmlentities(rawurlencode($trackobj->url)).'\', playlist.repopulate)">'.
                         $trackobj->name.'</a>';
                 print "</td></tr>\n";
-                if ($showartist) {
+                //if ($showartist) {
+                //    print '<tr><td></td><td class="playlistrow2">' . $trackobj->artist . '</td></tr>';
+                //}
+                if ($showartist || ($trackobj->albumartist != null && ($trackobj->albumartist != $trackobj->artist))) {
                     print '<tr><td></td><td class="playlistrow2">' . $trackobj->artist . '</td></tr>';
-                }
+                }    
             }
             
             print "</table>\n";        

@@ -7,13 +7,13 @@ function getPosition(e) {
     if (e.pageX || e.pageY) {
         cursor.x = e.pageX;
         cursor.y = e.pageY;
-    } 
+    }
     else {
         var de = document.documentElement;
         var b = document.body;
-        cursor.x = e.clientX + 
+        cursor.x = e.clientX +
             (de.scrollLeft || b.scrollLeft) - (de.clientLeft || 0);
-        cursor.y = e.clientY + 
+        cursor.y = e.clientY +
             (de.scrollTop || b.scrollTop) - (de.clientTop || 0);
     }
     return cursor;

@@ -50,6 +50,7 @@ function getFileInfo($file) {
     $xml = $xml.xmlnode("title", $track->name)
                 .xmlnode("album", $track->album)
                 .xmlnode("creator", $track->artist)
+                .xmlnode("albumartist", $track->albumartist)
                 .xmlnode("duration", $track->duration)
                 .xmlnode("type", $track->type)
                 .xmlnode("tracknumber", $track->number)

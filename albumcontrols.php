@@ -26,14 +26,16 @@ function pollAlbumList() {
             $('h2[name|="artistslabel"]').html("Loading Collection");
             $("#albumlist").load("albums.php", function() {
                 $('h2[name|="artistslabel"]').stop(true, true);
-                $('td[name|="sourcecontrol"]').html('<a href="#" onclick="sourcecontrol(\'albumlist\')">'+
+                $('td[name|="sourcecontrol"]').html('<a href="#" title="Local Music" onclick="sourcecontrol(\'albumlist\')">'+
                                                     '<img class="topimg" height="24px" src="images/audio-x-generic.png"></a>'+
-                                                    '<a href="#" onclick="sourcecontrol(\'lastfmlist\')">'+
+                                                    '<a href="#" title="Last.FM Radio" onclick="sourcecontrol(\'lastfmlist\')">'+
                                                     '<img class="topimg" height="24px" src="images/lastfm.png"></a>'+
-                                                    '<a href="#" onclick="sourcecontrol(\'bbclist\')">'+
+                                                    '<a href="#" title="Live BBC Radio" onclick="sourcecontrol(\'bbclist\')">'+
                                                     '<img class="topimg" height="24px" src="images/bbcr.png"></a>'+
-                                                    '<a href="#" onclick="sourcecontrol(\'icecastlist\')">'+
-                                                    '<img class="topimg" height="24px" src="images/icecast.png"></a>'
+                                                    '<a href="#" title="IceCast Radio" onclick="sourcecontrol(\'icecastlist\')">'+
+                                                    '<img class="topimg" height="24px" src="images/icecast.png"></a>'+
+                                                    '<a href="#" title="soma fm radio" onclick="sourcecontrol(\'somafmlist\')">'+
+                                                    '<img class="topimg" width="36px" src="images/somafm.png"></a>'
                 );
             })
         }
@@ -42,7 +44,7 @@ function pollAlbumList() {
 
 function sourcecontrol(source) {
     
-    sources = ["lastfmlist", "albumlist", "bbclist", "icecastlist"];
+    sources = ["lastfmlist", "albumlist", "bbclist", "icecastlist", "somafmlist"];
     for(var i in sources) {
         if (sources[i] == source) {
             sources.splice(i, 1);

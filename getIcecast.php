@@ -40,6 +40,7 @@ foreach($xml->entry as $i => $entry) {
     
     $output = $output . "<track>\n".
                         xmlnode('album', $name).
+                        xmlnode('creator', 'IceCast Radio').
                         xmlnode('location', $location).
                         xmlnode('image', "images/icecast.png").
                         "</track>\n";

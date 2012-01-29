@@ -1,5 +1,5 @@
 <div style="padding-left:12px">
-<a href="#" onclick="toggleSearch()"><img class="topimg" height="20px" src="images/system-search.png"></a>
+<a href="#" title="Search Music" onclick="toggleSearch()"><img class="topimg" height="20px" src="images/system-search.png"></a>
 </div>
 <div id="search" class="invisible">
 </div>

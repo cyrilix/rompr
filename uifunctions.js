@@ -39,8 +39,8 @@ function changetheme() {
     savePrefs({theme: $("#themeselector").val()});
 }
 
-function setscrob() {
-    var position = getPosition();
+function setscrob(e) {
+    var position = getPosition(e);
     var width = $('#scrobwrangler').width();
     var offset = $('#scrobwrangler').offset();
     scrobblepercent = ((position.x - offset.left)/width)*100;
@@ -147,6 +147,20 @@ function doASXStream(url, image) {
                 cache: false,
                 contentType: "text/xml; charset=utf-8",
                 data: {url: url, image: image},
+                dataType: "xml",
+                success: playlist.newLastFMRadioStation,
+                error: function(data, status) { revertPointer(); }
+    });
+}
+
+function doPLSStream(url, image, station) {
+    doHourglass();
+    $.ajax({
+                type: "GET",
+                url: "getPLSStream.php",
+                cache: false,
+                contentType: "text/xml; charset=utf-8",
+                data: {url: url, image: image, station: encodeURIComponent(station)},
                 dataType: "xml",
                 success: playlist.newLastFMRadioStation,
                 error: function(data, status) { revertPointer(); }

@@ -14,7 +14,7 @@ session_start();
 <?php
 print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme'].'" />'."\n";
 ?>
-
+<link rel="shortcut icon" href="images/favicon.ico" />
 <link type="text/css" href="jqueryui1.8.16/css/start/jquery-ui-1.8.16.custom.css" rel="stylesheet" /> 
 <script type="text/javascript" src="jquery-1.7.1.min.js"></script>
 <script type="text/javascript" src="jquery.form.js"></script>
@@ -34,7 +34,7 @@ if (file_exists("prefs/prefs.js")) {
 }
 ?>
 <script language="javascript">
-debug.setLevel(0);
+//debug.setLevel(0);
 var lastfm_api_key = "15f7532dff0b8d84635c757f9f18aaa3";
 var lastfm_session_key;
 var lastfm_country_code = "United Kingdom";
@@ -53,6 +53,7 @@ var browser = new Info("infopane", "lastfm");
 $(document).ready(function(){
     //debug.log("Index ready");
     $("#progress").progressbar();
+    $("#progress").click(function(evt) { infobar.seek(evt) });
     playlist.repopulate();
     lastfm.revealloveban();
     reloadPlaylistControls();
@@ -70,12 +71,12 @@ $(document).ready(function(){
 <table align="center" cellpadding="0" cellspacing="0"><tr><td>
     <div id="leftholder" class="infobarlayout tleft bordered">
         <div id="buttons">
-            <a href="#" onclick="infobar.command('command=previous')" class="controlbutton"><img src="images/media-skip-backward.png"></a>
-            <a href="#" id="playbutton" class="controlbutton"><img id="playbuttonimg" src="images/media-playback-pause.png"></a>
-            <a href="#" onclick="infobar.command('command=stop')" class="controlbutton"><img src="images/media-playback-stop.png"></a>
-            <a href="#" onclick="infobar.command('command=next')" class="controlbutton"><img src="images/media-skip-forward.png"></a>
+            <a href="#" title="Previous Track" onclick="infobar.command('command=previous')" class="controlbutton"><img src="images/media-skip-backward.png"></a>
+            <a href="#" title="Play/Pause" id="playbutton" class="controlbutton"><img id="playbuttonimg" src="images/media-playback-pause.png"></a>
+            <a href="#" title="Stop" onclick="infobar.command('command=stop')" class="controlbutton"><img src="images/media-playback-stop.png"></a>
+            <a href="#" title="Next Track" onclick="infobar.command('command=next')" class="controlbutton"><img src="images/media-skip-forward.png"></a>
         </div>
-        <div id="progress" onclick="infobar.seek()"></div>
+        <div id="progress"></div>
         <div id="playbackTime">
             0:00 of 0:00
         </div>
@@ -154,7 +155,26 @@ foreach($x->stations->station as $i => $station) {
 ?>
 </ul>
 </div>
-<div id="icecastlist" class="invisible">
+<div id="icecastlist" class="invisible"></div>
+<div id="somafmlist" class="invisible">
+<ul class="sourcenav">
+<li><img src="images/somafm.png" width="128px"></li>
+<li><a href="http://somafm.com" target="_blank">Please donate to soma fm to keep this service alive!</a></li>
+<?php
+$x = simplexml_load_file("resources/somafm.xml");
+foreach($x->stations->station as $i => $station) {
+    print '<li><table cellspacing="8"><tr><td colspan="2"><h3>'.$station->name.'</h3></td></tr>';
+    print '<tr><td><img src="'.$station->image.'" height="72px"></td>';
+    print '<td>'.$station->description.'</td></tr><tr><td colspan="2">';
+    foreach($station->link as $j => $link) {
+        $pl = $link->desc;
+        $pl = preg_replace('/ /', '&nbsp;', $pl);
+        print' <a class="tiny" href="#" onclick="doPLSStream(\''.$link->playlist.'\', \''.$station->image.'\', \''.$station->name.'\')">'.$pl.'</a>';
+    }
+    print '</td></tr></table></li>'."\n";
+}
+?>
+</ul>
 </div>
 </div>
 

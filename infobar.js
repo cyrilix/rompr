@@ -263,6 +263,14 @@ function infoBar() {
         var al = playlist.current('album');
         var ar = playlist.current('creator');
         var tr = playlist.current('title') || mpd_status.Title || "";
+        if (playlist.current('type') == "stream") {
+            var parts = tr.split(" - ", 2);
+            if (parts[0] && parts[1]) {
+                ar = parts[0];
+                tr = parts[1];
+                al = playlist.current('creator') + " - " + playlist.current('album');
+            }
+        }
         if (tr != self.nowplaying.track.mpd_name)
         {
             // Track has changed.
@@ -305,9 +313,9 @@ function infoBar() {
         savePrefs(options);
     }
     
-    this.seek = function() {
+    this.seek = function(e) {
         if (mpd_status.state == "play") {
-            var position = getPosition();
+            var position = getPosition(e);
             var width = $('#progress').width();
             var offset = $('#progress').offset();
             var seekto = ((position.x - offset.left)/width)*parseFloat(mpd_status.Time);
@@ -315,9 +323,9 @@ function infoBar() {
         }
     }
     
-    this.setvolume = function() {
+    this.setvolume = function(e) {
         if (mpd_status.state == "play") {
-            var position = getPosition();
+            var position = getPosition(e);
             var width = $('#volume').width();
             var offset = $('#volume').offset();
             var volume = ((position.x - offset.left)/width)*100;

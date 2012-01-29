@@ -10,7 +10,7 @@ include ("connection.php");
 <div class="tright">
 <ul class="topnav">  
     <li>
-        <a href="#"><img src="images/preferences.png" height="24px"></a>
+        <a href="#" title="RompR/mpd Preferences"><img src="images/preferences.png" height="24px"></a>
         <ul id="configpanel" class="subnav wide">
             <li class="wide"><b>CONFIGURATION</b></li>
             <li class="wide">
@@ -28,12 +28,12 @@ include ("connection.php");
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="infobar.toggle('crossfade')" id="xfadebutton">Crossfade Tracks</input></li>                    
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="infobar.toggle('repeat')" id="repeatbutton">Repeat Playlist</input></li>                    
                         <li class="wide">VOLUME</li>
-                        <li class="wide"><div id="volume" onclick="infobar.setvolume()"></div></li>
+                        <li class="wide"><div id="volume"></div></li>
 <?php
                 print '<li class="wide"><input type="checkbox" class="topcheck" onclick="lastfm.setscrobblestate()" id="scrobbling">Last.FM Scrobbling Enabled</input></li>';
 ?>
                 <li class="wide">Percentage of track to play before scrobbling</li>
-                <li class="wide"><div id="scrobwrangler" onclick="setscrob()"></div></li>
+                <li class="wide"><div id="scrobwrangler"></div></li>
 <?php
                 print '<li class="wide"><input type="checkbox" class="topcheck" onclick="lastfm.setscrobblestate()" id="autocorrect">Last.FM Autocorrect Enabled</input></li>';
                 print '<li class="wide">Last.FM Username</li>';
@@ -46,7 +46,7 @@ include ("connection.php");
     </li>
 
     <li>
-        <a href="#"><img src="images/edit-clear-list.png" height="24px"></a> 
+        <a href="#" title="Clear Playlist"><img src="images/edit-clear-list.png" height="24px"></a> 
         <ul id="clrplst" class="subnav"> 
             <li><b>Clear Playlist</b></li>
             <li>
@@ -58,7 +58,7 @@ include ("connection.php");
         </ul>
     </li>
     <li>
-        <a href="#"><img src="images/document-open-folder.png" height="24px"></a> 
+        <a href="#" title="Load Saved Playlist"><img src="images/document-open-folder.png" height="24px"></a> 
         <ul id="playlistslist" class="subnav wide">
             <li><b>Playlists</b></li>
 <?php
@@ -81,7 +81,7 @@ include ("connection.php");
         </ul>  
     </li>  
     <li>
-        <a href="#"><img src="images/document-save.png" height="24px"></a> 
+        <a href="#" title="Save Playlist"><img src="images/document-save.png" height="24px"></a> 
         <ul id="saveplst" class="subnav wide">
             <li class="wide"><b>Save Playlist As</b></li>
             <li class="wide">
@@ -119,8 +119,10 @@ $("#clrplst").hover(function() {}, function() { $("#clrplst").slideToggle('fast'
 $("#saveplst").hover(function() {}, function() { $("#saveplst").slideToggle('fast') });
 
 $("#volume").progressbar();
+$("#volume").click(function(evt) { infobar.setvolume(evt) });
 $("#scrobwrangler").progressbar();
 $("#scrobwrangler").progressbar("option", "value", parseInt(scrobblepercent.toString()));
+$("#scrobwrangler").click(function(evt) { setscrob(evt) });
 
 <?php            
     print '    $("#scrobbling").attr("checked", ';

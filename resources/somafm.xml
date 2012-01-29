@@ -1,0 +1,252 @@
+<asx>
+<stations>
+<station>
+<name>Groove Salad</name>
+<description>A nicely chilled plate of ambient beats and grooves</description>
+<image>resources/groovesalad120.gif</image>
+<link>
+    <desc>128 KBit AAC</desc>
+    <playlist>http://somafm.com/startstream=groovesalad130.pls</playlist>
+</link>
+<link>
+    <desc>128 KBit MP3</desc>
+    <playlist>http://somafm.com/startstream=groovesalad.pls</playlist>
+</link>
+<link>
+    <desc>64 KBit AACPlus</desc>
+    <playlist>http://somafm.com/startstream=groovesalad64.pls</playlist>
+</link>
+</station>
+
+<station>
+<name>Drone Zone</name>
+<description>Served best chilled, safe with most medications. Atmospheric textures with minimal beats</description>
+<image>resources/dronezone120.jpg</image>
+<link>
+    <desc>128 Kbit MP3</desc>
+    <playlist>http://somafm.com/startstream=dronezone.pls</playlist>
+</link>
+</station>
+
+<station>
+<name>indie pop rocks</name>
+<description>New and favorite classic indie pop tracks</description>
+<image>resources/indychick.jpg</image>
+<link>
+    <desc>128 Kbit AAC</desc>
+    <playlist>http://somafm.com/startstream=indiepop130.pls</playlist>
+</link>
+<link>
+    <desc>128 Kbit MP3</desc>
+    <playlist>http://somafm.com/startstream=indiepop.pls</playlist>
+</link>
+<link>
+    <desc>64 Kbit AACPlus</desc>
+    <playlist>http://somafm.com/startstream=indiepop64.pls</playlist>
+</link>
+</station>
+
+<station>
+<name>Lush</name>
+<description>Sensuous and mellow vocals, mostly female, with an electronic influence</description>
+<image>resources/lush120.jpg</image>
+<link>
+    <desc>128 Kbit AAC</desc>
+    <playlist>http://somafm.com/startstream=lush130.pls</playlist>
+</link>
+<link>
+    <desc>128 Kbit MP3</desc>
+    <playlist>http://somafm.com/startstream=lush.pls</playlist>
+</link>
+</station>
+
+<station>
+<name>Secret Agent</name>
+<description>The soundtrack for your stylish, mysterious, dangerous life. For Spies and PIs too!</description>
+<image>resources/secretagent120.jpg</image>
+<link>
+    <desc>128 KBit MP3</desc>
+    <playlist>http://somafm.com/startstream=secretagent.pls</playlist>
+</link>
+</station>
+
+<station>
+<name>Space Station Soma</name>
+<description>Tune in, turn on, space out. Spaced-out ambient and mid-tempo electronica</description>
+<image>resources/sss.jpg</image>
+<link>
+    <desc>128 Kbit AAC</desc>
+    <playlist>http://somafm.com/startstream=spacestation130.pls</playlist>
+</link>
+<link>
+    <desc>128 Kbit MP3</desc>
+    <playlist>http://somafm.com/startstream=spacestation.pls</playlist>
+</link>
+<link>
+    <desc>64 Kbit AACPlus</desc>
+    <playlist>http://somafm.com/startstream=spacestation64.pls</playlist>
+</link>
+</station>
+
+<station>
+<name>Beat Blender</name>
+<description>A late night blend of deep-house and downtempo chill</description>
+<image>resources/blender.gif</image>
+<link>
+    <desc>128 KBit MP3</desc>
+    <playlist>http://somafm.com/startstream=beatblender.pls</playlist>
+</link>
+</station>
+
+<station>
+<name>Suburbs of Goa</name>
+<description>Desi-influenced Asian world beats and beyond</description>
+<image>resources/sog120.jpg</image>
+<link>
+    <desc>128 KBit MP3</desc>
+    <playlist>http://somafm.com/startstream=suburbsofgoa.pls</playlist>
+</link>
+</station>
+
+<station>
+<name>PopTron!</name>
+<description>Electropop and indie dance rock with sparkle and pop</description>
+<image>resources/poptron120.png</image>
+<link>
+    <desc>128 KBit MP3</desc>
+    <playlist>http://somafm.com/startstream=poptron.pls</playlist>
+</link>
+</station>
+
+<station>
+<name>Underground 80s</name>
+<description>Electropop and indie dance rock with sparkle and pop</description>
+<image>resources/u80s-120.png</image>
+<link>
+    <desc>128 KBit AAC</desc>
+    <playlist>http://somafm.com/startstream=u80s130.pls</playlist>
+</link>
+<link>
+    <desc>192 KBit MP3</desc>
+    <playlist>http://somafm.com/startstream=u80s192.pls</playlist>
+</link>
+</station>
+
+<station>
+<name>Tag's Trip</name>
+<description>Progressive house / trance. Tip top tunes</description>
+<image>resources/tagstrancefract.jpg</image>
+<link>
+    <desc>128 KBit MP3</desc>
+    <playlist>http://somafm.com/startstream=tags.pls</playlist>
+</link>
+<link>
+    <desc>64 KBit AACPlus</desc>
+    <playlist>http://somafm.com/startstream=tags64.pls</playlist>
+</link>
+</station>
+
+<station>
+<name>Sonic Universe</name>
+<description>A mix of avant garde jazz, euro jazz and nu jazz. Eclectic takes on traditional jazz</description>
+<image>resources/sonicuniverse120.jpg</image>
+<link>
+    <desc>192 KBit MP3</desc>
+    <playlist>http://somafm.com/startstream=sonicuniverse192.pls</playlist>
+</link>
+</station>
+
+<station>
+<name>cliqhop idm</name>
+<description>Blips'n'beeps backed mostly w/beats. Intelligent Dance Music</description>
+<image>resources/cliqhop.gif</image>
+<link>
+    <desc>128 Kbit MP3</desc>
+    <playlist>http://somafm.com/startstream=cliqhop.pls</playlist>
+</link>
+</station>
+
+<station>
+<name>Illinois Street Lounge</name>
+<description>Classic bachelor pad, playful exotica and vintage music of tomorrow</description>
+<image>resources/illstreet.jpg</image>
+<link>
+    <desc>128 KBit AAC</desc>
+    <playlist>http://somafm.com/startstream=illstreet130.pls</playlist>
+</link>
+<link>
+    <desc>128 KBit MP3</desc>
+    <playlist>http://somafm.com/startstream=illstreet.pls</playlist>
+</link>
+<link>
+    <desc>64 KBit AACPlus</desc>
+    <playlist>http://somafm.com/startstream=illstreet64.pls</playlist>
+</link>
+</station>
+
+<station>
+<name>Digitalis</name>
+<description>Digitally affected analog rock to calm the agitated heart. Screengazing encouraged</description>
+<image>resources/digitalis120.gif</image>
+<link>
+    <desc>128 KBit MP3</desc>
+    <playlist>http://somafm.com/startstream=digitalis.pls</playlist>
+</link>
+</station>
+
+<station>
+<name>Mission Control</name>
+<description>Live and historic NASA mission audio mixed with electronic ambient</description>
+<image>resources/missioncontrol120.jpg</image>
+<link>
+    <desc>128 KBit MP3</desc>
+    <playlist>http://somafm.com/startstream=missioncontrol.pls</playlist>
+</link>
+<link>
+    <desc>64 KBit AACPlus</desc>
+    <playlist>http://somafm.com/startstream=missioncontrol64.pls</playlist>
+</link>
+</station>
+
+<station>
+<name>Doomed</name>
+<description>Dark music for tortured souls. A haunted industrial/ambient soundtrack</description>
+<image>resources/doomed.gif</image>
+<link>
+    <desc>128 KBit MP3</desc>
+    <playlist>http://somafm.com/startstream=doomed.pls</playlist>
+</link>
+</station>
+
+<station>
+<name>Covers</name>
+<description>Just Covers. Songs you know by artists you don't. We've got you covered</description>
+<image>resources/covers120.jpg</image>
+<link>
+    <desc>128 KBit MP3</desc>
+    <playlist>http://somafm.com/startstream=covers.pls</playlist>
+</link>
+</station>
+
+<station>
+<name>480 Minutes</name>
+<description>Live Every Friday: What alternative rock radio would sound like had Nirvana never happened</description>
+<image>resources/480min120.png</image>
+<link>
+    <desc>128 KBit MP3</desc>
+    <playlist>http://somafm.com/startstream=480min.pls</playlist>
+</link>
+</station>
+
+<station>
+<name>Black Rock FM</name>
+<description>From the Playa to the world, for the 2010 Burning Man festival</description>
+<image>resources/1023brc.jpg</image>
+<link>
+    <desc>128 KBit MP3</desc>
+    <playlist>http://somafm.com/startstream=brfm.pls</playlist>
+</link>
+</station>
+
+</stations>
+</asx>
