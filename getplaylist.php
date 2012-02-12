@@ -32,9 +32,9 @@ close_mpd($connection);
 
 $xml = $xml . "</trackList>\n</playlist>\n";
 
-//$fp = fopen("prefs/Current.xml", "w");
-//fwrite($fp, $xml);
-//fclose($fp);
+#$fp = fopen("prefs/Current.xml", "w");
+#fwrite($fp, $xml);
+#fclose($fp);
 
 print $xml;
 
@@ -47,6 +47,7 @@ function getFileInfo($file) {
         return false;
     }
     $xml = $xml . '<track>'."\n";
+    $image = $track->image;
     $xml = $xml.xmlnode("title", $track->name)
                 .xmlnode("album", $track->album)
                 .xmlnode("creator", $track->artist)
@@ -54,7 +55,6 @@ function getFileInfo($file) {
                 .xmlnode("duration", $track->duration)
                 .xmlnode("type", $track->type)
                 .xmlnode("tracknumber", $track->number)
-                .xmlnode("image", $track->image)
                 .xmlnode("expires", $track->expires)
                 .xmlnode("stationurl", $track->stationurl)
                 .xmlnode("station", $track->station)
@@ -63,7 +63,14 @@ function getFileInfo($file) {
                 .xmlnode("playlistpos", $track->playlistpos);
     if ($track->albumobject->isCompilation()) {
         $xml = $xml.xmlnode("compilation", "yes");
+        if ($image == null || $image == "") {
+            $artname = md5("Various Artists ".$track->album);
+            if (file_exists("albumart/original/".$artname.".jpg")) {
+                $image = "albumart/original/".$artname.".jpg";
+            }
+        }
     }
+    $xml = $xml.xmlnode("image", $image);
     $xml = $xml . '</track>'."\n";    
 }
 

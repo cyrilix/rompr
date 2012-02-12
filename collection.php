@@ -298,6 +298,9 @@ function process_file($collection, $filedata) {
     
     if ($image == null) {
         $artname = md5($artist." ".$album);
+        if ($albumartist) {
+            $artname = md5($albumartist." ".$album);
+        }
         if (file_exists("albumart/original/".$artname.".jpg")) {
             $image = "albumart/original/".$artname.".jpg";
         }
