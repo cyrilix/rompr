@@ -93,7 +93,7 @@ function close_mpd($conn) {
 
 function format_tracknum($tracknum) {        
     $matches = array();
-    if (preg_match('/^\s*(\d+)/', $tracknum, $matches)) {
+    if (preg_match('/^\s*0*(\d+)/', $tracknum, $matches)) {
         return $matches[1];
     }
     return '';

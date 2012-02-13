@@ -14,17 +14,8 @@ class album {
     
     public function newTrack($object) {
 
-        if ($object->number != null) {
-            // Just in case we have duplicate track numbers - can happen in the case of multiple-disc albums
-            // (I need to add support for that......)
-            if (!array_key_exists($object->number, $this->tracks)) {
-                $this->tracks[$object->number] = $object;
-            } else {
-                $this->tracks[] = $object;
-            }
-        } else {
-            $this->tracks[] = $object;
-        }
+        $this->tracks[] = $object;
+
         if ($this->folder == null) {
             $this->folder = $object->folder;
         }
@@ -46,13 +37,33 @@ class album {
     }
     
     public function sortTracks() {
-        $temp = array_keys($this->tracks);
-        sort($temp, SORT_NUMERIC);
-        $temp2 = array();
-        foreach($temp as $key) {
-            $temp2[$key] = $this->tracks[$key];
+        
+        $temp = array();
+        $number = 0;
+        foreach ($this->tracks as $num => $ob) {
+            if ($ob->number) {
+                $index = $ob->number;
+            } else {
+                $index = $number;
+            }
+            $temp[intval($ob->disc)][intval($index)] = $ob;
+            $number++;
         }
-        $this->tracks = $temp2;
+        $this->tracks = array();
+        $temp2 = array_keys($temp);
+        sort($temp2, SORT_NUMERIC);
+        foreach($temp2 as $i => $a) {
+            $temp3 = array_keys($temp[$a]);
+            sort($temp3, SORT_NUMERIC);
+            $temp4 = array();
+            foreach($temp3 as $cock) {
+                $temp4[$cock] = $temp[$a][$cock];
+            }
+            foreach($temp4 as $r => $o) {
+                $this->tracks[] = $o;
+            }
+        }
+
     }
     
     public function getTrack($url) {
@@ -87,7 +98,7 @@ class artist {
 
 class track {
     public function __construct($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
-                                $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, $albumartist) {
+                                $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, $albumartist, $disc) {
 
         $this->artist = $artist;
         $this->album = $album;
@@ -99,6 +110,7 @@ class track {
         $this->genre = $genre;
         $this->folder = $directory;
         $this->albumartist = $albumartist;
+        $this->disc = $disc;
         // Only used by playlist
         $this->albumobject = null;
         $this->type = $type;
@@ -152,13 +164,13 @@ class musicCollection {
     }
     
     public function newTrack($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
-                                $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, $albumartist) {
+                                $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, $albumartist, $disc) {
         $sortartist = $artist;
         if ($albumartist != null) { $sortartist = $albumartist; }
         
         $artistkey = strtolower(preg_replace('/^The /i', '', $sortartist));        
         $t = new track($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
-                                $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, $albumartist);
+                                $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, $albumartist, $disc);
         // If artist doesn't exist, create it - indexed by all lower case name for convenient sorting and grouping
         if (!array_key_exists($artistkey, $this->artists)) {
             //error_log("Adding Artist : " . strtolower($artist));
@@ -267,8 +279,8 @@ function process_file($collection, $filedata) {
     $file = $filedata['file'];
     
     list ($name, $duration, $number, $date, $genre, $artist, $album, $folder,
-          $type, $image, $expires, $stationurl, $station, $backendid, $playlistpos, $albumartist)
-        = array ( null, 0, "", null, null, null, null, null, "local", null, null, null, null, null, null, null );
+          $type, $image, $expires, $stationurl, $station, $backendid, $playlistpos, $albumartist, $disc)
+        = array ( null, 0, "", null, null, null, null, null, "local", null, null, null, null, null, null, null, 0 );
         
     if (preg_match('/^http:\/\//', $file)
         || preg_match('/^mms:\/\//', $file)) {   
@@ -291,6 +303,7 @@ function process_file($collection, $filedata) {
         $name = (array_key_exists('Title', $filedata)) ? $filedata['Title'] : basename($file);
         $duration = (array_key_exists('Time', $filedata)) ? $filedata['Time'] : null;
         $number = (array_key_exists('Track', $filedata)) ? format_tracknum($filedata['Track']) : format_tracknum(basename($file));
+        $disc = (array_key_exists('Disc', $filedata)) ? format_tracknum($filedata['Disc']) : 0;
         $date = (array_key_exists('Date',$filedata)) ? $filedata['Date'] : null;
         $genre = (array_key_exists('Genre', $filedata)) ? $filedata['Genre'] : null;
         $folder = dirname($file);    
@@ -310,7 +323,7 @@ function process_file($collection, $filedata) {
     $playlistpos = (array_key_exists('Pos',$filedata)) ? $filedata['Pos'] : null;
     
     $collection->newTrack($name, $file, $duration, $number, $date, $genre, $artist, $album, $folder,
-                            $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, $albumartist);
+                            $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, $albumartist, $disc);
 }
 
 
