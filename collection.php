@@ -147,7 +147,7 @@ class musicCollection {
     
     private function findAlbum($album, $artist, $directory) {
         if ($artist != null) {
-            foreach($this->getAlbumList(strtolower(preg_replace('/^The /i', '', $artist)), false) as $object) {
+            foreach($this->getAlbumList(strtolower(preg_replace('/^The /i', '', $artist)), false, false) as $object) {
                 if ($album == $object->name) {
                     return $object;
                 }
@@ -221,13 +221,20 @@ class musicCollection {
         return $this->artists[$artist]->name;
     }
     
-    public function getAlbumList($artist, $ignore_compilations) {
+    public function getAlbumList($artist, $ignore_compilations, $only_without_cover) {
         $albums = array();
         foreach($this->artists[$artist]->albums as $object) {
             if ($object->isCompilation() && $ignore_compilations) {
                 
             } else {
-                $albums[] = $object;
+                if ($only_without_cover) {
+                    $artname = md5($this->artists[$artist]->name . " " . $object->name);
+                    if (!file_exists("albumart/original/".$artname.".jpg")) {                    
+                        $albums[] = $object;
+                    }
+                } else {
+                    $albums[] = $object;
+                }
             }
         }
         return $albums;
@@ -458,7 +465,7 @@ function do_albums($artistkey, $compilations, $showartist, $prefix) {
     global $collection;
     global $divtype;
 
-    $albumlist = $collection->getAlbumList($artistkey, $compilations);
+    $albumlist = $collection->getAlbumList($artistkey, $compilations, false);
     if (count($albumlist) > 0) {
         
         $artist = $collection->artistName($artistkey);

@@ -226,11 +226,24 @@ function updateImage(key, url) {
 <td width="40%"><div id="progress"></div><br><div id="status"></div></td>
 <td align="right">
 <button onclick="getNewAlbumArt()">Get Missing Covers</button>
-</td></tr></table>
+</td></tr>
+<?php
+if(array_key_exists("nocover", $_REQUEST)) {
+?>
+<tr><td></td><td></td><td align="right"><a href="albumart.php">Show All Albums</a></td></tr>
+<?php
+} else {
+?>
+<tr><td></td><td></td><td align="right"><a href="albumart.php?nocover=yes">Show Only Albums Without Covers</a></td></tr>
+<?php
+}
+?>
+</table>
 </div>
 </div>
 <div id="wobblebottom">
 <?php
+$covers = (array_key_exists("nocover", $_REQUEST)) ? true : false;
 $collection = doCollection("listallinfo");
 $artistlist = $collection->getSortedArtistList();
 $count = 0;
@@ -238,19 +251,20 @@ $albums_witout_cover = 0;
 if (array_search("various artists", $artistlist)) {
     $key = array_search("various artists", $artistlist);
     unset($artistlist[$key]);
-    do_albumcovers("various artists", false);
+    do_albumcovers("various artists", false, $covers);
 }
 foreach($artistlist as $artistkey) {
-    do_albumcovers($artistkey, true);
+    do_albumcovers($artistkey, true, $covers);
 }
 
-function do_albumcovers($artistkey, $comps) {
+function do_albumcovers($artistkey, $comps, $covers) {
     
     global $collection;
     global $count;
     global $albums_without_cover;
-    
-    $albumlist = $collection->getAlbumList($artistkey, $comps);
+
+    $albumlist = $collection->getAlbumList($artistkey, $comps, $covers);
+        
     if (count($albumlist) > 0) {
         $artist = $collection->artistName($artistkey);
         print '<div id="albumsection">';
