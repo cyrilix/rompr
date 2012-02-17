@@ -46,7 +46,13 @@ class album {
             } else {
                 $index = $number;
             }
-            $temp[intval($ob->disc)][intval($index)] = $ob;
+            # Just in case we have a multiple disc album with no disc number tags
+            # (or mpd 0.16 and earlier which doesn't read Disc tags from m4a files)
+            $discno = intval($ob->disc);
+            while(array_key_exists(intval($index), $temp[$discno])) {
+                $discno++;
+            }
+            $temp[$discno][intval($index)] = $ob;
             $number++;
         }
         $this->tracks = array();
