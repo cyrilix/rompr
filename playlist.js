@@ -251,8 +251,9 @@ function LastFMRadio(station, index) {
     
     this.invalidateOldTracks = function(currentsong, previoussong) {
         var todelete = new Array();
-        var unixtimestamp = Math.round(+new Date()/1000);
+        var unixtimestamp = Math.round(new Date()/1000);
         for(var i in tracks) {
+            debug.log("Track expires in", parseInt(tracks[i].expires) - unixtimestamp);
             if (unixtimestamp > parseInt(tracks[i].expires)) {
                 debug.log("Expiring track", tracks[i].expires, unixtimestamp);
                 todelete.push(tracks[i].backendid);

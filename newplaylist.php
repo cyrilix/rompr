@@ -10,6 +10,10 @@ $xml = simplexml_load_string($playlist, 'SimpleXMLElement', LIBXML_NOCDATA);
 
 if($playlist_type == "radio") {
     $title = $xml->playlist->title;
+    $carrot = time();
+    // Add a local unix timestamp to this file, since last.fm send us a date but don't tell us what time zone they're
+    // sending it from
+    $playlist = preg_replace('/(<playlist.*?>)/', "$1\n<unixtimestamp>".$carrot."</unixtimestamp>", $playlist);
     //error_log("New radio playlist with title ".$title);
     if (file_exists('prefs/LFMRADIO_'.md5($title).'.xspf')) {
         if (file_exists('prefs/OLD_LFMRADIO_'.md5($title).'.xspf')) {

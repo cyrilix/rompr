@@ -375,13 +375,8 @@ function getStuffFromXSPF($url) {
     foreach($playlists as $i => $file) {
         $x = simplexml_load_file($file);
         $expiry = "";
-        if ($x->playlist->date) {
-            $timestring = $x->playlist->date;
-            $matches = array();
-            if (preg_match('/(\d+)-(\d+)-(\d+)T(\d+):(\d+)(\d+)/', $timestring, $matches)) {
-                $utime = mktime($matches[4],$matches[5],$matches[6],$matches[2],$matches[3],$matches[1]);
-                $expiry = $utime+$x->playlist->link;
-            }
+        if ($x->playlist->unixtimestamp) {
+            $expiry = $x->playlist->unixtimestamp+$x->playlist->link;
         }
         foreach($x->playlist->trackList->track as $i => $track) {
             if($track->location == $url) {
