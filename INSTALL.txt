@@ -8,7 +8,7 @@ For mpd or mopidy configuration, see the appropriate website
 
 The following works on Ubuntu 11.10
 
-sudo apt-get install apache2 php5-curl imagemagick mpd
+sudo apt-get install apache2 php5-curl imagemagick mpd libapache2-mod-php5
 
 Copy the apache configuration file from apache_conf.d into /etc/apache2/conf.d/
 
@@ -29,6 +29,7 @@ Enable the required apache modules:
 sudo a2enmod expires
 sudo a2enmod headers
 sudo a2enmod deflate
+sudo a2enmod php5
 
 restart apache:
 sudo service apache2 restart
