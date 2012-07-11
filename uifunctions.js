@@ -406,3 +406,149 @@ var imagePopup=function(){
     };
 }();
 
+function loadKeyBindings() {
+
+    debug.log("Loading Key Bindings");
+    $.getJSON("getkeybindings.php")
+        .done(function(data) {
+            shortcut.add(data['nextrack'],   function(){ infobar.command('command=next') });
+            shortcut.add(data['prevtrack'],  function(){ infobar.command('command=previous') });
+            shortcut.add(data['stop'],       function(){ infobar.command('command=stop') });
+            shortcut.add(data['play'],       function(){ infobar.playpausekey() } );
+            shortcut.add(data['volumeup'],   function(){ infobar.volumeKey(5) } );
+            shortcut.add(data['volumedown'], function(){ infobar.volumeKey(-5) } );
+        })
+        .fail( function(data) {  });
+    
+}
+
+function editkeybindings() {
+
+    if(keybpu) {
+        $(keybpu).remove();
+    }
+    
+    $("#configpanel").slideToggle('fast');
+    
+    $.getJSON("getkeybindings.php")
+        .done(function(data) {
+            windowScroll = getScrollXY();
+            keybpu = document.createElement('div');
+            keybpu.setAttribute('id',"keybpu");
+            document.body.appendChild(keybpu);
+            $(keybpu).append('<table align="center" cellpadding="4" id="keybindtable" width="80%"></table>');
+            $("#keybindtable").append('<tr><td align="center" colspan="2"><h2>Keyboard Shortcuts</h2></td></tr>');
+            
+            $("#keybindtable").append('<tr><td width="35%" align="right">Next Track</td><td>'+format_keyinput('nextrack', data)+'</td></tr>');
+            $("#keybindtable").append('<tr><td width="35%" align="right">Previous Track</td><td>'+format_keyinput('prevtrack', data)+'</td></tr>');
+            $("#keybindtable").append('<tr><td width="35%" align="right">Stop</td><td>'+format_keyinput('stop', data)+'</td></tr>');
+            $("#keybindtable").append('<tr><td width="35%" align="right">Play/Pause</td><td>'+format_keyinput('play', data)+'</td></tr>');
+            $("#keybindtable").append('<tr><td width="35%" align="right">Volume Up</td><td>'+format_keyinput('volumeup', data)+'</td></tr>');
+            $("#keybindtable").append('<tr><td width="35%" align="right">Volume Down</td><td>'+format_keyinput('volumedown', data)+'</td></tr>');
+            
+            $(keybpu).append('<br><br><button class="tleft sourceform" onclick="closeKeybPopup()">Cancel</button>');
+            $(keybpu).append('<button class="tright sourceform" onclick="saveKeyBindings()">OK</button>');
+            
+            $(".buttonchange").keydown( function(ev) { changeHotKey(ev) } );
+
+            var winsize=getWindowSize();
+            var width = winsize.x - 128;
+            var height = winsize.y - 128;
+            if (width > 600) { width = 600; }
+            if (height > 540) { height = 540; }
+            var x = (winsize.x - width)/2 + windowScroll.x;
+            var y = (winsize.y - height)/2 + windowScroll.y;
+            keybpu.style.width = parseInt(width) + 'px';
+            keybpu.style.height = parseInt(height) + 'px';           
+            keybpu.style.top = parseInt(y) + 'px';
+            keybpu.style.left = parseInt(x) + 'px';    
+            $("#keybpu").fadeIn('fast');
+
+        })
+        .fail( function(data) {  });
+
+}
+
+function closeKeybPopup() {
+    $("#keybpu").fadeOut('fast');
+}
+
+function format_keyinput(inpname, data) { 
+    return '<input id="'+inpname+'" class="tleft sourceform buttonchange" type="text" size="10" value="'+data[inpname]+'"></input>';
+}
+
+function changeHotKey(ev) {
+    
+    var key = ev.which;
+    // Ignore Shift, Ctrl, Alt, and Meta, and Esc
+    if (key == 17 || key == 18 || key == 19 || key == 27 || key == 224) {
+        return true;
+    }
+    
+    ev.preventDefault();
+    ev.stopPropagation();
+    var source = $(ev.target).attr("id");
+    
+    debug.log("Key",key,"Pressed In",source);
+    var special_keys = {
+        9: 'tab',
+        32: 'space',
+        13: 'return',
+        8: 'backspace',
+        145: 'scrolllock',
+        20: 'capslock',
+        144: 'numlock',
+        19: 'pause',
+        45: 'insert',
+        36: 'home',
+        46: 'delete',
+        35: 'end',
+        33: 'pageup',
+        34: 'pagedown',
+        37: 'left',
+        38: 'up',
+        39: 'right',
+        40: 'down',
+        112: 'f1',
+        113: 'f2',
+        114: 'f3',
+        115: 'f4',
+        116: 'f5',
+        117: 'f6',
+        118: 'f7',
+        119: 'f8',
+        120: 'f9',
+        121: 'f10',
+        122: 'f11',
+        123: 'f12'
+    }
+
+    var keystring = special_keys[key] || String.fromCharCode(key).toUpperCase();
+    
+    if (ev.shiftKey) { keystring = "Shift+"+keystring };
+    if (ev.metaKey) { keystring = "Meta+"+keystring };
+    if (ev.ctrlKey) { keystring = "Ctrl+"+keystring };
+    if (ev.altKey) { keystring = "Alt+"+keystring };
+    
+    $("#"+source).attr("value", keystring);
+}
+
+function saveKeyBindings() {
+
+    var bindings = new Object;
+    
+    $.getJSON("getkeybindings.php")
+        .done(function(data) {
+            debug.log("Clearing Key Bindings");
+            $.each(data, function(i, v) { shortcut.remove(v)});
+            $(".buttonchange").each( function(i) {
+                bindings[$(this).attr("id")] = $(this).attr("value");
+            })
+
+            $.post("savekeybindings.php", bindings, function() {
+                loadKeyBindings();
+                closeKeybPopup();
+            });
+        })
+        .fail( function(data) {  });
+}

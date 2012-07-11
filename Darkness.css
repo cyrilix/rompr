@@ -871,3 +871,19 @@ input.sourceform:hover
     border-right:1px solid #ff3600;
     border-top:1px solid #ff3600;
 }
+
+/*-- Key bindings editor --*/
+
+#keybpu
+{
+    position:absolute;
+    display:none;
+    z-index:1001;
+    background:#878787;
+    border-radius: 5px 5px 5px 5px;
+    padding:12px;
+}
+
+
+
+

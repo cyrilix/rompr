@@ -19,6 +19,7 @@ print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme']
 <script type="text/javascript" src="jquery-1.7.1.min.js"></script>
 <script type="text/javascript" src="jquery.form.js"></script>
 <script type="text/javascript" src="jqueryui1.8.16/js/jquery-ui-1.8.16.custom.min.js"></script>
+<script type="text/javascript" src="shortcut.js"></script>
 <script type="text/javascript" src="functions.js"></script>
 <script type="text/javascript" src="uifunctions.js"></script>
 <script type="text/javascript" src="jshash-2.2/md5-min.js"></script>
@@ -44,6 +45,7 @@ var gotNeighbours = false;
 var gotFriends = false;
 var sourceshidden = false;
 var playlisthidden = false;
+var keybpu;
 <?php
  print "var scrobblepercent = ".$prefs['scrobblepercent'].";\n";
  print "var lastfm = new LastFM('".$prefs["lastfm_user"]."');\n";
@@ -61,6 +63,7 @@ $(document).ready(function(){
     $('#infocontrols').load("infocontrols.php");
     $('#icecastlist').load("getIcecast.php");
     infobar.update();
+    loadKeyBindings();
 });  
 
 </script>
@@ -68,7 +71,7 @@ $(document).ready(function(){
 <body>
 
 <div id="infobar">
-<table align="center" cellpadding="0" cellspacing="0"><tr><td>
+<table cellpadding="0" cellspacing="0"><tr><td>
     <div id="leftholder" class="infobarlayout tleft bordered">
         <div id="buttons">
             <a href="#" title="Previous Track" onclick="infobar.command('command=previous')" class="controlbutton"><img src="images/media-skip-backward.png"></a>

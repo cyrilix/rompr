@@ -149,6 +149,19 @@ function infoBar() {
         self.setProgressBar();
     }
     
+    this.playpausekey = function() {
+        switch(mpd_status.state)
+        {
+            case "play":
+                infobar.command('command=pause');
+                break;
+            case "pause":
+            case "stop":
+                infobar.command('command=play');
+                break;
+        }
+    }
+    
     function setVolumeSlider() {
         // Volume
         if (mpd_status.volume > 0) {
@@ -333,6 +346,19 @@ function infoBar() {
             savePrefs({volume: parseInt(volume.toString())});
         } else {
             alert("You can only set the volume while playing. This is mpd's fault!");
+        }
+    }
+    
+    this.volumeKey = function(inc) {
+        debug.log("Volume Key", inc);
+        if (mpd_status.state == "play") {
+            var volume = parseInt(mpd_status.volume);
+            if (volume == -1) { volume = 100 };
+            volume = volume + inc;
+            if (volume > 100) { volume = 100 };
+            if (volume < 0) { volume = 0 };
+            self.command("command=setvol&arg="+parseInt(volume.toString()));
+            savePrefs({volume: parseInt(volume.toString())});
         }
     }
 
