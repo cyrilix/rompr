@@ -20,6 +20,7 @@ print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme']
 <script type="text/javascript" src="jquery.form.js"></script>
 <script type="text/javascript" src="jqueryui1.8.16/js/jquery-ui-1.8.16.custom.min.js"></script>
 <script type="text/javascript" src="shortcut.js"></script>
+<script type="text/javascript" src="keycode.js"></script>
 <script type="text/javascript" src="functions.js"></script>
 <script type="text/javascript" src="uifunctions.js"></script>
 <script type="text/javascript" src="jshash-2.2/md5-min.js"></script>

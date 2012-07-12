@@ -1,11 +1,11 @@
 <?php
-
-$keys = array(  "nextrack" => "Right",
-                "prevtrack" => "Left",
-                "stop" => "Space",
-                "play" => "P",
-                "volumeup" => "A",
-                "volumedown" => "Z"
+            
+$keys = array(  "nextrack" => "right+++right",
+                "prevtrack" => "left+++left",
+                "stop" => "space+++space",
+                "play" => "P+++P",
+                "volumeup" => "A+++A",
+                "volumedown" => "Z+++Z"
             );
             
 loadKeyBindings();

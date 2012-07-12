@@ -411,14 +411,29 @@ function loadKeyBindings() {
     debug.log("Loading Key Bindings");
     $.getJSON("getkeybindings.php")
         .done(function(data) {
-            shortcut.add(data['nextrack'],   function(){ infobar.command('command=next') });
-            shortcut.add(data['prevtrack'],  function(){ infobar.command('command=previous') });
-            shortcut.add(data['stop'],       function(){ infobar.command('command=stop') });
-            shortcut.add(data['play'],       function(){ infobar.playpausekey() } );
-            shortcut.add(data['volumeup'],   function(){ infobar.volumeKey(5) } );
-            shortcut.add(data['volumedown'], function(){ infobar.volumeKey(-5) } );
+            shortcut.add(getHotKey(data['nextrack']),   function(){ infobar.command('command=next') });
+            shortcut.add(getHotKey(data['prevtrack']),  function(){ infobar.command('command=previous') });
+            shortcut.add(getHotKey(data['stop']),       function(){ infobar.command('command=stop') });
+            shortcut.add(getHotKey(data['play']),       function(){ infobar.playpausekey() } );
+            shortcut.add(getHotKey(data['volumeup']),   function(){ infobar.volumeKey(5) } );
+            shortcut.add(getHotKey(data['volumedown']), function(){ infobar.volumeKey(-5) } );
         })
-        .fail( function(data) {  });
+        .fail( function(data) {  });    
+}
+
+function getHotKey(st) {
+ 
+    var bits = st.split("+++");
+    debug.log("Hotkey is", bits[0]);
+    return bits[0];
+    
+}
+
+function getHotKeyDisplay(st) {
+ 
+    var bits = st.split("+++");
+    debug.log("Hotkey Display is", bits[1]);
+    return bits[1];
     
 }
 
@@ -454,8 +469,8 @@ function editkeybindings() {
             var winsize=getWindowSize();
             var width = winsize.x - 128;
             var height = winsize.y - 128;
-            if (width > 600) { width = 600; }
-            if (height > 540) { height = 540; }
+            if (width > 500) { width = 500; }
+            if (height > 400) { height = 400; }
             var x = (winsize.x - width)/2 + windowScroll.x;
             var y = (winsize.y - height)/2 + windowScroll.y;
             keybpu.style.width = parseInt(width) + 'px';
@@ -474,7 +489,8 @@ function closeKeybPopup() {
 }
 
 function format_keyinput(inpname, data) { 
-    return '<input id="'+inpname+'" class="tleft sourceform buttonchange" type="text" size="10" value="'+data[inpname]+'"></input>';
+    return '<input id="'+inpname+'" class="tleft sourceform buttonchange" type="text" size="10" value="'+getHotKeyDisplay(data[inpname])+'"></input>' +
+            '<input name="'+inpname+'" class="buttoncode" type="hidden" value="'+getHotKey(data[inpname])+'"></input>';
 }
 
 function changeHotKey(ev) {
@@ -530,7 +546,13 @@ function changeHotKey(ev) {
     if (ev.ctrlKey) { keystring = "Ctrl+"+keystring };
     if (ev.altKey) { keystring = "Alt+"+keystring };
     
-    $("#"+source).attr("value", keystring);
+    var keydisplay = KeyCode.hot_key(KeyCode.translate_event(ev));
+    
+    debug.log("Display string is",keydisplay);
+    debug.log("Event String is",keystring);
+    
+    $("#"+source).attr("value", keydisplay);
+    $('input[name="'+source+'"]').attr("value", keystring);
 }
 
 function saveKeyBindings() {
@@ -543,7 +565,10 @@ function saveKeyBindings() {
             $.each(data, function(i, v) { shortcut.remove(v)});
             $(".buttonchange").each( function(i) {
                 bindings[$(this).attr("id")] = $(this).attr("value");
-            })
+            });
+            $(".buttoncode").each( function(i) {
+                bindings[$(this).attr("name")] = $(this).attr("value")+"+++"+bindings[$(this).attr("name")];
+            });
 
             $.post("savekeybindings.php", bindings, function() {
                 loadKeyBindings();
