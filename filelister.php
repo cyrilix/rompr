@@ -76,11 +76,17 @@ class mpdlistthing {
         if ($this->type == $DIRECTORY) {
             if ($this->parnt != null) {
                 print '<div id="dirname">';
+                print '<table class="filetable">';
+                print '<tr><td class="fileicon">';
                 print '<a href="javascript:doMenu(\'dir'.$prefix.$count.'\');" class="toggle" name="dir'.$prefix.$count.'"><img src="images/toggle-closed.png"></a>';
-                print '<img src="images/folder.png" height="16px">&nbsp;&nbsp;';
+                print '</td><td class="fileicon">';
+                print '<img src="images/folder.png" height="16px">';
+                print '</td><td>';
                 print '<a href="#" onclick="infobar.command(\'command=add&arg='.htmlentities(rawurlencode($this->getPath())).'\', playlist.repopulate)">';
                 print basename($this->name);
-                print "</a></div>\n";
+                print "</a>";
+                print '</td></tr></table>';
+                print "</div>\n";
                 print '<div id="filedropmenu" name="dir'.$prefix.$count.'">';
                 $count++;
             }
@@ -91,11 +97,15 @@ class mpdlistthing {
                 print "</div>\n";
             }
         } else {
-            print '<div id="filemenu">';
-            print '<img src="images/audio-x-generic.png" height="16px">&nbsp;&nbsp;';
+            print '<div id="filemenu"><table class="filetable">';
+            print '<tr><td class="fileicon">';
+            print '<img src="images/audio-x-generic.png" height="16px">';
+            print '</td><td>';
             print '<a href="#" onclick="infobar.command(\'command=add&arg='.htmlentities(rawurlencode($this->getPath())).'\', playlist.repopulate)">';
             print $this->name;
-            print '</a></div>';
+            print '</a>';
+            print '</td></tr>';
+            print '</table></div>';
         }
     }
 }
