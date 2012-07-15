@@ -2,6 +2,4 @@ Changes for version 0.09
 
     Make the play controls and the now playing section align to the left, so they don't keep moving about
     Adding keyboard shortcuts and user dialog to configure them
-        Note: In the config dialog, some keys don't show up as what's on the key. This appears to be a problem
-        relating to different international keyboards and varies depending on OS and browser.
-        However, the key combination will work even if it's displayed wrong. I'm looking into it.
+    

@@ -326,6 +326,31 @@ a.album:hover,a.album:active
     display:none;
 }
 
+#dirname
+{
+    padding-top:4px;
+    padding-bottom:0px;
+    padding-left:12px;
+    font-weight:bold;
+}
+
+#filedropmenu
+{
+    padding-top:0px;
+    padding-left:8px;
+    padding-right:4px;
+    display:none;
+}
+
+#filemenu
+{
+    padding-left:2px;
+    margin-left:10px;
+    padding-right:4px;
+    font-size:96%;
+    border-left:1px solid #444444;
+}
+
 .indent
 {
     margin-left:12px;

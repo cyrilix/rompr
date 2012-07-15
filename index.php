@@ -116,6 +116,8 @@ $(document).ready(function(){
 
 <div id="albumlist" class="noborder">
 </div>
+<div id="filelist" class="invisible">
+</div>
 <div id="lastfmlist" class="invisible">
 <ul class="sourcenav">
     <li><h3>Last.FM Personal Radio</h3></li>

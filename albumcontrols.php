@@ -26,8 +26,11 @@ function pollAlbumList() {
             $('h2[name|="artistslabel"]').html("Loading Collection");
             $("#albumlist").load("albums.php", function() {
                 $('h2[name|="artistslabel"]').stop(true, true);
+                $("#filelist").load("filecollection.php");
                 $('td[name|="sourcecontrol"]').html('<a href="#" title="Local Music" onclick="sourcecontrol(\'albumlist\')">'+
                                                     '<img class="topimg" height="24px" src="images/audio-x-generic.png"></a>'+
+                                                    '<a href="#" title="File Browser" onclick="sourcecontrol(\'filelist\')">'+
+                                                    '<img class="topimg" height="24px" src="images/folder.png"></a>'+
                                                     '<a href="#" title="Last.FM Radio" onclick="sourcecontrol(\'lastfmlist\')">'+
                                                     '<img class="topimg" height="24px" src="images/lastfm.png"></a>'+
                                                     '<a href="#" title="Live BBC Radio" onclick="sourcecontrol(\'bbclist\')">'+
@@ -44,7 +47,7 @@ function pollAlbumList() {
 
 function sourcecontrol(source) {
     
-    sources = ["lastfmlist", "albumlist", "bbclist", "icecastlist", "somafmlist"];
+    sources = ["lastfmlist", "albumlist", "filelist", "bbclist", "icecastlist", "somafmlist"];
     for(var i in sources) {
         if (sources[i] == source) {
             sources.splice(i, 1);
