@@ -288,6 +288,10 @@ function toggleSearch() {
     $("#search").slideToggle('fast');
 }
 
+function toggleFileSearch() {
+    $("#filesearch").slideToggle('fast');
+}
+
 function gotNeighbourData(data) {
     revertPointer();
     gotNeighbours = true;
@@ -411,12 +415,12 @@ function loadKeyBindings() {
     debug.log("Loading Key Bindings");
     $.getJSON("getkeybindings.php")
         .done(function(data) {
-            shortcut.add(getHotKey(data['nextrack']),   function(){ infobar.command('command=next') });
-            shortcut.add(getHotKey(data['prevtrack']),  function(){ infobar.command('command=previous') });
-            shortcut.add(getHotKey(data['stop']),       function(){ infobar.command('command=stop') });
-            shortcut.add(getHotKey(data['play']),       function(){ infobar.playpausekey() } );
-            shortcut.add(getHotKey(data['volumeup']),   function(){ infobar.volumeKey(5) } );
-            shortcut.add(getHotKey(data['volumedown']), function(){ infobar.volumeKey(-5) } );
+            shortcut.add(getHotKey(data['nextrack']),   function(){ infobar.command('command=next') }, {'disable_in_input':true});
+            shortcut.add(getHotKey(data['prevtrack']),  function(){ infobar.command('command=previous') }, {'disable_in_input':true});
+            shortcut.add(getHotKey(data['stop']),       function(){ infobar.command('command=stop') }, {'disable_in_input':true});
+            shortcut.add(getHotKey(data['play']),       function(){ infobar.playpausekey() }, {'disable_in_input':true} );
+            shortcut.add(getHotKey(data['volumeup']),   function(){ infobar.volumeKey(5) }, {'disable_in_input':true} );
+            shortcut.add(getHotKey(data['volumedown']), function(){ infobar.volumeKey(-5) }, {'disable_in_input':true} );
         })
         .fail( function(data) {  });    
 }

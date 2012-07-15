@@ -4,9 +4,10 @@ include ("functions.php");
 include ("connection.php");
 include ("collection.php");
 ?>
+<!-- 
 <form name="find" action="search.php" method="get">
 <ul class="sourcenav">
-<!-- There is a massive problem to be solved for laying out items in HTML pages
+There is a massive problem to be solved for laying out items in HTML pages
      css is not the answer. I HATE IT I HATE IT I HATE IT (or I'm just shit at it) -->
      
 <!-- <li><b>Find Exact Match For:</b></li>     
@@ -61,10 +62,6 @@ close_mpd($connection);
 ?>
 
 <script type="text/javascript"> 
-
-$('form[name="find"]').ajaxForm(function(data) { 
-    $('#search').html(data);
-}); 
 
 $('form[name="search"]').ajaxForm(function(data) { 
     $('#search').html(data);

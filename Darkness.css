@@ -833,7 +833,7 @@ button.topform
 
 .separator
 {
-     border-bottom:4px solid #000000;   
+     border-bottom:8px solid #000000;   
      width:100%;
 }
 
@@ -909,6 +909,10 @@ input.sourceform:hover
     padding:12px;
 }
 
+#searchbox
+{
+    padding-bottom:12px;
+}
 
 
 
