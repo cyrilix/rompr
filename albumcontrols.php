@@ -26,7 +26,7 @@ function pollAlbumList() {
             $('h2[name|="artistslabel"]').html("Loading Collection");
             $("#albumlist").load("albums.php", function() {
                 $('h2[name|="artistslabel"]').stop(true, true);
-                $("#filelist").load("filebrowser.php");
+                $("#filelist").load("dirbrowser.php");
                 $('td[name|="sourcecontrol"]').html('<a href="#" title="Local Music" onclick="sourcecontrol(\'albumlist\')">'+
                                                     '<img class="topimg" height="24px" src="images/audio-x-generic.png"></a>'+
                                                     '<a href="#" title="File Browser" onclick="sourcecontrol(\'filelist\')">'+
