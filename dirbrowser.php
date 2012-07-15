@@ -24,6 +24,10 @@ class mpdlistthing {
         return $this->name;
     }
     
+    public function getTerminatedName() {
+        return $this->name."/";
+    }
+    
     public function getPath() {
         global $DIRECTORY;
         if ($this->type == $DIRECTORY) {
@@ -75,7 +79,7 @@ class mpdlistthing {
         if ($this->type == $DIRECTORY) {
             if ($this->parnt != null) {
                 print '<div id="dirname">';
-                print '<a href="javascript:doMenu(\'dir'.$count.'\');" class="toggle" name="dir'.$count.'">+</a>';
+                print '<a href="javascript:doMenu(\'dir'.$count.'\');" class="toggle" name="dir'.$count.'"><img src="images/toggle-closed.png"></a>';
                 print '<img src="images/folder.png" height="16px">&nbsp;&nbsp;';
                 print '<a href="#" onclick="infobar.command(\'command=add&arg='.htmlentities(rawurlencode($this->getPath())).'\', playlist.repopulate)">';
                 print basename($this->name);
@@ -142,9 +146,9 @@ class filetree {
         //error_log("LINE : ".$line);
     
         $file = basename($line);
-        $dir = dirname($line);
+        $dir = dirname($line)."/";
         
-        while ($this->current_dir->getName() != substr($dir, 0, strlen($this->current_dir->getName())) &&
+        while ($this->current_dir->getTerminatedName() != substr($dir, 0, strlen($this->current_dir->getTerminatedName())) &&
                 $this->current_dir != $this->root) {
             $this->current_dir = $this->current_dir->getParent();
         }

@@ -12,14 +12,14 @@ function doCommand(div, url, command) {
 
 function doMenu(item) {
 
-    if ($('a[name|="'+item+'"]').html() == "+") {
-        $('a[name|="'+item+'"]').html("-");
+    if ($('a[name|="'+item+'"]').html() == '<img src="images/toggle-closed.png">') {
+        $('a[name|="'+item+'"]').html('<img src="images/toggle-open.png">');
         $('div[name|="'+item+'"]').find("#updateable").attr("src", function () {
             // The image doesn't have to exist because we have a custom redirect in place
             return $(this).attr("name");
         });
     } else {
-        $('a[name|="'+item+'"]').html("+");
+        $('a[name|="'+item+'"]').html('<img src="images/toggle-closed.png">');
     }        
     $('div[name|="'+item+'"]').slideToggle('fast');
 }

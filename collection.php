@@ -474,7 +474,7 @@ function do_albums($artistkey, $compilations, $showartist, $prefix) {
         $artist = $collection->artistName($artistkey);
        // We have albums for this artist
         print '<div id="artistname" class="' . $divtype . '">' . "\n";
-        print '<a href="javascript:doMenu(\''.$prefix.'artist' . $count . '\');" class="toggle" name="'.$prefix.'artist' . $count . '">+</a>' . "\n";
+        print '<a href="javascript:doMenu(\''.$prefix.'artist' . $count . '\');" class="toggle" name="'.$prefix.'artist' . $count . '"><img src="images/toggle-closed.png"></a>' . "\n";
         print $artist;
         print "</div>\n";    
         print '<div id="albummenu" name="'.$prefix.'artist' . $count . '" class="' . $divtype . '">' . "\n";
@@ -484,7 +484,7 @@ function do_albums($artistkey, $compilations, $showartist, $prefix) {
             
             print '<div id="albumname" class="' . $divtype . '">' . "\n";
             print '<table><tr><td>';
-            print '<a href="javascript:doMenu(\''.$prefix.'album' . $count . '\');" class="toggle" name="'.$prefix.'album' . $count . '">+</a></td><td>' . "\n";
+            print '<a href="javascript:doMenu(\''.$prefix.'album' . $count . '\');" class="toggle" name="'.$prefix.'album' . $count . '"><img src="images/toggle-closed.png"></a></td><td>' . "\n";
             // We don't set the src tags for the images when the page loads, otherwise we'd be loading in
             // literally hundres of images we don't need. Instead we set the name tag to the url
             // of the image, and then use jQuery magic to set the src tag when the menu is opened - 

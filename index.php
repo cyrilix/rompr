@@ -141,11 +141,11 @@ $(document).ready(function(){
         <button class="sourceform" onclick="doLastFM('lastfmglobaltag')">Play</button>
     </li>
     <li>
-        <a name="friends" style="padding-left:0px" class="toggle" href="#" onclick="getFriends()">+</a><b>Friends</b></li>
+        <a name="friends" style="padding-left:0px" class="toggle" href="#" onclick="getFriends()"><img src="images/toggle-closed.png"></a><b>Friends</b></li>
         <div id="albummenu" name="friends"></div>
     </li>    
     <li>
-        <a name="neighbours" style="padding-left:0px" class="toggle" href="#" onclick="getNeighbours()">+</a><b>Neighbours</b></li>
+        <a name="neighbours" style="padding-left:0px" class="toggle" href="#" onclick="getNeighbours()"><img src="images/toggle-closed.png"></a><b>Neighbours</b></li>
         <div id="albummenu" name="neighbours"></div>
     </li>
 </ul>

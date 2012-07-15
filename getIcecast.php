@@ -62,7 +62,7 @@ $count = 0;
 $divtype = "album1";
 foreach ($genres as $i => $name) {
     print '<div id="albumname" class="' . $divtype . '">' . "\n";
-    print '<table width="100%"><tr><td class="tracknumbr"><a href="javascript:doMenu(\'genre' . $count . '\');" class="toggle" name="genre' . $count . '">+</a></td><td>';
+    print '<table width="100%"><tr><td class="tracknumbr"><a href="javascript:doMenu(\'genre' . $count . '\');" class="toggle" name="genre' . $count . '"><img src="images/toggle-closed.png"></a></td><td>';
     print $genres[$i]->name;
     print '</td></tr></table></div>';
     print '<div id="albummenu" style="padding-left:24px" name="genre' . $count . '" class="' . $divtype . '">' . "\n";
