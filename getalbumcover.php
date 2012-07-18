@@ -25,15 +25,25 @@ if (file_exists($small_file)) {
     unlink($small_file);
 }
 
+// Test to see if convert is on the path and adjust if not - this makes
+// it work on MacOSX when everything's installed from MacPorts
+$convert_path = "convert";
+$a = 1;
+system($convert_path, &$a);
+if ($a == 127) {
+    //error_log("Trying MacPorts installation of convert");
+    $convert_path = "/opt/local/bin/convert";
+}
+
 $aagh = url_get_contents($src);
 $fp = fopen($download_file, "x");
 if ($fp) {
     fwrite($fp, $aagh['contents']);
     fclose($fp);
     check_file($download_file, $aagh['contents']);
-    $r = system( 'convert "'.$download_file.'" "'.$main_file.'"');
+    $r = system( $convert_path.' "'.$download_file.'" "'.$main_file.'"');
     //error_log($r);
-    $r = system( 'convert -resize 32x32 "'.$download_file.'" "'.$small_file.'"');
+    $r = system( $convert_path.' -resize 32x32 "'.$download_file.'" "'.$small_file.'"');
     //error_log($r);
     unlink($download_file);
 } else {
