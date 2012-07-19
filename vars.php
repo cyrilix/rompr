@@ -10,7 +10,8 @@ $prefs = array( "mpd_host" => "localhost",
                 "lastfm_scrobbling" => 0,
                 "lastfm_autocorrect" => 0,
                 "theme" => "BrushedAluminium.css",
-                "scrobblepercent" => 50
+                "scrobblepercent" => 50,
+                "hidebrowser" => "false"
                 );
 loadPrefs();
 
@@ -49,7 +50,7 @@ function setswitches() {
         do_mpd_command($connection, $option." ".$localprefs[$option], null, false);
     }
     // This doesn't work because mpd only allows setting the volume during playback
-    //do_mpd_command($connection, "setvol ".$localprefs["volume"], null, false);    
+    //do_mpd_command($connection, "setvol ".$localprefs["volume"], null, false);
 }
 
 ?>

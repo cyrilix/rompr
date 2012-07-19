@@ -8,7 +8,10 @@ include ("connection.php");
 <h2></h2>
 </div>
 <div class="tright">
-<ul class="topnav">  
+<ul class="topnav">
+    <li>
+        <a href="albumart.php" title="Album Art Manager" target="_blank"><img src="images/cd_jewel_case.jpg" height="24px"></a>
+    </li>
     <li>
         <a href="#" title="RompR/mpd Preferences"><img src="images/preferences.png" height="24px"></a>
         <ul id="configpanel" class="subnav wide">
@@ -25,9 +28,10 @@ include ("connection.php");
 ?>
                         </select></li>
                         <li class="wide"><button class="topform topformbutton" onclick="editkeybindings()">Edit Keyboard Shortcuts...</button></li>
-                        <li class="wide"><input type="checkbox" class="topcheck" onclick="infobar.toggle('random')" id="shufflebutton">Playlist Shuffle</input></li>                    
-                        <li class="wide"><input type="checkbox" class="topcheck" onclick="infobar.toggle('crossfade')" id="xfadebutton">Crossfade Tracks</input></li>                    
-                        <li class="wide"><input type="checkbox" class="topcheck" onclick="infobar.toggle('repeat')" id="repeatbutton">Repeat Playlist</input></li>                    
+                        <li class="wide"><input type="checkbox" class="topcheck" onclick="browser.hide()" id="hideinfobutton">Hide Information Panel</input></li>
+                        <li class="wide"><input type="checkbox" class="topcheck" onclick="infobar.toggle('random')" id="shufflebutton">Playlist Shuffle</input></li>
+                        <li class="wide"><input type="checkbox" class="topcheck" onclick="infobar.toggle('crossfade')" id="xfadebutton">Crossfade Tracks</input></li>
+                        <li class="wide"><input type="checkbox" class="topcheck" onclick="infobar.toggle('repeat')" id="repeatbutton">Repeat Playlist</input></li>
                         <li class="wide">VOLUME</li>
                         <li class="wide"><div id="volume"></div></li>
 <?php
@@ -47,8 +51,8 @@ include ("connection.php");
     </li>
 
     <li>
-        <a href="#" title="Clear Playlist"><img src="images/edit-clear-list.png" height="24px"></a> 
-        <ul id="clrplst" class="subnav"> 
+        <a href="#" title="Clear Playlist"><img src="images/edit-clear-list.png" height="24px"></a>
+        <ul id="clrplst" class="subnav">
             <li><b>Clear Playlist</b></li>
             <li>
                 <form id="clearplaylist" action="ajaxcommand.php" method="get">
@@ -59,7 +63,7 @@ include ("connection.php");
         </ul>
     </li>
     <li>
-        <a href="#" title="Load Saved Playlist"><img src="images/document-open-folder.png" height="24px"></a> 
+        <a href="#" title="Load Saved Playlist"><img src="images/document-open-folder.png" height="24px"></a>
         <ul id="playlistslist" class="subnav wide">
             <li><b>Playlists</b></li>
 <?php
@@ -70,7 +74,7 @@ include ("connection.php");
                 $playlists['playlist'][0] = $temp;
             }
             sort($playlists['playlist'], SORT_STRING);
-            print '<li class="tleft wide"><table width="100%">';            
+            print '<li class="tleft wide"><table width="100%">';
             foreach ($playlists['playlist'] as $pl) {
 
                 print '<tr><td align="left"><a href="#" onclick="infobar.command(\'command=load&arg='.rawurlencode($pl).'\', playlist.repopulate)">'.$pl.'</a></td>';
@@ -79,10 +83,10 @@ include ("connection.php");
             }
             print '</table></li>';
 ?>
-        </ul>  
-    </li>  
+        </ul>
+    </li>
     <li>
-        <a href="#" title="Save Playlist"><img src="images/document-save.png" height="24px"></a> 
+        <a href="#" title="Save Playlist"><img src="images/document-save.png" height="24px"></a>
         <ul id="saveplst" class="subnav wide">
             <li class="wide"><b>Save Playlist As</b></li>
             <li class="wide">
@@ -92,26 +96,26 @@ include ("connection.php");
                     <input class="topform" name="arg" type="text" size="37"/>
                 </form>
             </li>
-        </ul>  
+        </ul>
     </li>
 </ul>
 </div>
 </div>
 
-<script type="text/javascript"> 
+<script type="text/javascript">
 
 $('#clearplaylist').ajaxForm(function() {
     $('#clearplaylist').parents("ul.subnav").slideToggle('fast');
     playlist.repopulate();
     infobar.update();
-    
-}); 
 
-$('#saveplaylist').ajaxForm(function() { 
+});
+
+$('#saveplaylist').ajaxForm(function() {
     reloadPlaylistControls();
-}); 
+});
 
-$("ul.topnav li a").click(function() { 
+$("ul.topnav li a").click(function() {
     $(this).parent().find("ul.subnav").slideToggle('fast');
 });
 
@@ -125,7 +129,7 @@ $("#scrobwrangler").progressbar();
 $("#scrobwrangler").progressbar("option", "value", parseInt(scrobblepercent.toString()));
 $("#scrobwrangler").click(function(evt) { setscrob(evt) });
 
-<?php            
+<?php
     print '    $("#scrobbling").attr("checked", ';
     if ($prefs['lastfm_scrobbling'] == 0) {
         print 'false';
@@ -133,6 +137,8 @@ $("#scrobwrangler").click(function(evt) { setscrob(evt) });
         print 'true';
     }
     print ");\n";
+
+    print '    $("#hideinfobutton").attr("checked", '.$prefs['hidebrowser'].");\n";
 
     print '    $("#autocorrect").attr("checked", ';
     if ($prefs['lastfm_autocorrect'] == 0) {
@@ -172,7 +178,7 @@ $("#scrobwrangler").click(function(evt) { setscrob(evt) });
 
    print '$("#themeselector").val("'.$prefs['theme'].'");'."\n";
 
-    
+
 ?>
 lastfm.setscrobblestate();
 
@@ -182,4 +188,3 @@ lastfm.setscrobblestate();
 <?php
 close_mpd($connection);
 ?>
-

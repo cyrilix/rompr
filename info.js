@@ -2,7 +2,8 @@ function Info(target, source) {
 
     var target_frame = target;
     var self = this;
-    var current_source = source
+    var current_source = source;
+    var hidden = false;
 
     this.slideshow = {
         running: false,
@@ -520,6 +521,9 @@ function Info(target, source) {
 
     function updateArtistBrowser() {
         //debug.log("Updating Artist Browser");
+         if (hidden) {
+            return 0;
+         }
         switch(current_source) {
             case "wikipedia":
                 $('#artistinformation').fadeOut(1000, function() {
@@ -551,6 +555,9 @@ function Info(target, source) {
     }
 
     function updateAlbumBrowser() {
+         if (hidden) {
+            return 0;
+         }
         switch(current_source) {
             case "wikipedia":
             case "slideshow":
@@ -566,8 +573,11 @@ function Info(target, source) {
         }
     }
 
-     function updateTrackBrowser() {
+    function updateTrackBrowser() {
          //debug.log("updateTrackBrowser");
+         if (hidden) {
+            return 0;
+         }
         switch(current_source) {
             case "wikipedia":
             case "slideshow":
@@ -583,6 +593,29 @@ function Info(target, source) {
                 break;
         }
     }
+
+    this.hide = function() {
+        if (hidden) {
+            $("#playlist").css("width", "22%");
+            $("#pcholder").css("width", "22%");
+            $("#sources").css("width", "22%");
+            $("#albumcontrols").css("width", "22%");
+            $("#infocontrols").fadeIn('fast');
+            $("#infopane").fadeIn('fast');
+            hidden = false;
+            self.switchSource(current_source);
+        } else {
+            $("#infocontrols").fadeOut('fast');
+            $("#infopane").fadeOut('fast');
+            $("#playlist").css("width", "50%");
+            $("#pcholder").css("width", "50%");
+            $("#sources").css("width", "50%");
+            $("#albumcontrols").css("width", "50%");
+            hidden = true;
+        }
+        savePrefs({hidebrowser: hidden.toString()});
+    }
+
 
     function sectionHeader(data, title) {
         var html = '<div id="infosection">';

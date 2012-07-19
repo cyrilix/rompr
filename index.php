@@ -67,6 +67,11 @@ $(document).ready(function(){
     $("#filelist").load("dirbrowser.php");
     infobar.update();
     loadKeyBindings();
+<?php
+    if ($prefs['hidebrowser'] == 'true') {
+        print "    browser.hide();\n";
+    }
+?>
 });
 
 </script>
@@ -106,7 +111,7 @@ $(document).ready(function(){
 </div>
 <div id="infocontrols" class="tleft cmiddle noborder">
 </div>
-<div class="tright column noborder">
+<div id="pcholder" class="tright column noborder">
 <div id="playlistcontrols" class="noborder">
 </div>
 </div>

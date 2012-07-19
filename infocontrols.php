@@ -8,7 +8,6 @@
 <a href="#" title="Artist Info from Wikipedia" onclick="browser.switchSource('wikipedia')"><img height="24px" src="images/Wikipedia-logo.png"></a>
 <a href="#" title="Artist, Album, and Song Info from Last.FM" onclick="browser.switchSource('lastfm')"><img height="24px" src="images/lastfm.png"></a>
 <a href="#" title="Artist Slideshow" onclick="browser.switchSource('slideshow')"><img height="24px" src="images/slideshow.png"></a>
-<a href="albumart.php" title="Album Art Manager" target="_blank"><img src="images/cd_jewel_case.jpg" height="24px"></a>
 </td>
 <td align="right">
 <a href="#" title="Toggle Playlist" onclick="expandInfo('right')"><img height="24px" id="expandright" src="images/arrow-right-double.png"></a>

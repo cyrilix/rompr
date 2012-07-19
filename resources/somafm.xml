@@ -19,6 +19,20 @@
 </station>
 
 <station>
+<name>Dub Step Beyond</name>
+<description>The place for Bass Music! Dubstep, Dub and Deep Bass. May damage speakers at high volume.</description>
+<image>resources/dubstep120.png</image>
+<link>
+    <desc>128 KBit MP3</desc>
+    <playlist>http://somafm.com/dubstep.pls</playlist>
+</link>
+<link>
+    <desc>256 KBit MP3</desc>
+    <playlist>http://somafm.com/dubstep256.pls</playlist>
+</link>
+</station>
+
+<station>
 <name>Drone Zone</name>
 <description>Served best chilled, safe with most medications. Atmospheric textures with minimal beats</description>
 <image>resources/dronezone120.jpg</image>
@@ -248,5 +262,44 @@
 </link>
 </station>
 
+<station>
+<name>Boot Liquor</name>
+<description>Americana Roots music for Cowhands, Cowpokes and Cowtippers</description>
+<image>resources/bootliquor120.jpeg</image>
+<link>
+    <desc>128 KBit MP3</desc>
+    <playlist>http://somafm.com/bootliquor.pls</playlist>
+</link>
+<link>
+    <desc>128 KBit AAC</desc>
+    <playlist>http://somafm.com/bootliquor130.pls</playlist>
+</link>
+<link>
+    <desc>64 KBit AACPlus</desc>
+    <playlist>http://somafm.com/bootliquor64.pls</playlist>
+</link>
+</station>
+
+<station>
+<name>SF 10-33</name>
+<description>Ambient music mixed with the sounds of San Francisco public safety radio traffic</description>
+<image>resources/sf1033120.png</image>
+<link>
+    <desc>128 KBit MP3</desc>
+    <playlist>http://somafm.com/sf1033.pls</playlist>
+</link>
+</station>
+
+<station>
+<name>South By Soma</name>
+<description>Music from bands who performed at SXSW, one of the biggest and best music festivals in the world. Explicit Content!</description>
+<image>resources/sxfm120.png</image>
+<link>
+    <desc>128 KBit MP3</desc>
+    <playlist>http://somafm.com/sxfm.pls</playlist>
+</link>
+</station>
+
 </stations>
+
 </asx>
