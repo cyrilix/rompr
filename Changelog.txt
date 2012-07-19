@@ -1,5 +1,9 @@
+Changes for version 0.10
+
+    Fix bug where hotkeys would still fire when the cursor was in an input element
+    Add file browser mode and file search function
+
 Changes for version 0.09
 
     Make the play controls and the now playing section align to the left, so they don't keep moving about
     Adding keyboard shortcuts and user dialog to configure them
-    
