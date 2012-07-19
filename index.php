@@ -55,6 +55,7 @@ var browser = new Info("infopane", "lastfm");
 
 $(document).ready(function(){
     //debug.log("Index ready");
+    $("#loadinglabel2").effect('pulsate', { times:100 }, 2000);
     $("#progress").progressbar();
     $("#progress").click(function(evt) { infobar.seek(evt) });
     playlist.repopulate();
@@ -115,9 +116,9 @@ $(document).ready(function(){
 
 <div id="sources" class="tleft column noborder">
 
-<div id="albumlist" class="noborder">
+<div id="albumlist" class="noborder"><h2 id="loadinglabel"></h2>
 </div>
-<div id="filelist" class="invisible">
+<div id="filelist" class="invisible"><h2 id="loadinglabel2">Scanning Files...</h2>
 </div>
 <div id="lastfmlist" class="invisible">
 <ul class="sourcenav">

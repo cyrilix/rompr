@@ -14,7 +14,7 @@ var sources = new Array();
 var update_load_timer = 0;
 var update_load_timer_running = false;
 $.getJSON("ajaxcommand.php", "command=update", function(data) {  });
-$("#albumlist").html("<h2>Updating Collection</h2>");
+$("#loadinglabel").html("Updating Collection").effect('pulsate', { times:100 }, 2000);
 update_load_timer = setTimeout("pollAlbumList()", 500);
 update_load_timer_running = true;
 
@@ -28,7 +28,7 @@ function pollAlbumList() {
             update_load_timer = setTimeout("pollAlbumList()", 1000);
             update_load_timer_running = true;
         } else {
-            $("#albumlist").html("<h2>Loading Collection</h2>");
+            $("#loadinglabel").html("Loading Collection");
             $("#albumlist").load("albums.php");
         }
     });
