@@ -15,7 +15,7 @@ session_start();
 print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme'].'" />'."\n";
 ?>
 <link rel="shortcut icon" href="images/favicon.ico" />
-<link type="text/css" href="jqueryui1.8.16/css/start/jquery-ui-1.8.16.custom.css" rel="stylesheet" /> 
+<link type="text/css" href="jqueryui1.8.16/css/start/jquery-ui-1.8.16.custom.css" rel="stylesheet" />
 <script type="text/javascript" src="jquery-1.7.1.min.js"></script>
 <script type="text/javascript" src="jquery.form.js"></script>
 <script type="text/javascript" src="jqueryui1.8.16/js/jquery-ui-1.8.16.custom.min.js"></script>
@@ -63,9 +63,10 @@ $(document).ready(function(){
     $('#albumcontrols').load("albumcontrols.php");
     $('#infocontrols').load("infocontrols.php");
     $('#icecastlist').load("getIcecast.php");
+    $("#filelist").load("dirbrowser.php");
     infobar.update();
     loadKeyBindings();
-});  
+});
 
 </script>
 </head>
@@ -85,7 +86,7 @@ $(document).ready(function(){
             0:00 of 0:00
         </div>
     </div>
-    
+
     <div id="leftholder" class="infobarlayout tleft bordered">
         <div id="albumcover">
             <img id="albumpicture" src="images/album-unknown.png">
@@ -143,7 +144,7 @@ $(document).ready(function(){
     <li>
         <a name="friends" style="padding-left:0px" class="toggle" href="#" onclick="getFriends()"><img src="images/toggle-closed.png"></a><b>Friends</b></li>
         <div id="albummenu" name="friends"></div>
-    </li>    
+    </li>
     <li>
         <a name="neighbours" style="padding-left:0px" class="toggle" href="#" onclick="getNeighbours()"><img src="images/toggle-closed.png"></a><b>Neighbours</b></li>
         <div id="albummenu" name="neighbours"></div>

@@ -242,14 +242,21 @@ class musicCollection {
                 if ($only_without_cover) {
                     $artname = md5($this->artists[$artist]->name . " " . $object->name);
                     if (!file_exists("albumart/original/".$artname.".jpg")) {
-                        $albums[] = $object;
+			// Changed for sorting albums alphabetically
+                        //$albums[] = $object;
+                        $albums[$object->name] = $object;
                     }
                 } else {
-                    $albums[] = $object;
+		    // Changed for sorting albums alphabetically
+		    //$albums[] = $object;
+                    $albums[$object->name] = $object;
                 }
             }
         }
-        return $albums;
+
+	// Changed for sorting albums alphabetically
+	ksort($albums, SORT_STRING);
+	return $albums;
     }
 
     public function createCompilation($album) {

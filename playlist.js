@@ -1,6 +1,6 @@
 
 function Track(options) {
-    
+
     var self = this;
     for(var i in options) {
         this[i] = options[i];
@@ -12,20 +12,20 @@ function format_tracknum(tracknum) {
     var result = r.exec(tracknum) || "";
     return result[1] || "";
 }
-    
+
 function Album(artist, album, index) {
-        
+
     var self = this;
     var tracks = new Array();
     this.artist = artist;
     this.album = album;
     this.index = index;
     var trackpointer = 0;
-    
+
     this.newtrack = function (track) {
         tracks.push(track);
     }
-    
+
     this.getNextTrack = function() {
         var html = "";
         if (trackpointer >= tracks.length) { return null };
@@ -45,7 +45,7 @@ function Album(artist, album, index) {
         trackpointer++;
         return html;
     }
-    
+
     this.header = function() {
         var html = "";
         html = html + '<div id="item" name="'+self.index+'"><table width="100%"><tr><td rowspan="2">';
@@ -60,21 +60,21 @@ function Album(artist, album, index) {
         html = html + '</tr></table></div>';
         return html;
     }
-    
+
     this.getFirst = function() {
         return tracks[0].playlistpos;
     }
-    
+
     this.getRange = function() {
         var range = tracks[0].playlistpos+":"
         var end = parseInt(tracks[(tracks.length)-1].playlistpos)+1;
         return range+end;
     }
-    
+
     this.getSize = function() {
         return tracks.length;
     }
-    
+
     this.invalidateOldTracks = function() {
         return false;
     }
@@ -99,7 +99,7 @@ function Album(artist, album, index) {
         }
         infobar.deleteTracksByID(todelete, playlist.repopulate)
     }
-    
+
     this.invalidateOnStop = function() {
         return true;
     }
@@ -113,13 +113,13 @@ function Stream(index) {
     var lastplaylistpos = -1;
     var trackpointer = 0;
     this.index = index;
-    
+
     this.newtrack = function (track) {
         tracks.push(track);
         lastplaylistpos = track.playlistpos;
         if (firstplaylistpos == -1) { firstplaylistpos = track.playlistpos; }
     }
-    
+
     this.getNextTrack = function() {
         if (trackpointer >= tracks.length) { return null };
         if (trackpointer == 0) {
@@ -129,7 +129,7 @@ function Stream(index) {
         trackpointer++;
         return "";
     }
-    
+
     this.header = function() {
         var html = "";
         html = html + '<div id="item" name="'+self.index+'"><table width="100%"><tr><td rowspan="2">';
@@ -138,11 +138,11 @@ function Stream(index) {
         } else {
             html = html + '<img src="images/album-unknown-small.png"/></td><td cellpadding="2px" colspan="2">';
         }
-            
+
         html = html + tracks[0].creator+'</td></tr><tr><td cellpadding="2px"><i><a class="album" href="#" onclick="infobar.command(\'command=play&arg='+tracks[0].playlistpos+'\')">'
                         +(tracks[0].title || tracks[0].album)+'</a></i></td>';
         html = html + '<td class="playlisticon" align="right"><a href="#" onclick="playlist.deleteGroup(\''+self.index+'\')">'+
-                        '<img src="images/edit-delete.png"></a></td>';                        
+                        '<img src="images/edit-delete.png"></a></td>';
         html = html + '</tr></table></div>';
         return html;
     }
@@ -150,17 +150,17 @@ function Stream(index) {
     this.getFirst = function() {
         return tracks[0].playlistpos;
     }
-    
+
     this.getRange = function() {
         var range = tracks[0].playlistpos+":"
         var end = parseInt(tracks[(tracks.length)-1].playlistpos)+1;
         return range+end;
     }
-    
+
     this.getSize = function() {
         return tracks.length;
     }
-    
+
     this.invalidateOldTracks = function() {
         return false;
     }
@@ -185,12 +185,12 @@ function Stream(index) {
         }
         infobar.deleteTracksByID(todelete, playlist.repopulate)
     }
-    
+
     this.invalidateOnStop = function() {
         return true;
     }
-    
-}    
+
+}
 
 function LastFMRadio(station, index) {
     var self = this;
@@ -200,13 +200,13 @@ function LastFMRadio(station, index) {
     var trackpointer = 0;
     this.station = station;
     this.index = index;
-    
+
     this.newtrack = function (track) {
         tracks.push(track);
         lastplaylistpos = track.playlistpos;
         if (firstplaylistpos == -1) { firstplaylistpos = track.playlistpos; }
     }
-    
+
     this.getNextTrack = function() {
         var html = "";
         if (trackpointer >= tracks.length) { return null };
@@ -222,7 +222,7 @@ function LastFMRadio(station, index) {
         trackpointer++;
         return html;
     }
-    
+
     this.header = function() {
         var html = "";
         html = html + '<div id="item" name="'+self.index+'"><table width="100%"><tr><td rowspan="2">';
@@ -230,7 +230,7 @@ function LastFMRadio(station, index) {
         html = html + 'Last.FM</td></tr><tr><td cellpadding="2px"><i><a class="album" href="#" onclick="infobar.command(\'command=play&arg='+tracks[0].playlistpos+'\')">'
                         +self.station+'</a></i></td>';
         html = html + '<td class="playlisticon" align="right"><a href="#" onclick="playlist.deleteGroup(\''+self.index+'\')">'+
-                        '<img src="images/edit-delete.png"></a></td>';                        
+                        '<img src="images/edit-delete.png"></a></td>';
         html = html + '</tr></table></div>';
         return html;
     }
@@ -238,17 +238,17 @@ function LastFMRadio(station, index) {
     this.getFirst = function() {
         return tracks[0].playlistpos;
     }
-    
+
     this.getRange = function() {
         var range = tracks[0].playlistpos+":"
         var end = parseInt(tracks[(tracks.length)-1].playlistpos)+1;
         return range+end;
     }
-    
+
     this.getSize = function() {
         return tracks.length;
     }
-    
+
     this.invalidateOldTracks = function(currentsong, previoussong) {
         var todelete = new Array();
         var unixtimestamp = Math.round(new Date()/1000);
@@ -265,7 +265,7 @@ function LastFMRadio(station, index) {
         if (todelete.length > 0) {
 //            if (todelete.length == tracks.length) {
 //                // !! We've expired ALL our tracks!
-//                // Force an update FIRST. 
+//                // Force an update FIRST.
 
 
             // All attempts to get the playlist to update a radio station in this circumstance
@@ -277,7 +277,7 @@ function LastFMRadio(station, index) {
 //            }
             infobar.deleteTracksByID(todelete, playlist.repopulate);
             return true;
-        }    
+        }
         // This is a catchall - in normal operation we should never get any hits here
         // but just in case.....
         for(var i in tracks) {
@@ -292,7 +292,7 @@ function LastFMRadio(station, index) {
         }
         return false;
     }
-    
+
     this.updateRadio = function() {
         if (tracks.length == 1) {
             playlist.setEndofradio(tracks[0].playlistpos);
@@ -302,7 +302,7 @@ function LastFMRadio(station, index) {
         }
         return false;
     }
-    
+
     this.findcurrent = function(which, what) {
         for(var i in tracks) {
             if (tracks[i].playlistpos == which) {
@@ -311,7 +311,7 @@ function LastFMRadio(station, index) {
         }
         return null;
     }
-    
+
     this.deleteSelf = function() {
         var todelete = new Array();
         for (var i in tracks) {
@@ -319,19 +319,18 @@ function LastFMRadio(station, index) {
         }
         infobar.deleteTracksByID(todelete, playlist.repopulate)
     }
-    
+
     this.invalidateOnStop = function(songid) {
         if (tracks[0].backendid == songid) {
             debug.log("Removing current track, which was playing and has been stopped");
             infobar.deleteTracksByID([songid], playlist.repopulate);
         }
     }
-    
-}    
-    
+
+}
 
 function Playlist() {
-    
+
     var tracklist = new Array();
     var cojones = new Array();
     var currentsong = 0;
@@ -340,7 +339,7 @@ function Playlist() {
     this.justadded = false;
     this.finaltrack = 0;
     this.previoustrack = -1;
-    
+
     this.repopulate = function() {
         debug.log("Repopulating Playlist");
         tracklist = [];
@@ -359,7 +358,7 @@ function Playlist() {
                     error: function(data, status) {  }
         });
     }
-    
+
     this.newXSPF = function(list) {
         debug.log("Got Playlist from MPD");
         var item;
@@ -368,8 +367,8 @@ function Playlist() {
         var current_artist = "";
         var current_station = "";
         var track;
-        $(list).find("track").each( function() { 
-            
+        $(list).find("track").each( function() {
+
            track = new Track({ creator: $(this).find("creator").text(),
                                 albumartist: $(this).find("albumartist").text(),
                                 album: $(this).find("album").text(),
@@ -386,7 +385,7 @@ function Playlist() {
                                 stationurl: $(this).find("stationurl").text(),
                                 compilation: $(this).find("compilation").text()
            });
-            
+
             var sortartist = track.creator;
             if (track.albumartist != "") { sortartist = track.albumartist }
            if ((sortartist.toLowerCase() != current_artist.toLowerCase() && track.compilation != "yes") || track.album.toLowerCase() != current_album.toLowerCase()) {
@@ -420,7 +419,7 @@ function Playlist() {
                        tracklist[count] = item;
                        count++;
                        break;
-                       
+
                }
 
            }
@@ -429,10 +428,10 @@ function Playlist() {
         });
         if (track) {
             self.finaltrack = parseInt(track.playlistpos);
-            debug.log("Setting finaltarck to",self.finaltrack);
+            debug.log("Setting finaltrack to",self.finaltrack);
         }
-        
-        var html = ""; 
+
+        var html = "";
         var stuff = "";
         for (var i in tracklist) {
             do {
@@ -441,7 +440,7 @@ function Playlist() {
             } while (stuff)
         }
         $("#sortable").html(html);
-        
+
         infobar.updateWindowValues();
 
         $("#sortable").sortable({ items: "div" });
@@ -455,55 +454,56 @@ function Playlist() {
                 var moveto;
                 var elementmoved = ui.item.attr("id");
                 var nextelement = $(ui.item).next().attr("id");
-                if (elementmoved == "track") { 
+                if (elementmoved == "track") {
                                                 itemstomove = ui.item.attr("name");
                                                 firstmoveitem = itemstomove;
                                                 numitems = 1;
                 }
-                if (elementmoved == "item") { 
+                if (elementmoved == "item") {
                                                 itemstomove = tracklist[parseInt(ui.item.attr("name"))].getRange();
                                                 firstmoveitem = tracklist[parseInt(ui.item.attr("name"))].getFirst();
                                                 numitems = tracklist[parseInt(ui.item.attr("name"))].getSize();
-                                                
+
                 }
                 if (nextelement == "track") { moveto = $(ui.item).next().attr("name") }
-                if (nextelement == "item" ) { moveto = tracklist[parseInt($(ui.item).next().attr("name"))].getFirst() }                
+                if (nextelement == "item" ) { moveto = tracklist[parseInt($(ui.item).next().attr("name"))].getFirst() }
                 // Trouble is.... if we move DOWN we have to calculate what the position will be AFTER the items
-                // have been moved. 
+                // have been moved.
                 if (parseInt(firstmoveitem) < parseInt(moveto)) {
                     var a = parseInt(moveto);
                     a = a - parseInt(numitems);
                     if (a<0) { a=0 }
                     moveto = a;
                 }
-                
+
                 //debug.log("Moving",itemstomove,"to",moveto);
                 infobar.command("command=move&arg="+itemstomove+"&arg2="+moveto, self.repopulate);
             }
         });
-        
+
     }
-    
+
     this.delete = function(pos) {
         infobar.command("command=delete&arg="+pos, playlist.repopulate);
     }
-    
+
     // This is actually used for adding any new radio playlist, not just Last.FM
     // - basically any new track which come in as XML format
     // The albums list does NOT use this. Perhaps it should, but that's just extra work and extra code.
     this.newLastFMRadioStation = function (list) {
         debug.log("New Last.FM Playlist");
         revertPointer();
-        $(list).find("track").each( function() { 
+        $(list).find("track").each( function() {
             debug.log($(this).find("title").text());
             cojones.push(encodeURIComponent($(this).find("location").text()));
         });
         self.justadded = false;
         self.addNewTracks();
     }
-    
+
     this.saveRadioPlaylist = function(xml) {
-        $.post("newplaylist.php", { type: "radio", xml: xml, stationurl: lastfm.tunedto });
+        $.post("newplaylist.php", { type: "radio", xml: xml, stationurl: lastfm.tunedto })
+                .done( function(data) { self.repopulate() });
     }
 
     this.saveTrackPlaylist = function(xml) {
@@ -535,10 +535,10 @@ function Playlist() {
     this.setEndofradio = function(pos) {
         self.endofradio = pos;
     }
-    
+
     this.updateCurrentSong = function(pos, id) {
         debug.log("Updating current song");
-        $(".playlistcurrentitem").attr("class", "playlistitem"); 
+        $(".playlistcurrentitem").attr("class", "playlistitem");
         $("#"+pos).attr("class", "playlistcurrentitem");
         currentsong = pos;
         var thing = false;
@@ -554,7 +554,7 @@ function Playlist() {
         }
         self.previoussong = id;
     }
-    
+
     this.current = function(what) {
         for(var i in tracklist) {
             var it = tracklist[i].findcurrent(currentsong, what);
@@ -562,15 +562,14 @@ function Playlist() {
         }
         return "";
     }
-    
+
     this.deleteGroup = function(index) {
         tracklist[index].deleteSelf();
     }
-    
+
     this.checkSongIdAfterStop = function(songid) {
         for(var i in tracklist) {
             tracklist[i].invalidateOnStop(songid);
         }
     }
 }
-
