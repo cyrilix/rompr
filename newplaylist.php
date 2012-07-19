@@ -2,9 +2,7 @@
 $playlist_type = $_POST['type'];
 $playlist = $_POST['xml'];
 
-//if (array_key_exists('stationurl', $_POST)) {
-    $playlist = preg_replace('/(<playlist.*?>)/', "$1\n<stationurl>".$_POST['stationurl']."</stationurl>", $playlist);
-//}
+$playlist = preg_replace('/(<playlist.*?>)/', "$1\n<stationurl>".htmlspecialchars($_POST['stationurl'])."</stationurl>", $playlist);
 
 $xml = simplexml_load_string($playlist, 'SimpleXMLElement', LIBXML_NOCDATA);
 

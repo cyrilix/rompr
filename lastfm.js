@@ -394,7 +394,9 @@ function LastFM(user) {
 
         tune: function(options, callback, failcallback) {
             if (logged_in) {
+                debug.log("Last.FM: Tuning to", options.station);
                 if (options.station != self.tunedto) {
+                    debug.log("Sending Tune Request");
                     self.tunedto = "";
                     addSetOptions(options, "radio.tune");
                     LastFMSignedRequest(options,
