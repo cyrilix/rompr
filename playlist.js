@@ -502,8 +502,7 @@ function Playlist() {
     }
 
     this.saveRadioPlaylist = function(xml) {
-        $.post("newplaylist.php", { type: "radio", xml: xml, stationurl: lastfm.tunedto })
-                .done( function(data) { self.repopulate() });
+        $.post("newplaylist.php", { type: "radio", xml: xml, stationurl: lastfm.tunedto });
     }
 
     this.saveTrackPlaylist = function(xml) {
