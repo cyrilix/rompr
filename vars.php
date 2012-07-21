@@ -11,7 +11,8 @@ $prefs = array( "mpd_host" => "localhost",
                 "lastfm_autocorrect" => 0,
                 "theme" => "BrushedAluminium.css",
                 "scrobblepercent" => 50,
-                "hidebrowser" => "false"
+                "hidebrowser" => "false",
+                "infosource" => "lastfm"
                 );
 loadPrefs();
 

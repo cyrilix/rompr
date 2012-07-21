@@ -5,8 +5,8 @@ function reloadPlaylistControls() {
 function doCommand(div, url, command) {
     $('#'+div).load(url, command, function () {
         if (div == 'infopane') {
-            $('#infopane').animate({ scrollTop: 0}, { duration: 'fast', easing: 'swing'});   
-        }      
+            $('#infopane').animate({ scrollTop: 0}, { duration: 'fast', easing: 'swing'});
+        }
     });
 }
 
@@ -20,7 +20,7 @@ function doMenu(item) {
         });
     } else {
         $('a[name|="'+item+'"]').html('<img src="images/toggle-closed.png">');
-    }        
+    }
     $('div[name|="'+item+'"]').slideToggle('fast');
 }
 
@@ -105,9 +105,9 @@ function expandInfo(side) {
                 $("#expandright").attr("src", "images/arrow-left-double.png");
                 $("#playlistcontrols").toggle("fast");
             }
-                
+
     }
-                
+
 }
 
 function lastfmlogin() {
@@ -133,9 +133,8 @@ function getArray(data) {
                 return [data];
                 break;
         }
-    } catch(err) { 
-        //debug.log("getArray error : ",err);
-        return []; 
+    } catch(err) {
+        return [];
     }
 }
 
@@ -219,8 +218,8 @@ function lastFMTuneFailed(data) {
 function doHourglass() {
     $("body").css("cursor", "wait");
     $("a").css("cursor", "wait");
-    $("button").css("cursor", "wait");    
-}    
+    $("button").css("cursor", "wait");
+}
 
 function revertPointer() {
     $("body").css("cursor", "auto");
@@ -234,11 +233,11 @@ function addLastFMTrack(artist, track) {
 }
 
 function gotTrackInfoForStream(data) {
- 
+
     if (data.error) { return false };
     var url = "lastfm://play/tracks/"+data.track.id;
     lastfm.track.getPlaylist({url: url}, playlist.newLastFMRadioStation, lastFMTuneFailed);
-    
+
 }
 
 function savePrefs(options) {
@@ -259,25 +258,25 @@ function getWikimedia(url) {
 }
 
 function getNeighbours() {
- 
+
     if (!gotNeighbours) {
         doHourglass();
         lastfm.user.getNeighbours({user: lastfm.username()}, gotNeighbourData, gotNoNeighbours);
     } else {
         doMenu("neighbours");
     }
-    
+
 }
 
 function getFriends() {
- 
+
     if (!gotFriends) {
         doHourglass();
         lastfm.user.getFriends({user: lastfm.username()}, gotFriendsData, gotNoNeighbours);
     } else {
         doMenu("friends");
     }
-    
+
 }
 
 function gotNoNeighbours(data) {
@@ -349,11 +348,11 @@ var imagePopup=function(){
                 wikipopup.setAttribute('id',"wikipopup");
                 wikipopup.setAttribute('onclick','imagePopup.close()');
                 document.body.appendChild(wikipopup);
-            
+
                 imagecontainer = document.createElement('div');
                 imagecontainer.setAttribute('onclick','imagePopup.close()');
                 imagecontainer.setAttribute('id', "imagecontainer");
-                document.body.appendChild(imagecontainer);   
+                document.body.appendChild(imagecontainer);
             }
             // Calculate popup size and position
             var width = w;
@@ -386,23 +385,22 @@ var imagePopup=function(){
                 left = scrollPos.x+18;
             }
             wikipopup.style.width = parseInt(width+36) + 'px';
-            wikipopup.style.height = parseInt(height+36) + 'px';           
+            wikipopup.style.height = parseInt(height+36) + 'px';
             wikipopup.style.top = parseInt(top-18) + 'px';
-            wikipopup.style.left = parseInt(left-18) + 'px';    
+            wikipopup.style.left = parseInt(left-18) + 'px';
             imagecontainer.style.top = parseInt(top) + 'px';
-            imagecontainer.style.left = parseInt(left) + 'px';    
+            imagecontainer.style.left = parseInt(left) + 'px';
             imagecontainer.style.width = parseInt(width) + 'px';
             imagecontainer.style.height = parseInt(height) + 'px';
             return({width: width, height: height});
         },
         contents:function(html) {
-            //$('#imagecontainer').css("overflow", "auto");
             $('#imagecontainer').html(html);
         },
         show:function() {
             $('#wikipopup').fadeIn('slow');
             $('#imagecontainer').fadeIn('slow');
-        },    
+        },
         close:function() {
             $('#wikipopup').fadeOut('slow');
             $('#imagecontainer').fadeOut('slow');
@@ -422,93 +420,69 @@ function loadKeyBindings() {
             shortcut.add(getHotKey(data['volumeup']),   function(){ infobar.volumeKey(5) }, {'disable_in_input':true} );
             shortcut.add(getHotKey(data['volumedown']), function(){ infobar.volumeKey(-5) }, {'disable_in_input':true} );
         })
-        .fail( function(data) {  });    
+        .fail( function(data) {  });
 }
 
 function getHotKey(st) {
- 
+
     var bits = st.split("+++");
     debug.log("Hotkey is", bits[0]);
     return bits[0];
-    
+
 }
 
 function getHotKeyDisplay(st) {
- 
+
     var bits = st.split("+++");
     debug.log("Hotkey Display is", bits[1]);
     return bits[1];
-    
+
 }
 
 function editkeybindings() {
 
-    if(keybpu) {
-        $(keybpu).remove();
-    }
-    
     $("#configpanel").slideToggle('fast');
-    
+
     $.getJSON("getkeybindings.php")
         .done(function(data) {
-            windowScroll = getScrollXY();
-            keybpu = document.createElement('div');
-            keybpu.setAttribute('id',"keybpu");
-            document.body.appendChild(keybpu);
-            $(keybpu).append('<table align="center" cellpadding="4" id="keybindtable" width="80%"></table>');
+            var keybpu = popupWindow.create(500,300,"keybpu",true);
+            $("#popupcontents").append('<table align="center" cellpadding="4" id="keybindtable" width="80%"></table>');
             $("#keybindtable").append('<tr><td align="center" colspan="2"><h2>Keyboard Shortcuts</h2></td></tr>');
-            
+
             $("#keybindtable").append('<tr><td width="35%" align="right">Next Track</td><td>'+format_keyinput('nextrack', data)+'</td></tr>');
             $("#keybindtable").append('<tr><td width="35%" align="right">Previous Track</td><td>'+format_keyinput('prevtrack', data)+'</td></tr>');
             $("#keybindtable").append('<tr><td width="35%" align="right">Stop</td><td>'+format_keyinput('stop', data)+'</td></tr>');
             $("#keybindtable").append('<tr><td width="35%" align="right">Play/Pause</td><td>'+format_keyinput('play', data)+'</td></tr>');
             $("#keybindtable").append('<tr><td width="35%" align="right">Volume Up</td><td>'+format_keyinput('volumeup', data)+'</td></tr>');
             $("#keybindtable").append('<tr><td width="35%" align="right">Volume Down</td><td>'+format_keyinput('volumedown', data)+'</td></tr>');
-            
-            $(keybpu).append('<br><br><button class="tleft sourceform" onclick="closeKeybPopup()">Cancel</button>');
-            $(keybpu).append('<button class="tright sourceform" onclick="saveKeyBindings()">OK</button>');
-            
+
+            $("#keybindtable").append('<tr><td colspan="2"><button class="tleft sourceform" onclick="popupWindow.close()">Cancel</button>'+
+                                        '<button class="tright sourceform" onclick="saveKeyBindings()">OK</button></td></tr>');
+
             $(".buttonchange").keydown( function(ev) { changeHotKey(ev) } );
-
-            var winsize=getWindowSize();
-            var width = winsize.x - 128;
-            var height = winsize.y - 128;
-            if (width > 500) { width = 500; }
-            if (height > 400) { height = 400; }
-            var x = (winsize.x - width)/2 + windowScroll.x;
-            var y = (winsize.y - height)/2 + windowScroll.y;
-            keybpu.style.width = parseInt(width) + 'px';
-            keybpu.style.height = parseInt(height) + 'px';           
-            keybpu.style.top = parseInt(y) + 'px';
-            keybpu.style.left = parseInt(x) + 'px';    
-            $("#keybpu").fadeIn('fast');
-
+            popupWindow.open();
         })
         .fail( function(data) {  });
 
 }
 
-function closeKeybPopup() {
-    $("#keybpu").fadeOut('fast');
-}
-
-function format_keyinput(inpname, data) { 
+function format_keyinput(inpname, data) {
     return '<input id="'+inpname+'" class="tleft sourceform buttonchange" type="text" size="10" value="'+getHotKeyDisplay(data[inpname])+'"></input>' +
             '<input name="'+inpname+'" class="buttoncode" type="hidden" value="'+getHotKey(data[inpname])+'"></input>';
 }
 
 function changeHotKey(ev) {
-    
+
     var key = ev.which;
     // Ignore Shift, Ctrl, Alt, and Meta, and Esc
     if (key == 17 || key == 18 || key == 19 || key == 27 || key == 224) {
         return true;
     }
-    
+
     ev.preventDefault();
     ev.stopPropagation();
     var source = $(ev.target).attr("id");
-    
+
     debug.log("Key",key,"Pressed In",source);
     var special_keys = {
         9: 'tab',
@@ -544,17 +518,14 @@ function changeHotKey(ev) {
     }
 
     var keystring = special_keys[key] || String.fromCharCode(key).toUpperCase();
-    
+
     if (ev.shiftKey) { keystring = "Shift+"+keystring };
     if (ev.metaKey) { keystring = "Meta+"+keystring };
     if (ev.ctrlKey) { keystring = "Ctrl+"+keystring };
     if (ev.altKey) { keystring = "Alt+"+keystring };
-    
+
     var keydisplay = KeyCode.hot_key(KeyCode.translate_event(ev));
-    
-    debug.log("Display string is",keydisplay);
-    debug.log("Event String is",keystring);
-    
+
     $("#"+source).attr("value", keydisplay);
     $('input[name="'+source+'"]').attr("value", keystring);
 }
@@ -562,7 +533,7 @@ function changeHotKey(ev) {
 function saveKeyBindings() {
 
     var bindings = new Object;
-    
+
     $.getJSON("getkeybindings.php")
         .done(function(data) {
             debug.log("Clearing Key Bindings");
@@ -576,8 +547,58 @@ function saveKeyBindings() {
 
             $.post("savekeybindings.php", bindings, function() {
                 loadKeyBindings();
-                closeKeybPopup();
+                popupWindow.close();
             });
         })
         .fail( function(data) {  });
 }
+
+var popupWindow = function() {
+
+    var popup;
+    var userheight;
+
+    return {
+        create:function(w,h,id,shrink) {
+            if (popup == null) {
+                popup = document.createElement('div');
+                $(popup).addClass("popupwindow");
+                document.body.appendChild(popup);
+            }
+            popup.setAttribute('id',id);
+            $(popup).html('');
+            popup.style.height = 'auto';
+            $(popup).append('<div id="cheese"></div>');
+            $("#cheese").append('<div class="tright"><a href="#" onclick="javascript:popupWindow.close()"><img src="images/edit-delete.png"></a></div>');
+            $(popup).append('<div id="popupcontents"></div>');
+            var winsize=getWindowSize();
+            var windowScroll = getScrollXY();
+            var width = winsize.x - 128;
+            var height = winsize.y - 128;
+            if (width > w) { width = w; }
+            if (height > h) { height = h; }
+            var x = (winsize.x - width)/2 + windowScroll.x;
+            var y = (winsize.y - height)/2 + windowScroll.y;
+            popup.style.width = parseInt(width) + 'px';
+            userheight = height;
+            if (!shrink) {
+                popup.style.height = parseInt(height) + 'px';
+            }
+            popup.style.top = parseInt(y) + 'px';
+            popup.style.left = parseInt(x) + 'px';
+            return popup;
+        },
+        open:function() {
+            $(popup).fadeIn('slow');
+            var calcheight = $("#popupcontents").outerHeight(true)+18;
+            if (userheight > calcheight) {
+                popup.style.height = parseInt(calcheight) + 'px';
+            } else {
+                popup.style.height = parseInt(userheight) + 'px';
+            }
+        },
+        close:function() {
+            $(popup).fadeOut('fast');
+        }
+    };
+}();

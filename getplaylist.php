@@ -10,25 +10,26 @@ $collection = doCollection("playlistinfo");
 // Now we have a collection, which will have worked out compilations,
 // We can go through the tracks again and build up a playlist
 
-fputs($connection, "playlistinfo\n");
-
 $xml =  '<?xml version="1.0" encoding="utf-8"?>'."\n".
         '<playlist version="1">'."\n".
         '<title>Current Playlist</title>'."\n".
         '<creator>RompR</creator>'."\n".
         '<trackList>'."\n";
 
-$parts = true;
-while(!feof($connection) && $parts) {
-    $parts = getline($connection);
-    if (is_array($parts)) {
-        if ($parts[0] == "file") {
-            getFileInfo($parts[1]);
+if ($is_connected) {
+    fputs($connection, "playlistinfo\n");
+    $parts = true;
+    while(!feof($connection) && $parts) {
+        $parts = getline($connection);
+        if (is_array($parts)) {
+            if ($parts[0] == "file") {
+                getFileInfo($parts[1]);
+            }
         }
     }
+
+    close_mpd($connection);
 }
- 
-close_mpd($connection);
 
 $xml = $xml . "</trackList>\n</playlist>\n";
 
@@ -71,7 +72,7 @@ function getFileInfo($file) {
         }
     }
     $xml = $xml.xmlnode("image", $image);
-    $xml = $xml . '</track>'."\n";    
+    $xml = $xml . '</track>'."\n";
 }
 
 ?>

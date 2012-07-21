@@ -11,6 +11,7 @@ session_start();
 <head>
 <title>RompR</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" type="text/css" href="layout.css" />
 <?php
 print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme'].'" />'."\n";
 ?>
@@ -46,13 +47,11 @@ var gotNeighbours = false;
 var gotFriends = false;
 var sourceshidden = false;
 var playlisthidden = false;
-var keybpu;
 <?php
  print "var scrobblepercent = ".$prefs['scrobblepercent'].";\n";
  print "var lastfm = new LastFM('".$prefs["lastfm_user"]."');\n";
+ print "var browser = new Info('infopane', '".$prefs["infosource"]."');\n";
 ?>
-var browser = new Info("infopane", "lastfm");
-
 $(document).ready(function(){
     //debug.log("Index ready");
     $("#loadinglabel2").effect('pulsate', { times:100 }, 2000);
@@ -121,9 +120,11 @@ $(document).ready(function(){
 
 <div id="sources" class="tleft column noborder">
 
-<div id="albumlist" class="noborder"><h2 id="loadinglabel"></h2>
+<div id="albumlist" class="noborder">
+    <h2 id="loadinglabel"></h2>
 </div>
-<div id="filelist" class="invisible"><h2 id="loadinglabel2">Scanning Files...</h2>
+<div id="filelist" class="invisible">
+    <h2 id="loadinglabel2">Scanning Files...</h2>
 </div>
 <div id="lastfmlist" class="invisible">
 <ul class="sourcenav">
@@ -176,15 +177,15 @@ foreach($x->stations->station as $i => $station) {
 <?php
 $x = simplexml_load_file("resources/somafm.xml");
 foreach($x->stations->station as $i => $station) {
-    print '<li><table cellspacing="8"><tr><td colspan="2"><h3>'.$station->name.'</h3></td></tr>';
-    print '<tr><td><img src="'.$station->image.'" height="72px"></td>';
-    print '<td>'.$station->description.'</td></tr><tr><td colspan="2">';
+    print '<li><table cellspacing="4">';
+    print '<tr><td rowspan="3"><img src="'.$station->image.'" height="72px"></td>';
+    print '<td><h3>'.$station->name.'</h3></td></tr><tr><td>'.$station->description.'</td></tr><tr><td>';
     foreach($station->link as $j => $link) {
         $pl = $link->desc;
         $pl = preg_replace('/ /', '&nbsp;', $pl);
         print' <a class="tiny" href="#" onclick="doPLSStream(\''.$link->playlist.'\', \''.$station->image.'\', \''.$station->name.'\')">'.$pl.'</a>';
     }
-    print '</td></tr></table></li>'."\n";
+    print '</td></tr></table></li><hr>'."\n";
 }
 ?>
 </ul>

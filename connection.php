@@ -2,7 +2,11 @@
 $is_connected = false;
 
 $connection = fsockopen($prefs["mpd_host"], $prefs["mpd_port"], $errno, $errstr, 10);
+
 if(isset($connection) && is_resource($connection)) {
+
+    $is_connected = true;
+
     while(!feof($connection)) {
         $gt = fgets($connection, 1024);
         if(parse_mpd_var($gt))
@@ -36,26 +40,6 @@ if(isset($connection) && is_resource($connection)) {
         }
     }
 
-    if (array_key_exists("list", $_REQUEST)) {
-        $playstart = false;
-        //error_log(html_entity_decode($_REQUEST['list']));
-        $cmdlines = explode("||||", $_REQUEST['list']);
-        fputs($connection, "command_list_begin\n");
-        foreach($cmdlines as $cmd) {
-            if ($cmd != "") {
-                if (preg_match('/add /', $cmd) &&  $mpd_status["state"] == "stop") {
-                    $playstart = true;
-                }
-                //error_log($cmd);
-                fputs($connection, $cmd."\n");
-            }
-        }
-        if ($playstart) {
-            fputs($connection, "play ".$mpd_status["playlistlength"]."\n");
-        }
-        do_mpd_command($connection, "command_list_end");
-    }
-
     if (!array_key_exists("fast", $_REQUEST)) {
         $mpd_status = do_mpd_command ($connection, "status", null, true);
         while ($mpd_status['state'] == 'play' && !array_key_exists('elapsed', $mpd_status)) {
@@ -64,7 +48,8 @@ if(isset($connection) && is_resource($connection)) {
         }
     }
 
-    $is_connected = true;
+} else {
+    $mpd_status['error'] = "Unable to Connect to MPD server at\n".$prefs["mpd_host"].":".$prefs["mpd_port"];
 }
 
 ?>

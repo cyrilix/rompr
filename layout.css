@@ -1,0 +1,820 @@
+html{ height:100%; }
+
+body
+{
+    font-size:8pt;
+    margin:0px;
+    height:100%;
+}
+
+body,p,h1,h2,h3,h4,table,td,th,ul,ol,textarea,input
+{
+    font-family:verdana,helvetica,arial,sans-serif;
+}
+
+h1
+{
+    font-size:250%;
+    margin-top:20%;
+    margin-left:20%;
+    margin-right:20%;
+    font-weight:normal;
+}
+
+h2
+{
+    font-size:170%;
+    font-weight:bold;
+    margin-top:0px;
+    margin-bottom:0px;
+}
+
+h1,h2,h3,h4,h5,h6
+{
+    background-color:transparent;
+    white-space:normal;
+}
+
+a
+{
+    text-decoration:none;
+}
+
+/*-- Divs used to create page layout in index.php --*/
+
+#infobar
+{
+    width:100%;
+    height:100px;
+    padding-top:4px;
+    padding-bottom:4px;
+    margin:0px;
+    overflow:auto;
+}
+
+#headerbar
+{
+    padding:0px;
+    margin:0px;
+    width:100%;
+    height:40px;
+}
+
+#bottompage
+{
+    position:absolute;
+    top:148px;
+    width:100%;
+    height:80%;
+}
+
+#sources
+{
+    height:100%;
+    overflow:auto;
+}
+
+.topimg
+{
+    padding-right:8px;
+}
+
+#infopane
+{
+    height:100%;
+    overflow:auto;
+}
+
+#playlist
+{
+    height:100%;
+    overflow:auto;
+}
+
+/*-- divs used to create infobar layout --*/
+
+.infobarlayout
+{
+    margin-left:8px;
+    margin-right:8px;
+    margin-top:0px;
+    margin-bottom:0px;
+    padding:0px;
+    height:90px;
+}
+
+#buttons
+{
+    padding-left:36px;
+    padding-right:36px;
+    padding-top:4px;
+    padding-bottom:4px;
+}
+
+#controlbutton
+{
+    margin:0px;
+    padding:0px;
+}
+
+#progress
+{
+    margin-left:8px;
+    margin-right:8px;
+    cursor:pointer;
+}
+
+#volume
+{
+    margin-left:12px;
+    margin-right:12px;
+    cursor:pointer;
+}
+
+#playbackTime
+{
+    text-align:center;
+    margin-right:auto;
+    margin-left:auto;
+    font-weight:bold;
+    padding-bottom:4px;
+}
+
+#albumcover
+{
+    float:left;
+    padding-left:4px;
+    padding-right:8px;
+    padding-top:4px;
+    padding-bottom:4px;
+    margin:0px;
+}
+
+#albumpicture
+{
+    height:82px;
+}
+
+#nowplaying
+{
+    float:left;
+    padding-top:0px;
+    padding-bottom:4px;
+    padding-left:8px;
+    padding-right:8px;
+}
+
+.larger
+{
+    font-size:140%;
+    margin-bottom:4px;
+}
+
+#lastfm
+{
+    float:right;
+    margin-top:12px;
+    display:none;
+}
+
+/*-- Classes used to control flow and layout --*/
+
+.tright
+{
+    float:right;
+}
+
+.tleft
+{
+    float:left;
+}
+
+.column
+{
+    width:22%;
+}
+
+.cmiddle
+{
+    width:56%;
+}
+
+.noborder
+{
+    margin:0px;
+    padding:0px;
+}
+
+.textcentre
+{
+    text-align:center;
+}
+
+.newtag
+{
+    display:none;
+}
+
+/*-- divs used in the headerbar --*/
+
+#columntitle
+{
+    padding-top:4px;
+    padding-bottom:4px;
+    padding-left:12px;
+    padding-right:12px;
+}
+
+/*-- divs and classes used in the albums list --*/
+
+.tracknumber
+{
+    height:1.5em;
+}
+
+.tracknumbr
+{
+    width:2em;
+}
+
+a.album:hover,a.album:active
+{
+    font-size:120%;
+}
+
+#artistname
+{
+    padding-top:6px;
+    padding-bottom:6px;
+    padding-left:12px;
+    font-weight:bold;
+}
+
+#albummenu
+{
+    padding-top:4px;
+    padding-left:8px;
+    padding-right:4px;
+    padding-bottom:4px;
+    font-size:96%;
+    display:none;
+}
+
+#dirname
+{
+    padding-top:4px;
+    padding-bottom:0px;
+    padding-left:12px;
+    font-weight:bold;
+}
+
+#filedropmenu
+{
+    padding-top:0px;
+    padding-left:8px;
+    padding-right:4px;
+    display:none;
+}
+
+#filemenu
+{
+    padding-left:2px;
+    margin-left:22px;
+    padding-right:4px;
+    font-size:96%;
+}
+
+.indent
+{
+    margin-left:12px;
+}
+
+#albumname
+{
+    padding-top:4px;
+    padding-bottom:4px;
+    padding-left:4px;
+    font-size:98%;
+    font-weight:bold;
+}
+
+ul.sourcenav li a
+{
+    padding-left:16px;
+}
+
+/*-- divs and classes used in the playlist --*/
+
+.playlistitem
+{
+    padding-left:8px;
+    padding-right:8px;
+    padding-top:2px;
+    padding-bottom:0px;
+    font-weight:bold;
+    font-size:90%;
+}
+
+.playlistcurrentitem
+{
+    padding-left:8px;
+    padding-right:8px;
+    padding-top:2px;
+    padding-bottom:0px;
+    font-weight:bold;
+    font-size:120%;
+}
+
+.playlistrow2
+{
+    padding-left:8px;
+    padding-right:0px;
+    padding-top:2px;
+    padding-bottom:0px;
+    font-size:90%;
+    font-style:italic;
+    font-weight:normal;
+}
+
+.playlisticon
+{
+    padding-right:0px;
+    padding-left:0px;
+    padding-top:0px;
+    padding-bottom:0px;
+}
+
+#sortable
+{
+    list-style-type:none;
+    margin:0px;
+    padding:0;
+    width:100%;
+}
+
+#item
+{
+    padding-top:8px;
+    margin-left:12px;
+    padding-bottom:8px;
+    font-weight:bold;
+    font-size:110%;
+    width:90%;
+    clear:both;
+}
+
+/*-- For Wikipedia and Last.FM pages --*/
+
+.infotext
+{
+    margin:8px;
+}
+
+#similarartists
+{
+    margin-left:auto;
+    margin-right:auto;
+}
+
+#smlrtst
+{
+    display:inline-table;
+    padding:0px;
+}
+
+.simar
+{
+    padding-left:8px;
+    padding-right:8px;
+}
+
+#standout
+{
+    margin-bottom:12px;
+    margin-top:12px;
+}
+
+#foldup
+{
+    width:100%;
+}
+
+.stleft
+{
+    float:left;
+    width:20%;
+}
+
+#frog
+{
+    opacity:0.4;
+    font-weight:bold;
+}
+
+.stright
+{
+    float:right;
+    margin-left:12px;
+    margin-right:0px;
+    padding-right:0px;
+}
+
+#standout ul
+{
+    list-style:none;
+    margin:2px;
+    padding:0px;
+}
+
+#standout ul li
+{
+    line-height:1.5em;
+}
+
+#holdingcell
+{
+    display:inline-block;
+    width:100%
+}
+
+.statsbox
+{
+    margin-left:0px;
+    margin-right:12px;
+    padding:4px;
+}
+
+.tiny
+{
+    font-size:80%;
+    margin-right:6px;
+}
+
+.mw-headline
+{
+    padding-top:8px;
+    padding-bottom:8px;
+    padding-left:12px;
+    padding-right:12px;
+    margin-bottom:8px;
+}
+
+#wikipopup
+{
+    position:absolute;
+    display:none;
+    z-index:1001;
+    opacity:0.7;
+    border-radius: 10px 10px 10px 10px;
+}
+
+#imagecontainer
+{
+    position:absolute;
+    top:24px;
+    left:24px;
+    display:none;
+    opacity:1;
+    z-index:1002;
+    overflow:hidden;
+}
+
+.infobox
+{
+    float:right;
+    margin-right:0px;
+    margin-bottom:12px;
+    margin-left:12px;
+    margin-top:12px;
+}
+
+.thumb
+{
+    margin-right:12px;
+    margin-bottom:12px;
+    margin-left:12px;
+    margin-top:12px;
+}
+
+#infosection
+{
+    padding-top:4px;
+    padding-bottom:4px;
+    padding-left:12px;
+    padding-right:12px;
+}
+
+#albumsection
+{
+    padding-top:4px;
+    padding-bottom:4px;
+    padding-left:12px;
+    padding-right:12px;
+}
+
+/*-- For Album Cover Art and sundry popups --*/
+
+#wobblebottom
+{
+    width:800px;
+    margin-right:auto;
+    margin-left:auto;
+    height:80%;
+    overflow-y:scroll;
+}
+
+#albumcovers
+{
+    width:800px;
+    margin-right:auto;
+    margin-left:auto;
+}
+
+.popupwindow
+{
+    position:absolute;
+    display:none;
+    z-index:1001;
+    border-radius: 3px 3px 3px 3px;
+    overflow:hidden;
+}
+
+#popupcontents
+{
+    height:100%;
+    padding:0px;
+    margin:0px;
+    overflow:auto;
+}
+
+.invisible
+{
+    display:none;
+}
+
+.controlholder
+{
+    height:62px;
+    padding:0px;
+    margin:0px;
+}
+
+#googleinput
+{
+    padding-left:16px;
+    padding-right:16px;
+}
+
+#searchcontent
+{
+    padding-left:16px;
+    padding-right:16px;
+}
+
+.gimage
+{
+    float:left;
+    padding:8px;
+}
+
+.bumfinger
+{
+    padding:8px;
+}
+
+#albumimage
+{
+    cursor:pointer;
+}
+
+#holdingcell li input
+{
+    width:90%;
+}
+
+#holdingcell li button
+{
+    margin-right:6px;
+}
+
+.underlined
+{
+    margin-bottom:8px;
+}
+
+#branding
+{
+    display:inline-block;
+    padding-left:8px;
+    padding-right:8px;
+}
+
+/*-- Styles for drop-down menus --*/
+
+ul.topnav
+{
+    list-style:none;
+    margin:0;
+    padding:0;
+    padding-left:6px;
+    float:left;
+}
+
+ul.topnav li
+{
+    float:left;
+    position:relative;
+    width:40px;
+    z-index:1000;
+}
+
+ul.topnav li a
+{
+    display:block;
+    text-decoration:none;
+    font-size:120%;
+    float:left;
+    font-weight:bold;
+    padding-top:4px;
+}
+
+ul.subnav li
+{
+    width:140px;
+}
+
+ul.topnav li ul.subnav
+{
+    list-style:none;
+    position:absolute;
+    top:26px;
+    left:-124px;
+    margin:0;
+    padding:6px;
+    display:none;
+    float:left;
+    font-size:110%;
+    font-weight:normal;
+    opacity:0.9;
+    width:auto;
+}
+
+ul.subnav li a
+{
+    font-weight:normal;
+    font-size:100%;
+    float:right;
+}
+
+ul.topnav li ul.subnav li
+{
+    margin:0;
+    padding:4px;
+    clear:both;
+    text-align:right;
+}
+
+ul.subnav li.wide
+{
+    width:260px;
+}
+
+ul.topnav li ul.wide
+{
+    left:-240px;
+}
+
+ul.topnav li ul.subnav input.topform
+{
+    font-size:90%;
+    border-radius: 3px 3px 3px 3px;
+    float:right;
+    width:200px;
+}
+
+ul.topnav li ul.subnav input.topcheck
+{
+    font-size:90%;
+    float:right;
+}
+
+ul.topnav li ul.subnav li ul
+{
+    list-style:none;
+    float:right;
+}
+
+button.topform
+{
+    font-size:90%;
+    border-radius: 3px 3px 3px 3px;
+    float:right;
+}
+
+.separator
+{
+     width:100%;
+}
+
+.middle
+{
+    vertical-align:text-top;
+}
+
+ul.sourcenav
+{
+    list-style:none;
+    margin:0;
+    padding:0;
+    padding-left:6px;
+    float:left;
+}
+
+ul.sourcenav li
+{
+    margin-top:4px;
+}
+
+input.sourceform
+{
+    font-size:90%;
+    border-radius: 3px 3px 3px 3px;
+    width:75%;
+    margin-bottom:4px;
+}
+
+button.sourceform
+{
+    font-size:90%;
+    border-radius: 3px 3px 3px 3px;
+    width:20%;
+    margin-bottom:4px;
+}
+
+ul.buyalbum li
+{
+    font-size:90%;
+}
+
+/*-- Key bindings editor --*/
+
+#searchbox
+{
+    padding-bottom:12px;
+}
+
+.filetable
+{
+    padding:0px;
+    width:100%;
+    border:0;
+    vertical-align:middle;
+    border-spacing:0;
+    border-collapse:collapse;
+}
+
+.fileicon
+{
+    width:20px;
+}
+
+/*-- Styles to make the Wikipedia nav boxes look prettier --*/
+
+.navbox-title
+{
+    padding-bottom:4px;
+}
+
+.navbar ul li
+{
+    list-style:none;
+    float:left;
+    padding-left:1em;
+}
+
+.navbox-abovebelow ul li
+{
+    list-style:none;
+    float:left;
+    padding-left:1em;
+}
+
+.navbox-list
+{
+    padding-bottom:4px;
+}
+
+.navbox-list div ul li
+{
+    list-style:none;
+    float:left;
+    padding-left:2em;
+}
+
+#cheese
+{
+    padding-right:12px;
+    display:inline-block;
+    width:100%;
+}
+

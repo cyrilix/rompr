@@ -82,8 +82,6 @@ function LastFM(user) {
                                             }
         );
 
-
-
     }
 
     function LastFMGetRequest(options, success, fail) {

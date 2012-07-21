@@ -244,12 +244,12 @@ class musicCollection {
                     if (!file_exists("albumart/original/".$artname.".jpg")) {
 			// Changed for sorting albums alphabetically
                         //$albums[] = $object;
-                        $albums[$object->name] = $object;
+                        $albums[(string) $object->name] = $object;
                     }
                 } else {
 		    // Changed for sorting albums alphabetically
 		    //$albums[] = $object;
-                    $albums[$object->name] = $object;
+                    $albums[(string) $object->name] = $object;
                 }
             }
         }
@@ -375,11 +375,11 @@ function getStuffFromXSPF($url) {
         foreach($x->trackList->track as $i => $track) {
             if($track->location == $url) {
                 //error_log("Found Stream!");
-                $album = $track->title;
-                if ($track->album) { $album = $track->album; }
-                return array (  $track->title, null, null, null, null,
-                                $track->creator, $album, null, "stream",
-                                $track->image, null, null, null);
+                $album = (string) $track->title;
+                if ($track->album) { $album = (string) $track->album; }
+                return array (  (string) $track->title, null, null, null, null,
+                                (string) $track->creator, $album, null, "stream",
+                                (string) $track->image, null, null, null);
             }
         }
     }
@@ -393,11 +393,11 @@ function getStuffFromXSPF($url) {
         }
         foreach($x->playlist->trackList->track as $i => $track) {
             if($track->location == $url) {
-                return array (  $track->title, ($track->duration)/1000,
-                                null, null, null, $track->creator,
-                                $track->album, null, "lastfmradio",
-                                $track->image, $expiry, $x->playlist->stationurl,
-                                $x->playlist->title );
+                return array (  (string) $track->title, ($track->duration)/1000,
+                                null, null, null, (string) $track->creator,
+                                (string) $track->album, null, "lastfmradio",
+                                (string) $track->image, $expiry, $x->playlist->stationurl,
+                                (string) $x->playlist->title );
             }
 
         }
@@ -410,52 +410,54 @@ function getStuffFromXSPF($url) {
 function doCollection($command) {
 
     global $connection;
+    global $is_connected;
     global $COMPILATION_THRESHOLD;
-
     $collection = new musicCollection($connection);
-    fputs($connection, $command."\n");
-    $firstline = null;
-    $filedata = array();
-    $parts = true;
-    while(!feof($connection) && $parts) {
-        $parts = getline($connection);
-        if (is_array($parts)) {
-            if ($parts[0] == $firstline) {
-                process_file($collection, $filedata);
-                $filedata = array();
-            }
-            $filedata[$parts[0]] = $parts[1];
-            if ($firstline == null) {
-                $firstline = $parts[0];
-            }
-        }
-    }
-    if ($filedata['file']) {
-        process_file($collection, $filedata);
-    }
 
-    // Rescan stage - to find albums that are compilations but have been missed by the above step
-    $possible_compilations = array();
-    foreach($collection->albums as $i => $al) {
-        if (!$al->isCompilation() && utf8_decode($al->name) != "") {
-            $numtracks = $al->trackCount();
-            if ($numtracks < $COMPILATION_THRESHOLD) {
-                if (array_key_exists(utf8_decode($al->name), $possible_compilations)) {
-                    $possible_compilations[utf8_decode($al->name)]++;
-                } else {
-                    $possible_compilations[utf8_decode($al->name)] = 1;
-                }
-            }
-        }
-    }
+    if ($is_connected) {
+	fputs($connection, $command."\n");
+	$firstline = null;
+	$filedata = array();
+	$parts = true;
+	while(!feof($connection) && $parts) {
+	    $parts = getline($connection);
+	    if (is_array($parts)) {
+		if ($parts[0] == $firstline) {
+		    process_file($collection, $filedata);
+		    $filedata = array();
+		}
+		$filedata[$parts[0]] = $parts[1];
+		if ($firstline == null) {
+		    $firstline = $parts[0];
+		}
+	    }
+	}
+	if ($filedata['file']) {
+	    process_file($collection, $filedata);
+	}
 
-    foreach($possible_compilations as $name => $count) {
-        if ($count > 1) {
-            //error_log("Album ".$name." score is ".$count);
-            $collection->createCompilation($name);
-        }
-    }
+	// Rescan stage - to find albums that are compilations but have been missed by the above step
+	$possible_compilations = array();
+	foreach($collection->albums as $i => $al) {
+	    if (!$al->isCompilation() && utf8_decode($al->name) != "") {
+		$numtracks = $al->trackCount();
+		if ($numtracks < $COMPILATION_THRESHOLD) {
+		    if (array_key_exists(utf8_decode($al->name), $possible_compilations)) {
+			$possible_compilations[utf8_decode($al->name)]++;
+		    } else {
+			$possible_compilations[utf8_decode($al->name)] = 1;
+		    }
+		}
+	    }
+	}
 
+	foreach($possible_compilations as $name => $count) {
+	    if ($count > 1) {
+		//error_log("Album ".$name." score is ".$count);
+		$collection->createCompilation($name);
+	    }
+	}
+    }
     return $collection;
 }
 

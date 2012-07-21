@@ -363,22 +363,33 @@ function infoBar() {
     }
 
     this.deleteTracksByID = function(tracks, callback) {
-        var list = "";
+        var list = new Array();
         for(var i in tracks) {
-            list = list+'deleteid "'+tracks[i]+'"'+"||||";
+            list.push('deleteid "'+tracks[i]+'"');
         }
-        self.command("list="+encodeURIComponent(list), callback);
+        do_command_list(list, callback);
     }
     
     this.addalbum = function(key) {
-        var list = "";
+        var list = new Array();
         $('div[name="'+key+'"]').find('a').each(function (index, element) { 
             var link = $(element).attr("onclick");
             var r = /\'command=(.*?)&arg=(.*?)\'/;
             var result = r.exec(link);
-            list = list + result[1] + ' "'+decodeURIComponent(result[2])+'"'+"||||";
+            list.push (result[1] + ' "'+decodeURIComponent(result[2])+'"');
         });
-        self.command("list="+encodeURIComponent(list), playlist.repopulate);        
+        if (mpd_status.state == 'stop') {
+            var f = (playlist.finaltrack == 0) ? 0 : (playlist.finaltrack)+1
+            list.push('play '+f.toString());
+        }
+        do_command_list(list, playlist.repopulate);        
+    }
+
+    function do_command_list(list, callback) {
+        $.post("postcommand.php", {'commands[]': list}, function(data) {
+            self.command("", callback);
+        });
+        
     }
         
 }

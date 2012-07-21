@@ -10,10 +10,11 @@ session_start();
 <head>
 <title>RompR Album Art</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" type="text/css" href="layout.css" />
 <?php
 print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme'].'" />'."\n";
 ?>
-<link type="text/css" href="jqueryui1.8.16/css/start/jquery-ui-1.8.16.custom.css" rel="stylesheet" /> 
+<link type="text/css" href="jqueryui1.8.16/css/start/jquery-ui-1.8.16.custom.css" rel="stylesheet" />
 <script type="text/javascript" src="jquery-1.7.1.min.js"></script>
 <script type="text/javascript" src="jquery.form.js"></script>
 <script type="text/javascript" src="jqueryui1.8.16/js/jquery-ui-1.8.16.custom.min.js"></script>
@@ -30,7 +31,6 @@ $.fn.getValue = function() {
 
 var formObjects = new Array();
 var numAlbums;
-var googlePopup;
 google.load('search', '1');
 var imageSearch;
 var imagekey = '';
@@ -38,11 +38,11 @@ var input;
 var windowScroll;
 var timer;
 var timer_running = false;
-    
+
 function getNewAlbumArt() {
-    
+
     // I need to try and limit the number of lookups per second I do to last.fm
-    // Otherwise they will set the lions on me - hence the use of setTimeout 
+    // Otherwise they will set the lions on me - hence the use of setTimeout
     $("form").each(function(i) {
         if ($(this).find("#flag").getValue() == 0) {
             formObjects.push(this);
@@ -66,7 +66,7 @@ function doNextImage(timer) {
 }
 
 function processForm() {
-    
+
     if (timer_running) {
         clearTimeout(timer);
         timer_running = false;
@@ -74,7 +74,7 @@ function processForm() {
     var object = formObjects.shift();
     var artist = decodeURIComponent($(object).find("#artist").getValue());
     var album = decodeURIComponent($(object).find("#album").getValue());
-    var flag = $(object).find("#flag").getValue();    
+    var flag = $(object).find("#flag").getValue();
     //debug.log("1 : Getting", album);
 
     if (flag == 0) {
@@ -102,7 +102,7 @@ function processForm() {
                 //debug.log("5: we have an image. About to download");
                 key = $(object).attr("name");
                 $.get("getalbumcover.php", "key="+encodeURIComponent(key)+"&src="+encodeURIComponent(image), function () {
-                    $(object).find("#albumimage").attr("src", "albumart/original/"+key+".jpg"); 
+                    $(object).find("#albumimage").attr("src", "albumart/original/"+key+".jpg");
                     $(object).find("#flag").attr("value", "2");
                     albums_without_cover--;
                     updateInfo();
@@ -132,47 +132,31 @@ function updateInfo() {
 }
 
 function doGoogleSearch(artist, album, key) {
-    
+
     imagekey = key;
     windowScroll = getScrollXY();
-    if(googlePopup) {
-        $(googlePopup).remove();
-    }
+    var googlePopup = popupWindow.create(700, 540, "googlepopup", false);
 
-    googlePopup = document.createElement('div');
-    googlePopup.setAttribute('id',"googlepopup");
-    document.body.appendChild(googlePopup);
-    $(googlePopup).append('<div id="coversearch"></div>');
-    $("#coversearch").append('<div id="branding"></div>');
-    $("#coversearch").append('<div id="googleinput"></div>');
-    $("#googleinput").append('<div id="holdingcell"><h3>Upload A File</h3>');
-    $("#googleinput").append('<form id="uform" action="uploadcover.php" method="post" enctype="multipart/form-data"></form>');
+    $("#popupcontents").append('<div id="googleinput"></div>');
+    $("#googleinput").append('<div name="g1" id="holdingcell"><h3>Upload A File</h3></div>');
+    $('div[name="g1"]').append('<form id="uform" action="uploadcover.php" method="post" enctype="multipart/form-data"></form>');
     $("#uform").append('<input type="hidden" name="key" value="'+imagekey+'" />');
-    $("#uform").append('<input class="sourceform" type="file" name="ufile" />');
-    $("#uform").append('<input class="sourceform" type="submit" value="Upload" /></div>');
-    $("#googleinput").append('<div id="holdingcell" class="underlined"><h3>Or Search Google Images</h3>');
-    $("#googleinput").append('<input type="text" id="searchphrase" class="tleft sourceform" size="80" style="width:60%"></input>');
-    $("#googleinput").append('<button class="tleft sourceform" onclick="research()">Search</button>');
-    $("#googleinput").append('<button class="tright sourceform" onclick="closeGooglePopup()">Close Window</button></div>');
-    $("#coversearch").append('<div id="searchcontent"></div>');
+    $("#uform").append('<table width="100%" cellpadding="0" cellspacing="0" id="gibbon"></table>');
+    $("#gibbon").append('<tr><td><input class="tleft sourceform" type="file" size="80" name="ufile" /></td>'+
+                        '<td><input style="width:8em" class="tright sourceform" type="submit" value="Upload" /></td></tr>');
+    $("#googleinput").append('<div name="g2" id="holdingcell" class="underlined"><h3>Or Search Google Images</h3></div>');
+    $('div[name="g2"]').append('<table width="100%" cellpadding="0" cellspacing="0" id="penguin"></table>');
+    $("#penguin").append('<tr><td><input type="text" id="searchphrase" class="tleft sourceform" size="80"></input></td>'+
+                            '<td><button style="width:8em" class="tright sourceform" onclick="research()">Search</button></td></tr>');
+    $("#popupcontents").append('<div id="branding"></div>');
+    $("#popupcontents").append('<div id="searchcontent"></div>');
 
-    var winsize=getWindowSize();
-    var width = winsize.x - 128;
-    var height = winsize.y - 128;
-    if (width > 800) { width = 800; }
-    if (height > 640) { height = 640; }
-    var x = (winsize.x - width)/2 + windowScroll.x;
-    var y = (winsize.y - height)/2 + windowScroll.y;
-    googlePopup.style.width = parseInt(width) + 'px';
-    googlePopup.style.height = parseInt(height) + 'px';           
-    googlePopup.style.top = parseInt(y) + 'px';
-    googlePopup.style.left = parseInt(x) + 'px';    
     $("#searchphrase").attr("value", decodeURIComponent(artist)+" "+decodeURIComponent(album));
-    $("#googlepopup").fadeIn('fast');
-    
+    popupWindow.open();
+
     imageSearch = new google.search.ImageSearch();
     imageSearch.setSearchCompleteCallback(this, googleSearchComplete, null);
-    imageSearch.setResultSetSize(8)
+    imageSearch.setResultSetSize(8);
     google.search.Search.getBranding('branding');
     imageSearch.execute(decodeURIComponent(artist)+" "+decodeURIComponent(album));
 }
@@ -181,7 +165,7 @@ function research() {
     var thing = $("#searchphrase").attr("value");
     imageSearch.execute(thing);
 }
-    
+
 function closeGooglePopup() {
     $("#googlepopup").fadeOut('fast', function () {
         window.scroll(windowScroll.x, windowScroll.y);
@@ -189,15 +173,26 @@ function closeGooglePopup() {
 }
 
 function googleSearchComplete() {
- 
+
     if (imageSearch.results && imageSearch.results.length > 0) {
         $("#searchcontent").html("");
+        var imagesizes = {w:0, h:0};
         var results = imageSearch.results;
         for (var i = 0; i < results.length; i++) {
             var result = results[i];
+            debug.log(result);
             $("#searchcontent").append('<div id="'+i+'" class="gimage"></div>');
             $("#"+i).append('<img id="img'+i+'" class="bumfinger" src="'+result.tbUrl+'"></img>');
             $("#img"+i).wrap('<a href="javascript:updateImage(\''+imagekey+'\', \''+result.url+'\')" />');
+            var thisimagesize = {w:parseInt(result.tbWidth), h:parseInt(result.tbHeight)};
+            if (thisimagesize.w > imagesizes.w) {
+                imagesizes.w = thisimagesize.w;
+            }
+            if (thisimagesize.h > imagesizes.h) {
+                imagesizes.h = thisimagesize.h;
+            }
+            $(".gimage").width(imagesizes.w);
+            $(".gimage").height(imagesizes.h);
         }
     }
 }
@@ -208,9 +203,9 @@ function updateImage(key, url) {
         albums_without_cover--;
         updateInfo();
     }
-    $('form[name="'+key+'"]').find("#albumimage").attr("src", "images/album-unknown.png"); 
+    $('form[name="'+key+'"]').find("#albumimage").attr("src", "images/album-unknown.png");
     $.get("getalbumcover.php", "key="+encodeURIComponent(key)+"&src="+encodeURIComponent(url), function () {
-        $('form[name="'+key+'"]').find("#albumimage").attr("src", "albumart/original/"+key+".jpg"); 
+        $('form[name="'+key+'"]').find("#albumimage").attr("src", "albumart/original/"+key+".jpg");
         $('form[name="'+key+'"]').find("#flag").attr("value", "2");
     });
 }
@@ -247,7 +242,7 @@ $covers = (array_key_exists("nocover", $_REQUEST)) ? true : false;
 $collection = doCollection("listallinfo");
 $artistlist = $collection->getSortedArtistList();
 $count = 0;
-$albums_witout_cover = 0;
+$albums_without_cover = 0;
 if (array_search("various artists", $artistlist)) {
     $key = array_search("various artists", $artistlist);
     unset($artistlist[$key]);
@@ -258,13 +253,13 @@ foreach($artistlist as $artistkey) {
 }
 
 function do_albumcovers($artistkey, $comps, $covers) {
-    
+
     global $collection;
     global $count;
     global $albums_without_cover;
 
     $albumlist = $collection->getAlbumList($artistkey, $comps, $covers);
-        
+
     if (count($albumlist) > 0) {
         $artist = $collection->artistName($artistkey);
         print '<div id="albumsection">';
@@ -328,20 +323,18 @@ function do_albumcovers($artistkey, $comps, $covers) {
         foreach($albumnames as $key => $value) {
             print '<td align="center">'.$value."</td>";
         }
-        
+
         print "</tr>\n";
         print "</table>\n";
         print "</div>\n";
     }
 }
-?>
-</div>
-</div>
-<script language="JavaScript">
-<?php
-    print 'var numcovers = '.$count."\n";
-    print 'var albums_without_cover = '.$albums_without_cover."\n";
-?>
-</script>
-</body>
-</html>
+
+print "</div>\n";
+print "</div>\n";
+print '<script language="JavaScript">'."\n";
+print 'var numcovers = '.$count.";\n";
+print 'var albums_without_cover = '.$albums_without_cover.";\n";
+print "</script>\n";
+print "</body>\n";
+print "</html>\n";

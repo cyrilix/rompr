@@ -517,6 +517,7 @@ function Info(target, source) {
                 //$("#infopane").css("background-color", "#333333");
                 break;
         }
+        savePrefs({infosource: source});
     }
 
     function updateArtistBrowser() {

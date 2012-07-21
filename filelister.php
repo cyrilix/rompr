@@ -6,7 +6,7 @@ $FILE = 2;
 class mpdlistthing {
 
     public function __construct($name, $type, $parnt, $level) {
-    
+
         $this->parnt = $parnt;
         $this->type = $type;
         $this->name = $name;
@@ -14,17 +14,16 @@ class mpdlistthing {
         $this->readpointer = 0;
         $this->level = $level;
         $this->listed = false;
-        //error_log("Created new object - type ".$type." name $name");
     }
-    
+
     public function getName() {
         return $this->name;
     }
-    
+
     public function getTerminatedName() {
         return $this->name."/";
     }
-    
+
     public function getPath() {
         global $DIRECTORY;
         if ($this->type == $DIRECTORY) {
@@ -38,25 +37,25 @@ class mpdlistthing {
             return $nm;
         }
     }
-    
+
     public function getKind() {
         return $this->type;
     }
-    
+
     public function addChild($type, $name) {
         $object = new mpdlistthing($name, $type, $this, $this->level+1);
         $this->children[] = $object;
         return $object;
     }
-    
+
     public function getParent() {
         return $this->parnt;
     }
-    
+
     public function setListed() {
         $this->listed = true;
     }
-    
+
     public function getNextChild() {
         $next = null;
         if ($this->readpointer < count($this->children)) {
@@ -67,7 +66,7 @@ class mpdlistthing {
         }
         return $next;
     }
-    
+
     public function createHTML($prefix) {
         global $FILE;
         global $DIRECTORY;
@@ -111,7 +110,7 @@ class mpdlistthing {
 }
 
 class filetree {
-    
+
     public function __construct() {
         global $FILE;
         global $DIRECTORY;
@@ -119,11 +118,11 @@ class filetree {
         $this->root->setListed();
         $this->current_dir = $this->root;
     }
-    
+
     // Debug function
     public function dump() {
         global $DIRECTORY;
-        
+
         $this->current_dir = $this->root;
         $object = $this->current_dir->getNextChild();
         while ($object) {
@@ -142,19 +141,17 @@ class filetree {
             $object = $this->current_dir->getNextChild();
         }
     }
-    
-    
-    
+
     public function newline($line) {
-    
+
         global $FILE;
         global $DIRECTORY;
-        
+
         //error_log("LINE : ".$line);
-    
+
         $file = basename($line);
         $dir = dirname($line)."/";
-        
+
         while ($this->current_dir->getTerminatedName() != substr($dir, 0, strlen($this->current_dir->getTerminatedName())) &&
                 $this->current_dir != $this->root) {
             $this->current_dir = $this->current_dir->getParent();
@@ -167,7 +164,7 @@ class filetree {
             $create_dir = substr($create_dir, strlen($where_are_we));
         }
         $dirs_to_create = explode("/", $create_dir);
-        
+
         foreach($dirs_to_create as $d) {
             if ($d != '' && $d !='.') {
                 if ($this->current_dir->getName() == ".") {
@@ -177,29 +174,29 @@ class filetree {
                 }
             }
         }
-        
-        $this->current_dir->addChild($FILE, $file);        
-            
+
+        $this->current_dir->addChild($FILE, $file);
+
     }
-    
-    
+
 }
 
 function doFileList($command) {
 
     global $connection;
-    
+    global $is_connected;
+
     $tree = new filetree;
     $parts = true;
-
-    fputs($connection, $command."\n");
-    while(!feof($connection) && $parts) {
-        $parts = getline($connection);
-        if (is_array($parts) && $parts[0] == "file") {
-            $tree->newline($parts[1]);
+    if ($is_connected) {
+        fputs($connection, $command."\n");
+        while(!feof($connection) && $parts) {
+            $parts = getline($connection);
+            if (is_array($parts) && $parts[0] == "file") {
+                $tree->newline($parts[1]);
+            }
         }
     }
-    
     //$tree->dump();
     return $tree;
 }
