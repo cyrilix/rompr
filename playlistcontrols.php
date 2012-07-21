@@ -18,12 +18,13 @@ include ("connection.php");
             <li class="wide"><b>CONFIGURATION</b></li>
             <li class="wide">
                     <ul id="lastfmconfig">
-                        <li class="wide">THEME</li>
-                        <li class="wide"><select id="themeselector" onchange="changetheme()">
+                        <li class="wide">THEME <select id="themeselector" onchange="changetheme()">
 <?php
                         $themes = glob("*.css");
                         foreach($themes as $theme) {
-                            print '<option value="'.$theme.'">'.$theme.'</option>';
+                            if ($theme != "layout.css") {
+                                print '<option value="'.$theme.'">'.$theme.'</option>';
+                            }
                         }
 ?>
                         </select></li>
@@ -55,10 +56,7 @@ include ("connection.php");
         <ul id="clrplst" class="subnav">
             <li><b>Clear Playlist</b></li>
             <li>
-                <form id="clearplaylist" action="ajaxcommand.php" method="get">
-                    <input type="hidden" name="command" value="clear"/>
-                    <button class="topform topformbutton" type="submit">I'm Sure About This</button>
-                </form>
+                <button class="topform topformbutton" onclick="javascript:infobar.command('command=clear', playlist.repopulate)">I'm Sure About This</button>
             </li>
         </ul>
     </li>

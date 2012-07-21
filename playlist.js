@@ -367,6 +367,7 @@ function Playlist() {
         var current_artist = "";
         var current_station = "";
         var track;
+        self.finaltrack = 0;
         $(list).find("track").each( function() {
 
            track = new Track({ creator: $(this).find("creator").text(),
@@ -571,4 +572,5 @@ function Playlist() {
             tracklist[i].invalidateOnStop(songid);
         }
     }
+
 }
