@@ -421,8 +421,7 @@ function LastFM(user) {
                 it = it+lastfm_secret;
                 options.api_sig = hex_md5(it);
                 $.post("http://ws.audioscrobbler.com/2.0/", options)
-                    .done( function(data) { callback(data) })
-                    .complete( function(data) { playlist.saveRadioPlaylist(data.responseText) } )
+                    .done( function(data) {  callback(data) })
                     .fail( function(data) { failcallback(data) });
             }
         }

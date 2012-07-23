@@ -55,10 +55,6 @@
 <playlist>http://bbc.co.uk/radio/listen/live/ran.asx</playlist>
 </station>
 <station>
-<name>BBC World Service</name>
-<playlist>http://www.radiofeeds.co.uk/ws.asx</playlist>
-</station>
-<station>
 <name>BBC Radio Cymru</name>
 <playlist>http://bbc.co.uk/radio/listen/live/rc.asx</playlist>
 </station>

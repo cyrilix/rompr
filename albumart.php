@@ -203,7 +203,7 @@ function updateImage(key, url) {
         albums_without_cover--;
         updateInfo();
     }
-    $('form[name="'+key+'"]').find("#albumimage").attr("src", "images/album-unknown.png");
+    $('form[name="'+key+'"]').find("#albumimage").attr("src", "images/image-update.gif");
     $.get("getalbumcover.php", "key="+encodeURIComponent(key)+"&src="+encodeURIComponent(url), function () {
         $('form[name="'+key+'"]').find("#albumimage").attr("src", "albumart/original/"+key+".jpg");
         $('form[name="'+key+'"]').find("#flag").attr("value", "2");

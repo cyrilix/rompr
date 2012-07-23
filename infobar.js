@@ -140,7 +140,6 @@ function infoBar() {
     }
     
     this.updateWindowValues = function() {
-        //if (mpd_status.consume == "1") { playlist.repopulate() };
         playlist.updateCurrentSong(mpd_status.song,mpd_status.songid);        
         setVolumeSlider();
         setPlayButton();
@@ -367,7 +366,7 @@ function infoBar() {
         for(var i in tracks) {
             list.push('deleteid "'+tracks[i]+'"');
         }
-        do_command_list(list, callback);
+        self.do_command_list(list, callback);
     }
     
     this.addalbum = function(key) {
@@ -382,11 +381,12 @@ function infoBar() {
             var f = (playlist.finaltrack == 0) ? 0 : (playlist.finaltrack)+1
             list.push('play '+f.toString());
         }
-        do_command_list(list, playlist.repopulate);        
+        self.do_command_list(list, playlist.repopulate);        
     }
 
-    function do_command_list(list, callback) {
+    this.do_command_list = function(list, callback) {
         $.post("postcommand.php", {'commands[]': list}, function(data) {
+            debug.log("Command list callback");
             self.command("", callback);
         });
         

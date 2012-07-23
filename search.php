@@ -52,6 +52,9 @@ if ($cmd != "") {
     $count = 1;
     $divtype = "album1";
     $collection = doCollection($cmd);
+    print '<div id="artistname">';
+    print "<h3>Search Results:</h3>";
+    print "</div>";
     createHTML($collection->getSortedArtistList(), "b");
     print '<div class="separator"></div>';
 

@@ -81,7 +81,7 @@ a.album:hover,a.album:active
 
 #item
 {
-    border-bottom:1px solid #000000;
+    border-top:1px solid #000000;
 }
 
 /*-- For Wikipedia and Last.FM pages --*/
@@ -216,7 +216,7 @@ button.topform
 
 .separator
 {
-     border-bottom:8px solid #000000;
+     border-bottom:12px solid #888888;
 }
 
 input.sourceform

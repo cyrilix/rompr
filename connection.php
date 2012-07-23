@@ -36,7 +36,9 @@ if(isset($connection) && is_resource($connection)) {
         }
         // Clean up the saved xspf playlists if we're emptying the playlist
         if ($command == "clear") {
+            system( "mv prefs/STREAM_icecast.xspf prefs/STREAM_icecast.bak");
             system( "rm prefs/*.xspf" );
+            system( "mv prefs/STREAM_icecast.bak prefs/STREAM_icecast.xspf");
         }
     }
 

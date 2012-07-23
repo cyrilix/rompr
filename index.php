@@ -57,14 +57,13 @@ $(document).ready(function(){
     $("#loadinglabel2").effect('pulsate', { times:100 }, 2000);
     $("#progress").progressbar();
     $("#progress").click(function(evt) { infobar.seek(evt) });
-    playlist.repopulate();
     lastfm.revealloveban();
     reloadPlaylistControls();
     $('#albumcontrols').load("albumcontrols.php");
     $('#infocontrols').load("infocontrols.php");
     $('#icecastlist').load("getIcecast.php");
     $("#filelist").load("dirbrowser.php");
-    infobar.update();
+    infobar.command("",playlist.repopulate);
     loadKeyBindings();
 <?php
     if ($prefs['hidebrowser'] == 'true') {
@@ -81,10 +80,10 @@ $(document).ready(function(){
 <table cellpadding="0" cellspacing="0"><tr><td>
     <div id="leftholder" class="infobarlayout tleft bordered">
         <div id="buttons">
-            <a href="#" title="Previous Track" onclick="infobar.command('command=previous')" class="controlbutton"><img src="images/media-skip-backward.png"></a>
+            <a href="#" title="Previous Track" onclick="playlist.previous()" class="controlbutton"><img src="images/media-skip-backward.png"></a>
             <a href="#" title="Play/Pause" id="playbutton" class="controlbutton"><img id="playbuttonimg" src="images/media-playback-pause.png"></a>
             <a href="#" title="Stop" onclick="infobar.command('command=stop')" class="controlbutton"><img src="images/media-playback-stop.png"></a>
-            <a href="#" title="Next Track" onclick="infobar.command('command=next')" class="controlbutton"><img src="images/media-skip-forward.png"></a>
+            <a href="#" title="Next Track" onclick="playlist.next()" class="controlbutton"><img src="images/media-skip-forward.png"></a>
         </div>
         <div id="progress"></div>
         <div id="playbackTime">
@@ -121,10 +120,14 @@ $(document).ready(function(){
 <div id="sources" class="tleft column noborder">
 
 <div id="albumlist" class="noborder">
-    <h2 id="loadinglabel"></h2>
+    <div class="dirname">
+        <h2 id="loadinglabel"></h2>
+    </div>
 </div>
 <div id="filelist" class="invisible">
-    <h2 id="loadinglabel2">Scanning Files...</h2>
+    <div class="dirname">
+        <h2 id="loadinglabel2">Scanning Files...</h2>
+    </div>
 </div>
 <div id="lastfmlist" class="invisible">
 <ul class="sourcenav">

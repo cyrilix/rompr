@@ -234,6 +234,8 @@ function format_wikipedia_page($html) {
     $html = preg_replace('/<span class="editsection">.*?<\/span>/', '', $html);
 //<a rel="nofollow" class="external text" href="http://www.jamaicanrecordings.com/jr_pages/005_aggrovators.htm">
     $html = preg_replace( '/(<a .*? href="http:\/\/.*?")/', '$1 target="_blank"', $html );
+//<a class="external text" href="//en.wikipedia.org/w/index.php?title=Special:Book&amp;bookcmd=render_collection&amp;colltitle=Book:Deep_Purple&amp;writer=rl">Download PDF</a>
+    $html = preg_replace( '/(<a .*? href=".*?Special\:Book.*?")/', '$1 target="_blank"', $html );
 //<a href="/w/index.php?title=J%C3%B6rg_Schwenke&amp;action=edit&amp;redlink=1" class="new" title="JÃ¶rg Schwenke (page does not exist)">JÃ¶rg Schwenke</a>
     $html = preg_replace( '/<a href="\/w\/.*?">(.*?)<\/a>/', '$1', $html );
 //Reformat wikimedia links so they go to our AJAX query : <a href="/wiki/File:Billbongo.jpg"

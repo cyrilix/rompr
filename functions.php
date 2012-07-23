@@ -112,6 +112,7 @@ function format_tracknum($tracknum) {
 # url_get_contents function by Andy Langton: http://andylangton.co.uk/
 function url_get_contents($url,$useragent='RompR Media Player/0.1',$headers=false,$follow_redirects=false,$debug=true) {
 
+    error_log("Getting ".$url);
     # initialise the CURL library
     $ch = curl_init();
 
@@ -152,7 +153,13 @@ function url_get_contents($url,$useragent='RompR Media Player/0.1',$headers=fals
     curl_close($ch);
 
     # send back the data
+    error_log("Returning result");
     return $result;
+}
+
+function format_time($t,$f=':') // t = seconds, f = separator 
+{
+  return sprintf("%02d%s%02d", ($t/60)%60, $f, $t%60);
 }
 
 ?>

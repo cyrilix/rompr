@@ -74,7 +74,7 @@ class mpdlistthing {
         global $divtype;
         if ($this->type == $DIRECTORY) {
             if ($this->parnt != null) {
-                print '<div id="dirname">';
+                print '<div class="dirname">';
                 print '<table class="filetable">';
                 print '<tr><td class="fileicon">';
                 print '<a href="javascript:doMenu(\'dir'.$prefix.$count.'\');" class="toggle" name="dir'.$prefix.$count.'"><img src="images/toggle-closed.png"></a>';
@@ -86,7 +86,7 @@ class mpdlistthing {
                 print "</a>";
                 print '</td></tr></table>';
                 print "</div>\n";
-                print '<div id="filedropmenu" name="dir'.$prefix.$count.'">';
+                print '<div class="filedropmenu" name="dir'.$prefix.$count.'">';
                 $count++;
             }
             foreach ($this->children as $obj) {
@@ -96,7 +96,7 @@ class mpdlistthing {
                 print "</div>\n";
             }
         } else {
-            print '<div id="filemenu"><table class="filetable">';
+            print '<div class="filemenu"><table class="filetable">';
             print '<tr><td class="fileicon">';
             print '<img src="images/audio-x-generic.png" height="16px">';
             print '</td><td>';

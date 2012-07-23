@@ -36,7 +36,9 @@ function loadPrefs() {
         if ($fcontents) {
             while (list($line_num, $line) = each($fcontents)) {
                 $a = explode("||||", $line);
-                $prefs[$a[0]] = trim($a[1]);
+                if ($a[1]) {
+                    $prefs[$a[0]] = trim($a[1]);
+                }
             }
         }
     }

@@ -229,12 +229,22 @@ a
 
 .tracknumber
 {
-    height:1.5em;
+    height:1.3em;
+    width:2em;
+    font-weight:bold;
 }
 
 .tracknumbr
 {
     width:2em;
+}
+
+.discnumber
+{
+    font-weight:bold;
+    font-size:110%;
+    padding-top:2px;
+    padding-bottom:2px;
 }
 
 a.album:hover,a.album:active
@@ -244,9 +254,9 @@ a.album:hover,a.album:active
 
 #artistname
 {
-    padding-top:6px;
-    padding-bottom:6px;
-    padding-left:12px;
+    padding-top:2px;
+    padding-bottom:2px;
+    padding-left:4px;
     font-weight:bold;
 }
 
@@ -260,7 +270,7 @@ a.album:hover,a.album:active
     display:none;
 }
 
-#dirname
+.dirname
 {
     padding-top:4px;
     padding-bottom:0px;
@@ -268,7 +278,7 @@ a.album:hover,a.album:active
     font-weight:bold;
 }
 
-#filedropmenu
+.filedropmenu
 {
     padding-top:0px;
     padding-left:8px;
@@ -276,7 +286,7 @@ a.album:hover,a.album:active
     display:none;
 }
 
-#filemenu
+.filemenu
 {
     padding-left:2px;
     margin-left:22px;
@@ -309,28 +319,32 @@ ul.sourcenav li a
 {
     padding-left:8px;
     padding-right:8px;
-    padding-top:2px;
-    padding-bottom:0px;
+    padding-top:0px;
+    padding-bottom:2px;
     font-weight:bold;
     font-size:90%;
+}
+
+.playlisttitle
+{
+    padding-right:8px;
 }
 
 .playlistcurrentitem
 {
     padding-left:8px;
     padding-right:8px;
-    padding-top:2px;
-    padding-bottom:0px;
+    padding-top:0px;
+    padding-bottom:2px;
     font-weight:bold;
     font-size:120%;
 }
 
 .playlistrow2
 {
-    padding-left:8px;
     padding-right:0px;
-    padding-top:2px;
-    padding-bottom:0px;
+    padding-top:0px;
+    padding-bottom:2px;
     font-size:90%;
     font-style:italic;
     font-weight:normal;
@@ -348,18 +362,17 @@ ul.sourcenav li a
 {
     list-style-type:none;
     margin:0px;
-    padding:0;
-    width:100%;
+    padding:0px;
+    width:98%;
 }
 
 #item
 {
     padding-top:8px;
-    margin-left:12px;
     padding-bottom:8px;
     font-weight:bold;
     font-size:110%;
-    width:90%;
+    width:100%;
     clear:both;
 }
 
@@ -818,3 +831,9 @@ ul.buyalbum li
     width:100%;
 }
 
+.metadata
+{
+    display:table;
+    margin:8px;
+    width:360px;
+}

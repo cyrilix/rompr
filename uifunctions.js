@@ -147,7 +147,7 @@ function doASXStream(url, image) {
                 contentType: "text/xml; charset=utf-8",
                 data: {url: url, image: image},
                 dataType: "xml",
-                success: playlist.newLastFMRadioStation,
+                success: playlist.newInternetRadioStation,
                 error: function(data, status) { revertPointer(); }
     });
 }
@@ -161,7 +161,7 @@ function doPLSStream(url, image, station) {
                 contentType: "text/xml; charset=utf-8",
                 data: {url: url, image: image, station: encodeURIComponent(station)},
                 dataType: "xml",
-                success: playlist.newLastFMRadioStation,
+                success: playlist.newInternetRadioStation,
                 error: function(data, status) { revertPointer(); }
     });
 }
@@ -204,9 +204,9 @@ function doLastFM(station, value) {
 }
 
 function lastFMIsTuned(data) {
-    //debug.log("Tuned Last.FM", data);
+    debug.log("Tuned Last.FM", data);
     if (data && data.error) { lastFMTuneFailed(data); return false; };
-    lastfm.radio.getPlaylist({discovery: 0, rtp: 1, bitrate: 128}, playlist.newLastFMRadioStation, lastFMTuneFailed);
+    lastfm.radio.getPlaylist({discovery: 0, rtp: 1, bitrate: 128}, playlist.saveLastFMPlaylist, lastFMTuneFailed);
 }
 
 function lastFMTuneFailed(data) {
@@ -236,7 +236,7 @@ function gotTrackInfoForStream(data) {
 
     if (data.error) { return false };
     var url = "lastfm://play/tracks/"+data.track.id;
-    lastfm.track.getPlaylist({url: url}, playlist.newLastFMRadioStation, lastFMTuneFailed);
+    lastfm.track.getPlaylist({url: url}, playlist.newInternetRadioStation, lastFMTuneFailed);
 
 }
 
@@ -413,8 +413,8 @@ function loadKeyBindings() {
     debug.log("Loading Key Bindings");
     $.getJSON("getkeybindings.php")
         .done(function(data) {
-            shortcut.add(getHotKey(data['nextrack']),   function(){ infobar.command('command=next') }, {'disable_in_input':true});
-            shortcut.add(getHotKey(data['prevtrack']),  function(){ infobar.command('command=previous') }, {'disable_in_input':true});
+            shortcut.add(getHotKey(data['nextrack']),   function(){ playlist.next() }, {'disable_in_input':true});
+            shortcut.add(getHotKey(data['prevtrack']),  function(){ playlist.previous() }, {'disable_in_input':true});
             shortcut.add(getHotKey(data['stop']),       function(){ infobar.command('command=stop') }, {'disable_in_input':true});
             shortcut.add(getHotKey(data['play']),       function(){ infobar.playpausekey() }, {'disable_in_input':true} );
             shortcut.add(getHotKey(data['volumeup']),   function(){ infobar.volumeKey(5) }, {'disable_in_input':true} );

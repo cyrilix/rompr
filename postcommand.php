@@ -19,6 +19,7 @@ if(isset($connection) && is_resource($connection)) {
 	 fputs($connection, "command_list_begin\n");
 	 $playstart = false;
 	 foreach ($_POST['commands'] as $cmd) {
+	 	error_log($cmd);
 	  	fputs($connection, $cmd."\n");
 
 	 }

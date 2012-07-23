@@ -61,6 +61,7 @@ class album {
             $temp[$discno][intval($index)] = $ob;
             $number++;
         }
+        $numdiscs = count($temp);
         $this->tracks = array();
         $temp2 = array_keys($temp);
         sort($temp2, SORT_NUMERIC);
@@ -75,12 +76,13 @@ class album {
                 $this->tracks[] = $o;
             }
         }
-
+        return $numdiscs;
     }
 
-    public function getTrack($url) {
+    public function getTrack($url, $pos) {
         foreach($this->tracks as $track) {
-            if ($track->url == $url) {
+            if ($track->url == $url && $pos == $track->playlistpos) {
+            //if ($track->url == $url) {
                 return $track;
             }
         }
@@ -242,21 +244,21 @@ class musicCollection {
                 if ($only_without_cover) {
                     $artname = md5($this->artists[$artist]->name . " " . $object->name);
                     if (!file_exists("albumart/original/".$artname.".jpg")) {
-			// Changed for sorting albums alphabetically
+			             // Changed for sorting albums alphabetically
                         //$albums[] = $object;
                         $albums[(string) $object->name] = $object;
                     }
                 } else {
-		    // Changed for sorting albums alphabetically
-		    //$albums[] = $object;
+		          // Changed for sorting albums alphabetically
+		          //$albums[] = $object;
                     $albums[(string) $object->name] = $object;
                 }
             }
         }
 
-	// Changed for sorting albums alphabetically
-	ksort($albums, SORT_STRING);
-	return $albums;
+	   // Changed for sorting albums alphabetically
+	   ksort($albums, SORT_STRING);
+	   return $albums;
     }
 
     public function createCompilation($album) {
@@ -282,9 +284,9 @@ class musicCollection {
         $this->artists["various artists"]->newAlbum($abm);
     }
 
-    public function findTrack($file) {
+    public function findTrack($file, $pos = null) {
         foreach($this->albums as $album) {
-            $track = $album->getTrack($file);
+            $track = $album->getTrack($file, $pos);
             if ($track != null) {
                 return $track;
             }
@@ -315,6 +317,7 @@ function process_file($collection, $filedata) {
                 $type, $image, $expires, $stationurl, $station)
                 = getStuffFromXSPF($file);
         if ($name == null) {
+            error_log("Playlist: Failed to match ".$file);
             $name = "Unknown Stream";
             $album = "Unknown";
             $artist = "Unknown";
@@ -376,10 +379,10 @@ function getStuffFromXSPF($url) {
             if($track->location == $url) {
                 //error_log("Found Stream!");
                 $album = (string) $track->title;
-                if ($track->album) { $album = (string) $track->album; }
-                return array (  (string) $track->title, null, null, null, null,
-                                (string) $track->creator, $album, null, "stream",
-                                (string) $track->image, null, null, null);
+                if ($track->album) { $album = $track->album; }
+                return array (  $track->title, null, null, null, null,
+                                $track->creator, $album, null, "stream",
+                                $track->image, null, null, null);
             }
         }
     }
@@ -393,11 +396,11 @@ function getStuffFromXSPF($url) {
         }
         foreach($x->playlist->trackList->track as $i => $track) {
             if($track->location == $url) {
-                return array (  (string) $track->title, ($track->duration)/1000,
-                                null, null, null, (string) $track->creator,
-                                (string) $track->album, null, "lastfmradio",
-                                (string) $track->image, $expiry, $x->playlist->stationurl,
-                                (string) $x->playlist->title );
+                return array (  $track->title, ($track->duration)/1000,
+                                null, null, null, $track->creator,
+                                $track->album, null, "lastfmradio",
+                                $track->image, $expiry, $x->playlist->stationurl,
+                                $x->playlist->title );
             }
 
         }
@@ -487,9 +490,7 @@ function do_albums($artistkey, $compilations, $showartist, $prefix) {
         $artist = $collection->artistName($artistkey);
        // We have albums for this artist
         print '<div id="artistname" class="' . $divtype . '">' . "\n";
-        print '<a href="javascript:doMenu(\''.$prefix.'artist' . $count . '\');" class="toggle" name="'.$prefix.'artist' . $count . '"><img src="images/toggle-closed.png"></a>' . "\n";
-        print $artist;
-        print "</div>\n";
+        print '<table width="100%"><tr><td width="18px"><a href="javascript:doMenu(\''.$prefix.'artist' . $count . '\');" class="toggle" name="'.$prefix.'artist' . $count . '"><img src="images/toggle-closed.png"></a></td><td>'.$artist.'</td></tr></table></div>';
         print '<div id="albummenu" name="'.$prefix.'artist' . $count . '" class="' . $divtype . '">' . "\n";
 
         // albumlist is now an array of album objects
@@ -505,24 +506,36 @@ function do_albums($artistkey, $compilations, $showartist, $prefix) {
             $artname = md5($artist . " " . $album->name);
 
             print '<img id="updateable" style="vertical-align:middle" src="" height="32" name="albumart/small/'.$artname.'.jpg"></td><td>';
-            //print '<a href="#" onclick="infobar.command(\'command=findadd&arg=album&arg2='.htmlentities(rawurlencode($album->name)).'\', playlist.repopulate)">'.
-            //            $album->name.'</a>';
             print '<a href="#" onclick="infobar.addalbum(\''.$prefix.'album' . $count . '\')">'.$album->name.'</a>';
             print "</td></tr></table></div>\n";
 
             print '<div id="albummenu" name="'.$prefix.'album' . $count . '" class="indent ' . $divtype . '">' . "\n";
             print '<table width="100%">';
-            $album->sortTracks();
+            $numdiscs = $album->sortTracks();
+            $currdisc = -1;
             foreach($album->tracks as $trackobj) {
-                print '<tr><td align="left" class="tracknumber">' . $trackobj->number . "</td><td>";
-                print '<a href="#" onclick="infobar.command(\'command=add&arg='.htmlentities(rawurlencode($trackobj->url)).'\', playlist.repopulate)">'.
-                        $trackobj->name.'</a>';
-                print "</td></tr>\n";
-                //if ($showartist) {
-                //    print '<tr><td></td><td class="playlistrow2">' . $trackobj->artist . '</td></tr>';
-                //}
+                if ($numdiscs > 1) {
+                    if ($trackobj->disc != null && $trackobj->disc != $currdisc) {
+                        $currdisc = $trackobj->disc;
+                        print '<tr><td class="discnumber" colspan="3">Disc '.$currdisc.'</td></tr>';
+                    }
+                }
+                $dorow2 = false;
                 if ($showartist || ($trackobj->albumartist != null && ($trackobj->albumartist != $trackobj->artist))) {
-                    print '<tr><td></td><td class="playlistrow2">' . $trackobj->artist . '</td></tr>';
+                    $dorow2 = true;
+                }
+                print '<tr><td align="left" class="tracknumber"';
+                if ($dorow2) {
+                    print 'rowspan="2"';
+                }
+                print '>' . $trackobj->number . "</td>";
+                print '<td><a href="#" onclick="infobar.command(\'command=add&arg='.htmlentities(rawurlencode($trackobj->url)).'\', playlist.repopulate)">'.
+                        $trackobj->name.'</a>';
+                print "</td>\n";
+                print '<td align="right">'.format_time($trackobj->duration).'</td>';
+                print "</tr>\n";
+                if ($dorow2) {
+                    print '<tr><td class="playlistrow2" colspan="2">' . $trackobj->artist . '</td></tr>';
                 }
             }
 

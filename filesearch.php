@@ -25,6 +25,9 @@ if ($cmd != "") {
     
     $count = 1;
     $tree = doFileList($cmd);
+    print '<div id="artistname">';
+    print "<h3>Search Results:</h3>";
+    print "</div>";
     $tree->root->createHTML("b");
     print '<div class="separator"></div>';
 
