@@ -333,12 +333,10 @@ function LastFMRadio(station, index) {
             if (todelete.length == tracks.length) {
                 var pos = (parseInt(tracks[0].playlistpos))-1;
                 if (pos < 0) { pos=0 }
-                debug.log("Last.FM : repopulating at",pos);
                 playlist.setEndofradio(pos.toString());
                 lastfm.radio.tune({station: tracks[0].stationurl}, lastFMIsTuned, lastFMTuneFailed);
             }
             if (todelete.length == (tracks.length)-1) {
-                debug.log("Last.FM : repopulating at",tracks[0].playlistpos);
                 playlist.setEndofradio(tracks[0].playlistpos);
                 lastfm.radio.tune({station: tracks[0].stationurl}, lastFMIsTuned, lastFMTuneFailed);
             }
@@ -398,7 +396,7 @@ function Playlist() {
     var currentsong = 0;
     var self = this;
     this.endofradio = -1;
-    this.finaltrack = 0;
+    this.finaltrack = -1;
     this.previoustrack = -1;
 
     this.repopulate = function() {
@@ -412,7 +410,7 @@ function Playlist() {
                     data: "{}",
                     dataType: "xml",
                     success: playlist.newXSPF,
-                    error: function(data, status) {  }
+                    error: function(data, status) { alert("Something went wrong retrieving the playlist!") }
         });
     }
 
@@ -424,7 +422,7 @@ function Playlist() {
         var current_artist = "";
         var current_station = "";
         var track;
-        self.finaltrack = 0;
+        self.finaltrack = -1;
         $(list).find("track").each( function() {
 
             track = new Track({ creator: $(this).find("creator").text(),
@@ -458,11 +456,13 @@ function Playlist() {
                         }
                         tracklist[count] = item;
                         count++;
+                        current_station = "";
                         break;
                     case "stream":
                         item = new Stream(count);
                         tracklist[count] = item;
                         count++;
+                        current_station = "";
                         break;
                     case "lastfmradio":
                         if (track.station != current_station) {
@@ -476,6 +476,7 @@ function Playlist() {
                         item = new Album(sortartist, track.album, count);
                         tracklist[count] = item;
                         count++;
+                        current_station = "";
                         break;
 
                 }
@@ -552,6 +553,7 @@ function Playlist() {
         revertPointer();
         var numtracks = 0;
         var cmdlist = new Array();
+        var playfrom = self.finaltrack+1;
         $(list).find("track").each( function() {
             debug.log($(this).find("title").text());
             cmdlist.push('add "'+$(this).find("location").text()+'"');
@@ -562,7 +564,12 @@ function Playlist() {
             var elbow = (self.finaltrack)+1;
             var arse = (self.finaltrack)+numtracks+1;
             var knee = (self.endofradio)+1;
+            playfrom = null;
             cmdlist.push('move '+elbow.toString()+':'+arse.toString()+' '+knee.toString());
+        }
+        if (infobar.getState() == 'stop' && playfrom) {
+            debug.log("Adding command to play from",playfrom.toString());
+            cmdlist.push('play '+playfrom.toString());
         }
         infobar.do_command_list(cmdlist, playlist.repopulate);
         self.endofradio = -1;

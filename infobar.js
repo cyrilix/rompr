@@ -12,8 +12,6 @@ function currentArtist(name) {
 
 function currentAlbum(name, image) {
     
-    //debug.log("New currentAlbum", name, image);
-    
     this.mpd_name = name;
     this.albumart = image;
     this.name =  name;
@@ -43,8 +41,6 @@ function currentAlbum(name, image) {
 }
     
 function currentTrack(name, elapsed, dur) {
-    
-    //debug.log("New Track : ",name, elapsed, dur);
     
     this.mpd_name = name;
     this.name = name;
@@ -136,7 +132,7 @@ function infoBar() {
             if (callback) { callback(); } else { self.updateWindowValues(); }
             
         })
-        .fail( function(data) {  });
+        .fail( function(data) { alert("Failed to send command to MPD") });
     }
     
     this.updateWindowValues = function() {
@@ -378,7 +374,8 @@ function infoBar() {
             list.push (result[1] + ' "'+decodeURIComponent(result[2])+'"');
         });
         if (mpd_status.state == 'stop') {
-            var f = (playlist.finaltrack == 0) ? 0 : (playlist.finaltrack)+1
+            var f = playlist.finaltrack+1;
+            debug.log("Playing From",f,"because",playlist.finaltrack)
             list.push('play '+f.toString());
         }
         self.do_command_list(list, playlist.repopulate);        
@@ -390,6 +387,11 @@ function infoBar() {
             self.command("", callback);
         });
         
+    }
+
+    this.getState = function() {
+        debug.log("Getting state - returning",mpd_status.state);
+        return mpd_status.state;
     }
         
 }
