@@ -14,7 +14,7 @@ There is a massive problem to be solved for laying out items in HTML pages
 <li><table width="100%">
 <tr><td><b>Artist</b></td><td><input class="sourceform" name="findartist" type="text" size="60" style="width:100%" /></td></tr>
 <tr><td><b>Album</b></td><td><input class="sourceform" name="findalbum" type="text" size="60" style="width:100%"/></td></tr>
-<tr><td colspan="2" align="right"><button class="sourceform" type="submit">Find</button></td></tr></table></li>
+<tr><td colspan="2" align="right"><button class="topformbutton" type="submit">Find</button></td></tr></table></li>
 </ul>
 </form> -->
 
@@ -25,7 +25,7 @@ There is a massive problem to be solved for laying out items in HTML pages
 <li><input type="radio" name="stype" value="album"> Album</input></li>
 <li><input type="radio" name="stype" value="artist"> Artist</input></li>
 <li><input class="sourceform" name="searchtitle" type="text" size="60" />
-<button class="sourceform" type="submit">Search</button></li>
+<button class="topformbutton" type="submit">Search</button></li>
 </ul>
 </form>
 

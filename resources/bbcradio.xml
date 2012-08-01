@@ -7,7 +7,7 @@
 </station>
 <station>
 <name>BBC Radio 1xtra</name>
-<image>resources/bbcradio1xtra.jpg</image>
+<image>resources/radio1xtra.jpg</image>
 <playlist>http://bbc.co.uk/radio/listen/live/r1x.asx</playlist>
 </station>
 <station>
@@ -52,10 +52,12 @@
 </station>
 <station>
 <name>BBC Asian Network</name>
+<image>resources/bbc_asian_network.png</image>
 <playlist>http://bbc.co.uk/radio/listen/live/ran.asx</playlist>
 </station>
 <station>
 <name>BBC Radio Cymru</name>
+<image>resources/150radio_cymru.gif</image>
 <playlist>http://bbc.co.uk/radio/listen/live/rc.asx</playlist>
 </station>
 <station>
@@ -65,6 +67,7 @@
 </station>
 <station>
 <name>BBC Radio nan Gaidheal</name>
+<image>resources/bbc_radio_nan_gaidheal.png</image>
 <playlist>http://bbc.co.uk/radio/listen/live/rng.asx</playlist>
 </station>
 <station>
@@ -74,10 +77,12 @@
 </station>
 <station>
 <name>BBC Radio Ulster</name>
+<image>resources/radio_ulster.jpeg</image>
 <playlist>http://bbc.co.uk/radio/listen/live/ru.asx</playlist>
 </station>
 <station>
 <name>BBC Radio Wales</name>
+<image>resources/pic-radiowales.jpeg</image>
 <playlist>http://bbc.co.uk/radio/listen/live/rw.asx</playlist>
 </station>
 <station>

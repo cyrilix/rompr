@@ -16,14 +16,16 @@ session_start();
 print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme'].'" />'."\n";
 ?>
 <link rel="shortcut icon" href="images/favicon.ico" />
-<link type="text/css" href="jqueryui1.8.16/css/start/jquery-ui-1.8.16.custom.css" rel="stylesheet" />
+<link type="text/css" href="jqueryui1.8.16/css/start/jquery-ui-1.8.22.custom.css" rel="stylesheet" />
 <script type="text/javascript" src="jquery-1.7.1.min.js"></script>
 <script type="text/javascript" src="jquery.form.js"></script>
-<script type="text/javascript" src="jqueryui1.8.16/js/jquery-ui-1.8.16.custom.min.js"></script>
+<script type="text/javascript" src="jqueryui1.8.16/js/jquery-ui-1.8.22.custom.min.js"></script>
+<script type="text/javascript" src="jquery.jsonp-2.3.1.min.js"></script>
 <script type="text/javascript" src="shortcut.js"></script>
 <script type="text/javascript" src="keycode.js"></script>
 <script type="text/javascript" src="functions.js"></script>
 <script type="text/javascript" src="uifunctions.js"></script>
+<script type="text/javascript" src="lfmdatafunctions.js"></script>
 <script type="text/javascript" src="jshash-2.2/md5-min.js"></script>
 <script type="text/javascript" src="ba-debug.js"></script>
 <script type="text/javascript" src="infobar.js"></script>
@@ -57,14 +59,23 @@ $(document).ready(function(){
     $("#loadinglabel2").effect('pulsate', { times:100 }, 2000);
     $("#progress").progressbar();
     $("#progress").click(function(evt) { infobar.seek(evt) });
-    lastfm.revealloveban();
-    reloadPlaylistControls();
-    $('#albumcontrols').load("albumcontrols.php");
+    $("#volume").slider();
+    $("#volume").slider("option", "orientation", "vertical");
+    $("#volume" ).slider({
+        stop: function(event, ui) { infobar.setvolume(event) }
+    });
     $('#infocontrols').load("infocontrols.php");
+    lastfm.revealloveban();
+    $('#albumcontrols').load("albumcontrols.php");
     $('#icecastlist').load("getIcecast.php");
     $("#filelist").load("dirbrowser.php");
+    $("#lastfmlist").load("lastfmchooser.php");
+    $("#bbclist").load("bbcradio.php");
+    $("#somafmlist").load("somafm.php");
+
     infobar.command("",playlist.repopulate);
     loadKeyBindings();
+    reloadPlaylistControls();
 <?php
     if ($prefs['hidebrowser'] == 'true') {
         print "    browser.hide();\n";
@@ -92,13 +103,20 @@ $(document).ready(function(){
     </div>
 
     <div id="leftholder" class="infobarlayout tleft bordered">
+        <div id="volumecontrol">
+            <div id="volume">
+            </div>
+        </div>
+    </div>
+
+    <div id="leftholder" class="infobarlayout tleft bordered">
         <div id="albumcover">
             <img id="albumpicture" src="images/album-unknown.png">
         </div>
         <div id="nowplaying"></div>
         <div id="lastfm" class="infobarlayout">
-            <div><ul class="topnav"><a id="love" href="javascript:lastfm.track.love()"><img src="images/lastfm-love.png"></a></ul></div>
-            <div><ul class="topnav"><a id="ban" href="javascript:lastfm.track.ban()"><img src="images/lastfm-ban.png"></a></ul></div>
+            <div><ul class="topnav"><a title="Love this track" id="love" href="javascript:infobar.love()"><img height="24px" src="images/lastfm-love.png"></a></ul></div>
+            <div><ul class="topnav"><a title="Ban this track" id="ban" href="javascript:lastfm.track.ban()"><img height="24px" src="images/lastfm-ban.png"></a></ul></div>
         </div>
     </div>
 </td></tr></table>
@@ -119,80 +137,66 @@ $(document).ready(function(){
 
 <div id="sources" class="tleft column noborder">
 
-<div id="albumlist" class="noborder">
-    <div class="dirname">
-        <h2 id="loadinglabel"></h2>
-    </div>
-</div>
-<div id="filelist" class="invisible">
-    <div class="dirname">
-        <h2 id="loadinglabel2">Scanning Files...</h2>
-    </div>
-</div>
-<div id="lastfmlist" class="invisible">
-<ul class="sourcenav">
-    <li><h3>Last.FM Personal Radio</h3></li>
-    <li><a href="#" onclick="doLastFM('lastfmuser', lastfm.username())">Library Radio</a></li>
-    <li><a href="#" onclick="doLastFM('lastfmmix', lastfm.username())">Mix Radio</a></li>
-    <li><a href="#" onclick="doLastFM('lastfmrecommended', lastfm.username())">Recommended Radio</a></li>
-    <li><a href="#" onclick="doLastFM('lastfmneighbours', lastfm.username())">Neighbourhood Radio</a></li><br>
-    <li><b>Last.FM Artist Radio</b></li>
-    <li>
-        <input class="sourceform" id="lastfmartist" type="text" size="60"/>
-        <button class="sourceform" onclick="doLastFM('lastfmartist')">Play</button>
-    </li>
-    <li><b>Last.FM Artist Fan Radio</b></li>
-    <li>
-        <input class="sourceform" id="lastfmfan" type="text" size="60"/>
-        <button class="sourceform" onclick="doLastFM('lastfmfan')">Play</button>
-    </li>
-    <li><b>Last.FM Global Tag Radio</b></li>
-    <li>
-        <input class="sourceform" id="lastfmglobaltag" type="text" size="60"/>
-        <button class="sourceform" onclick="doLastFM('lastfmglobaltag')">Play</button>
-    </li>
-    <li>
-        <a name="friends" style="padding-left:0px" class="toggle" href="#" onclick="getFriends()"><img src="images/toggle-closed.png"></a><b>Friends</b></li>
-        <div id="albummenu" name="friends"></div>
-    </li>
-    <li>
-        <a name="neighbours" style="padding-left:0px" class="toggle" href="#" onclick="getNeighbours()"><img src="images/toggle-closed.png"></a><b>Neighbours</b></li>
-        <div id="albummenu" name="neighbours"></div>
-    </li>
-</ul>
-</div>
-<div id="bbclist" class="invisible">
-<ul class="sourcenav">
-<li><h3>Live BBC Radio</h3></li>
-<?php
-$x = simplexml_load_file("resources/bbcradio.xml");
-foreach($x->stations->station as $i => $station) {
-    print '<li><a href="#" onclick="doASXStream(\''.$station->playlist.'\', \''.$station->image.'\')">'.$station->name.'</a></li>';
-}
-?>
-</ul>
-</div>
-<div id="icecastlist" class="invisible"></div>
-<div id="somafmlist" class="invisible">
-<ul class="sourcenav">
-<li><img src="images/somafm.png" width="128px"></li>
-<li><a href="http://somafm.com" target="_blank">Please donate to soma fm to keep this service alive!</a></li>
-<?php
-$x = simplexml_load_file("resources/somafm.xml");
-foreach($x->stations->station as $i => $station) {
-    print '<li><table cellspacing="4">';
-    print '<tr><td rowspan="3"><img src="'.$station->image.'" height="72px"></td>';
-    print '<td><h3>'.$station->name.'</h3></td></tr><tr><td>'.$station->description.'</td></tr><tr><td>';
-    foreach($station->link as $j => $link) {
-        $pl = $link->desc;
-        $pl = preg_replace('/ /', '&nbsp;', $pl);
-        print' <a class="tiny" href="#" onclick="doPLSStream(\''.$link->playlist.'\', \''.$station->image.'\', \''.$station->name.'\')">'.$pl.'</a>';
+    <?php
+    if ($prefs['chooser'] == "albumlist") {
+        print '<div id="albumlist" class="noborder">'."\n";
+    } else {
+        print '<div id="albumlist" class="invisible noborder">'."\n";
     }
-    print '</td></tr></table></li><hr>'."\n";
-}
-?>
-</ul>
-</div>
+    ?>
+        <div class="dirname">
+            <h2 id="loadinglabel"></h2>
+        </div>
+    </div>
+
+    <?php
+    if ($prefs['chooser'] == "filelist") {
+        print '<div id="filelist">'."\n";
+    } else {
+        print '<div id="filelist" class="invisible">'."\n";
+    }
+    ?>
+        <div class="dirname">
+            <h2 id="loadinglabel2">Scanning Files...</h2>
+        </div>
+    </div>
+
+    <?php
+    if ($prefs['chooser'] == "lastfmlist") {
+        print '<div id="lastfmlist">'."\n";
+    } else {
+        print '<div id="lastfmlist" class="invisible">'."\n";
+    }
+    ?>
+    </div>
+
+    <?php
+    if ($prefs['chooser'] == "bbclist") {
+        print '<div id="bbclist">'."\n";
+    } else {
+        print '<div id="bbclist" class="invisible">'."\n";
+    }
+    ?>
+    </div>
+
+    <?php
+    if ($prefs['chooser'] == "icecastlist") {
+        print '<div id="icecastlist">'."\n";
+    } else {
+        print '<div id="icecastlist" class="invisible">'."\n";
+    }
+    ?>
+    </div>
+
+    <?php
+    if ($prefs['chooser'] == "somafmlist") {
+        print '<div id="somafmlist">'."\n";
+    } else {
+        print '<div id="somafmlist" class="invisible">'."\n";
+    }
+    ?>
+    </div>
+
 </div>
 
 <div id="infopane" class="tleft cmiddle noborder infowiki">

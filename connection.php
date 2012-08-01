@@ -1,6 +1,8 @@
 <?php
 $is_connected = false;
 
+error_log("Opening Socket");
+
 $connection = fsockopen($prefs["mpd_host"], $prefs["mpd_port"], $errno, $errstr, 10);
 
 if(isset($connection) && is_resource($connection)) {
@@ -28,17 +30,11 @@ if(isset($connection) && is_resource($connection)) {
         do_mpd_command($connection, $command);
 
         if (!array_key_exists("fast", $_REQUEST)) {
-            if ($_REQUEST["command"] == "add" || $_REQUEST["command"] == "load") {
+            if ($_REQUEST["command"] == "add") {
                 if ($mpd_status["state"] == "stop") {
                     do_mpd_command($connection, "play ".$mpd_status["playlistlength"]);
                 }
             }
-        }
-        // Clean up the saved xspf playlists if we're emptying the playlist
-        if ($command == "clear") {
-            system( "mv prefs/STREAM_icecast.xspf prefs/STREAM_icecast.bak");
-            system( "rm prefs/*.xspf" );
-            system( "mv prefs/STREAM_icecast.bak prefs/STREAM_icecast.xspf");
         }
     }
 

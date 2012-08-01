@@ -5,7 +5,7 @@
 <a href="#" title="Last.FM Radio" onclick="sourcecontrol('lastfmlist')"><img class="topimg" height="24px" src="images/lastfm.png"></a>
 <a href="#" title="Live BBC Radio" onclick="sourcecontrol('bbclist')"><img class="topimg" height="24px" src="images/bbcr.png"></a>
 <a href="#" title="IceCast Radio" onclick="sourcecontrol('icecastlist')"><img class="topimg" height="24px" src="images/icecast.png"></a>
-<a href="#" title="soma fm radio" onclick="sourcecontrol('somafmlist')"><img class="topimg" width="36px" src="images/somafm.png"></a>
+<a href="#" title="soma fm radio" onclick="sourcecontrol('somafmlist')"><img class="topimg" width="36px" src="images/somafm-icon.png"></a>
 </td></tr></table>
 </div>
 
@@ -53,6 +53,7 @@ function switchsource(source) {
     if (togo) {
         $("#"+togo).fadeOut('fast', function() { switchsource(source) });
     } else {
+        savePrefs({chooser: source})
         $("#"+source).fadeIn('fast');
     }
 }

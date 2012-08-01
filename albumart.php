@@ -18,6 +18,7 @@ print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme']
 <script type="text/javascript" src="jquery-1.7.1.min.js"></script>
 <script type="text/javascript" src="jquery.form.js"></script>
 <script type="text/javascript" src="jqueryui1.8.16/js/jquery-ui-1.8.16.custom.min.js"></script>
+<script type="text/javascript" src="jquery.jsonp-2.3.1.min.js"></script>
 <script type="text/javascript" src="functions.js"></script>
 <script type="text/javascript" src="uifunctions.js"></script>
 <script type="text/javascript" src="ba-debug.js"></script>
@@ -83,37 +84,41 @@ function processForm() {
 
         //debug.log("2: About to query last.fm");
         var url = "http://ws.audioscrobbler.com/2.0/?method=album.getinfo&album="+encodeURIComponent(album)+"&artist="+encodeURIComponent(artist)+"&autocorrect=1&api_key="+lastfm_api_key+"&format=json&callback=?";
-        $.getJSON(url)
-            .done( function(data) {
+        // $.getJSON(url)
+            // .done( function(data) {
             //debug.log("3: Got response");
-            var image = "";
-            if (data.album) {
-                //debug.log("4: It has data");
-                $.each(data.album.image, function (index, value) {
-                    var pic = "";
-                    $.each(value, function (index, value) {
-                        if (index == "#text") { pic = value; }
-                        if (index == "size" && value == "large") { image = pic; }
-                        if (image == "") { image = pic; }
-                    });
-                });
-            }
-            if (image != "") {
-                //debug.log("5: we have an image. About to download");
-                key = $(object).attr("name");
-                $.get("getalbumcover.php", "key="+encodeURIComponent(key)+"&src="+encodeURIComponent(image), function () {
-                    $(object).find("#albumimage").attr("src", "albumart/original/"+key+".jpg");
-                    $(object).find("#flag").attr("value", "2");
-                    albums_without_cover--;
-                    updateInfo();
-                    doNextImage(750);
-                });
-            } else {
-                //debug.log("7: We got no image");
-                doNextImage(800);
-            }
-        })
-        .fail(function () { doNextImage(1000) });
+        $.jsonp({url: url,
+                success: function(data) {
+                    var image = "";
+                    if (data.album) {
+                        //debug.log("4: It has data");
+                        $.each(data.album.image, function (index, value) {
+                            var pic = "";
+                            $.each(value, function (index, value) {
+                                if (index == "#text") { pic = value; }
+                                if (index == "size" && value == "large") { image = pic; }
+                                if (image == "") { image = pic; }
+                            });
+                        });
+                    }
+                    if (image != "") {
+                        //debug.log("5: we have an image. About to download");
+                        key = $(object).attr("name");
+                        $.get("getalbumcover.php", "key="+encodeURIComponent(key)+"&src="+encodeURIComponent(image), function () {
+                            $(object).find("#albumimage").attr("src", "albumart/original/"+key+".jpg");
+                            $(object).find("#flag").attr("value", "2");
+                            albums_without_cover--;
+                            updateInfo();
+                            doNextImage(750);
+                        });
+                    } else {
+                        //debug.log("7: We got no image");
+                        doNextImage(800);
+                    }
+                },
+                error: function() { doNextImage(1000); }
+        });
+        // .fail(function () { doNextImage(1000) });
     } else {
         //debug.log("8: Nothing to do");
         doNextImage(100);
@@ -142,12 +147,12 @@ function doGoogleSearch(artist, album, key) {
     $('div[name="g1"]').append('<form id="uform" action="uploadcover.php" method="post" enctype="multipart/form-data"></form>');
     $("#uform").append('<input type="hidden" name="key" value="'+imagekey+'" />');
     $("#uform").append('<table width="100%" cellpadding="0" cellspacing="0" id="gibbon"></table>');
-    $("#gibbon").append('<tr><td><input class="tleft sourceform" type="file" size="80" name="ufile" /></td>'+
-                        '<td><input style="width:8em" class="tright sourceform" type="submit" value="Upload" /></td></tr>');
+    $("#gibbon").append('<tr><td><input style="color:#ffffff" class="tleft sourceform" type="file" size="80" name="ufile" /></td>'+
+                        '<td><input style="width:8em" class="tright topformbutton" type="submit" value="Upload" /></td></tr>');
     $("#googleinput").append('<div name="g2" id="holdingcell" class="underlined"><h3>Or Search Google Images</h3></div>');
     $('div[name="g2"]').append('<table width="100%" cellpadding="0" cellspacing="0" id="penguin"></table>');
     $("#penguin").append('<tr><td><input type="text" id="searchphrase" class="tleft sourceform" size="80"></input></td>'+
-                            '<td><button style="width:8em" class="tright sourceform" onclick="research()">Search</button></td></tr>');
+                            '<td><button style="width:8em" class="tright topformbutton" onclick="research()">Search</button></td></tr>');
     $("#popupcontents").append('<div id="branding"></div>');
     $("#popupcontents").append('<div id="searchcontent"></div>');
 
@@ -220,7 +225,7 @@ function updateImage(key, url) {
 <tr><td><p id="totaltext"></p><p id="infotext"></p></td>
 <td width="40%"><div id="progress"></div><br><div id="status"></div></td>
 <td align="right">
-<button onclick="getNewAlbumArt()">Get Missing Covers</button>
+<button class="topformbutton" onclick="getNewAlbumArt()">Get Missing Covers</button>
 </td></tr>
 <?php
 if(array_key_exists("nocover", $_REQUEST)) {
@@ -251,6 +256,7 @@ if (array_search("various artists", $artistlist)) {
 foreach($artistlist as $artistkey) {
     do_albumcovers($artistkey, true, $covers);
 }
+close_mpd($connection);
 
 function do_albumcovers($artistkey, $comps, $covers) {
 

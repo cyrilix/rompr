@@ -425,17 +425,19 @@ function doCollection($command) {
 	while(!feof($connection) && $parts) {
 	    $parts = getline($connection);
 	    if (is_array($parts)) {
-		if ($parts[0] == $firstline) {
-		    process_file($collection, $filedata);
-		    $filedata = array();
-		}
-		$filedata[$parts[0]] = $parts[1];
-		if ($firstline == null) {
-		    $firstline = $parts[0];
-		}
+            if ($parts[0] != "playlist" && $parts[0] != "Last-Modified") {
+        		if ($parts[0] == $firstline) {
+        		    process_file($collection, $filedata);
+        		    $filedata = array();
+        		}
+        		$filedata[$parts[0]] = $parts[1];
+        		if ($firstline == null) {
+        		    $firstline = $parts[0];
+        		}
+            }
 	    }
 	}
-	if ($filedata['file']) {
+	if (array_key_exists('file', $filedata) && $filedata['file']) {
 	    process_file($collection, $filedata);
 	}
 

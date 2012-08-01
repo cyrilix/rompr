@@ -171,10 +171,9 @@ ul.topnav li a:hover
 
 ul.subnav
 {
-    border-radius: 0px 0px 6px 6px;
     border-left:1px solid #1a1a90;
-    border-bottom:1px solid #010110;
-    border-right:1px solid #010110;
+    border-bottom:1px solid #1a1a90;
+    border-right:1px solid #1a1a90;
     border-top:none;
 }
 
@@ -197,20 +196,9 @@ ul.topnav li ul.subnav input.topcheck
     color:#ffffff;
 }
 
-button.topform
-{
-    background:#999999;
-    color:#000000;
-    border:1px solid #999999;
-}
-
 .topformbutton:hover
 {
     color:#ff4800;
-    border-left:1px solid #ff4800;
-    border-bottom:1px solid #ff4800;
-    border-right:1px solid #ff3600;
-    border-top:1px solid #ff3600;
 }
 
 .separator
@@ -224,26 +212,9 @@ input.sourceform
     color:#222222;
 }
 
-button.sourceform
+input.topformbutton
 {
-    border:1px solid #999999;
-}
-
-button.sourceform:hover
-{
-    color:#ff4800;
-    border-left:1px solid #ff4800;
-    border-bottom:1px solid #ff4800;
-    border-right:1px solid #ff3600;
-    border-top:1px solid #ff3600;
-}
-
-input.sourceform:hover
-{
-    border-left:1px solid #ff4800;
-    border-bottom:1px solid #ff4800;
-    border-right:1px solid #ff3600;
-    border-top:1px solid #ff3600;
+    color:#000000;
 }
 
 /*-- Styles to make the Wikipedia nav boxes look prettier --*/
@@ -285,4 +256,25 @@ input.sourceform:hover
 {
     color:#ff4800;
     text-decoration:none;
+}
+
+.plainlinks
+{
+    background-color:#cccccc;
+}
+
+.tracklist tbody tr td
+{
+    color:#000000;
+}
+
+.tracklist tbody tr td ul li
+{
+    color:#000000;
+}
+
+.tracklist tbody tr th
+{
+    color:#000000;
+    font-weight:bold;
 }

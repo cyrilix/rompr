@@ -83,6 +83,11 @@ a.album:hover,a.album:active
     border-top:1px solid #cccccc;
 }
 
+.inbrowser
+{
+    color:#000000;
+}
+
 /*-- For Wikipedia and Last.FM pages --*/
 
 .stleft
@@ -140,7 +145,7 @@ a.album:hover,a.album:active
 
 .popupwindow
 {
-    background:#454545;
+    background:#111111;
     border-left:2px solid #888888;
     border-bottom:2px solid #888888;
     border-right:2px solid #888888;
@@ -171,46 +176,34 @@ ul.topnav li a:hover
 
 ul.subnav
 {
-    border-radius: 0px 0px 6px 6px;
-    border-left:1px solid #999999;
-    border-bottom:1px solid #999999;
-    border-right:1px solid #000000;
+    border-left:1px solid #555555;
+    border-bottom:1px solid #555555;
+    border-right:1px solid #555555;
     border-top:none;
 }
 
 ul.topnav li ul.subnav
 {
-    background:#444444;
+    background:#000000;
     color:#ffffff;
 }
 
 ul.topnav li ul.subnav input.topform
 {
-    background:000000;
+    background:#000000;
     color:#ffffff;
     border:1px solid #999999;
 }
 
 ul.topnav li ul.subnav input.topcheck
 {
-    background:000000;
+    background:#000000;
     color:#ffffff;
-}
-
-button.topform
-{
-    background:#999999;
-    color:#000000;
-    border:1px solid #999999;
 }
 
 .topformbutton:hover
 {
     color:#ff4800;
-    border-left:1px solid #ff4800;
-    border-bottom:1px solid #ff4800;
-    border-right:1px solid #ff3600;
-    border-top:1px solid #ff3600;
 }
 
 .separator
@@ -224,26 +217,9 @@ input.sourceform
     color:#181818;
 }
 
-button.sourceform
+input.topformbutton
 {
-    border:1px solid #999999;
-}
-
-button.sourceform:hover
-{
-    color:#ff4800;
-    border-left:1px solid #ff4800;
-    border-bottom:1px solid #ff4800;
-    border-right:1px solid #ff3600;
-    border-top:1px solid #ff3600;
-}
-
-input.sourceform:hover
-{
-    border-left:1px solid #ff4800;
-    border-bottom:1px solid #ff4800;
-    border-right:1px solid #ff3600;
-    border-top:1px solid #ff3600;
+    color:#000000;
 }
 
 /*-- Styles to make the Wikipedia nav boxes look prettier --*/
@@ -301,4 +277,25 @@ input.sourceform:hover
 .mbox-text a:hover
 {
     color:#ff2200;
+}
+
+.plainlinks
+{
+    background-color:#cccccc;
+}
+
+.tracklist tbody tr td
+{
+    color:#000000;
+}
+
+.tracklist tbody tr td ul li
+{
+    color:#000000;
+}
+
+.tracklist tbody tr th
+{
+    color:#000000;
+    font-weight:bold;
 }

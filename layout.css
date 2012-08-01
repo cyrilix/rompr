@@ -124,13 +124,6 @@ a
     cursor:pointer;
 }
 
-#volume
-{
-    margin-left:12px;
-    margin-right:12px;
-    cursor:pointer;
-}
-
 #playbackTime
 {
     text-align:center;
@@ -173,8 +166,21 @@ a
 #lastfm
 {
     float:right;
-    margin-top:12px;
+    margin-top:20px;
     display:none;
+}
+
+#volumecontrol
+{
+    width:24px;
+    margin-left:0px;
+    margin-right:0px;
+}
+
+#volume
+{
+    margin-left:8px;
+    margin-top:4px;
 }
 
 /*-- Classes used to control flow and layout --*/
@@ -311,6 +317,12 @@ a.album:hover,a.album:active
 ul.sourcenav li a
 {
     padding-left:16px;
+}
+
+.soma
+{
+    padding:0px;
+    margin:0px;
 }
 
 /*-- divs and classes used in the playlist --*/
@@ -651,6 +663,13 @@ ul.topnav li a
     padding-top:4px;
 }
 
+ul.subnav
+{
+    border-radius: 0px 0px 0px 0px;
+    max-height:400px;
+    overflow:auto;
+}
+
 ul.subnav li
 {
     width:140px;
@@ -668,7 +687,6 @@ ul.topnav li ul.subnav
     float:left;
     font-size:110%;
     font-weight:normal;
-    opacity:0.9;
     width:auto;
 }
 
@@ -676,7 +694,6 @@ ul.subnav li a
 {
     font-weight:normal;
     font-size:100%;
-    float:right;
 }
 
 ul.topnav li ul.subnav li
@@ -684,7 +701,6 @@ ul.topnav li ul.subnav li
     margin:0;
     padding:4px;
     clear:both;
-    text-align:right;
 }
 
 ul.subnav li.wide
@@ -697,31 +713,35 @@ ul.topnav li ul.wide
     left:-240px;
 }
 
+ul.topnav li ul.widel
+{
+    left:-20px;
+}
+
+ul.subnav li.wider
+{
+    width:360px;
+}
+
+ul.topnav li ul.widel li
+{
+    text-align:left;
+}
+
 ul.topnav li ul.subnav input.topform
 {
     font-size:90%;
-    border-radius: 3px 3px 3px 3px;
-    float:right;
     width:200px;
 }
 
 ul.topnav li ul.subnav input.topcheck
 {
     font-size:90%;
-    float:right;
 }
 
 ul.topnav li ul.subnav li ul
 {
     list-style:none;
-    float:right;
-}
-
-button.topform
-{
-    font-size:90%;
-    border-radius: 3px 3px 3px 3px;
-    float:right;
 }
 
 .separator
@@ -751,7 +771,7 @@ ul.sourcenav li
 input.sourceform
 {
     font-size:90%;
-    border-radius: 3px 3px 3px 3px;
+    border-radius: 2px 2px 2px 2px;
     width:75%;
     margin-bottom:4px;
 }
@@ -759,7 +779,7 @@ input.sourceform
 button.sourceform
 {
     font-size:90%;
-    border-radius: 3px 3px 3px 3px;
+    border-radius: 2px 2px 2px 2px;
     width:20%;
     margin-bottom:4px;
 }
@@ -767,6 +787,11 @@ button.sourceform
 ul.buyalbum li
 {
     font-size:90%;
+}
+
+.waiting
+{
+    padding:4px;
 }
 
 /*-- Key bindings editor --*/

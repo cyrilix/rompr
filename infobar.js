@@ -1,33 +1,37 @@
-function currentArtist(name) {
+function currentArtist(name, lfm) {
     this.mpd_name = name;
     this.name = name;
     var self = this;
+    this.artistdata = lfm;
     
-    this.gotArtistInfo = function(data) {
-        browser.artist.new(data);
-        self.name = browser.artist.name() || self.name;
+    this.gotArtistInfo = function(object) {
+        // self.artistdata = object;
+        debug.log("Infobar: Got artist info for", self.artistdata.name());
+        self.name = self.artistdata.name() || self.name;
         infobar.setNowPlayingInfo();
     }
 }
 
-function currentAlbum(name, image) {
+function currentAlbum(name, image, lfm) {
     
     this.mpd_name = name;
     this.albumart = image;
     this.name =  name;
     var self = this;
     if (image != "") { changeAlbumPicture(image); }
+    this.albumdata = lfm;
     
-    this.gotAlbumInfo = function(data) {
-        browser.album.new(data);
-        self.name = browser.album.name() || self.name;
+    this.gotAlbumInfo = function(object) {
+        // self.albumdata = object;
+        debug.log("Infobar: Got album info for", self.albumdata.name());
+        self.name = self.albumdata.name() || self.name;
         infobar.setNowPlayingInfo();
         // Get album image, if we need it
         if(self.albumart == "") {
-            self.albumart = browser.album.image("medium") || "images/album-unknown.png";
+            self.albumart = self.albumdata.image("medium") || "images/album-unknown.png";
+            debug.log("Using album art from last.fm");
             changeAlbumPicture(self.albumart);
         }
-
     }
 
     function changeAlbumPicture(url) {
@@ -40,7 +44,7 @@ function currentAlbum(name, image) {
 
 }
     
-function currentTrack(name, elapsed, dur) {
+function currentTrack(name, elapsed, dur, lfm) {
     
     this.mpd_name = name;
     this.name = name;
@@ -53,19 +57,21 @@ function currentTrack(name, elapsed, dur) {
     if (duration == 0) { duration = playlist.current('duration') }
     if (duration == "") { duration = 0 }
     this.duration = duration;
+    this.trackdata = lfm;
     
     this.setStartTime = function(elapsed) {
         var date = new Date();
         self.starttime = (date.getTime())/1000 - parseFloat(elapsed);
     }
 
-    this.gotTrackInfo = function(data) {
-        browser.track.new(data);
+    this.gotTrackInfo = function(object) {
+        // self.trackdata = object;
+        debug.log("Infobar: Got track info for", self.trackdata.name());
         if (self.duration == 0 && playlist.current('type') != "stream") {
-            self.duration = browser.track.duration();
+            self.duration = self.trackdata.duration();
         }
-        self.name = browser.track.name() || self.name;
-        infobar.setNowPlayingInfo(); 
+        self.name = self.trackdata.name() || self.name;
+        infobar.setNowPlayingInfo();
     }
     
 }
@@ -73,22 +79,74 @@ function currentTrack(name, elapsed, dur) {
 function playInfo() {
  
     var self = this;
-    self.track = new currentTrack("", 0, 0);
-    self.album = new currentAlbum("", "");
-    self.artist = new currentArtist("");
+    self.track = new currentTrack(null, 0, 0);
+    self.album = new currentAlbum(null, null);
+    self.artist = new currentArtist(null);
     
-    this.newTrack = function(name, elapsed, dur) {
-        self.track = new currentTrack(name, elapsed, dur);
+    this.newTrack = function(artist, name, elapsed, dur) {
+        var lfm = new lfmtrack(name, artist, self.gotTrackInfo);
+        self.track = new currentTrack(name, elapsed, dur, lfm);
+        lfm.populate();
+        return lfm;
     }
     
-    this.newAlbum = function(name, image) {
-        self.album = new currentAlbum(name, image);
+    this.newAlbum = function(artist, name, image) {
+        var lfma = new lfmalbum(name, artist, self.gotAlbumInfo);
+        self.album = new currentAlbum(name, image, lfma);
+        lfma.populate();
+        return lfma;
     }
     
     this.newArtist = function(name) {
-        self.artist = new currentArtist(name);
+        var lfmb = new lfmartist(name, self.gotArtistInfo);
+        self.artist = new currentArtist(name, lfmb);
+        lfmb.populate();
+        return lfmb;
     }
+
+    this.gotTrackInfo = function(object) { self.track.gotTrackInfo(object) }
+    this.gotAlbumInfo = function(object) { self.album.gotAlbumInfo(object) }
+    this.gotArtistInfo = function(object) { self.artist.gotArtistInfo(object) }
         
+}
+
+function playControl() {
+    var self = this;
+    self.state = "";
+
+    this.setState = function(state) {
+        if (state != self.state) {
+            self.state = state;
+             switch(state)
+            {
+                case "play":
+                    $("#playbuttonimg").attr("src", "images/media-playback-pause.png");
+                    $("#playbutton").attr("onclick", "infobar.command('command=pause')");
+                    break;
+                case "pause":
+                case "stop":
+                    $("#playbuttonimg").attr("src", "images/media-playback-start.png");
+                    $("#playbutton").attr("onclick", "infobar.command('command=play')");
+                    break;
+            }
+        }
+    }
+}
+
+function volumeControl() {
+    var self = this;
+    self.volume = 0;
+
+    this.setState = function(volume) {
+        if (volume != self.volume && volume > 0) {
+            self.volume = volume;
+            $("#volume").slider("option", "value", parseInt(volume));
+        }
+    }
+
+    this.restoreState = function() {
+        $("#volume").slider("option", "value", parseInt(self.volume));
+    }
 }
 
 function infoBar() {
@@ -100,6 +158,8 @@ function infoBar() {
     var self = this;
     var alanpartridge = 0;
     this.nowplaying = new playInfo();
+    var playbutton = new playControl();
+    var volumeslider = new volumeControl();
     
     this.update = function() {
         this.command("");
@@ -136,9 +196,9 @@ function infoBar() {
     }
     
     this.updateWindowValues = function() {
-        playlist.updateCurrentSong(mpd_status.song,mpd_status.songid);        
+        playlist.updateCurrentSong(mpd_status.song, mpd_status.songid);        
         setVolumeSlider();
-        setPlayButton();
+        playbutton.setState(mpd_status.state);
         checkAlbumChange();
         self.setNowPlayingInfo();
         self.setProgressBar();
@@ -158,26 +218,7 @@ function infoBar() {
     }
     
     function setVolumeSlider() {
-        // Volume
-        if (mpd_status.volume > 0) {
-            $("#volume").progressbar("option", "value", parseInt(mpd_status.volume));
-        }
-    }
-    
-    function setPlayButton() {
-       // Play/Pause button
-        switch(mpd_status.state)
-        {
-            case "play":
-                $("#playbuttonimg").attr("src", "images/media-playback-pause.png");
-                $("#playbutton").attr("onclick", "infobar.command('command=pause')");
-                break;
-            case "pause":
-            case "stop":
-                $("#playbuttonimg").attr("src", "images/media-playback-start.png");
-                $("#playbutton").attr("onclick", "infobar.command('command=play')");
-                break;
-        }
+        volumeslider.setState(mpd_status.volume);
     }
     
     this.setNowPlayingInfo = function() {
@@ -213,6 +254,8 @@ function infoBar() {
             if (duration > 0) {
                 if (prog >= duration) {
                     // Just in case - don't just call update, sometimes the track is longer than last.fm thinks it is
+                    // This is a safety mechanism to prevent continuous calls to update() in this situation
+                    // while still providing a quick response to a track change.
                     progresstimer = setTimeout("infobar.update()", safetytimer);
                     if (safetytimer<5000) { safetytimer+=500; }
                 } else {
@@ -231,6 +274,17 @@ function infoBar() {
                 progress_timer_running = 1;
             }
         }
+    }
+
+    this.love = function() {
+        debug.log("Love was clicked on infobar");
+        lastfm.track.love(self.nowplaying.track.name, self.nowplaying.artist.name, self.donelove);
+    }
+
+    this.donelove = function(track,artist) {
+        debug.log("donelove",track,artist);
+        $("#love").effect('pulsate', {times: 1}, 2000);
+        browser.justloved(track,artist);
     }
     
     function scrobble() {
@@ -268,9 +322,15 @@ function infoBar() {
     
     function checkAlbumChange() {
         // See if the playing track has changed
+        // Get the current status FROM THE PLAYLIST because if we're playing
+        // Last.FM only the playlist knows this information.
         var al = playlist.current('album');
         var ar = playlist.current('creator');
         var tr = playlist.current('title') || mpd_status.Title || "";
+        var history = { track: self.nowplaying.track.trackdata,
+                        album: self.nowplaying.album.albumdata,
+                        artist: self.nowplaying.artist.artistdata};
+        var toupdate = false;
         if (playlist.current('type') == "stream") {
             var parts = tr.split(" - ", 2);
             if (parts[0] && parts[1]) {
@@ -279,36 +339,30 @@ function infoBar() {
                 al = playlist.current('creator') + " - " + playlist.current('album');
             }
         }
+        // Compare with the names as returned from mpd, not from Last.FM corrections.
+        if (ar != self.nowplaying.artist.mpd_name) {
+            history.artist = self.nowplaying.newArtist(ar);
+            toupdate = true;
+        }
         if (tr != self.nowplaying.track.mpd_name)
         {
-            // Track has changed.
-            //debug.log("Track has changed from", self.nowplaying.track.mpd_name, "to", tr);
-            safettyimer = 500;
-            self.nowplaying.newTrack(tr, mpd_status.elapsed, mpd_status.Time);
-            if (tr != "" && ar != "") {
-                lastfm.track.getInfo({track: encodeURIComponent(tr), artist: encodeURIComponent(ar)}, self.nowplaying.track.gotTrackInfo, browser.TrackChanged);
-            } else {
-                browser.TrackChanged();
-            }
+            safetytimer = 500;
+            history.track = self.nowplaying.newTrack(ar, tr, mpd_status.elapsed, mpd_status.Time);
+            toupdate = true;
         }
-        if (al != self.nowplaying.album.mpd_name || ar != self.nowplaying.artist.mpd_name) {
-            //debug.log("Album or artist has changed");
-            // We can assume that if the artist has changed then so has the album
-            // even if the album has the same name. Hence always update the album
-            self.nowplaying.newAlbum(al, playlist.current('image'));
-            if (al != "" && ar != "") {
-                lastfm.album.getInfo({album: encodeURIComponent(al), artist: encodeURIComponent(ar)}, self.nowplaying.album.gotAlbumInfo, browser.AlbumChanged);
-            } else {
-                browser.AlbumChanged();
-            }
-            if (ar != self.nowplaying.artist.mpd_name) {
-                self.nowplaying.newArtist(ar);
-                if (ar != "") {
-                    lastfm.artist.getInfo({artist: encodeURIComponent(ar)}, self.nowplaying.artist.gotArtistInfo, browser.ArtistChanged);
-                } else {
-                    browser.ArtistChanged();
-                }
-            }
+        if (al != self.nowplaying.album.mpd_name) {
+            // We might, in some rare case, switch to a new artist with the same album
+            // name as the previous one. In that case this won't fire and the album won't
+            // get updated. On the other hand, if we trigger this on (album || artist) change
+            // then the album gets updated for every track if we're playing a various artists
+            // compilation. You can't win. This is better as the scenario in which this doesn't
+            // work should be very rare.
+            history.album = self.nowplaying.newAlbum(ar, al, playlist.current('image'));
+            toupdate = true;
+        }
+        if (toupdate) {
+            debug.log("Infobar: Sending toupdate");
+            browser.updatesComing(history);
         }
     }
     
@@ -333,14 +387,12 @@ function infoBar() {
     
     this.setvolume = function(e) {
         if (mpd_status.state == "play") {
-            var position = getPosition(e);
-            var width = $('#volume').width();
-            var offset = $('#volume').offset();
-            var volume = ((position.x - offset.left)/width)*100;
+            var volume = $("#volume").slider("value");
             self.command("command=setvol&arg="+parseInt(volume.toString()));
             savePrefs({volume: parseInt(volume.toString())});
         } else {
             alert("You can only set the volume while playing. This is mpd's fault!");
+            volumeslider.restoreState();
         }
     }
     
@@ -385,8 +437,7 @@ function infoBar() {
         $.post("postcommand.php", {'commands[]': list}, function(data) {
             debug.log("Command list callback");
             self.command("", callback);
-        });
-        
+        });        
     }
 
     this.getState = function() {

@@ -17,54 +17,55 @@ header('Content-Type: text/xml; charset=utf-8');
 // Version=2
 
 $content = url_get_contents($_REQUEST['url'], 'RompR Media Player/0.1', false, true);
-$pls = $content['contents'];
+if ($content['contents']) {
+	$pls = $content['contents'];
 
-$output = '<?xml version="1.0" encoding="utf-8"?>'."\n".
-            '<playlist>'."\n".
-            // Creator is soma fm to keep everything grouped.
-            // Need to think of a more generic method.
-            xmlnode('creator', 'soma fm').
-            //xmlnode('creator', html_entity_decode(urldecode($_REQUEST['station']))).
-            '<trackList>'."\n";
+	$output = '<?xml version="1.0" encoding="utf-8"?>'."\n".
+	            '<playlist>'."\n".
+	            // Creator is soma fm to keep everything grouped.
+	            // Need to think of a more generic method.
+	            xmlnode('creator', 'soma fm').
+	            //xmlnode('creator', html_entity_decode(urldecode($_REQUEST['station']))).
+	            '<trackList>'."\n";
 
-$parts = explode(PHP_EOL, $pls);
-$got = 0;
-$url = "";
-$title = "";
-foreach ($parts as $line) {
-	$bits = explode("=", $line);
-	if (preg_match('/File/', $bits[0])) {
-		$url = $bits[1];
-		$got++;
-	}
-	if (preg_match('/Title/', $bits[0])) {
-		$title = htmlentities($bits[1]);
-		$got++;
-	}
-	if ($got == 2) {
-		$output = $output . "<track>\n".
-                    		//xmlnode('album', $title).
-                    		//xmlnode('creator', html_entity_decode(urldecode($_REQUEST['station']))).
-							// For Soma FM - need album and creator to be the same for all urls
-							// otherwise they all appear separately.
-		                    xmlnode('album', html_entity_decode(urldecode($_REQUEST['station']))).
-        		            xmlnode('creator', 'soma fm').
-                    		xmlnode('location', $url).
-                    		xmlnode('image', $_REQUEST['image']).
-                    		"</track>\n";
-        $got = 0;
+	$parts = explode(PHP_EOL, $pls);
+	$got = 0;
+	$url = "";
+	$title = "";
+	foreach ($parts as $line) {
+		$bits = explode("=", $line);
+		if (preg_match('/File/', $bits[0])) {
+			$url = $bits[1];
+			$got++;
+		}
+		if (preg_match('/Title/', $bits[0])) {
+			$title = htmlentities($bits[1]);
+			$got++;
+		}
+		if ($got == 2) {
+			$output = $output . "<track>\n".
+	                    		//xmlnode('album', $title).
+	                    		//xmlnode('creator', html_entity_decode(urldecode($_REQUEST['station']))).
+								// For Soma FM - need album and creator to be the same for all urls
+								// otherwise they all appear separately.
+			                    xmlnode('album', html_entity_decode(urldecode($_REQUEST['station']))).
+	        		            xmlnode('creator', 'soma fm').
+	                    		xmlnode('location', $url).
+	                    		xmlnode('image', $_REQUEST['image']).
+	                    		"</track>\n";
+	        $got = 0;
 
+		}
 	}
+
+	$output = $output . "</trackList>\n</playlist>\n";
+
+	$fp = fopen('prefs/STREAM_'.md5(html_entity_decode(urldecode($_REQUEST['station']))).'.xspf', 'w');
+	if ($fp) {
+	    fwrite($fp, $output);
+	}
+	fclose($fp);
+
+	print $output;
 }
-
-$output = $output . "</trackList>\n</playlist>\n";
-
-$fp = fopen('prefs/STREAM_'.md5(html_entity_decode(urldecode($_REQUEST['station']))).'.xspf', 'w');
-if ($fp) {
-    fwrite($fp, $output);
-}
-fclose($fp);
-
-print $output;
-
 ?>

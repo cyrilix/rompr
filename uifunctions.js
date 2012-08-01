@@ -49,6 +49,14 @@ function setscrob(e) {
     savePrefs({scrobblepercent: scrobblepercent});
 }
 
+function makeWaitingIcon(selector) {
+    $("#"+selector).attr("src", "images/waiting2.gif");
+}
+
+function stopWaitingIcon(selector) {
+    $("#"+selector).attr("src", "images/transparent-32x32.png");
+
+}
 
 function expandInfo(side) {
     switch(side) {
@@ -111,7 +119,7 @@ function expandInfo(side) {
 }
 
 function lastfmlogin() {
-    var user = $("#lastfmconfig").find('input[name|="user"]').attr("value");
+    var user = $("#configpanel").find('input[name|="user"]').attr("value");
     lastfm.login(user);
     $("#configpanel").fadeOut(1000);
 }
@@ -139,7 +147,7 @@ function getArray(data) {
 }
 
 function doASXStream(url, image) {
-    doHourglass();
+    playlist.waiting();
     $.ajax({
                 type: "GET",
                 url: "getASXStream.php",
@@ -148,12 +156,13 @@ function doASXStream(url, image) {
                 data: {url: url, image: image},
                 dataType: "xml",
                 success: playlist.newInternetRadioStation,
-                error: function(data, status) { revertPointer(); }
+                error: function(data, status) { playlist.repopulate();
+                                                alert("Failed To Tune Radio Station"); }
     });
 }
 
 function doPLSStream(url, image, station) {
-    doHourglass();
+    playlist.waiting();
     $.ajax({
                 type: "GET",
                 url: "getPLSStream.php",
@@ -162,7 +171,8 @@ function doPLSStream(url, image, station) {
                 data: {url: url, image: image, station: encodeURIComponent(station)},
                 dataType: "xml",
                 success: playlist.newInternetRadioStation,
-                error: function(data, status) { revertPointer(); }
+                error: function(data, status) { playlist.repopulate();
+                                                alert("Failed To Tune Radio Station"); }
     });
 }
 
@@ -199,32 +209,19 @@ function doLastFM(station, value) {
             url = "lastfm://globaltags/"+value;
             break;
     }
-    doHourglass();
+    playlist.waiting();
     var xspf = lastfm.radio.tune({station: url}, lastFMIsTuned, lastFMTuneFailed);
 }
 
 function lastFMIsTuned(data) {
     debug.log("Tuned Last.FM", data);
     if (data && data.error) { lastFMTuneFailed(data); return false; };
-    lastfm.radio.getPlaylist({discovery: 0, rtp: 1, bitrate: 128}, playlist.saveLastFMPlaylist, lastFMTuneFailed);
+    lastfm.radio.getPlaylist({discovery: 0, rtp: lastfm.getScrobbling(), bitrate: 128}, playlist.saveLastFMPlaylist, lastFMTuneFailed);
 }
 
 function lastFMTuneFailed(data) {
-    //debug.log("Tune failed", data);
-    revertPointer();
+    playlist.repopulate();
     alert("Failed to tune Last.FM Radio Station");
-}
-
-function doHourglass() {
-    $("body").css("cursor", "wait");
-    $("a").css("cursor", "wait");
-    $("button").css("cursor", "wait");
-}
-
-function revertPointer() {
-    $("body").css("cursor", "auto");
-    $("a").css("cursor", "auto");
-    $("button").css("cursor", "auto");
 }
 
 function addLastFMTrack(artist, track) {
@@ -260,7 +257,6 @@ function getWikimedia(url) {
 function getNeighbours() {
 
     if (!gotNeighbours) {
-        doHourglass();
         lastfm.user.getNeighbours({user: lastfm.username()}, gotNeighbourData, gotNoNeighbours);
     } else {
         doMenu("neighbours");
@@ -271,7 +267,6 @@ function getNeighbours() {
 function getFriends() {
 
     if (!gotFriends) {
-        doHourglass();
         lastfm.user.getFriends({user: lastfm.username()}, gotFriendsData, gotNoNeighbours);
     } else {
         doMenu("friends");
@@ -280,7 +275,6 @@ function getFriends() {
 }
 
 function gotNoNeighbours(data) {
-    revertPointer();
 }
 
 function toggleSearch() {
@@ -292,7 +286,6 @@ function toggleFileSearch() {
 }
 
 function gotNeighbourData(data) {
-    revertPointer();
     gotNeighbours = true;
     var html = "";
     if (data.neighbours.user) {
@@ -315,7 +308,6 @@ function gotNeighbourData(data) {
 }
 
 function gotFriendsData(data) {
-    revertPointer();
     gotFriends = true;
     var html = "";
     if (data.friends.user) {
@@ -456,8 +448,8 @@ function editkeybindings() {
             $("#keybindtable").append('<tr><td width="35%" align="right">Volume Up</td><td>'+format_keyinput('volumeup', data)+'</td></tr>');
             $("#keybindtable").append('<tr><td width="35%" align="right">Volume Down</td><td>'+format_keyinput('volumedown', data)+'</td></tr>');
 
-            $("#keybindtable").append('<tr><td colspan="2"><button class="tleft sourceform" onclick="popupWindow.close()">Cancel</button>'+
-                                        '<button class="tright sourceform" onclick="saveKeyBindings()">OK</button></td></tr>');
+            $("#keybindtable").append('<tr><td colspan="2"><button style="width:8em" class="tleft topformbutton" onclick="popupWindow.close()">Cancel</button>'+
+                                        '<button  style="width:8em" class="tright topformbutton" onclick="saveKeyBindings()">OK</button></td></tr>');
 
             $(".buttonchange").keydown( function(ev) { changeHotKey(ev) } );
             popupWindow.open();

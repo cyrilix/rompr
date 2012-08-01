@@ -16,6 +16,14 @@ function LastFM(user) {
         logged_in = true;
     }
 
+    this.getScrobbling = function() {
+        if (scrobbling) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
     this.revealloveban = function() {
         if (logged_in) {
             $("#lastfm").fadeIn(2000);
@@ -94,9 +102,11 @@ function LastFM(user) {
             url=url+adder+keys[key]+"="+options[keys[key]];
             adder = "&";
         }
-        $.getJSON(url)
-                .done(success)
-                .fail(fail)
+        // Don't use JQuery's getJSON function for cross-site requests as it ignores any
+        // error callbacks you give it. I'm using the jsonp plugin, which works.
+        $.jsonp({url: url,
+                success: success,
+                error: fail});
     }
 
     function LastFMSignedRequest(options, success, fail) {
@@ -137,30 +147,29 @@ function LastFM(user) {
 
     this.track = {
 
-        love : function() {
+        love : function(tr,ar,callback) {
             if (logged_in) {
+                debug.log("Loving",tr,ar);
                 LastFMSignedRequest({   api_key: lastfm_api_key,
-                                        artist: infobar.nowplaying.artist.name,
+                                        artist: ar,
                                         method: "track.love",
                                         sk: lastfm_session_key,
-                                        track: infobar.nowplaying.track.name },
-                                        function() { $("#love").effect('pulsate', {times: 1}, 2000);
-                                                     lastfm.track.getInfo({track: infobar.nowplaying.track.name, artist: infobar.nowplaying.artist.name}, browser.track.new, browser.gotFailure);
+                                        track: tr },
+                                        function() { callback(tr,ar);
                                         },
                                         function() { alert("Love Failed!"); }
                                     );
             }
         },
 
-        unlove : function() {
+        unlove : function(tr,ar,callback) {
             if (logged_in) {
                 LastFMSignedRequest({   api_key: lastfm_api_key,
-                                        artist: infobar.nowplaying.artist.name,
+                                        artist: ar,
                                         method: "track.unlove",
                                         sk: lastfm_session_key,
-                                        track: infobar.nowplaying.track.name },
-                                        function() { $("#love").effect('pulsate', {times: 1}, 2000);
-                                                     lastfm.track.getInfo({track: infobar.nowplaying.track.name, artist: infobar.nowplaying.artist.name}, browser.track.new, browser.gotFailure);
+                                        track: tr },
+                                        function() { callback(tr,ar); 
                                         },
                                         function() { alert("Unlove Failed!"); }
                                     );
@@ -284,6 +293,7 @@ function LastFM(user) {
 
         getInfo: function(options, callback, failcallback) {
             addGetOptions(options, "album.getInfo");
+            debug.log("album.getinfo",options);
             if (username != "") { options.username = username }
             options.autocorrect = autocorrect;
             LastFMGetRequest(options,
@@ -346,6 +356,7 @@ function LastFM(user) {
         },
 
         getTags: function(options, callback, failcallback) {
+            debug.log("Getting Tags", options);
             if (username != "") { options.user = username }
             options.autocorrect = autocorrect;
             addGetOptions(options, "artist.getTags");

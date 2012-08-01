@@ -172,10 +172,9 @@ ul.topnav li a:hover
 
 ul.subnav
 {
-    border-radius: 0px 0px 6px 6px;
     border-left:1px solid #ffffff;
     border-bottom:1px solid #ffffff;
-    border-right:1px solid #555555;
+    border-right:1px solid #ffffff;
     border-top:none;
 }
 
@@ -198,20 +197,9 @@ ul.topnav li ul.subnav input.topcheck
     color:#ffffff;
 }
 
-button.topform
-{
-    background:#999999;
-    color:#000000;
-    border:1px solid #999999;
-}
-
 .topformbutton:hover
 {
     color:#ff4800;
-    border-left:1px solid #ff4800;
-    border-bottom:1px solid #ff4800;
-    border-right:1px solid #ff3600;
-    border-top:1px solid #ff3600;
 }
 
 .separator
@@ -224,27 +212,9 @@ input.sourceform
     border:1px solid #999999;
 }
 
-button.sourceform
+input.topformbutton
 {
-    border:1px solid #999999;
-}
-
-
-button.sourceform:hover
-{
-    color:#ff4800;
-    border-left:1px solid #ff4800;
-    border-bottom:1px solid #ff4800;
-    border-right:1px solid #ff3600;
-    border-top:1px solid #ff3600;
-}
-
-input.sourceform:hover
-{
-    border-left:1px solid #ff4800;
-    border-bottom:1px solid #ff4800;
-    border-right:1px solid #ff3600;
-    border-top:1px solid #ff3600;
+    color:#000000;
 }
 
 /*-- Styles to make the Wikipedia nav boxes look prettier --*/

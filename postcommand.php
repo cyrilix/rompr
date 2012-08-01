@@ -4,6 +4,7 @@ include ("functions.php");
 
 $is_connected = false;
 
+error_log("Opening Socket");
 $connection = fsockopen($prefs["mpd_host"], $prefs["mpd_port"], $errno, $errstr, 10);
 
 if(isset($connection) && is_resource($connection)) {
@@ -19,7 +20,7 @@ if(isset($connection) && is_resource($connection)) {
 	 fputs($connection, "command_list_begin\n");
 	 $playstart = false;
 	 foreach ($_POST['commands'] as $cmd) {
-	 	error_log($cmd);
+	 	//error_log($cmd);
 	  	fputs($connection, $cmd."\n");
 
 	 }
