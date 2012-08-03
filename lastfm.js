@@ -350,7 +350,7 @@ function LastFM(user) {
             if (username != "") { options.username = username }
             options.autocorrect = autocorrect;
             LastFMGetRequest(options,
-                             function(data) { callback(data); },
+                             function(data) { debug.log("Got artist Info",data); callback(data); },
                              function(data) { failcallback(data); }
             );
         },

@@ -317,12 +317,12 @@ function process_file($collection, $filedata) {
                 $type, $image, $expires, $stationurl, $station)
                 = getStuffFromXSPF($file);
         if ($name == null) {
-            error_log("Playlist: Failed to match ".$file);
-            $name = "Unknown Stream";
-            $album = "Unknown";
-            $artist = "Unknown";
+            $name = "";
+            $album = "Unknown Internet Stream";
+            $artist = htmlspecialchars($file);
             $duration = 0;
-            $type = "unknown";
+            $type = "stream";
+            $image = "images/broadcast.png";
             $number = "";
         }
     } else {
@@ -531,7 +531,7 @@ function do_albums($artistkey, $compilations, $showartist, $prefix) {
                     print 'rowspan="2"';
                 }
                 print '>' . $trackobj->number . "</td>";
-                print '<td><a href="#" onclick="infobar.command(\'command=add&arg='.htmlentities(rawurlencode($trackobj->url)).'\', playlist.repopulate)">'.
+                print '<td><a href="#" onclick="playlist.addtrack(\''.htmlentities(rawurlencode($trackobj->url)).'\')">'.
                         $trackobj->name.'</a>';
                 print "</td>\n";
                 print '<td align="right">'.format_time($trackobj->duration).'</td>';

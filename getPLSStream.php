@@ -1,8 +1,6 @@
 <?php
 include("functions.php");
 header('Content-Type: text/xml; charset=utf-8');
-# This works for soma fm playlists, probably nothing else
-
 // [playlist]
 // numberofentries=3
 // File1=http://streamer-dtc-aa04.somafm.com:80/stream/1018
@@ -22,10 +20,7 @@ if ($content['contents']) {
 
 	$output = '<?xml version="1.0" encoding="utf-8"?>'."\n".
 	            '<playlist>'."\n".
-	            // Creator is soma fm to keep everything grouped.
-	            // Need to think of a more generic method.
-	            xmlnode('creator', 'soma fm').
-	            //xmlnode('creator', html_entity_decode(urldecode($_REQUEST['station']))).
+	            xmlnode('creator', 'Internet Radio Station').
 	            '<trackList>'."\n";
 
 	$parts = explode(PHP_EOL, $pls);
@@ -43,18 +38,8 @@ if ($content['contents']) {
 			$got++;
 		}
 		if ($got == 2) {
-			$output = $output . "<track>\n".
-	                    		//xmlnode('album', $title).
-	                    		//xmlnode('creator', html_entity_decode(urldecode($_REQUEST['station']))).
-								// For Soma FM - need album and creator to be the same for all urls
-								// otherwise they all appear separately.
-			                    xmlnode('album', html_entity_decode(urldecode($_REQUEST['station']))).
-	        		            xmlnode('creator', 'soma fm').
-	                    		xmlnode('location', $url).
-	                    		xmlnode('image', $_REQUEST['image']).
-	                    		"</track>\n";
-	        $got = 0;
-
+			addtrack($url, $title);
+			$got = 0;
 		}
 	}
 
@@ -68,4 +53,27 @@ if ($content['contents']) {
 
 	print $output;
 }
+
+function addTrack($url, $title) {
+	global $output;
+	$output = $output . "<track>\n";
+    if (array_key_exists('station', $_REQUEST)) {
+		$output = $output . xmlnode('album', html_entity_decode(urldecode($_REQUEST['station'])));
+	} else {
+		$output = $output . xmlnode('album', $title);
+	}
+    if (array_key_exists('station', $_REQUEST)) {
+		$output = $output . xmlnode('creator', html_entity_decode(urldecode($_REQUEST['creator'])));
+	} else {
+		$output = $output . xmlnode('creator', $title);
+	}
+    if (array_key_exists('image', $_REQUEST)) {
+		$output = $output . xmlnode('image', $_REQUEST['image']);
+
+	}
+	$output = $output . xmlnode('location', $url).
+						xmlnode('compilation', 'yes').
+						"</track>\n";
+}
+
 ?>

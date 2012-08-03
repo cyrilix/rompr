@@ -15,10 +15,6 @@ if(isset($connection) && is_resource($connection)) {
             break;
     }
 
-    if (!array_key_exists("fast", $_REQUEST)) {
-        $mpd_status = do_mpd_command ($connection, "status", null, true);
-    }
-
     if(array_key_exists("command", $_REQUEST)) {
         $command = $_REQUEST["command"];
         if(array_key_exists("arg", $_REQUEST) && strlen($_REQUEST["arg"])>0) {
@@ -27,15 +23,19 @@ if(isset($connection) && is_resource($connection)) {
         if(array_key_exists("arg2", $_REQUEST) && strlen($_REQUEST["arg2"])>0) {
             $command.=" \"".format_for_mpd(html_entity_decode($_REQUEST["arg2"]))."\"";
         }
+
+        error_log("COMMAND: ".$command);
+
         do_mpd_command($connection, $command);
 
-        if (!array_key_exists("fast", $_REQUEST)) {
-            if ($_REQUEST["command"] == "add") {
-                if ($mpd_status["state"] == "stop") {
-                    do_mpd_command($connection, "play ".$mpd_status["playlistlength"]);
-                }
-            }
-        }
+        // if (!array_key_exists("fast", $_REQUEST)) {
+        //     if ($_REQUEST["command"] == "add") {
+        //         $mpd_status = do_mpd_command ($connection, "status", null, true);
+        //         if ($mpd_status["state"] == "stop") {
+        //             do_mpd_command($connection, "play ".$mpd_status["playlistlength"]);
+        //         }
+        //     }
+        // }
     }
 
     if (!array_key_exists("fast", $_REQUEST)) {

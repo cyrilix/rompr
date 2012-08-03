@@ -7,7 +7,7 @@ if(array_key_exists("wiki", $_REQUEST)) {
 } else {
     $html = getArtistWiki(rawurldecode($_REQUEST['artist']));
     if ($html == null) {
-        print '<h1 align="center">Wikipedia could not find anything related to &quot;'.rawurldecode($_REQUEST['artist']).'&quot;</h1>';
+        print wikipedia_bio_header("Wikipedia : ", rawurldecode($_REQUEST['artist'])).'<h3 align="center">Wikipedia could not find anything related to &quot;'.rawurldecode($_REQUEST['artist']).'&quot;</h3>';
     } else {
         print $html;
     }
@@ -165,7 +165,8 @@ function wikipedia_get_list_of_suggestions($term) {
     $html = $html . "<ul>";
     foreach ($artistinfo->query->search->p as $id) {
         $link = preg_replace('/\s/', '_', $id['title']);
-        $html = $html . '<li><a href="#" onclick="doCommand(\'infopane\', \'info_wikipedia.php\', \'wiki='.$link.'\')">'.$id['title'].'</a></li>';
+        // $html = $html . '<li><a href="#" onclick="doCommand(\'infopane\', \'info_wikipedia.php\', \'wiki='.$link.'\')">'.$id['title'].'</a></li>';
+        $html = $html . '<li><a href="#" onclick="browser.getWiki(\''.$link.'\')">'.$id['title'].'</a></li>';
     }
     return $html;
     

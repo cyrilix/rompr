@@ -81,7 +81,7 @@ class mpdlistthing {
                 print '</td><td class="fileicon">';
                 print '<img src="images/folder.png" height="16px">';
                 print '</td><td>';
-                print '<a href="#" onclick="infobar.command(\'command=add&arg='.htmlentities(rawurlencode($this->getPath())).'\', playlist.repopulate)">';
+                print '<a href="#" onclick="playlist.addtrack(\''.htmlentities(rawurlencode($this->getPath())).'\')">';
                 print basename($this->name);
                 print "</a>";
                 print '</td></tr></table>';
@@ -100,7 +100,7 @@ class mpdlistthing {
             print '<tr><td class="fileicon">';
             print '<img src="images/audio-x-generic.png" height="16px">';
             print '</td><td>';
-            print '<a href="#" onclick="infobar.command(\'command=add&arg='.htmlentities(rawurlencode($this->getPath())).'\', playlist.repopulate)">';
+            print '<a href="#" onclick="playlist.addtrack(\''.htmlentities(rawurlencode($this->getPath())).'\')">';
             print $this->name;
             print '</a>';
             print '</td></tr>';

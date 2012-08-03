@@ -41,17 +41,22 @@ function lfmtrack(track, artist, callback) {
     }
 
     this.populate = function() {
-        if (self.trackinfo == null) {
-            lastfm.track.getInfo({  track: encodeURIComponent(self.mpd_name), 
-                                    artist: encodeURIComponent(self.artist)}, 
-                                    self.gotTrackInfo, 
-                                    self.gotNoTrackInfo);
-        }
-        if (self.userTags == null) {
-            lastfm.track.getTags({  track: encodeURIComponent(self.mpd_name), 
-                                    artist: encodeURIComponent(self.artist)}, 
-                                    self.gotTagInfo, 
-                                    self.gotNoTagInfo);
+        if (self.mpd_name == "") {
+            self.gotNoTagInfo();
+            self.gotNoTrackInfo();
+        } else {
+            if (self.trackinfo == null) {
+                lastfm.track.getInfo({  track: encodeURIComponent(self.mpd_name), 
+                                        artist: encodeURIComponent(self.artist)}, 
+                                        self.gotTrackInfo, 
+                                        self.gotNoTrackInfo);
+            }
+            if (self.userTags == null) {
+                lastfm.track.getTags({  track: encodeURIComponent(self.mpd_name), 
+                                        artist: encodeURIComponent(self.artist)}, 
+                                        self.gotTagInfo, 
+                                        self.gotNoTagInfo);
+            }
         }
     }
 
@@ -93,12 +98,12 @@ function lfmtrack(track, artist, callback) {
         if (self.trackinfo.error) {
             return self.trackinfo.message;
         } else {
-            return "";
+            return false;
         }
     }
 
     this.name = function() {
-        return self.trackinfo.track.name || "";
+        return self.trackinfo.track.name || self.mpd_name;
     }
 
     this.id = function() {
@@ -186,17 +191,22 @@ function lfmalbum(album, artist, callback)  {
     }
 
     this.populate = function() {
-        if (self.albuminfo == null) {
-            lastfm.album.getInfo({  album: encodeURIComponent(self.mpd_name), 
-                                    artist: encodeURIComponent(self.artistname)}, 
-                                    self.gotAlbumInfo, 
-                                    self.gotNoAlbumInfo);
-        }
-        if (self.userTags == null) {
-            lastfm.album.getTags({  album: encodeURIComponent(self.mpd_name), 
-                                    artist: encodeURIComponent(self.artistname)}, 
-                                    self.gotTagInfo, 
-                                    self.gotNoTagInfo);
+        if (self.mpd_name == "") {
+            self.gotNoTagInfo();
+            self.gotNoAlbumInfo();
+        } else {
+            if (self.albuminfo == null) {
+                lastfm.album.getInfo({  album: encodeURIComponent(self.mpd_name), 
+                                        artist: encodeURIComponent(self.artistname)}, 
+                                        self.gotAlbumInfo, 
+                                        self.gotNoAlbumInfo);
+            }
+            if (self.userTags == null) {
+                lastfm.album.getTags({  album: encodeURIComponent(self.mpd_name), 
+                                        artist: encodeURIComponent(self.artistname)}, 
+                                        self.gotTagInfo, 
+                                        self.gotNoTagInfo);
+            }
         }
     }
 
@@ -244,7 +254,7 @@ function lfmalbum(album, artist, callback)  {
     }
 
     this.name = function() {
-        return self.albuminfo.album.name || "";
+        return self.albuminfo.album.name || self.mpd_name;
     }
 
     this.artist = function() {
@@ -353,15 +363,20 @@ function lfmartist(artist, callback)  {
    }
 
     this.populate = function() {
-        if (self.artistinfo == null) {
-            lastfm.artist.getInfo({ artist: encodeURIComponent(self.mpd_name)}, 
-                                    self.gotArtistInfo, 
-                                    self.gotNoArtistInfo);
-        }
-        if (self.userTags == null) {
-            lastfm.artist.getTags({ artist: encodeURIComponent(self.mpd_name)}, 
-                                    self.gotTagInfo, 
-                                    self.gotNoTagInfo);
+        if (self.mpd_name == "") {
+            self.gotNoTagInfo();
+            self.gotNoArtistInfo();
+        } else {
+            if (self.artistinfo == null) {
+                lastfm.artist.getInfo({ artist: encodeURIComponent(self.mpd_name)}, 
+                                        self.gotArtistInfo, 
+                                        self.gotNoArtistInfo);
+            }
+            if (self.userTags == null) {
+                lastfm.artist.getTags({ artist: encodeURIComponent(self.mpd_name)}, 
+                                        self.gotTagInfo, 
+                                        self.gotNoTagInfo);
+            }
         }
     }
 
@@ -407,7 +422,7 @@ function lfmartist(artist, callback)  {
     }
 
     this.name = function() {
-        return self.artistinfo.artist.name || "";
+        return self.artistinfo.artist.name || self.mpd_name;
     }
 
     this.bio = function() {

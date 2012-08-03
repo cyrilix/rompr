@@ -4,7 +4,7 @@ include("functions.php");
 include("connection.php");
 setswitches();
 close_mpd($connection);
-session_start();
+// session_start();
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -55,7 +55,6 @@ var playlisthidden = false;
  print "var browser = new Info('infopane', '".$prefs["infosource"]."');\n";
 ?>
 $(document).ready(function(){
-    //debug.log("Index ready");
     $("#loadinglabel2").effect('pulsate', { times:100 }, 2000);
     $("#progress").progressbar();
     $("#progress").click(function(evt) { infobar.seek(evt) });

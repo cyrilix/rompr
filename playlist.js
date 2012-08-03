@@ -169,6 +169,8 @@ function Stream(index) {
     var trackpointer = 0;
     this.index = index;
 
+    debug.log("Playlist: New Stream Created");
+
     this.newtrack = function (track) {
         tracks.push(track);
         lastplaylistpos = track.playlistpos;
@@ -203,10 +205,6 @@ function Stream(index) {
     }
 
     this.rollUp = function() {
-        // for (var i in tracks) {
-        //     debug.log("Rolling up track",i)
-        //     $('#'+tracks[i].playlistpos).slideToggle('fast');
-        // }
     }
 
     this.getFirst = function() {
@@ -236,6 +234,9 @@ function Stream(index) {
     this.findcurrent = function(which, what) {
         for(var i in tracks) {
             if (tracks[i].playlistpos == which) {
+                // if (what == 'title') {
+                //     return tracks[i].title == "Unknown" ? "" : tracks[i].title;
+                // }
                 return tracks[i][what];
             }
         }
@@ -307,7 +308,8 @@ function LastFMRadio(station, index, rolledup) {
         html = html + '<tr><td rowspan="2" width="38px"><img src="'+tracks[trackpointer].image+'" width="32" height="32"></td>';
         html = html + '<td colspan="3" align="left" class="album">'+tracks[trackpointer].title+'</a></td></tr>';
         html = html + '<tr><td class="playlistrow2" align="left" width="40%">'+tracks[trackpointer].creator+'</td><td align="left" class="playlistrow2">'+tracks[trackpointer].album+'</td>'
-        html = html + '<td class="playlisticon" align="right"><a href="#" onclick="playlist.delete(\''+tracks[trackpointer].playlistpos+'\')">'+
+        // Use checkSongIdAfterStop to delete tracks because that will make sure the station gets updated
+        html = html + '<td class="playlisticon" align="right"><a href="#" onclick="playlist.checkSongIdAfterStop(\''+tracks[trackpointer].backendid+'\')">'+
                         '<img src="images/edit-delete.png"></a></td></tr></table>';
 
         html = html + '</div>';
@@ -407,6 +409,7 @@ function LastFMRadio(station, index, rolledup) {
     this.findcurrent = function(which, what) {
         for(var i in tracks) {
             if (tracks[i].playlistpos == which) {
+                debug.log("Stream at",which,"returning",tracks[i][what],"for",what);
                 return tracks[i][what];
             }
         }
@@ -422,15 +425,18 @@ function LastFMRadio(station, index, rolledup) {
     }
 
     this.invalidateOnStop = function(songid) {
-        if (tracks[0].backendid == songid) {
-            debug.log("Removing current track, which was playing and has been stopped");
-            if (tracks.length == 2) {
-                debug.log("...and repopulating");
-                playlist.dontplay = true;
-                playlist.setEndofradio(parseInt(tracks[0].playlistpos));
-                lastfm.radio.tune({station: tracks[0].stationurl}, lastFMIsTuned, lastFMTuneFailed);
+        for (var i in tracks) {
+            if (tracks[i].backendid == songid) {
+                debug.log("Removing current track, which was playing and has been stopped");
+                if (tracks.length == 2) {
+                    debug.log("...and repopulating");
+                    playlist.dontplay = true;
+                    playlist.setEndofradio(parseInt(tracks[i].playlistpos));
+                    lastfm.radio.tune({station: tracks[i].stationurl}, lastFMIsTuned, lastFMTuneFailed);
+                }
+                infobar.deleteTracksByID([songid], playlist.repopulate);
+                break;
             }
-            infobar.deleteTracksByID([songid], playlist.repopulate);
         }
     }
 
@@ -642,12 +648,12 @@ function Playlist() {
         var cmdlist = new Array();
         var playfrom = self.finaltrack+1;
         $(list).find("track").each( function() {
-            debug.log($(this).find("title").text());
+            //debug.log($(this).find("title").text());
             cmdlist.push('add "'+$(this).find("location").text()+'"');
             numtracks++;
         });
         if (self.endofradio > -1 && self.endofradio < self.finaltrack) {
-            debug.log("Tracks need to be moved into position");
+            //debug.log("Tracks need to be moved into position");
             var elbow = (self.finaltrack)+1;
             var arse = (self.finaltrack)+numtracks+1;
             playfrom = null;
@@ -729,6 +735,17 @@ function Playlist() {
     this.checkSongIdAfterStop = function(songid) {
         for(var i in tracklist) {
             tracklist[i].invalidateOnStop(songid);
+        }
+    }
+
+    this.addtrack = function(url) {
+        if (infobar.getState() == "stop") {
+            var cmdlist = new Array();
+            cmdlist.push('add "'+decodeURIComponent(url)+'"');
+            cmdlist.push("play "+(((self.finaltrack)+1).toString()));
+            infobar.do_command_list(cmdlist, playlist.repopulate);
+        } else {
+            infobar.command("command=add&arg="+url, playlist.repopulate);
         }
     }
 

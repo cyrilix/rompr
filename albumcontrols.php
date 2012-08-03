@@ -23,7 +23,7 @@ function pollAlbumList() {
         clearTimeout(update_load_timer);
         update_load_timer_running = false;
     }
-    $.getJSON("ajaxcommand.php", "command=status", function(data) {
+    $.getJSON("ajaxcommand.php", "", function(data) {
         if (data.updating_db) {
             update_load_timer = setTimeout("pollAlbumList()", 1000);
             update_load_timer_running = true;

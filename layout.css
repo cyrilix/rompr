@@ -679,7 +679,7 @@ ul.topnav li ul.subnav
 {
     list-style:none;
     position:absolute;
-    top:26px;
+    top:30px;
     left:-124px;
     margin:0;
     padding:6px;
@@ -720,7 +720,7 @@ ul.topnav li ul.widel
 
 ul.subnav li.wider
 {
-    width:360px;
+    width:380px;
 }
 
 ul.topnav li ul.widel li

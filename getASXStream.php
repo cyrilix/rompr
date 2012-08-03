@@ -7,7 +7,6 @@ $content = url_get_contents($_REQUEST['url'], 'RompR Media Player/0.1', false, t
 $xml = simplexml_load_string($content['contents'], 'SimpleXMLElement', LIBXML_NOCDATA);
 
 if ($content['contents']) {
-    error_log("Contents OK");
     $title = $xml->TITLE;
     $creator = $xml->AUTHOR;
 

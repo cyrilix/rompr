@@ -18,9 +18,14 @@ if(isset($connection) && is_resource($connection)) {
      }
 
 	 fputs($connection, "command_list_begin\n");
-	 $playstart = false;
 	 foreach ($_POST['commands'] as $cmd) {
-	 	//error_log($cmd);
+	 	// $pos = strpos($cmd, "&arg=");
+	 	// if ($pos) {
+	 	// 	$arg = format_for_mpd(html_entity_decode(substr($cmd, $pos+5)));
+	 	// 	$command = substr($cmd,0,$pos);
+	 	// 	$cmd = $command.' "'.$arg.'"';
+	 	// }
+	 	error_log($cmd);
 	  	fputs($connection, $cmd."\n");
 
 	 }

@@ -12,7 +12,7 @@ foreach($x->stations->station as $i => $station) {
     foreach($station->link as $j => $link) {
         $pl = $link->desc;
         $pl = preg_replace('/ /', '&nbsp;', $pl);
-        print '<a class="tiny" href="#" onclick="doPLSStream(\''.$link->playlist.'\', \''.$station->image.'\', \''.$station->name.'\')">'.$pl.'</a>';
+        print '<a class="tiny" href="#" onclick="doPLSStream(\''.$link->playlist.'\', \''.$station->image.'\', \''.$station->name.'\', \'Soma FM\')">'.$pl.'</a>';
     }
     print '</td></tr></table></li><hr>'."\n";
 }

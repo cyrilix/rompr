@@ -319,11 +319,33 @@ function infoBar() {
             }
         }
     }
+
+    function checkForUpdateToUnknownStream(url, name) {
+        if (playlist.current('album') == "Unknown Internet Stream") {
+            debug.log("Updating stream",url,"to",name);
+            var xml = '<?xml version="1.0" encoding="utf-8"?>'+
+                        "<playlist>"+
+                        "<title>"+name+"</title>"+
+                        "<trackList>"+
+                        "<track>"+
+                        "<album>"+name+"</album>"+
+                        "<image>images/broadcast.png</image>"+
+                        "<creator>"+url+"</creator>"+
+                        "<location>"+url+"</location>"+
+                        "</track>"+
+                        "</trackList>"+
+                        "</playlist>";
+            $.post("newplaylist.php", { type: "stream", xml: xml })
+            .done( function() { 
+                playlist.repopulate() 
+            });
+        }
+    }
     
     function checkAlbumChange() {
         // See if the playing track has changed
         // Get the current status FROM THE PLAYLIST because if we're playing
-        // Last.FM only the playlist knows this information.
+        // Last.FM or certain streams (eg BBC) only the playlist knows this information.
         var al = playlist.current('album');
         var ar = playlist.current('creator');
         var tr = playlist.current('title') || mpd_status.Title || "";
@@ -332,11 +354,18 @@ function infoBar() {
                         artist: self.nowplaying.artist.artistdata};
         var toupdate = false;
         if (playlist.current('type') == "stream") {
+            // Certain stream types (eg soma fm) will return 'Title' as 'Artistname - Trackname'
+            // and many will return 'Name' as a name ID for the stream
             var parts = tr.split(" - ", 2);
             if (parts[0] && parts[1]) {
                 ar = parts[0];
                 tr = parts[1];
-                al = playlist.current('creator') + " - " + playlist.current('album');
+                if (mpd_status.Name) {
+                    al = mpd_status.Name;
+                    checkForUpdateToUnknownStream(mpd_status.file, mpd_status.Name);
+                } else {
+                    al = playlist.current('creator') + " - " + playlist.current('album');
+                }
             }
         }
         // Compare with the names as returned from mpd, not from Last.FM corrections.
@@ -421,13 +450,14 @@ function infoBar() {
         var list = new Array();
         $('div[name="'+key+'"]').find('a').each(function (index, element) { 
             var link = $(element).attr("onclick");
-            var r = /\'command=(.*?)&arg=(.*?)\'/;
+            var r = /playlist.addtrack\(\'(.*?)\'/;
             var result = r.exec(link);
-            list.push (result[1] + ' "'+decodeURIComponent(result[2])+'"');
+            if (result[1]) {
+                list.push('add "'+decodeURIComponent(result[1])+'"');
+            }
         });
         if (mpd_status.state == 'stop') {
             var f = playlist.finaltrack+1;
-            debug.log("Playing From",f,"because",playlist.finaltrack)
             list.push('play '+f.toString());
         }
         self.do_command_list(list, playlist.repopulate);        
@@ -435,13 +465,11 @@ function infoBar() {
 
     this.do_command_list = function(list, callback) {
         $.post("postcommand.php", {'commands[]': list}, function(data) {
-            debug.log("Command list callback");
             self.command("", callback);
         });        
     }
 
     this.getState = function() {
-        debug.log("Getting state - returning",mpd_status.state);
         return mpd_status.state;
     }
         

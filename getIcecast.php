@@ -68,7 +68,7 @@ foreach ($genres as $i => $name) {
     print '<div id="albummenu" style="padding-left:24px" name="genre' . $count . '" class="' . $divtype . '">' . "\n";
     print '<table width="100%">';
     foreach($genres[$i]->stations as $n => $station) {
-        print '<tr><td><a href="#" onclick="infobar.command(\'command=add&arg='.$station->url.'\', playlist.repopulate)">'.$station->name."</a></td></tr>\n";
+        print '<tr><td><a href="#" onclick="playlist.addtrack(\''.$station->url.'\')">'.$station->name."</a></td></tr>\n";
     }
     print "</table>\n";
     print "</div>\n";

@@ -161,14 +161,14 @@ function doASXStream(url, image) {
     });
 }
 
-function doPLSStream(url, image, station) {
+function doPLSStream(url, image, station, creator) {
     playlist.waiting();
     $.ajax({
                 type: "GET",
                 url: "getPLSStream.php",
                 cache: false,
                 contentType: "text/xml; charset=utf-8",
-                data: {url: url, image: image, station: encodeURIComponent(station)},
+                data: {url: url, image: image, station: encodeURIComponent(station), creator: encodeURIComponent(creator)},
                 dataType: "xml",
                 success: playlist.newInternetRadioStation,
                 error: function(data, status) { playlist.repopulate();
