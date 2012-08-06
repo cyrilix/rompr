@@ -124,6 +124,13 @@ function lastfmlogin() {
     $("#configpanel").fadeOut(1000);
 }
 
+function sethistorylength() {
+    var length = $("#configpanel").find('input[name|="historylength"]').attr("value");
+    max_history_length = parseInt(length);
+    $("#configpanel").fadeOut(1000);
+    savePrefs({historylength: max_history_length});    
+}
+
 function getArray(data) {
     try {
         switch (typeof data) {
@@ -146,34 +153,76 @@ function getArray(data) {
     }
 }
 
-function doASXStream(url, image) {
+function doInternetRadio(input) {
+        
+    var url = $("#"+input).attr("value");
+    getInternetPlaylist(url, null, null, null, true);
+
+}
+
+function getInternetPlaylist(url, image, station, creator, usersupplied) {
     playlist.waiting();
+    data = {url: encodeURIComponent(url)};
+    if (image) { data.image = encodeURIComponent(image) }
+    if (station) { data.station = encodeURIComponent(station) }
+    if (creator) { data.creator = encodeURIComponent(creator) }
+    if (usersupplied) { data.usersupplied = "true" }
+
+    debug.log("Getting Playlist",data);
+
     $.ajax({
                 type: "GET",
-                url: "getASXStream.php",
+                url: "getInternetPlaylist.php",
                 cache: false,
                 contentType: "text/xml; charset=utf-8",
-                data: {url: url, image: image},
+                data: data,
                 dataType: "xml",
-                success: playlist.newInternetRadioStation,
-                error: function(data, status) { playlist.repopulate();
-                                                alert("Failed To Tune Radio Station"); }
+                // success: playlist.newInternetRadioStation,
+                success: function(data) {
+                    playlist.newInternetRadioStation(data);
+                    if (usersupplied) {
+                        $("#yourradiolist").load("yourradio.php");
+                    }
+                },
+                error: function(data, status) { 
+                    playlist.repopulate();
+                    alert("Failed To Tune Radio Station"); 
+                }
     });
 }
 
-function doPLSStream(url, image, station, creator) {
+function addIceCast(name) {
     playlist.waiting();
+    debug.log("Adding IceCast Station",name);
     $.ajax({
                 type: "GET",
-                url: "getPLSStream.php",
+                url: "getIcecastPlaylist.php",
                 cache: false,
                 contentType: "text/xml; charset=utf-8",
-                data: {url: url, image: image, station: encodeURIComponent(station), creator: encodeURIComponent(creator)},
+                data: {name: name},
                 dataType: "xml",
                 success: playlist.newInternetRadioStation,
                 error: function(data, status) { playlist.repopulate();
                                                 alert("Failed To Tune Radio Station"); }
     });
+
+}
+
+function playUserStream(xspf) {
+    playlist.waiting();
+    debug.log("Playing User Stream",xspf);
+    $.ajax({
+                type: "GET",
+                url: "getUserStreamPlaylist.php",
+                cache: false,
+                contentType: "text/xml; charset=utf-8",
+                data: {name: xspf},
+                dataType: "xml",
+                success: playlist.newInternetRadioStation,
+                error: function(data, status) { playlist.repopulate();
+                                                alert("Failed To Tune Radio Station"); }
+    });
+
 }
 
 function utf8_encode(s)

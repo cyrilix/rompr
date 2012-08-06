@@ -8,7 +8,6 @@ function Info(target, source) {
     var displaypointer = -1;
     var autoupdate = true;
     var panelclosed = {artist: false, album: false, track: false};
-    var max_history_length = 5;
 
     /*
     /
@@ -21,10 +20,8 @@ function Info(target, source) {
         // it detects that the playing track has changed.
         stuff.source = current_source;
         if ((current_source == "wikipedia" || current_source == "slideshow") && history.length > 0) {
-            debug.log("Check 1 passed");
             if (stuff.artist.mpd_name != history[(history.length)-1].artist.mpd_name && 
                 stuff.artist.mpd_name != "") {
-                debug.log("OK, updating artist");
                 // For Wikipedia or Slideshow, we only bother with the data if the artist is
                 // different to the currently displayed artist and has a name, since we only care about artists
                 history.push(stuff);
@@ -122,8 +119,8 @@ function Info(target, source) {
                                 track: history[displaypointer].track,
                                 source: "wikipedia",
                                 wiki: link };
-        // history.splice(displaypointer+1,(history.length)-displaypointer,currentdisplay);
-        history.splice(displaypointer+1,0,currentdisplay);
+        history.splice(displaypointer+1,(history.length)-displaypointer,currentdisplay);
+        //history.splice(displaypointer+1,0,currentdisplay);
         displaypointer++;
         updateHistory();
         self.updateArtistBrowser(currentdisplay.artist);
@@ -137,7 +134,6 @@ function Info(target, source) {
 
     function noNeedToDisplay(lfmdata, selector) {
         if (lfmdata.mpd_name == "") {
-            debug.log("No need to display",selector);
             $(selector).fadeOut('fast');
         }
         if (hidden || lfmdata.mpd_name == "") {
@@ -154,7 +150,6 @@ function Info(target, source) {
     }
 
     this.updateArtistBrowser = function(lfmdata) {
-        debug.log("Updating Artist Browser");
         if (noNeedToDisplay(lfmdata, "#artistinformation")) { return 0; }
         switch(current_source) {
             case "wikipedia":
@@ -215,7 +210,6 @@ function Info(target, source) {
 
     this.updateTrackBrowser = function(lfmdata) {
         if (noNeedToDisplay(lfmdata, "#trackinformation")) { return 0; }
-        debug.log("UpdateTrackBrowser");
         switch(current_source) {
             case "wikipedia":
             case "slideshow":
@@ -467,7 +461,7 @@ function Info(target, source) {
     function formatBio(bio) {
         if (bio) {
             bio = bio.replace(/\n/g, "</p><p>");
-            bio = bio.replace(/(<a href="http:\/\/.*?")/g, '$1 target="_blank"');
+            bio = bio.replace(/(<a .*?href="http:\/\/.*?")/g, '$1 target="_blank"');
             return bio;
         } else {
             return "";
@@ -628,6 +622,12 @@ function Info(target, source) {
     */
 
     function updateHistory() {
+        if (displaypointer > 0) {
+            if (history.length > max_history_length) {
+                var t = history.shift();
+                displaypointer--;
+            }
+        }
         updateHistoryButtons();
         updateHistoryMenu();
     }
@@ -662,60 +662,55 @@ function Info(target, source) {
     function updateHistoryMenu() {
         var html = '<li class="wider"><b>HISTORY</b></li>';
         html = html + '<li class="wider"><table width="100%">';
-        debug.log("History Menu:")
         var count = 0;
         $.each(history, function() {
-            debug.log(count, this.track.mpd_name, this.album.mpd_name, this.artist.mpd_name, this.source, displaypointer);
-            // if (this.track.mpd_name != "" || this.album.mpd_name != "" || this.artist.mpd_name != "") {
-                debug.log("...doing this track");
-                if (count == displaypointer) {
-                    html = html + '<tr><td width="20px"><img height="16px" src="';
-                } else {
-                    html = html + '<tr><td width="16px"><img height="12px" src="';
-                }
-                switch (this.source) {
-                    case "wikipedia":
-                        html = html +  'images/Wikipedia-logo.png';
-                        break;
-                    case "lastfm":
-                        html = html + 'images/lastfm.png';
-                        break;
-                    case "slideshow":
-                        html = html + 'images/slideshow.png';
-                        break;
-                }
-                html = html + '"></td><td><a href="#" onclick="browser.doBrowserUpdates('+count.toString()+')">';
-                if (count == displaypointer) {
-                    html = html + '<b>';
-                }
-                switch (this.source) {
-                    case "wikipedia":
-                    case "slideshow":
-                    var s;
-                        if (this.wiki) {
-                            s = this.wiki;
-                        } else {
-                            s = this.artist.mpd_name;
-                        }
-                        html = html + s.replace(/_/g, " ");
-                        break;
-                    case "lastfm":
-                        html = html + this.track.mpd_name;
-                        if (this.track.mpd_name != "" && this.artist.mpd_name != "") {
-                            html = html + " <small><i>by</i></small> "
-                        }
-                        html = html + this.artist.mpd_name;
-                        if ((this.track.mpd_name != "" || this.artist.mpd_name != "") && this.album.mpd_name != "") {
-                            html = html + " <small><i>on</i></small> "
-                        }
-                        html = html + this.album.mpd_name;
-                        break;
-                }
-                if (count == displaypointer) {
-                    html = html + '</b>';
-                }
-                html = html + '</a></td></tr>'
-            // }
+            if (count == displaypointer) {
+                html = html + '<tr><td width="20px"><img height="16px" src="';
+            } else {
+                html = html + '<tr><td width="16px"><img height="12px" src="';
+            }
+            switch (this.source) {
+                case "wikipedia":
+                    html = html +  'images/Wikipedia-logo.png';
+                    break;
+                case "lastfm":
+                    html = html + 'images/lastfm.png';
+                    break;
+                case "slideshow":
+                    html = html + 'images/slideshow.png';
+                    break;
+            }
+            html = html + '"></td><td><a href="#" onclick="browser.doBrowserUpdates('+count.toString()+')">';
+            if (count == displaypointer) {
+                html = html + '<b>';
+            }
+            switch (this.source) {
+                case "wikipedia":
+                case "slideshow":
+                var s;
+                    if (this.wiki) {
+                        s = this.wiki;
+                    } else {
+                        s = this.artist.mpd_name;
+                    }
+                    html = html + s.replace(/_/g, " ");
+                    break;
+                case "lastfm":
+                    html = html + this.track.mpd_name;
+                    if (this.track.mpd_name != "" && this.artist.mpd_name != "") {
+                        html = html + " <small><i>by</i></small> "
+                    }
+                    html = html + this.artist.mpd_name;
+                    if ((this.track.mpd_name != "" || this.artist.mpd_name != "") && this.album.mpd_name != "") {
+                        html = html + " <small><i>on</i></small> "
+                    }
+                    html = html + this.album.mpd_name;
+                    break;
+            }
+            if (count == displaypointer) {
+                html = html + '</b>';
+            }
+            html = html + '</a></td></tr>'
             count++;
         });
         html = html + '</table></li>';
@@ -737,14 +732,14 @@ function Info(target, source) {
     }
 
     this.justloved = function(track,artist) {
-        debug.log("User has just loved",track,artist);
-        if (current_source == "lastfm" &&
-            track == history[displaypointer].track.name() &&
+        if (track == history[displaypointer].track.name() &&
             artist == history[displaypointer].artist.name())
         {
             history[displaypointer].track.trackinfo = null;
             history[displaypointer].track.populate();
-            history[displaypointer].track.showMe();
+            if (current_source == "lastfm") {
+                history[displaypointer].track.showMe();
+            }
         }
     }
 

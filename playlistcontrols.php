@@ -32,14 +32,16 @@ include ("connection.php");
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="infobar.toggle('crossfade')" id="xfadebutton">Crossfade Tracks</input></li>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="infobar.toggle('repeat')" id="repeatbutton">Repeat Playlist</input></li>
 <?php
+                print '<li class="wide">Information Panel History Depth</li>';
+                print '<li class="wide"><input class="topform" name="historylength" type="text" size="3" value="'.$prefs['historylength'].'"/><button class="topformbutton" onclick="sethistorylength()">Set</button></li>';
+                print '<li class="wide">Last.FM Username</li>';
+                print '<li class="wide"><input class="topform" name="user" type="text" size="45" value="'.$prefs['lastfm_user'].'"/><button class="topformbutton" onclick="lastfmlogin()">Login</button></li>';
                 print '<li class="wide"><input type="checkbox" class="topcheck" onclick="lastfm.setscrobblestate()" id="scrobbling">Last.FM Scrobbling Enabled</input></li>';
 ?>
                 <li class="wide">Percentage of track to play before scrobbling</li>
                 <li class="wide"><div id="scrobwrangler"></div></li>
 <?php
                 print '<li class="wide"><input type="checkbox" class="topcheck" onclick="lastfm.setscrobblestate()" id="autocorrect">Last.FM Autocorrect Enabled</input></li>';
-                print '<li class="wide">Last.FM Username</li>';
-                print '<li class="wide"><button class="topformbutton" onclick="lastfmlogin()">Login</button><input class="topform" name="user" type="text" size="45" value="'.$prefs['lastfm_user'].'"/></li>';
 ?>
 
         </ul>
@@ -84,8 +86,8 @@ include ("connection.php");
             <li class="wide">
                 <form id="saveplaylist" action="ajaxcommand.php" method="get">
                     <input type="hidden" name="command" value="save"/>
-                    <button class="topformbutton" type="submit">Save</button>
                     <input class="topform" name="arg" type="text" size="37"/>
+                    <button class="topformbutton" type="submit">Save</button>
                 </form>
             </li>
         </ul>
@@ -112,10 +114,6 @@ $("ul.topnav li a").unbind('click');
 $("ul.topnav li a").click(function() {
     $(this).parent().find("ul.subnav").slideToggle('fast');
 });
-
-//$("#playlistslist").hover(function() {}, function() { $("#playlistslist").slideToggle('fast') });
-//$("#clrplst").hover(function() {}, function() { $("#clrplst").slideToggle('fast') });
-//$("#saveplst").hover(function() {}, function() { $("#saveplst").slideToggle('fast') });
 
 $("#scrobwrangler").progressbar();
 $("#scrobwrangler").progressbar("option", "value", parseInt(scrobblepercent.toString()));

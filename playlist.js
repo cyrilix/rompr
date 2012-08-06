@@ -61,7 +61,7 @@ function Album(artist, album, index, rolledup) {
 
     this.header = function() {
         var html = "";
-        html = html + '<div id="item" name="'+self.index+'"><table class="playlisttitle" width="100%"><tr><td rowspan="2" width="40px">';
+        html = html + '<div id="item" name="'+self.index+'"><table class="playlisttitle" name="'+self.index+'" width="100%"><tr><td rowspan="2" width="40px">';
         var artname = "albumart/small/"+hex_md5(self.artist+" "+self.album)+".jpg";
         if (tracks[0].image) {
             artname = tracks[0].image;
@@ -106,14 +106,8 @@ function Album(artist, album, index, rolledup) {
     this.invalidateOldTracks = function(which, why) {
         for(var i in tracks) {
             if (tracks[i].playlistpos == which) {
+                $('table[name="'+self.index+'"]').attr("class", "playlistcurrenttitle");
                 $("#"+which).attr("class", "playlistcurrentitem");
-                // if (rolledup) {
-                //     var artname = "albumart/small/"+hex_md5(self.artist+" "+self.album)+".jpg";
-                //     if (tracks[0].image) {
-                //         artname = tracks[0].image;
-                //     }
-                //     $('img[src="'+artname+'"]').effect('pulsate', {times: 1000}, 5000);
-                // }
                 break;
             }
         }
@@ -161,15 +155,15 @@ function Album(artist, album, index, rolledup) {
 
 }
 
-function Stream(index) {
+function Stream(index, album, rolledup) {
     var self = this;
     var tracks = new Array();
     var firstplaylistpos = -1;
     var lastplaylistpos = -1;
     var trackpointer = 0;
     this.index = index;
-
-    debug.log("Playlist: New Stream Created");
+    var rolledup = rolledup;
+    this.album = album;
 
     this.newtrack = function (track) {
         tracks.push(track);
@@ -177,27 +171,40 @@ function Stream(index) {
         if (firstplaylistpos == -1) { firstplaylistpos = track.playlistpos; }
     }
 
+
     this.getNextTrack = function() {
+        var html = "";
         if (trackpointer >= tracks.length) { return null };
         if (trackpointer == 0) {
-            trackpointer++;
-            return self.header();
+            html = html + self.header();
         }
+        html = html + '<div id="track" name="'+tracks[trackpointer].playlistpos+'"';
+        if (rolledup) {
+            html = html + ' class="invisible"';
+        }
+        html = html + '><table width="100%" class="playlistitem" id="'+tracks[trackpointer].playlistpos+'">';
+        html = html + '<tr>';
+        html = html + '<td align="left" class="tiny" style="font-weight:normal">'+
+                        tracks[trackpointer].stream+'</td></tr>';
+        html = html + '<td align="left" class="tiny" style="font-weight:normal"><a href="#" class="album" onclick="infobar.command(\'command=play&arg='+tracks[trackpointer].playlistpos+'\')">'+
+                        tracks[trackpointer].location+'</a></td></tr>';
+        html = html + '</table></div>';
         trackpointer++;
-        return "";
+        return html;
     }
 
     this.header = function() {
         var html = "";
-        html = html + '<div id="item" name="'+self.index+'"><table width="100%" id="'+tracks[0].playlistpos+'" class="playlistitem"><tr><td rowspan="2" width="40px">';
+        html = html + '<div id="item" name="'+self.index+'"><table name="'+self.index+'" width="100%" class="playlisttitle"><tr><td rowspan="2" width="40px">';
+        html = html + '<a href="#" title="Click to Roll Up" onclick="javascript:playlist.hideItem('+self.index+')">';
         if (tracks[0].image) {
             html = html + '<img src="'+tracks[0].image+'" height="32px" width="32px"/></td><td colspan="2">';
         } else {
-            html = html + '<img src="images/album-unknown-small.png"/></td><td cellpadding="2px" colspan="2" align="left">';
+            html = html + '<img src="images/album-unknown-small.png"/></a></td><td cellpadding="2px" colspan="2" align="left">';
         }
 
         html = html + tracks[0].creator+'</td></tr><tr><td align="left"><i><a class="album" href="#" onclick="infobar.command(\'command=play&arg='+tracks[0].playlistpos+'\')">'
-                        +(tracks[0].title || tracks[0].album)+'</a></i></td>';
+                        +tracks[0].album+'</a></i></td>';
         html = html + '<td class="playlisticon" align="right"><a href="#" onclick="playlist.deleteGroup(\''+self.index+'\')">'+
                         '<img src="images/edit-delete.png"></a></td>';
         html = html + '</tr></table></div>';
@@ -205,6 +212,16 @@ function Stream(index) {
     }
 
     this.rollUp = function() {
+        for (var i in tracks) {
+            $('#track[name="'+tracks[i].playlistpos+'"]').slideToggle('slow');
+        }
+        rolledup = !rolledup;
+        // Logic is backwards for streams, because they're hidden by default
+        if (rolledup) {
+            playlist.rolledup["StReAm"+this.album] = undefined;
+        } else {
+            playlist.rolledup["StReAm"+this.album] = true;
+        }
     }
 
     this.getFirst = function() {
@@ -224,7 +241,8 @@ function Stream(index) {
     this.invalidateOldTracks = function(which, why) {
         for(var i in tracks) {
             if (tracks[i].playlistpos == which) {
-                $("#"+tracks[0].playlistpos).attr("class", "playlistcurrentitem");
+                $('table[name="'+self.index+'"]').attr("class", "playlistcurrenttitle");
+                $("#"+which).attr("class", "playlistcurrentitem");
                 break;
             }
         }
@@ -234,9 +252,6 @@ function Stream(index) {
     this.findcurrent = function(which, what) {
         for(var i in tracks) {
             if (tracks[i].playlistpos == which) {
-                // if (what == 'title') {
-                //     return tracks[i].title == "Unknown" ? "" : tracks[i].title;
-                // }
                 return tracks[i][what];
             }
         }
@@ -319,7 +334,7 @@ function LastFMRadio(station, index, rolledup) {
 
     this.header = function() {
         var html = "";
-        html = html + '<div id="item" name="'+self.index+'"><table width="100%" class="playlisttitle"><tr><td rowspan="2" width="40px">';
+        html = html + '<div id="item" name="'+self.index+'"><table name="'+self.index+'" width="100%" class="playlisttitle"><tr><td rowspan="2" width="40px">';
         html = html + '<a href="#" title="Click to Roll Up" onclick="javascript:playlist.hideItem('+self.index+')">';
         html = html + '<img src="images/lastfm.png"/>';
         html = html + '</a>';
@@ -371,6 +386,7 @@ function LastFMRadio(station, index, rolledup) {
                 todelete.push(tracks[i].backendid);
             }
             if (tracks[i].playlistpos == currentsong) {
+                $('table[name="'+self.index+'"]').attr("class", "playlistcurrenttitle");
                 $("#"+currentsong).attr("class", "playlistcurrentitem");
             }
         }
@@ -511,6 +527,7 @@ function Playlist() {
                                 type: $(this).find("type").text(),
                                 station: $(this).find("station").text(),
                                 stationurl: $(this).find("stationurl").text(),
+                                stream: $(this).find("stream").text(),
                                 compilation: $(this).find("compilation").text()
             });
 
@@ -539,7 +556,12 @@ function Playlist() {
                         current_station = "";
                         break;
                     case "stream":
-                        item = new Stream(count);
+                        // Streams are hidden by default - hence we use the opposite logic for the flag
+                        var hidden = true;
+                        if (self.rolledup["StReAm"+track.album]) {
+                            hidden = false;
+                        }
+                        item = new Stream(count, track.album, hidden);
                         tracklist[count] = item;
                         count++;
                         current_station = "";
@@ -643,23 +665,22 @@ function Playlist() {
     // This is actually used for adding any new radio playlist, not just Last.FM
     // The albums list does NOT use this. Perhaps it should, but that's just extra work and extra code.
     this.newInternetRadioStation = function (list) {
-        debug.log("New Stream Playlist Has Arrived. Our flags are",self.endofradio,self.finaltrack);
         var numtracks = 0;
         var cmdlist = new Array();
         var playfrom = self.finaltrack+1;
+        debug.log("New Stream Playlist Has Arrived. Our flags are",self.endofradio,self.finaltrack,playfrom,self.dontplay);
         $(list).find("track").each( function() {
-            //debug.log($(this).find("title").text());
             cmdlist.push('add "'+$(this).find("location").text()+'"');
             numtracks++;
         });
         if (self.endofradio > -1 && self.endofradio < self.finaltrack) {
-            //debug.log("Tracks need to be moved into position");
+            debug.log("Tracks need to be moved into position");
             var elbow = (self.finaltrack)+1;
             var arse = (self.finaltrack)+numtracks+1;
             playfrom = null;
             cmdlist.push('move '+elbow.toString()+':'+arse.toString()+' '+self.endofradio.toString());
         }
-        if (infobar.getState() == 'stop' && playfrom && !self.dontplay) {
+        if (infobar.getState() == 'stop' && playfrom != null && !self.dontplay) {
             debug.log("Adding command to play from",playfrom.toString());
             cmdlist.push('play '+playfrom.toString());
         }
@@ -691,6 +712,7 @@ function Playlist() {
     this.updateCurrentSong = function(pos, id) {
         debug.log("Updating current song");
         $(".playlistcurrentitem").attr("class", "playlistitem");
+        $(".playlistcurrenttitle").attr("class", "playlisttitle");
         currentsong = pos;
         var thing = false;
         for(var i in tracklist) {
@@ -703,7 +725,9 @@ function Playlist() {
     this.current = function(what) {
         for(var i in tracklist) {
             var it = tracklist[i].findcurrent(currentsong, what);
-            if (it) { return it }
+            if (it) { 
+                return it; 
+            }
         }
         return "";
     }

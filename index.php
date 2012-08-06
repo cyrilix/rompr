@@ -53,9 +53,11 @@ var playlisthidden = false;
  print "var scrobblepercent = ".$prefs['scrobblepercent'].";\n";
  print "var lastfm = new LastFM('".$prefs["lastfm_user"]."');\n";
  print "var browser = new Info('infopane', '".$prefs["infosource"]."');\n";
+ print "var max_history_length = ".$prefs["historylength"].";\n";;
 ?>
 $(document).ready(function(){
     $("#loadinglabel2").effect('pulsate', { times:100 }, 2000);
+    $("#loadinglabel3").effect('pulsate', { times:100 }, 2000);
     $("#progress").progressbar();
     $("#progress").click(function(evt) { infobar.seek(evt) });
     $("#volume").slider();
@@ -71,6 +73,7 @@ $(document).ready(function(){
     $("#lastfmlist").load("lastfmchooser.php");
     $("#bbclist").load("bbcradio.php");
     $("#somafmlist").load("somafm.php");
+    $("#yourradiolist").load("yourradio.php");
 
     infobar.command("",playlist.repopulate);
     loadKeyBindings();
@@ -87,7 +90,6 @@ $(document).ready(function(){
 <body>
 
 <div id="infobar">
-<table cellpadding="0" cellspacing="0"><tr><td>
     <div id="leftholder" class="infobarlayout tleft bordered">
         <div id="buttons">
             <a href="#" title="Previous Track" onclick="playlist.previous()" class="controlbutton"><img src="images/media-skip-backward.png"></a>
@@ -118,7 +120,6 @@ $(document).ready(function(){
             <div><ul class="topnav"><a title="Ban this track" id="ban" href="javascript:lastfm.track.ban()"><img height="24px" src="images/lastfm-ban.png"></a></ul></div>
         </div>
     </div>
-</td></tr></table>
 </div>
 
 <div id="headerbar">
@@ -170,36 +171,60 @@ $(document).ready(function(){
     </div>
 
     <?php
-    if ($prefs['chooser'] == "bbclist") {
-        print '<div id="bbclist">'."\n";
+    if ($prefs['chooser'] == "radiolist") {
+        print '<div id="radiolist">'."\n";
     } else {
-        print '<div id="bbclist" class="invisible">'."\n";
+        print '<div id="radiolist" class="invisible">'."\n";
     }
     ?>
-    </div>
+    <ul class="sourcenav">
+        <li>
+            <table><tr>
+                <td><a name="yourradiolist" style="padding-left:0px" class="toggle" href="#" onclick="javascript:doMenu('yourradiolist')"><img src="images/toggle-closed.png"></a></td>
+                <td><img src="images/broadcast.png" height="28px"></td><td><h3>Your Radio Stations</h3></td>
+            </tr></table>
+        </li>
+        <li>
+            <div id="yourradiolist" name="yourradiolist" class="invisible"></div>
+        </li>
+        <li>
+            <table><tr>
+                <td><a name="somafmlist" style="padding-left:0px" class="toggle" href="#" onclick="javascript:doMenu('somafmlist')"><img src="images/toggle-closed.png"></a></td>
+                <td><img src="images/somafm.png" height="24px"></td>
+            </tr></table>
+        </li>
+        <li>
+            <div id="somafmlist" name="somafmlist" class="invisible"></div>
+        </li>
+        <li>
+            <table><tr>
+                <td><a name="bbclist" style="padding-left:0px" class="toggle" href="#" onclick="javascript:doMenu('bbclist')"><img src="images/toggle-closed.png"></a></td>
+                <td><img src="images/bbcr.png" height="32px"></td><td><h3>Live BBC Radio</h3></td>
+            </tr></table>
+        </li>
+        <li>
+            <div id="bbclist" name="bbclist" class="invisible"></div>
+        </li>
+        <li>
+            <table><tr>
+                <td><a name="icecastlist" style="padding-left:0px" class="toggle" href="#" onclick="javascript:doMenu('icecastlist')"><img src="images/toggle-closed.png"></a></td>
+                <td><img src="images/icecast.png" height="32px"></td><td><h3>Icecast Radio</h3></td>
+            </tr></table>
+        </li>
+        <li>
+            <div id="icecastlist" name="icecastlist" class="invisible">
+                <div class="dirname">
+                    <h2 id="loadinglabel3">Loading Stations...</h2>
+                </div>
+            </div>
+        </li>
+    </ul>
 
-    <?php
-    if ($prefs['chooser'] == "icecastlist") {
-        print '<div id="icecastlist">'."\n";
-    } else {
-        print '<div id="icecastlist" class="invisible">'."\n";
-    }
-    ?>
-    </div>
-
-    <?php
-    if ($prefs['chooser'] == "somafmlist") {
-        print '<div id="somafmlist">'."\n";
-    } else {
-        print '<div id="somafmlist" class="invisible">'."\n";
-    }
-    ?>
-    </div>
-
+</div>
 </div>
 
 <div id="infopane" class="tleft cmiddle noborder infowiki">
-<div id="artistinformation" class="infotext"><h1 align="center">This is the information panel. Interesting stuff will appear here when you play some music</h1></div>
+<div id="artistinformation" class="infotext"><h2 align="center">This is the information panel. Interesting stuff will appear here when you play some music</h2></div>
 <div id="albuminformation" class="infotext"></div>
 <div id="trackinformation" class="infotext"></div>
 </div>
@@ -209,17 +234,6 @@ $(document).ready(function(){
 </div>
 
 </div>
-
-<div id="logindialog" title="Last.FM Login">
-<p>A popup window will now open (your browser may block it). Follow the instructions in that window to give RompR
-permission to access your Last.FM account. When you've done that, click the OK button</p>
-</div>
-
-<script language="javascript">
-$(function() {
-    $("#logindialog").dialog({autoOpen: false, buttons: {"OK": function() { lastfm.finishlogin(); $(this).dialog("close") } } });
-});
-</script>
 
 </body>
 </html>

@@ -65,6 +65,7 @@ function getFileInfo($file, $pos) {
                     .xmlnode("station", $track->station)
                     .xmlnode("location", $track->url)
                     .xmlnode("backendid", $track->backendid)
+                    .xmlnode("stream", $track->stream)
                     .xmlnode("playlistpos", $track->playlistpos);
         if ($track->albumobject->isCompilation()) {
             $xml = $xml.xmlnode("compilation", "yes");

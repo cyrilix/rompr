@@ -62,29 +62,39 @@ function LastFM(user) {
             url=url+adder+keys[key]+"="+options[keys[key]];
             adder = "&";
         }
-
-        $("#logindialog").dialog( "option", "position", 'center' );
-        $("#logindialog").dialog("open");
-
         $.get(url, function(data) {
             //debug.log("getToken:", data);
             token = $(data).find("token").text();
-            window.open("http://www.last.fm/api/auth/?api_key="+lastfm_api_key+"&token="+token, "_blank");
+
+            var lfmlog = popupWindow.create(500,400,"lfmlog",true);
+            $("#popupcontents").append('<table align="center" cellpadding="2" id="lfmlogintable" width="90%"></table>');
+            $("#lfmlogintable").append('<tr><td><h3>Log In to Last.FM</h3></td></tr>');
+            $("#lfmlogintable").append('<tr><td>Please click the button below to open the Last.FM website in a new tab. Enter your Last.FM login details if required then give RompR permission to access your account</td></tr>');
+            $("#lfmlogintable").append('<tr><td>You can close the new tab when you have finished but do not close this dialog!</td></tr>');
+            $("#lfmlogintable").append('<tr><td align="center"><a href="http://www.last.fm/api/auth/?api_key='+lastfm_api_key+'&token='+token+'" target="_blank">'+
+                                        '<button class="topformbutton">Click Here To Log In</button></a></td></tr>');
+            $("#lfmlogintable").append('<tr><td>Once you have logged in to Last.FM, click the OK button below to complete the process</td></tr>');
+            $("#lfmlogintable").append('<tr><td align="center"><a href="#" onclick="javascript:lastfm.finishlogin()">'+
+                                        '<button class="topformbutton">OK</button></a></td></tr>');
+
+            popupWindow.open();
         });
     }
 
     this.finishlogin = function() {
         LastFMSignedRequest( {token: token, api_key: lastfm_api_key, method: "auth.getSession"},
                              function(data) {   lastfm_session_key = $(data).find("key").text();
-                                                //debug.log("Session key is ",lastfm_session_key);
+                                                debug.log("Session key is ",lastfm_session_key);
                                                 logged_in = true;
                                                 savePrefs({ lastfm_session_key: lastfm_session_key,
                                                             lastfm_user: username
                                                         });
                                                 reloadPlaylistControls();
                                                 lastfm.revealloveban();
+                                                popupWindow.close();
                                             },
                             function(data) {
+                                                popupWindow.close();
                                                 alert("Failed to log in to Last.FM");
                                                 //debug.log(data);
                                             }

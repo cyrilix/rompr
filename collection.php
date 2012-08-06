@@ -94,6 +94,7 @@ class album {
 class artist {
 
     public function __construct($name) {
+        // error_log("New Artist : ".$name);
         $this->name = $name;
         $this->albums = array();
         //error_log("New Artist : " . $name);
@@ -112,7 +113,12 @@ class artist {
 
 class track {
     public function __construct($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
-                                $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, $albumartist, $disc) {
+                                $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station,
+                                $albumartist, $disc, $stream) {
+
+        // error_log($name." : ".$file." : ".$artist." : ".$album." : ".
+        //             $type." : ".$playlistpos." : ".$stationurl." : ".$station." : ".
+        //             $stream);
 
         $this->artist = $artist;
         $this->album = $album;
@@ -134,6 +140,7 @@ class track {
         $this->expires = $expires;
         $this->stationurl = $stationurl;
         $this->station = $station;
+        $this->stream = $stream;
     }
 
     public function setAlbumObject($object) {
@@ -162,7 +169,9 @@ class musicCollection {
     private function findAlbum($album, $artist, $directory) {
         if ($artist != null) {
             foreach($this->getAlbumList(strtolower(preg_replace('/^The /i', '', $artist)), false, false) as $object) {
-                if ($album == $object->name) {
+                // error_log("Finding album : ".$album." : ".$artist." : ".$object->name);
+                if (trim($album) == trim($object->name)) {
+                    // error_log("  FOUND!");
                     return $object;
                 }
             }
@@ -178,13 +187,15 @@ class musicCollection {
     }
 
     public function newTrack($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
-                                $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, $albumartist, $disc) {
+                                $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, 
+                                $albumartist, $disc, $stream) {
         $sortartist = $artist;
         if ($albumartist != null) { $sortartist = $albumartist; }
 
         $artistkey = strtolower(preg_replace('/^The /i', '', $sortartist));
         $t = new track($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
-                                $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, $albumartist, $disc);
+                        $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, 
+                        $albumartist, $disc, $stream);
         // If artist doesn't exist, create it - indexed by all lower case name for convenient sorting and grouping
         if (!array_key_exists($artistkey, $this->artists)) {
             //error_log("Adding Artist : " . strtolower($artist));
@@ -195,9 +206,11 @@ class musicCollection {
         // Does an album with this name by this aritst already exist?
         $abm = $this->findAlbum($album, $sortartist, null);
         if ($abm == false) {
+            // error_log("Did not find album ".$album." in artist ".$sortartist);
             // Does an album with this name where the tracks are in the same directory exist?
             $abm = $this->findAlbum($album, null, $directory);
             if ($abm != false) {
+                // error_log("Found this album but it's by someone else");
                 // We found one - it's not by the same artist so we need to mark it as a compilation if it isn't already
                 if (!($abm->isCompilation())) {
                     $abm->setAsCompilation();
@@ -314,7 +327,7 @@ function process_file($collection, $filedata) {
         || preg_match('/^mms:\/\//', $file)) {
 
         list ($name, $duration, $number, $date, $genre, $artist, $album, $folder,
-                $type, $image, $expires, $stationurl, $station)
+                $type, $image, $expires, $stationurl, $station, $stream)
                 = getStuffFromXSPF($file);
         if ($name == null) {
             $name = "";
@@ -324,6 +337,7 @@ function process_file($collection, $filedata) {
             $type = "stream";
             $image = "images/broadcast.png";
             $number = "";
+            $stream = "";
         }
     } else {
         $artist = (array_key_exists('Artist', $filedata)) ? $filedata['Artist'] : basename(dirname(dirname($file)));
@@ -336,6 +350,7 @@ function process_file($collection, $filedata) {
         $date = (array_key_exists('Date',$filedata)) ? $filedata['Date'] : null;
         $genre = (array_key_exists('Genre', $filedata)) ? $filedata['Genre'] : null;
         $folder = dirname($file);
+        $stream = "";
     }
 
     if ($image == null) {
@@ -352,40 +367,13 @@ function process_file($collection, $filedata) {
     $playlistpos = (array_key_exists('Pos',$filedata)) ? $filedata['Pos'] : null;
 
     $collection->newTrack($name, $file, $duration, $number, $date, $genre, $artist, $album, $folder,
-                            $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, $albumartist, $disc);
+                            $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, $albumartist, $disc, $stream);
 }
 
 
 function getStuffFromXSPF($url) {
     global $xml;
     //error_log("Checking for ".$url);
-    if (file_exists('prefs/'.md5($url).'.xspf')) {
-        //error_log("Found individual track playlist");
-        $x = simplexml_load_file('prefs/'.md5($url).'.xspf');
-        return array (  $x->trackList->track->title,
-                        ($x->trackList->track->duration)/1000,
-                        null, null, null,
-                        $x->trackList->track->creator,
-                        $x->trackList->track->album,
-                        null, "local",
-                        $x->trackList->track->image,
-                        null, null, null);
-    }
-
-    $playlists = glob("prefs/*STREAM*.xspf");
-    foreach($playlists as $i => $file) {
-        $x = simplexml_load_file($file);
-        foreach($x->trackList->track as $i => $track) {
-            if($track->location == $url) {
-                //error_log("Found Stream!");
-                $album = (string) $track->title;
-                if ($track->album) { $album = $track->album; }
-                return array (  $track->title, null, null, null, null,
-                                $track->creator, $album, null, "stream",
-                                $track->image, null, null, null);
-            }
-        }
-    }
 
     $playlists = glob("prefs/*RADIO*.xspf");
     foreach($playlists as $i => $file) {
@@ -400,13 +388,38 @@ function getStuffFromXSPF($url) {
                                 null, null, null, $track->creator,
                                 $track->album, null, "lastfmradio",
                                 $track->image, $expiry, $x->playlist->stationurl,
-                                $x->playlist->title );
+                                $x->playlist->title, null );
             }
 
         }
     }
 
-    return array( null, null, null, null, null, null, null, null, null, null, null, null, null );
+    $playlists = glob("prefs/*STREAM*.xspf");
+    foreach($playlists as $i => $file) {
+        $x = simplexml_load_file($file);
+        foreach($x->trackList->track as $i => $track) {
+            if($track->location == $url) {
+                //error_log("Found Stream!");
+                return array (  $track->title, null, null, null, null,
+                                $track->creator, $track->album, null, "stream",
+                                $track->image, null, null, null, $track->stream);
+            }
+        }
+    }
+
+    if (file_exists('prefs/'.md5($url).'.xspf')) {
+        $x = simplexml_load_file('prefs/'.md5($url).'.xspf');
+        return array (  $x->trackList->track->title,
+                        ($x->trackList->track->duration)/1000,
+                        null, null, null,
+                        $x->trackList->track->creator,
+                        $x->trackList->track->album,
+                        null, "local",
+                        $x->trackList->track->image,
+                        null, null, null, null);
+    }
+
+    return array( null, null, null, null, null, null, null, null, null, null, null, null, null, null );
 
 }
 
@@ -448,9 +461,9 @@ function doCollection($command) {
 		$numtracks = $al->trackCount();
 		if ($numtracks < $COMPILATION_THRESHOLD) {
 		    if (array_key_exists(utf8_decode($al->name), $possible_compilations)) {
-			$possible_compilations[utf8_decode($al->name)]++;
+			     $possible_compilations[utf8_decode($al->name)]++;
 		    } else {
-			$possible_compilations[utf8_decode($al->name)] = 1;
+			     $possible_compilations[utf8_decode($al->name)] = 1;
 		    }
 		}
 	    }
@@ -458,8 +471,8 @@ function doCollection($command) {
 
 	foreach($possible_compilations as $name => $count) {
 	    if ($count > 1) {
-		//error_log("Album ".$name." score is ".$count);
-		$collection->createCompilation($name);
+		      //error_log("Album ".$name." score is ".$count);
+		      $collection->createCompilation($name);
 	    }
 	}
     }

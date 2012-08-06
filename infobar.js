@@ -180,10 +180,11 @@ function infoBar() {
         debug.log("command : ",cmd);
         $.getJSON("ajaxcommand.php", cmd)
         .done(function(data) {
-            mpd_status = {};   
-            for(var key in data) {
-                mpd_status[key] = data[key];
-            }
+            // mpd_status = {};   
+            // for(var key in data) {
+            //     mpd_status[key] = data[key];
+            // }
+            mpd_status = data;
             if (mpd_status.error) { alert("MPD Error: "+mpd_status.error); }
             if (mpd_status.state == "play" || mpd_status.state == "pause") { 
                 self.nowplaying.track.setStartTime(mpd_status.elapsed); 
@@ -323,21 +324,11 @@ function infoBar() {
     function checkForUpdateToUnknownStream(url, name) {
         if (playlist.current('album') == "Unknown Internet Stream") {
             debug.log("Updating stream",url,"to",name);
-            var xml = '<?xml version="1.0" encoding="utf-8"?>'+
-                        "<playlist>"+
-                        "<title>"+name+"</title>"+
-                        "<trackList>"+
-                        "<track>"+
-                        "<album>"+name+"</album>"+
-                        "<image>images/broadcast.png</image>"+
-                        "<creator>"+url+"</creator>"+
-                        "<location>"+url+"</location>"+
-                        "</track>"+
-                        "</trackList>"+
-                        "</playlist>";
-            $.post("newplaylist.php", { type: "stream", xml: xml })
+            $.post("updateplaylist.php", { url: url, name: name })
             .done( function() { 
-                playlist.repopulate() 
+                playlist.repopulate();
+                $("#yourradiolist").load("yourradio.php");
+ 
             });
         }
     }
@@ -360,12 +351,15 @@ function infoBar() {
             if (parts[0] && parts[1]) {
                 ar = parts[0];
                 tr = parts[1];
-                if (mpd_status.Name) {
-                    al = mpd_status.Name;
-                    checkForUpdateToUnknownStream(mpd_status.file, mpd_status.Name);
-                } else {
-                    al = playlist.current('creator') + " - " + playlist.current('album');
-                }
+                debug.log("Hmmm",tr,ar);
+            } else {
+                tr = playlist.current('stream') || playlist.current('title') || mpd_status.Title || "";
+            }
+            if (mpd_status.Name) {
+                al = mpd_status.Name;
+                checkForUpdateToUnknownStream(mpd_status.file, mpd_status.Name);
+            } else {
+                al = playlist.current('creator') + " - " + playlist.current('album');
             }
         }
         // Compare with the names as returned from mpd, not from Last.FM corrections.

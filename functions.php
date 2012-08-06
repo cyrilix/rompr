@@ -39,40 +39,39 @@ function getline($connection) {
 }
 
 function parse_mpd_var($in_str) {
-
-    //error_log($in_str);
-
     $got = trim($in_str);
     if(!isset($got))
         return null;
     if(strncmp("OK", $got,strlen("OK"))==0)
         return true;
     if(strncmp("ACK", $got,strlen("ACK"))==0) {
-        //str_replace("\n", "\n<br />", $got);
-        //print "&nbsp;<p><b>".$got."</b></p><br />\n";
+        error_log("MPD command error : ".$got);
         return true;
     }
     $key = trim(strtok($got, ":"));
     $val = trim(strtok("\0"));
+    //error_log($key." = ".$val);
     return array(0 => $key, 1 => $val);
 }
 
 function do_mpd_command($conn, $command, $varname = null, $return_array = false) {
 
-    //error_log("mpd command ".$command);
+    error_log("mpd command : ".$command);
     global $is_connected;
     $retarr = array();
     if ($is_connected) {
         $success = fputs($conn, $command."\n");
         if ($success) {
             while(!feof($conn)) {
-                //stream_set_timeout($conn, 30);
                 $var = parse_mpd_var(fgets($conn, 1024));
                 if(isset($var)){
-                    if($var === true && count($retarr) == 0)
+                    if($var === true && count($retarr) == 0) {
+                        // Got an OK or ACK but no results
                         return true;
-                    if($var === true)
+                    }
+                    if($var === true) {
                         break;
+                    }
                     if(isset($varname) && strcmp($var[0], $varname)) {
                         return $var[1];
                     } elseif($return_array == true) {
@@ -88,12 +87,6 @@ function do_mpd_command($conn, $command, $varname = null, $return_array = false)
                         }
                     }
                 }
-                // $info = stream_get_meta_data($conn);
-                // if ($info['timed_out']) {
-                //     error_log("Timed out reading from MPD!");
-                //     $retarr['error'] = "There was an error communicating with MPD! (socket timeout)";
-                //     break;
-                // }
             }
         } else {
             $retarr['error'] = "There was an error communicating with MPD! (could not write to socket)";
@@ -105,8 +98,8 @@ function do_mpd_command($conn, $command, $varname = null, $return_array = false)
 function close_mpd($conn) {
     global $is_connected;
     if ($is_connected) {
-        error_log("Closing Socket");
-        do_mpd_command($conn, "close");
+        // error_log("Closing Socket");
+        //do_mpd_command($conn, "close");
         fclose($conn);
         $is_connected = false;
     }

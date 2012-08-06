@@ -13,7 +13,8 @@ $prefs = array( "mpd_host" => "localhost",
                 "scrobblepercent" => 50,
                 "hidebrowser" => "false",
                 "infosource" => "lastfm",
-                "chooser" => "albumlist"
+                "chooser" => "albumlist",
+                "historylength" => 25
                 );
 loadPrefs();
 

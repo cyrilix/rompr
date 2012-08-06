@@ -21,9 +21,9 @@ function prepare_string($searchstring) {
 
 function wikipedia_search($term) {
 
-    //Try to find a match for the artist name on Wikipedia
-    // This is more invoilved than it sounds, since ID3 tags don't always match up with what's on Wikipedia
-    // So we look for an exact match, then we try playing around with it a bit
+    // Try to find a match for the artist name on Wikipedia
+    //  This is more involved than it sounds, since ID3 tags don't always match up with what's on Wikipedia
+    //  So we look for an exact match, then we try playing around with it a bit
     //error_log( 'Wikipedia - Searching for ' . $term );
     $content = url_get_contents('http://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=' . rawurlencode($term) . '&srprop=score&format=xml');
     $xml = $content['contents'];
@@ -160,7 +160,7 @@ function wikipedia_get_list_of_suggestions($term) {
         return null;
     }
     
-    $html = '<h2>Wikipedia was unable to find any pages matching this artist</h2>';
+    $html = '<h3>Wikipedia was unable to find any pages matching this artist</h3>';
     $html = $html . "<h3>Here are some suggestions it came up with</h3>";
     $html = $html . "<ul>";
     foreach ($artistinfo->query->search->p as $id) {
@@ -168,7 +168,7 @@ function wikipedia_get_list_of_suggestions($term) {
         // $html = $html . '<li><a href="#" onclick="doCommand(\'infopane\', \'info_wikipedia.php\', \'wiki='.$link.'\')">'.$id['title'].'</a></li>';
         $html = $html . '<li><a href="#" onclick="browser.getWiki(\''.$link.'\')">'.$id['title'].'</a></li>';
     }
-    return $html;
+    return wikipedia_bio_header('Wikipedia : ', $term) . $html;
     
 }
     

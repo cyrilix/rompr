@@ -3,9 +3,12 @@
 <a href="#" title="Local Music" onclick="sourcecontrol('albumlist')"><img class="topimg" height="24px" src="images/audio-x-generic.png"></a>
 <a href="#" title="File Browser" onclick="sourcecontrol('filelist')"><img class="topimg" height="24px" src="images/folder.png"></a>
 <a href="#" title="Last.FM Radio" onclick="sourcecontrol('lastfmlist')"><img class="topimg" height="24px" src="images/lastfm.png"></a>
-<a href="#" title="Live BBC Radio" onclick="sourcecontrol('bbclist')"><img class="topimg" height="24px" src="images/bbcr.png"></a>
+<a href="#" title="Internet Radio Stations" onclick="sourcecontrol('radiolist')"><img class="topimg" height="24px" src="images/broadcast.png"></a>
+
+<!-- <a href="#" title="Live BBC Radio" onclick="sourcecontrol('bbclist')"><img class="topimg" height="24px" src="images/bbcr.png"></a>
 <a href="#" title="IceCast Radio" onclick="sourcecontrol('icecastlist')"><img class="topimg" height="24px" src="images/icecast.png"></a>
 <a href="#" title="soma fm radio" onclick="sourcecontrol('somafmlist')"><img class="topimg" width="36px" src="images/somafm-icon.png"></a>
+ -->
 </td></tr></table>
 </div>
 
@@ -36,7 +39,8 @@ function pollAlbumList() {
 
 function sourcecontrol(source) {
 
-    sources = ["lastfmlist", "albumlist", "filelist", "bbclist", "icecastlist", "somafmlist"];
+//    sources = ["lastfmlist", "albumlist", "filelist", "bbclist", "icecastlist", "somafmlist"];
+    sources = ["lastfmlist", "albumlist", "filelist", "radiolist"];
     for(var i in sources) {
         if (sources[i] == source) {
             sources.splice(i, 1);

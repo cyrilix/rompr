@@ -49,7 +49,8 @@ a
     padding-top:4px;
     padding-bottom:4px;
     margin:0px;
-    overflow:auto;
+    overflow-y:none;
+    overflow-x:hidden;
 }
 
 #headerbar
@@ -99,7 +100,10 @@ a
     margin-right:8px;
     margin-top:0px;
     margin-bottom:0px;
-    padding:0px;
+    padding-top:0px;
+    padding-bottom:2px;
+    padding-left:0px;
+    padding-right:0px;
     height:90px;
 }
 
@@ -340,6 +344,11 @@ ul.sourcenav li a
 .playlisttitle
 {
     padding-right:8px;
+}
+
+.playlistcurrenttitle
+{
+    font-size:110%;
 }
 
 .playlistcurrentitem
@@ -666,7 +675,7 @@ ul.topnav li a
 ul.subnav
 {
     border-radius: 0px 0px 0px 0px;
-    max-height:400px;
+    max-height:420px;
     overflow:auto;
 }
 

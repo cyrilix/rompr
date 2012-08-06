@@ -78,6 +78,11 @@ a.album:hover,a.album:active
     color:#cc0000;
 }
 
+.playlistcurrenttitle tr td a.album
+{
+    color:#cc0000;
+}
+
 #item
 {
     border-top:1px solid #0022dd;

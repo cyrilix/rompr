@@ -1,5 +1,5 @@
 <ul class="sourcenav">
-    <li><h3>Last.FM Personal Radio</h3></li>
+    <li><table><tr><td><img src="images/lastfm.png"></td><td><h3>Last.FM Personal Radio</h3></td></tr></table></li>
     <li><a href="#" onclick="doLastFM('lastfmuser', lastfm.username())">Library Radio</a></li>
     <li><a href="#" onclick="doLastFM('lastfmmix', lastfm.username())">Mix Radio</a></li>
     <li><a href="#" onclick="doLastFM('lastfmrecommended', lastfm.username())">Recommended Radio</a></li>

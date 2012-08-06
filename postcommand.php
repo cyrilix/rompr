@@ -4,7 +4,7 @@ include ("functions.php");
 
 $is_connected = false;
 
-error_log("Opening Socket");
+//error_log("Opening Socket");
 $connection = fsockopen($prefs["mpd_host"], $prefs["mpd_port"], $errno, $errstr, 10);
 
 if(isset($connection) && is_resource($connection)) {

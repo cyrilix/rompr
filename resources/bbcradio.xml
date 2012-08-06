@@ -18,7 +18,7 @@
 <station>
 <name>BBC Radio 3</name>
 <image>resources/bbc_radio_3.gif</image>
-<playlist>http://bbc.co.uk/radio/listen/live/r3.asx</playlist>#
+<playlist>http://bbc.co.uk/radio/listen/live/r3.asx</playlist>
 </station>
 <station>
 <name>BBC Radio 4</name>
@@ -143,7 +143,6 @@
 </station>
 <station>
 <name>BBC Radio Kent</name>
-<image>resources/bbc_radio_kent_logo_1.gif</image>
 <playlist>http://bbc.co.uk/radio/listen/live/bbckent.asx</playlist>
 </station>
 <station>
