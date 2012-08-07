@@ -178,15 +178,16 @@ function Stream(index, album, rolledup) {
         if (trackpointer == 0) {
             html = html + self.header();
         }
-        html = html + '<div id="track" name="'+tracks[trackpointer].playlistpos+'"';
+        html = html + '<div id="booger" name="'+tracks[trackpointer].playlistpos+'"';
         if (rolledup) {
             html = html + ' class="invisible"';
         }
         html = html + '><table width="100%" class="playlistitem" id="'+tracks[trackpointer].playlistpos+'">';
         html = html + '<tr>';
-        html = html + '<td align="left" class="tiny" style="font-weight:normal">'+
+        html = html + '<td colspan="2" align="left" class="tiny" style="font-weight:normal">'+
                         tracks[trackpointer].stream+'</td></tr>';
-        html = html + '<td align="left" class="tiny" style="font-weight:normal"><a href="#" class="album" onclick="infobar.command(\'command=play&arg='+tracks[trackpointer].playlistpos+'\')">'+
+        html = html + '<tr><td width="20px"><img src="images/broadcast.png" width="16px"></td>'+
+                        '<td align="left" class="tiny" style="font-weight:normal"><a href="#" class="album" onclick="infobar.command(\'command=play&arg='+tracks[trackpointer].playlistpos+'\')">'+
                         tracks[trackpointer].location+'</a></td></tr>';
         html = html + '</table></div>';
         trackpointer++;
@@ -213,7 +214,7 @@ function Stream(index, album, rolledup) {
 
     this.rollUp = function() {
         for (var i in tracks) {
-            $('#track[name="'+tracks[i].playlistpos+'"]').slideToggle('slow');
+            $('#booger[name="'+tracks[i].playlistpos+'"]').slideToggle('slow');
         }
         rolledup = !rolledup;
         // Logic is backwards for streams, because they're hidden by default

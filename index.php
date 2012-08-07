@@ -67,7 +67,7 @@ $(document).ready(function(){
     });
     $('#infocontrols').load("infocontrols.php");
     lastfm.revealloveban();
-    $('#albumcontrols').load("albumcontrols.php");
+    $('#albumcontrols').load("albumcontrols.php", function() { reloadPlaylistControls()});
     $('#icecastlist').load("getIcecast.php");
     $("#filelist").load("dirbrowser.php");
     $("#lastfmlist").load("lastfmchooser.php");
@@ -77,7 +77,7 @@ $(document).ready(function(){
 
     infobar.command("",playlist.repopulate);
     loadKeyBindings();
-    reloadPlaylistControls();
+    // reloadPlaylistControls();
 <?php
     if ($prefs['hidebrowser'] == 'true') {
         print "    browser.hide();\n";
