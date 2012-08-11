@@ -18,12 +18,12 @@ $creator = (array_key_exists('creator', $_REQUEST)) ? rawurldecode($_REQUEST['cr
 $image = (array_key_exists('image', $_REQUEST)) ? rawurldecode($_REQUEST['image']) : "images/broadcast.png";
 $usersupplied = (array_key_exists('usersupplied', $_REQUEST)) ? true : false;
 
-error_log("Getting Internet Stream:");
-error_log("  url : ".$url);
-error_log("  station : ".$station);
-error_log("  creator : ".$creator);
-error_log("  image : ".$image);
-error_log("  user : ".$usersupplied);
+// error_log("Getting Internet Stream:");
+// error_log("  url : ".$url);
+// error_log("  station : ".$station);
+// error_log("  creator : ".$creator);
+// error_log("  image : ".$image);
+// error_log("  user : ".$usersupplied);
 
 if ($url) {
 
@@ -31,7 +31,7 @@ if ($url) {
 	$type = pathinfo($path, PATHINFO_EXTENSION);
 	$qpos = strpos($type, "?");
   	if ($qpos != false) $type = substr($type, 0, $qpos);
-	error_log("Playlist Type Is ".$type);
+	// error_log("Playlist Type Is ".$type);
 	if ($type != "" && $type != null) {
 
 		$playlist = null;
@@ -84,7 +84,7 @@ if ($url) {
 
 		}
 	} else {
-		error_log("Could not determine playlist type");
+		// error_log("Could not determine playlist type");
 	}
 }
 

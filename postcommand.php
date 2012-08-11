@@ -25,7 +25,7 @@ if(isset($connection) && is_resource($connection)) {
 	 	// 	$command = substr($cmd,0,$pos);
 	 	// 	$cmd = $command.' "'.$arg.'"';
 	 	// }
-	 	error_log($cmd);
+	 	// error_log($cmd);
 	  	fputs($connection, $cmd."\n");
 
 	 }

@@ -56,7 +56,7 @@ function parse_mpd_var($in_str) {
 
 function do_mpd_command($conn, $command, $varname = null, $return_array = false) {
 
-    error_log("mpd command : ".$command);
+    // error_log("mpd command : ".$command);
     global $is_connected;
     $retarr = array();
     if ($is_connected) {
@@ -116,7 +116,7 @@ function format_tracknum($tracknum) {
 # url_get_contents function by Andy Langton: http://andylangton.co.uk/
 function url_get_contents($url,$useragent='RompR Media Player/0.1',$headers=false,$follow_redirects=false,$debug=true) {
 
-    error_log("Getting ".$url);
+    // error_log("Getting ".$url);
     # initialise the CURL library
     $ch = curl_init();
 
@@ -157,7 +157,7 @@ function url_get_contents($url,$useragent='RompR Media Player/0.1',$headers=fals
     curl_close($ch);
 
     # send back the data
-    error_log("Returning result");
+    // error_log("Returning result");
     return $result;
 }
 

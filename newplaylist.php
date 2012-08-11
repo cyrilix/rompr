@@ -2,7 +2,7 @@
 $playlist_type = $_POST['type'];
 $playlist = $_POST['xml'];
 
-error_log($playlist);
+// error_log($playlist);
 
 if (array_key_exists('stationurl', $_POST)) {
     $playlist = preg_replace('/(<playlist.*?>)/', "$1\n<stationurl>".htmlspecialchars($_POST['stationurl'])."</stationurl>", $playlist);
@@ -31,7 +31,7 @@ if ($playlist_type == "radio") {
 }
 
 if ($playlist_type == "track") {
-    error_log("New track playlist");
+    // error_log("New track playlist");
     $title = $xml->trackList->track->location;
     $fp = fopen('prefs/'.md5($title).'.xspf', 'w');
     if ($fp) {
@@ -42,7 +42,7 @@ if ($playlist_type == "track") {
 
 if ($playlist_type == "stream") {
     $title = $xml->trackList->track->album;
-    error_log("New stream playlist ".$title);
+    // error_log("New stream playlist ".$title);
     $fp = fopen('prefs/STREAM_'.md5($title).'.xspf', 'w');
     if ($fp) {
         fwrite($fp, $playlist);

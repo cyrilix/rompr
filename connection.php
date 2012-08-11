@@ -30,7 +30,7 @@ if(isset($connection) && is_resource($connection)) {
         $mpd_status = do_mpd_command ($connection, "status", null, true);
         while ($mpd_status['state'] == 'play' && !array_key_exists('elapsed', $mpd_status)) {
             sleep(1);
-            error_log("Waiting...");
+//            error_log("Waiting...");
             $mpd_status = do_mpd_command ($connection, "status", null, true);
         }
     // }

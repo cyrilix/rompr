@@ -12,7 +12,7 @@ foreach($playlists as $i => $file) {
       $x = simplexml_load_file($file);
       foreach($x->trackList->track as $i => $track) {
             if($track->location == $url && $track->album == "Unknown Internet Stream") {
-                  error_log("Found Stream To Update! - ".$file);
+                  // error_log("Found Stream To Update! - ".$file);
                   $found = true;
                   break;
             }
@@ -23,7 +23,7 @@ foreach($playlists as $i => $file) {
 }
 
 if ($found) {
-      error_log("Updating ".$file);
+      // error_log("Updating ".$file);
       foreach($x->trackList->track as $i => $track) {
             if($track->album == "Unknown Internet Stream") {
                   $track->album = $name;
@@ -49,7 +49,7 @@ if ($found) {
             "</trackList>".
             "</playlist>";
 
-      error_log("Creating new playlist for stream ".$url);
+      // error_log("Creating new playlist for stream ".$url);
 
       $fp = fopen('prefs/STREAM_'.md5($url).'.xspf', 'w');
       if ($fp) {
