@@ -319,26 +319,19 @@ class musicCollection {
 function process_file($collection, $filedata) {
     $file = $filedata['file'];
 
-    list ($name, $duration, $number, $date, $genre, $artist, $album, $folder,
-          $type, $image, $expires, $stationurl, $station, $backendid, $playlistpos, $albumartist, $disc)
-        = array ( null, 0, "", null, null, null, null, null, "local", null, null, null, null, null, null, null, 0 );
+    list (  $name, $duration, $number, $date, $genre, $artist, $album, $folder,
+            $type, $image, $expires, $stationurl, $station, $backendid, $playlistpos, 
+            $albumartist, $disc)
+        = array (   null, 0, "", null, null, null, null, null,
+                    "local", null, null, null, null, null, null, 
+                    null, 0 );
 
-    if (preg_match('/^http:\/\//', $file)
-        || preg_match('/^mms:\/\//', $file)) {
+    if (preg_match('/^http:\/\//', $file) || preg_match('/^mms:\/\//', $file)) {
 
-        list ($name, $duration, $number, $date, $genre, $artist, $album, $folder,
+        list (  $name, $duration, $number, $date, $genre, $artist, $album, $folder,
                 $type, $image, $expires, $stationurl, $station, $stream)
                 = getStuffFromXSPF($file);
-        if ($name == null) {
-            $name = "";
-            $album = "Unknown Internet Stream";
-            $artist = htmlspecialchars($file);
-            $duration = 0;
-            $type = "stream";
-            $image = "images/broadcast.png";
-            $number = "";
-            $stream = "";
-        }
+
     } else {
         $artist = (array_key_exists('Artist', $filedata)) ? $filedata['Artist'] : basename(dirname(dirname($file)));
         $album = (array_key_exists('Album', $filedata)) ? $filedata['Album'] : basename(dirname($file));
@@ -366,14 +359,14 @@ function process_file($collection, $filedata) {
     $backendid = (array_key_exists('Id',$filedata)) ? $filedata['Id'] : null;
     $playlistpos = (array_key_exists('Pos',$filedata)) ? $filedata['Pos'] : null;
 
-    $collection->newTrack($name, $file, $duration, $number, $date, $genre, $artist, $album, $folder,
-                            $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, $albumartist, $disc, $stream);
+    $collection->newTrack(  $name, $file, $duration, $number, $date, $genre, $artist, $album, $folder,
+                            $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, 
+                            $albumartist, $disc, $stream);
 }
 
 
 function getStuffFromXSPF($url) {
     global $xml;
-    //error_log("Checking for ".$url);
 
     $playlists = glob("prefs/*RADIO*.xspf");
     foreach($playlists as $i => $file) {
@@ -384,11 +377,18 @@ function getStuffFromXSPF($url) {
         }
         foreach($x->playlist->trackList->track as $i => $track) {
             if($track->location == $url) {
-                return array (  $track->title, ($track->duration)/1000,
-                                null, null, null, $track->creator,
-                                $track->album, null, "lastfmradio",
-                                $track->image, $expiry, $x->playlist->stationurl,
-                                $x->playlist->title, null );
+                return array (  $track->title, 
+                                ($track->duration)/1000,
+                                null, null, null, 
+                                $track->creator,
+                                $track->album, 
+                                null, 
+                                "lastfmradio",
+                                $track->image, 
+                                $expiry, 
+                                $x->playlist->stationurl,
+                                $x->playlist->title, 
+                                null );
             }
 
         }
@@ -400,9 +400,16 @@ function getStuffFromXSPF($url) {
         foreach($x->trackList->track as $i => $track) {
             if($track->location == $url) {
                 //error_log("Found Stream!");
-                return array (  $track->title, null, null, null, null,
-                                $track->creator, $track->album, null, "stream",
-                                $track->image, null, null, null, $track->stream);
+                return array (  $track->title,
+                                0, 
+                                null, null, null,
+                                $track->creator, 
+                                $track->album, 
+                                null, 
+                                "stream",
+                                $track->image, 
+                                null, null, null, 
+                                $track->stream);
             }
         }
     }
@@ -414,12 +421,24 @@ function getStuffFromXSPF($url) {
                         null, null, null,
                         $x->trackList->track->creator,
                         $x->trackList->track->album,
-                        null, "local",
+                        null, 
+                        "local",
                         $x->trackList->track->image,
                         null, null, null, null);
     }
 
-    return array( null, null, null, null, null, null, null, null, null, null, null, null, null, null );
+    return array(   "",
+                    0,
+                    "",
+                    null, null,
+                    htmlspecialchars($url),
+                    "Unknown Internet Stream",
+                    null,
+                    "stream",
+                    "images/broadcast.png",
+                    null, null, null,
+                    ""
+                    );
 
 }
 
@@ -521,7 +540,7 @@ function do_albums($artistkey, $compilations, $showartist, $prefix) {
             $artname = md5($artist . " " . $album->name);
 
             print '<img id="updateable" style="vertical-align:middle" src="" height="32" name="albumart/small/'.$artname.'.jpg"></td><td>';
-            print '<a href="#" onclick="infobar.addalbum(\''.$prefix.'album' . $count . '\')">'.$album->name.'</a>';
+            print '<a href="#" onclick="playlist.addalbum(\''.$prefix.'album' . $count . '\')">'.$album->name.'</a>';
             print "</td></tr></table></div>\n";
 
             print '<div id="albummenu" name="'.$prefix.'album' . $count . '" class="indent ' . $divtype . '">' . "\n";

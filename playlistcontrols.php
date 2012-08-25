@@ -52,7 +52,7 @@ include ("connection.php");
         <ul id="clrplst" class="subnav">
             <li><b>Clear Playlist</b></li>
             <li>
-                <button style="width:100%" class="topformbutton" onclick="javascript:infobar.command('command=clear', playlist.repopulate)">I'm Sure About This</button>
+                <button style="width:100%" class="topformbutton" onclick="javascript:mpd.command('command=clear', playlist.repopulate)">I'm Sure About This</button>
             </li>
         </ul>
     </li>
@@ -71,8 +71,8 @@ include ("connection.php");
             print '<li class="tleft wide"><table width="100%">';
             foreach ($playlists['playlist'] as $pl) {
 
-                print '<tr><td align="left"><a href="#" onclick="infobar.command(\'command=load&arg='.rawurlencode($pl).'\', playlist.repopulate)">'.$pl.'</a></td>';
-                print '<td align="right"><a href="#" onclick="infobar.command(\'command=rm&arg='.rawurlencode($pl).'\', reloadPlaylistControls)"><img src="images/edit-delete.png"></a></td></tr>';
+                print '<tr><td align="left"><a href="#" onclick="mpd.command(\'command=load&arg='.rawurlencode($pl).'\', playlist.repopulate)">'.$pl.'</a></td>';
+                print '<td align="right"><a href="#" onclick="mpd.command(\'command=rm&arg='.rawurlencode($pl).'\', reloadPlaylistControls)"><img src="images/edit-delete.png"></a></td></tr>';
 
             }
             print '</table></li>';
@@ -97,13 +97,6 @@ include ("connection.php");
 </div>
 
 <script type="text/javascript">
-
-$('#clearplaylist').ajaxForm(function() {
-    $('#clearplaylist').parents("ul.subnav").slideToggle('fast');
-    playlist.repopulate();
-    infobar.update();
-
-});
 
 $('#saveplaylist').ajaxForm(function() {
     reloadPlaylistControls();

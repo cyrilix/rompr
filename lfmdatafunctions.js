@@ -1,11 +1,11 @@
 // These are pretty much all the same.
-// The infobar creates these. The callback is for use by the infobar
+// The playlist creates these. The callback is for use by the playlist
 // so these objects can tell it when they are populated with information
 
 // The browser will use showMe() to request that these objects call back into it
 // when they are populated with information (which includes tag information).
 // The callback into the browser is hardcoded, but probably doesn't need to be.
-// Mind you, the callback into the infobar could be hardcoded too.
+// Mind you, the callback into the playlist could be hardcoded too.
 
 // I wish Javascript did proper subclassing.
 
@@ -46,16 +46,24 @@ function lfmtrack(track, artist, callback) {
             self.gotNoTrackInfo();
         } else {
             if (self.trackinfo == null) {
-                lastfm.track.getInfo({  track: encodeURIComponent(self.mpd_name), 
-                                        artist: encodeURIComponent(self.artist)}, 
-                                        self.gotTrackInfo, 
-                                        self.gotNoTrackInfo);
+                lastfm.track.getInfo(
+                    {  
+                        track: encodeURIComponent(self.mpd_name), 
+                        artist: encodeURIComponent(self.artist)
+                    }, 
+                    self.gotTrackInfo, 
+                    self.gotNoTrackInfo
+                );
             }
             if (self.userTags == null) {
-                lastfm.track.getTags({  track: encodeURIComponent(self.mpd_name), 
-                                        artist: encodeURIComponent(self.artist)}, 
-                                        self.gotTagInfo, 
-                                        self.gotNoTagInfo);
+                lastfm.track.getTags(
+                    {  
+                        track: encodeURIComponent(self.mpd_name), 
+                        artist: encodeURIComponent(self.artist)
+                    }, 
+                    self.gotTagInfo, 
+                    self.gotNoTagInfo
+                );
             }
         }
     }
@@ -103,7 +111,11 @@ function lfmtrack(track, artist, callback) {
     }
 
     this.name = function() {
-        return self.trackinfo.track.name || self.mpd_name;
+        try {
+            return self.trackinfo.track.name || self.mpd_name;
+        } catch(err) {
+            return self.mpd_name;
+        }
     }
 
     this.id = function() {
@@ -119,7 +131,11 @@ function lfmtrack(track, artist, callback) {
     }
 
     this.duration = function() {
-        return self.trackinfo.track.duration || 0;
+        if (self.trackinfo) {
+            return self.trackinfo.track.duration || 0;
+        } else {
+            return 0;
+        }
     }
 
     this.userplaycount = function() {
@@ -131,7 +147,9 @@ function lfmtrack(track, artist, callback) {
     }
 
     this.bio = function() {
-        if(self.trackinfo.track.wiki) { return self.trackinfo.track.wiki.content }
+        if(self.trackinfo.track.wiki) { 
+            return self.trackinfo.track.wiki.content; 
+        }
         else { return false; }
     }
 
@@ -167,8 +185,6 @@ function lfmalbum(album, artist, callback)  {
     this.redotags = false;
     this.display = false;
 
-    debug.log("New lfmalbum: album=",this.mpd_name,"artist=",this.artistname);
-
     this.gotAlbumInfo = function(data) {
         self.albuminfo = data;
         if (data.error) {
@@ -196,16 +212,24 @@ function lfmalbum(album, artist, callback)  {
             self.gotNoAlbumInfo();
         } else {
             if (self.albuminfo == null) {
-                lastfm.album.getInfo({  album: encodeURIComponent(self.mpd_name), 
-                                        artist: encodeURIComponent(self.artistname)}, 
-                                        self.gotAlbumInfo, 
-                                        self.gotNoAlbumInfo);
+                lastfm.album.getInfo(
+                    {  
+                        album: encodeURIComponent(self.mpd_name), 
+                        artist: encodeURIComponent(self.artistname)
+                    }, 
+                    self.gotAlbumInfo, 
+                    self.gotNoAlbumInfo
+                );
             }
             if (self.userTags == null) {
-                lastfm.album.getTags({  album: encodeURIComponent(self.mpd_name), 
-                                        artist: encodeURIComponent(self.artistname)}, 
-                                        self.gotTagInfo, 
-                                        self.gotNoTagInfo);
+                lastfm.album.getTags(
+                    {  
+                        album: encodeURIComponent(self.mpd_name), 
+                        artist: encodeURIComponent(self.artistname)
+                    }, 
+                    self.gotTagInfo, 
+                    self.gotNoTagInfo
+                );
             }
         }
     }
@@ -218,7 +242,6 @@ function lfmalbum(album, artist, callback)  {
             }
             if (self.userTags != null) {
                 if (self.display) {
-                    debug.log("Album Object telling browser to GOGOGO!");
                     browser.updateAlbumBrowser(self);
                     self.display = false;
                 }
@@ -254,7 +277,11 @@ function lfmalbum(album, artist, callback)  {
     }
 
     this.name = function() {
-        return self.albuminfo.album.name || self.mpd_name;
+        try {
+            return self.albuminfo.album.name || self.mpd_name;
+        } catch (err) {
+            return self.mpd_name;
+        }
     }
 
     this.artist = function() {
@@ -285,7 +312,6 @@ function lfmalbum(album, artist, callback)  {
         try {
             return getArray(self.albuminfo.album.toptags.tag);
         } catch(err) {
-            //debug.log("album tags error : ",err);
             return [];
         }
     }
@@ -307,13 +333,16 @@ function lfmalbum(album, artist, callback)  {
     }
 
     this.bio = function() {
-        if(self.albuminfo.album.wiki) { return self.albuminfo.album.wiki.content }
+        if(self.albuminfo.album.wiki) { 
+            return self.albuminfo.album.wiki.content; 
+        }
         else { return false }
     }
 
     this.image = function(size) {
         // Get image of the specified size.
-        // If no image of that size exists, return a different one - just so we've got one.
+        // If no image of that size exists, return a different one - 
+        // just so we've got one.
         try {
             var url = "";
             var temp_url = "";
@@ -321,6 +350,7 @@ function lfmalbum(album, artist, callback)  {
                 temp_url = self.albuminfo.album.image[i]['#text'];
                 if (self.albuminfo.album.image[i].size == size) {
                     url = temp_url;
+                    break;
                 }
             }
             if (url == "") { url = temp_url; }
@@ -368,14 +398,22 @@ function lfmartist(artist, callback)  {
             self.gotNoArtistInfo();
         } else {
             if (self.artistinfo == null) {
-                lastfm.artist.getInfo({ artist: encodeURIComponent(self.mpd_name)}, 
-                                        self.gotArtistInfo, 
-                                        self.gotNoArtistInfo);
+                lastfm.artist.getInfo(
+                    { 
+                        artist: encodeURIComponent(self.mpd_name)
+                    }, 
+                    self.gotArtistInfo, 
+                    self.gotNoArtistInfo
+                );
             }
             if (self.userTags == null) {
-                lastfm.artist.getTags({ artist: encodeURIComponent(self.mpd_name)}, 
-                                        self.gotTagInfo, 
-                                        self.gotNoTagInfo);
+                lastfm.artist.getTags(
+                    { 
+                        artist: encodeURIComponent(self.mpd_name)
+                    }, 
+                    self.gotTagInfo, 
+                    self.gotNoTagInfo
+                );
             }
         }
     }
@@ -422,12 +460,20 @@ function lfmartist(artist, callback)  {
     }
 
     this.name = function() {
-        return self.artistinfo.artist.name || self.mpd_name;
+        try {
+            return self.artistinfo.artist.name || self.mpd_name;
+        } catch(err) {
+            return self.mpd_name;
+        }
     }
 
     this.bio = function() {
-        if(self.artistinfo.artist.bio) { return self.artistinfo.artist.bio.content }
-        else { return false };
+        if(self.artistinfo.artist.bio) { 
+            return self.artistinfo.artist.bio.content; 
+        }
+        else { 
+            return false; 
+        }
     }
 
     this.image = function(size) {
@@ -505,9 +551,12 @@ function lfmartist(artist, callback)  {
                 temp_url = self.artistinfo.artist.similar.artist[index].image[i]['#text'];
                 if (self.artistinfo.artist.similar.artist[index].image[i].size == size) {
                     url = temp_url;
+                    break;
                 }
             }
-            if (url == "") { url = temp_url; }
+            if (url == "") { 
+                url = temp_url; 
+            }
             return url;
         } catch(err) {
             return "";

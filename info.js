@@ -95,10 +95,12 @@ function Info(target, source) {
     }
 
     this.switchSource = function(source) {
-        var playingtrack = { artist: infobar.nowplaying.artist.artistdata,
-                             album: infobar.nowplaying.album.albumdata,
-                             track: infobar.nowplaying.track.trackdata,
-                             source: source };
+        var playingtrack = { 
+            artist: nowplaying.artist.lfm_data,
+            album: nowplaying.album.lfm_data,
+            track: nowplaying.track.lfm_data,
+            source: source 
+        };
         history.push(playingtrack);
         savePrefs({infosource: source});
         self.doBrowserUpdates((history.length)-1)
@@ -114,11 +116,13 @@ function Info(target, source) {
 
     this.getWiki = function(link) {
         debug.log("Getting Wiki:",link);
-        var currentdisplay = {  artist: history[displaypointer].artist,
-                                album: history[displaypointer].album,
-                                track: history[displaypointer].track,
-                                source: "wikipedia",
-                                wiki: link };
+        var currentdisplay = {  
+            artist: history[displaypointer].artist,
+            album: history[displaypointer].album,
+            track: history[displaypointer].track,
+            source: "wikipedia",
+            wiki: link 
+        };
         history.splice(displaypointer+1,(history.length)-displaypointer,currentdisplay);
         //history.splice(displaypointer+1,0,currentdisplay);
         displaypointer++;
@@ -216,7 +220,6 @@ function Info(target, source) {
                 break;
 
             case "lastfm":
-               // debug.log("Starting track fadeout");
                 $('#trackinformation').fadeOut('fast', function() {
                     doTrackUpdate(lfmdata);
                     $('#trackinformation').fadeIn(1000);
@@ -267,7 +270,6 @@ function Info(target, source) {
     */
 
     function doArtistUpdate(lfmdata) {
-        //debug.log("Doing Artist Last.FM information update");
         var html = lastFmBanner(lfmdata, "Artist", panelclosed.artist);
         if (lfmdata.error()) {
             html = html + formatLastFmError(lfmdata);
@@ -516,7 +518,7 @@ function Info(target, source) {
     }
 
     this.gotFailure = function(data) {
-        //debug.log("FAILED with something:",data);
+        debug.log("FAILED with something:",data);
     }
 
     function appendTag(table, name, url) {
@@ -526,30 +528,30 @@ function Info(target, source) {
         $('table[name="'+table+'tagtable"]').append(html);
         $(".newtag").toggle(1000);
         $(".newtag").each( function(index, element) {
-                                        $(element).removeClass("newtag");
-                                        $(element).find("#"+table+"tag").click( function() {
-                                                                var tag = $(element).find("#"+table+"tag").attr("name");
-                                                                //debug.log("Clicked",tag);
-                                                                var options = new Object;
-                                                                options.tag = tag;
-                                                                options.artist = history[displaypointer].artist.name();
-                                                                options[table] = history[displaypointer][table].name();
-                                                                makeWaitingIcon("tagadd"+table);
-                                                                lastfm[table].removeTag(options,
-                                                                                        function(tag) {
-                                                                                            //debug.log("Success for",tag);
-                                                                                            $('tr[name="'+table+tag+'"]').fadeOut('fast', function() {
-                                                                                                                                            $('tr[name="'+table+tag+'"]').remove();
-                                                                                                                                            stopWaitingIcon("tagadd"+table);
-                                                                                                                                    });
-                                                                                        },
-                                                                                        function(tag) {
-                                                                                            alert("Failed to remove "+tag);
-                                                                                            stopWaitingIcon("tagadd"+table);
-                                                                                        })
-                                                        });
-                                        return true;
-                                    });
+            $(element).removeClass("newtag");
+            $(element).find("#"+table+"tag").click( function() {
+                var tag = $(element).find("#"+table+"tag").attr("name");
+                var options = new Object;
+                options.tag = tag;
+                options.artist = history[displaypointer].artist.name();
+                options[table] = history[displaypointer][table].name();
+                makeWaitingIcon("tagadd"+table);
+                lastfm[table].removeTag(
+                    options,
+                    function(tag) {
+                        $('tr[name="'+table+tag+'"]').fadeOut('fast', function() {
+                            $('tr[name="'+table+tag+'"]').remove();
+                            stopWaitingIcon("tagadd"+table);
+                        });
+                    },
+                    function(tag) {
+                        alert("Failed to remove "+tag);
+                        stopWaitingIcon("tagadd"+table);
+                    }
+                );
+            });
+            return true;
+        });
 
     }
 
@@ -637,25 +639,21 @@ function Info(target, source) {
             $("#backbutton").unbind('click');
             $("#backbutton").removeAttr("href");
             $("#backbutton img").attr("src", "images/backbutton_disabled.png");
-            debug.log("Disabling Back Button");
         }
         if (displaypointer > 0 && $("#backbutton").attr("href")==undefined) { 
             $("#backbutton").attr("href", "#");
             $("#backbutton").click(function () {browser.back()});
             $("#backbutton img").attr("src", "images/backbutton.png");
-            debug.log("Enabling Back Button");
         }
         if (displaypointer == (history.length)-1) {
             $("#forwardbutton").unbind('click');
             $("#forwardbutton").removeAttr("href");
             $("#forwardbutton img").attr("src", "images/forwardbutton_disabled.png");
-            debug.log("Disabling Forward Button");
         }
         if (displaypointer < (history.length)-1 && $("#forwardbutton").attr("href")==undefined) { 
             $("#forwardbutton").attr("href", "#");
             $("#forwardbutton").click(function () {browser.forward()});
             $("#forwardbutton img").attr("src", "images/forwardbutton.png");
-            debug.log("Enabling Forward Button");
         }
     }
 
@@ -687,7 +685,7 @@ function Info(target, source) {
             switch (this.source) {
                 case "wikipedia":
                 case "slideshow":
-                var s;
+                    var s;
                     if (this.wiki) {
                         s = this.wiki;
                     } else {
@@ -724,11 +722,11 @@ function Info(target, source) {
     */
 
     this.love = function() {
-        lastfm.track.love(history[displaypointer].track.name(), history[displaypointer].artist.name(), infobar.donelove);
+        lastfm.track.love(history[displaypointer].track.name(), history[displaypointer].artist.name(), self.justloved);
     }
 
     this.unlove = function() {
-        lastfm.track.unlove(history[displaypointer].track.name(), history[displaypointer].artist.name(), infobar.donelove);
+        lastfm.track.unlove(history[displaypointer].track.name(), history[displaypointer].artist.name(), self.justloved);
     }
 
     this.justloved = function(track,artist) {

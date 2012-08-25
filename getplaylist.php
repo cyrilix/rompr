@@ -50,6 +50,7 @@ function getFileInfo($file, $pos) {
         error_log("FAILED TO FIND TRACK!");
         $xml = $xml.xmlnode("title", "Unknown")
                     .xmlnode("album", "Unknown")
+                    .xmlnode("duration", 0)
                     .xmlnode("creator", "Unknown");
     } else {
         $image = $track->image;

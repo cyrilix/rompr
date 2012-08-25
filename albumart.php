@@ -14,10 +14,10 @@ include ("collection.php");
 <?php
 print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme'].'" />'."\n";
 ?>
-<link type="text/css" href="jqueryui1.8.16/css/start/jquery-ui-1.8.16.custom.css" rel="stylesheet" />
+<link type="text/css" href="jqueryui1.8.16/css/start/jquery-ui-1.8.22.custom.css" rel="stylesheet" />
 <script type="text/javascript" src="jquery-1.7.1.min.js"></script>
 <script type="text/javascript" src="jquery.form.js"></script>
-<script type="text/javascript" src="jqueryui1.8.16/js/jquery-ui-1.8.16.custom.min.js"></script>
+<script type="text/javascript" src="jqueryui1.8.16/js/jquery-ui-1.8.22.custom.min.js"></script>
 <script type="text/javascript" src="jquery.jsonp-2.3.1.min.js"></script>
 <script type="text/javascript" src="functions.js"></script>
 <script type="text/javascript" src="uifunctions.js"></script>
@@ -58,7 +58,6 @@ function doNextImage(timer) {
     var percent = ((numAlbums - formObjects.length)/numAlbums)*100;
     $("#progress").progressbar("option", "value", parseInt(percent.toString()));
     if (formObjects.length > 0) {
-        //debug.log("0: Setting timeout");
         timer = setTimeout("processForm()", timer);
         timer_running = true;
     } else {
@@ -76,22 +75,15 @@ function processForm() {
     var artist = decodeURIComponent($(object).find("#artist").getValue());
     var album = decodeURIComponent($(object).find("#album").getValue());
     var flag = $(object).find("#flag").getValue();
-    //debug.log("1 : Getting", album);
 
     if (flag == 0) {
         $("#status").html("Getting "+album);
-        debug.log(artist,album);
 
-        //debug.log("2: About to query last.fm");
         var url = "http://ws.audioscrobbler.com/2.0/?method=album.getinfo&album="+encodeURIComponent(album)+"&artist="+encodeURIComponent(artist)+"&autocorrect=1&api_key="+lastfm_api_key+"&format=json&callback=?";
-        // $.getJSON(url)
-            // .done( function(data) {
-            //debug.log("3: Got response");
         $.jsonp({url: url,
                 success: function(data) {
                     var image = "";
                     if (data.album) {
-                        //debug.log("4: It has data");
                         $.each(data.album.image, function (index, value) {
                             var pic = "";
                             $.each(value, function (index, value) {
@@ -102,7 +94,6 @@ function processForm() {
                         });
                     }
                     if (image != "") {
-                        //debug.log("5: we have an image. About to download");
                         key = $(object).attr("name");
                         $.get("getalbumcover.php", "key="+encodeURIComponent(key)+"&src="+encodeURIComponent(image), function () {
                             $(object).find("#albumimage").attr("src", "albumart/original/"+key+".jpg");
@@ -112,15 +103,12 @@ function processForm() {
                             doNextImage(750);
                         });
                     } else {
-                        //debug.log("7: We got no image");
                         doNextImage(800);
                     }
                 },
                 error: function() { doNextImage(1000); }
         });
-        // .fail(function () { doNextImage(1000) });
     } else {
-        //debug.log("8: Nothing to do");
         doNextImage(100);
     }
 
@@ -140,7 +128,7 @@ function doGoogleSearch(artist, album, key) {
 
     imagekey = key;
     windowScroll = getScrollXY();
-    var googlePopup = popupWindow.create(700, 540, "googlepopup", false);
+    var googlePopup = popupWindow.create(700, 540, "googlepopup", false, "Choose Album Picture");
 
     $("#popupcontents").append('<div id="googleinput"></div>');
     $("#googleinput").append('<div name="g1" id="holdingcell"><h3>Upload A File</h3></div>');
@@ -185,7 +173,6 @@ function googleSearchComplete() {
         var results = imageSearch.results;
         for (var i = 0; i < results.length; i++) {
             var result = results[i];
-            debug.log(result);
             $("#searchcontent").append('<div id="'+i+'" class="gimage"></div>');
             $("#"+i).append('<img id="img'+i+'" class="bumfinger" src="'+result.tbUrl+'"></img>');
             $("#img"+i).wrap('<a href="javascript:updateImage(\''+imagekey+'\', \''+result.url+'\')" />');
@@ -209,7 +196,13 @@ function updateImage(key, url) {
         updateInfo();
     }
     $('form[name="'+key+'"]').find("#albumimage").attr("src", "images/image-update.gif");
-    $.get("getalbumcover.php", "key="+encodeURIComponent(key)+"&src="+encodeURIComponent(url), function () {
+    var getstring = "key="+encodeURIComponent(key)+"&src="+encodeURIComponent(url);
+    var stream = $('form[name="'+key+'"]').find("#stream").attr("value");
+    debug.log("stream",stream);
+    if (typeof(stream) != "undefined") {
+        getstring = getstring + "&stream="+stream;
+    }
+    $.get("getalbumcover.php", getstring, function () {
         $('form[name="'+key+'"]').find("#albumimage").attr("src", "albumart/original/"+key+".jpg");
         $('form[name="'+key+'"]').find("#flag").attr("value", "2");
     });
@@ -257,6 +250,79 @@ foreach($artistlist as $artistkey) {
     do_albumcovers($artistkey, true, $covers);
 }
 close_mpd($connection);
+
+$playlists = glob("prefs/USERSTREAM*.xspf");
+if (count($playlists) > 0) {
+    print '<div id="albumsection">';
+    print '<h2>Radio Stations</h2>';
+    print "</div>\n";
+    print '<div id="artistinfo">';
+    $albumnames = array();
+    print '<table align="center" cellpadding="4"><tr>';
+    $colcount = 0;
+
+    foreach ($playlists as $i => $file) {
+        $x = simplexml_load_file($file);
+        foreach($x->trackList->track as $i => $track) {
+            if ($track->album) {
+                $artname = md5($track->album);
+                if (file_exists("albumart/original/".$artname.".jpg")) {
+                    if ($covers) {
+                        break;
+                    }
+                    print '<td align="center">';
+                    print '<form name="'.$artname.'" action="getalbumcover.php" method="post">';
+                    print '<input id="flag" type="hidden" name="changed" value="2" />';
+                } else {
+                    print '<td align="center">';
+                    print '<form name="'.$artname.'" action="getalbumcover.php" method="post">';
+                    print '<input id="flag" type="hidden" name="changed" value="0" />';
+                    $albums_without_cover++;
+                }
+                print '<input id="artist" type="hidden" name="artist" value="Internet Radio" />';
+                print '<input id="stream" type="hidden" name="stream" value="'.rawurlencode($file).'" />';
+                print '<input id="album" type="hidden" name="album" value="'.rawurlencode($track->album).'" />';
+                print '<a href="#" onclick="doGoogleSearch(\'Internet Radio\', \''.rawurlencode($track->album).'\', \''.$artname.'\')">';
+                if (file_exists("albumart/original/".$artname.".jpg")) {
+                   print '<img id="albumimage" src="albumart/original/'.$artname.'.jpg" width="94" height="94" />';
+                } else {
+                   print '<img id="albumimage" src="images/broadcast.png" width="94"  height="94" />';
+                }
+                print '</a>';
+                array_push($albumnames, $track->album);
+
+                print '</form>';
+                print '</td>';
+                $colcount++;
+                if ($colcount == 7) {
+                    print "</tr><tr>\n";
+                    foreach($albumnames as $key => $value) {
+                        print '<td align="center">'.$value."</td>";
+                    }
+                    print "</tr><tr>";
+                    $colcount = 0;
+                    $albumnames = array();
+                }
+                $count++;
+                break;
+            }
+        }
+    }
+
+    while ($colcount < 7) {
+        print "<td></td>";
+        $colcount++;
+    }
+    print "</tr><tr>\n";
+    foreach($albumnames as $key => $value) {
+        print '<td align="center">'.$value."</td>";
+    }
+
+    print "</tr>\n";
+    print "</table>\n";
+    print "</div>\n";
+}
+
 
 function do_albumcovers($artistkey, $comps, $covers) {
 

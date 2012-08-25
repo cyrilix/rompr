@@ -26,9 +26,14 @@ function doMenu(item) {
 
 function formatTimeString(duration) {
     if (duration > 0) {
-        var mins=duration/60;
         var secs=duration%60;
-        return parseInt(mins.toString()) + ":" + zeroPad(parseInt(secs.toString()),2);
+        var mins = (duration/60)%60;
+        var hours = duration/3600;
+        if (hours >= 1) {
+            return parseInt(hours.toString()) + ":" + zeroPad(parseInt(mins.toString()), 2) + ":" + zeroPad(parseInt(secs.toString()),2);
+        } else {
+            return parseInt(mins.toString()) + ":" + zeroPad(parseInt(secs.toString()),2);
+        }
     } else {
         return "Unknown";
     }
@@ -168,61 +173,79 @@ function getInternetPlaylist(url, image, station, creator, usersupplied) {
     if (creator) { data.creator = encodeURIComponent(creator) }
     if (usersupplied) { data.usersupplied = "true" }
 
-    debug.log("Getting Playlist",data);
-
-    $.ajax({
-                type: "GET",
-                url: "getInternetPlaylist.php",
-                cache: false,
-                contentType: "text/xml; charset=utf-8",
-                data: data,
-                dataType: "xml",
-                // success: playlist.newInternetRadioStation,
-                success: function(data) {
-                    playlist.newInternetRadioStation(data);
-                    if (usersupplied) {
-                        $("#yourradiolist").load("yourradio.php");
-                    }
-                },
-                error: function(data, status) { 
-                    playlist.repopulate();
-                    alert("Failed To Tune Radio Station"); 
-                }
-    });
+    $.ajax( {
+        type: "GET",
+        url: "getInternetPlaylist.php",
+        cache: false,
+        contentType: "text/xml; charset=utf-8",
+        data: data,
+        dataType: "xml",
+        success: function(data) {
+            playlist.newInternetRadioStation(data);
+            if (usersupplied) {
+                $("#yourradiolist").load("yourradio.php");
+            }
+        },
+        error: function(data, status) { 
+            playlist.repopulate();
+            alert("Failed To Tune Radio Station"); 
+        }
+    } );
 }
 
 function addIceCast(name) {
     playlist.waiting();
     debug.log("Adding IceCast Station",name);
-    $.ajax({
-                type: "GET",
-                url: "getIcecastPlaylist.php",
-                cache: false,
-                contentType: "text/xml; charset=utf-8",
-                data: {name: name},
-                dataType: "xml",
-                success: playlist.newInternetRadioStation,
-                error: function(data, status) { playlist.repopulate();
-                                                alert("Failed To Tune Radio Station"); }
-    });
+    $.ajax( {
+        type: "GET",
+        url: "getIcecastPlaylist.php",
+        cache: false,
+        contentType: "text/xml; charset=utf-8",
+        data: {name: name},
+        dataType: "xml",
+        success: playlist.newInternetRadioStation,
+        error: function(data, status) { 
+            playlist.repopulate();
+            alert("Failed To Tune Radio Station"); 
+        }
+    } );
 
 }
 
 function playUserStream(xspf) {
     playlist.waiting();
     debug.log("Playing User Stream",xspf);
-    $.ajax({
-                type: "GET",
-                url: "getUserStreamPlaylist.php",
-                cache: false,
-                contentType: "text/xml; charset=utf-8",
-                data: {name: xspf},
-                dataType: "xml",
-                success: playlist.newInternetRadioStation,
-                error: function(data, status) { playlist.repopulate();
-                                                alert("Failed To Tune Radio Station"); }
-    });
+    $.ajax( {
+        type: "GET",
+        url: "getUserStreamPlaylist.php",
+        cache: false,
+        contentType: "text/xml; charset=utf-8",
+        data: {name: xspf},
+        dataType: "xml",
+        success: playlist.newInternetRadioStation,
+        error: function(data, status) { 
+            playlist.repopulate();
+            alert("Failed To Tune Radio Station"); 
+        }
+    } );
 
+}
+
+function removeUserStream(xspf) {
+    $.ajax( {
+        type: "GET",
+        url: "getUserStreamPlaylist.php",
+        cache: false,
+        contentType: "text/xml; charset=utf-8",
+        data: {remove: xspf},
+        success: function(data, status) {
+            $("#yourradiolist").load("yourradio.php");
+        },
+        error: function(data, status) { 
+            playlist.repopulate();
+            alert("Failed To Tune Radio Station"); 
+        }
+    } );    
 }
 
 function utf8_encode(s)
@@ -263,7 +286,6 @@ function doLastFM(station, value) {
 }
 
 function lastFMIsTuned(data) {
-    debug.log("Tuned Last.FM", data);
     if (data && data.error) { lastFMTuneFailed(data); return false; };
     lastfm.radio.getPlaylist({discovery: 0, rtp: lastfm.getScrobbling(), bitrate: 128}, playlist.saveLastFMPlaylist, lastFMTuneFailed);
 }
@@ -274,16 +296,51 @@ function lastFMTuneFailed(data) {
 }
 
 function addLastFMTrack(artist, track) {
-    //debug.log("Doing Last.FM Track Thing");
-    lastfm.track.getInfo({track: track, artist: artist}, gotTrackInfoForStream, browser.gotFailure);
+    playlist.waiting();
+    lastfm.track.getInfo({track: track, artist: artist}, gotTrackInfoForStream, lastFMTuneFailed);
 }
 
 function gotTrackInfoForStream(data) {
 
-    if (data.error) { return false };
+    if (data && data.error) { lastFMTuneFailed(data); return false };
     var url = "lastfm://play/tracks/"+data.track.id;
     lastfm.track.getPlaylist({url: url}, playlist.newInternetRadioStation, lastFMTuneFailed);
 
+}
+
+function scrobble() {
+    if (!nowplaying.track.scrobbled) {
+        if (nowplaying.track.name() != "" && nowplaying.artist.name() != "") {
+            var options = { 
+                timestamp: parseInt(nowplaying.track.starttime.toString()),
+                track: nowplaying.track.name(),
+                artist: nowplaying.artist.name(),
+                album: nowplaying.album.name()
+            };
+            if (nowplaying.track.mpd_data.type == 'local') {
+                options.chosenByUser = "1";
+            } else {
+                options.chosenByUser = "0";
+            }
+            debug.log("Scrobbling", options.track);
+            lastfm.track.scrobble( options );
+            nowplaying.track.scrobbled = true;
+        }
+    }
+}
+
+function updateNowPlaying() {
+    if (!nowplaying.track.nowplaying_updated) {
+        if (nowplaying.track.name() != "" && nowplaying.artist.name() != "") {
+            debug.log("Updating Now Playing", nowplaying.track.name());
+            lastfm.track.updateNowPlaying( { 
+                track: nowplaying.track.name(), 
+                album: nowplaying.album.name(),
+                artist: nowplaying.artist.name()
+            });
+            nowplaying.track.nowplaying_updated = true;
+        }
+    }
 }
 
 function savePrefs(options) {
@@ -451,13 +508,12 @@ var imagePopup=function(){
 
 function loadKeyBindings() {
 
-    debug.log("Loading Key Bindings");
     $.getJSON("getkeybindings.php")
         .done(function(data) {
             shortcut.add(getHotKey(data['nextrack']),   function(){ playlist.next() }, {'disable_in_input':true});
             shortcut.add(getHotKey(data['prevtrack']),  function(){ playlist.previous() }, {'disable_in_input':true});
-            shortcut.add(getHotKey(data['stop']),       function(){ infobar.command('command=stop') }, {'disable_in_input':true});
-            shortcut.add(getHotKey(data['play']),       function(){ infobar.playpausekey() }, {'disable_in_input':true} );
+            shortcut.add(getHotKey(data['stop']),       function(){ mpd.command('command=stop') }, {'disable_in_input':true});
+            shortcut.add(getHotKey(data['play']),       function(){ infobar.playbutton.clicked() }, {'disable_in_input':true} );
             shortcut.add(getHotKey(data['volumeup']),   function(){ infobar.volumeKey(5) }, {'disable_in_input':true} );
             shortcut.add(getHotKey(data['volumedown']), function(){ infobar.volumeKey(-5) }, {'disable_in_input':true} );
         })
@@ -465,19 +521,13 @@ function loadKeyBindings() {
 }
 
 function getHotKey(st) {
-
     var bits = st.split("+++");
-    debug.log("Hotkey is", bits[0]);
     return bits[0];
-
 }
 
 function getHotKeyDisplay(st) {
-
     var bits = st.split("+++");
-    debug.log("Hotkey Display is", bits[1]);
     return bits[1];
-
 }
 
 function editkeybindings() {
@@ -486,10 +536,8 @@ function editkeybindings() {
 
     $.getJSON("getkeybindings.php")
         .done(function(data) {
-            var keybpu = popupWindow.create(500,300,"keybpu",true);
+            var keybpu = popupWindow.create(500,300,"keybpu",true,"Keyboard Shortcuts");
             $("#popupcontents").append('<table align="center" cellpadding="4" id="keybindtable" width="80%"></table>');
-            $("#keybindtable").append('<tr><td align="center" colspan="2"><h2>Keyboard Shortcuts</h2></td></tr>');
-
             $("#keybindtable").append('<tr><td width="35%" align="right">Next Track</td><td>'+format_keyinput('nextrack', data)+'</td></tr>');
             $("#keybindtable").append('<tr><td width="35%" align="right">Previous Track</td><td>'+format_keyinput('prevtrack', data)+'</td></tr>');
             $("#keybindtable").append('<tr><td width="35%" align="right">Stop</td><td>'+format_keyinput('stop', data)+'</td></tr>');
@@ -524,7 +572,6 @@ function changeHotKey(ev) {
     ev.stopPropagation();
     var source = $(ev.target).attr("id");
 
-    debug.log("Key",key,"Pressed In",source);
     var special_keys = {
         9: 'tab',
         32: 'space',
@@ -600,7 +647,7 @@ var popupWindow = function() {
     var userheight;
 
     return {
-        create:function(w,h,id,shrink) {
+        create:function(w,h,id,shrink,title) {
             if (popup == null) {
                 popup = document.createElement('div');
                 $(popup).addClass("popupwindow");
@@ -610,7 +657,9 @@ var popupWindow = function() {
             $(popup).html('');
             popup.style.height = 'auto';
             $(popup).append('<div id="cheese"></div>');
-            $("#cheese").append('<div class="tright"><a href="#" onclick="javascript:popupWindow.close()"><img src="images/edit-delete.png"></a></div>');
+            $("#cheese").append('<table width="100%"><tr><td width="30px"></td><td align="center"><h2>'+title+
+                '</h2></td><td align="right" width="30px"><a href="#" onclick="javascript:popupWindow.close()">'+
+                '<img src="images/edit-delete.png"></a></td></tr></table>');
             $(popup).append('<div id="popupcontents"></div>');
             var winsize=getWindowSize();
             var windowScroll = getScrollXY();
@@ -631,7 +680,7 @@ var popupWindow = function() {
         },
         open:function() {
             $(popup).fadeIn('slow');
-            var calcheight = $("#popupcontents").outerHeight(true)+18;
+            var calcheight = $(popup).outerHeight(true);
             if (userheight > calcheight) {
                 popup.style.height = parseInt(calcheight) + 'px';
             } else {

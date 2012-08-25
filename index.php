@@ -28,6 +28,8 @@ print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme']
 <script type="text/javascript" src="lfmdatafunctions.js"></script>
 <script type="text/javascript" src="jshash-2.2/md5-min.js"></script>
 <script type="text/javascript" src="ba-debug.js"></script>
+<script type="text/javascript" src="mpd.js"></script>
+<script type="text/javascript" src="nowplaying.js"></script>
 <script type="text/javascript" src="infobar.js"></script>
 <script type="text/javascript" src="lastfm.js"></script>
 <script type="text/javascript" src="playlist.js"></script>
@@ -43,7 +45,18 @@ if (file_exists("prefs/prefs.js")) {
 var lastfm_api_key = "15f7532dff0b8d84635c757f9f18aaa3";
 var lastfm_session_key;
 var lastfm_country_code = "United Kingdom";
+var emptytrack = new Track({    creator: "",
+                                album: "",
+                                title: "",
+                                duration: 0,
+                                image: "images/album-unknown.png"
+});
+var emptylfmtrack = new lfmtrack("", "", null);
+var emptylfmalbum = new lfmalbum("", "", null);
+var emptylfmartist = new lfmartist("", null);
+var mpd = new mpdController();
 var playlist = new Playlist();
+var nowplaying = new playInfo();
 var infobar = new infoBar();
 var gotNeighbours = false;
 var gotFriends = false;
@@ -51,9 +64,9 @@ var sourceshidden = false;
 var playlisthidden = false;
 <?php
  print "var scrobblepercent = ".$prefs['scrobblepercent'].";\n";
+ print "var max_history_length = ".$prefs["historylength"].";\n";;
  print "var lastfm = new LastFM('".$prefs["lastfm_user"]."');\n";
  print "var browser = new Info('infopane', '".$prefs["infosource"]."');\n";
- print "var max_history_length = ".$prefs["historylength"].";\n";;
 ?>
 $(document).ready(function(){
     $("#loadinglabel2").effect('pulsate', { times:100 }, 2000);
@@ -75,9 +88,8 @@ $(document).ready(function(){
     $("#somafmlist").load("somafm.php");
     $("#yourradiolist").load("yourradio.php");
 
-    infobar.command("",playlist.repopulate);
+    mpd.command("",playlist.repopulate);
     loadKeyBindings();
-    // reloadPlaylistControls();
 <?php
     if ($prefs['hidebrowser'] == 'true') {
         print "    browser.hide();\n";
@@ -93,8 +105,8 @@ $(document).ready(function(){
     <div id="leftholder" class="infobarlayout tleft bordered">
         <div id="buttons">
             <a href="#" title="Previous Track" onclick="playlist.previous()" class="controlbutton"><img src="images/media-skip-backward.png"></a>
-            <a href="#" title="Play/Pause" id="playbutton" class="controlbutton"><img id="playbuttonimg" src="images/media-playback-pause.png"></a>
-            <a href="#" title="Stop" onclick="infobar.command('command=stop')" class="controlbutton"><img src="images/media-playback-stop.png"></a>
+            <a href="#" title="Play/Pause" onclick="infobar.playbutton.clicked()" id="playbutton" class="controlbutton"><img id="playbuttonimg" src="images/media-playback-pause.png"></a>
+            <a href="#" title="Stop" onclick="mpd.command('command=stop')" class="controlbutton"><img src="images/media-playback-stop.png"></a>
             <a href="#" title="Next Track" onclick="playlist.next()" class="controlbutton"><img src="images/media-skip-forward.png"></a>
         </div>
         <div id="progress"></div>
