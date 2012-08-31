@@ -9,6 +9,7 @@ function LastFM(user) {
     var autocorrect = 0;
     this.tunedto = "";
     var self=this;
+    var lovebanshown = false;
 
     if (typeof lastfm_session_key != "undefined") {
         logged_in = true;
@@ -23,8 +24,16 @@ function LastFM(user) {
     }
 
     this.revealloveban = function() {
-        if (logged_in) {
+        if (logged_in && !lovebanshown) {
             $("#lastfm").fadeIn(2000);
+            lovebanshown = true;
+        }
+    }
+
+    this.hideloveban = function() {
+        if (lovebanshown) {
+            $("#lastfm").fadeOut(2000);
+            lovebanshown = false;
         }
     }
 
@@ -453,7 +462,10 @@ function LastFM(user) {
                             self.tunedto = options.station;
                             callback(data);
                         },
-                        function(data) { failcallback(data); }
+                        function(data) {
+                            debug.log("Oh dear");
+                            failcallback(data); 
+                        }
                     );
                 } else {
                     callback();
@@ -472,8 +484,14 @@ function LastFM(user) {
                 it = it+lastfm_secret;
                 options.api_sig = hex_md5(it);
                 $.post("http://ws.audioscrobbler.com/2.0/", options)
-                    .done( function(data) { callback(data) })
-                    .fail( function(data) { failcallback(data) });
+                    .done( function(data) { 
+                        debug.log("Got Last.FM Playlist");
+                        callback(data) 
+                    })
+                    .fail( function(data) {
+                        debug.log("Failed to get Last.FM Playlist");
+                        failcallback(data) 
+                    });
             }
         }
     }

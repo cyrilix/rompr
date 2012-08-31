@@ -236,6 +236,9 @@ if(array_key_exists("nocover", $_REQUEST)) {
 </div>
 <div id="wobblebottom">
 <?php
+
+// Do Local Albums
+
 $covers = (array_key_exists("nocover", $_REQUEST)) ? true : false;
 $collection = doCollection("listallinfo");
 $artistlist = $collection->getSortedArtistList();
@@ -250,6 +253,8 @@ foreach($artistlist as $artistkey) {
     do_albumcovers($artistkey, true, $covers);
 }
 close_mpd($connection);
+
+// Do User Radio Stations
 
 $playlists = glob("prefs/USERSTREAM*.xspf");
 if (count($playlists) > 0) {
@@ -343,7 +348,7 @@ function do_albumcovers($artistkey, $comps, $covers) {
         $colcount = 0;
         foreach($albumlist as $album) {
             print '<td align="center">';
-            $artname = md5($artist . " " . $album->name);
+            $artname = md5($album->artist . " " . $album->name);
             print '<form name="'.$artname.'" action="getalbumcover.php" method="post">';
             if (file_exists("albumart/original/".$artname.".jpg")) {
                 print '<input id="flag" type="hidden" name="changed" value="2" />';

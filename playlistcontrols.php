@@ -21,16 +21,16 @@ include ("connection.php");
                         $themes = glob("*.css");
                         foreach($themes as $theme) {
                             if ($theme != "layout.css") {
-                                print '<option value="'.$theme.'">'.$theme.'</option>';
+                                print '<option value="'.$theme.'">'.preg_replace('/\.css$/', "", $theme).'</option>';
                             }
                         }
 ?>
                         </select></li>
                         <li class="wide"><button class="topformbutton" onclick="editkeybindings()">Edit Keyboard Shortcuts...</button></li>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="browser.hide()" id="hideinfobutton">Hide Information Panel</input></li>
-                        <li class="wide"><input type="checkbox" class="topcheck" onclick="infobar.toggle('random')" id="shufflebutton">Playlist Shuffle</input></li>
-                        <li class="wide"><input type="checkbox" class="topcheck" onclick="infobar.toggle('crossfade')" id="xfadebutton">Crossfade Tracks</input></li>
-                        <li class="wide"><input type="checkbox" class="topcheck" onclick="infobar.toggle('repeat')" id="repeatbutton">Repeat Playlist</input></li>
+                        <li class="wide"><input type="checkbox" class="topcheck" onclick="toggleOption('random')" id="shufflebutton">Playlist Shuffle</input></li>
+                        <li class="wide"><input type="checkbox" class="topcheck" onclick="toggleOption('crossfade')" id="xfadebutton">Crossfade Tracks</input></li>
+                        <li class="wide"><input type="checkbox" class="topcheck" onclick="toggleOption('repeat')" id="repeatbutton">Repeat Playlist</input></li>
 <?php
                 print '<li class="wide">Information Panel History Depth</li>';
                 print '<li class="wide"><input class="topform" name="historylength" type="text" size="3" value="'.$prefs['historylength'].'"/><button class="topformbutton" onclick="sethistorylength()">Set</button></li>';
@@ -103,7 +103,6 @@ $('#saveplaylist').ajaxForm(function() {
 });
 
 $("ul.topnav li a").unbind('click');
-
 $("ul.topnav li a").click(function() {
     $(this).parent().find("ul.subnav").slideToggle('fast');
 });
@@ -159,7 +158,6 @@ $("#scrobwrangler").click(function(evt) { setscrob(evt) });
 
 ?>
 lastfm.setscrobblestate();
-
 
 </script>
 

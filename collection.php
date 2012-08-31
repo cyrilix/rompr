@@ -4,7 +4,6 @@ $COMPILATION_THRESHOLD = 6;
 
 class album {
     public function __construct($name, $artist) {
-        //error_log("New Album : " . $name . " by " . $artist);
         $this->artist = $artist;
         $this->name = $name;
         $this->tracks = array();
@@ -27,7 +26,6 @@ class album {
     }
 
     public function setAsCompilation() {
-        //error_log("Album " . $this->name . " being set as compilation");
         $this->artist = "Various Artists";
         $this->iscompilation = true;
     }
@@ -82,7 +80,6 @@ class album {
     public function getTrack($url, $pos) {
         foreach($this->tracks as $track) {
             if ($track->url == $url && $pos == $track->playlistpos) {
-            //if ($track->url == $url) {
                 return $track;
             }
         }
@@ -94,10 +91,8 @@ class album {
 class artist {
 
     public function __construct($name) {
-        // error_log("New Artist : ".$name);
         $this->name = $name;
         $this->albums = array();
-        //error_log("New Artist : " . $name);
     }
 
     public function newAlbum($object) {
@@ -115,10 +110,6 @@ class track {
     public function __construct($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
                                 $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station,
                                 $albumartist, $disc, $stream) {
-
-        // error_log($name." : ".$file." : ".$artist." : ".$album." : ".
-        //             $type." : ".$playlistpos." : ".$stationurl." : ".$station." : ".
-        //             $stream);
 
         $this->artist = $artist;
         $this->album = $album;
@@ -169,9 +160,7 @@ class musicCollection {
     private function findAlbum($album, $artist, $directory) {
         if ($artist != null) {
             foreach($this->getAlbumList(strtolower(preg_replace('/^The /i', '', $artist)), false, false) as $object) {
-                // error_log("Finding album : ".$album." : ".$artist." : ".$object->name);
                 if (trim($album) == trim($object->name)) {
-                    // error_log("  FOUND!");
                     return $object;
                 }
             }
@@ -198,7 +187,6 @@ class musicCollection {
                         $albumartist, $disc, $stream);
         // If artist doesn't exist, create it - indexed by all lower case name for convenient sorting and grouping
         if (!array_key_exists($artistkey, $this->artists)) {
-            //error_log("Adding Artist : " . strtolower($artist));
             $this->artists[$artistkey] = new artist($sortartist);
         }
 
@@ -206,7 +194,6 @@ class musicCollection {
         // Does an album with this name by this aritst already exist?
         $abm = $this->findAlbum($album, $sortartist, null);
         if ($abm == false) {
-            // error_log("Did not find album ".$album." in artist ".$sortartist);
             // Does an album with this name where the tracks are in the same directory exist?
             $abm = $this->findAlbum($album, null, $directory);
             if ($abm != false) {
@@ -255,21 +242,17 @@ class musicCollection {
 
             } else {
                 if ($only_without_cover) {
-                    $artname = md5($this->artists[$artist]->name . " " . $object->name);
+                    // $artname = md5($this->artists[$artist]->name . " " . $object->name);
+                    $artname = md5($object->artist . " " . $object->name);
                     if (!file_exists("albumart/original/".$artname.".jpg")) {
-			             // Changed for sorting albums alphabetically
-                        //$albums[] = $object;
                         $albums[(string) $object->name] = $object;
                     }
                 } else {
-		          // Changed for sorting albums alphabetically
-		          //$albums[] = $object;
                     $albums[(string) $object->name] = $object;
                 }
             }
         }
 
-	   // Changed for sorting albums alphabetically
 	   ksort($albums, SORT_STRING);
 	   return $albums;
     }
@@ -280,12 +263,10 @@ class musicCollection {
         $abm = new album($album, "");
         foreach($this->albums as $object) {
             if (strtolower(utf8_decode($object->name)) == strtolower($album)) {
-                //if ($object->trackCount() < $COMPILATION_THRESHOLD) {
-                    $object->setAsCompilation();
-                    foreach($object->tracks as $t) {
-                        $abm->newTrack($t);
-                    }
-                //}
+                $object->setAsCompilation();
+                foreach($object->tracks as $t) {
+                    $abm->newTrack($t);
+                }
             }
         }
         $this->albums[] = $abm;
@@ -399,7 +380,6 @@ function getStuffFromXSPF($url) {
         $x = simplexml_load_file($file);
         foreach($x->trackList->track as $i => $track) {
             if($track->location == $url) {
-                //error_log("Found Stream!");
                 return array (  $track->title,
                                 0, 
                                 null, null, null,
@@ -438,7 +418,7 @@ function getStuffFromXSPF($url) {
                     "images/broadcast.png",
                     null, null, null,
                     ""
-                    );
+                );
 
 }
 
@@ -450,50 +430,50 @@ function doCollection($command) {
     $collection = new musicCollection($connection);
 
     if ($is_connected) {
-	fputs($connection, $command."\n");
-	$firstline = null;
-	$filedata = array();
-	$parts = true;
-	while(!feof($connection) && $parts) {
-	    $parts = getline($connection);
-	    if (is_array($parts)) {
-            if ($parts[0] != "playlist" && $parts[0] != "Last-Modified") {
-        		if ($parts[0] == $firstline) {
-        		    process_file($collection, $filedata);
-        		    $filedata = array();
-        		}
-        		$filedata[$parts[0]] = $parts[1];
-        		if ($firstline == null) {
-        		    $firstline = $parts[0];
-        		}
-            }
-	    }
-	}
-	if (array_key_exists('file', $filedata) && $filedata['file']) {
-	    process_file($collection, $filedata);
-	}
+    	fputs($connection, $command."\n");
+    	$firstline = null;
+    	$filedata = array();
+    	$parts = true;
+    	while(!feof($connection) && $parts) {
+    	    $parts = getline($connection);
+    	    if (is_array($parts)) {
+                if ($parts[0] != "playlist" && $parts[0] != "Last-Modified") {
+            		if ($parts[0] == $firstline) {
+            		    process_file($collection, $filedata);
+            		    $filedata = array();
+            		}
+            		$filedata[$parts[0]] = $parts[1];
+            		if ($firstline == null) {
+            		    $firstline = $parts[0];
+            		}
+                }
+    	    }
+    	}
 
-	// Rescan stage - to find albums that are compilations but have been missed by the above step
-	$possible_compilations = array();
-	foreach($collection->albums as $i => $al) {
-	    if (!$al->isCompilation() && utf8_decode($al->name) != "") {
-		$numtracks = $al->trackCount();
-		if ($numtracks < $COMPILATION_THRESHOLD) {
-		    if (array_key_exists(utf8_decode($al->name), $possible_compilations)) {
-			     $possible_compilations[utf8_decode($al->name)]++;
-		    } else {
-			     $possible_compilations[utf8_decode($al->name)] = 1;
-		    }
-		}
-	    }
-	}
+    	if (array_key_exists('file', $filedata) && $filedata['file']) {
+    	    process_file($collection, $filedata);
+    	}
 
-	foreach($possible_compilations as $name => $count) {
-	    if ($count > 1) {
-		      //error_log("Album ".$name." score is ".$count);
-		      $collection->createCompilation($name);
-	    }
-	}
+    	// Rescan stage - to find albums that are compilations but have been missed by the above step
+    	$possible_compilations = array();
+    	foreach($collection->albums as $i => $al) {
+    	    if (!$al->isCompilation() && utf8_decode($al->name) != "") {
+        		$numtracks = $al->trackCount();
+        		if ($numtracks < $COMPILATION_THRESHOLD) {
+        		    if (array_key_exists(utf8_decode($al->name), $possible_compilations)) {
+        			     $possible_compilations[utf8_decode($al->name)]++;
+        		    } else {
+        			     $possible_compilations[utf8_decode($al->name)] = 1;
+        		    }
+        		}
+    	    }
+    	}
+
+    	foreach($possible_compilations as $name => $count) {
+    	    if ($count > 1) {
+    		      $collection->createCompilation($name);
+    	    }
+    	}
     }
     return $collection;
 }
@@ -537,7 +517,7 @@ function do_albums($artistkey, $compilations, $showartist, $prefix) {
             // literally hundres of images we don't need. Instead we set the name tag to the url
             // of the image, and then use jQuery magic to set the src tag when the menu is opened -
             // so we only ever load the images we need. The custom redirect will take care of missing images
-            $artname = md5($artist . " " . $album->name);
+            $artname = md5($album->artist . " " . $album->name);
 
             print '<img id="updateable" style="vertical-align:middle" src="" height="32" name="albumart/small/'.$artname.'.jpg"></td><td>';
             print '<a href="#" onclick="playlist.addalbum(\''.$prefix.'album' . $count . '\')">'.$album->name.'</a>';

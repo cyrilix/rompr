@@ -7,21 +7,13 @@ function mpdController() {
 	}
 
     this.command = function(cmd, callback) {
-        debug.log("command : ",cmd);
         $.getJSON("ajaxcommand.php", cmd)
         .done(function(data) {
             self.status = data;
             if (self.status.error) { 
                 alert("MPD Error: "+self.status.error); 
             }
-            //if (cmd == "command=play" || cmd == "command=pause") {
-                nowplaying.track.setStartTime(self.status.elapsed); 
-            //}
-            switch (self.status.state) {
-                case "stop":
-                    playlist.checkSongIdAfterStop(self.status.songid);
-                    break;
-            }
+            nowplaying.track.setStartTime(self.status.elapsed); 
             if (callback) { 
                 callback();
                 infobar.updateWindowValues(); 

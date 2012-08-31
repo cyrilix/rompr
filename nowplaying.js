@@ -37,9 +37,9 @@ function currentAlbum(lfm, mpdd) {
 
     function changeAlbumPicture(url) {
         // Animate the change of album art
-        $('#albumpicture').fadeOut('slow', function () {
+        $('#albumpicture').fadeOut(1000, function () {
             $('#albumpicture').attr("src", url);
-            $('#albumpicture').fadeIn('slow');
+            $('#albumpicture').fadeIn(1000);
         });
     }
 

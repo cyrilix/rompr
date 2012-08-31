@@ -4,16 +4,26 @@
 // Custom redirect for small album covers that don't exist.
 $request = $_SERVER['REQUEST_URI'];
 if (preg_match('/albumart\/small\//', $request)) {
-    Header("HTTP/1.1 301 Moved Permanently");
-    Header("Location: /rompr/images/album-unknown-small.png");
+    header("HTTP/1.1 301 Moved Permanently");
+	header("Cache-Control: no-cache, must-revalidate");
+	header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");    
+	header("Location: /rompr/images/album-unknown-small.png");
 } else {
+	// Custom 404 page for anything else
+    header("HTTP/1.1 404 Not Found");
 ?>
+<link rel="stylesheet" type="text/css" href="layout.css" />
+<link rel="stylesheet" type="text/css" href="Darkness.css" />
 <title>Badgers!</title>
 </head>
 <body>
-<h2>It's all gone horribly wrong</h2>
+<br><br><br>
+<h2 align="center">404 Error!</h2>
+<br><br>
+<h2 align="center">It's all gone horribly wrong</h2>
+<br><br>
 <?php
-print "The document ".$request." doesn't exist. Are you sure you know what you're doing?";
+print '<h3 align="center">The document &quot;'.$request."&quot; doesn't exist. Are you sure you know what you're doing?</h3>";
 ?>
 </body>
 <?php

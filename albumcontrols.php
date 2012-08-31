@@ -5,10 +5,6 @@
 <a href="#" title="Last.FM Radio" onclick="sourcecontrol('lastfmlist')"><img class="topimg" height="24px" src="images/lastfm.png"></a>
 <a href="#" title="Internet Radio Stations" onclick="sourcecontrol('radiolist')"><img class="topimg" height="24px" src="images/broadcast.png"></a>
 
-<!-- <a href="#" title="Live BBC Radio" onclick="sourcecontrol('bbclist')"><img class="topimg" height="24px" src="images/bbcr.png"></a>
-<a href="#" title="IceCast Radio" onclick="sourcecontrol('icecastlist')"><img class="topimg" height="24px" src="images/icecast.png"></a>
-<a href="#" title="soma fm radio" onclick="sourcecontrol('somafmlist')"><img class="topimg" width="36px" src="images/somafm-icon.png"></a>
- -->
 </td></tr></table>
 </div>
 
@@ -18,7 +14,7 @@ var update_load_timer = 0;
 var update_load_timer_running = false;
 $.getJSON("ajaxcommand.php", "command=update", function(data) {  });
 $("#loadinglabel").html("Updating Collection").effect('pulsate', { times:100 }, 2000);
-update_load_timer = setTimeout("pollAlbumList()", 500);
+update_load_timer = setTimeout("pollAlbumList()", 1000);
 update_load_timer_running = true;
 
 function pollAlbumList() {
@@ -39,7 +35,6 @@ function pollAlbumList() {
 
 function sourcecontrol(source) {
 
-//    sources = ["lastfmlist", "albumlist", "filelist", "bbclist", "icecastlist", "somafmlist"];
     sources = ["lastfmlist", "albumlist", "filelist", "radiolist"];
     for(var i in sources) {
         if (sources[i] == source) {
@@ -57,9 +52,10 @@ function switchsource(source) {
     if (togo) {
         $("#"+togo).fadeOut('fast', function() { switchsource(source) });
     } else {
-        savePrefs({chooser: source})
+        savePrefs({chooser: source});
         $("#"+source).fadeIn('fast');
     }
+
 }
 
 </script>

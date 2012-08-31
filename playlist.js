@@ -14,42 +14,39 @@ function Album(artist, album, index, rolledup) {
     this.artist = artist;
     this.album = album;
     this.index = index;
-    var trackpointer = 0;
     var rolledup = rolledup;
 
     this.newtrack = function (track) {
         tracks.push(track);
     }
 
-    this.getNextTrack = function() {
-        var html = "";
-        if (trackpointer >= tracks.length) { return null };
-        if (trackpointer == 0) {
-            html = html + self.header();
+    this.getHTML = function() {
+        var html = self.header();
+        for (var trackpointer in tracks) {
+            var showartist = false;
+            if (tracks[trackpointer].compilation || 
+                (tracks[trackpointer].albumartist != "" && tracks[trackpointer].albumartist != tracks[trackpointer].creator)) {
+                showartist = true;
+            }
+            html = html + '<div id="track" name="'+tracks[trackpointer].playlistpos+'"';
+            if (rolledup) {
+                html = html + ' class="invisible"';
+            }
+            html = html + '><table width="100%" class="playlistitem" id="'+tracks[trackpointer].playlistpos+'">';
+            html = html + '<tr><td ';
+            if (showartist) {
+                html = html + 'rowspan="2" ';
+            }
+            html = html + 'class="tracknumbr">'+format_tracknum(tracks[trackpointer].tracknumber)+'</td>';
+            html = html + '<td align="left"><a href="#" class="album" onclick="mpd.command(\'command=play&arg='+tracks[trackpointer].playlistpos+'\')">'+
+                            tracks[trackpointer].title+'</a></td>';
+            html = html + '<td class="playlisticon" align="right"><a href="#" onclick="playlist.delete(\''+tracks[trackpointer].playlistpos+'\')">'+
+                            '<img src="images/edit-delete.png"></a></td></tr>';
+            if (showartist) {
+                html = html + '<tr><td align="left" colspan="2" class="playlistrow2">'+tracks[trackpointer].creator+'</td></tr>';
+            }
+            html = html + '</table></div>';
         }
-        var showartist = false;
-        if (tracks[trackpointer].compilation || (tracks[trackpointer].albumartist != "" && tracks[trackpointer].albumartist != tracks[trackpointer].creator)) {
-            showartist = true;
-        }
-        html = html + '<div id="track" name="'+tracks[trackpointer].playlistpos+'"';
-        if (rolledup) {
-            html = html + ' class="invisible"';
-        }
-        html = html + '><table width="100%" class="playlistitem" id="'+tracks[trackpointer].playlistpos+'">';
-        html = html + '<tr><td ';
-        if (showartist) {
-            html = html + 'rowspan="2" ';
-        }
-        html = html + 'class="tracknumbr">'+format_tracknum(tracks[trackpointer].tracknumber)+'</td>';
-        html = html + '<td align="left"><a href="#" class="album" onclick="mpd.command(\'command=play&arg='+tracks[trackpointer].playlistpos+'\')">'+
-                        tracks[trackpointer].title+'</a></td>';
-        html = html + '<td class="playlisticon" align="right"><a href="#" onclick="playlist.delete(\''+tracks[trackpointer].playlistpos+'\')">'+
-                        '<img src="images/edit-delete.png"></a></td></tr>';
-        if (showartist) {
-            html = html + '<tr><td align="left" colspan="2" class="playlistrow2">'+tracks[trackpointer].creator+'</td></tr>';
-        }
-        html = html + '</table></div>';
-        trackpointer++;
         return html;
     }
 
@@ -121,7 +118,7 @@ function Album(artist, album, index, rolledup) {
     }
 
     this.invalidateOnStop = function() {
-        return true;
+        return false;
     }
 
     this.previoustrackcommand = function(which) {
@@ -145,7 +142,6 @@ function Stream(index, album, rolledup) {
     var tracks = new Array();
     var firstplaylistpos = -1;
     var lastplaylistpos = -1;
-    var trackpointer = 0;
     this.index = index;
     var rolledup = rolledup;
     this.album = album;
@@ -156,26 +152,22 @@ function Stream(index, album, rolledup) {
         if (firstplaylistpos == -1) { firstplaylistpos = track.playlistpos; }
     }
 
-
-    this.getNextTrack = function() {
-        var html = "";
-        if (trackpointer >= tracks.length) { return null };
-        if (trackpointer == 0) {
-            html = html + self.header();
+    this.getHTML = function() {
+        var html = self.header();
+        for (var trackpointer in tracks) {
+            html = html + '<div id="booger" name="'+tracks[trackpointer].playlistpos+'"';
+            if (rolledup) {
+                html = html + ' class="invisible"';
+            }
+            html = html + '><table width="100%" class="playlistitem" id="'+tracks[trackpointer].playlistpos+'">';
+            html = html + '<tr>';
+            html = html + '<td colspan="2" align="left" class="tiny" style="font-weight:normal">'+
+                            tracks[trackpointer].stream+'</td></tr>';
+            html = html + '<tr><td width="20px"><img src="images/broadcast.png" width="16px"></td>'+
+                            '<td align="left" class="tiny" style="font-weight:normal"><a href="#" class="album" onclick="mpd.command(\'command=play&arg='+tracks[trackpointer].playlistpos+'\')">'+
+                            tracks[trackpointer].location+'</a></td></tr>';
+            html = html + '</table></div>';
         }
-        html = html + '<div id="booger" name="'+tracks[trackpointer].playlistpos+'"';
-        if (rolledup) {
-            html = html + ' class="invisible"';
-        }
-        html = html + '><table width="100%" class="playlistitem" id="'+tracks[trackpointer].playlistpos+'">';
-        html = html + '<tr>';
-        html = html + '<td colspan="2" align="left" class="tiny" style="font-weight:normal">'+
-                        tracks[trackpointer].stream+'</td></tr>';
-        html = html + '<tr><td width="20px"><img src="images/broadcast.png" width="16px"></td>'+
-                        '<td align="left" class="tiny" style="font-weight:normal"><a href="#" class="album" onclick="mpd.command(\'command=play&arg='+tracks[trackpointer].playlistpos+'\')">'+
-                        tracks[trackpointer].location+'</a></td></tr>';
-        html = html + '</table></div>';
-        trackpointer++;
         return html;
     }
 
@@ -248,7 +240,7 @@ function Stream(index, album, rolledup) {
     }
 
     this.invalidateOnStop = function() {
-        return true;
+        return false;
     }
 
     this.previoustrackcommand = function(which) {
@@ -278,28 +270,24 @@ function LastFMRadio(station, index, rolledup) {
         if (firstplaylistpos == -1) { firstplaylistpos = track.playlistpos; }
     }
 
-    this.getNextTrack = function() {
-        var html = "";
-        if (trackpointer >= tracks.length) { return null };
-        if (trackpointer == 0) {
-            html = html + self.header();
+    this.getHTML = function() {
+        var html = self.header();
+        for (var trackpointer in tracks) {
+            html = html + '<div id="booger" name="'+tracks[trackpointer].playlistpos+'"';
+            if (rolledup) {
+                html = html + ' class="invisible"';
+            }
+
+            html = html + '><table width="100%" class="playlistitem" id="'+tracks[trackpointer].playlistpos+'">';
+            html = html + '<tr><td rowspan="2" width="38px"><img src="'+tracks[trackpointer].image+'" width="32" height="32"></td>';
+            html = html + '<td colspan="3" align="left" class="album">'+tracks[trackpointer].title+'</a></td></tr>';
+            html = html + '<tr><td class="playlistrow2" align="left" width="40%">'+tracks[trackpointer].creator+'</td><td align="left" class="playlistrow2">'+tracks[trackpointer].album+'</td>'
+            // Use checkSongIdAfterStop to delete tracks because that will make sure the station gets updated
+            html = html + '<td class="playlisticon" align="right"><a href="#" onclick="playlist.checkSongIdAfterStop(\''+tracks[trackpointer].backendid+'\')">'+
+                            '<img src="images/edit-delete.png"></a></td></tr></table>';
+
+            html = html + '</div>';
         }
-
-        html = html + '<div id="booger" name="'+tracks[trackpointer].playlistpos+'"';
-        if (rolledup) {
-            html = html + ' class="invisible"';
-        }
-
-        html = html + '><table width="100%" class="playlistitem" id="'+tracks[trackpointer].playlistpos+'">';
-        html = html + '<tr><td rowspan="2" width="38px"><img src="'+tracks[trackpointer].image+'" width="32" height="32"></td>';
-        html = html + '<td colspan="3" align="left" class="album">'+tracks[trackpointer].title+'</a></td></tr>';
-        html = html + '<tr><td class="playlistrow2" align="left" width="40%">'+tracks[trackpointer].creator+'</td><td align="left" class="playlistrow2">'+tracks[trackpointer].album+'</td>'
-        // Use checkSongIdAfterStop to delete tracks because that will make sure the station gets updated
-        html = html + '<td class="playlisticon" align="right"><a href="#" onclick="playlist.checkSongIdAfterStop(\''+tracks[trackpointer].backendid+'\')">'+
-                        '<img src="images/edit-delete.png"></a></td></tr></table>';
-
-        html = html + '</div>';
-        trackpointer++;
         return html;
     }
 
@@ -347,6 +335,7 @@ function LastFMRadio(station, index, rolledup) {
     this.invalidateOldTracks = function(currentsong, previoussong) {
         var todelete = new Array();
         var unixtimestamp = Math.round(new Date()/1000);
+        debug.log("Checking Last.FM Playlist item");
         for(var i in tracks) {
             debug.log("Track",i,"expires in", parseInt(tracks[i].expires) - unixtimestamp);
             if (unixtimestamp > parseInt(tracks[i].expires)) {
@@ -376,6 +365,9 @@ function LastFMRadio(station, index, rolledup) {
             if (todelete.length == tracks.length) {
                 var pos = (parseInt(tracks[0].playlistpos))-1;
                 if (pos < 0) { pos=0 }
+                // If we're deleting every track then this can only be because we've
+                // just loaded the playlist and all the tracks have expired.
+                // In this case we don't want play to start automatically.
                 playlist.dontplay = true;
                 playlist.setEndofradio(pos);
                 lastfm.radio.tune({station: tracks[0].stationurl}, lastFMIsTuned, lastFMTuneFailed);
@@ -420,7 +412,7 @@ function LastFMRadio(station, index, rolledup) {
                     lastfm.radio.tune({station: tracks[i].stationurl}, lastFMIsTuned, lastFMTuneFailed);
                 }
                 mpd.deleteTracksByID([songid], playlist.repopulate);
-                break;
+                return true;
             }
         }
     }
@@ -559,12 +551,8 @@ function Playlist() {
         debug.log("Playlist: finaltrack is",finaltrack);
 
         var html = "";
-        var stuff = "";
         for (var i in tracklist) {
-            do {
-                if (stuff) { html = html + stuff; }
-                stuff = tracklist[i].getNextTrack();
-            } while (stuff)
+            html = html + tracklist[i].getHTML();
         }
         $("#sortable").html(html);
 
@@ -610,10 +598,8 @@ function Playlist() {
                 // If we move DOWN we have to calculate what the position will be AFTER the items
                 // have been moved. Bit daft, that.
                 if (parseInt(firstmoveitem) < parseInt(moveto)) {
-                    var a = parseInt(moveto);
-                    a = a - parseInt(numitems);
-                    if (a<0) { a=0 }
-                    moveto = a;
+                    moveto = parseInt(moveto) - parseInt(numitems);
+                    if (moveto < 0) { moveto = 0; }
                 }
                 mpd.command("command=move&arg="+itemstomove+"&arg2="+moveto, self.repopulate);
             }
@@ -675,7 +661,7 @@ function Playlist() {
                 stationurl: lastfm.tunedto 
             })
             .done( function() { 
-                self.newInternetRadioStation(xml) 
+                self.newInternetRadioStation(xml);
             });
     }
 
@@ -692,17 +678,23 @@ function Playlist() {
         if (finaltrack == -1) {
             // Playlist is empty
             nowplaying.newTrack(emptytrack);
+            $("#progress").progressbar("option", "value", 0);
+            $("#playbackTime").html("");
         } else {
             if (mpd.status.song != currentsong || mpd.status.songid != previoussong) {
                 debug.log("Updating current song");
                 currentsong = mpd.status.song;
                 $(".playlistcurrentitem").attr("class", "playlistitem");
                 $(".playlistcurrenttitle").attr("class", "playlisttitle");
-                for(var i in tracklist) {
-                    currentTrack = tracklist[i].findcurrent(currentsong);
-                    if (currentTrack) {
-                        currentalbum = i;
-                        break;
+                if (typeof(currentsong) == "undefined") {
+                    currentTrack = emptytrack;
+                } else {
+                    for(var i in tracklist) {
+                        currentTrack = tracklist[i].findcurrent(currentsong);
+                        if (currentTrack) {
+                            currentalbum = i;
+                            break;
+                        }
                     }
                 }
             }
@@ -823,6 +815,12 @@ function Playlist() {
         }     
     }        
 
+    this.stop = function() {
+        mpd.command("command=stop", function() {
+            self.checkSongIdAfterStop(previoussong);
+        });
+    }
+
     this.previous = function() {
         if (currentalbum >= 0) {
             mpd.command("command="+tracklist[currentalbum].previoustrackcommand(currentsong));
@@ -841,8 +839,11 @@ function Playlist() {
 
     this.checkSongIdAfterStop = function(songid) {
         for(var i in tracklist) {
-            tracklist[i].invalidateOnStop(songid);
+            if (tracklist[i].invalidateOnStop(songid)) {
+                return true;
+            }
         }
+        self.checkProgress();
     }
 
     this.addtrack = function(url) {

@@ -49,8 +49,8 @@ a
     padding-top:4px;
     padding-bottom:4px;
     margin:0px;
-    overflow-y:none;
-    overflow-x:hidden;
+    overflow-y:hidden;
+    overflow-x:none;
 }
 
 #headerbar

@@ -41,7 +41,7 @@ if (file_exists("prefs/prefs.js")) {
 }
 ?>
 <script language="javascript">
-//debug.setLevel(0);
+// debug.setLevel(0);
 var lastfm_api_key = "15f7532dff0b8d84635c757f9f18aaa3";
 var lastfm_session_key;
 var lastfm_country_code = "United Kingdom";
@@ -79,7 +79,6 @@ $(document).ready(function(){
         stop: function(event, ui) { infobar.setvolume(event) }
     });
     $('#infocontrols').load("infocontrols.php");
-    lastfm.revealloveban();
     $('#albumcontrols').load("albumcontrols.php", function() { reloadPlaylistControls()});
     $('#icecastlist').load("getIcecast.php");
     $("#filelist").load("dirbrowser.php");
@@ -106,7 +105,7 @@ $(document).ready(function(){
         <div id="buttons">
             <a href="#" title="Previous Track" onclick="playlist.previous()" class="controlbutton"><img src="images/media-skip-backward.png"></a>
             <a href="#" title="Play/Pause" onclick="infobar.playbutton.clicked()" id="playbutton" class="controlbutton"><img id="playbuttonimg" src="images/media-playback-pause.png"></a>
-            <a href="#" title="Stop" onclick="mpd.command('command=stop')" class="controlbutton"><img src="images/media-playback-stop.png"></a>
+            <a href="#" title="Stop" onclick="playlist.stop()" class="controlbutton"><img src="images/media-playback-stop.png"></a>
             <a href="#" title="Next Track" onclick="playlist.next()" class="controlbutton"><img src="images/media-skip-forward.png"></a>
         </div>
         <div id="progress"></div>

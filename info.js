@@ -124,7 +124,6 @@ function Info(target, source) {
             wiki: link 
         };
         history.splice(displaypointer+1,(history.length)-displaypointer,currentdisplay);
-        //history.splice(displaypointer+1,0,currentdisplay);
         displaypointer++;
         updateHistory();
         self.updateArtistBrowser(currentdisplay.artist);
@@ -167,7 +166,7 @@ function Info(target, source) {
                             $('#'+target_frame).animate({ scrollTop: 0}, { duration: 'fast', easing: 'swing'});
                         });
                     } else {
-                        $('#artistinformation').load("info_wikipedia.php?artist="+encodeURIComponent(history[displaypointer].artist.mpd_name), function () {
+                        $('#artistinformation').load("info_wikipedia.php?artist="+encodeURIComponent(history[displaypointer].artist.name()), function () {
                             $('#'+target_frame).animate({ scrollTop: 0}, { duration: 'fast', easing: 'swing'});
                         });
                     }
@@ -561,10 +560,11 @@ function Info(target, source) {
 
     this.buyAlbum = function() {
         makeWaitingIcon("buyalbumbutton");
-        lastfm.album.getBuylinks({album: history[displaypointer].album.name(), artist: history[displaypointer].artist.name()}, browser.showAlbumBuyLinks, browser.noBuyLinks);
+        lastfm.album.getBuylinks({album: history[displaypointer].album.name(), artist: history[displaypointer].artist.name()}, browser.showAlbumBuyLinks, browser.noAlbumBuyLinks);
     }
 
-    this.noBuyLinks = function() {
+    this.noAlbumBuyLinks = function() {
+        stopWaitingIcon("buyalbumbutton");
         alert("Could not find any information on buying this album");
     }
 
@@ -606,8 +606,14 @@ function Info(target, source) {
 
     this.buyTrack = function() {
         makeWaitingIcon("buytrackbutton");
-        lastfm.track.getBuylinks({track: history[displaypointer].track.name(), artist: history[displaypointer].artist.name()}, browser.showTrackBuyLinks, browser.noBuyLinks);
+        lastfm.track.getBuylinks({track: history[displaypointer].track.name(), artist: history[displaypointer].artist.name()}, browser.showTrackBuyLinks, browser.noTrackBuyLinks);
     }
+
+    this.noTrackBuyLinks = function() {
+        stopWaitingIcon("buytrackbutton");
+        alert("Could not find any information on buying this track");
+    }
+
 
     this.showTrackBuyLinks = function(data) {
         $("#buytrack").slideUp('fast', function() {

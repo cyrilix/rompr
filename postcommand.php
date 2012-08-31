@@ -4,7 +4,6 @@ include ("functions.php");
 
 $is_connected = false;
 
-//error_log("Opening Socket");
 $connection = fsockopen($prefs["mpd_host"], $prefs["mpd_port"], $errno, $errstr, 10);
 
 if(isset($connection) && is_resource($connection)) {
@@ -19,13 +18,6 @@ if(isset($connection) && is_resource($connection)) {
 
 	 fputs($connection, "command_list_begin\n");
 	 foreach ($_POST['commands'] as $cmd) {
-	 	// $pos = strpos($cmd, "&arg=");
-	 	// if ($pos) {
-	 	// 	$arg = format_for_mpd(html_entity_decode(substr($cmd, $pos+5)));
-	 	// 	$command = substr($cmd,0,$pos);
-	 	// 	$cmd = $command.' "'.$arg.'"';
-	 	// }
-	 	// error_log($cmd);
 	  	fputs($connection, $cmd."\n");
 
 	 }

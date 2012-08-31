@@ -2,13 +2,14 @@ function reloadPlaylistControls() {
     $('#playlistcontrols').load('playlistcontrols.php');
 }
 
-function doCommand(div, url, command) {
-    $('#'+div).load(url, command, function () {
-        if (div == 'infopane') {
-            $('#infopane').animate({ scrollTop: 0}, { duration: 'fast', easing: 'swing'});
-        }
-    });
-}
+// Don't think this is used any more
+// function doCommand(div, url, command) {
+//     $('#'+div).load(url, command, function () {
+//         if (div == 'infopane') {
+//             $('#infopane').animate({ scrollTop: 0}, { duration: 'fast', easing: 'swing'});
+//         }
+//     });
+// }
 
 function doMenu(item) {
 
@@ -42,6 +43,15 @@ function formatTimeString(duration) {
 function changetheme() {
     $("#theme").attr({href: $("#themeselector").val()});
     savePrefs({theme: $("#themeselector").val()});
+}
+
+function toggleOption(thing) {
+    var tocheck = (thing == "crossfade") ? "xfade" : thing;
+    var new_value = (mpd.status[tocheck] == 0) ? 1 : 0;
+    mpd.command("command="+thing+"&arg="+new_value);
+    var options = new Object;
+    options[thing] = new_value;
+    savePrefs(options);
 }
 
 function setscrob(e) {
@@ -159,10 +169,8 @@ function getArray(data) {
 }
 
 function doInternetRadio(input) {
-        
     var url = $("#"+input).attr("value");
     getInternetPlaylist(url, null, null, null, true);
-
 }
 
 function getInternetPlaylist(url, image, station, creator, usersupplied) {
@@ -209,12 +217,10 @@ function addIceCast(name) {
             alert("Failed To Tune Radio Station"); 
         }
     } );
-
 }
 
 function playUserStream(xspf) {
     playlist.waiting();
-    debug.log("Playing User Stream",xspf);
     $.ajax( {
         type: "GET",
         url: "getUserStreamPlaylist.php",
@@ -228,7 +234,6 @@ function playUserStream(xspf) {
             alert("Failed To Tune Radio Station"); 
         }
     } );
-
 }
 
 function removeUserStream(xspf) {
@@ -243,13 +248,12 @@ function removeUserStream(xspf) {
         },
         error: function(data, status) { 
             playlist.repopulate();
-            alert("Failed To Tune Radio Station"); 
+            alert("Failed To Remove Station"); 
         }
     } );    
 }
 
-function utf8_encode(s)
-{
+function utf8_encode(s) {
   return unescape(encodeURIComponent(s));
 }
 
@@ -361,26 +365,29 @@ function getWikimedia(url) {
 }
 
 function getNeighbours() {
-
     if (!gotNeighbours) {
+        makeWaitingIcon("neighbourwait");
         lastfm.user.getNeighbours({user: lastfm.username()}, gotNeighbourData, gotNoNeighbours);
     } else {
         doMenu("neighbours");
     }
-
 }
 
 function getFriends() {
-
     if (!gotFriends) {
-        lastfm.user.getFriends({user: lastfm.username()}, gotFriendsData, gotNoNeighbours);
+        makeWaitingIcon("freindswait");
+        lastfm.user.getFriends({user: lastfm.username()}, gotFriendsData, gotNoFriends);
     } else {
         doMenu("friends");
     }
-
 }
 
 function gotNoNeighbours(data) {
+    stopWaitingIcon("neighbourwait");
+}
+
+function gotNoFriends(data) {
+    stopWaitingIcon("freindswait");
 }
 
 function toggleSearch() {
@@ -411,6 +418,7 @@ function gotNeighbourData(data) {
     }
     $('div[name="neighbours"]').html(html);
     doMenu("neighbours");
+    stopWaitingIcon("neighbourwait");
 }
 
 function gotFriendsData(data) {
@@ -433,6 +441,7 @@ function gotFriendsData(data) {
     }
     $('div[name="friends"]').html(html);
     doMenu("friends");
+    stopWaitingIcon("freindswait");
 }
 
 var imagePopup=function(){
@@ -507,12 +516,11 @@ var imagePopup=function(){
 }();
 
 function loadKeyBindings() {
-
     $.getJSON("getkeybindings.php")
         .done(function(data) {
             shortcut.add(getHotKey(data['nextrack']),   function(){ playlist.next() }, {'disable_in_input':true});
             shortcut.add(getHotKey(data['prevtrack']),  function(){ playlist.previous() }, {'disable_in_input':true});
-            shortcut.add(getHotKey(data['stop']),       function(){ mpd.command('command=stop') }, {'disable_in_input':true});
+            shortcut.add(getHotKey(data['stop']),       function(){ playlist.stop() }, {'disable_in_input':true});
             shortcut.add(getHotKey(data['play']),       function(){ infobar.playbutton.clicked() }, {'disable_in_input':true} );
             shortcut.add(getHotKey(data['volumeup']),   function(){ infobar.volumeKey(5) }, {'disable_in_input':true} );
             shortcut.add(getHotKey(data['volumedown']), function(){ infobar.volumeKey(-5) }, {'disable_in_input':true} );
@@ -621,7 +629,6 @@ function changeHotKey(ev) {
 function saveKeyBindings() {
 
     var bindings = new Object;
-
     $.getJSON("getkeybindings.php")
         .done(function(data) {
             debug.log("Clearing Key Bindings");
