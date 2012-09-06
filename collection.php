@@ -349,13 +349,9 @@ function process_file($collection, $filedata) {
 function getStuffFromXSPF($url) {
     global $xml;
 
-    $playlists = glob("prefs/*RADIO*.xspf");
+    $playlists = glob("prefs/LFMRADIO*.xspf");
     foreach($playlists as $i => $file) {
         $x = simplexml_load_file($file);
-        $expiry = "";
-        if ($x->playlist->unixtimestamp) {
-            $expiry = $x->playlist->unixtimestamp+$x->playlist->link;
-        }
         foreach($x->playlist->trackList->track as $i => $track) {
             if($track->location == $url) {
                 return array (  $track->title, 
@@ -365,8 +361,9 @@ function getStuffFromXSPF($url) {
                                 $track->album, 
                                 null, 
                                 "lastfmradio",
-                                $track->image, 
-                                $expiry, 
+                                $track->image,
+                                $track->expires,
+                                // $expiry, 
                                 $x->playlist->stationurl,
                                 $x->playlist->title, 
                                 null );

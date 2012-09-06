@@ -9,6 +9,9 @@
 //					creator :	The name of the broadcaster (Soma FM)
 //					image   :	The image to use in the playlist
 
+// The generated playlists can be updated later if no information is known - 
+// the playlist will handle that when it gets stream info from mpd
+
 include("functions.php");
 header('Content-Type: text/xml; charset=utf-8');
 

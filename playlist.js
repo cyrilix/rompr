@@ -38,9 +38,9 @@ function Album(artist, album, index, rolledup) {
                 html = html + 'rowspan="2" ';
             }
             html = html + 'class="tracknumbr">'+format_tracknum(tracks[trackpointer].tracknumber)+'</td>';
-            html = html + '<td align="left"><a href="#" class="album" onclick="mpd.command(\'command=play&arg='+tracks[trackpointer].playlistpos+'\')">'+
+            html = html + '<td align="left"><a href="#" class="album" onclick="mpd.command(\'command=playid&arg='+tracks[trackpointer].backendid+'\')">'+
                             tracks[trackpointer].title+'</a></td>';
-            html = html + '<td class="playlisticon" align="right"><a href="#" onclick="playlist.delete(\''+tracks[trackpointer].playlistpos+'\')">'+
+            html = html + '<td class="playlisticon" align="right"><a href="#" onclick="playlist.delete(\''+tracks[trackpointer].backendid+'\',\''+tracks[trackpointer].playlistpos+'\')">'+
                             '<img src="images/edit-delete.png"></a></td></tr>';
             if (showartist) {
                 html = html + '<tr><td align="left" colspan="2" class="playlistrow2">'+tracks[trackpointer].creator+'</td></tr>';
@@ -112,8 +112,10 @@ function Album(artist, album, index, rolledup) {
     this.deleteSelf = function() {
         var todelete = new Array();
         for(var i in tracks) {
+            $("#"+tracks[i].playlistpos).fadeOut('fast');
             todelete.push(tracks[i].backendid);
         }
+        $('#item[name="'+self.index+'"]').fadeOut('fast');
         mpd.deleteTracksByID(todelete, playlist.repopulate)
     }
 
@@ -164,7 +166,7 @@ function Stream(index, album, rolledup) {
             html = html + '<td colspan="2" align="left" class="tiny" style="font-weight:normal">'+
                             tracks[trackpointer].stream+'</td></tr>';
             html = html + '<tr><td width="20px"><img src="images/broadcast.png" width="16px"></td>'+
-                            '<td align="left" class="tiny" style="font-weight:normal"><a href="#" class="album" onclick="mpd.command(\'command=play&arg='+tracks[trackpointer].playlistpos+'\')">'+
+                            '<td align="left" class="tiny" style="font-weight:normal"><a href="#" class="album" onclick="mpd.command(\'command=playid&arg='+tracks[trackpointer].backendid+'\')">'+
                             tracks[trackpointer].location+'</a></td></tr>';
             html = html + '</table></div>';
         }
@@ -234,8 +236,10 @@ function Stream(index, album, rolledup) {
     this.deleteSelf = function() {
         var todelete = new Array();
         for(var i in tracks) {
+            $("#"+tracks[i].playlistpos).fadeOut('fast');
             todelete.push(tracks[i].backendid);
         }
+        $('#item[name="'+self.index+'"]').fadeOut('fast');
         mpd.deleteTracksByID(todelete, playlist.repopulate)
     }
 
@@ -254,13 +258,13 @@ function Stream(index, album, rolledup) {
     }
 }
 
-function LastFMRadio(station, index, rolledup) {
+function LastFMRadio(tuneurl, station, index, rolledup) {
     var self = this;
     var tracks = new Array();
     var firstplaylistpos = -1;
     var lastplaylistpos = -1;
-    var trackpointer = 0;
     this.station = station;
+    var tuneurl = tuneurl;
     this.index = index;
     var rolledup = rolledup;
 
@@ -370,11 +374,11 @@ function LastFMRadio(station, index, rolledup) {
                 // In this case we don't want play to start automatically.
                 playlist.dontplay = true;
                 playlist.setEndofradio(pos);
-                lastfm.radio.tune({station: tracks[0].stationurl}, lastFMIsTuned, lastFMTuneFailed);
+                lastfm.radio.tune({station: tuneurl}, lastFMIsTuned, lastFMTuneFailed);
             }
             if (todelete.length == (tracks.length)-1) {
                 playlist.setEndofradio(parseInt(tracks[0].playlistpos)+1);
-                lastfm.radio.tune({station: tracks[0].stationurl}, lastFMIsTuned, lastFMTuneFailed);
+                lastfm.radio.tune({station: tuneurl}, lastFMIsTuned, lastFMTuneFailed);
             }
             mpd.deleteTracksByID(todelete, playlist.repopulate);
             return true;
@@ -397,7 +401,9 @@ function LastFMRadio(station, index, rolledup) {
         var todelete = new Array();
         for (var i in tracks) {
             todelete.push(tracks[i].backendid);
+            $("#"+tracks[i].playlistpos).fadeOut('fast');
         }
+        $('#item[name="'+self.index+'"]').fadeOut('fast');
         mpd.deleteTracksByID(todelete, playlist.repopulate)
     }
 
@@ -444,10 +450,12 @@ function Playlist() {
     var previoussong = -1;
     this.dontplay = false;
     this.rolledup = new Array();
+    var updatecounter = 0;
+    var do_delayed_update = false;
 
     this.repopulate = function() {
         debug.log("Repopulating Playlist");
-        tracklist = [];
+        updatecounter++;        
         $.ajax({
             type: "POST",
             url: "getplaylist.php",
@@ -463,17 +471,41 @@ function Playlist() {
     }
 
     this.newXSPF = function(list) {
-        debug.log("Got Playlist from MPD");
         var item;
         var count = 0;
         var current_album = "";
         var current_artist = "";
         var current_station = "";
         var track;
+
+        // This is a mechanism to prevent multiple repeated updates of the playlist in the case
+        // where, for example, the user is clicking rapidly on the delete button for lots of tracks
+        // and the playlist is slow to update from mpd - perhaps because there are lots
+        // of streams in it (reading stream info is slow and needs work)
+        updatecounter--;
+        if (updatecounter > 0) {
+            debug.log("Received playlist update but more are coming - ignoring");
+            do_delayed_update = true;
+            return 0;
+        }
+
+        if (do_delayed_update) {
+            // Once all the repeated updates have been received from mpd, ignore them all
+            // (because we can't be sure which order they will have come back in)
+            // and do one more of our own, and use that one
+            do_delayed_update = false;
+            debug.log("Doing delayed playlist update");
+            self.repopulate();
+            return 0;
+        }
+        // ***********
+
+        debug.log("Got Playlist from MPD");
+
         finaltrack = -1;
         currentsong = -1;
         currentalbum = -1;
-        //previoussong = -1;
+        tracklist = [];
 
         $(list).find("track").each( function() {
 
@@ -525,7 +557,7 @@ function Playlist() {
                     case "lastfmradio":
                         if (track.station != current_station) {
                             var hidden = (self.rolledup[track.station]) ? true : false;
-                            item = new LastFMRadio(track.station, count, hidden);
+                            item = new LastFMRadio(track.stationurl, track.station, count, hidden);
                             current_station = track.station;
                             tracklist[count] = item;
                             count++;
@@ -609,8 +641,9 @@ function Playlist() {
 
     }
 
-    this.delete = function(pos) {
-        mpd.command("command=delete&arg="+pos, playlist.repopulate);
+    this.delete = function(id, pos) {
+        $("#"+pos).fadeOut('fast');
+        mpd.command("command=deleteid&arg="+id, playlist.repopulate);
     }
 
     this.waiting = function() {
@@ -681,6 +714,9 @@ function Playlist() {
             $("#progress").progressbar("option", "value", 0);
             $("#playbackTime").html("");
         } else {
+            // currentsong is used mainly so we can update the playlist to highlight the currently playing song
+            // a change in currentsong is not taken as a new track being played, because currentsong
+            // is set to -1 every time we repopulate.
             if (mpd.status.song != currentsong || mpd.status.songid != previoussong) {
                 debug.log("Updating current song");
                 currentsong = mpd.status.song;
@@ -699,6 +735,8 @@ function Playlist() {
                 }
             }
 
+            // Track changes are detected based on the playlist id. This prevents us from repopulating
+            // the browser every time the playlist gets repopulated.
             if (mpd.status.songid != previoussong) {
                 debug.log("Track has changed");
                 if (currentTrack && currentTrack.type == "stream" && streamflag) {
@@ -798,10 +836,6 @@ function Playlist() {
             debug.log("Updating Stream",name);
             $.post("updateplaylist.php", { url: url, name: name })
             .done( function() { 
-                // This could be dangerous... we call into here from updateStreamInfo,
-                // which is called from checkStream, which is called from etc etc
-                // I see a race condition where this call goes into playlist.repopulate
-                // while it's still repopulating or something.
                 playlist.repopulate();
                 $("#yourradiolist").load("yourradio.php");
             });
@@ -847,6 +881,7 @@ function Playlist() {
     }
 
     this.addtrack = function(url) {
+        self.waiting();
         if (mpd.status.state == "stop") {
             var cmdlist = new Array();
             cmdlist.push('add "'+decodeURIComponent(url)+'"');
@@ -858,6 +893,7 @@ function Playlist() {
     }
 
     this.addalbum = function(key) {
+        self.waiting();
         var list = new Array();
         $('div[name="'+key+'"]').find('a').each(function (index, element) { 
             var link = $(element).attr("onclick");

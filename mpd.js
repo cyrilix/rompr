@@ -7,6 +7,7 @@ function mpdController() {
 	}
 
     this.command = function(cmd, callback) {
+        debug.log("mpd command",cmd);
         $.getJSON("ajaxcommand.php", cmd)
         .done(function(data) {
             self.status = data;

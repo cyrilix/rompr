@@ -13,6 +13,8 @@ if(isset($connection) && is_resource($connection)) {
             break;
     }
 
+    check_playlist_commands($_REQUEST);
+
     if(array_key_exists("command", $_REQUEST)) {
         $command = $_REQUEST["command"];
         if(array_key_exists("arg", $_REQUEST) && strlen($_REQUEST["arg"])>0) {
@@ -34,4 +36,59 @@ if(isset($connection) && is_resource($connection)) {
 } else {
     $mpd_status['error'] = "Unable to Connect to MPD server at\n".$prefs["mpd_host"].":".$prefs["mpd_port"];
 }
+
+function check_playlist_commands($cmds) {
+
+    global $connection;
+
+    if(array_key_exists("command", $cmds)) {
+        switch ($cmds['command']) {
+            case 'save':
+                $playlist_name = format_for_mpd(html_entity_decode($cmds['arg']));
+                clean_the_toilet($playlist_name);
+                system('mkdir prefs/"'.$playlist_name.'"');
+                system('cp prefs/*.xspf prefs/"'.$playlist_name.'"/');
+                do_mpd_command($connection, 'rm "'.$playlist_name.'"');
+                break;
+
+            case "rm":
+                $playlist_name = format_for_mpd(html_entity_decode($cmds['arg']));
+                clean_the_toilet($playlist_name);
+                break;
+
+            case "load":
+                $playlist_name = format_for_mpd(html_entity_decode($cmds['arg']));
+                do_mpd_command($connection, "clear");
+                clean_stored_xspf();
+                system('cp -f prefs/"'.$playlist_name.'"/*.xspf prefs/');
+                break;
+
+            case "clear":
+                system("mv prefs/STREAM_icecast.xspf prefs/DONTDELETEME.bak");
+                clean_stored_xspf();
+                system("mv prefs/DONTDELETEME.bak prefs/STREAM_icecast.xspf");
+                break;
+
+        }
+    }
+
+}
+
+function clean_stored_xspf() {
+
+    $playlists = glob("prefs/*.xspf");
+    foreach($playlists as $i => $file) {
+        if (!preg_match('/USERSTREAM/', basename($file))) {
+            system("rm ".$file);
+        }
+    }
+}
+
+function clean_the_toilet($playlist_name) {
+    if (is_dir('prefs/'.$playlist_name)) {
+        system('rm prefs/"'.$playlist_name.'"/*.*');
+        system('rmdir prefs/"'.$playlist_name.'"');
+    }
+}
+
 ?>
