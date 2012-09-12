@@ -26,6 +26,7 @@ print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme']
 <script type="text/javascript" src="functions.js"></script>
 <script type="text/javascript" src="uifunctions.js"></script>
 <script type="text/javascript" src="lfmdatafunctions.js"></script>
+<script type="text/javascript" src="lastfmstation.js"></script>
 <script type="text/javascript" src="jshash-2.2/md5-min.js"></script>
 <script type="text/javascript" src="ba-debug.js"></script>
 <script type="text/javascript" src="mpd.js"></script>
@@ -58,6 +59,7 @@ var mpd = new mpdController();
 var playlist = new Playlist();
 var nowplaying = new playInfo();
 var infobar = new infoBar();
+var lfmprovider = new lastFMprovider();
 var gotNeighbours = false;
 var gotFriends = false;
 var sourceshidden = false;

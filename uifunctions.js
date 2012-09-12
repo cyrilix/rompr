@@ -286,13 +286,14 @@ function doLastFM(station, value) {
             break;
     }
     playlist.waiting();
-    var xspf = lastfm.radio.tune({station: url}, lastFMIsTuned, lastFMTuneFailed);
+    lfmprovider.getTracks(url,5,-1,true);
+    // var xspf = lastfm.radio.tune({station: url}, lastFMIsTuned, lastFMTuneFailed);
 }
 
-function lastFMIsTuned(data) {
-    if (data && data.error) { lastFMTuneFailed(data); return false; };
-    lastfm.radio.getPlaylist({discovery: 0, rtp: lastfm.getScrobbling(), bitrate: 128}, playlist.saveLastFMPlaylist, lastFMTuneFailed);
-}
+// function lastFMIsTuned(data) {
+//     if (data && data.error) { lastFMTuneFailed(data); return false; };
+//     lastfm.radio.getPlaylist({discovery: 0, rtp: lastfm.getScrobbling(), bitrate: 128}, playlist.saveLastFMPlaylist, lastFMTuneFailed);
+// }
 
 function lastFMTuneFailed(data) {
     playlist.repopulate();
@@ -300,12 +301,13 @@ function lastFMTuneFailed(data) {
 }
 
 function addLastFMTrack(artist, track) {
+    debug.log("Bungle");
     playlist.waiting();
     lastfm.track.getInfo({track: track, artist: artist}, gotTrackInfoForStream, lastFMTuneFailed);
 }
 
 function gotTrackInfoForStream(data) {
-
+    debug.log("Jungle");
     if (data && data.error) { lastFMTuneFailed(data); return false };
     var url = "lastfm://play/tracks/"+data.track.id;
     lastfm.track.getPlaylist({url: url}, playlist.newInternetRadioStation, lastFMTuneFailed);

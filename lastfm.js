@@ -485,12 +485,11 @@ function LastFM(user) {
                 options.api_sig = hex_md5(it);
                 $.post("http://ws.audioscrobbler.com/2.0/", options)
                     .done( function(data) { 
-                        debug.log("Got Last.FM Playlist");
-                        callback(data) 
+                        debug.log("LastFM Playlist:",data);
+                        callback(data);
                     })
                     .fail( function(data) {
-                        debug.log("Failed to get Last.FM Playlist");
-                        failcallback(data) 
+                        failcallback(data); 
                     });
             }
         }

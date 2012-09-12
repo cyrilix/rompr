@@ -36,6 +36,7 @@ function mpdController() {
     this.deleteTracksByID = function(tracks, callback) {
         var list = new Array();
         for(var i in tracks) {
+            debug.log("Deleting track by ID",tracks[i]);
             list.push('deleteid "'+tracks[i]+'"');
         }
         self.do_command_list(list, callback);

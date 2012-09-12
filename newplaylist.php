@@ -19,7 +19,7 @@ switch ($playlist_type) {
             $oldxml = simplexml_load_file('prefs/LFMRADIO_'.$title.'.xspf', 'SimpleXMLElement', LIBXML_NOCDATA);
             foreach($oldxml->playlist->trackList->track as $i => $track) {
                 $trackcount++;
-                if ($trackcount > 20)
+                if ($trackcount > 50)
                     break;
                 $newtrack = $xml->playlist->trackList->addChild($track->getName());
                 mergeXML($newtrack, $track);

@@ -142,16 +142,12 @@ function Album(artist, album, index, rolledup) {
 function Stream(index, album, rolledup) {
     var self = this;
     var tracks = new Array();
-    var firstplaylistpos = -1;
-    var lastplaylistpos = -1;
     this.index = index;
     var rolledup = rolledup;
     this.album = album;
 
     this.newtrack = function (track) {
         tracks.push(track);
-        lastplaylistpos = track.playlistpos;
-        if (firstplaylistpos == -1) { firstplaylistpos = track.playlistpos; }
     }
 
     this.getHTML = function() {
@@ -261,8 +257,6 @@ function Stream(index, album, rolledup) {
 function LastFMRadio(tuneurl, station, index, rolledup) {
     var self = this;
     var tracks = new Array();
-    var firstplaylistpos = -1;
-    var lastplaylistpos = -1;
     this.station = station;
     var tuneurl = tuneurl;
     this.index = index;
@@ -270,8 +264,6 @@ function LastFMRadio(tuneurl, station, index, rolledup) {
 
     this.newtrack = function (track) {
         tracks.push(track);
-        lastplaylistpos = track.playlistpos;
-        if (firstplaylistpos == -1) { firstplaylistpos = track.playlistpos; }
     }
 
     this.getHTML = function() {
@@ -345,9 +337,11 @@ function LastFMRadio(tuneurl, station, index, rolledup) {
             if (unixtimestamp > parseInt(tracks[i].expires)) {
                 debug.log("Expiring track", i, tracks[i].expires, unixtimestamp);
                 todelete.push(tracks[i].backendid);
+                $('div[name="'+tracks[i].playlistpos+'"]').filter('[id=booger]').fadeOut('fast');
             } else if (previoussong == tracks[i].backendid && currentsong != tracks[i].playlistpos) {
                 debug.log("Removing track which was playing but has been skipped")
                 todelete.push(tracks[i].backendid);
+                $('div[name="'+tracks[i].playlistpos+'"]').filter('[id=booger]').fadeOut('fast');
             }
         }
         // This is making sure there aren't any tracks before the current track in our list.
@@ -366,21 +360,7 @@ function LastFMRadio(tuneurl, station, index, rolledup) {
         }
 
         if (todelete.length > 0) {
-            if (todelete.length == tracks.length) {
-                var pos = (parseInt(tracks[0].playlistpos))-1;
-                if (pos < 0) { pos=0 }
-                // If we're deleting every track then this can only be because we've
-                // just loaded the playlist and all the tracks have expired.
-                // In this case we don't want play to start automatically.
-                playlist.dontplay = true;
-                playlist.setEndofradio(pos);
-                lastfm.radio.tune({station: tuneurl}, lastFMIsTuned, lastFMTuneFailed);
-            }
-            if (todelete.length == (tracks.length)-1) {
-                playlist.setEndofradio(parseInt(tracks[0].playlistpos)+1);
-                lastfm.radio.tune({station: tuneurl}, lastFMIsTuned, lastFMTuneFailed);
-            }
-            mpd.deleteTracksByID(todelete, playlist.repopulate);
+            playlist.removelfm(todelete, tuneurl, parseInt(tracks[tracks.length - todelete.length].playlistpos));
             return true;
         }
         return false;
@@ -410,14 +390,8 @@ function LastFMRadio(tuneurl, station, index, rolledup) {
     this.invalidateOnStop = function(songid) {
         for (var i in tracks) {
             if (tracks[i].backendid == songid) {
-                debug.log("Removing current track, which was playing and has been stopped");
-                if (tracks.length == 2) {
-                    debug.log("...and repopulating");
-                    playlist.dontplay = true;
-                    playlist.setEndofradio(parseInt(tracks[i].playlistpos));
-                    lastfm.radio.tune({station: tracks[i].stationurl}, lastFMIsTuned, lastFMTuneFailed);
-                }
-                mpd.deleteTracksByID([songid], playlist.repopulate);
+                playlist.removelfm([songid], tuneurl, parseInt(tracks[tracks.length-1].playlistpos));
+                $('div[name="'+tracks[i].playlistpos+'"]').filter('[id=booger]').fadeOut('fast');
                 return true;
             }
         }
@@ -445,13 +419,14 @@ function Playlist() {
     var currentTrack = null;
     var AlanPartridge = 0;
     var streamflag = true;
-    var endofradio = -1;
     var finaltrack = -1;
     var previoussong = -1;
-    this.dontplay = false;
     this.rolledup = new Array();
     var updatecounter = 0;
     var do_delayed_update = false;
+    var updatestation = null;
+    var updatenumber = 0;
+    var updatemoveto = 0;
 
     this.repopulate = function() {
         debug.log("Repopulating Playlist");
@@ -480,8 +455,7 @@ function Playlist() {
 
         // This is a mechanism to prevent multiple repeated updates of the playlist in the case
         // where, for example, the user is clicking rapidly on the delete button for lots of tracks
-        // and the playlist is slow to update from mpd - perhaps because there are lots
-        // of streams in it (reading stream info is slow and needs work)
+        // and the playlist is slow to update from mpd 
         updatecounter--;
         if (updatecounter > 0) {
             debug.log("Received playlist update but more are coming - ignoring");
@@ -491,8 +465,8 @@ function Playlist() {
 
         if (do_delayed_update) {
             // Once all the repeated updates have been received from mpd, ignore them all
-            // (because we can't be sure which order they will have come back in)
-            // and do one more of our own, and use that one
+            // (because we can't be sure which order they will have come back in),
+            // do one more of our own, and use that one
             do_delayed_update = false;
             debug.log("Doing delayed playlist update");
             self.repopulate();
@@ -656,54 +630,44 @@ function Playlist() {
         $('#sortable').append(html);
     }
 
-    // This is actually used for adding any new radio playlist, not just Last.FM
-    // The albums list does NOT use this. Perhaps it should, but that's just extra work and extra code.
+    // This is used for adding stream playlists ONLY
     this.newInternetRadioStation = function (list) {
-        var numtracks = 0;
         var cmdlist = new Array();
-        var playfrom = finaltrack+1;
         $(list).find("track").each( function() {
             cmdlist.push('add "'+$(this).find("location").text()+'"');
-            numtracks++;
         });
-        if (endofradio > -1 && endofradio < finaltrack) {
-            var elbow = (finaltrack)+1;
-            var arse = (finaltrack)+numtracks+1;
-            playfrom = null;
-            cmdlist.push('move '+elbow.toString()+':'+arse.toString()+' '+endofradio.toString());
-        }
-        if (mpd.status.state == 'stop' && playfrom != null && !self.dontplay) {
-            cmdlist.push('play '+playfrom.toString());
+        if (mpd.status.state == 'stop') {
+            cmdlist.push(self.playfromend());
         }
         mpd.do_command_list(cmdlist, playlist.repopulate);
-        self.dontplay = false;
-        endofradio = -1;
     }
 
     this.hideItem = function(i) {
         tracklist[i].rollUp();
     }
 
-    this.saveLastFMPlaylist = function(xml) {
-        var oSerializer = new XMLSerializer(); 
-        var xmlString = oSerializer.serializeToString(xml);
-        $.post("newplaylist.php", 
-            { 
-                type: "radio", 
-                xml: xmlString, 
-                stationurl: lastfm.tunedto 
-            })
-            .done( function() { 
-                self.newInternetRadioStation(xml);
-            });
+    this.playfromend = function() {
+        var playfrom = finaltrack+1;
+        return 'play '+playfrom.toString();
+    }
+
+    this.removelfm = function(tracks, u, w) {
+        updatestation = u;
+        updatenumber = tracks.length;
+        updatemoveto = w;
+        mpd.deleteTracksByID(tracks, self.updatestation);
+    }
+
+    this.updatestation = function() {
+        lfmprovider.getTracks(updatestation, updatenumber, updatemoveto, false);
+    }
+
+    this.getfinaltrack = function() {
+        return finaltrack;
     }
 
     this.saveTrackPlaylist = function(xml) {
         $.post("newplaylist.php", { type: "track", xml: xml});
-    }
-
-    this.setEndofradio = function(pos) {
-        endofradio = pos;
     }
 
     this.checkProgress = function() {
@@ -715,7 +679,7 @@ function Playlist() {
             $("#playbackTime").html("");
         } else {
             // currentsong is used mainly so we can update the playlist to highlight the currently playing song
-            // a change in currentsong is not taken as a new track being played, because currentsong
+            // A change in currentsong is not taken as a new track being played, because currentsong
             // is set to -1 every time we repopulate.
             if (mpd.status.song != currentsong || mpd.status.songid != previoussong) {
                 debug.log("Updating current song");

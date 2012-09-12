@@ -26,6 +26,7 @@ class album {
     }
 
     public function setAsCompilation() {
+        error_log($this->name." being set as compilation");
         $this->artist = "Various Artists";
         $this->iscompilation = true;
     }
@@ -499,6 +500,7 @@ function do_albums($artistkey, $compilations, $showartist, $prefix) {
     if (count($albumlist) > 0) {
 
         $artist = $collection->artistName($artistkey);
+
        // We have albums for this artist
         print '<div id="artistname" class="' . $divtype . '">' . "\n";
         print '<table width="100%"><tr><td width="18px"><a href="javascript:doMenu(\''.$prefix.'artist' . $count . '\');" class="toggle" name="'.$prefix.'artist' . $count . '"><img src="images/toggle-closed.png"></a></td><td>'.$artist.'</td></tr></table></div>';
