@@ -14,7 +14,8 @@ $prefs = array( "mpd_host" => "localhost",
                 "hidebrowser" => "false",
                 "infosource" => "lastfm",
                 "chooser" => "albumlist",
-                "historylength" => 25
+                "historylength" => 25,
+                "dontscrobbleradio" => 0
                 );
 loadPrefs();
 

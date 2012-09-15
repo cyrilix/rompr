@@ -40,10 +40,13 @@ function Album(artist, album, index, rolledup) {
             html = html + 'class="tracknumbr">'+format_tracknum(tracks[trackpointer].tracknumber)+'</td>';
             html = html + '<td align="left"><a href="#" class="album" onclick="mpd.command(\'command=playid&arg='+tracks[trackpointer].backendid+'\')">'+
                             tracks[trackpointer].title+'</a></td>';
+
+            html = html + '<td align="right" width="7em" class="tiny">'+formatTimeString(tracks[trackpointer].duration)+'</td>';
+
             html = html + '<td class="playlisticon" align="right"><a href="#" onclick="playlist.delete(\''+tracks[trackpointer].backendid+'\',\''+tracks[trackpointer].playlistpos+'\')">'+
                             '<img src="images/edit-delete.png"></a></td></tr>';
             if (showartist) {
-                html = html + '<tr><td align="left" colspan="2" class="playlistrow2">'+tracks[trackpointer].creator+'</td></tr>';
+                html = html + '<tr><td align="left" colspan="3" class="playlistrow2">'+tracks[trackpointer].creator+'</td></tr>';
             }
             html = html + '</table></div>';
         }
@@ -99,14 +102,16 @@ function Album(artist, album, index, rolledup) {
     }
 
     this.findcurrent = function(which) {
+        var result = null;
         for(var i in tracks) {
             if (tracks[i].playlistpos == which) {
                 $('table[name="'+self.index+'"]').attr("class", "playlistcurrenttitle");
                 $("#"+which).attr("class", "playlistcurrentitem");
-                return tracks[i];
+                result = tracks[i];
+                break;
             }
         }
-        return null;
+        return result;
     }
 
     this.deleteSelf = function() {
@@ -219,14 +224,16 @@ function Stream(index, album, rolledup) {
     }
 
     this.findcurrent = function(which) {
+        var result = null;
         for(var i in tracks) {
             if (tracks[i].playlistpos == which) {
                 $('table[name="'+self.index+'"]').attr("class", "playlistcurrenttitle");
                 $("#"+which).attr("class", "playlistcurrentitem");
-                return tracks[i];
+                result = tracks[i];
+                break;
             }
         }
-        return null;
+        return result;
     }
 
     this.deleteSelf = function() {
@@ -270,10 +277,12 @@ function LastFMRadio(tuneurl, station, index, rolledup) {
         var html = self.header();
         for (var trackpointer in tracks) {
             html = html + '<div id="booger" name="'+tracks[trackpointer].playlistpos+'"';
+            var opac = (1/(parseInt(trackpointer)+1)) + 0.3;
+            if (opac > 1) { opac = 1 }
+            html = html + ' style="opacity:'+opac.toString()+'"';
             if (rolledup) {
                 html = html + ' class="invisible"';
             }
-
             html = html + '><table width="100%" class="playlistitem" id="'+tracks[trackpointer].playlistpos+'">';
             html = html + '<tr><td rowspan="2" width="38px"><img src="'+tracks[trackpointer].image+'" width="32" height="32"></td>';
             html = html + '<td colspan="3" align="left" class="album">'+tracks[trackpointer].title+'</a></td></tr>';
@@ -359,22 +368,26 @@ function LastFMRadio(tuneurl, station, index, rolledup) {
             }
         }
 
+        var result = false;
+
         if (todelete.length > 0) {
-            playlist.removelfm(todelete, tuneurl, parseInt(tracks[tracks.length - todelete.length].playlistpos));
-            return true;
+            playlist.removelfm(todelete, tuneurl, (parseInt(tracks[tracks.length - 1].playlistpos))+1);
+            result = true;
         }
-        return false;
+        return result;
     }
 
     this.findcurrent = function(which) {
+        var result = null;
         for(var i in tracks) {
             if (tracks[i].playlistpos == which) {
                 $('table[name="'+self.index+'"]').attr("class", "playlistcurrenttitle");
                 $("#"+which).attr("class", "playlistcurrentitem");
-                return tracks[i];
+                result = tracks[i];
+                break;
             }
         }
-        return null;
+        return result;
     }
 
     this.deleteSelf = function() {
@@ -388,13 +401,16 @@ function LastFMRadio(tuneurl, station, index, rolledup) {
     }
 
     this.invalidateOnStop = function(songid) {
+        var result = false;
         for (var i in tracks) {
             if (tracks[i].backendid == songid) {
-                playlist.removelfm([songid], tuneurl, parseInt(tracks[tracks.length-1].playlistpos));
+                playlist.removelfm([songid], tuneurl, (parseInt(tracks[tracks.length-1].playlistpos))+1);
                 $('div[name="'+tracks[i].playlistpos+'"]').filter('[id=booger]').fadeOut('fast');
-                return true;
+                result = true;
+                break;
             }
         }
+        return result;
     }
 
     this.previoustrackcommand = function(which) {
@@ -424,9 +440,6 @@ function Playlist() {
     this.rolledup = new Array();
     var updatecounter = 0;
     var do_delayed_update = false;
-    var updatestation = null;
-    var updatenumber = 0;
-    var updatemoveto = 0;
 
     this.repopulate = function() {
         debug.log("Repopulating Playlist");
@@ -451,6 +464,7 @@ function Playlist() {
         var current_album = "";
         var current_artist = "";
         var current_station = "";
+        var current_type = "";
         var track;
 
         // This is a mechanism to prevent multiple repeated updates of the playlist in the case
@@ -480,6 +494,7 @@ function Playlist() {
         currentsong = -1;
         currentalbum = -1;
         tracklist = [];
+        var totaltime = 0;
 
         $(list).find("track").each( function() {
 
@@ -501,10 +516,16 @@ function Playlist() {
                 stream: $(this).find("stream").text(),
                 compilation: $(this).find("compilation").text()
             });
+            
+            totaltime += track.duration;
 
             var sortartist = track.creator;
             if (track.albumartist != "") { sortartist = track.albumartist }
-            if ((sortartist.toLowerCase() != current_artist.toLowerCase() && track.compilation != "yes") || track.album.toLowerCase() != current_album.toLowerCase()) {
+            if ((sortartist.toLowerCase() != current_artist.toLowerCase() && track.compilation != "yes") || 
+                track.album.toLowerCase() != current_album.toLowerCase() ||
+                track.type != current_type)
+            {
+                current_type = track.type;
                 current_artist = sortartist;
                 current_album = track.album;
                 switch (track.type) {
@@ -552,11 +573,15 @@ function Playlist() {
         });
         if (track) {
             finaltrack = parseInt(track.playlistpos);
+            debug.log("Playlist: finaltrack is",finaltrack);
         }
 
-        debug.log("Playlist: finaltrack is",finaltrack);
-
         var html = "";
+        if (finaltrack > -1) {
+            html = '<div id="booger"><table width="100%" class="playlistitem"><tr><td align="left">'
+                    +(finaltrack+1).toString()+
+                    ' tracks</td><td align="right">Duration : '+formatTimeString(totaltime)+'</td></tr></table></div>';
+        }
         for (var i in tracklist) {
             html = html + tracklist[i].getHTML();
         }
@@ -652,14 +677,7 @@ function Playlist() {
     }
 
     this.removelfm = function(tracks, u, w) {
-        updatestation = u;
-        updatenumber = tracks.length;
-        updatemoveto = w;
-        mpd.deleteTracksByID(tracks, self.updatestation);
-    }
-
-    this.updatestation = function() {
-        lfmprovider.getTracks(updatestation, updatenumber, updatemoveto, false);
+        lfmprovider.getTracks(u, tracks.length, w, false, tracks);
     }
 
     this.getfinaltrack = function() {
@@ -736,7 +754,7 @@ function Playlist() {
             var progress = nowplaying.track.progress();
             var duration = nowplaying.track.duration();
             var percent = (duration == 0) ? 0 : (progress/duration) * 100;
-            $("#progress").progressbar("option", "value", parseInt(percent.toString()));
+            $("#progress").progressbar("option", "value", Math.round(percent));
             $("#playbackTime").html(formatTimeString(progress) + " of " + formatTimeString(duration));
             
             if (mpd.status.state == "play") {

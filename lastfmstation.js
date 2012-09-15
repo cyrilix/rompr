@@ -6,6 +6,7 @@ function lastfmstation(tuneurl) {
 	this.numtrackswanted = 0;
 	this.trackinsertpos = -1;
 	this.playafterinsert = false;
+    this.toremove = null;
     debug.log("Creating new last.fm station for",tuneurl);
 
 	this.repopulate = function() {
@@ -56,15 +57,22 @@ function lastfmstation(tuneurl) {
                 cmdlist.push('add "'+pushtracks[i]+'"');
             }
             if (self.trackinsertpos > -1) {
-                var elbow = playlist.getfinaltrack()-pushtracks.length+1;
+                var elbow = playlist.getfinaltrack()+1;
                 var arse = elbow+pushtracks.length;
                 cmdlist.push('move '+elbow.toString()+':'+arse.toString()+' '+self.trackinsertpos.toString());
                 debug.log("Move command is : "+'move '+elbow.toString()+':'+arse.toString()+' '+self.trackinsertpos.toString());
+            }
+            if (self.toremove != null) {
+                for(var i in self.toremove) {
+                    debug.log("Deleting track by ID",self.toremove[i]);
+                    cmdlist.push('deleteid "'+self.toremove[i]+'"');
+                }
             }
             if (self.playafterinsert && mpd.status.state == 'stop') {
                 cmdlist.push(playlist.playfromend());
             }
             self.numtrackswanted = 0;
+            self.toremove = null;
             mpd.do_command_list(cmdlist, playlist.repopulate);
         }
         if (counter > 0) {
@@ -75,10 +83,11 @@ function lastfmstation(tuneurl) {
 
     }
 
-    this.giveMeTracks = function(number, where, play) {
+    this.giveMeTracks = function(number, where, play, remove) {
     	self.numtrackswanted = number;
     	self.trackinsertpos = where;
     	self.playafterinsert = play;
+        self.toremove = remove;
     	self.doWeNeedToUpdate();
     }
 
@@ -96,10 +105,10 @@ function lastFMprovider() {
     var self = this;
     var stations = new Array();
 
-    this.getTracks = function(tuneurl, numtracks, insertpos, play) {
+    this.getTracks = function(tuneurl, numtracks, insertpos, play, remove) {
         debug.log("Getting tracks for",tuneurl,numtracks,insertpos,play);
         var stn = getStation(tuneurl);
-        stn.giveMeTracks(numtracks, insertpos, play);
+        stn.giveMeTracks(numtracks, insertpos, play, remove);
     }
 
     function getStation(u) {

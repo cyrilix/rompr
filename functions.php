@@ -159,6 +159,9 @@ function url_get_contents($url,$useragent='RompR Media Player/0.1',$headers=fals
 
 function format_time($t,$f=':') // t = seconds, f = separator 
 {
+    if (($t/86400) >= 1) {
+        return sprintf("%d%s%2d%s%02d%s%02d", ($t/86400), " days ", ($t/3600)%24, $f, ($t/60)%60, $f, $t%60);
+    }
     if (($t/3600) >= 1) {
         return sprintf("%2d%s%02d%s%02d", ($t/3600), $f, ($t/60)%60, $f, $t%60);
     } else {

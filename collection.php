@@ -1,6 +1,8 @@
 <?php
 
 $COMPILATION_THRESHOLD = 6;
+$numtracks = 0;
+$totaltime = 0;
 
 class album {
     public function __construct($name, $artist) {
@@ -299,6 +301,10 @@ class musicCollection {
 // However on the plus side parsing 'listallinfo' is the fastest way to create our collection by about a quadrillion miles.
 
 function process_file($collection, $filedata) {
+
+    global $numtracks;
+    global $totaltime;
+
     $file = $filedata['file'];
 
     list (  $name, $duration, $number, $date, $genre, $artist, $album, $folder,
@@ -344,6 +350,9 @@ function process_file($collection, $filedata) {
     $collection->newTrack(  $name, $file, $duration, $number, $date, $genre, $artist, $album, $folder,
                             $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, 
                             $albumartist, $disc, $stream);
+
+    $numtracks++;
+    $totaltime += $duration;
 }
 
 
@@ -477,6 +486,16 @@ function doCollection($command) {
 }
 
 function createHTML($artistlist, $prefix) {
+
+    global $numtracks;
+    global $totaltime;
+
+    error_log("totaltime is ".$totaltime);
+
+    print '<div id="booger"><table width="100%" class="playlistitem"><tr><td align="left">';
+    print $numtracks . ' tracks</td><td align="right">Duration : ';
+    print format_time($totaltime) . '</td></tr></table></div>';
+
     // Make sure 'Various Artists' is the first one in the list
     if (array_search("various artists", $artistlist)) {
         $key = array_search("various artists", $artistlist);

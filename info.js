@@ -16,7 +16,7 @@ function Info(target, source) {
     */
 
     this.updatesComing = function(stuff) {
-        // Infobar sends us this, populated with 3 last.fm objects every time
+        // nowplaying sends us this, populated with 3 last.fm objects every time
         // it detects that the playing track has changed.
         stuff.source = current_source;
         if ((current_source == "wikipedia" || current_source == "slideshow") && history.length > 0) {

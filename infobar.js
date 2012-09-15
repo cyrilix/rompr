@@ -58,6 +58,12 @@ function infoBar() {
     this.updateWindowValues = function() {
         volumeslider.setState(mpd.status.volume);
         self.playbutton.setState(mpd.status.state);
+        if (mpd.status.error) { 
+            alert("MPD Error: "+mpd.status.error);
+            if ((/^error decoding/i).test(mpd.status.error)) {
+                mpd.command("command=next", playlist.repopulate);
+            }
+        }
     }
     
     this.setNowPlayingInfo = function() {

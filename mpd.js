@@ -11,9 +11,6 @@ function mpdController() {
         $.getJSON("ajaxcommand.php", cmd)
         .done(function(data) {
             self.status = data;
-            if (self.status.error) { 
-                alert("MPD Error: "+self.status.error); 
-            }
             nowplaying.track.setStartTime(self.status.elapsed); 
             if (callback) { 
                 callback();

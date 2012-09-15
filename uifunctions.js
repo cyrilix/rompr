@@ -70,7 +70,6 @@ function makeWaitingIcon(selector) {
 
 function stopWaitingIcon(selector) {
     $("#"+selector).attr("src", "images/transparent-32x32.png");
-
 }
 
 function expandInfo(side) {
@@ -286,14 +285,8 @@ function doLastFM(station, value) {
             break;
     }
     playlist.waiting();
-    lfmprovider.getTracks(url,5,-1,true);
-    // var xspf = lastfm.radio.tune({station: url}, lastFMIsTuned, lastFMTuneFailed);
+    lfmprovider.getTracks(url, 5, -1, true, null);
 }
-
-// function lastFMIsTuned(data) {
-//     if (data && data.error) { lastFMTuneFailed(data); return false; };
-//     lastfm.radio.getPlaylist({discovery: 0, rtp: lastfm.getScrobbling(), bitrate: 128}, playlist.saveLastFMPlaylist, lastFMTuneFailed);
-// }
 
 function lastFMTuneFailed(data) {
     playlist.repopulate();

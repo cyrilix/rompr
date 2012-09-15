@@ -7,6 +7,7 @@ function LastFM(user) {
     var token = "";
     var scrobbling = false;
     var autocorrect = 0;
+    var dontscrobbleradio = 0;
     this.tunedto = "";
     var self=this;
     var lovebanshown = false;
@@ -39,9 +40,19 @@ function LastFM(user) {
 
     this.setscrobblestate = function() {
         scrobbling = $("#scrobbling").is(":checked");
-        autocorrect = $("#autocorrect").is(":checked") ? 1 : 0
-        if (scrobbling) { savePrefs({ lastfm_scrobbling: "1", lastfm_autocorrect: autocorrect });
-        } else { savePrefs({ lastfm_scrobbling: "0", lastfm_autocorrect: autocorrect }); }
+        autocorrect = $("#autocorrect").is(":checked") ? 1 : 0;
+        dontscrobbleradio = $("#radioscrobbling").is(":checked") ? 1 : 0;
+        if (scrobbling) { 
+            savePrefs({ lastfm_scrobbling: "1", 
+                        lastfm_autocorrect: autocorrect,
+                        dontscrobbleradio: dontscrobbleradio }
+            );
+        } else { 
+            savePrefs({ lastfm_scrobbling: "0", 
+                        lastfm_autocorrect: autocorrect,
+                        dontscrobbleradio: dontscrobbleradio }
+            ); 
+        }
     }
 
     this.username = function() {
@@ -293,6 +304,11 @@ function LastFM(user) {
 
         scrobble : function(options) {
             if (logged_in && scrobbling) {
+                if (dontscrobbleradio == 1 && nowplaying.track.mpd_data.type != "local") {
+                    debug.log("Not Scrobbling because track is not local");
+                    return 0;
+                }
+                debug.log("Last.FM is scrobbling");
                 options.api_key = lastfm_api_key;
                 options.sk = lastfm_session_key;
                 options.method = "track.scrobble";

@@ -37,6 +37,7 @@ include ("connection.php");
                 print '<li class="wide">Last.FM Username</li>';
                 print '<li class="wide"><input class="topform" name="user" type="text" size="45" value="'.$prefs['lastfm_user'].'"/><button class="topformbutton" onclick="lastfmlogin()">Login</button></li>';
                 print '<li class="wide"><input type="checkbox" class="topcheck" onclick="lastfm.setscrobblestate()" id="scrobbling">Last.FM Scrobbling Enabled</input></li>';
+                print '<li class="wide"><input type="checkbox" class="topcheck" onclick="lastfm.setscrobblestate()" id="radioscrobbling">Don&#39;t Scrobble Radio Tracks</input></li>';
 ?>
                 <li class="wide">Percentage of track to play before scrobbling</li>
                 <li class="wide"><div id="scrobwrangler"></div></li>
@@ -114,6 +115,14 @@ $("#scrobwrangler").click(function(evt) { setscrob(evt) });
 <?php
     print '    $("#scrobbling").attr("checked", ';
     if ($prefs['lastfm_scrobbling'] == 0) {
+        print 'false';
+    } else {
+        print 'true';
+    }
+    print ");\n";
+
+    print '    $("#radioscrobbling").attr("checked", ';
+    if ($prefs['dontscrobbleradio'] == 0) {
         print 'false';
     } else {
         print 'true';
