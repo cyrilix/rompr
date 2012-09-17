@@ -1,6 +1,8 @@
 <?php
 include("functions.php");
+error_log("Getting IceCast List...");
 $content = url_get_contents("http://dir.xiph.org/yp.xml");
+error_log("Got IceCast List...");
 $xml = simplexml_load_string($content['contents'], 'SimpleXMLElement', LIBXML_NOCDATA);
 
 $genres = array();
@@ -87,7 +89,7 @@ $output = '<?xml version="1.0" encoding="utf-8"?><playlist version="1">'."\n".
 foreach ($stations as $i => $station) {
     foreach ($station->urllist as $j => $url) {
         $output = $output . "<track>\n".
-                            xmlnode('album', $station->name).
+                            xmlnode('album', utf8_encode($station->name)).
                             xmlnode('creator', 'IceCast Radio').
                             xmlnode('location', $url).
                             xmlnode('image', "images/icecast.png").
