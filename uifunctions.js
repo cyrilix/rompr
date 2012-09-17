@@ -77,58 +77,75 @@ function expandInfo(side) {
         case "left":
             if (sourceshidden) {
                 sourceshidden = false;
-                if (playlisthidden) {
-                    $("#infopane").css("width", "78%");
-                    $("#infocontrols").css("width", "78%");
-                } else {
-                    $("#infopane").css("width", "56%");
-                    $("#infocontrols").css("width", "56%");
-                }
-                $("#sources").toggle("fast");
                 $("#expandleft").attr("src", "images/arrow-left-double.png");
-                $("#albumcontrols").toggle("fast");
             } else {
                 sourceshidden = true;
-                $("#sources").toggle("fast");
-                if (playlisthidden) {
-                    $("#infopane").css("width", "100%");
-                    $("#infocontrols").css("width", "100%");
-                } else {
-                    $("#infopane").css("width", "78%");
-                    $("#infocontrols").css("width", "78%");
-                }
                 $("#expandleft").attr("src", "images/arrow-right-double.png");
-                $("#albumcontrols").toggle("fast");
             }
             break;
         case "right":
             if (playlisthidden) {
                 playlisthidden = false;
-                if (sourceshidden) {
-                    $("#infopane").css("width", "78%");
-                    $("#infocontrols").css("width", "78%");
-                } else {
-                    $("#infopane").css("width", "56%");
-                    $("#infocontrols").css("width", "56%");
-                }
-                $("#playlist").toggle("fast");
                 $("#expandright").attr("src", "images/arrow-right-double.png");
-                $("#playlistcontrols").toggle("fast");
             } else {
                 playlisthidden = true;
-                $("#playlist").toggle("fast");
-                if (sourceshidden) {
-                    $("#infopane").css("width", "100%");
-                    $("#infocontrols").css("width", "100%");
-                } else {
-                    $("#infopane").css("width", "78%");
-                    $("#infocontrols").css("width", "78%");
-                }
                 $("#expandright").attr("src", "images/arrow-left-double.png");
-                $("#playlistcontrols").toggle("fast");
             }
+            break;
+        case "both":
+            sourceshidden = true;
+            $("#expandleft").attr("src", "images/arrow-right-double.png");
+            playlisthidden = true;
+            $("#expandright").attr("src", "images/arrow-left-double.png");
+            break;        
 
     }
+    savePrefs({ sourceshidden: sourceshidden.toString(),
+                playlisthidden: playlisthidden.toString()});
+    doThatFunkyThang();
+
+}
+
+function doThatFunkyThang() {
+
+    var sourcesweight = (sourceshidden) ? 0 : 1;
+    var playlistweight = (playlisthidden) ? 0 : 1;
+    var browserweight = (browser.hiddenState()) ? 0 : 1;
+
+    var browserwidth = (100 - (22*playlistweight) - (22*sourcesweight))*browserweight;
+
+    var sourceswidth = browser.hiddenState() ? 50 : 22;
+    var playlistwidth = browser.hiddenState() ? 50 : 22;
+    if (sourceswidth == 50 && playlisthidden) {
+        sourceswidth = 100;
+    }
+    if (playlistwidth == 50 && sourceshidden) {
+        playlistwidth = 100;
+    }
+
+    debug.log("Widths:",sourceswidth,browserwidth,playlistwidth)
+
+    if (sourceshidden != $("#sources").is(':hidden')) {
+        $("#sources").toggle("fast");
+        $("#albumcontrols").toggle("fast");
+    }
+
+    if (playlisthidden != $("#playlist").is(':hidden')) {
+        $("#playlist").toggle("fast");
+        $("#playlistcontrols").toggle("fast");
+    }
+
+    if (browser.hiddenState() != $("#infopane").is(':hidden')) {
+        $("#infopane").toggle("fast");
+        $("#infocontrols").toggle("fast");
+    }
+
+    $("#sources").css("width", sourceswidth.toString()+"%");
+    $("#albumcontrols").css("width", sourceswidth.toString()+"%");
+    $("#playlist").css("width", playlistwidth.toString()+"%");
+    $("#pcholder").css("width", playlistwidth.toString()+"%");
+    $("#infopane").css("width", browserwidth.toString()+"%");
+    $("#infocontrols").css("width", browserwidth.toString()+"%");
 
 }
 

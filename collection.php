@@ -373,7 +373,6 @@ function getStuffFromXSPF($url) {
                                 "lastfmradio",
                                 $track->image,
                                 $track->expires,
-                                // $expiry, 
                                 $x->playlist->stationurl,
                                 $x->playlist->title, 
                                 null );
@@ -490,8 +489,6 @@ function createHTML($artistlist, $prefix) {
     global $numtracks;
     global $totaltime;
 
-    error_log("totaltime is ".$totaltime);
-
     print '<div id="booger"><table width="100%" class="playlistitem"><tr><td align="left">';
     print $numtracks . ' tracks</td><td align="right">Duration : ';
     print format_time($totaltime) . '</td></tr></table></div>';
@@ -528,6 +525,8 @@ function do_albums($artistkey, $compilations, $showartist, $prefix) {
         // albumlist is now an array of album objects
         foreach($albumlist as $album) {
 
+            print '<div class="draggable">';
+
             print '<div id="albumname" class="' . $divtype . '">' . "\n";
             print '<table><tr><td>';
             print '<a href="javascript:doMenu(\''.$prefix.'album' . $count . '\');" class="toggle" name="'.$prefix.'album' . $count . '"><img src="images/toggle-closed.png"></a></td><td>' . "\n";
@@ -556,7 +555,7 @@ function do_albums($artistkey, $compilations, $showartist, $prefix) {
                 if ($showartist || ($trackobj->albumartist != null && ($trackobj->albumartist != $trackobj->artist))) {
                     $dorow2 = true;
                 }
-                print '<tr><td align="left" class="tracknumber"';
+                print '<tr class="draggable"><td align="left" class="tracknumber"';
                 if ($dorow2) {
                     print 'rowspan="2"';
                 }
@@ -573,6 +572,9 @@ function do_albums($artistkey, $compilations, $showartist, $prefix) {
 
             print "</table>\n";
             print "</div>\n";
+
+            print '</div>';
+
             $count++;
         }
         print "</div>\n";

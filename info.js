@@ -242,24 +242,17 @@ function Info(target, source) {
 
     this.hide = function() {
         if (hidden) {
-            $("#playlist").css("width", "22%");
-            $("#pcholder").css("width", "22%");
-            $("#sources").css("width", "22%");
-            $("#albumcontrols").css("width", "22%");
-            $("#infocontrols").fadeIn('fast');
-            $("#infopane").fadeIn('fast');
             hidden = false;
             self.switchSource(current_source);
         } else {
-            $("#infocontrols").fadeOut('fast');
-            $("#infopane").fadeOut('fast');
-            $("#playlist").css("width", "50%");
-            $("#pcholder").css("width", "50%");
-            $("#sources").css("width", "50%");
-            $("#albumcontrols").css("width", "50%");
             hidden = true;
         }
         savePrefs({hidebrowser: hidden.toString()});
+        doThatFunkyThang();
+    }
+
+    this.hiddenState = function() {
+        return hidden;
     }
 
     /*

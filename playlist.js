@@ -609,30 +609,80 @@ function Playlist() {
                 var moveto;
                 var elementmoved = ui.item.attr("id");
                 var nextelement = $(ui.item).next().attr("id");
-                if (elementmoved == "track") {
-                    itemstomove = ui.item.attr("name");
-                    firstmoveitem = itemstomove;
-                    numitems = 1;
-                }
-                if (elementmoved == "item") {
-                    itemstomove = tracklist[parseInt(ui.item.attr("name"))].getRange();
-                    firstmoveitem = tracklist[parseInt(ui.item.attr("name"))].getFirst();
-                    numitems = tracklist[parseInt(ui.item.attr("name"))].getSize();
-
-                }
                 if (nextelement == "track") { 
                     moveto = $(ui.item).next().attr("name") 
                 }
                 if (nextelement == "item" ) { 
                     moveto = tracklist[parseInt($(ui.item).next().attr("name"))].getFirst() 
                 }
-                // If we move DOWN we have to calculate what the position will be AFTER the items
-                // have been moved. Bit daft, that.
-                if (parseInt(firstmoveitem) < parseInt(moveto)) {
-                    moveto = parseInt(moveto) - parseInt(numitems);
-                    if (moveto < 0) { moveto = 0; }
+                if (typeof(moveto) == "undefined") {
+                    moveto = (parseInt(finaltrack))+1;
                 }
-                mpd.command("command=move&arg="+itemstomove+"&arg2="+moveto, self.repopulate);
+
+                var itemclass=ui.item.attr("class");
+                switch (itemclass) {
+                    case "draggable":
+                    case "filedraggable":
+                        debug.log("CHUCKLE BROTHERS");
+                        var cmdlist = new Array();
+                        $(ui.item).find('a').each(function (index, element) { 
+                            var link = $(element).attr("onclick");
+                            var r = /playlist.addtrack\(\'(.*?)\'/;
+                            var result = r.exec(link);
+                            if (result && result[1]) {
+                                debug.log(decodeURIComponent(result[1]));
+                                cmdlist.push('add "'+decodeURIComponent(result[1])+'"');
+                            }
+                        });
+                        var elbow = (parseInt(finaltrack))+1;
+                        var arse = elbow+cmdlist.length;
+                        cmdlist.push("move "+elbow.toString()+":"+arse.toString()+' '+moveto.toString());
+                        mpd.do_command_list(cmdlist, playlist.repopulate);
+                        break;
+
+                    case "dirdraggable":
+                        debug.log("BOOMBASTIC");
+                        var cmdlist = new Array();
+                        $(ui.item).find('a').each(function (index, element) {
+                            if ($(element).attr("class") == "df") { 
+                                var link = $(element).attr("onclick");
+                                var r = /playlist.addtrack\(\'(.*?)\'/;
+                                var result = r.exec(link);
+                                if (result && result[1]) {
+                                    debug.log(decodeURIComponent(result[1]));
+                                    cmdlist.push('add "'+decodeURIComponent(result[1])+'"');
+                                }
+                            }
+                        });
+                        var elbow = (parseInt(finaltrack))+1;
+                        var arse = elbow+cmdlist.length;
+                        cmdlist.push("move "+elbow.toString()+":"+arse.toString()+' '+moveto.toString());
+                        mpd.do_command_list(cmdlist, playlist.repopulate);
+                        break;
+
+                    default:
+                        debug.log("MY ARM LEAKS");
+                        if (elementmoved == "track") {
+                            itemstomove = ui.item.attr("name");
+                            firstmoveitem = itemstomove;
+                            numitems = 1;
+                        }
+                        if (elementmoved == "item") {
+                            itemstomove = tracklist[parseInt(ui.item.attr("name"))].getRange();
+                            firstmoveitem = tracklist[parseInt(ui.item.attr("name"))].getFirst();
+                            numitems = tracklist[parseInt(ui.item.attr("name"))].getSize();
+
+                        }
+
+                        // If we move DOWN we have to calculate what the position will be AFTER the items
+                        // have been moved. Bit daft, that.
+                        if (parseInt(firstmoveitem) < parseInt(moveto)) {
+                            moveto = parseInt(moveto) - parseInt(numitems);
+                            if (moveto < 0) { moveto = 0; }
+                        }
+                        mpd.command("command=move&arg="+itemstomove+"&arg2="+moveto, self.repopulate);
+                        break;
+                }
             }
         });
 

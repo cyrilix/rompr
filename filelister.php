@@ -74,6 +74,7 @@ class mpdlistthing {
         global $divtype;
         if ($this->type == $DIRECTORY) {
             if ($this->parnt != null) {
+                print '<div class="dirdraggable">';
                 print '<div class="dirname">';
                 print '<table class="filetable">';
                 print '<tr><td class="fileicon">';
@@ -94,13 +95,14 @@ class mpdlistthing {
             }
             if ($this->parnt != null) {
                 print "</div>\n";
+                print "</div>\n";
             }
         } else {
             print '<div class="filemenu"><table class="filetable">';
-            print '<tr><td class="fileicon">';
+            print '<tr class="filedraggable"><td class="fileicon">';
             print '<img src="images/audio-x-generic.png" height="16px">';
             print '</td><td>';
-            print '<a href="#" onclick="playlist.addtrack(\''.htmlentities(rawurlencode($this->getPath())).'\')">';
+            print '<a href="#" class="df" onclick="playlist.addtrack(\''.htmlentities(rawurlencode($this->getPath())).'\')">';
             print $this->name;
             print '</a>';
             print '</td></tr>';

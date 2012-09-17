@@ -16,10 +16,10 @@ close_mpd($connection);
 print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme'].'" />'."\n";
 ?>
 <link rel="shortcut icon" href="images/favicon.ico" />
-<link type="text/css" href="jqueryui1.8.16/css/start/jquery-ui-1.8.22.custom.css" rel="stylesheet" />
+<link type="text/css" href="jqueryui1.8.16/css/start/jquery-ui-1.8.23.custom.css" rel="stylesheet" />
 <script type="text/javascript" src="jquery-1.7.1.min.js"></script>
 <script type="text/javascript" src="jquery.form.js"></script>
-<script type="text/javascript" src="jqueryui1.8.16/js/jquery-ui-1.8.22.custom.min.js"></script>
+<script type="text/javascript" src="jqueryui1.8.16/js/jquery-ui-1.8.23.custom.min.js"></script>
 <script type="text/javascript" src="jquery.jsonp-2.3.1.min.js"></script>
 <script type="text/javascript" src="shortcut.js"></script>
 <script type="text/javascript" src="keycode.js"></script>
@@ -80,22 +80,31 @@ $(document).ready(function(){
     $("#volume" ).slider({
         stop: function(event, ui) { infobar.setvolume(event) }
     });
-    $('#infocontrols').load("infocontrols.php");
-    $('#albumcontrols').load("albumcontrols.php", function() { reloadPlaylistControls()});
-    $('#icecastlist').load("getIcecast.php");
-    $("#filelist").load("dirbrowser.php");
-    $("#lastfmlist").load("lastfmchooser.php");
-    $("#bbclist").load("bbcradio.php");
-    $("#somafmlist").load("somafm.php");
-    $("#yourradiolist").load("yourradio.php");
-
-    mpd.command("",playlist.repopulate);
-    loadKeyBindings();
+    $('#infocontrols').load("infocontrols.php", function() { 
 <?php
     if ($prefs['hidebrowser'] == 'true') {
         print "    browser.hide();\n";
     }
+    if ($prefs['sourceshidden'] == 'true' && $prefs['playlisthidden'] == 'true') {
+        print "    expandInfo('both');\n";
+    } else {
+        if ($prefs['sourceshidden'] == 'true') {
+            print "    expandInfo('left');\n";
+        }
+        if ($prefs['playlisthidden'] == 'true') {
+            print "    expandInfo('right');\n";
+        }
+    }
 ?>
+    });
+    $('#albumcontrols').load("albumcontrols.php", function() { reloadPlaylistControls()});
+    $('#icecastlist').load("getIcecast.php");
+    $("#lastfmlist").load("lastfmchooser.php");
+    $("#bbclist").load("bbcradio.php");
+    $("#somafmlist").load("somafm.php");
+    $("#yourradiolist").load("yourradio.php");
+    mpd.command("",playlist.repopulate);
+    loadKeyBindings();
 });
 
 </script>
