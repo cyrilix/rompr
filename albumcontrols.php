@@ -27,7 +27,23 @@ function pollAlbumList() {
             update_load_timer_running = true;
         } else {
             $("#loadinglabel").html("Loading Collection");
-            $("#albumlist").load("albums.php");
+            $("#albumlist").load("albums.php", function() {
+                $('.draggable').draggable({ helper: "clone",
+                                            connectToSortable: "#sortable",
+                                            addClasses: false
+                                            })
+            });
+            $("#filelist").load("dirbrowser.php", function() {
+                $('.filedraggable').draggable({ helper: "clone",
+                                            connectToSortable: "#sortable",
+                                            addClasses: false
+                                            })
+
+                $('.dirdraggable').draggable({ helper: "clone",
+                                            connectToSortable: "#sortable",
+                                            addClasses: false
+                                            })
+            });
         }
     });
 }
