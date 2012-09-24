@@ -238,7 +238,6 @@ class xspfFile {
 	                            xmlnode('creator', $this->creator).
 	                            xmlnode('location', $r->location).
 	                            "</track>\n";
-
 	    }
 	    return $output;
 

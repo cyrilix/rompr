@@ -24,7 +24,6 @@ function getline($connection) {
         }
         $key = trim(strtok($got, ":"));
         $val = trim(strtok("\0"));
-        //$retarr = explode(':', $got);
         // Ignore 'directory' tags since we don't need them and therefore we don't need to make the parser handle them
         if ($val != '' && $val != null && ($key != "directory")) {
             $retarr[0] = $key;

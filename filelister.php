@@ -74,17 +74,14 @@ class mpdlistthing {
         global $divtype;
         if ($this->type == $DIRECTORY) {
             if ($this->parnt != null) {
-                print '<div class="dirdraggable">';
                 print '<div class="dirname">';
                 print '<table class="filetable">';
-                print '<tr><td class="fileicon">';
-                print '<a href="javascript:doMenu(\'dir'.$prefix.$count.'\');" class="toggle" name="dir'.$prefix.$count.'"><img src="images/toggle-closed.png"></a>';
-                print '</td><td class="fileicon">';
+                print '<tr name="dir'.$prefix.$count.'" class="draggable nottweaked dir" onclick="trackSelect(event, this)" ondblclick="playlist.addtrack(\''.htmlentities(rawurlencode($this->getPath())).'\')"><td width="20px">';
+                print '<a href="#" onclick="doMenu(\'dir'.$prefix.$count.'\');" name="dir'.$prefix.$count.'"><img src="images/toggle-closed.png"></a>';
+                print '</td><td width="20px">';
                 print '<img src="images/folder.png" height="16px">';
                 print '</td><td>';
-                print '<a href="#" onclick="playlist.addtrack(\''.htmlentities(rawurlencode($this->getPath())).'\')">';
                 print basename($this->name);
-                print "</a>";
                 print '</td></tr></table>';
                 print "</div>\n";
                 print '<div class="filedropmenu" name="dir'.$prefix.$count.'">';
@@ -95,16 +92,13 @@ class mpdlistthing {
             }
             if ($this->parnt != null) {
                 print "</div>\n";
-                print "</div>\n";
             }
         } else {
             print '<div class="filemenu"><table class="filetable">';
-            print '<tr class="filedraggable"><td class="fileicon">';
+            print '<tr class="draggable nottweaked" ondblclick="playlist.addtrack(\''.htmlentities(rawurlencode($this->getPath())).'\')" onclick="trackSelect(event, this)"><td></td><td width="20px">';
             print '<img src="images/audio-x-generic.png" height="16px">';
             print '</td><td>';
-            print '<a href="#" class="df" onclick="playlist.addtrack(\''.htmlentities(rawurlencode($this->getPath())).'\')">';
             print $this->name;
-            print '</a>';
             print '</td></tr>';
             print '</table></div>';
         }

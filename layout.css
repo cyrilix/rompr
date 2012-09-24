@@ -272,7 +272,7 @@ a.album:hover,a.album:active
 
 #albummenu
 {
-    padding-top:4px;
+    padding-top:0px;
     padding-left:8px;
     padding-right:4px;
     padding-bottom:4px;
@@ -282,7 +282,6 @@ a.album:hover,a.album:active
 
 .dirname
 {
-    padding-top:4px;
     padding-bottom:0px;
     padding-left:12px;
     font-weight:bold;
@@ -292,7 +291,6 @@ a.album:hover,a.album:active
 {
     padding-top:0px;
     padding-left:8px;
-    padding-right:4px;
     display:none;
 }
 
@@ -300,33 +298,41 @@ a.album:hover,a.album:active
 {
     padding-left:2px;
     margin-left:22px;
-    padding-right:4px;
     font-size:96%;
 }
 
 .indent
 {
-    margin-left:12px;
+    margin-left:16px;
 }
 
 #albumname
 {
     padding-top:4px;
-    padding-bottom:4px;
+    padding-bottom:0px;
     padding-left:4px;
+    padding-right:4px;
     font-size:98%;
     font-weight:bold;
 }
 
+/*--
+
 ul.sourcenav li a
 {
-    padding-left:16px;
+    padding-left:8px;
 }
 
+--*/
 .soma
 {
     padding:0px;
     margin:0px;
+}
+
+.selected
+{
+    background-color:#CC5500;
 }
 
 /*-- divs and classes used in the playlist --*/
@@ -339,6 +345,7 @@ ul.sourcenav li a
     padding-bottom:0px;
     font-weight:bold;
     font-size:90%;
+    border-spacing:2px 1px;
 }
 
 .playlisttitle
@@ -348,7 +355,7 @@ ul.sourcenav li a
 
 .playlistcurrenttitle
 {
-    font-size:110%;
+    font-size:105%;
     padding-right:4px;
 }
 
@@ -359,7 +366,7 @@ ul.sourcenav li a
     padding-top:0px;
     padding-bottom:2px;
     font-weight:bold;
-    font-size:120%;
+    font-size:105%;
 }
 
 .playlistrow2
@@ -391,8 +398,9 @@ ul.sourcenav li a
 
 #item
 {
-    padding-top:8px;
-    padding-bottom:8px;
+    margin-top:2px;
+    padding-top:2px;
+    padding-bottom:2px;
     font-weight:bold;
     font-size:110%;
     width:100%;
@@ -502,6 +510,20 @@ ul.sourcenav li a
     z-index:1001;
     opacity:0.7;
     border-radius: 10px 10px 10px 10px;
+}
+
+#dragger
+{
+    position:absolute;
+}
+
+.dragsort
+{
+    padding:4px;
+}
+
+.draggable {
+    cursor:default;
 }
 
 #imagecontainer
@@ -822,11 +844,6 @@ ul.buyalbum li
     vertical-align:middle;
     border-spacing:0;
     border-collapse:collapse;
-}
-
-.fileicon
-{
-    width:20px;
 }
 
 /*-- Styles to make the Wikipedia nav boxes look prettier --*/

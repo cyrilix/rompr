@@ -1,10 +1,12 @@
-<div id="columntitle">
+<div id="columntitle" style="padding-right:0px">
 <table width="100%"><tr><td name="sourcecontrol" align="left">
 <a href="#" title="Local Music" onclick="sourcecontrol('albumlist')"><img class="topimg" height="24px" src="images/audio-x-generic.png"></a>
 <a href="#" title="File Browser" onclick="sourcecontrol('filelist')"><img class="topimg" height="24px" src="images/folder.png"></a>
 <a href="#" title="Last.FM Radio" onclick="sourcecontrol('lastfmlist')"><img class="topimg" height="24px" src="images/lastfm.png"></a>
 <a href="#" title="Internet Radio Stations" onclick="sourcecontrol('radiolist')"><img class="topimg" height="24px" src="images/broadcast.png"></a>
-</td></tr></table>
+</td>
+<td align="right"><img id="sourcesresizer" src="images/resize_handle.png" style="cursor:move"></td>
+</tr></table>
 </div>
 
 <script language="JavaScript">
@@ -28,21 +30,14 @@ function pollAlbumList() {
         } else {
             $("#loadinglabel").html("Loading Collection");
             $("#albumlist").load("albums.php", function() {
-                $('.draggable').draggable({ helper: "clone",
-                                            connectToSortable: "#sortable",
-                                            addClasses: false
-                                            })
+                $("#albumlist").children('div').children('table').find(".nottweaked").each( function(index, element) {
+                    setDraggable(element);
+                });
             });
             $("#filelist").load("dirbrowser.php", function() {
-                $('.filedraggable').draggable({ helper: "clone",
-                                            connectToSortable: "#sortable",
-                                            addClasses: false
-                                            })
-
-                $('.dirdraggable').draggable({ helper: "clone",
-                                            connectToSortable: "#sortable",
-                                            addClasses: false
-                                            })
+                $("#filelist").children('div').children('table').find(".nottweaked").each( function(index, element) {
+                    setDraggable(element);
+                });
             });
         }
     });

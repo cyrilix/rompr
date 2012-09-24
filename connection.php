@@ -64,9 +64,7 @@ function check_playlist_commands($cmds) {
                 break;
 
             case "clear":
-                system("mv prefs/STREAM_icecast.xspf prefs/DONTDELETEME.bak");
                 clean_stored_xspf();
-                system("mv prefs/DONTDELETEME.bak prefs/STREAM_icecast.xspf");
                 break;
 
         }

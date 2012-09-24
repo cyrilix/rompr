@@ -4,6 +4,10 @@ $COMPILATION_THRESHOLD = 6;
 $numtracks = 0;
 $totaltime = 0;
 
+$xspf_loaded = false;
+$lfm_xspfs = array();
+$stream_xspfs = array();
+
 class album {
     public function __construct($name, $artist) {
         $this->artist = $artist;
@@ -28,7 +32,6 @@ class album {
     }
 
     public function setAsCompilation() {
-        error_log($this->name." being set as compilation");
         $this->artist = "Various Artists";
         $this->iscompilation = true;
     }
@@ -358,10 +361,28 @@ function process_file($collection, $filedata) {
 
 function getStuffFromXSPF($url) {
     global $xml;
+    global $xspf_loaded;
+    global $lfm_xspfs;
+    global $stream_xspfs;
 
-    $playlists = glob("prefs/LFMRADIO*.xspf");
-    foreach($playlists as $i => $file) {
-        $x = simplexml_load_file($file);
+    // Preload all the stream and lastfm playlists (on the first time we need them)
+    // - saves time later as we don't have to read them in every time.
+
+    if (!$xspf_loaded) {
+        $playlists = glob("prefs/LFMRADIO*.xspf");
+        foreach($playlists as $i => $file) {
+            $x = simplexml_load_file($file);
+            array_push($lfm_xspfs, $x);
+        }
+        $playlists = glob("prefs/*STREAM*.xspf");
+        foreach($playlists as $i => $file) {
+            $x = simplexml_load_file($file);
+            array_push($stream_xspfs, $x);
+        }
+        $xspf_loaded = true;
+    }
+
+    foreach($lfm_xspfs as $i => $x) {
         foreach($x->playlist->trackList->track as $i => $track) {
             if($track->location == $url) {
                 return array (  $track->title, 
@@ -381,9 +402,7 @@ function getStuffFromXSPF($url) {
         }
     }
 
-    $playlists = glob("prefs/*STREAM*.xspf");
-    foreach($playlists as $i => $file) {
-        $x = simplexml_load_file($file);
+    foreach($stream_xspfs as $i => $x) {
         foreach($x->trackList->track as $i => $track) {
             if($track->location == $url) {
                 return array (  $track->title,
@@ -518,30 +537,33 @@ function do_albums($artistkey, $compilations, $showartist, $prefix) {
         $artist = $collection->artistName($artistkey);
 
        // We have albums for this artist
-        print '<div id="artistname" class="' . $divtype . '">' . "\n";
-        print '<table width="100%"><tr><td width="18px"><a href="javascript:doMenu(\''.$prefix.'artist' . $count . '\');" class="toggle" name="'.$prefix.'artist' . $count . '"><img src="images/toggle-closed.png"></a></td><td>'.$artist.'</td></tr></table></div>';
-        print '<div id="albummenu" name="'.$prefix.'artist' . $count . '" class="' . $divtype . '">' . "\n";
+        print '<div id="artistname" class="'.$divtype.'">'."\n";
+        print '<table width="100%" class="filetable">';
+        print '<tr class="talbum draggable nottweaked" onclick="trackSelect(event, this)" ondblclick="playlist.addalbum(\''.$prefix.'artist'.$count.'\')">';
+        print '<td width="18px"><a href="#" onclick="doMenu(\''.$prefix.'artist'.$count.'\');" name="'.$prefix.'artist'.$count.'"><img src="images/toggle-closed.png"></a></td>';
+        print '<td width="1px"></td><td>'.$artist.'</td><td></td></tr></table></div>';
+        print '<div id="albummenu" name="'.$prefix.'artist'.$count.'" class="'.$divtype.'">'."\n";
 
         // albumlist is now an array of album objects
         foreach($albumlist as $album) {
 
-            print '<div class="draggable">';
-
-            print '<div id="albumname" class="' . $divtype . '">' . "\n";
-            print '<table><tr><td>';
-            print '<a href="javascript:doMenu(\''.$prefix.'album' . $count . '\');" class="toggle" name="'.$prefix.'album' . $count . '"><img src="images/toggle-closed.png"></a></td><td>' . "\n";
+            print '<div id="albumname" class="'.$divtype.'">'."\n";
+            print '<table class="albumname filetable" width="100%"><tr class="talbum draggable nottweaked" onclick="trackSelect(event, this)" ondblclick="playlist.addalbum(\''.$prefix.'album'.$count.'\')"><td width="18px">';
+            print '<a href="#" onclick="doMenu(\''.$prefix.'album'.$count.'\');" name="'.$prefix.'album'.$count.'"><img src="images/toggle-closed.png"></a></td>';
             // We don't set the src tags for the images when the page loads, otherwise we'd be loading in
             // literally hundres of images we don't need. Instead we set the name tag to the url
             // of the image, and then use jQuery magic to set the src tag when the menu is opened -
             // so we only ever load the images we need. The custom redirect will take care of missing images
-            $artname = md5($album->artist . " " . $album->name);
+            print '<td width="34px">';
+            $artname = md5($album->artist." ".$album->name);
 
-            print '<img id="updateable" style="vertical-align:middle" src="" height="32" name="albumart/small/'.$artname.'.jpg"></td><td>';
-            print '<a href="#" onclick="playlist.addalbum(\''.$prefix.'album' . $count . '\')">'.$album->name.'</a>';
-            print "</td></tr></table></div>\n";
+            print '<img id="updateable" style="vertical-align:middle" src="" height="32" name="albumart/small/'.$artname.'.jpg"></td>';
+            print '<td><b>'.$album->name.'</b>';
+            print "</td><td></td></tr></table>";
+            print "</div>\n";
 
-            print '<div id="albummenu" name="'.$prefix.'album' . $count . '" class="indent ' . $divtype . '">' . "\n";
-            print '<table width="100%">';
+            print '<div id="albummenu" name="'.$prefix.'album'.$count.'" class="indent '.$divtype.'">'."\n";
+            print '<table width="100%" class="filetable">';
             $numdiscs = $album->sortTracks();
             $currdisc = -1;
             foreach($album->tracks as $trackobj) {
@@ -552,28 +574,30 @@ function do_albums($artistkey, $compilations, $showartist, $prefix) {
                     }
                 }
                 $dorow2 = false;
-                if ($showartist || ($trackobj->albumartist != null && ($trackobj->albumartist != $trackobj->artist))) {
+                $classes = "draggable nottweaked";
+                if ( ($showartist || 
+                    ($trackobj->albumartist != null && ($trackobj->albumartist != $trackobj->artist))) &&
+                    ($trackobj->artist != null && $trackobj->artist != '.')
+                ) {
                     $dorow2 = true;
+                    $classes = $classes." playlistrow1";
                 }
-                print '<tr class="draggable"><td align="left" class="tracknumber"';
+                print '<tr class="'.$classes.'" onclick="trackSelect(event, this)" ondblclick="playlist.addtrack(\''.htmlentities(rawurlencode($trackobj->url)).'\')"><td align="left" class="tracknumber"';
                 if ($dorow2) {
                     print 'rowspan="2"';
                 }
-                print '>' . $trackobj->number . "</td>";
-                print '<td><a href="#" onclick="playlist.addtrack(\''.htmlentities(rawurlencode($trackobj->url)).'\')">'.
-                        $trackobj->name.'</a>';
+                print '>' . $trackobj->number . "</td><td></td>";
+                print '<td>'.$trackobj->name;
                 print "</td>\n";
                 print '<td align="right">'.format_time($trackobj->duration).'</td>';
                 print "</tr>\n";
                 if ($dorow2) {
-                    print '<tr><td class="playlistrow2" colspan="2">' . $trackobj->artist . '</td></tr>';
+                    print '<tr onclick="trackSelect(event, this)" class="draggable nottweaked playlistrow2"><td></td><td colspan="2">'.$trackobj->artist.'</td></tr>';
                 }
             }
 
             print "</table>\n";
             print "</div>\n";
-
-            print '</div>';
 
             $count++;
         }

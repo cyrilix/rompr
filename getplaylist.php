@@ -35,9 +35,9 @@ if ($is_connected) {
 
 $xml = $xml . "</trackList>\n</playlist>\n";
 
-$fp = fopen("prefs/Current.xml", "w");
-fwrite($fp, $xml);
-fclose($fp);
+// $fp = fopen("prefs/Current.xml", "w");
+// fwrite($fp, $xml);
+// fclose($fp);
 
 print $xml;
 

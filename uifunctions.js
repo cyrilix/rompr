@@ -1,23 +1,52 @@
 function reloadPlaylistControls() {
-    $('#playlistcontrols').load('playlistcontrols.php');
+    $('#playlistcontrols').load('playlistcontrols.php', function() {
+        $("#playlistresizer").draggable({   containment: 'headerbar',
+                                            axis: 'x'
+        });
+        $("#playlistresizer").bind("drag", function(event, ui){
+            var size = getWindowSize();
+            playlistwidthpercent = (((size.x - ui.offset.left))/size.x)*100;
+            doThatFunkyThang();
+            $(this).data('draggable').position.left = 0;
+        });
+        $("#playlistresizer").bind("dragstop", function(event, ui){
+            debug.log("Saving playlist panel width");
+            savePrefs({playlistwidthpercent: playlistwidthpercent.toString()})
+        });        
+    });
 }
 
-// Don't think this is used any more
-// function doCommand(div, url, command) {
-//     $('#'+div).load(url, command, function () {
-//         if (div == 'infopane') {
-//             $('#infopane').animate({ scrollTop: 0}, { duration: 'fast', easing: 'swing'});
-//         }
-//     });
-// }
+function setDraggable(element) {
+    $(element).disableSelection();
+    $(element).removeClass("nottweaked");
+    $(element).draggable({  
+                            connectToSortable: "#sortable",
+                            addClasses: false,
+                            helper: function(event) {
+                                var dragger = document.createElement('div');
+                                dragger.setAttribute("id", "dragger");
+                                $(dragger).addClass("draggable dragsort");
+                                if (!$(this).hasClass("selected")) {
+                                    trackSelect(event, this);
+                                }
+                                $(".selected").clone().removeClass("selected").appendTo(dragger).children('td').removeAttr('width');
+                                return dragger;
+                            }
+                        });
+}
 
 function doMenu(item) {
 
+    window.event.stopPropagation();
+
     if ($('a[name|="'+item+'"]').html() == '<img src="images/toggle-closed.png">') {
         $('a[name|="'+item+'"]').html('<img src="images/toggle-open.png">');
-        $('div[name|="'+item+'"]').find("#updateable").attr("src", function () {
-            // The image doesn't have to exist because we have a custom redirect in place
+        // $('div[name|="'+item+'"]').find("#updateable").attr("src", function () {
+        $('div[name|="'+item+'"]').children('div').children('table').find("#updateable").attr("src", function () {
             return $(this).attr("name");
+        });
+        $('div[name|="'+item+'"]').find(".nottweaked").each( function(index, element) {
+            setDraggable(element);
         });
     } else {
         $('a[name|="'+item+'"]').html('<img src="images/toggle-closed.png">');
@@ -112,18 +141,17 @@ function doThatFunkyThang() {
     var playlistweight = (playlisthidden) ? 0 : 1;
     var browserweight = (browser.hiddenState()) ? 0 : 1;
 
-    var browserwidth = (100 - (22*playlistweight) - (22*sourcesweight))*browserweight;
+    var browserwidth = (100 - (playlistwidthpercent*playlistweight) - (sourceswidthpercent*sourcesweight))*browserweight;
+    var sourceswidth = (100 - (playlistwidthpercent*playlistweight) - browserwidth)*sourcesweight;
+    var playlistwidth = (100 - sourceswidth - browserwidth)*playlistweight;
 
-    var sourceswidth = browser.hiddenState() ? 50 : 22;
-    var playlistwidth = browser.hiddenState() ? 50 : 22;
-    if (sourceswidth == 50 && playlisthidden) {
-        sourceswidth = 100;
-    }
-    if (playlistwidth == 50 && sourceshidden) {
-        playlistwidth = 100;
-    }
-
-    debug.log("Widths:",sourceswidth,browserwidth,playlistwidth)
+    // debug.log("Widths:",sourceswidth,browserwidth,playlistwidth)
+    $("#sources").css("width", sourceswidth.toString()+"%");
+    $("#albumcontrols").css("width", sourceswidth.toString()+"%");
+    $("#playlist").css("width", playlistwidth.toString()+"%");
+    $("#pcholder").css("width", playlistwidth.toString()+"%");
+    $("#infopane").css("width", browserwidth.toString()+"%");
+    $("#infocontrols").css("width", browserwidth.toString()+"%");
 
     if (sourceshidden != $("#sources").is(':hidden')) {
         $("#sources").toggle("fast");
@@ -139,13 +167,6 @@ function doThatFunkyThang() {
         $("#infopane").toggle("fast");
         $("#infocontrols").toggle("fast");
     }
-
-    $("#sources").css("width", sourceswidth.toString()+"%");
-    $("#albumcontrols").css("width", sourceswidth.toString()+"%");
-    $("#playlist").css("width", playlistwidth.toString()+"%");
-    $("#pcholder").css("width", playlistwidth.toString()+"%");
-    $("#infopane").css("width", browserwidth.toString()+"%");
-    $("#infocontrols").css("width", browserwidth.toString()+"%");
 
 }
 
@@ -311,13 +332,11 @@ function lastFMTuneFailed(data) {
 }
 
 function addLastFMTrack(artist, track) {
-    debug.log("Bungle");
     playlist.waiting();
     lastfm.track.getInfo({track: track, artist: artist}, gotTrackInfoForStream, lastFMTuneFailed);
 }
 
 function gotTrackInfoForStream(data) {
-    debug.log("Jungle");
     if (data && data.error) { lastFMTuneFailed(data); return false };
     var url = "lastfm://play/tracks/"+data.track.id;
     lastfm.track.getPlaylist({url: url}, playlist.newInternetRadioStation, lastFMTuneFailed);
@@ -711,3 +730,51 @@ var popupWindow = function() {
         }
     };
 }();
+
+function trackSelect(event, elem) {
+    var hc = $(elem).hasClass("selected") ? true : false;
+    var album = null;
+    if ($(elem).hasClass("talbum")) {
+        var link = $(elem).attr("ondblclick");
+        var r = /playlist.addalbum\(\'(.*?)\'/;
+        var result = r.exec(link);
+        if (result && result[1]) {
+            album = result[1];
+        }
+    }
+    if ($(elem).hasClass("dir")) {
+        album = $(elem).attr("name");
+    }
+    if (!event.metaKey && !event.ctrlKey) {
+        $(".selected").removeClass("selected");
+    }
+    if (!hc) {
+        $(elem).addClass("selected");
+        if($(elem).hasClass("playlistrow1")) {
+            $(elem).next().addClass("selected");
+        }
+        if($(elem).hasClass("playlistrow2")) {
+            $(elem).prev().addClass("selected");
+        }
+        if (album) {
+            $('div[name="'+album+'"]').find('tr').addClass("selected");
+        }
+    }
+    if (hc && (event.metaKey || event.ctrlKey)) {
+        $(elem).removeClass("selected");
+        if($(elem).hasClass("playlistrow1")) {
+            $(elem).next().removeClass("selected");
+        }
+        if($(elem).hasClass("playlistrow2")) {
+            $(elem).prev().removeClass("selected");
+        }
+        if (album) {
+            $('div[name="'+album+'"]').find('tr').removeClass("selected");
+        }
+    }
+}
+
+function clearPlaylist() {
+    mpd.command('command=clear', playlist.repopulate);
+    $("#clrplst").slideToggle('fast');
+}

@@ -19,8 +19,9 @@ print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme']
 <link type="text/css" href="jqueryui1.8.16/css/start/jquery-ui-1.8.23.custom.css" rel="stylesheet" />
 <script type="text/javascript" src="jquery-1.7.1.min.js"></script>
 <script type="text/javascript" src="jquery.form.js"></script>
-<script type="text/javascript" src="jqueryui1.8.16/js/jquery-ui-1.8.23.custom.min.js"></script>
+<script type="text/javascript" src="jqueryui1.8.16/js/jquery-ui-1.8.23.custom.js"></script>
 <script type="text/javascript" src="jquery.jsonp-2.3.1.min.js"></script>
+<script type="text/javascript" src="jquery.scrollTo-1.4.3.1-min.js"></script>
 <script type="text/javascript" src="shortcut.js"></script>
 <script type="text/javascript" src="keycode.js"></script>
 <script type="text/javascript" src="functions.js"></script>
@@ -66,6 +67,8 @@ var sourceshidden = false;
 var playlisthidden = false;
 <?php
  print "var scrobblepercent = ".$prefs['scrobblepercent'].";\n";
+ print "var sourceswidthpercent = ".$prefs['sourceswidthpercent'].";\n";
+ print "var playlistwidthpercent = ".$prefs['playlistwidthpercent'].";\n";
  print "var max_history_length = ".$prefs["historylength"].";\n";;
  print "var lastfm = new LastFM('".$prefs["lastfm_user"]."');\n";
  print "var browser = new Info('infopane', '".$prefs["infosource"]."');\n";
@@ -84,6 +87,8 @@ $(document).ready(function(){
 <?php
     if ($prefs['hidebrowser'] == 'true') {
         print "    browser.hide();\n";
+    } else {
+        print "    doThatFunkyThang()\n";
     }
     if ($prefs['sourceshidden'] == 'true' && $prefs['playlisthidden'] == 'true') {
         print "    expandInfo('both');\n";
@@ -97,7 +102,23 @@ $(document).ready(function(){
     }
 ?>
     });
-    $('#albumcontrols').load("albumcontrols.php", function() { reloadPlaylistControls()});
+    $('#albumcontrols').load("albumcontrols.php", function() { 
+        reloadPlaylistControls();
+        $("#sourcesresizer").draggable({
+            containment: '#headerbar',
+            axis: 'x'
+        });
+        $("#sourcesresizer").bind("drag", function(event, ui){
+            var size = getWindowSize();
+            sourceswidthpercent = ((ui.offset.left+8)/size.x)*100;
+            doThatFunkyThang();
+            $(this).data('draggable').position.left = 0;
+        });
+        $("#sourcesresizer").bind("dragstop", function(event, ui){
+            debug.log("Saving sources panel width");
+            savePrefs({sourceswidthpercent: sourceswidthpercent.toString()})
+        });
+    });
     $('#icecastlist').load("getIcecast.php");
     $("#lastfmlist").load("lastfmchooser.php");
     $("#bbclist").load("bbcradio.php");
@@ -202,7 +223,7 @@ $(document).ready(function(){
     <ul class="sourcenav">
         <li>
             <table><tr>
-                <td><a name="yourradiolist" style="padding-left:0px" class="toggle" href="#" onclick="javascript:doMenu('yourradiolist')"><img src="images/toggle-closed.png"></a></td>
+                <td><a name="yourradiolist" style="padding-left:0px" href="#" onclick="doMenu('yourradiolist')"><img src="images/toggle-closed.png"></a></td>
                 <td><img src="images/broadcast.png" height="28px"></td><td><h3>Your Radio Stations</h3></td>
             </tr></table>
         </li>
@@ -211,7 +232,7 @@ $(document).ready(function(){
         </li>
         <li>
             <table><tr>
-                <td><a name="somafmlist" style="padding-left:0px" class="toggle" href="#" onclick="javascript:doMenu('somafmlist')"><img src="images/toggle-closed.png"></a></td>
+                <td><a name="somafmlist" style="padding-left:0px" href="#" onclick="doMenu('somafmlist')"><img src="images/toggle-closed.png"></a></td>
                 <td><img src="images/somafm.png" height="24px"></td>
             </tr></table>
         </li>
@@ -220,7 +241,7 @@ $(document).ready(function(){
         </li>
         <li>
             <table><tr>
-                <td><a name="bbclist" style="padding-left:0px" class="toggle" href="#" onclick="javascript:doMenu('bbclist')"><img src="images/toggle-closed.png"></a></td>
+                <td><a name="bbclist" style="padding-left:0px" href="#" onclick="doMenu('bbclist')"><img src="images/toggle-closed.png"></a></td>
                 <td><img src="images/bbcr.png" height="32px"></td><td><h3>Live BBC Radio</h3></td>
             </tr></table>
         </li>
@@ -229,7 +250,7 @@ $(document).ready(function(){
         </li>
         <li>
             <table><tr>
-                <td><a name="icecastlist" style="padding-left:0px" class="toggle" href="#" onclick="javascript:doMenu('icecastlist')"><img src="images/toggle-closed.png"></a></td>
+                <td><a name="icecastlist" style="padding-left:0px" href="#" onclick="doMenu('icecastlist')"><img src="images/toggle-closed.png"></a></td>
                 <td><img src="images/icecast.png" height="32px"></td><td><h3>Icecast Radio</h3></td>
             </tr></table>
         </li>

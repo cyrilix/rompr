@@ -3,9 +3,9 @@ include ("vars.php");
 include ("functions.php");
 include ("connection.php");
 ?>
-<div id="columntitle">
+<div id="columntitle" style="padding-left:0px">
 <div class="tleft">
-<h2></h2>
+<img id="playlistresizer" src="images/resize_handle.png" style="cursor:move">
 </div>
 <div class="tright">
 <ul class="topnav">
@@ -53,7 +53,7 @@ include ("connection.php");
         <ul id="clrplst" class="subnav">
             <li><b>Clear Playlist</b></li>
             <li>
-                <button style="width:100%" class="topformbutton" onclick="javascript:mpd.command('command=clear', playlist.repopulate)">I'm Sure About This</button>
+                <button style="width:100%" class="topformbutton" onclick="clearPlaylist()">I'm Sure About This</button>
             </li>
         </ul>
     </li>
@@ -68,15 +68,17 @@ include ("connection.php");
                 $playlists = array();
                 $playlists['playlist'][0] = $temp;
             }
-            sort($playlists['playlist'], SORT_STRING);
-            print '<li class="tleft wide"><table width="100%">';
-            foreach ($playlists['playlist'] as $pl) {
+            if (is_array($playlists['playlist'])) {
+                sort($playlists['playlist'], SORT_STRING);
+                print '<li class="tleft wide"><table width="100%">';
+                foreach ($playlists['playlist'] as $pl) {
 
-                print '<tr><td align="left"><a href="#" onclick="mpd.command(\'command=load&arg='.rawurlencode($pl).'\', playlist.repopulate)">'.$pl.'</a></td>';
-                print '<td align="right"><a href="#" onclick="mpd.command(\'command=rm&arg='.rawurlencode($pl).'\', reloadPlaylistControls)"><img src="images/edit-delete.png"></a></td></tr>';
+                    print '<tr><td align="left"><a href="#" onclick="mpd.command(\'command=load&arg='.rawurlencode($pl).'\', playlist.repopulate)">'.$pl.'</a></td>';
+                    print '<td align="right"><a href="#" onclick="mpd.command(\'command=rm&arg='.rawurlencode($pl).'\', reloadPlaylistControls)"><img src="images/edit-delete.png"></a></td></tr>';
 
+                }
+                print '</table></li>';
             }
-            print '</table></li>';
 ?>
         </ul>
     </li>

@@ -1,6 +1,6 @@
 <?php
 
-$xml = simplexml_load_file("prefs/STREAM_icecast.xspf");
+$xml = simplexml_load_file("prefs/icecast.xspf");
 $name = $_REQUEST['name'];
 
 // error_log("Looking for IceCast Station ".$name);
@@ -20,5 +20,11 @@ foreach($xml->trackList->track as $track) {
 $output = $output . "</trackList>\n</playlist>\n";
 
 print $output;
+
+$fp = fopen('prefs/STREAM_'.md5($name).'.xspf', 'w');
+if ($fp) {
+	fwrite($fp, $output);
+}
+fclose($fp);
 
 ?>

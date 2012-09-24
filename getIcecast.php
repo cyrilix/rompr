@@ -65,19 +65,24 @@ foreach($xml->entry as $i => $entry) {
     
 }
 
+print '<div id="booger" style="border-bottom:1px solid #dddddd;margin-bottom:4px"><table width="100%" class="playlistitem"><tr><td align="left">';
+print count($stations) . ' IceCast Radio Stations</td></tr></table></div>';
+
 ksort($genres, SORT_STRING);
 $count = 0;
 foreach ($genres as $i => $name) {
-    print '<div id="albumname">' . "\n";
-    print '<table width="100%"><tr><td style="width:32px"><a href="javascript:doMenu(\'genre' . $count . '\');" class="toggle" name="genre' . $count . '"><img src="images/toggle-closed.png"></a></td><td align="left">';
+    print '<div class="dirname">' . "\n";
+    print '<table width="100%" class="filetable"><tr><td style="width:24px"><a href="#" onclick="doMenu(\'genre' . $count . '\');" name="genre' . $count . '"><img src="images/toggle-closed.png"></a></td><td align="left">';
     print $genres[$i]->name;
     print '</td></tr></table></div>';
-    print '<div id="albummenu" style="padding-left:12px" name="genre' . $count . '">' . "\n";
-    print '<table width="100%">';
+    print '<div class="filedropmenu" name="genre' . $count . '">' . "\n";
+    print '<div class="filemenu" style="margin-left:32px">';
+    print '<table width="100%" class="filetable">';
     foreach($genres[$i]->stations as $n => $station) {
         print '<tr><td><a href="#" onclick="addIceCast(\''.$stations[$station]->name.'\')">'.$stations[$station]->name."</a></td></tr>\n";
     }
     print "</table>\n";
+    print "</div>\n";    
     print "</div>\n";
     $count++;
 }
@@ -99,7 +104,7 @@ foreach ($stations as $i => $station) {
 }
 $output = $output . "</trackList>\n</playlist>\n";
 
-$fp = fopen("prefs/STREAM_icecast.xspf", "w");
+$fp = fopen("prefs/icecast.xspf", "w");
 if ($fp) {
     fwrite($fp, $output);
 }
