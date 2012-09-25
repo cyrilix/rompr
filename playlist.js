@@ -353,6 +353,7 @@ function LastFMRadio(tuneurl, station, index, rolledup) {
                 $('div[name="'+tracks[i].playlistpos+'"]').filter('[id=booger]').fadeOut('fast');
                 index = i;
             } else if (tracks[i].playlistpos == currentsong && i>0) {
+                debug.log("We're in the middle of a field!")
                 index = i-1;
             }
         }
@@ -590,6 +591,7 @@ function Playlist() {
             axis: 'y', 
             containment: '#sortable', 
             scroll: 'true', 
+            scrollSpeed: 10,
             tolerance: 'pointer' 
         });
         $("#sortable").sortable({ 
@@ -701,6 +703,7 @@ function Playlist() {
     }
 
     this.removelfm = function(tracks, u, w) {
+        debug.log("Playlist removing tracks from",u,tracks);
         lfmprovider.getTracks(u, tracks.length, w, false, tracks);
     }
 

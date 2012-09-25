@@ -5,6 +5,7 @@ function reloadPlaylistControls() {
         });
         $("#playlistresizer").bind("drag", function(event, ui){
             var size = getWindowSize();
+            if ((size.x - ui.offset.left) < 120) { ui.offset.left = size.x - 120; }
             playlistwidthpercent = (((size.x - ui.offset.left))/size.x)*100;
             doThatFunkyThang();
             $(this).data('draggable').position.left = 0;
@@ -431,23 +432,9 @@ function toggleFileSearch() {
 
 function gotNeighbourData(data) {
     gotNeighbours = true;
-    var html = "";
     if (data.neighbours.user) {
-        var userdata = getArray(data.neighbours.user);
-        html = html + '<table width="100%" cellpadding="0" cellspacing="2px">';
-        for(var i in userdata) {
-            html = html + '<td colspan="2"><h3>'+userdata[i].name+'</h3></td></tr>';
-            html = html + '<tr><td rowspan="4" align="center"><a href="'+userdata[i].url+'" target="_blank"><img src="'+userdata[i].image[0]['#text']+'" style="vertical-align:middle" width="40px"></a></td>';
-
-            html = html + '<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" onclick="doLastFM(\'lastfmuser\', \''+userdata[i].name+'\')">&nbsp;Library Radio</a></td></tr>';
-            html = html + '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" onclick="doLastFM(\'lastfmmix\', \''+userdata[i].name+'\')">&nbsp;Mix Radio</a></td></tr>';
-            html = html + '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" onclick="doLastFM(\'lastfmrecommended\', \''+userdata[i].name+'\')">&nbsp;Recommended Radio</a></td></tr>';
-            html = html + '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" onclick="doLastFM(\'lastfmneighbours\', \''+userdata[i].name+'\')">&nbsp;Neighbourhood Radio</a></td></tr>';
-
-        }
-        html = html + '</table>';
+        $('div[name="neighbours"]').html(getLfmPeople(data.neighbours));
     }
-    $('div[name="neighbours"]').html(html);
     doMenu("neighbours");
     stopWaitingIcon("neighbourwait");
 }
@@ -456,23 +443,27 @@ function gotFriendsData(data) {
     gotFriends = true;
     var html = "";
     if (data.friends.user) {
-        var userdata = getArray(data.friends.user);
-        html = html + '<table width="100%" cellpadding="0" cellspacing="2px">';
-        for(var i in userdata) {
-            html = html + '<td colspan="2"><h3>'+userdata[i].name+'</h3></td></tr>';
-            html = html + '<tr><td rowspan="4" align="center"><a href="'+userdata[i].url+'" target="_blank"><img src="'+userdata[i].image[0]['#text']+'" style="vertical-align:middle" width="40px"></a></td>';
-
-            html = html + '<td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" onclick="doLastFM(\'lastfmuser\', \''+userdata[i].name+'\')">&nbsp;Library Radio</a></td></tr>';
-            html = html + '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" onclick="doLastFM(\'lastfmmix\', \''+userdata[i].name+'\')">&nbsp;Mix Radio</a></td></tr>';
-            html = html + '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" onclick="doLastFM(\'lastfmrecommended\', \''+userdata[i].name+'\')">&nbsp;Recommended Radio</a></td></tr>';
-            html = html + '<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" onclick="doLastFM(\'lastfmneighbours\', \''+userdata[i].name+'\')">&nbsp;Neighbourhood Radio</a></td></tr>';
-
-        }
-        html = html + '</table>';
+        $('div[name="friends"]').html(getLfmPeople(data.friends));
     }
-    $('div[name="friends"]').html(html);
     doMenu("friends");
     stopWaitingIcon("freindswait");
+}
+
+function getLfmPeople(data) {
+    var userdata = getArray(data.user);
+    var html = '<table width="100%" class="filetable">';
+    for(var i in userdata) {
+        html = html + '<tr><td colspan="2" style="padding-top:8px"><b>'+userdata[i].name+'</b></td></tr>';
+        html = html + '<tr><td rowspan="4" align="center"><a href="'+userdata[i].url+'" target="_blank"><img src="'+userdata[i].image[0]['#text']+'" style="vertical-align:middle" width="40px"></a></td>';
+
+        html = html + '<td><a href="#" onclick="doLastFM(\'lastfmuser\', \''+userdata[i].name+'\')">&nbsp;Library Radio</a></td></tr>';
+        html = html + '<tr><td><a href="#" onclick="doLastFM(\'lastfmmix\', \''+userdata[i].name+'\')">&nbsp;Mix Radio</a></td></tr>';
+        html = html + '<tr><td><a href="#" onclick="doLastFM(\'lastfmrecommended\', \''+userdata[i].name+'\')">&nbsp;Recommended Radio</a></td></tr>';
+        html = html + '<tr><td><a href="#" onclick="doLastFM(\'lastfmneighbours\', \''+userdata[i].name+'\')">&nbsp;Neighbourhood Radio</a></td></tr>';
+
+    }
+    html = html + '</table>';
+    return html;
 }
 
 var imagePopup=function(){

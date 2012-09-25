@@ -19,7 +19,8 @@ $prefs = array( "mpd_host" => "localhost",
                 "historylength" => 25,
                 "dontscrobbleradio" => 0,
                 "sourceswidthpercent" => 22,
-                "playlistwidthpercent" => 22
+                "playlistwidthpercent" => 22,
+                "shownupdatewindow" => "false"
                 );
 loadPrefs();
 

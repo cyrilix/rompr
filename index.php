@@ -72,6 +72,7 @@ var playlisthidden = false;
  print "var max_history_length = ".$prefs["historylength"].";\n";;
  print "var lastfm = new LastFM('".$prefs["lastfm_user"]."');\n";
  print "var browser = new Info('infopane', '".$prefs["infosource"]."');\n";
+ print "var shownupdatewindow = ".$prefs['shownupdatewindow'].";\n";
 ?>
 $(document).ready(function(){
     $("#loadinglabel2").effect('pulsate', { times:100 }, 2000);
@@ -110,12 +111,12 @@ $(document).ready(function(){
         });
         $("#sourcesresizer").bind("drag", function(event, ui){
             var size = getWindowSize();
+            if (ui.offset.left < 120) { ui.offset.left = 120; }
             sourceswidthpercent = ((ui.offset.left+8)/size.x)*100;
             doThatFunkyThang();
             $(this).data('draggable').position.left = 0;
         });
         $("#sourcesresizer").bind("dragstop", function(event, ui){
-            debug.log("Saving sources panel width");
             savePrefs({sourceswidthpercent: sourceswidthpercent.toString()})
         });
     });
@@ -126,6 +127,18 @@ $(document).ready(function(){
     $("#yourradiolist").load("yourradio.php");
     mpd.command("",playlist.repopulate);
     loadKeyBindings();
+    if (!shownupdatewindow) {
+        var fnarkle = popupWindow.create(500,300,"fnarkle",true,"Information About This Version");
+        $("#popupcontents").append('<div id="fnarkler" class="mw-headline"></div>');
+        $("#fnarkler").append('<p>Thanks for installing this version of RompR. If you used a previous version there is a change in this version that I wanted to let you know about.</p>');
+        $("#fnarkler").append('<p>To add tracks and albums to the playlist you must now <i>Double Click</i>. A single-click will <i>select</i> things so that they can be dragged to the playlist.</p>');
+        $("#fnarkler").append('<p>The Basic RompR Manual is at: <a href="https://sourceforge.net/p/rompr/wiki/Basic%20Manual/" target="_blank">https://sourceforge.net/p/rompr/wiki/Basic%20Manual/</a></p>');
+        $("#fnarkler").append('<p>The Discussion Forum is at: <a href="https://sourceforge.net/p/rompr/discussion/" target="_blank">https://sourceforge.net/p/rompr/discussion/</a></p>');
+        $("#fnarkler").append('<p><button style="width:8em" class="tright topformbutton" onclick="popupWindow.close()">OK</button></p>');
+        popupWindow.open();
+        shownupdatewindow = true;
+        savePrefs({shownupdatewindow: shownupdatewindow.toString()});
+    }
 });
 
 </script>
