@@ -72,7 +72,7 @@ ksort($genres, SORT_STRING);
 $count = 0;
 foreach ($genres as $i => $name) {
     print '<div class="dirname">' . "\n";
-    print '<table width="100%" class="filetable"><tr><td style="width:24px"><a href="#" onclick="doMenu(\'genre' . $count . '\');" name="genre' . $count . '"><img src="images/toggle-closed.png"></a></td><td align="left">';
+    print '<table width="100%" class="filetable"><tr><td style="width:24px"><a href="#" onclick="doMenu(event, \'genre' . $count . '\');" name="genre' . $count . '"><img src="images/toggle-closed.png"></a></td><td align="left">';
     print $genres[$i]->name;
     print '</td></tr></table></div>';
     print '<div class="filedropmenu" name="genre' . $count . '">' . "\n";

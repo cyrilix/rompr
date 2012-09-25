@@ -36,9 +36,9 @@ function setDraggable(element) {
                         });
 }
 
-function doMenu(item) {
+function doMenu(event, item) {
 
-    window.event.stopPropagation();
+    event.stopImmediatePropagation();
 
     if ($('a[name|="'+item+'"]').html() == '<img src="images/toggle-closed.png">') {
         $('a[name|="'+item+'"]').html('<img src="images/toggle-open.png">');
@@ -53,6 +53,7 @@ function doMenu(item) {
         $('a[name|="'+item+'"]').html('<img src="images/toggle-closed.png">');
     }
     $('div[name|="'+item+'"]').slideToggle('fast');
+
 }
 
 function formatTimeString(duration) {
@@ -396,22 +397,20 @@ function getWikimedia(url) {
     });
 }
 
-function getNeighbours() {
+function getNeighbours(event) {
     if (!gotNeighbours) {
         makeWaitingIcon("neighbourwait");
         lastfm.user.getNeighbours({user: lastfm.username()}, gotNeighbourData, gotNoNeighbours);
-    } else {
-        doMenu("neighbours");
     }
+    doMenu(event, "neighbours");
 }
 
-function getFriends() {
+function getFriends(event) {
     if (!gotFriends) {
         makeWaitingIcon("freindswait");
         lastfm.user.getFriends({user: lastfm.username()}, gotFriendsData, gotNoFriends);
-    } else {
-        doMenu("friends");
     }
+    doMenu(event, "friends");
 }
 
 function gotNoNeighbours(data) {
@@ -435,7 +434,6 @@ function gotNeighbourData(data) {
     if (data.neighbours.user) {
         $('div[name="neighbours"]').html(getLfmPeople(data.neighbours));
     }
-    doMenu("neighbours");
     stopWaitingIcon("neighbourwait");
 }
 
@@ -445,7 +443,6 @@ function gotFriendsData(data) {
     if (data.friends.user) {
         $('div[name="friends"]').html(getLfmPeople(data.friends));
     }
-    doMenu("friends");
     stopWaitingIcon("freindswait");
 }
 

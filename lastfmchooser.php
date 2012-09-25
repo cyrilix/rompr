@@ -20,13 +20,13 @@
         <button class="topformbutton" onclick="doLastFM('lastfmglobaltag')">Play</button>
     </li>
     <li>
-        <a name="friends" style="padding-left:0px" href="#" onclick="getFriends()"><img src="images/toggle-closed.png"></a><b>Friends</b>
+        <a name="friends" style="padding-left:0px" href="#" onclick="getFriends(event)"><img src="images/toggle-closed.png"></a><b>Friends</b>
         <img id="freindswait" height="20px" src="images/transparent-32x32.png" />
     </li>
         <div id="albummenu" name="friends"></div>
     </li>
     <li>
-        <a name="neighbours" style="padding-left:0px" href="#" onclick="getNeighbours()"><img src="images/toggle-closed.png"></a><b>Neighbours</b>
+        <a name="neighbours" style="padding-left:0px" href="#" onclick="getNeighbours(event)"><img src="images/toggle-closed.png"></a><b>Neighbours</b>
         <img id="neighbourwait" height="20px" src="images/transparent-32x32.png" />
     </li>
         <div id="albummenu" name="neighbours"></div>

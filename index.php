@@ -236,7 +236,7 @@ $(document).ready(function(){
     <ul class="sourcenav">
         <li>
             <table><tr>
-                <td><a name="yourradiolist" style="padding-left:0px" href="#" onclick="doMenu('yourradiolist')"><img src="images/toggle-closed.png"></a></td>
+                <td><a name="yourradiolist" style="padding-left:0px" href="#" onclick="doMenu(event, 'yourradiolist')"><img src="images/toggle-closed.png"></a></td>
                 <td><img src="images/broadcast.png" height="28px"></td><td><h3>Your Radio Stations</h3></td>
             </tr></table>
         </li>
@@ -245,7 +245,7 @@ $(document).ready(function(){
         </li>
         <li>
             <table><tr>
-                <td><a name="somafmlist" style="padding-left:0px" href="#" onclick="doMenu('somafmlist')"><img src="images/toggle-closed.png"></a></td>
+                <td><a name="somafmlist" style="padding-left:0px" href="#" onclick="doMenu(event, 'somafmlist')"><img src="images/toggle-closed.png"></a></td>
                 <td><img src="images/somafm.png" height="24px"></td>
             </tr></table>
         </li>
@@ -254,7 +254,7 @@ $(document).ready(function(){
         </li>
         <li>
             <table><tr>
-                <td><a name="bbclist" style="padding-left:0px" href="#" onclick="doMenu('bbclist')"><img src="images/toggle-closed.png"></a></td>
+                <td><a name="bbclist" style="padding-left:0px" href="#" onclick="doMenu(event, 'bbclist')"><img src="images/toggle-closed.png"></a></td>
                 <td><img src="images/bbcr.png" height="32px"></td><td><h3>Live BBC Radio</h3></td>
             </tr></table>
         </li>
@@ -263,7 +263,7 @@ $(document).ready(function(){
         </li>
         <li>
             <table><tr>
-                <td><a name="icecastlist" style="padding-left:0px" href="#" onclick="doMenu('icecastlist')"><img src="images/toggle-closed.png"></a></td>
+                <td><a name="icecastlist" style="padding-left:0px" href="#" onclick="doMenu(event, 'icecastlist')"><img src="images/toggle-closed.png"></a></td>
                 <td><img src="images/icecast.png" height="32px"></td><td><h3>Icecast Radio</h3></td>
             </tr></table>
         </li>

@@ -77,7 +77,7 @@ class mpdlistthing {
                 print '<div class="dirname">';
                 print '<table class="filetable">';
                 print '<tr name="dir'.$prefix.$count.'" class="draggable nottweaked dir" onclick="trackSelect(event, this)" ondblclick="playlist.addtrack(\''.htmlentities(rawurlencode($this->getPath())).'\')"><td width="20px">';
-                print '<a href="#" onclick="doMenu(\'dir'.$prefix.$count.'\');" name="dir'.$prefix.$count.'"><img src="images/toggle-closed.png"></a>';
+                print '<a href="#" onclick="doMenu(event, \'dir'.$prefix.$count.'\');" name="dir'.$prefix.$count.'"><img src="images/toggle-closed.png"></a>';
                 print '</td><td width="20px">';
                 print '<img src="images/folder.png" height="16px">';
                 print '</td><td>';

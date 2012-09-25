@@ -540,7 +540,7 @@ function do_albums($artistkey, $compilations, $showartist, $prefix) {
         print '<div id="artistname" class="'.$divtype.'">'."\n";
         print '<table width="100%" class="filetable">';
         print '<tr class="talbum draggable nottweaked" onclick="trackSelect(event, this)" ondblclick="playlist.addalbum(\''.$prefix.'artist'.$count.'\')">';
-        print '<td width="18px"><a href="#" onclick="doMenu(\''.$prefix.'artist'.$count.'\');" name="'.$prefix.'artist'.$count.'"><img src="images/toggle-closed.png"></a></td>';
+        print '<td width="18px"><a href="#" onclick="doMenu(event, \''.$prefix.'artist'.$count.'\');" name="'.$prefix.'artist'.$count.'"><img src="images/toggle-closed.png"></a></td>';
         print '<td width="1px"></td><td>'.$artist.'</td><td></td></tr></table></div>';
         print '<div id="albummenu" name="'.$prefix.'artist'.$count.'" class="'.$divtype.'">'."\n";
 
@@ -549,7 +549,7 @@ function do_albums($artistkey, $compilations, $showartist, $prefix) {
 
             print '<div id="albumname" class="'.$divtype.'">'."\n";
             print '<table class="albumname filetable" width="100%"><tr class="talbum draggable nottweaked" onclick="trackSelect(event, this)" ondblclick="playlist.addalbum(\''.$prefix.'album'.$count.'\')"><td width="18px">';
-            print '<a href="#" onclick="doMenu(\''.$prefix.'album'.$count.'\');" name="'.$prefix.'album'.$count.'"><img src="images/toggle-closed.png"></a></td>';
+            print '<a href="#" onclick="doMenu(event, \''.$prefix.'album'.$count.'\');" name="'.$prefix.'album'.$count.'"><img src="images/toggle-closed.png"></a></td>';
             // We don't set the src tags for the images when the page loads, otherwise we'd be loading in
             // literally hundres of images we don't need. Instead we set the name tag to the url
             // of the image, and then use jQuery magic to set the src tag when the menu is opened -

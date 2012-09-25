@@ -7,7 +7,7 @@ foreach($x->stations->station as $i => $station) {
    
     print '<div id="artistname">';
     print '<table><tr style="vertical-align:top"><td rowspan="2" style="width:24px">';
-    print '<a href="#" onclick="doMenu(\'somafm'.$count.'\');" name="somafm'.$count.'"><img src="images/toggle-closed.png"></a></td><td rowspan="2">' . "\n";
+    print '<a href="#" onclick="doMenu(event, \'somafm'.$count.'\');" name="somafm'.$count.'"><img src="images/toggle-closed.png"></a></td><td rowspan="2">' . "\n";
     print '<img src="'.$station->image.'" height="32"></td><td>';
     print $station->name;
     print '</td></tr><tr><td style="font-weight:normal;font-size:96%">'.$station->description."</td></tr></table></div>\n";
