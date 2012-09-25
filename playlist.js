@@ -179,12 +179,15 @@ function Stream(index, album, rolledup) {
         html = html + '<div id="item" name="'+self.index+'"><table name="'+self.index+'" width="100%" class="playlisttitle"><tr><td rowspan="2" width="40px">';
         html = html + '<a href="#" title="Click to Roll Up" onclick="javascript:playlist.hideItem('+self.index+')">';
         if (tracks[0].image) {
-            html = html + '<img src="'+tracks[0].image+'" height="32px" width="32px"/></td><td colspan="2">';
+            html = html + '<img src="'+tracks[0].image+'" height="32px" width="32px"/></td><td>';
         } else {
-            html = html + '<img src="images/album-unknown-small.png"/></a></td><td cellpadding="2px" colspan="2" align="left">';
+            html = html + '<img src="images/broadcast.png" height="32px" width="32px"/></a></td><td>';
         }
 
-        html = html + tracks[0].creator+'</td></tr><tr><td align="left"><i><a class="album" href="#" onclick="mpd.command(\'command=play&arg='+tracks[0].playlistpos+'\')">'
+        html = html + tracks[0].creator+'</td><td class="playlisticon" align="right">'
+                        +'<a href="#" title="Add Station to Favourites" onclick="playlist.addFavourite(\''+self.index+'\')"><img height="14px" width="14px" src="images/broadcast.png"></a>'
+                        +'</td></tr><tr><td align="left"><i>'
+                        +'<a class="album" href="#" onclick="mpd.command(\'command=play&arg='+tracks[0].playlistpos+'\')">'
                         +tracks[0].album+'</a></i></td>';
         html = html + '<td class="playlisticon" align="right"><a href="#" onclick="playlist.deleteGroup(\''+self.index+'\')">'+
                         '<img src="images/edit-delete.png"></a></td>';
@@ -915,5 +918,13 @@ function Playlist() {
         }
         mpd.do_command_list(list, playlist.repopulate);        
         scrollto = (finaltrack)+1;
-    }    
+    }   
+
+    this.addFavourite = function(index) {
+        debug.log("Adding Fave Station, index",index, tracklist[index].album);
+        $.post("addfave.php", { station: tracklist[index].album })
+            .done( function() { 
+                $("#yourradiolist").load("yourradio.php");
+            });
+    }
 }
