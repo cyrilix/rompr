@@ -271,7 +271,8 @@ if (count($playlists) > 0) {
         foreach($x->trackList->track as $i => $track) {
             if ($track->album) {
                 $artname = md5($track->album);
-                if (file_exists("albumart/original/".$artname.".jpg")) {
+                if (file_exists("albumart/original/".$artname.".jpg") ||
+                    $track->image != "images/broadcast.png") {
                     if ($covers) {
                         break;
                     }
@@ -288,7 +289,9 @@ if (count($playlists) > 0) {
                 print '<input id="stream" type="hidden" name="stream" value="'.rawurlencode($file).'" />';
                 print '<input id="album" type="hidden" name="album" value="'.rawurlencode($track->album).'" />';
                 print '<a href="#" onclick="doGoogleSearch(\'Internet Radio\', \''.rawurlencode($track->album).'\', \''.$artname.'\')">';
-                if (file_exists("albumart/original/".$artname.".jpg")) {
+                if ($track->image != "images/broadcast.png") {
+                   print '<img id="albumimage" src="'.$track->image.'" width="94" height="94" />';
+                } elseif (file_exists("albumart/original/".$artname.".jpg")) {
                    print '<img id="albumimage" src="albumart/original/'.$artname.'.jpg" width="94" height="94" />';
                 } else {
                    print '<img id="albumimage" src="images/broadcast.png" width="94"  height="94" />';
