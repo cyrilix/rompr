@@ -6,7 +6,10 @@ or mopidy when they are running on your local computer or on a remote computer.
 
 For mpd or mopidy configuration, see the appropriate website
 
-The following works on Ubuntu 11.10
+Ubuntu users can now install RompR from my PPA:
+http://launchpad.net/~fatgerman-m/+archive/rompr
+
+Manual installation: The following works on Ubuntu 11.10
 
 sudo apt-get install apache2 php5-curl imagemagick mpd libapache2-mod-php5
 
