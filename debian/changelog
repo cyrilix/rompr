@@ -1,0 +1,54 @@
+mpd-client-rompr (0.16.1) precise; urgency=low
+
+  * This is just me trying out better ways of working with Launchpad
+    (trying to automate the process)
+    
+ -- Mark Greenwood <fatgerman@gmail.com>  Thu, 27 Sep 2012 13:33:08 +0100
+   
+   
+mpd-client-rompr (0.16) precise; urgency=low
+
+  * My trouble is, I won't give up. The Launchpad system has more flaws
+    than a skyscraper, which is causing me some grief. But with the aid
+    of Nicotine mints I'm trying....
+    
+ -- Mark Greenwood <fatgerman@gmail.com>  Thu, 27 Sep 2012 13:33:08 +0100
+   
+   
+mpd-client-rompr (0.15) precise; urgency=low
+
+  * Very nearly had enough of this. The instructions suck donkey ass
+    and the system is needlessly overcomplicated. This is the final
+    attempt, which inviolves bumping it up a major version number,
+    which is something I really didn't want to have to do.
+
+    
+ -- Mark Greenwood <fatgerman@gmail.com>  Thu, 27 Sep 2012 13:33:08 +0100
+   
+   
+mpd-client-rompr (0.14-3) precise; urgency=low
+
+  * Right, so I make some fixes, follow the instructions to the letter
+    and the system (which is unintelligible) doesn't bother uploading the
+    source package and the build fails.
+
+    
+ -- Mark Greenwood <fatgerman@gmail.com>  Thu, 27 Sep 2012 13:12:08 +0100
+   
+   
+mpd-client-rompr (0.14-2) precise; urgency=low
+
+  * OK, so building packcages on a PPA is needlessly overcomplicated
+    and it moans about the slightest things so there may be a few attempts
+    at this until I get it right. The instructions are as good as useless.
+
+    
+ -- Mark Greenwood <fatgerman@gmail.com>  Wed, 26 Sep 2012 23:31:06 +0100
+
+ 
+mpd-client-rompr (0.14-1) precise; urgency=low
+
+  * Initial release
+
+  
+ -- Mark Greenwood <fatgerman@gmail.com>  Wed, 26 Sep 2012 23:31:06 +0100

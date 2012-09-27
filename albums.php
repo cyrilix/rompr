@@ -23,4 +23,5 @@ $collection = doCollection("listallinfo");
 createHTML($collection->getSortedArtistList(), "a");
 close_mpd($connection);
 
-?>
+?>  
+

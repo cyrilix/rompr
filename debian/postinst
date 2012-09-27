@@ -1,0 +1,11 @@
+#!/bin/bash
+
+chown -R www-data /usr/share/rompr/prefs
+chown -R www-data /usr/share/rompr/albumart
+
+a2enmod expires
+a2enmod headers
+a2enmod deflate
+a2enmod php5
+
+service apache2 restart
