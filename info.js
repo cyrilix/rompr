@@ -747,143 +747,127 @@ function Info(target, source) {
     */
    
     function getSlideShow(artist) {
-        lastfm.artist.getImages({artist: artist}, browser.readySlideShow, browser.noSlideShow);
+        lastfm.artist.getImages({artist: artist}, self.prepareSlideshow, self.noImages);
     }
 
-    this.noSlideShow = function(data) {
+    this.noImages = function() {
         $("#artistinformation").html('<h3 align="center">No artist images could be found</h3>');
         $("#artistinformation").fadeIn(1000);
     }
 
-    this.readySlideShow = function(data) {
+    this.prepareSlideshow = function(data) {
         var html = '<div class="controlholder"><table id="slidecon" class="invisible" border="0" cellpadding="0" cellspacing ="0" width="100%">';
         html = html + '<tr height="62px"><td align="center" class="infoslideshow">';
-        html = html + '<a href="#" onclick="browser.slideshow.previousimage()"><img src="images/backward.png"></a>';
+        html = html + '<a href="#" onclick="browser.slideshow.nextimage(-1)"><img src="images/backward.png"></a>';
         html = html + '<a href="#" onclick="browser.slideshow.toggle()"><img id="lastfmimagecontrol" src="images/pause.png"></a>';
-        html = html + '<a href="#" onclick="browser.slideshow.nextimage()"><img src="images/forward.png"></a></td></tr></table></div>';
+        html = html + '<a href="#" onclick="browser.slideshow.nextimage(1)"><img src="images/forward.png"></a></td></tr></table></div>';
         html = html + '<table border="0" cellpadding="0" cellspacing ="0" width="100%"><tr><td align="center" class="infoslideshow"><img id="lastfmimage"></td></tr></table>';
         $("#artistinformation").html(html);
         $("#artistinformation").hover(function() { $("#slidecon").fadeIn(500); }, function() { $("#slidecon").fadeOut(500); });
         $("#artistinformation").fadeIn(1000);
-        browser.slideshow.slideshowGo(data);
+        self.slideshow.slideshowGo(data);
     }
 
-    this.slideshow = {
-        running: false,
-        paused: false,
-        images: [],
-        counter: 0,
-        preload: new Image(),
-        timer_running: false,
-        timer: 0,
+    this.slideshow = function() {
+        
+        var running = false;
+        var paused = false;
+        var images = new Array();
+        var counter = 0;
+        var timer_running = false;
+        var timer = 0;
+        var direction = 0;
 
-        slideshowGo: function(data) {
-            self.slideshow.images = [];
-            if(data.images.image) {
-                var imagedata = getArray(data.images.image);
-                for(var i in imagedata) {
-                    var x = parseInt(imagedata[i].sizes.size[0].width);
-                    var y = parseInt(imagedata[i].sizes.size[0].height);
-                    var u = imagedata[i].sizes.size[0]["#text"];
-                    self.slideshow.images.push({width: x, height: y, url: u});
+        return {
+
+            slideshowGo: function(data) {
+                images = [];
+                if(data.images.image) {
+                    var imagedata = getArray(data.images.image);
+                    for(var i in imagedata) {
+                        var x = parseInt(imagedata[i].sizes.size[0].width);
+                        var y = parseInt(imagedata[i].sizes.size[0].height);
+                        var u = imagedata[i].sizes.size[0]["#text"];
+                        images.push({width: x, height: y, url: u});
+                    }
+                    counter = -1;
+                    running = true;
+                    this.nextimage(1);
+                } else {
+                    if (timer_running) {
+                        clearTimeout(timer);
+                        timer_running = false;
+                    }
+                    running = false;
+                    browser.noImages();
                 }
-                // Preload the image - gets it in the cache so it fades in smoothly
-                self.slideshow.preload.src = self.slideshow.images[0].url
-                self.slideshow.counter = -1;
-                self.slideshow.running = true;
-                self.slideshow.nextimage();
-            } else {
-                if (self.slideshow.timer_running) {
-                    clearTimeout(self.slideshow.timer);
-                    self.slideshow.timer_running = false;
+
+            },
+
+            nextimage: function(dir) {
+                direction = dir;
+                if (timer_running) {
+                    clearTimeout(timer);
+                    timer_running = false;
                 }
-                self.slideshow.running = false;
-                self.noSlideshow();
-            }
-
-        },
-
-        nextimage: function() {
-            if (self.slideshow.timer_running) {
-                clearTimeout(self.slideshow.timer);
-                self.slideshow.timer_running = false;
-            }
-            if (self.slideshow.running) {
-                $("#lastfmimage").fadeOut('fast', function() {
-                    self.slideshow.counter++;
-                    if (self.slideshow.counter == self.slideshow.images.length) { self.slideshow.counter = 0; }
-                    self.slideshow.displayimage();
-                    var nextimage = self.slideshow.counter+1;
-                    if (nextimage == self.slideshow.images.length) { nextimage = 0; }
-                    self.slideshow.preload.src = self.slideshow.images[nextimage].url
-                    $("#lastfmimage").fadeIn(1000,function() {
-                        if (self.slideshow.paused == false) {
-                            self.slideshow.timer = setTimeout("browser.slideshow.nextimage()", 10000);
-                            self.slideshow.timer_running = true;
-                        }
-                    })
-                });
-            }
-        },
-
-        previousimage: function() {
-            if (self.slideshow.timer_running) {
-                clearTimeout(self.slideshow.timer);
-                self.slideshow.timer_running = false;
-            }
-            if (self.slideshow.running) {
-                $("#lastfmimage").fadeOut('fast', function() {
-                    self.slideshow.counter--;
-                    if (self.slideshow.counter < 0) { self.slideshow.counter = self.slideshow.images.length-1; }
-                    self.slideshow.displayimage();
-                    var nextimage = self.slideshow.counter-1;
-                    if (nextimage < 0) { nextimage = self.slideshow.images.length-1; }
-                    self.slideshow.preload.src = self.slideshow.images[nextimage].url
-                    $("#lastfmimage").fadeIn(1000,function() {
-                        if (self.slideshow.paused == false) {
-                            self.slideshow.timer = setTimeout("browser.slideshow.previousimage()", 10000);
-                            self.slideshow.timer_running = true;
-                        }
-                    })
-                });
-            }
-        },
-
-        toggle: function() {
-            if (self.slideshow.paused) {
-                $('#lastfmimagecontrol').attr("src", "images/pause.png");
-                self.slideshow.paused = false;
-                self.slideshow.nextimage();
-            } else {
-                $('#lastfmimagecontrol').attr("src", "images/play.png");
-                self.slideshow.paused = true;
-                if (self.slideshow.timer_running) {
-                    clearTimeout(self.slideshow.timer);
-                    self.slideshow.timer_running = false;
+                if (running) {
+                    $("#lastfmimage").fadeOut('fast', function() { browser.slideshow.fadedOut(); });
                 }
-            }
-        },
+            },
 
-        displayimage: function() {
-            var windowheight = $("#"+target_frame).height();
-            var windowwidth = $("#"+target_frame).width();
-            var imageheight = self.slideshow.images[self.slideshow.counter].height;
-            var imagewidth = self.slideshow.images[self.slideshow.counter].width;
-            var displaywidth = imagewidth;
-            var displayheight = imageheight;
-            if (imageheight+96 > windowheight) {
-                displayheight = windowheight-96;
-                displaywidth = imagewidth * (displayheight/imageheight);
-            }
-            if (displaywidth+36 > windowwidth) {
-                displaywidth = windowwidth-36;
-                displayheight = imageheight * (displaywidth/imagewidth);
-            }
-            $("#lastfmimage").attr("src", self.slideshow.images[self.slideshow.counter].url);
-            $("#lastfmimage").attr("width", parseInt(displaywidth));
-            $("#lastfmimage").attr("height", parseInt(displayheight));
-        }
+            fadedOut: function() {
+                counter += direction;
+                if (counter == images.length) { counter = 0; }
+                if (counter < 0) { counter = images.length-1; }
+                this.displayimage();
 
-    }
+            },
+
+            toggle: function() {
+                if (paused) {
+                    $('#lastfmimagecontrol').attr("src", "images/pause.png");
+                    paused = false;
+                    this.nextimage(direction);
+                } else {
+                    $('#lastfmimagecontrol').attr("src", "images/play.png");
+                    paused = true;
+                    if (timer_running) {
+                        clearTimeout(timer);
+                        timer_running = false;
+                    }
+                }
+            },
+
+            displayimage: function() {
+                if (timer_running) {
+                    clearTimeout(timer);
+                    timer_running = false;
+                }
+                var windowheight = $("#"+target_frame).height();
+                var windowwidth = $("#"+target_frame).width();
+                var imageheight = images[counter].height;
+                var imagewidth = images[counter].width;
+                var displaywidth = imagewidth;
+                var displayheight = imageheight;
+                if (imageheight+96 > windowheight) {
+                    displayheight = windowheight-96;
+                    displaywidth = imagewidth * (displayheight/imageheight);
+                }
+                if (displaywidth+36 > windowwidth) {
+                    displaywidth = windowwidth-36;
+                    displayheight = imageheight * (displaywidth/imagewidth);
+                }
+                $("#lastfmimage").attr( {   src:    images[counter].url,
+                                            width:  parseInt(displaywidth),
+                                            height: parseInt(displayheight) });
+                if (!paused) {
+                    timer = setTimeout("browser.slideshow.nextimage("+direction.toString()+")", 10000);
+                    timer_running = true;
+                }
+                $("#lastfmimage").fadeIn(1000);
+            }
+        };
+
+    }();
 
 }

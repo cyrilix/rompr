@@ -89,7 +89,7 @@ include ("connection.php");
             <li class="wide">
                 <form id="saveplaylist" action="ajaxcommand.php" method="get">
                     <input type="hidden" name="command" value="save"/>
-                    <input class="topform" name="arg" type="text" size="37"/>
+                    <input class="topform" style="width:195px" name="arg" type="text" size="200"/>
                     <button class="topformbutton" type="submit">Save</button>
                 </form>
             </li>
