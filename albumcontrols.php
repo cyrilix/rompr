@@ -25,6 +25,7 @@ function pollAlbumList() {
     }
     $.getJSON("ajaxcommand.php", "", function(data) {
         if (data.updating_db) {
+            debug.log("Updating DB");
             update_load_timer = setTimeout("pollAlbumList()", 1000);
             update_load_timer_running = true;
         } else {

@@ -777,57 +777,70 @@ function Info(target, source) {
         var timer_running = false;
         var timer = 0;
         var direction = 0;
+        var img = new Image();
+        var fading = false;
+        img.onload = function() {
+            debug.log("Next Image Loaded",img.src);
+            browser.slideshow.displayimage(paused);
+        }
+
+        img.onerror = function() {
+            debug.log("Next Image Failed To Load",img.src);
+            browser.slideshow.displayimage(paused);
+        }
 
         return {
 
             slideshowGo: function(data) {
+                debug.log("Slideshow Initialising");
                 images = [];
+                if (timer_running) {
+                    clearTimeout(timer);
+                    timer_running = false;
+                }
                 if(data.images.image) {
                     var imagedata = getArray(data.images.image);
                     for(var i in imagedata) {
-                        var x = parseInt(imagedata[i].sizes.size[0].width);
-                        var y = parseInt(imagedata[i].sizes.size[0].height);
                         var u = imagedata[i].sizes.size[0]["#text"];
-                        images.push({width: x, height: y, url: u});
+                        images.push({url: u});
                     }
                     counter = -1;
                     running = true;
-                    this.nextimage(1);
+                    direction = 1;
+                    paused = false;
+                    this.cacheImage();
                 } else {
-                    if (timer_running) {
-                        clearTimeout(timer);
-                        timer_running = false;
-                    }
                     running = false;
                     browser.noImages();
                 }
 
             },
 
+            // Used by the back/forward buttons
             nextimage: function(dir) {
-                direction = dir;
+                if (direction != dir) {
+                    direction = dir;
+                    counter+=direction;
+                    this.cacheImage();
+                }
                 if (timer_running) {
                     clearTimeout(timer);
                     timer_running = false;
                 }
-                if (running) {
-                    $("#lastfmimage").fadeOut('fast', function() { browser.slideshow.fadedOut(); });
-                }
+                this.displayimage(false);
             },
 
-            fadedOut: function() {
-                counter += direction;
-                if (counter == images.length) { counter = 0; }
-                if (counter < 0) { counter = images.length-1; }
-                this.displayimage();
-
+            timerExpiry: function() {
+                debug.log("Timer Expired");
+                timer_running = false;
+                this.displayimage(paused);
             },
 
             toggle: function() {
                 if (paused) {
                     $('#lastfmimagecontrol').attr("src", "images/pause.png");
                     paused = false;
-                    this.nextimage(direction);
+                    this.displayimage(paused);
                 } else {
                     $('#lastfmimagecontrol').attr("src", "images/play.png");
                     paused = true;
@@ -838,33 +851,46 @@ function Info(target, source) {
                 }
             },
 
-            displayimage: function() {
-                if (timer_running) {
-                    clearTimeout(timer);
-                    timer_running = false;
+            cacheImage: function() {
+                counter += direction;
+                if (counter == images.length) { counter = 0; }
+                if (counter < 0) { counter = images.length-1; }
+                img.src = images[counter].url;
+                debug.log("Image Caching Started", img.src);
+            },
+
+            displayimage: function(p) {
+                if (!timer_running && img.complete && !p) {
+                    debug.log("Displaying Image",img.src);
+                    var windowheight = $("#"+target_frame).height();
+                    var windowwidth = $("#"+target_frame).width();
+                    var imageheight = img.height;
+                    var imagewidth = img.width;
+                    var displaywidth = imagewidth;
+                    var displayheight = imageheight;
+                    if (imageheight+96 > windowheight) {
+                        displayheight = windowheight-96;
+                        displaywidth = imagewidth * (displayheight/imageheight);
+                    }
+                    if (displaywidth+36 > windowwidth) {
+                        displaywidth = windowwidth-36;
+                        displayheight = imageheight * (displaywidth/imagewidth);
+                    }
+
+                    $("#lastfmimage").fadeOut(500, function() {  
+
+                            $("#lastfmimage").attr( {   src:    img.src,
+                                                        width:  parseInt(displaywidth),
+                                                        height: parseInt(displayheight) });
+
+                            $("#lastfmimage").fadeIn(500, function() {browser.slideshow.cacheImage()});
+                    });
+
+                    if (!paused && images.length > 1) {
+                        timer = setTimeout("browser.slideshow.timerExpiry()", 10000);
+                        timer_running = true;
+                    }
                 }
-                var windowheight = $("#"+target_frame).height();
-                var windowwidth = $("#"+target_frame).width();
-                var imageheight = images[counter].height;
-                var imagewidth = images[counter].width;
-                var displaywidth = imagewidth;
-                var displayheight = imageheight;
-                if (imageheight+96 > windowheight) {
-                    displayheight = windowheight-96;
-                    displaywidth = imagewidth * (displayheight/imageheight);
-                }
-                if (displaywidth+36 > windowwidth) {
-                    displaywidth = windowwidth-36;
-                    displayheight = imageheight * (displaywidth/imagewidth);
-                }
-                $("#lastfmimage").attr( {   src:    images[counter].url,
-                                            width:  parseInt(displaywidth),
-                                            height: parseInt(displayheight) });
-                if (!paused) {
-                    timer = setTimeout("browser.slideshow.nextimage("+direction.toString()+")", 10000);
-                    timer_running = true;
-                }
-                $("#lastfmimage").fadeIn(1000);
             }
         };
 

@@ -42,7 +42,6 @@ function doMenu(event, item) {
 
     if ($('a[name|="'+item+'"]').html() == '<img src="images/toggle-closed.png">') {
         $('a[name|="'+item+'"]').html('<img src="images/toggle-open.png">');
-        // $('div[name|="'+item+'"]').find("#updateable").attr("src", function () {
         $('div[name|="'+item+'"]').children('div').children('table').find("#updateable").attr("src", function () {
             return $(this).attr("name");
         });
