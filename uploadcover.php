@@ -30,16 +30,14 @@ if (file_exists($small_file)) {
 // it work on MacOSX when everything's installed from MacPorts
 $convert_path = "convert";
 $a = 1;
-system($convert_path, &$a);
+$r = system($convert_path." > /dev/null", &$a);
+error_log("convert returned ".$a);
 if ($a == 127) {
-    //error_log("Trying MacPorts installation of convert");
     $convert_path = "/opt/local/bin/convert";
 }
 
 $r = system( $convert_path.' "'.$uploadfile.'" "'.$main_file.'"');
-//error_log($r);
 $r = system( $convert_path.' -resize 32x32 "'.$uploadfile.'" "'.$small_file.'"');
-//error_log($r);
 unlink($uploadfile);
 
 include("albumart.php");
