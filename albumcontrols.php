@@ -15,7 +15,7 @@ var update_load_timer = 0;
 var update_load_timer_running = false;
 $.getJSON("ajaxcommand.php", "command=update", function(data) {  });
 $("#loadinglabel").html("Updating Collection").effect('pulsate', { times:100 }, 2000);
-update_load_timer = setTimeout("pollAlbumList()", 1000);
+update_load_timer = setTimeout("pollAlbumList()", 5000);
 update_load_timer_running = true;
 
 function pollAlbumList() {

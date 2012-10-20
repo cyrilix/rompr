@@ -103,6 +103,7 @@ function Info(target, source) {
         };
         history.push(playingtrack);
         savePrefs({infosource: source});
+        self.slideshow.killTimer();
         self.doBrowserUpdates((history.length)-1)
     }
 
@@ -146,7 +147,6 @@ function Info(target, source) {
     }
 
     function prepareArtistPane() {
-        self.slideshow_running = false;
         $("#infopane").removeClass("infoslideshow");
         $("#infopane").removeClass("infowiki");
         $("#infopane").addClass("infowiki");
@@ -750,11 +750,6 @@ function Info(target, source) {
         lastfm.artist.getImages({artist: artist}, self.prepareSlideshow, self.noImages);
     }
 
-    this.noImages = function() {
-        $("#artistinformation").html('<h3 align="center">No artist images could be found</h3>');
-        $("#artistinformation").fadeIn(1000);
-    }
-
     this.prepareSlideshow = function(data) {
         var html = '<div class="controlholder"><table id="slidecon" class="invisible" border="0" cellpadding="0" cellspacing ="0" width="100%">';
         html = html + '<tr height="62px"><td align="center" class="infoslideshow">';
@@ -770,7 +765,7 @@ function Info(target, source) {
 
     this.slideshow = function() {
         
-        var running = false;
+        // var running = false;
         var paused = false;
         var images = new Array();
         var counter = 0;
@@ -778,7 +773,6 @@ function Info(target, source) {
         var timer = 0;
         var direction = 0;
         var img = new Image();
-        var fading = false;
         img.onload = function() {
             debug.log("Next Image Loaded",img.src);
             browser.slideshow.displayimage(paused);
@@ -798,7 +792,7 @@ function Info(target, source) {
                     clearTimeout(timer);
                     timer_running = false;
                 }
-                if(data.images.image) {
+                if (data.images.image) {
                     var imagedata = getArray(data.images.image);
                     for(var i in imagedata) {
                         var u = imagedata[i].sizes.size[0]["#text"];
@@ -810,8 +804,8 @@ function Info(target, source) {
                     paused = false;
                     this.cacheImage();
                 } else {
-                    running = false;
-                    browser.noImages();
+                    // running = false;
+                    $("#artistinformation").html('<h3 align="center">No artist images could be found</h3>');
                 }
 
             },
@@ -834,6 +828,13 @@ function Info(target, source) {
                 debug.log("Timer Expired");
                 timer_running = false;
                 this.displayimage(paused);
+            },
+
+            killTimer: function() {
+                if (timer_running) {
+                    clearTimeout(timer);
+                    timer_running = false;
+                }
             },
 
             toggle: function() {
