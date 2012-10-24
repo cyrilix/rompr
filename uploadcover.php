@@ -31,7 +31,7 @@ if (file_exists($small_file)) {
 $convert_path = "convert";
 $a = 1;
 $r = system($convert_path." > /dev/null", &$a);
-error_log("convert returned ".$a);
+
 if ($a == 127) {
     $convert_path = "/opt/local/bin/convert";
 }

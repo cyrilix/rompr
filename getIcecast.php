@@ -5,6 +5,8 @@ $content = url_get_contents("http://dir.xiph.org/yp.xml");
 error_log("Got IceCast List...");
 $xml = simplexml_load_string($content['contents'], 'SimpleXMLElement', LIBXML_NOCDATA);
 
+set_time_limit(240);
+
 $genres = array();
 $stations = array();
 

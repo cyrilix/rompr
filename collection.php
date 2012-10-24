@@ -1,5 +1,7 @@
 <?php
 
+set_time_limit(240);
+
 $COMPILATION_THRESHOLD = 6;
 $numtracks = 0;
 $totaltime = 0;
