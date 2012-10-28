@@ -120,7 +120,6 @@ $(document).ready(function(){
             savePrefs({sourceswidthpercent: sourceswidthpercent.toString()})
         });
     });
-    $('#icecastlist').load("getIcecast.php");
     $("#lastfmlist").load("lastfmchooser.php");
     $("#bbclist").load("bbcradio.php");
     $("#somafmlist").load("somafm.php");

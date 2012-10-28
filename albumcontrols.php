@@ -13,10 +13,12 @@
 var sources = new Array();
 var update_load_timer = 0;
 var update_load_timer_running = false;
-$.getJSON("ajaxcommand.php", "command=update", function(data) {  });
 $("#loadinglabel").html("Updating Collection").effect('pulsate', { times:100 }, 2000);
-update_load_timer = setTimeout("pollAlbumList()", 5000);
-update_load_timer_running = true;
+$.getJSON("ajaxcommand.php", "command=update", function() { 
+            update_load_timer = setTimeout("pollAlbumList()", 3000);
+            update_load_timer_running = true;
+});
+
 
 function pollAlbumList() {
     if(update_load_timer_running) {
@@ -31,6 +33,8 @@ function pollAlbumList() {
         } else {
             $("#loadinglabel").html("Loading Collection");
             $("#albumlist").load("albums.php", function() {
+                debug.log("Albums list loaded. Getting ICEcast stations");
+                $("#icecastlist").load("getIcecast.php");
                 $("#albumlist").children('div').children('table').find(".nottweaked").each( function(index, element) {
                     setDraggable(element);
                 });
