@@ -172,6 +172,13 @@ function get_wikipedia_artistinfo($artist) {
                 $jhtml = $jhtml . get_wikipedia_artistinfo($artistname);
             }
             return $jhtml;
+        } elseif (preg_match('/,/', $artist) > 0) {
+            $alist = explode(',', $artist);
+            $jhtml = '';
+            foreach ($alist as $artistname) {
+                $jhtml = $jhtml . get_wikipedia_artistinfo($artistname);
+            }
+            return $jhtml;
         }
     }
     

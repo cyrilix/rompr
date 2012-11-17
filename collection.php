@@ -167,8 +167,9 @@ class musicCollection {
 
     private function findAlbum($album, $artist, $directory) {
         if ($artist != null) {
-            foreach($this->getAlbumList(strtolower(preg_replace('/^The /i', '', $artist)), false, false) as $object) {
-                if (trim($album) == trim($object->name)) {
+            $a = trim($album);
+            foreach($this->getAlbumList(strtolower($artist), false, false) as $object) {
+                if ($a == trim($object->name)) {
                     return $object;
                 }
             }
@@ -186,8 +187,8 @@ class musicCollection {
     public function newTrack($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
                                 $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, 
                                 $albumartist, $disc, $stream) {
-        $sortartist = $artist;
-        if ($albumartist != null) { $sortartist = $albumartist; }
+
+        $sortartist = ($albumartist == null) ? $artist : $albumartist;
 
         $artistkey = strtolower(preg_replace('/^The /i', '', $sortartist));
         $t = new track($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
@@ -200,7 +201,8 @@ class musicCollection {
 
         // Albums are not indexed by name, since we may have 2 or more albums with the same name by multiple artists
         // Does an album with this name by this aritst already exist?
-        $abm = $this->findAlbum($album, $sortartist, null);
+
+        $abm = $this->findAlbum($album, $artistkey, null);
         if ($abm == false) {
             // Does an album with this name where the tracks are in the same directory exist?
             $abm = $this->findAlbum($album, null, $directory);
@@ -250,7 +252,6 @@ class musicCollection {
 
             } else {
                 if ($only_without_cover) {
-                    // $artname = md5($this->artists[$artist]->name . " " . $object->name);
                     $artname = md5($object->artist . " " . $object->name);
                     if (!file_exists("albumart/original/".$artname.".jpg")) {
                         $albums[(string) $object->name] = $object;
