@@ -456,6 +456,8 @@ function doCollection($command) {
     global $is_connected;
     global $COMPILATION_THRESHOLD;
     $collection = new musicCollection($connection);
+    
+    //error_log("Starting Collection Scan ".$command);
 
     if ($is_connected) {
     	fputs($connection, $command."\n");
@@ -482,16 +484,19 @@ function doCollection($command) {
     	    process_file($collection, $filedata);
     	}
 
+    	//error_log("Collection Rescan ".$command);
+    	
     	// Rescan stage - to find albums that are compilations but have been missed by the above step
     	$possible_compilations = array();
     	foreach($collection->albums as $i => $al) {
-    	    if (!$al->isCompilation() && utf8_decode($al->name) != "") {
+            $an = utf8_decode($al->name);
+    	    if (!$al->isCompilation() && $an != "") {
         		$numtracks = $al->trackCount();
         		if ($numtracks < $COMPILATION_THRESHOLD) {
-        		    if (array_key_exists(utf8_decode($al->name), $possible_compilations)) {
-        			     $possible_compilations[utf8_decode($al->name)]++;
+        		    if (array_key_exists($an, $possible_compilations)) {
+        			     $possible_compilations[$an]++;
         		    } else {
-        			     $possible_compilations[utf8_decode($al->name)] = 1;
+        			     $possible_compilations[$an] = 1;
         		    }
         		}
     	    }
@@ -503,6 +508,9 @@ function doCollection($command) {
     	    }
     	}
     }
+    
+    //error_log("Collection Scanned ".$command);
+    
     return $collection;
 }
 

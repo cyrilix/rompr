@@ -74,7 +74,7 @@ include ("connection.php");
                 foreach ($playlists['playlist'] as $pl) {
 
                     print '<tr><td align="left"><a href="#" onclick="mpd.command(\'command=load&arg='.rawurlencode($pl).'\', playlist.repopulate)">'.$pl.'</a></td>';
-                    print '<td align="right"><a href="#" onclick="mpd.command(\'command=rm&arg='.rawurlencode($pl).'\', reloadPlaylistControls)"><img src="images/edit-delete.png"></a></td></tr>';
+                    print '<td class="playlisticon" align="right"><a href="#" onclick="mpd.command(\'command=rm&arg='.rawurlencode($pl).'\', reloadPlaylistControls)"><img src="images/edit-delete.png"></a></td></tr>';
 
                 }
                 print '</table></li>';

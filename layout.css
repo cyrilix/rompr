@@ -700,7 +700,8 @@ ul.subnav
 {
     border-radius: 0px 0px 0px 0px;
     max-height:420px;
-    overflow:auto;
+    overflow-y:auto;
+    overflow-x:hidden;
 }
 
 ul.subnav li
@@ -831,7 +832,7 @@ ul.buyalbum li
 
 #scrobwrangler
 {
-    width:230px;
+    width:220px;
 }
 
 /*-- Key bindings editor --*/

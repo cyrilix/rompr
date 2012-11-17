@@ -20,7 +20,9 @@ include ("collection.php");
 $count = 1;
 $divtype = "album1";
 $collection = doCollection("listallinfo");
+//error_log("Creating Collection HTML");
 createHTML($collection->getSortedArtistList(), "a");
+//error_log("Collection Finished");
 close_mpd($connection);
 
 ?>  
