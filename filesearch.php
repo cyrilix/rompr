@@ -28,7 +28,15 @@ if ($cmd != "") {
     print '<div id="artistname">';
     print "<h3>Search Results:</h3>";
     print "</div>";
+    $ihatephp = fopen('prefs/filesearch.html', 'w');
     $tree->root->createHTML("b");
+    fclose($ihatephp);
+    $file = fopen('prefs/filesearch.html', 'r');
+    while(!feof($file))
+    {
+        echo fgets($file);
+    }
+    fclose($file);
     print '<div class="separator"></div>';
 
 }
