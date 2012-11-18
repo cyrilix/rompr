@@ -1,4 +1,5 @@
 <?php
+$LISTVERSION = "0.16";
 $prefs = array( "mpd_host" => "localhost",
                 "mpd_port" => 6600,
                 "consume" => 0,
@@ -20,7 +21,8 @@ $prefs = array( "mpd_host" => "localhost",
                 "dontscrobbleradio" => 0,
                 "sourceswidthpercent" => 22,
                 "playlistwidthpercent" => 22,
-                "shownupdatewindow" => "false"
+                "shownupdatewindow" => "false",
+                "updateeverytime" => "false"
                 );
 loadPrefs();
 

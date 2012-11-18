@@ -14,21 +14,15 @@ function format_for_mpd($term) {
 function getline($connection) {
     global $is_connected;
     if ($is_connected) {
-        $line = fgets($connection, 1024);
-        $got = trim($line);
-        if(strncmp("OK", $got,strlen("OK"))==0) {
-            return false;
-        }
-        if(strncmp("ACK", $got,strlen("ACK"))==0) {
+        $got = trim(fgets($connection));
+        if(strncmp("OK", $got, 2) == 0 || strncmp("ACK", $got, 3) == 0) {
             return false;
         }
         $key = trim(strtok($got, ":"));
         $val = trim(strtok("\0"));
         // Ignore 'directory' tags since we don't need them and therefore we don't need to make the parser handle them
-        if ($val != '' && $val != null && ($key != "directory")) {
-            $retarr[0] = $key;
-            $retarr[1] = $val;
-            return $retarr;
+        if ($val != '' && $val != null && $key != "directory") {
+            return array($key, $val);
         } else {
             return true;
         }

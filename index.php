@@ -75,7 +75,8 @@ var playlisthidden = false;
  print "var shownupdatewindow = ".$prefs['shownupdatewindow'].";\n";
 ?>
 $(document).ready(function(){
-    $("#loadinglabel2").effect('pulsate', { times:100 }, 2000);
+    $("#collection").html('<div class="dirname"><h2 id="loadinglabel"></h2></div>');
+    $("#filecollection").html('<div class="dirname"><h2 id="loadinglabel2"></h2></div>');
     $("#loadinglabel3").effect('pulsate', { times:100 }, 2000);
     $("#progress").progressbar();
     $("#progress").click(function(evt) { infobar.seek(evt) });
@@ -104,6 +105,7 @@ $(document).ready(function(){
 ?>
     });
     $('#albumcontrols').load("albumcontrols.php", function() { 
+        debug.log("Album Controls Loaded");
         reloadPlaylistControls();
         $("#sourcesresizer").draggable({
             containment: '#headerbar',
@@ -124,6 +126,7 @@ $(document).ready(function(){
     $("#bbclist").load("bbcradio.php");
     $("#somafmlist").load("somafm.php");
     $("#yourradiolist").load("yourradio.php");
+    $("#icecastlist").load("getIcecast.php");
     mpd.command("",playlist.repopulate);
     loadKeyBindings();
     if (!shownupdatewindow) {
@@ -198,10 +201,13 @@ $(document).ready(function(){
     } else {
         print '<div id="albumlist" class="invisible noborder">'."\n";
     }
-    ?>
-        <div class="dirname">
-            <h2 id="loadinglabel"></h2>
-        </div>
+    ?>    
+    <div style="padding-left:12px">
+    <a href="#" title="Search Music" onclick="toggleSearch()"><img class="topimg" height="20px" src="images/system-search.png"></a>
+    </div>
+    <div id="search" class="invisible searchbox">
+    </div>
+    <div id="collection" class="noborder"></div>    
     </div>
 
     <?php
@@ -211,9 +217,12 @@ $(document).ready(function(){
         print '<div id="filelist" class="invisible">'."\n";
     }
     ?>
-        <div class="dirname">
-            <h2 id="loadinglabel2">Scanning Files...</h2>
-        </div>
+    <div style="padding-left:12px">
+    <a href="#" title="Search Files" onclick="toggleFileSearch()"><img class="topimg" height="20px" src="images/system-search.png"></a>
+    </div>
+    <div id="filesearch" class="invisible searchbox">
+    </div>
+    <div id="filecollection" class="noborder"></div>   
     </div>
 
     <?php
@@ -222,7 +231,7 @@ $(document).ready(function(){
     } else {
         print '<div id="lastfmlist" class="invisible">'."\n";
     }
-    ?>
+    ?> 
     </div>
 
     <?php

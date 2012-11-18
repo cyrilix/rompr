@@ -383,6 +383,13 @@ function savePrefs(options) {
     $.post("saveprefs.php", options);
 }
 
+function togglePref(pref) {
+    var prefobj = new Object;
+    prefobj[pref] = ($("#"+pref).is(":checked")).toString();
+    savePrefs( prefobj );
+}
+
+
 function getWikimedia(url) {
     var mousepos = getPosition();
     url = "http://en.wikipedia.org/w/api.php?action=query&iiprop=url|size&prop=imageinfo&titles=" + url + "&format=json&callback=?";

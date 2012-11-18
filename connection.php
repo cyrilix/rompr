@@ -76,7 +76,8 @@ function clean_stored_xspf() {
 
     $playlists = glob("prefs/*.xspf");
     foreach($playlists as $i => $file) {
-        if (!preg_match('/USERSTREAM/', basename($file))) {
+        if (!preg_match('/USERSTREAM/', basename($file)) &&
+            ($file != "prefs/icecast.xspf")) {
             system("rm ".$file);
         }
     }

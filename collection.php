@@ -1,7 +1,6 @@
 <?php
 
 set_time_limit(240);
-
 $COMPILATION_THRESHOLD = 6;
 $numtracks = 0;
 $totaltime = 0;
@@ -9,6 +8,11 @@ $totaltime = 0;
 $xspf_loaded = false;
 $lfm_xspfs = array();
 $stream_xspfs = array();
+
+$current_artist = "";
+$current_album = "";
+$abm = false;
+$ob_file = null;
 
 class album {
     public function __construct($name, $artist) {
@@ -168,7 +172,8 @@ class musicCollection {
     private function findAlbum($album, $artist, $directory) {
         if ($artist != null) {
             $a = trim($album);
-            foreach($this->getAlbumList(strtolower($artist), false, false) as $object) {
+            foreach ($this->artists[strtolower($artist)]->albums as $object) {
+            //foreach($this->getAlbumList(strtolower($artist), false, false) as $object) {
                 if ($a == trim($object->name)) {
                     return $object;
                 }
@@ -188,6 +193,10 @@ class musicCollection {
                                 $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, 
                                 $albumartist, $disc, $stream) {
 
+        global $current_album;
+        global $current_artist;
+        global $abm;
+        
         $sortartist = ($albumartist == null) ? $artist : $albumartist;
 
         $artistkey = strtolower(preg_replace('/^The /i', '', $sortartist));
@@ -198,42 +207,52 @@ class musicCollection {
         if (!array_key_exists($artistkey, $this->artists)) {
             $this->artists[$artistkey] = new artist($sortartist);
         }
+        if ($album != $current_album || $sortartist != $current_artist) {
+            $abm = false;
+	}
 
         // Albums are not indexed by name, since we may have 2 or more albums with the same name by multiple artists
         // Does an album with this name by this aritst already exist?
 
-        $abm = $this->findAlbum($album, $artistkey, null);
         if ($abm == false) {
-            // Does an album with this name where the tracks are in the same directory exist?
-            $abm = $this->findAlbum($album, null, $directory);
-            if ($abm != false) {
-                // error_log("Found this album but it's by someone else");
-                // We found one - it's not by the same artist so we need to mark it as a compilation if it isn't already
-                if (!($abm->isCompilation())) {
-                    $abm->setAsCompilation();
-                    // Create various artists group if it isn't there
-                    if (!array_key_exists("various artists", $this->artists)) {
-                        $this->artists["various artists"] = new artist("Various Artists");
+            $abm = $this->findAlbum($album, $artistkey, null);
+            if ($abm == false) {
+                // Does an album with this name where the tracks are in the same directory exist?
+                $abm = $this->findAlbum($album, null, $directory);
+                if ($abm != false) {
+                    // We found one - it's not by the same artist so we need to mark it as a compilation if it isn't already
+                    if (!($abm->isCompilation())) {
+                        $abm->setAsCompilation();
+                        // Create various artists group if it isn't there
+                        if (!array_key_exists("various artists", $this->artists)) {
+                            $this->artists["various artists"] = new artist("Various Artists");
+                        }
+                        // Add the album to the various artists group
+                        $this->artists["various artists"]->newAlbum($abm);
                     }
-                    // Add the album to the various artists group
-                    $this->artists["various artists"]->newAlbum($abm);
+                } else {
+                    // We didn't find the album, so create it
+                    $abm = new album($album, $sortartist);
+                    $this->albums[] = $abm;
+                    $this->artists[$artistkey]->newAlbum($abm);
                 }
             }
-
-        }
-        if ($abm == false) {
-            // We didn't find the album, so create it
-            $abm = new album($album, $sortartist);
-            $this->albums[] = $abm;
-            $this->artists[$artistkey]->newAlbum($abm);
+            // Store current artist and album so we only have to do the search if one of them changes.
+            // This saves a minor but not insignificant number of CPU cycles, which will be noticeable with 
+            // large collections on slow servers (eg Intel Atom/Raspberry Pi).
+            // This one change provided a 10% speed increase on my Atom-based server.
+            $current_artist = $sortartist;
+            $current_album = $album;
         }
         $abm->newTrack($t);
     }
 
-    // NOTE :   If it's a track from a compilation, it's now been added to the track artist AND various artists and the album has the iscompilation flag set
+    // NOTE :   If it's a track from a compilation, it's now been added to the track artist AND various artists 
+    //              and the album has the iscompilation flag set
     //              and the artist name for the album set to Various Artists
     //          Tracks which have 'Various Artists' as the artist name in the ID3 tag will be in the various artists group too,
-    //              but 'iscompilation' will not be set unless as least one of the tracks on the album has something else as the artist name. This shouldn't matter.
+    //              but 'iscompilation' will not be set unless as least one of the tracks on the album has something else as the artist name. 
+    //              This shouldn't matter.
 
     public function getSortedArtistList() {
         $temp = array_keys($this->artists);
@@ -329,7 +348,8 @@ function process_file($collection, $filedata) {
     } else {
         $artist = (array_key_exists('Artist', $filedata)) ? $filedata['Artist'] : basename(dirname(dirname($file)));
         $album = (array_key_exists('Album', $filedata)) ? $filedata['Album'] : basename(dirname($file));
-        $albumartist = (array_key_exists('AlbumArtist', $filedata)) ? $filedata['AlbumArtist'] : null;
+        // $albumartist = (array_key_exists('AlbumArtistSort', $filedata)) ? $filedata['AlbumArtistSort'] : ((array_key_exists('AlbumArtist', $filedata)) ? $filedata['AlbumArtist'] : null);
+        $albumartist = (array_key_exists('AlbumArtist', $filedata)) ? $filedata['AlbumArtist'] : null; 
         $name = (array_key_exists('Title', $filedata)) ? $filedata['Title'] : basename($file);
         $duration = (array_key_exists('Time', $filedata)) ? $filedata['Time'] : null;
         $number = (array_key_exists('Track', $filedata)) ? format_tracknum($filedata['Track']) : format_tracknum(basename($file));
@@ -457,7 +477,9 @@ function doCollection($command) {
     global $COMPILATION_THRESHOLD;
     $collection = new musicCollection($connection);
     
-    //error_log("Starting Collection Scan ".$command);
+    error_log("Starting Collection Scan ".$command);
+    
+    $files = array();
 
     if ($is_connected) {
     	fputs($connection, $command."\n");
@@ -469,7 +491,8 @@ function doCollection($command) {
     	    if (is_array($parts)) {
                 if ($parts[0] != "playlist" && $parts[0] != "Last-Modified") {
             		if ($parts[0] == $firstline) {
-            		    process_file($collection, $filedata);
+            		    //process_file($collection, $filedata);
+            		    $files[] = $filedata;
             		    $filedata = array();
             		}
             		$filedata[$parts[0]] = $parts[1];
@@ -481,10 +504,17 @@ function doCollection($command) {
     	}
 
     	if (array_key_exists('file', $filedata) && $filedata['file']) {
-    	    process_file($collection, $filedata);
+	    $files[] = $filedata;
+    	    //process_file($collection, $filedata);
     	}
+    	
+    	error_log("Parsing Files ".$command);
+    	
+    	foreach($files as $file) {
+	    process_file($collection, $file);
+	}
 
-    	//error_log("Collection Rescan ".$command);
+    	error_log("Collection Rescan ".$command);
     	
     	// Rescan stage - to find albums that are compilations but have been missed by the above step
     	$possible_compilations = array();
@@ -509,19 +539,23 @@ function doCollection($command) {
     	}
     }
     
-    //error_log("Collection Scanned ".$command);
+    error_log("Collection Scanned ".$command);
     
     return $collection;
 }
 
-function createHTML($artistlist, $prefix) {
+
+function createHTML($artistlist, $prefix, $file) {
 
     global $numtracks;
-    global $totaltime;
-
-    print '<div id="booger"><table width="100%" class="playlistitem"><tr><td align="left">';
-    print $numtracks . ' tracks</td><td align="right">Duration : ';
-    print format_time($totaltime) . '</td></tr></table></div>';
+    global $totaltime;    
+    global $ob_file;
+    global $LISTVERSION;
+    $ob_file = fopen($file, 'w');
+    
+    fwrite ($ob_file, '<div id="booger"><table width="100%" class="playlistitem"><tr><td align="left">');
+    fwrite ($ob_file, $numtracks . ' tracks</td><td align="right">Duration : ');
+    fwrite ($ob_file, format_time($totaltime) . '</td></tr></table></div>');
 
     // Make sure 'Various Artists' is the first one in the list
     if (array_search("various artists", $artistlist)) {
@@ -534,6 +568,8 @@ function createHTML($artistlist, $prefix) {
     foreach($artistlist as $artistkey) {
         do_albums($artistkey, true, false, $prefix);
     }
+    
+    fclose($ob_file);
 }
 
 function do_albums($artistkey, $compilations, $showartist, $prefix) {
@@ -541,6 +577,7 @@ function do_albums($artistkey, $compilations, $showartist, $prefix) {
     global $count;
     global $collection;
     global $divtype;
+    global $ob_file;
 
     $albumlist = $collection->getAlbumList($artistkey, $compilations, false);
     if (count($albumlist) > 0) {
@@ -548,40 +585,40 @@ function do_albums($artistkey, $compilations, $showartist, $prefix) {
         $artist = $collection->artistName($artistkey);
 
        // We have albums for this artist
-        print '<div id="artistname" class="'.$divtype.'">'."\n";
-        print '<table width="100%" class="filetable">';
-        print '<tr class="talbum draggable nottweaked" onclick="trackSelect(event, this)" ondblclick="playlist.addalbum(\''.$prefix.'artist'.$count.'\')">';
-        print '<td width="18px"><a href="#" onclick="doMenu(event, \''.$prefix.'artist'.$count.'\');" name="'.$prefix.'artist'.$count.'"><img src="images/toggle-closed.png"></a></td>';
-        print '<td width="1px"></td><td>'.$artist.'</td><td></td></tr></table></div>';
-        print '<div id="albummenu" name="'.$prefix.'artist'.$count.'" class="'.$divtype.'">'."\n";
+        fwrite ($ob_file, '<div id="artistname" class="'.$divtype.'">'."\n");
+        fwrite ($ob_file, '<table width="100%" class="filetable">');
+        fwrite ($ob_file, '<tr class="talbum draggable nottweaked" onclick="trackSelect(event, this)" ondblclick="playlist.addalbum(\''.$prefix.'artist'.$count.'\')">');
+        fwrite ($ob_file, '<td width="18px"><a href="#" onclick="doMenu(event, \''.$prefix.'artist'.$count.'\');" name="'.$prefix.'artist'.$count.'"><img src="images/toggle-closed.png"></a></td>');
+        fwrite ($ob_file, '<td width="1px"></td><td>'.$artist.'</td><td></td></tr></table></div>');
+        fwrite ($ob_file, '<div id="albummenu" name="'.$prefix.'artist'.$count.'" class="'.$divtype.'">'."\n");
 
         // albumlist is now an array of album objects
         foreach($albumlist as $album) {
 
-            print '<div id="albumname" class="'.$divtype.'">'."\n";
-            print '<table class="albumname filetable" width="100%"><tr class="talbum draggable nottweaked" onclick="trackSelect(event, this)" ondblclick="playlist.addalbum(\''.$prefix.'album'.$count.'\')"><td width="18px">';
-            print '<a href="#" onclick="doMenu(event, \''.$prefix.'album'.$count.'\');" name="'.$prefix.'album'.$count.'"><img src="images/toggle-closed.png"></a></td>';
+            fwrite ($ob_file, '<div id="albumname" class="'.$divtype.'">'."\n");
+            fwrite ($ob_file, '<table class="albumname filetable" width="100%"><tr class="talbum draggable nottweaked" onclick="trackSelect(event, this)" ondblclick="playlist.addalbum(\''.$prefix.'album'.$count.'\')"><td width="18px">');
+            fwrite ($ob_file, '<a href="#" onclick="doMenu(event, \''.$prefix.'album'.$count.'\');" name="'.$prefix.'album'.$count.'"><img src="images/toggle-closed.png"></a></td>');
             // We don't set the src tags for the images when the page loads, otherwise we'd be loading in
             // literally hundres of images we don't need. Instead we set the name tag to the url
             // of the image, and then use jQuery magic to set the src tag when the menu is opened -
             // so we only ever load the images we need. The custom redirect will take care of missing images
-            print '<td width="34px">';
+            fwrite ($ob_file, '<td width="34px">');
             $artname = md5($album->artist." ".$album->name);
 
-            print '<img id="updateable" style="vertical-align:middle" src="" height="32" name="albumart/small/'.$artname.'.jpg"></td>';
-            print '<td><b>'.$album->name.'</b>';
-            print "</td><td></td></tr></table>";
-            print "</div>\n";
+            fwrite ($ob_file, '<img id="updateable" style="vertical-align:middle" src="" height="32" name="albumart/small/'.$artname.'.jpg"></td>');
+            fwrite ($ob_file, '<td><b>'.$album->name.'</b>');
+            fwrite ($ob_file, "</td><td></td></tr></table>");
+            fwrite ($ob_file, "</div>\n");
 
-            print '<div id="albummenu" name="'.$prefix.'album'.$count.'" class="indent '.$divtype.'">'."\n";
-            print '<table width="100%" class="filetable">';
+            fwrite ($ob_file, '<div id="albummenu" name="'.$prefix.'album'.$count.'" class="indent '.$divtype.'">'."\n");
+            fwrite ($ob_file, '<table width="100%" class="filetable">');
             $numdiscs = $album->sortTracks();
             $currdisc = -1;
             foreach($album->tracks as $trackobj) {
                 if ($numdiscs > 1) {
                     if ($trackobj->disc != null && $trackobj->disc != $currdisc) {
                         $currdisc = $trackobj->disc;
-                        print '<tr><td class="discnumber" colspan="3">Disc '.$currdisc.'</td></tr>';
+                        fwrite ($ob_file, '<tr><td class="discnumber" colspan="3">Disc '.$currdisc.'</td></tr>');
                     }
                 }
                 $dorow2 = false;
@@ -593,26 +630,26 @@ function do_albums($artistkey, $compilations, $showartist, $prefix) {
                     $dorow2 = true;
                     $classes = $classes." playlistrow1";
                 }
-                print '<tr class="'.$classes.'" onclick="trackSelect(event, this)" ondblclick="playlist.addtrack(\''.htmlentities(rawurlencode($trackobj->url)).'\')"><td align="left" class="tracknumber"';
+                fwrite ($ob_file, '<tr class="'.$classes.'" onclick="trackSelect(event, this)" ondblclick="playlist.addtrack(\''.htmlentities(rawurlencode($trackobj->url)).'\')"><td align="left" class="tracknumber"');
                 if ($dorow2) {
-                    print 'rowspan="2"';
+                    fwrite ($ob_file, 'rowspan="2"');
                 }
-                print '>' . $trackobj->number . "</td><td></td>";
-                print '<td>'.$trackobj->name;
-                print "</td>\n";
-                print '<td align="right">'.format_time($trackobj->duration).'</td>';
-                print "</tr>\n";
+                fwrite ($ob_file, '>' . $trackobj->number . "</td><td></td>");
+                fwrite ($ob_file, '<td>'.$trackobj->name);
+                fwrite ($ob_file, "</td>\n");
+                fwrite ($ob_file, '<td align="right">'.format_time($trackobj->duration).'</td>');
+                fwrite ($ob_file, "</tr>\n");
                 if ($dorow2) {
-                    print '<tr onclick="trackSelect(event, this)" class="draggable nottweaked playlistrow2"><td></td><td colspan="2">'.$trackobj->artist.'</td></tr>';
+                    fwrite ($ob_file, '<tr onclick="trackSelect(event, this)" class="draggable nottweaked playlistrow2"><td></td><td colspan="2">'.$trackobj->artist.'</td></tr>');
                 }
             }
 
-            print "</table>\n";
-            print "</div>\n";
+            fwrite ($ob_file, "</table>\n");
+            fwrite ($ob_file, "</div>\n");
 
             $count++;
         }
-        print "</div>\n";
+        fwrite ($ob_file, "</div>\n");
 
         $count++;
         $divtype = ($divtype == "album1") ? "album2" : "album1";

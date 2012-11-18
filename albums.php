@@ -1,14 +1,3 @@
-<div style="padding-left:12px">
-<a href="#" title="Search Music" onclick="toggleSearch()"><img class="topimg" height="20px" src="images/system-search.png"></a>
-</div>
-<div id="search" class="invisible searchbox">
-</div>
-
-<script language="javascript">
-$(document).ready(function(){
-    $('#search').load("search.php");
-});
-</script>
 
 <?php
 
@@ -19,11 +8,16 @@ include ("collection.php");
 
 $count = 1;
 $divtype = "album1";
+
 $collection = doCollection("listallinfo");
-//error_log("Creating Collection HTML");
-createHTML($collection->getSortedArtistList(), "a");
-//error_log("Collection Finished");
+createHTML($collection->getSortedArtistList(), "a", 'prefs/albums_'.$LISTVERSION.'.html');
 close_mpd($connection);
+$file = fopen('prefs/albums_'.$LISTVERSION.'.html', 'r');
+while(!feof($file))
+{
+    echo fgets($file);
+}
+fclose($file);
 
 ?>  
 

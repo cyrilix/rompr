@@ -1,3 +1,7 @@
+<?php
+include ("vars.php");
+?>
+
 <div id="columntitle" style="padding-right:0px">
 <table width="100%"><tr><td name="sourcecontrol" align="left">
 <a href="#" title="Local Music" onclick="sourcecontrol('albumlist')"><img class="topimg" height="24px" src="images/audio-x-generic.png"></a>
@@ -13,12 +17,54 @@
 var sources = new Array();
 var update_load_timer = 0;
 var update_load_timer_running = false;
-$("#loadinglabel").html("Updating Collection").effect('pulsate', { times:100 }, 2000);
-$.getJSON("ajaxcommand.php", "command=update", function() { 
-            update_load_timer = setTimeout("pollAlbumList()", 2000);
-            update_load_timer_running = true;
-});
 
+<?php
+if ($prefs['updateeverytime'] == "true" ||
+        !file_exists('prefs/albums_'.$LISTVERSION.'.html') ||
+        !file_exists('prefs/files_'.$LISTVERSION.'.html')) 
+{
+    error_log("Rebuilding Music Cache");
+//    print "$(document).ready(function(){\n";
+    print "    updateCollection('update');\n";
+//    print "}\n";
+} else {
+    error_log("Loading Music Cache");
+//    print "$(document).ready(function(){\n";
+    print "    loadCollection('prefs/albums_".$LISTVERSION.".html', 'prefs/files_".$LISTVERSION.".html');\n";
+//    print "}\n";
+}
+?>
+
+function updateCollection(cmd) {
+    debug.log("Updating collection with command", cmd);
+    $("#collection").html('<div class="dirname"><h2 id="loadinglabel">Updating Collection...</h2></div>');
+    $("#filecollection").html('<div class="dirname"><h2 id="loadinglabel2">Scanning Files...</h2></div>');
+    $("#loadinglabel").effect('pulsate', { times:100 }, 2000);
+    $("#loadinglabel2").effect('pulsate', { times:100 }, 2000);
+    $.getJSON("ajaxcommand.php", "command="+cmd, function() { 
+                update_load_timer = setTimeout("pollAlbumList()", 2000);
+                update_load_timer_running = true;
+    });    
+}
+
+function loadCollection(albums, files) {
+    $("#loadinglabel").stop().effect('pulsate', { times:100 }, 2000);
+    $("#loadinglabel2").stop().effect('pulsate', { times:100 }, 2000);    
+    $("#loadinglabel").html("Loading Collection");
+    $("#loadinglabel2").html("Loading Files");
+    $("#collection").load(albums, function() {
+        $("#collection").children('div').children('table').find(".nottweaked").each( function(index, element) {
+            setDraggable(element);
+        });
+    });
+    $('#search').load("search.php");
+    $("#filecollection").load(files, function() {
+        $("#filecollection").children('div').children('table').find(".nottweaked").each( function(index, element) {
+            setDraggable(element);
+        });
+        $('#filesearch').load("filesearch.php");
+    });
+}
 
 function pollAlbumList() {
     if(update_load_timer_running) {
@@ -31,19 +77,7 @@ function pollAlbumList() {
             update_load_timer = setTimeout("pollAlbumList()", 1000);
             update_load_timer_running = true;
         } else {
-            $("#loadinglabel").html("Loading Collection");
-            $("#albumlist").load("albums.php", function() {
-                debug.log("Albums list loaded. Getting ICEcast stations");
-                $("#icecastlist").load("getIcecast.php");
-                $("#albumlist").children('div').children('table').find(".nottweaked").each( function(index, element) {
-                    setDraggable(element);
-                });
-            });
-            $("#filelist").load("dirbrowser.php", function() {
-                $("#filelist").children('div').children('table').find(".nottweaked").each( function(index, element) {
-                    setDraggable(element);
-                });
-            });
+            loadCollection("albums.php", "dirbrowser.php");
         }
     });
 }

@@ -31,6 +31,9 @@ include ("connection.php");
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="toggleOption('random')" id="shufflebutton">Playlist Shuffle</input></li>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="toggleOption('crossfade')" id="xfadebutton">Crossfade Tracks</input></li>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="toggleOption('repeat')" id="repeatbutton">Repeat Playlist</input></li>
+                        <li class="wide"><input type="checkbox" class="topcheck" onclick="togglePref('updateeverytime')" id="updateeverytime">Update Collection On Start</input></li>
+                        <li class="wide"><button class="topformbutton" onclick="updateCollection('update')">Update Collection Now</button></li>
+                        <li class="wide"><button class="topformbutton" onclick="updateCollection('rescan')">Full Collection Rescan</button></li>
 <?php
                 print '<li class="wide">Information Panel History Depth</li>';
                 print '<li class="wide"><input class="topform" name="historylength" type="text" size="3" value="'.$prefs['historylength'].'"/><button class="topformbutton" onclick="sethistorylength()">Set</button></li>';
@@ -60,7 +63,7 @@ include ("connection.php");
     <li>
         <a href="#" title="Load Saved Playlist"><img src="images/document-open-folder.png" height="24px"></a>
         <ul id="playlistslist" class="subnav wide">
-            <li><b>Playlists</b></li>
+            <li class="tleft wide"><b>Playlists</b></li>
 <?php
             $playlists = do_mpd_command($connection, "listplaylists", null, true);
             if ($playlists['playlist'] && !is_array($playlists['playlist'])) {
@@ -165,6 +168,9 @@ $("#scrobwrangler").click(function(evt) { setscrob(evt) });
     }
     print ");\n";
 
+    print '    $("#updateeverytime").attr("checked", '.$prefs['updateeverytime'].");\n";
+
+    
    print '$("#themeselector").val("'.$prefs['theme'].'");'."\n";
 
 ?>

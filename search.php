@@ -55,7 +55,13 @@ if ($cmd != "") {
     print '<div id="artistname">';
     print "<h3>Search Results:</h3>";
     print "</div>";
-    createHTML($collection->getSortedArtistList(), "b");
+    createHTML($collection->getSortedArtistList(), "b", 'prefs/albumsearch.html');
+    $file = fopen('prefs/albumsearch.html', 'r');
+    while(!feof($file))
+    {
+        echo fgets($file);
+    }
+    fclose($file);    
     print '<div class="separator"></div>';
 
 }
