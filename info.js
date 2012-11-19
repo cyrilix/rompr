@@ -480,7 +480,7 @@ function Info(target, source) {
         var html = '<ul id="holdingcell"><li><b>ADD TAGS</b></li>';
         html = html + '<li><input class="tiny inbrowser" id="add'+type+'tags" type="text"></input></li>';
         html = html + '<li class="tiny">Add tags, comma-separated</li>';
-        html = html + '<li><button class="topformbutton" onclick="browser.addTags(\''+type+'\')">ADD</button>'+
+        html = html + '<li><button class="topformbutton tiny" onclick="browser.addTags(\''+type+'\')">ADD</button>'+
                         '<img class="tright waiting" id="tagadd'+type+'" height="20px" src="images/transparent-32x32.png"></li></ul>';
         return html;
     }

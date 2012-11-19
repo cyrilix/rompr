@@ -171,6 +171,12 @@ function doThatFunkyThang() {
 
 }
 
+function setBottomPaneSize() {
+    var ws = getWindowSize();
+    var newheight = ws.y - 148;
+    $("#bottompage").css("height", newheight.toString()+"px");
+}
+
 function lastfmlogin() {
     var user = $("#configpanel").find('input[name|="user"]').attr("value");
     lastfm.login(user);

@@ -529,6 +529,15 @@ function LastFM(user) {
                 function(data) { callback(data); },
                 function(data) { failcallback(data); }
             )
+        },
+
+        getTopTags: function(options, callback, failcallback) {
+            addGetOptions(options, "user.getTopTags");
+            LastFMGetRequest(
+                options,
+                function(data) { callback(data); },
+                function(data) { failcallback(data); }
+            )
         }
 
     }

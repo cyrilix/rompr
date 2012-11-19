@@ -20,18 +20,14 @@ var update_load_timer_running = false;
 
 <?php
 if ($prefs['updateeverytime'] == "true" ||
-        !file_exists('prefs/albums_'.$LISTVERSION.'.html') ||
-        !file_exists('prefs/files_'.$LISTVERSION.'.html')) 
+        !file_exists($ALBUMSLIST) ||
+        !file_exists($FILESLIST)) 
 {
-    error_log("Rebuilding Music Cache");
-//    print "$(document).ready(function(){\n";
-    print "    updateCollection('update');\n";
-//    print "}\n";
+    // error_log("Rebuilding Music Cache");
+    print "updateCollection('update');\n";
 } else {
-    error_log("Loading Music Cache");
-//    print "$(document).ready(function(){\n";
-    print "    loadCollection('prefs/albums_".$LISTVERSION.".html', 'prefs/files_".$LISTVERSION.".html');\n";
-//    print "}\n";
+    // error_log("Loading Music Cache");
+    print "loadCollection('".$ALBUMSLIST."', '".$FILESLIST."');\n";
 }
 ?>
 

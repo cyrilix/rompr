@@ -47,7 +47,7 @@ function getFileInfo($file, $pos) {
     $xml = $xml . '<track>'."\n";
     $track = $collection->findTrack($file, $pos);
     if ($track == null) {
-        error_log("FAILED TO FIND TRACK!");
+        error_log("FAILED TO FIND TRACK! ".$file);
         $xml = $xml.xmlnode("title", "Unknown")
                     .xmlnode("album", "Unknown")
                     .xmlnode("duration", 0)

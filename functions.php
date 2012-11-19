@@ -162,4 +162,40 @@ function format_time($t,$f=':') // t = seconds, f = separator
     }
 }
 
+class collectionOutput {
+    
+    public function __construct($file) {
+        $this->fname = $file;
+        $this->fhandle = null;
+        if ($file != "") {
+            $this->fhandle = fopen($file, 'w');
+        }
+    }
+    
+    public function writeLine($line) {
+        if ($this->fhandle != null) {
+            fwrite($this->fhandle, $line);
+        } else {
+            print $line;
+        }
+    }
+    
+    public function closeFile() {
+        if ($this->fhandle != null) {
+            fclose($this->fhandle);
+        }
+    }
+    
+    public function dumpFile() {
+        if ($this->fname != "") {
+            $file = fopen($this->fname, 'r');
+            while(!feof($file))
+            {
+                echo fgets($file);
+            }
+            fclose($file);
+        }
+    }
+
+}
 ?>

@@ -10,14 +10,18 @@ $count = 1;
 $divtype = "album1";
 
 $collection = doCollection("listallinfo");
-createHTML($collection->getSortedArtistList(), "a", 'prefs/albums_'.$LISTVERSION.'.html');
+createAlbumsList($ALBUMSLIST);
 close_mpd($connection);
-$file = fopen('prefs/albums_'.$LISTVERSION.'.html', 'r');
-while(!feof($file))
-{
-    echo fgets($file);
+
+function createAlbumsList($file) {
+
+    global $collection;
+    $output = new collectionOutput($file);
+    createHTML($collection->getSortedArtistList(), "a", $output);
+    $output->closeFile();
+    $output->dumpFile();
+
 }
-fclose($file);
 
 ?>  
 

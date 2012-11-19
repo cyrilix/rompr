@@ -16,7 +16,7 @@ include ("connection.php");
         <a href="#" title="RompR/mpd Preferences"><img src="images/preferences.png" height="24px"></a>
         <ul id="configpanel" class="subnav wide">
             <li class="wide"><b>CONFIGURATION</b></li>
-                        <li class="wide">THEME <select id="themeselector" onchange="changetheme()">
+                        <li class="wide">THEME <select id="themeselector" class="topformbutton" onchange="changetheme()">
 <?php
                         $themes = glob("*.css");
                         foreach($themes as $theme) {

@@ -2,6 +2,7 @@
 $is_connected = false;
 
 $connection = fsockopen($prefs["mpd_host"], $prefs["mpd_port"], $errno, $errstr, 10);
+//$connection = fsockopen('unix:///var/run/mpd/socket');
 
 if(isset($connection) && is_resource($connection)) {
 
@@ -27,9 +28,11 @@ if(isset($connection) && is_resource($connection)) {
     }
 
     $mpd_status = do_mpd_command ($connection, "status", null, true);
-    while ($mpd_status['state'] == 'play' && !array_key_exists('elapsed', $mpd_status)) {
+    while ($mpd_status['state'] == 'play' && 
+            (!array_key_exists('elapsed', $mpd_status) ||
+            $mpd_status['volume'] == -1)) 
+    {
         sleep(1);
-        error_log("Waiting...");
         $mpd_status = do_mpd_command ($connection, "status", null, true);
     }
 

@@ -12,7 +12,6 @@ $stream_xspfs = array();
 $current_artist = "";
 $current_album = "";
 $abm = false;
-$ob_file = null;
 
 class album {
     public function __construct($name, $artist) {
@@ -477,7 +476,7 @@ function doCollection($command) {
     global $COMPILATION_THRESHOLD;
     $collection = new musicCollection($connection);
     
-    error_log("Starting Collection Scan ".$command);
+    // error_log("Starting Collection Scan ".$command);
     
     $files = array();
 
@@ -508,13 +507,13 @@ function doCollection($command) {
     	    //process_file($collection, $filedata);
     	}
     	
-    	error_log("Parsing Files ".$command);
+    	// error_log("Parsing Files ".$command);
     	
     	foreach($files as $file) {
-	    process_file($collection, $file);
-	}
+            process_file($collection, $file);
+        }
 
-    	error_log("Collection Rescan ".$command);
+    	// error_log("Collection Rescan ".$command);
     	
     	// Rescan stage - to find albums that are compilations but have been missed by the above step
     	$possible_compilations = array();
@@ -539,45 +538,40 @@ function doCollection($command) {
     	}
     }
     
-    error_log("Collection Scanned ".$command);
+    // error_log("Collection Scanned ".$command);
     
     return $collection;
 }
 
 
-function createHTML($artistlist, $prefix, $file) {
+function createHTML($artistlist, $prefix, $output) {
 
     global $numtracks;
     global $totaltime;    
-    global $ob_file;
-    global $LISTVERSION;
-    $ob_file = fopen($file, 'w');
     
-    fwrite ($ob_file, '<div id="booger"><table width="100%" class="playlistitem"><tr><td align="left">');
-    fwrite ($ob_file, $numtracks . ' tracks</td><td align="right">Duration : ');
-    fwrite ($ob_file, format_time($totaltime) . '</td></tr></table></div>');
+    $output->writeLine( '<div id="booger"><table width="100%" class="playlistitem"><tr><td align="left">');
+    $output->writeLine( $numtracks . ' tracks</td><td align="right">Duration : ');
+    $output->writeLine( format_time($totaltime) . '</td></tr></table></div>');
 
     // Make sure 'Various Artists' is the first one in the list
     if (array_search("various artists", $artistlist)) {
         $key = array_search("various artists", $artistlist);
         unset($artistlist[$key]);
-        do_albums("various artists", false, true, $prefix);
+        do_albums("various artists", false, true, $prefix, $output);
     }
 
     // Add all the other artists
     foreach($artistlist as $artistkey) {
-        do_albums($artistkey, true, false, $prefix);
+        do_albums($artistkey, true, false, $prefix, $output);
     }
     
-    fclose($ob_file);
 }
 
-function do_albums($artistkey, $compilations, $showartist, $prefix) {
+function do_albums($artistkey, $compilations, $showartist, $prefix, $output) {
 
     global $count;
     global $collection;
     global $divtype;
-    global $ob_file;
 
     $albumlist = $collection->getAlbumList($artistkey, $compilations, false);
     if (count($albumlist) > 0) {
@@ -585,40 +579,40 @@ function do_albums($artistkey, $compilations, $showartist, $prefix) {
         $artist = $collection->artistName($artistkey);
 
        // We have albums for this artist
-        fwrite ($ob_file, '<div id="artistname" class="'.$divtype.'">'."\n");
-        fwrite ($ob_file, '<table width="100%" class="filetable">');
-        fwrite ($ob_file, '<tr class="talbum draggable nottweaked" onclick="trackSelect(event, this)" ondblclick="playlist.addalbum(\''.$prefix.'artist'.$count.'\')">');
-        fwrite ($ob_file, '<td width="18px"><a href="#" onclick="doMenu(event, \''.$prefix.'artist'.$count.'\');" name="'.$prefix.'artist'.$count.'"><img src="images/toggle-closed.png"></a></td>');
-        fwrite ($ob_file, '<td width="1px"></td><td>'.$artist.'</td><td></td></tr></table></div>');
-        fwrite ($ob_file, '<div id="albummenu" name="'.$prefix.'artist'.$count.'" class="'.$divtype.'">'."\n");
+        $output->writeLine( '<div id="artistname" class="'.$divtype.'">'."\n");
+        $output->writeLine( '<table width="100%" class="filetable">');
+        $output->writeLine( '<tr class="talbum draggable nottweaked" onclick="trackSelect(event, this)" ondblclick="playlist.addalbum(\''.$prefix.'artist'.$count.'\')">');
+        $output->writeLine( '<td width="18px"><a href="#" onclick="doMenu(event, \''.$prefix.'artist'.$count.'\');" name="'.$prefix.'artist'.$count.'"><img src="images/toggle-closed.png"></a></td>');
+        $output->writeLine( '<td width="1px"></td><td>'.$artist.'</td><td></td></tr></table></div>');
+        $output->writeLine( '<div id="albummenu" name="'.$prefix.'artist'.$count.'" class="'.$divtype.'">'."\n");
 
         // albumlist is now an array of album objects
         foreach($albumlist as $album) {
 
-            fwrite ($ob_file, '<div id="albumname" class="'.$divtype.'">'."\n");
-            fwrite ($ob_file, '<table class="albumname filetable" width="100%"><tr class="talbum draggable nottweaked" onclick="trackSelect(event, this)" ondblclick="playlist.addalbum(\''.$prefix.'album'.$count.'\')"><td width="18px">');
-            fwrite ($ob_file, '<a href="#" onclick="doMenu(event, \''.$prefix.'album'.$count.'\');" name="'.$prefix.'album'.$count.'"><img src="images/toggle-closed.png"></a></td>');
+            $output->writeLine( '<div id="albumname" class="'.$divtype.'">'."\n");
+            $output->writeLine( '<table class="albumname filetable" width="100%"><tr class="talbum draggable nottweaked" onclick="trackSelect(event, this)" ondblclick="playlist.addalbum(\''.$prefix.'album'.$count.'\')"><td width="18px">');
+            $output->writeLine( '<a href="#" onclick="doMenu(event, \''.$prefix.'album'.$count.'\');" name="'.$prefix.'album'.$count.'"><img src="images/toggle-closed.png"></a></td>');
             // We don't set the src tags for the images when the page loads, otherwise we'd be loading in
             // literally hundres of images we don't need. Instead we set the name tag to the url
             // of the image, and then use jQuery magic to set the src tag when the menu is opened -
             // so we only ever load the images we need. The custom redirect will take care of missing images
-            fwrite ($ob_file, '<td width="34px">');
+            $output->writeLine( '<td width="34px">');
             $artname = md5($album->artist." ".$album->name);
 
-            fwrite ($ob_file, '<img id="updateable" style="vertical-align:middle" src="" height="32" name="albumart/small/'.$artname.'.jpg"></td>');
-            fwrite ($ob_file, '<td><b>'.$album->name.'</b>');
-            fwrite ($ob_file, "</td><td></td></tr></table>");
-            fwrite ($ob_file, "</div>\n");
+            $output->writeLine( '<img id="updateable" style="vertical-align:middle" src="" height="32" name="albumart/small/'.$artname.'.jpg"></td>');
+            $output->writeLine( '<td><b>'.$album->name.'</b>');
+            $output->writeLine( "</td><td></td></tr></table>");
+            $output->writeLine( "</div>\n");
 
-            fwrite ($ob_file, '<div id="albummenu" name="'.$prefix.'album'.$count.'" class="indent '.$divtype.'">'."\n");
-            fwrite ($ob_file, '<table width="100%" class="filetable">');
+            $output->writeLine( '<div id="albummenu" name="'.$prefix.'album'.$count.'" class="indent '.$divtype.'">'."\n");
+            $output->writeLine( '<table width="100%" class="filetable">');
             $numdiscs = $album->sortTracks();
             $currdisc = -1;
             foreach($album->tracks as $trackobj) {
                 if ($numdiscs > 1) {
                     if ($trackobj->disc != null && $trackobj->disc != $currdisc) {
                         $currdisc = $trackobj->disc;
-                        fwrite ($ob_file, '<tr><td class="discnumber" colspan="3">Disc '.$currdisc.'</td></tr>');
+                        $output->writeLine( '<tr><td class="discnumber" colspan="3">Disc '.$currdisc.'</td></tr>');
                     }
                 }
                 $dorow2 = false;
@@ -630,26 +624,26 @@ function do_albums($artistkey, $compilations, $showartist, $prefix) {
                     $dorow2 = true;
                     $classes = $classes." playlistrow1";
                 }
-                fwrite ($ob_file, '<tr class="'.$classes.'" onclick="trackSelect(event, this)" ondblclick="playlist.addtrack(\''.htmlentities(rawurlencode($trackobj->url)).'\')"><td align="left" class="tracknumber"');
+                $output->writeLine( '<tr class="'.$classes.'" onclick="trackSelect(event, this)" ondblclick="playlist.addtrack(\''.htmlentities(rawurlencode($trackobj->url)).'\')"><td align="left" class="tracknumber"');
                 if ($dorow2) {
-                    fwrite ($ob_file, 'rowspan="2"');
+                    $output->writeLine( 'rowspan="2"');
                 }
-                fwrite ($ob_file, '>' . $trackobj->number . "</td><td></td>");
-                fwrite ($ob_file, '<td>'.$trackobj->name);
-                fwrite ($ob_file, "</td>\n");
-                fwrite ($ob_file, '<td align="right">'.format_time($trackobj->duration).'</td>');
-                fwrite ($ob_file, "</tr>\n");
+                $output->writeLine( '>' . $trackobj->number . "</td><td></td>");
+                $output->writeLine( '<td>'.$trackobj->name);
+                $output->writeLine( "</td>\n");
+                $output->writeLine( '<td align="right">'.format_time($trackobj->duration).'</td>');
+                $output->writeLine( "</tr>\n");
                 if ($dorow2) {
-                    fwrite ($ob_file, '<tr onclick="trackSelect(event, this)" class="draggable nottweaked playlistrow2"><td></td><td colspan="2">'.$trackobj->artist.'</td></tr>');
+                    $output->writeLine( '<tr onclick="trackSelect(event, this)" class="draggable nottweaked playlistrow2"><td></td><td colspan="2">'.$trackobj->artist.'</td></tr>');
                 }
             }
 
-            fwrite ($ob_file, "</table>\n");
-            fwrite ($ob_file, "</div>\n");
+            $output->writeLine( "</table>\n");
+            $output->writeLine( "</div>\n");
 
             $count++;
         }
-        fwrite ($ob_file, "</div>\n");
+        $output->writeLine( "</div>\n");
 
         $count++;
         $divtype = ($divtype == "album1") ? "album2" : "album1";

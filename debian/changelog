@@ -1,3 +1,11 @@
+mpd-client-rompr (0.16.3) precise; urgency=low
+
+  * Minor bugfixes and speedups. Major change to cache the collection
+    - thus speeding up loading the albums list very considerably.
+    
+ -- Mark Greenwood <fatgerman@gmail.com>  Sun, 18 Nov 2012 19:29:00 +0000
+   
+   
 mpd-client-rompr (0.16.2) precise; urgency=low
 
   * This is just me trying out better ways of working with Launchpad

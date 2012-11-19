@@ -1,5 +1,8 @@
 <?php
 $LISTVERSION = "0.16";
+$ALBUMSLIST = 'prefs/albums_'.$LISTVERSION.'.html';
+$FILESLIST = 'prefs/files_'.$LISTVERSION.'.html';
+
 $prefs = array( "mpd_host" => "localhost",
                 "mpd_port" => 6600,
                 "consume" => 0,

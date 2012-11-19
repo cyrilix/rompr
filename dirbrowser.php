@@ -4,18 +4,19 @@ include ("vars.php");
 include ("functions.php");
 include ("connection.php");
 include ("filelister.php");
-error_log("Building Files List");
+// error_log("Building Files List");
 $count = 1;
-$tree = doFileList("list file");
-$ihatephp = fopen('prefs/files_'.$LISTVERSION.'.html', 'w');
-$tree->root->createHTML("a");
+doFileCollection($ALBUMSLIST);
 close_mpd($connection);
-fclose($ihatephp);
-$file = fopen('prefs/files_'.$LISTVERSION.'.html', 'r');
-while(!feof($file))
-{
-    echo fgets($file);
+
+function doFileCollection($file) {
+
+    $output = new collectionOutput($file);
+    $tree = doFileList("list file");
+    $tree->root->createHTML("a", $output);
+    $output->closeFile();
+    $output->dumpFile();
+
 }
-fclose($file);
 
 ?>

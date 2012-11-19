@@ -65,6 +65,7 @@ var gotNeighbours = false;
 var gotFriends = false;
 var sourceshidden = false;
 var playlisthidden = false;
+// var resizeTimer;
 <?php
  print "var scrobblepercent = ".$prefs['scrobblepercent'].";\n";
  print "var sourceswidthpercent = ".$prefs['sourceswidthpercent'].";\n";
@@ -75,6 +76,7 @@ var playlisthidden = false;
  print "var shownupdatewindow = ".$prefs['shownupdatewindow'].";\n";
 ?>
 $(document).ready(function(){
+    setBottomPaneSize();
     $("#collection").html('<div class="dirname"><h2 id="loadinglabel"></h2></div>');
     $("#filecollection").html('<div class="dirname"><h2 id="loadinglabel2"></h2></div>');
     $("#loadinglabel3").effect('pulsate', { times:100 }, 2000);
@@ -141,6 +143,11 @@ $(document).ready(function(){
         shownupdatewindow = true;
         savePrefs({shownupdatewindow: shownupdatewindow.toString()});
     }
+    $(window).bind('resize', function() {
+        //clearTimeout(resizeTimer);
+        //resizeTimer = setTimeout(setBottomPaneSize, 100);
+        setBottomPaneSize();
+    });
 });
 
 </script>
