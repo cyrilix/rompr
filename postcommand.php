@@ -4,7 +4,11 @@ include ("functions.php");
 
 $is_connected = false;
 
-$connection = fsockopen($prefs["mpd_host"], $prefs["mpd_port"], $errno, $errstr, 10);
+if ($prefs['unix_socket'] != "") {
+    $connection = fsockopen('unix://'.$prefs['unix_socket']);
+} else {
+    $connection = fsockopen($prefs["mpd_host"], $prefs["mpd_port"], $errno, $errstr, 10);
+}
 
 if(isset($connection) && is_resource($connection)) {
 

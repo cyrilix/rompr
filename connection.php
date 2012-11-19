@@ -1,8 +1,11 @@
 <?php
 $is_connected = false;
 
-$connection = fsockopen($prefs["mpd_host"], $prefs["mpd_port"], $errno, $errstr, 10);
-//$connection = fsockopen('unix:///var/run/mpd/socket');
+if ($prefs['unix_socket'] != "") {
+    $connection = fsockopen('unix://'.$prefs['unix_socket']);
+} else {
+    $connection = fsockopen($prefs["mpd_host"], $prefs["mpd_port"], $errno, $errstr, 10);
+}
 
 if(isset($connection) && is_resource($connection)) {
 
@@ -37,7 +40,11 @@ if(isset($connection) && is_resource($connection)) {
     }
 
 } else {
-    $mpd_status['error'] = "Unable to Connect to MPD server at\n".$prefs["mpd_host"].":".$prefs["mpd_port"];
+    if ($prefs['unix_socket'] != "") {
+        $mpd_status['error'] = "Unable to Connect to MPD server at\n".$prefs["unix_socket"];
+    } else {
+        $mpd_status['error'] = "Unable to Connect to MPD server at\n".$prefs["mpd_host"].":".$prefs["mpd_port"];
+    }
 }
 
 function check_playlist_commands($cmds) {

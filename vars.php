@@ -5,6 +5,7 @@ $FILESLIST = 'prefs/files_'.$LISTVERSION.'.html';
 
 $prefs = array( "mpd_host" => "localhost",
                 "mpd_port" => 6600,
+                "unix_socket" => '',
                 "consume" => 0,
                 "repeat" => 0,
                 "random" => 0,
