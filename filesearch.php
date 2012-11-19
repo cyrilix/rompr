@@ -24,24 +24,23 @@ if(array_key_exists("searchtitle", $_REQUEST)) {
 if ($cmd != "") {
     
     $count = 1;
-    $tree = doFileList($cmd);
-    print '<div id="artistname">';
-    print "<h3>Search Results:</h3>";
-    print "</div>";
-    $ihatephp = fopen('prefs/filesearch.html', 'w');
-    $tree->root->createHTML("b");
-    fclose($ihatephp);
-    $file = fopen('prefs/filesearch.html', 'r');
-    while(!feof($file))
-    {
-        echo fgets($file);
-    }
-    fclose($file);
-    print '<div class="separator"></div>';
+    doFileSearch($cmd);
 
 }
 
 close_mpd($connection);
+
+function doFileSearch($cmd) {
+
+    $output = new collectionOutput("");
+    $tree = doFileList($cmd);
+    $output->writeLine('<div id="artistname">');
+    $output->writeLine("<h3>Search Results:</h3>");
+    $output->writeLine("</div>");
+    $tree->root->createHTML("b", $output);
+    $output->writeLine('<div class="separator"></div>');
+
+}
 
 ?>
 

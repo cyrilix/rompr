@@ -67,42 +67,41 @@ class mpdlistthing {
         return $next;
     }
 
-    public function createHTML($prefix) {
+    public function createHTML($prefix, $output) {
         global $FILE;
         global $DIRECTORY;
         global $count;
         global $divtype;
-        global $ihatephp;
 
         if ($this->type == $DIRECTORY) {
             if ($this->parnt != null) {
-                fwrite ($ihatephp, '<div class="dirname">');
-                fwrite ($ihatephp, '<table class="filetable">');
-                fwrite ($ihatephp, '<tr name="dir'.$prefix.$count.'" class="draggable nottweaked dir" onclick="trackSelect(event, this)" ondblclick="playlist.addtrack(\''.htmlentities(rawurlencode($this->getPath())).'\')"><td width="20px">');
-                fwrite ($ihatephp, '<a href="#" onclick="doMenu(event, \'dir'.$prefix.$count.'\');" name="dir'.$prefix.$count.'"><img src="images/toggle-closed.png"></a>');
-                fwrite ($ihatephp, '</td><td width="20px">');
-                fwrite ($ihatephp, '<img src="images/folder.png" height="16px">');
-                fwrite ($ihatephp, '</td><td>');
-                fwrite ($ihatephp, basename($this->name));
-                fwrite ($ihatephp, '</td></tr></table>');
-                fwrite ($ihatephp, "</div>\n");
-                fwrite ($ihatephp, '<div class="filedropmenu" name="dir'.$prefix.$count.'">');
+                $output->writeLine('<div class="dirname">');
+                $output->writeLine('<table class="filetable">');
+                $output->writeLine('<tr name="dir'.$prefix.$count.'" class="draggable nottweaked dir" onclick="trackSelect(event, this)" ondblclick="playlist.addtrack(\''.htmlentities(rawurlencode($this->getPath())).'\')"><td width="20px">');
+                $output->writeLine('<a href="#" onclick="doMenu(event, \'dir'.$prefix.$count.'\');" name="dir'.$prefix.$count.'"><img src="images/toggle-closed.png"></a>');
+                $output->writeLine('</td><td width="20px">');
+                $output->writeLine('<img src="images/folder.png" height="16px">');
+                $output->writeLine('</td><td>');
+                $output->writeLine(basename($this->name));
+                $output->writeLine('</td></tr></table>');
+                $output->writeLine("</div>\n");
+                $output->writeLine('<div class="filedropmenu" name="dir'.$prefix.$count.'">');
                 $count++;
             }
             foreach ($this->children as $obj) {
-                $obj->createHTML($prefix);
+                $obj->createHTML($prefix, $output);
             }
             if ($this->parnt != null) {
-                fwrite ($ihatephp, "</div>\n");
+                $output->writeLine("</div>\n");
             }
         } else {
-            fwrite ($ihatephp, '<div class="filemenu"><table class="filetable">');
-            fwrite ($ihatephp, '<tr class="draggable nottweaked" ondblclick="playlist.addtrack(\''.htmlentities(rawurlencode($this->getPath())).'\')" onclick="trackSelect(event, this)"><td></td><td width="20px">');
-            fwrite ($ihatephp, '<img src="images/audio-x-generic.png" height="16px">');
-            fwrite ($ihatephp, '</td><td>');
-            fwrite ($ihatephp, $this->name);
-            fwrite ($ihatephp, '</td></tr>');
-            fwrite ($ihatephp, "</table></div>\n");
+            $output->writeLine('<div class="filemenu"><table class="filetable">');
+            $output->writeLine('<tr class="draggable nottweaked" ondblclick="playlist.addtrack(\''.htmlentities(rawurlencode($this->getPath())).'\')" onclick="trackSelect(event, this)"><td></td><td width="20px">');
+            $output->writeLine('<img src="images/audio-x-generic.png" height="16px">');
+            $output->writeLine('</td><td>');
+            $output->writeLine($this->name);
+            $output->writeLine('</td></tr>');
+            $output->writeLine("</table></div>\n");
         }
         
     }
