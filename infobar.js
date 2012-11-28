@@ -125,7 +125,7 @@ function infoBar() {
     this.volumeKey = function(inc) {
         if (mpd.status.state == "play") {
             var volume = parseInt(mpd.status.volume);
-            if (volume == -1) { volume = 100 };
+            //if (volume == -1) { volume = 100 };
             volume = volume + inc;
             if (volume > 100) { volume = 100 };
             if (volume < 0) { volume = 0 };

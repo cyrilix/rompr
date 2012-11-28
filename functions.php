@@ -5,10 +5,29 @@ function xmlnode($node, $content) {
 }
 
 function format_for_mpd($term) {
-
     $term = preg_replace('/(\"|\/|\&)/', '\\\\$1', $term);
     return $term;
+}
 
+function open_mpd_connection() {
+    global $prefs;
+    global $connection;
+    global $is_connected;
+    $is_connected = false;
+    if ($prefs['unix_socket'] != "") {
+        $connection = fsockopen('unix://'.$prefs['unix_socket']);
+    } else {
+        $connection = fsockopen($prefs["mpd_host"], $prefs["mpd_port"], $errno, $errstr, 10);
+    }
+
+    if(isset($connection) && is_resource($connection)) {
+        $is_connected = true;
+        while(!feof($connection)) {
+            $gt = fgets($connection, 1024);
+            if(parse_mpd_var($gt))
+                break;
+        }
+    }
 }
 
 function getline($connection) {
@@ -188,6 +207,7 @@ class collectionOutput {
     
     public function dumpFile() {
         if ($this->fname != "") {
+            // error_log("Dumping Files List to ".$this->fname);
             $file = fopen($this->fname, 'r');
             while(!feof($file))
             {

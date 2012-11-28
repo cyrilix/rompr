@@ -32,7 +32,7 @@ if (file_exists($small_file)) {
 // it work on MacOSX when everything's installed from MacPorts
 $convert_path = "convert";
 $a = 1;
-system($convert_path, &$a);
+system($convert_path, $a);
 if ($a == 127) {
     $convert_path = "/opt/local/bin/convert";
 }

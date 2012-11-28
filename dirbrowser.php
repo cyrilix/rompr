@@ -6,7 +6,7 @@ include ("connection.php");
 include ("filelister.php");
 // error_log("Building Files List");
 $count = 1;
-doFileCollection($ALBUMSLIST);
+doFileCollection($FILESLIST);
 close_mpd($connection);
 
 function doFileCollection($file) {

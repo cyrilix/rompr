@@ -4,7 +4,6 @@ include("functions.php");
 include("connection.php");
 setswitches();
 close_mpd($connection);
-// session_start();
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -89,6 +88,8 @@ $(document).ready(function(){
     });
     $('#infocontrols').load("infocontrols.php", function() { 
 <?php
+    print '$("#volume").slider("option", "value", '.$prefs['volume'].");\n";
+
     if ($prefs['hidebrowser'] == 'true') {
         print "    browser.hide();\n";
     } else {
@@ -106,6 +107,7 @@ $(document).ready(function(){
     }
 ?>
     });
+    mpd.command("",playlist.repopulate);
     $('#albumcontrols').load("albumcontrols.php", function() { 
         debug.log("Album Controls Loaded");
         reloadPlaylistControls();
@@ -129,7 +131,6 @@ $(document).ready(function(){
     $("#somafmlist").load("somafm.php");
     $("#yourradiolist").load("yourradio.php");
     $("#icecastlist").load("getIcecast.php");
-    mpd.command("",playlist.repopulate);
     loadKeyBindings();
     if (!shownupdatewindow) {
         var fnarkle = popupWindow.create(500,300,"fnarkle",true,"Information About This Version");

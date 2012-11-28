@@ -1,21 +1,8 @@
 <?php
-$is_connected = false;
 
-if ($prefs['unix_socket'] != "") {
-    $connection = fsockopen('unix://'.$prefs['unix_socket']);
-} else {
-    $connection = fsockopen($prefs["mpd_host"], $prefs["mpd_port"], $errno, $errstr, 10);
-}
+open_mpd_connection();
 
-if(isset($connection) && is_resource($connection)) {
-
-    $is_connected = true;
-
-    while(!feof($connection)) {
-        $gt = fgets($connection, 1024);
-        if(parse_mpd_var($gt))
-            break;
-    }
+if($is_connected) {
 
     check_playlist_commands($_REQUEST);
 

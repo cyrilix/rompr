@@ -3,6 +3,7 @@ include ("vars.php");
 include ("functions.php");
 include ("connection.php");
 include ("collection.php");
+set_time_limit(240);
 // session_start();
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -118,7 +119,17 @@ $(document).ready(function () {
     $("#totaltext").html(numcovers+" albums");
     updateInfo();
     $("#progress").progressbar();
+    wobbleMyBottom();
+    $(window).bind('resize', function() {
+        wobbleMyBottom();
+    });    
 });
+
+function wobbleMyBottom() {
+    var ws = getWindowSize();
+    var newheight = ws.y - $("#wobblebottom").offset().top;
+    $("#wobblebottom").css("height", newheight.toString()+"px");
+}
 
 function updateInfo() {
     $("#infotext").html(albums_without_cover+" albums without a cover");
@@ -238,7 +249,6 @@ if(array_key_exists("nocover", $_REQUEST)) {
 <?php
 
 // Do Local Albums
-
 $covers = (array_key_exists("nocover", $_REQUEST)) ? true : false;
 $collection = doCollection("listallinfo");
 $artistlist = $collection->getSortedArtistList();

@@ -8,8 +8,8 @@ include ("collection.php");
 
 $count = 1;
 $divtype = "album1";
-
 $collection = doCollection("listallinfo");
+
 createAlbumsList($ALBUMSLIST);
 close_mpd($connection);
 

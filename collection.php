@@ -599,7 +599,7 @@ function do_albums($artistkey, $compilations, $showartist, $prefix, $output) {
             $output->writeLine( '<td width="34px">');
             $artname = md5($album->artist." ".$album->name);
 
-            $output->writeLine( '<img id="updateable" style="vertical-align:middle" src="" height="32" name="albumart/small/'.$artname.'.jpg"></td>');
+            $output->writeLine( '<img class="updateable" style="vertical-align:middle" src="" height="32" name="'.$artname.'"></td>');
             $output->writeLine( '<td><b>'.$album->name.'</b>');
             $output->writeLine( "</td><td></td></tr></table>");
             $output->writeLine( "</div>\n");

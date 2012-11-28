@@ -1,7 +1,9 @@
 <?php
-$LISTVERSION = "0.16";
+$LISTVERSION = "0.17";
 $ALBUMSLIST = 'prefs/albums_'.$LISTVERSION.'.html';
 $FILESLIST = 'prefs/files_'.$LISTVERSION.'.html';
+$connection = null;
+$is_connected = false;
 
 $prefs = array( "mpd_host" => "localhost",
                 "mpd_port" => 6600,
@@ -61,13 +63,12 @@ function loadPrefs() {
 function setswitches() {
     global $prefs;
     global $connection;
-    $localprefs = $prefs;
-    foreach(array("consume", "repeat", "crossfade", "random") as $key => $option) {
-        //error_log("Setting ".$option." to ".$localprefs[$option]);
-        do_mpd_command($connection, $option." ".$localprefs[$option], null, false);
+    global $is_connected;
+    if ($is_connected) {
+        foreach(array("consume", "repeat", "crossfade", "random") as $key => $option) {
+            do_mpd_command($connection, $option." ".$prefs[$option], null, false);
+        }
     }
-    // This doesn't work because mpd only allows setting the volume during playback
-    //do_mpd_command($connection, "setvol ".$localprefs["volume"], null, false);
 }
 
 ?>

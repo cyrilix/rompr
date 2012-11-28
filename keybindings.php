@@ -31,7 +31,7 @@ function saveKeyBindings() {
             fwrite($fp, $key . "=" . $value . "\n");
         }
         if(!fclose($fp)) {
-            echo "Error! Couldn't close the keybindings file.";
+            error_log("Error! Couldn't close the keybindings file.");
         }
     }
 }

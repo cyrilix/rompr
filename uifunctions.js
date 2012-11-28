@@ -42,8 +42,9 @@ function doMenu(event, item) {
 
     if ($('a[name|="'+item+'"]').html() == '<img src="images/toggle-closed.png">') {
         $('a[name|="'+item+'"]').html('<img src="images/toggle-open.png">');
-        $('div[name|="'+item+'"]').children('div').children('table').find("#updateable").attr("src", function () {
-            return $(this).attr("name");
+        $('div[name|="'+item+'"]').children('div').children('table').find(".updateable").attr("src", function () {
+            $(this).removeClass("updateable");
+            return "albumart/small/" + $(this).attr("name") + ".jpg";
         });
         $('div[name|="'+item+'"]').find(".nottweaked").each( function(index, element) {
             setDraggable(element);
