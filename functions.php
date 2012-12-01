@@ -9,6 +9,14 @@ function format_for_mpd($term) {
     return $term;
 }
 
+function format_for_disc($filename) {
+    $filename = str_replace("\\","_",$filename);
+    $filename = str_replace("/","_",$filename);
+    $filename = str_replace("'","_",$filename);
+    $filename = str_replace('"',"_",$filename);
+    return $filename;
+}
+
 function open_mpd_connection() {
     global $prefs;
     global $connection;
@@ -71,6 +79,9 @@ function do_mpd_command($conn, $command, $varname = null, $return_array = false)
     global $is_connected;
     $retarr = array();
     if ($is_connected) {
+    
+        error_log("MPD Command ".$command);
+    
         $success = fputs($conn, $command."\n");
         if ($success) {
             while(!feof($conn)) {

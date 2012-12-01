@@ -44,7 +44,14 @@ function doMenu(event, item) {
         $('a[name|="'+item+'"]').html('<img src="images/toggle-open.png">');
         $('div[name|="'+item+'"]').children('div').children('table').find(".updateable").attr("src", function () {
             $(this).removeClass("updateable");
-            return "albumart/small/" + $(this).attr("name") + ".jpg";
+            if ($(this).hasClass("notexist")) {
+                coverscraper.getNewAlbumArt(this);
+                return "images/album-unknown-small.png";
+            } else if ($(this).hasClass("notfound")) {
+                return "images/album-unknown-small.png";
+            } else {
+                return "albumart/small/" + $(this).attr("name") + ".jpg";
+            }
         });
         $('div[name|="'+item+'"]').find(".nottweaked").each( function(index, element) {
             setDraggable(element);
@@ -778,4 +785,25 @@ function trackSelect(event, elem) {
 function clearPlaylist() {
     mpd.command('command=clear', playlist.repopulate);
     $("#clrplst").slideToggle('fast');
+}
+
+function onStorageChanged(e) {
+    
+    debug.log("Something changed our local storage",e);
+    debug.log("Updating album image for key",e.newValue);
+    $('img[name="'+e.newValue+'"]').attr("src", "albumart/small/"+e.newValue+".jpg");
+    $('img[name="'+e.newValue+'"]').removeClass("notexist");
+    $('img[name="'+e.newValue+'"]').removeClass("notfound");
+}
+
+function savePlaylist() {
+   
+    var name = $("#playlistname").val();
+    debug.log("Name is",name);
+    if (name.indexOf("/") >= 0 || name.indexOf("\\") >= 0) {
+        alert("Playlist name cannot contain / or \\");
+    } else {
+        mpd.command("command=save&arg="+encodeURIComponent(name), reloadPlaylistControls);
+    }
+    
 }

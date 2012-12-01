@@ -9,10 +9,10 @@ if($is_connected) {
     if(array_key_exists("command", $_REQUEST)) {
         $command = $_REQUEST["command"];
         if(array_key_exists("arg", $_REQUEST) && strlen($_REQUEST["arg"])>0) {
-            $command.=" \"".format_for_mpd(html_entity_decode($_REQUEST["arg"]))."\"";
+            $command.=" \"".format_for_mpd(rawurldecode($_REQUEST["arg"]))."\"";
         }
         if(array_key_exists("arg2", $_REQUEST) && strlen($_REQUEST["arg2"])>0) {
-            $command.=" \"".format_for_mpd(html_entity_decode($_REQUEST["arg2"]))."\"";
+            $command.=" \"".format_for_mpd(rawurldecode($_REQUEST["arg2"]))."\"";
         }
         do_mpd_command($connection, $command);
     }
@@ -41,23 +41,24 @@ function check_playlist_commands($cmds) {
     if(array_key_exists("command", $cmds)) {
         switch ($cmds['command']) {
             case 'save':
-                $playlist_name = format_for_mpd(html_entity_decode($cmds['arg']));
-                clean_the_toilet($playlist_name);
-                system('mkdir prefs/"'.$playlist_name.'"');
-                system('cp prefs/*.xspf prefs/"'.$playlist_name.'"/');
+                $playlist_name = format_for_mpd(rawurldecode($cmds['arg']));
+                $playlist_file = format_for_disc(rawurldecode($cmds['arg']));
+                clean_the_toilet($playlist_file);
+                system('mkdir "prefs/'.$playlist_file.'"');
+                system('cp prefs/*.xspf prefs/"'.$playlist_file.'"/');
                 do_mpd_command($connection, 'rm "'.$playlist_name.'"');
                 break;
 
             case "rm":
-                $playlist_name = format_for_mpd(html_entity_decode($cmds['arg']));
-                clean_the_toilet($playlist_name);
+                $playlist_file = format_for_disc(rawurldecode($cmds['arg']));
+                clean_the_toilet($playlist_file);
                 break;
 
             case "load":
-                $playlist_name = format_for_mpd(html_entity_decode($cmds['arg']));
+                $playlist_file = format_for_disc(rawurldecode($cmds['arg']));
                 do_mpd_command($connection, "clear");
                 clean_stored_xspf();
-                system('cp -f prefs/"'.$playlist_name.'"/*.xspf prefs/');
+                system('cp -f prefs/"'.$playlist_file.'"/*.xspf prefs/');
                 break;
 
             case "clear":

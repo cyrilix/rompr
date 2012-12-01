@@ -76,7 +76,7 @@ include ("connection.php");
                 print '<li class="tleft wide"><table width="100%">';
                 foreach ($playlists['playlist'] as $pl) {
 
-                    print '<tr><td align="left"><a href="#" onclick="mpd.command(\'command=load&arg='.rawurlencode($pl).'\', playlist.repopulate)">'.$pl.'</a></td>';
+                    print '<tr><td align="left"><a href="#" onclick="mpd.command(\'command=load&arg='.rawurlencode($pl).'\', playlist.repopulate)">'.htmlspecialchars($pl).'</a></td>';
                     print '<td class="playlisticon" align="right"><a href="#" onclick="mpd.command(\'command=rm&arg='.rawurlencode($pl).'\', reloadPlaylistControls)"><img src="images/edit-delete.png"></a></td></tr>';
 
                 }
@@ -90,11 +90,8 @@ include ("connection.php");
         <ul id="saveplst" class="subnav wide">
             <li class="wide"><b>Save Playlist As</b></li>
             <li class="wide">
-                <form id="saveplaylist" action="ajaxcommand.php" method="get">
-                    <input type="hidden" name="command" value="save"/>
-                    <input class="topform" style="width:195px" name="arg" type="text" size="200"/>
-                    <button class="topformbutton" type="submit">Save</button>
-                </form>
+                <input class="topform" style="width:195px" id="playlistname" type="text" size="200"/>
+                <button class="topformbutton" onclick="savePlaylist()">Save</button>
             </li>
         </ul>
     </li>
@@ -103,10 +100,6 @@ include ("connection.php");
 </div>
 
 <script type="text/javascript">
-
-$('#saveplaylist').ajaxForm(function() {
-    reloadPlaylistControls();
-});
 
 $("ul.topnav li a").unbind('click');
 $("ul.topnav li a").click(function() {

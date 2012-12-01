@@ -4,19 +4,6 @@ include ("functions.php");
 include ("connection.php");
 include ("collection.php");
 ?>
-<!-- 
-<form name="find" action="search.php" method="get">
-<ul class="sourcenav">
-There is a massive problem to be solved for laying out items in HTML pages
-     css is not the answer. I HATE IT I HATE IT I HATE IT (or I'm just shit at it) -->
-     
-<!-- <li><b>Find Exact Match For:</b></li>     
-<li><table width="100%">
-<tr><td><b>Artist</b></td><td><input class="sourceform" name="findartist" type="text" size="60" style="width:100%" /></td></tr>
-<tr><td><b>Album</b></td><td><input class="sourceform" name="findalbum" type="text" size="60" style="width:100%"/></td></tr>
-<tr><td colspan="2" align="right"><button class="topformbutton" type="submit">Find</button></td></tr></table></li>
-</ul>
-</form> -->
 
 <form name="search" action="search.php" method="get">
 <ul class="sourcenav">

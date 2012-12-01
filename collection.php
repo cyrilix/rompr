@@ -595,11 +595,21 @@ function do_albums($artistkey, $compilations, $showartist, $prefix, $output) {
             // We don't set the src tags for the images when the page loads, otherwise we'd be loading in
             // literally hundres of images we don't need. Instead we set the name tag to the url
             // of the image, and then use jQuery magic to set the src tag when the menu is opened -
-            // so we only ever load the images we need. The custom redirect will take care of missing images
+            // so we only ever load the images we need.
+            
+            // We also add an artist and album name tag to the image so we can use this for the auto-image lookup later on
+            // We only do this for images that don't exist, just to keep the size of the HTML down
             $output->writeLine( '<td width="34px">');
             $artname = md5($album->artist." ".$album->name);
-
-            $output->writeLine( '<img class="updateable" style="vertical-align:middle" src="" height="32" name="'.$artname.'"></td>');
+            // NOTE: The format and ORDER of the tags in the <img> is VERY important as it matched by a regexp
+            // when album art is retrieved
+            if (file_exists("albumart/original/".$artname.".jpg")) {
+                $class = "updateable";
+                $output->writeLine( '<img class="'.$class.'" name="'.$artname.'" style="vertical-align:middle" height="32" src=""></td>');
+            } else {
+                $class = "updateable notexist";
+                $output->writeLine( '<img class="'.$class.'" romprartist="'.rawurlencode($album->artist).'" rompralbum="'.rawurlencode($album->name).'" name="'.$artname.'" style="vertical-align:middle" height="32" src=""></td>');
+            }
             $output->writeLine( '<td><b>'.$album->name.'</b>');
             $output->writeLine( "</td><td></td></tr></table>");
             $output->writeLine( "</div>\n");
@@ -624,7 +634,7 @@ function do_albums($artistkey, $compilations, $showartist, $prefix, $output) {
                     $dorow2 = true;
                     $classes = $classes." playlistrow1";
                 }
-                $output->writeLine( '<tr class="'.$classes.'" onclick="trackSelect(event, this)" ondblclick="playlist.addtrack(\''.htmlentities(rawurlencode($trackobj->url)).'\')"><td align="left" class="tracknumber"');
+                $output->writeLine( '<tr class="'.$classes.'" onclick="trackSelect(event, this)" ondblclick="playlist.addtrack(\''.rawurlencode($trackobj->url).'\')"><td align="left" class="tracknumber"');
                 if ($dorow2) {
                     $output->writeLine( 'rowspan="2"');
                 }

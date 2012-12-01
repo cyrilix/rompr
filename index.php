@@ -35,6 +35,7 @@ print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme']
 <script type="text/javascript" src="lastfm.js"></script>
 <script type="text/javascript" src="playlist.js"></script>
 <script type="text/javascript" src="info.js"></script>
+<script type="text/javascript" src="coverscraper.js"></script>
 
 <?php
 if (file_exists("prefs/prefs.js")) {
@@ -60,6 +61,7 @@ var playlist = new Playlist();
 var nowplaying = new playInfo();
 var infobar = new infoBar();
 var lfmprovider = new lastFMprovider();
+var coverscraper = new coverScraper(0, false, false);
 var gotNeighbours = false;
 var gotFriends = false;
 var sourceshidden = false;
@@ -75,6 +77,13 @@ var playlisthidden = false;
  print "var shownupdatewindow = ".$prefs['shownupdatewindow'].";\n";
 ?>
 $(document).ready(function(){
+    // Check to see if HTML5 local storage is supported - we use this for communication between the
+    // album art manager and the albums list
+    if ("localStorage" in window && window["localStorage"] != null) {
+        debug.log("Adding Storage Event Listener");
+        window.addEventListener("storage", onStorageChanged, false);
+    }
+
     setBottomPaneSize();
     $("#collection").html('<div class="dirname"><h2 id="loadinglabel"></h2></div>');
     $("#filecollection").html('<div class="dirname"><h2 id="loadinglabel2"></h2></div>');
