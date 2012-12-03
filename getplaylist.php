@@ -7,6 +7,7 @@ include ("collection.php");
 header('Content-Type: text/xml; charset=utf-8');
 
 $collection = doCollection("playlistinfo");
+error_log("Collection scan playlistinfo finished");
 $pos = 0;
 // Now we have a collection, which will have worked out compilations,
 // We can go through the tracks again and build up a playlist
@@ -35,9 +36,9 @@ if ($is_connected) {
 
 $xml = $xml . "</trackList>\n</playlist>\n";
 
-// $fp = fopen("prefs/Current.xml", "w");
-// fwrite($fp, $xml);
-// fclose($fp);
+//  $fp = fopen("prefs/Current.xml", "w");
+//  fwrite($fp, $xml);
+//  fclose($fp);
 
 print $xml;
 

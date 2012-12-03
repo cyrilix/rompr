@@ -1,9 +1,9 @@
 <?php
 
 $xml = simplexml_load_file("prefs/icecast.xspf");
-$name = $_REQUEST['name'];
+$name = rawurldecode($_REQUEST['name']);
 
-// error_log("Looking for IceCast Station ".$name);
+error_log("Looking for IceCast Station ".$name);
 
 $output = '<?xml version="1.0" encoding="utf-8"?><playlist version="1">'."\n".
             '<title>Icecast</title>'."\n".

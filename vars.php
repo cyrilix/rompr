@@ -28,7 +28,8 @@ $prefs = array( "mpd_host" => "localhost",
                 "sourceswidthpercent" => 22,
                 "playlistwidthpercent" => 22,
                 "shownupdatewindow" => "false",
-                "updateeverytime" => "false"
+                "updateeverytime" => "false",
+                "downloadart" => "true"
                 );
 loadPrefs();
 

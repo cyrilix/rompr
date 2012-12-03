@@ -81,7 +81,7 @@ foreach ($genres as $i => $name) {
     print '<div class="filemenu" style="margin-left:32px">';
     print '<table width="100%" class="filetable">';
     foreach($genres[$i]->stations as $n => $station) {
-        print '<tr><td><a href="#" onclick="addIceCast(\''.$stations[$station]->name.'\')">'.$stations[$station]->name."</a></td></tr>\n";
+        print '<tr><td><a href="#" onclick="addIceCast(\''.rawurlencode($stations[$station]->name).'\')">'.utf8_encode($stations[$station]->name)."</a></td></tr>\n";
     }
     print "</table>\n";
     print "</div>\n";    

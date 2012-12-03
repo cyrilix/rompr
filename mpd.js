@@ -25,9 +25,26 @@ function mpdController() {
     }
 
     this.do_command_list = function(list, callback) {
-        $.post("postcommand.php", {'commands[]': list}, function(data) {
-            self.command("", callback);
-        });        
+        
+        $.ajax({
+            type: 'POST',
+            url: 'postcommand.php',
+            data: {'commands[]': list},
+            success: function(data) {
+                self.status = data;
+                nowplaying.track.setStartTime(self.status.elapsed); 
+                if (callback) { 
+                    infobar.updateWindowValues(); 
+                    callback();
+                } else {
+                    playlist.checkProgress(); 
+                    infobar.updateWindowValues();
+                }
+            
+            },
+            dataType: 'json'
+        });
+        
     }
 
     this.deleteTracksByID = function(tracks, callback) {

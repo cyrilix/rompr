@@ -77,7 +77,7 @@ class mpdlistthing {
             if ($this->parnt != null) {
                 $output->writeLine('<div class="dirname">');
                 $output->writeLine('<table class="filetable">');
-                $output->writeLine('<tr name="dir'.$prefix.$count.'" class="draggable nottweaked dir" onclick="trackSelect(event, this)" ondblclick="playlist.addtrack(\''.htmlentities(rawurlencode($this->getPath())).'\')"><td width="20px">');
+                $output->writeLine('<tr name="dir'.$prefix.$count.'" class="draggable nottweaked dir" onclick="trackSelect(event, this)" ondblclick="playlist.addtrack(\''.rawurlencode($this->getPath()).'\')"><td width="20px">');
                 $output->writeLine('<a href="#" onclick="doMenu(event, \'dir'.$prefix.$count.'\');" name="dir'.$prefix.$count.'"><img src="images/toggle-closed.png"></a>');
                 $output->writeLine('</td><td width="20px">');
                 $output->writeLine('<img src="images/folder.png" height="16px">');
@@ -96,7 +96,7 @@ class mpdlistthing {
             }
         } else {
             $output->writeLine('<div class="filemenu"><table class="filetable">');
-            $output->writeLine('<tr class="draggable nottweaked" ondblclick="playlist.addtrack(\''.htmlentities(rawurlencode($this->getPath())).'\')" onclick="trackSelect(event, this)"><td></td><td width="20px">');
+            $output->writeLine('<tr class="draggable nottweaked" ondblclick="playlist.addtrack(\''.rawurlencode($this->getPath()).'\')" onclick="trackSelect(event, this)"><td></td><td width="20px">');
             $output->writeLine('<img src="images/audio-x-generic.png" height="16px">');
             $output->writeLine('</td><td>');
             $output->writeLine($this->name);

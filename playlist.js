@@ -37,8 +37,12 @@ function Album(artist, album, index, rolledup) {
             if (showartist) {
                 html = html + 'rowspan="2" ';
             }
-            html = html + 'class="tracknumbr">'+format_tracknum(tracks[trackpointer].tracknumber)+'</td>';
-            html = html + '<td align="left"><a href="#" class="album" onclick="mpd.command(\'command=playid&arg='+tracks[trackpointer].backendid+'\')">'+
+            html = html + 'class="tracknumbr">'+format_tracknum(tracks[trackpointer].tracknumber)+'</td><td';
+            var l = tracks[trackpointer].location;
+            if (l.substring(0, 7) == "spotify") {
+                html = html + ' class="tracknumbr"><img height="12px" src="images/spotify-logo.png" /';
+            }
+            html = html + '></td><td align="left"><a href="#" class="album" onclick="mpd.command(\'command=playid&arg='+tracks[trackpointer].backendid+'\')">'+
                             tracks[trackpointer].title+'</a></td>';
 
             html = html + '<td align="right" width="7em" class="tiny">'+formatTimeString(tracks[trackpointer].duration)+'</td>';
@@ -46,7 +50,7 @@ function Album(artist, album, index, rolledup) {
             html = html + '<td class="playlisticon" align="right"><a href="#" onclick="playlist.delete(\''+tracks[trackpointer].backendid+'\',\''+tracks[trackpointer].playlistpos+'\')">'+
                             '<img src="images/edit-delete.png"></a></td></tr>';
             if (showartist) {
-                html = html + '<tr><td align="left" colspan="3" class="playlistrow2">'+tracks[trackpointer].creator+'</td></tr>';
+                html = html + '<tr><td align="left" colspan="4" class="playlistrow2">'+tracks[trackpointer].creator+'</td></tr>';
             }
             html = html + '</table></div>';
         }
@@ -56,12 +60,14 @@ function Album(artist, album, index, rolledup) {
     this.header = function() {
         var html = "";
         html = html + '<div id="item" name="'+self.index+'"><table class="playlisttitle" name="'+self.index+'" width="100%"><tr><td rowspan="2" width="40px">';
-        var artname = "albumart/small/"+hex_md5(self.artist+" "+self.album)+".jpg";
-        if (tracks[0].image) {
-            artname = tracks[0].image;
-        }
         html = html + '<a href="#" title="Click to Roll Up" onclick="javascript:playlist.hideItem('+self.index+')">';
-        html = html + '<img width="32" height="32" src="'+artname+'"/>';
+        if (tracks[0].image) {
+            html = html + '<img width="32" height="32" src="'+tracks[0].image+'"/>';
+        } else {
+            html = html +   '<img class="notexist" name="'+hex_md5(self.artist+" "+self.album)+'" width="32" height="32"'
+                        +   ' romprartist="'+encodeURIComponent(self.artist)+'" rompralbum="'+encodeURIComponent(self.album)+'" romprupdate="yes"'
+                        +   ' src="images/album-unknown-small.png"/>';
+        }
         html = html + '</a>';
         html = html + '</td><td align="left" colspan="2">';
         html = html + self.artist+'</td></tr><tr><td align="left" ><i><a href="#" class="album" onclick="mpd.command(\'command=play&arg='+tracks[0].playlistpos+'\')">'+self.album+'</a></i></td>';
@@ -634,7 +640,7 @@ function Playlist() {
                     });
                     var elbow = (parseInt(finaltrack))+1;
                     var arse = elbow+cmdlist.length;
-                    cmdlist.push("move "+elbow.toString()+":"+arse.toString()+' '+moveto.toString());
+                    cmdlist.push('move "'+elbow.toString()+":"+arse.toString()+'" "'+moveto.toString()+'"');
                     mpd.do_command_list(cmdlist, playlist.repopulate);
                 } else {
                     if (elementmoved == "track") {
@@ -665,6 +671,19 @@ function Playlist() {
         }
 
         self.checkProgress();
+        
+            // Would like to search for missing album art in the playlist, and it's easy to do.
+            // Trouble is it re-searches for missing art at every playlist refresh.
+            // The check I put in here stops it searching for art which has been marked as notfound 
+            // in the albums list or search pane
+
+         $("#sortable").find(".notexist").each( function() {
+             if ($('img[name="'+$(this).attr("name")+'"]', '#collection').hasClass('notexist') ||
+                 $('img[name="'+$(this).attr("name")+'"]', '#search').hasClass('notexist')
+            ) {
+                coverscraper.getNewAlbumArt(this);
+             }
+         });
 
     }
 
@@ -702,7 +721,7 @@ function Playlist() {
 
     this.playfromend = function() {
         var playfrom = finaltrack+1;
-        return 'play '+playfrom.toString();
+        return 'play "'+playfrom.toString()+'"';
     }
 
     this.removelfm = function(tracks, u, w) {
@@ -893,7 +912,7 @@ function Playlist() {
         if (mpd.status.state == "stop") {
             var cmdlist = new Array();
             cmdlist.push('add "'+decodeURIComponent(url)+'"');
-            cmdlist.push("play "+(((finaltrack)+1).toString()));
+            cmdlist.push('play "'+(((finaltrack)+1).toString())+'"');
             mpd.do_command_list(cmdlist, playlist.repopulate);
         } else {
             mpd.command("command=add&arg="+url, playlist.repopulate);
@@ -914,7 +933,7 @@ function Playlist() {
         });
         if (mpd.status.state == 'stop') {
             var f = finaltrack+1;
-            list.push('play '+f.toString());
+            list.push('play "'+f.toString()+'"');
         }
         mpd.do_command_list(list, playlist.repopulate);        
         scrollto = (finaltrack)+1;

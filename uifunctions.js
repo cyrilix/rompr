@@ -401,6 +401,9 @@ function togglePref(pref) {
     var prefobj = new Object;
     prefobj[pref] = ($("#"+pref).is(":checked")).toString();
     savePrefs( prefobj );
+    if (pref == 'downloadart') {
+        coverscraper.toggle($("#"+pref).is(":checked"));
+    }
 }
 
 
@@ -789,11 +792,18 @@ function clearPlaylist() {
 
 function onStorageChanged(e) {
     
-    debug.log("Something changed our local storage",e);
-    debug.log("Updating album image for key",e.newValue);
-    $('img[name="'+e.newValue+'"]').attr("src", "albumart/small/"+e.newValue+".jpg");
-    $('img[name="'+e.newValue+'"]').removeClass("notexist");
-    $('img[name="'+e.newValue+'"]').removeClass("notfound");
+    var key = e.newValue;
+    debug.log("Updating album image for key",key);
+    if (key.substring(0,1) == "!") {
+        key = key.substring(1,key.length);
+        debug.log("Marking as notfound:",key);
+        $('img[name="'+key+'"]', '#collection').removeClass("notexist");
+        $('img[name="'+key+'"]', '#collection').addClass("notfound");
+    } else {
+        $('img[name="'+key+'"]', '#collection').attr("src", "albumart/small/"+key+".jpg");
+        $('img[name="'+key+'"]', '#collection').removeClass("notexist");
+        $('img[name="'+key+'"]', '#collection').removeClass("notfound");
+    }
 }
 
 function savePlaylist() {

@@ -5,7 +5,7 @@ function xmlnode($node, $content) {
 }
 
 function format_for_mpd($term) {
-    $term = preg_replace('/(\"|\/|\&)/', '\\\\$1', $term);
+    $term = str_replace('"','\\"',$term);
     return $term;
 }
 
@@ -66,11 +66,10 @@ function parse_mpd_var($in_str) {
         return true;
     if(strncmp("ACK", $got,strlen("ACK"))==0) {
         error_log("MPD command error : ".$got);
-        return true;
+        return array(0 => false, 1 => $got);
     }
     $key = trim(strtok($got, ":"));
     $val = trim(strtok("\0"));
-    //error_log($key." = ".$val);
     return array(0 => $key, 1 => $val);
 }
 
@@ -92,6 +91,13 @@ function do_mpd_command($conn, $command, $varname = null, $return_array = false)
                         return true;
                     }
                     if($var === true) {
+                        break;
+                    }
+                    if ($var[0] == false) {
+                        if ($return_array == true) {
+                            $retarr['error'] = $var[1];
+                            error_log("Setting Error Flag");
+                        }
                         break;
                     }
                     if(isset($varname) && strcmp($var[0], $varname)) {

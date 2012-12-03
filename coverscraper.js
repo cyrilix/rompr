@@ -1,4 +1,4 @@
-function coverScraper(flag, ls, u) {
+function coverScraper(flag, ls, u, o) {
 
     var formObjects = new Array();
     var timer;
@@ -9,18 +9,25 @@ function coverScraper(flag, ls, u) {
     var albums_without_cover = 0;
     var useLocalStorage = ls;
     var sendUpdates = u;
+    var enabled = o;
 
     // I need to try and limit the number of lookups per second I do to last.fm
     // Otherwise they will set the lions on me - hence the use of setTimeout
     
     // Pass the img object to this function
     this.getNewAlbumArt = function(object) {
-        debug.log("New Album Pushed to coverscraper", object);
-        formObjects.push(object);
-        numAlbums++;
-        if (timer_running == false) {
-            doNextImage(100);
+        if (enabled) {
+            debug.log("New Album Pushed to coverscraper", object);
+            formObjects.push(object);
+            numAlbums++;
+            if (timer_running == false) {
+                doNextImage(100);
+            }
         }
+    }
+    
+    this.toggle = function(o) {
+        enabled = o;
     }
     
     this.reset = function(awc) {
@@ -61,6 +68,7 @@ function coverScraper(flag, ls, u) {
         var stream = $(object).attr("romprstream");
         debug.log("stream",stream);
         var key = $(object).attr("name");
+        var update = $(object).attr("romprupdate");
         
         debug.log("Getting Cover for",object,artist,album,key);
         if (sendUpdates) {
@@ -101,8 +109,8 @@ function coverScraper(flag, ls, u) {
                             }
                             $(object).removeClass("notexist");
                             self.updateInfo(1);
-                            if (useLocalStorage) {
-                                sendLocalStorageEvent(key);
+                            if (useLocalStorage || update == "yes") {
+                                sendLocalStorageEvent(key, update);
                             }
                             //$(object).removeAttr("romprartist");
                             //$(object).removeAttr("rompralbum");
@@ -110,16 +118,16 @@ function coverScraper(flag, ls, u) {
                         })
                         .fail(function () {
                             debug.log("Album Cover Get Failed");
-                            revertCover(object);
+                            revertCover(object, key, update);
                         });
                     } else {
                         debug.log("    No Cover Found");
                         $.get("getalbumcover.php", "key="+encodeURIComponent(key)+"&flag=notfound")
                         .done(function () {
-                            revertCover(object);
+                            revertCover(object, key, update);
                         })
                         .fail(function () {
-                            revertCover(object);
+                            revertCover(object, key, update);
                         });
                     }
                 },
@@ -127,7 +135,7 @@ function coverScraper(flag, ls, u) {
         });
     }
     
-    function revertCover(object) {
+    function revertCover(object, key, update) {
         if (size == 0) {
             $(object).attr("src", "images/album-unknown-small.png");
         } else {
@@ -137,6 +145,9 @@ function coverScraper(flag, ls, u) {
         $(object).addClass("notfound");
         //$(object).removeAttr("romprartist");
         //$(object).removeAttr("rompralbum");
+        if (useLocalStorage || update == "yes") {
+            sendLocalStorageEvent("!"+key, update);
+        }
         doNextImage(750);
     }
     
@@ -149,7 +160,13 @@ function coverScraper(flag, ls, u) {
         
 }
 
-function sendLocalStorageEvent(key) {
-    debug.log("Setting Local Storage key to",key);
-    localStorage.setItem("key", key);
+function sendLocalStorageEvent(key, update) {
+    if (update == "yes") {
+        var e = new Object;
+        e.newValue = key;
+        onStorageChanged(e);
+    } else {
+        debug.log("Setting Local Storage key to",key);
+        localStorage.setItem("key", key);
+    }
 }

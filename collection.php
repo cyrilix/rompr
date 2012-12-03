@@ -476,70 +476,71 @@ function doCollection($command) {
     global $COMPILATION_THRESHOLD;
     $collection = new musicCollection($connection);
     
-    // error_log("Starting Collection Scan ".$command);
+    error_log("Starting Collection Scan ".$command);
     
     $files = array();
 
     if ($is_connected) {
-    	fputs($connection, $command."\n");
-    	$firstline = null;
-    	$filedata = array();
-    	$parts = true;
-    	while(!feof($connection) && $parts) {
-    	    $parts = getline($connection);
-    	    if (is_array($parts)) {
-                if ($parts[0] != "playlist" && $parts[0] != "Last-Modified") {
-            		if ($parts[0] == $firstline) {
-            		    //process_file($collection, $filedata);
-            		    $files[] = $filedata;
-            		    $filedata = array();
-            		}
-            		$filedata[$parts[0]] = $parts[1];
-            		if ($firstline == null) {
-            		    $firstline = $parts[0];
-            		}
+        fputs($connection, $command."\n");
+        $firstline = null;
+        $filedata = array();
+        $parts = true;
+        while(!feof($connection) && $parts) {
+                $parts = getline($connection);
+                if (is_array($parts)) {
+                    if ($parts[0] != "playlist" && $parts[0] != "Last-Modified") {
+                        if ($parts[0] == $firstline) {
+                            $files[] = $filedata;
+                            $filedata = array();
+                        }
+                        $filedata[$parts[0]] = $parts[1];
+                        if ($firstline == null) {
+                            $firstline = $parts[0];
+                        }
+                    }
                 }
-    	    }
-    	}
-
-    	if (array_key_exists('file', $filedata) && $filedata['file']) {
-	    $files[] = $filedata;
-    	    //process_file($collection, $filedata);
-    	}
-    	
-    	// error_log("Parsing Files ".$command);
-    	
-    	foreach($files as $file) {
-            process_file($collection, $file);
         }
 
-    	// error_log("Collection Rescan ".$command);
-    	
-    	// Rescan stage - to find albums that are compilations but have been missed by the above step
-    	$possible_compilations = array();
-    	foreach($collection->albums as $i => $al) {
+        if (array_key_exists('file', $filedata) && $filedata['file']) {
+            $files[] = $filedata;
+        }
+        
+        if (count($files) == 0 && $command == "listallinfo") {
+            error_log("No local files found. Are you running mopidy?");
+            if (file_exists("mopidy-tags/tag_cache")) {
+                error_log("Yes, you are!");
+                $files = parse_mopidy_tagcache($collection);
+            }
+        } else {
+            error_log(count($files)." files found in scan ".$command);
+        }
+        
+        foreach($files as $file) {
+            process_file($collection, $file);
+        }
+        // Rescan stage - to find albums that are compilations but have been missed by the above step
+        $possible_compilations = array();
+        foreach($collection->albums as $i => $al) {
             $an = utf8_decode($al->name);
-    	    if (!$al->isCompilation() && $an != "") {
-        		$numtracks = $al->trackCount();
-        		if ($numtracks < $COMPILATION_THRESHOLD) {
-        		    if (array_key_exists($an, $possible_compilations)) {
-        			     $possible_compilations[$an]++;
-        		    } else {
-        			     $possible_compilations[$an] = 1;
-        		    }
-        		}
-    	    }
-    	}
+            if (!$al->isCompilation() && $an != "") {
+                $numtracks = $al->trackCount();
+                if ($numtracks < $COMPILATION_THRESHOLD) {
+                    if (array_key_exists($an, $possible_compilations)) {
+                        $possible_compilations[$an]++;
+                    } else {
+                        $possible_compilations[$an] = 1;
+                    }
+                }
+            }
+        }
 
-    	foreach($possible_compilations as $name => $count) {
-    	    if ($count > 1) {
-    		      $collection->createCompilation($name);
-    	    }
-    	}
+        foreach($possible_compilations as $name => $count) {
+            if ($count > 1) {
+                $collection->createCompilation($name);
+            }
+        }
     }
-    
-    // error_log("Collection Scanned ".$command);
-    
+        
     return $collection;
 }
 
@@ -638,7 +639,11 @@ function do_albums($artistkey, $compilations, $showartist, $prefix, $output) {
                 if ($dorow2) {
                     $output->writeLine( 'rowspan="2"');
                 }
-                $output->writeLine( '>' . $trackobj->number . "</td><td></td>");
+                $output->writeLine( '>' . $trackobj->number . "</td><td>");
+                if (substr($trackobj->url,0,strlen('spotify')) == "spotify") {
+                    $output->writeLine('<img height="12px" src="images/spotify-logo.png" />');
+                }
+                $output->writeline("</td>");
                 $output->writeLine( '<td>'.$trackobj->name);
                 $output->writeLine( "</td>\n");
                 $output->writeLine( '<td align="right">'.format_time($trackobj->duration).'</td>');
@@ -658,6 +663,53 @@ function do_albums($artistkey, $compilations, $showartist, $prefix, $output) {
         $count++;
         $divtype = ($divtype == "album1") ? "album2" : "album1";
     }
+}
+
+function parse_mopidy_tagcache($collection) {
+
+
+    error_log("Starting Mopidy Tag Cache Scan ");
+    
+    $files = array();
+    $firstline = null;
+    $filedata = array();
+    $parts = true;
+    $fp = fopen("mopidy-tags/tag_cache", "r");
+
+    if ($fp) {
+        $a = "";
+        while(!feof($fp) && strtolower($a) != "songlist begin") {
+            $a = trim(fgets($fp));
+        }
+        while(!feof($fp) && $parts) {
+            $parts = getline($fp);
+            if (is_array($parts)) {
+                if ($parts[0] != "playlist" && $parts[0] != "Last-Modified") {
+                    if ($parts[0] == $firstline) {
+                        $files[] = $filedata;
+                        $filedata = array();
+                    }
+                    if ($parts[0] == 'file') {
+                        $parts[1] = "file:///home/bob/Music/".$parts[1];
+                        $parts[1] = rawurlencode($parts[1]);
+                        $parts[1] = str_replace("%2F", "/", $parts[1]);
+                        $parts[1] = str_replace("%3A", ":", $parts[1]);
+                    }
+                    $filedata[$parts[0]] = $parts[1];
+                    if ($firstline == null) {
+                        $firstline = $parts[0];
+                        error_log("Setting firstline to ".$firstline);
+                    }
+                }
+            }
+        }
+
+        if (array_key_exists('file', $filedata) && $filedata['file']) {
+            $files[] = $filedata;
+        }
+    }
+    fclose($fp);
+    return $files;
 }
 
 ?>

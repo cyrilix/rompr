@@ -175,15 +175,23 @@ function update_cache($fname, $class) {
     global $ALBUMSLIST;
 
     if (file_exists($ALBUMSLIST)) {
-        $cache = file_get_contents($ALBUMSLIST);
-        $newcache = preg_replace('/<img class="updateable.*?(name=\"'.$fname.'\".*?)src=.*?>/m', '<img class="'.$class.'" $1 src="">', $cache);
-        if ($newcache != null) {
-            $fp = fopen($ALBUMSLIST, 'w');
-            if ($fp) {
-                fwrite($fp, $newcache);
+        $fp = fopen($ALBUMSLIST, 'r+');
+        if ($fp) {
+            $crap = true;
+            if (flock($fp, LOCK_EX, $crap)) {
+                $cache = file_get_contents($ALBUMSLIST);
+                $newcache = preg_replace('/<img class="updateable.*?(name=\"'.$fname.'\".*?)src=.*?>/m', '<img class="'.$class.'" $1 src="">', $cache);
+                if ($newcache != null) {
+                    ftruncate($fp, 0);
+                    fwrite($fp, $newcache);
+                    fflush($fp);
+                    flock($fp, LOCK_UN);
+                } 
+            } else {
+                error_log("FAILED TO GET FILE LOCK!!!!!!!!!!!!!!!!!!!!!");
             }
-            fclose($fp);
         }
+        fclose($fp);
     }
 }
 

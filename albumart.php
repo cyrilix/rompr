@@ -56,7 +56,7 @@ $(document).ready(function () {
     if ("localStorage" in window && window["localStorage"] != null) {
         useLocalStorage = true;
     }
-    coverscraper = new coverScraper(1, useLocalStorage, true);
+    coverscraper = new coverScraper(1, useLocalStorage, true, true);
     coverscraper.reset(albums_without_cover);
 });
 
@@ -324,7 +324,7 @@ function do_radio_stations($covers) {
                         }
                     }
                     print '<td align="center">';
-                    print '<a href="#" onclick="doGoogleSearch(\'Internet Radio\', \''.rawurlencode($track->album).'\', \''.$artname.'\')">';
+                    print '<a href="#" onclick="doGoogleSearch(\'Internet%20Radio\', \''.rawurlencode($track->album).'\', \''.$artname.'\')">';
                     $class = "";
                     $src = "images/broadcast.png";
                     if ($track->image != "images/broadcast.png") {
@@ -336,7 +336,7 @@ function do_radio_stations($covers) {
                         $albums_without_cover++;
                     }
                     array_push($albumnames, $track->album);
-                    print '<img class="'.$class.'" romprartist="Internet Radio" rompralbum="'.rawurlencode($track->album).'" romprstream="'.$file.'" name="'.$artname.'" style="vertical-align:middle" height="94" src="'.$src.'">';
+                    print '<img class="'.$class.'" romprartist="Internet%20Radio" rompralbum="'.rawurlencode($track->album).'" romprstream="'.$file.'" name="'.$artname.'" style="vertical-align:middle" height="94" src="'.$src.'">';
                     print '</a>';
                     print '</td>';
                     $colcount++;

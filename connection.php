@@ -5,26 +5,33 @@ open_mpd_connection();
 if($is_connected) {
 
     check_playlist_commands($_REQUEST);
+    $cmd_status = true;
 
     if(array_key_exists("command", $_REQUEST)) {
         $command = $_REQUEST["command"];
         if(array_key_exists("arg", $_REQUEST) && strlen($_REQUEST["arg"])>0) {
-            $command.=" \"".format_for_mpd(rawurldecode($_REQUEST["arg"]))."\"";
+            error_log("Arg is ".$_REQUEST['arg']);
+            //$command.=" \"".format_for_mpd(rawurldecode($_REQUEST["arg"]))."\"";
+            $command.=" \"".format_for_mpd($_REQUEST["arg"])."\"";
         }
         if(array_key_exists("arg2", $_REQUEST) && strlen($_REQUEST["arg2"])>0) {
-            $command.=" \"".format_for_mpd(rawurldecode($_REQUEST["arg2"]))."\"";
+            //$command.=" \"".format_for_mpd(rawurldecode($_REQUEST["arg2"]))."\"";
+            $command.=" \"".format_for_mpd($_REQUEST["arg2"])."\"";
         }
-        do_mpd_command($connection, $command);
+        $cmd_status = do_mpd_command($connection, $command, null, true);
     }
 
     $mpd_status = do_mpd_command ($connection, "status", null, true);
     while ($mpd_status['state'] == 'play' && 
-            (!array_key_exists('elapsed', $mpd_status) ||
-            $mpd_status['volume'] == -1)) 
+            !array_key_exists('elapsed', $mpd_status))
     {
         sleep(1);
         $mpd_status = do_mpd_command ($connection, "status", null, true);
     }
+    if (is_array($cmd_status) && !array_key_exists('error', $mpd_status)) {
+        $mpd_status = array_merge($mpd_status, $cmd_status);
+    }
+        
 
 } else {
     if ($prefs['unix_socket'] != "") {
@@ -41,7 +48,7 @@ function check_playlist_commands($cmds) {
     if(array_key_exists("command", $cmds)) {
         switch ($cmds['command']) {
             case 'save':
-                $playlist_name = format_for_mpd(rawurldecode($cmds['arg']));
+                $playlist_name = format_for_mpd($cmds['arg']);
                 $playlist_file = format_for_disc(rawurldecode($cmds['arg']));
                 clean_the_toilet($playlist_file);
                 system('mkdir "prefs/'.$playlist_file.'"');

@@ -14,8 +14,8 @@ function lastfmstation(tuneurl) {
 	}
 
 	this.weAreTuned = function(data) {
-    	if (data && data.error) { lastFMTuneFailed(data); return false; };
-    	lastfm.radio.getPlaylist({discovery: 0, rtp: lastfm.getScrobbling(), bitrate: 128}, self.gotNewTracks, lastFMTuneFailed);
+        if (data && data.error) { lastFMTuneFailed(data); return false; };
+        lastfm.radio.getPlaylist({discovery: 0, rtp: lastfm.getScrobbling(), bitrate: 128}, self.gotNewTracks, lastFMTuneFailed);
 	}
 
 	this.gotNewTracks = function(xml) {
@@ -46,10 +46,10 @@ function lastfmstation(tuneurl) {
         }
         var pushtracks = new Array();
         var counter = self.numtrackswanted;
-    	while (counter > 0 && self.tracks.length > 0) {
+        while (counter > 0 && self.tracks.length > 0) {
             pushtracks.push(self.tracks.shift());
             counter--;
-    	}
+        }
         if (counter == 0 && self.numtrackswanted > 0) {
             var cmdlist = new Array();
             for (var i in pushtracks) {
@@ -84,11 +84,11 @@ function lastfmstation(tuneurl) {
     }
 
     this.giveMeTracks = function(number, where, play, remove) {
-    	self.numtrackswanted = number;
-    	self.trackinsertpos = where;
-    	self.playafterinsert = play;
+        self.numtrackswanted = number;
+        self.trackinsertpos = where;
+        self.playafterinsert = play;
         self.toremove = remove;
-    	self.doWeNeedToUpdate();
+        self.doWeNeedToUpdate();
     }
 
     this.checkurl = function(u) {

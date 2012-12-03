@@ -31,6 +31,7 @@ include ("connection.php");
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="toggleOption('random')" id="shufflebutton">Playlist Shuffle</input></li>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="toggleOption('crossfade')" id="xfadebutton">Crossfade Tracks</input></li>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="toggleOption('repeat')" id="repeatbutton">Repeat Playlist</input></li>
+                        <li class="wide"><input type="checkbox" class="topcheck" onclick="togglePref('downloadart')" id="downloadart">Automatically Download Covers</input></li>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="togglePref('updateeverytime')" id="updateeverytime">Update Collection On Start</input></li>
                         <li class="wide"><button class="topformbutton" onclick="updateCollection('update')">Update Collection Now</button></li>
                         <li class="wide"><button class="topformbutton" onclick="updateCollection('rescan')">Full Collection Rescan</button></li>
@@ -162,6 +163,7 @@ $("#scrobwrangler").click(function(evt) { setscrob(evt) });
     print ");\n";
 
     print '    $("#updateeverytime").attr("checked", '.$prefs['updateeverytime'].");\n";
+    print '    $("#downloadart").attr("checked", '.$prefs['downloadart'].");\n";
 
     
    print '$("#themeselector").val("'.$prefs['theme'].'");'."\n";

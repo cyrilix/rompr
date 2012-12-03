@@ -61,7 +61,6 @@ var playlist = new Playlist();
 var nowplaying = new playInfo();
 var infobar = new infoBar();
 var lfmprovider = new lastFMprovider();
-var coverscraper = new coverScraper(0, false, false);
 var gotNeighbours = false;
 var gotFriends = false;
 var sourceshidden = false;
@@ -75,6 +74,8 @@ var playlisthidden = false;
  print "var lastfm = new LastFM('".$prefs["lastfm_user"]."');\n";
  print "var browser = new Info('infopane', '".$prefs["infosource"]."');\n";
  print "var shownupdatewindow = ".$prefs['shownupdatewindow'].";\n";
+ print "var coverscraper = new coverScraper(0, false, false, ".$prefs['downloadart'].");\n";
+
 ?>
 $(document).ready(function(){
     // Check to see if HTML5 local storage is supported - we use this for communication between the
@@ -154,8 +155,6 @@ $(document).ready(function(){
         savePrefs({shownupdatewindow: shownupdatewindow.toString()});
     }
     $(window).bind('resize', function() {
-        //clearTimeout(resizeTimer);
-        //resizeTimer = setTimeout(setBottomPaneSize, 100);
         setBottomPaneSize();
     });
 });
