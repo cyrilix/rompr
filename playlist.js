@@ -40,7 +40,9 @@ function Album(artist, album, index, rolledup) {
             html = html + 'class="tracknumbr">'+format_tracknum(tracks[trackpointer].tracknumber)+'</td><td';
             var l = tracks[trackpointer].location;
             if (l.substring(0, 7) == "spotify") {
-                html = html + ' class="tracknumbr"><img height="12px" src="images/spotify-logo.png" /';
+                html = html + ' width="14px"><img height="12px" src="images/spotify-logo.png" /';
+            } else {
+                html = html + ' width="1px"';
             }
             html = html + '></td><td align="left"><a href="#" class="album" onclick="mpd.command(\'command=playid&arg='+tracks[trackpointer].backendid+'\')">'+
                             tracks[trackpointer].title+'</a></td>';
@@ -443,6 +445,7 @@ function Playlist() {
     var updatecounter = 0;
     var do_delayed_update = false;
     var scrollto = -1;
+    var searchedimages = new Array();
 
     this.repopulate = function() {
         debug.log("Repopulating Playlist");
@@ -672,17 +675,28 @@ function Playlist() {
 
         self.checkProgress();
         
-            // Would like to search for missing album art in the playlist, and it's easy to do.
-            // Trouble is it re-searches for missing art at every playlist refresh.
-            // The check I put in here stops it searching for art which has been marked as notfound 
-            // in the albums list or search pane
+        // Would like to search for missing album art in the playlist, and it's easy to do.
+        // Trouble is it re-searches for missing art at every playlist refresh.
+        // The check I put in here stops it searching for art which has been marked as notfound 
+        // in the albums list or search pane.
+        // Also we keep a list of stuff we've searched for, just in case it's not in either list
+        // (eg it's got there via a playlist loaded in from spotify)
+        // All this is to keep to an absolute minimum the number of requests we make to last.fm
 
-         $("#sortable").find(".notexist").each( function() {
-             if ($('img[name="'+$(this).attr("name")+'"]', '#collection').hasClass('notexist') ||
-                 $('img[name="'+$(this).attr("name")+'"]', '#search').hasClass('notexist')
-            ) {
-                coverscraper.getNewAlbumArt(this);
-             }
+        $("#sortable").find(".notexist").each( function() {
+            var name = $(this).attr("name");
+            if (typeof(searchedimages[name]) == "undefined") {
+                searchedimages[name] = true;
+                colobj = $('img[name="'+name+'"]', '#collection');
+                schobj = $('img[name="'+name+'"]', '#search');
+                if (colobj.length == 0 ||
+                    schobj.length == 0 ||
+                    colobj.hasClass('notexist') ||
+                    schobj.hasClass('notexist')
+                ) {
+                    coverscraper.getNewAlbumArt(this);
+                }
+            }
          });
 
     }

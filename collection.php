@@ -345,8 +345,8 @@ function process_file($collection, $filedata) {
                 = getStuffFromXSPF($file);
 
     } else {
-        $artist = (array_key_exists('Artist', $filedata)) ? $filedata['Artist'] : basename(dirname(dirname($file)));
-        $album = (array_key_exists('Album', $filedata)) ? $filedata['Album'] : basename(dirname($file));
+        $artist = (array_key_exists('Artist', $filedata)) ? $filedata['Artist'] : rawurldecode(basename(dirname(dirname($file))));
+        $album = (array_key_exists('Album', $filedata)) ? $filedata['Album'] : rawurldecode(basename(dirname($file)));
         // $albumartist = (array_key_exists('AlbumArtistSort', $filedata)) ? $filedata['AlbumArtistSort'] : ((array_key_exists('AlbumArtist', $filedata)) ? $filedata['AlbumArtist'] : null);
         $albumartist = (array_key_exists('AlbumArtist', $filedata)) ? $filedata['AlbumArtist'] : null; 
         $name = (array_key_exists('Title', $filedata)) ? $filedata['Title'] : basename($file);
