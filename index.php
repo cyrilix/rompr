@@ -25,6 +25,7 @@ print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme']
 <script type="text/javascript" src="keycode.js"></script>
 <script type="text/javascript" src="functions.js"></script>
 <script type="text/javascript" src="uifunctions.js"></script>
+<script type="text/javascript" src="clickfunctions.js"></script>
 <script type="text/javascript" src="lfmdatafunctions.js"></script>
 <script type="text/javascript" src="lastfmstation.js"></script>
 <script type="text/javascript" src="jshash-2.2/md5-min.js"></script>
@@ -65,6 +66,26 @@ var gotNeighbours = false;
 var gotFriends = false;
 var sourceshidden = false;
 var playlisthidden = false;
+
+// function where_am_i() {
+//     var N= navigator.appName, ua= navigator.userAgent, tem;
+//     var M= ua.match(/(opera|chrome|safari|firefox|msie)\/?\s*(\.?\d+(\.\d+)*)/i);
+//     if(M && (tem= ua.match(/version\/([\.\d]+)/i))!= null) M[2]= tem[1];
+//     M= M? [M[1], M[2]]: [N, navigator.appVersion, '-?'];
+//     return M;
+// }
+// 
+// debug.log("Browser Version:", where_am_i());
+// 
+// switch (where_am_i()[0].toLowerCase()) {
+//     case "opera":
+//         alert("Rompr will probably not work properly in Opera. I know you probably won't like this, but they're being really slow adding CSS3 support");
+//         break;
+//     case "msie":
+//         alert("Internet Explorer? Are you joking? RompR probably won't work. This is because Internet Explorer does not support the latest web standards. Microsoft are assholes. Use at least version 10, or get a proper browser");
+//         break;
+// }
+
 // var resizeTimer;
 <?php
  print "var scrobblepercent = ".$prefs['scrobblepercent'].";\n";
@@ -84,7 +105,25 @@ $(document).ready(function(){
         debug.log("Adding Storage Event Listener");
         window.addEventListener("storage", onStorageChanged, false);
     }
+    
+    // Set up all our click event listeners
+    $("#collection").click(onCollectionClicked);
+    $("#collection").dblclick(onCollectionDoubleClicked);    
+    $("#filecollection").click(onCollectionClicked);
+    $("#filecollection").dblclick(onCollectionDoubleClicked);
+    $("#search").click(onCollectionClicked);
+    $("#search").dblclick(onCollectionDoubleClicked);    
+    $("#filesearch").click(onCollectionClicked);
+    $("#filesearch").dblclick(onCollectionDoubleClicked);
+    $("#lastfmlist").click(onLastFMClicked);
+    $("#lastfmlist").dblclick(onLastFMDoubleClicked);
+    $("#radiolist").click(onRadioClicked);
+    $("#radiolist").dblclick(onRadioDoubleClicked);
 
+    setDraggable('collection');
+    setDraggable('filecollection');
+
+    
     setBottomPaneSize();
     $("#collection").html('<div class="dirname"><h2 id="loadinglabel"></h2></div>');
     $("#filecollection").html('<div class="dirname"><h2 id="loadinglabel2"></h2></div>');
@@ -136,11 +175,16 @@ $(document).ready(function(){
             savePrefs({sourceswidthpercent: sourceswidthpercent.toString()})
         });
     });
+    
+    
     $("#lastfmlist").load("lastfmchooser.php");
     $("#bbclist").load("bbcradio.php");
     $("#somafmlist").load("somafm.php");
     $("#yourradiolist").load("yourradio.php");
     $("#icecastlist").load("getIcecast.php");
+    
+    
+    
     loadKeyBindings();
     if (!shownupdatewindow) {
         var fnarkle = popupWindow.create(500,300,"fnarkle",true,"Information About This Version");
@@ -257,49 +301,42 @@ $(document).ready(function(){
         print '<div id="radiolist" class="invisible">'."\n";
     }
     ?>
-    <ul class="sourcenav">
-        <li>
-            <table><tr>
-                <td><a name="yourradiolist" style="padding-left:0px" href="#" onclick="doMenu(event, 'yourradiolist')"><img src="images/toggle-closed.png"></a></td>
-                <td><img src="images/broadcast.png" height="28px"></td><td><h3>Your Radio Stations</h3></td>
-            </tr></table>
-        </li>
-        <li>
-            <div id="yourradiolist" name="yourradiolist" class="invisible"></div>
-        </li>
-        <li>
-            <table><tr>
-                <td><a name="somafmlist" style="padding-left:0px" href="#" onclick="doMenu(event, 'somafmlist')"><img src="images/toggle-closed.png"></a></td>
-                <td><img src="images/somafm.png" height="24px"></td>
-            </tr></table>
-        </li>
-        <li>
-            <div id="somafmlist" name="somafmlist" class="invisible"></div>
-        </li>
-        <li>
-            <table><tr>
-                <td><a name="bbclist" style="padding-left:0px" href="#" onclick="doMenu(event, 'bbclist')"><img src="images/toggle-closed.png"></a></td>
-                <td><img src="images/bbcr.png" height="32px"></td><td><h3>Live BBC Radio</h3></td>
-            </tr></table>
-        </li>
-        <li>
-            <div id="bbclist" name="bbclist" class="invisible"></div>
-        </li>
-        <li>
-            <table><tr>
-                <td><a name="icecastlist" style="padding-left:0px" href="#" onclick="doMenu(event, 'icecastlist')"><img src="images/toggle-closed.png"></a></td>
-                <td><img src="images/icecast.png" height="32px"></td><td><h3>Icecast Radio</h3></td>
-            </tr></table>
-        </li>
-        <li>
-            <div id="icecastlist" name="icecastlist" class="invisible">
-                <div class="dirname">
-                    <h2 id="loadinglabel3">Loading Stations...</h2>
-                </div>
-            </div>
-        </li>
-    </ul>
 
+    <div class="containerbox menuitem">
+        <img src="images/toggle-closed.png" class="menu fixed" name="yourradiolist">
+        <div class="smallcover fixed"><img height="32px" width="32px" src="images/broadcast.png"></div>
+        <div class="expand">Your Radio Stations</div>
+    </div>
+    <div id="yourradiolist" class="dropmenu">
+    </div>
+    
+    <div class="containerbox menuitem">
+        <img src="images/toggle-closed.png" class="menu fixed" name="somafmlist">
+        <div class="smallcover fixed"><img height="32px" width="32px" src="images/somafm.png"></div>
+        <div class="expand">Soma FM</div>
+    </div>
+    <div id="somafmlist" class="dropmenu">
+    </div>
+    
+    <div class="containerbox menuitem">
+        <img src="images/toggle-closed.png" class="menu fixed" name="bbclist">
+        <div class="smallcover fixed"><img height="32px" width="32px" src="images/bbcr.png"></div>
+        <div class="expand">Live BBC Radio</div>
+    </div>
+    <div id="bbclist" class="dropmenu">
+    </div>
+    
+    <div class="containerbox menuitem">
+        <img src="images/toggle-closed.png" class="menu fixed" name="icecastlist">
+        <div class="smallcover fixed"><img height="32px" width="32px" src="images/icecast.png"></div>
+        <div class="expand">Icecast Radio</div>
+    </div>
+    <div id="icecastlist" class="dropmenu">
+        <div class="dirname">
+            <h2 id="loadinglabel3">Loading Stations...</h2>
+        </div>
+    </div>
+    
 </div>
 </div>
 

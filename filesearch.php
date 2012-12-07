@@ -37,7 +37,7 @@ function doFileSearch($cmd) {
     $output->writeLine('<div id="artistname">');
     $output->writeLine("<h3>Search Results:</h3>");
     $output->writeLine("</div>");
-    $tree->root->createHTML("b", $output);
+    $tree->getHTML("b", $output);
     $output->writeLine('<div class="separator"></div>');
 
 }

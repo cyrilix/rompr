@@ -1121,7 +1121,8 @@ $.widget("ui.draggable", $.ui.mouse, {
 		snapMode: "both",
 		snapTolerance: 20,
 		stack: false,
-		zIndex: false
+		zIndex: false,
+        helperPos: false
 	},
 	_create: function() {
 
@@ -1205,12 +1206,19 @@ $.widget("ui.draggable", $.ui.mouse, {
 		this.cssPosition = this.helper.css("position");
 		this.scrollParent = this.helper.scrollParent();
 
-		//The element's absolute position on the page minus margins
-		this.offset = this.positionAbs = this.element.offset();
-		this.offset = {
-			top: this.offset.top - this.margins.top,
-			left: this.offset.left - this.margins.left
-		};
+        if (o.helperPos) {
+            this.offset = {
+                top: event.pageY - 12,
+                left: event.pageX - 80
+            };
+        } else {
+            //The element's absolute position on the page minus margins
+            this.offset = this.positionAbs = this.element.offset();
+            this.offset = {
+                top: this.offset.top - this.margins.top,
+                left: this.offset.left - this.margins.left
+            };
+        }
 
 		$.extend(this.offset, {
 			click: { //Where the click happened, relative to the element

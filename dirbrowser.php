@@ -13,7 +13,7 @@ function doFileCollection($file) {
 
     $output = new collectionOutput($file);
     $tree = doFileList("list file");
-    $tree->root->createHTML("a", $output);
+    $tree->getHTML("a", $output);
     $output->closeFile();
     $output->dumpFile();
 

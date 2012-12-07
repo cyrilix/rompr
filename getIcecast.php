@@ -73,21 +73,24 @@ print count($stations) . ' IceCast Radio Stations</td></tr></table></div>';
 ksort($genres, SORT_STRING);
 $count = 0;
 foreach ($genres as $i => $name) {
-    print '<div class="dirname">' . "\n";
-    print '<table width="100%" class="filetable"><tr><td style="width:24px"><a href="#" onclick="doMenu(event, \'genre' . $count . '\');" name="genre' . $count . '"><img src="images/toggle-closed.png"></a></td><td align="left">';
-    print $genres[$i]->name;
-    print '</td></tr></table></div>';
-    print '<div class="filedropmenu" name="genre' . $count . '">' . "\n";
-    print '<div class="filemenu" style="margin-left:32px">';
-    print '<table width="100%" class="filetable">';
+
+    print '<div class="containerbox menuitem">';
+    print '<img src="images/toggle-closed.png" class="menu fixed" name="genre'.$count.'">';
+    print '<div class="expand">'.utf8_encode($genres[$i]->name).'</div>';
+    print '</div>';
+    
+    print '<div id="genre'.$count.'" class="dropmenu">';
     foreach($genres[$i]->stations as $n => $station) {
-        print '<tr><td><a href="#" onclick="addIceCast(\''.rawurlencode($stations[$station]->name).'\')">'.utf8_encode($stations[$station]->name)."</a></td></tr>\n";
+        print '<div class="clickable clickicecast indent containerbox padright" name="'.rawurlencode($stations[$station]->name).'">';
+        print '<div class="playlisticon fixed"><img height="12px" src="images/broadcast.png" /></div>';
+        print '<div class="expand">'.utf8_encode($stations[$station]->name).'</div>';
+        print '</div>';
     }
-    print "</table>\n";
-    print "</div>\n";    
-    print "</div>\n";
+    print '</div>';
     $count++;
 }
+
+print '</div>';
 
 $output = '<?xml version="1.0" encoding="utf-8"?><playlist version="1">'."\n".
             '<title>Icecast Stations</title>'."\n".

@@ -1,16 +1,18 @@
-<div id="albumname" class="indent">
-<table>
+<div class="noselection fullwidth">
 <?php
 $x = simplexml_load_file("resources/bbcradio.xml");
 foreach($x->stations->station as $i => $station) {
-    print '<tr><td>';
+
+    print '<div class="clickable clickbbc indent containerbox padright menuitem" name="'.$station->playlist.'" bbcimg="'.$station->image.'">';
+    print '<div class="fixed amid"><img width="20px" src="';
     if ($station->image) {
-        print '<img style="vertical=align:middle" width="20px" src="'.$station->image.'">';
+        print $station->image;
+    } else {
+        print "images/broadcast.png";
     }
-    print '</td><td>';
-    print '<a href="#" onclick="getInternetPlaylist(\''.$station->playlist.'\', \''.$station->image.'\')">'.$station->name.'</a>';
-    print '</td></tr>';
+    print '" /></div>';
+    print '<div class="expand indent amid">'.$station->name.'</div>';
+    print '</div>';
 }
 ?>
-</table>
 </div>

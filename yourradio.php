@@ -1,22 +1,25 @@
 <?php
+print '<div class="noselection fullwidth">';
 
 print '<p>Enter a URL of an internet station in this box</p>';
 print '<input class="sourceform" id="yourradioinput" type="text" size="60"/>';
 print '<button class="topformbutton" onclick="doInternetRadio(\'yourradioinput\')">Play</button>';
 
 $playlists = glob("prefs/USERSTREAM*.xspf");
-print '<table width="100%">';
+
 foreach($playlists as $i => $file) {
     $x = simplexml_load_file($file);
     foreach($x->trackList->track as $i => $track) {
-        print '<tr><td><img src="'.$track->image.'" height="20px"></td><td><a style="padding-left:0px" href="#" onclick="playUserStream(\''.$file.'\');">'.$track->album.'</a></td>';
-        print '<td class="playlisticon" align="right"><a style="padding-left:0px" href="#" onclick="removeUserStream(\''.$file.'\');">';
-        print '<img src="images/edit-delete.png"></a></td>';
-        print '</tr>';
+    
+        print '<div class="clickable clickradio containerbox padright menuitem" name="'.$file.'">';
+        print '<div class="playlisticon fixed"><img width="20px" src="'.$track->image.'" /></div>';
+        print '<div class="expand indent">'.utf8_encode($track->album).'</div>';
+        print '<div class="playlisticon fixed clickable clickradioremove clickicon" name="'.$file.'"><img src="images/edit-delete.png"></div>';
+        print '</div>';
         break;
     }
 }
 
-print '</table>'
+print '</div>';
 
 ?>

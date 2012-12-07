@@ -71,6 +71,16 @@ a.album:hover,a.album:active
     border-left:1px solid #444444;
 }
 
+div.clickable:hover
+{
+    color:#ff4800;
+}    
+
+div.clickable.selected:hover
+{
+    color:#dddddd;
+}    
+
 /*-- divs and classes used in the playlist --*/
 
 .playlistcurrentitem tr td a.album

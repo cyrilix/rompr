@@ -17,52 +17,6 @@ function reloadPlaylistControls() {
     });
 }
 
-function setDraggable(element) {
-    $(element).disableSelection();
-    $(element).removeClass("nottweaked");
-    $(element).draggable({  
-                            connectToSortable: "#sortable",
-                            addClasses: false,
-                            helper: function(event) {
-                                var dragger = document.createElement('div');
-                                dragger.setAttribute("id", "dragger");
-                                $(dragger).addClass("draggable dragsort");
-                                if (!$(this).hasClass("selected")) {
-                                    trackSelect(event, this);
-                                }
-                                $(".selected").clone().removeClass("selected").appendTo(dragger).children('td').removeAttr('width');
-                                return dragger;
-                            }
-                        });
-}
-
-function doMenu(event, item) {
-
-    event.stopImmediatePropagation();
-
-    if ($('a[name|="'+item+'"]').html() == '<img src="images/toggle-closed.png">') {
-        $('a[name|="'+item+'"]').html('<img src="images/toggle-open.png">');
-        $('div[name|="'+item+'"]').children('div').children('table').find(".updateable").attr("src", function () {
-            $(this).removeClass("updateable");
-            if ($(this).hasClass("notexist")) {
-                coverscraper.getNewAlbumArt(this);
-                return "images/album-unknown-small.png";
-            } else if ($(this).hasClass("notfound")) {
-                return "images/album-unknown-small.png";
-            } else {
-                return "albumart/small/" + $(this).attr("name") + ".jpg";
-            }
-        });
-        $('div[name|="'+item+'"]').find(".nottweaked").each( function(index, element) {
-            setDraggable(element);
-        });
-    } else {
-        $('a[name|="'+item+'"]').html('<img src="images/toggle-closed.png">');
-    }
-    $('div[name|="'+item+'"]').slideToggle('fast');
-
-}
-
 function formatTimeString(duration) {
     if (duration > 0) {
         var secs=duration%60;
@@ -425,7 +379,6 @@ function getNeighbours(event) {
         makeWaitingIcon("neighbourwait");
         lastfm.user.getNeighbours({user: lastfm.username()}, gotNeighbourData, gotNoNeighbours);
     }
-    doMenu(event, "neighbours");
 }
 
 function getFriends(event) {
@@ -433,7 +386,6 @@ function getFriends(event) {
         makeWaitingIcon("freindswait");
         lastfm.user.getFriends({user: lastfm.username()}, gotFriendsData, gotNoFriends);
     }
-    doMenu(event, "friends");
 }
 
 function gotNoNeighbours(data) {
@@ -455,34 +407,49 @@ function toggleFileSearch() {
 function gotNeighbourData(data) {
     gotNeighbours = true;
     if (data.neighbours.user) {
-        $('div[name="neighbours"]').html(getLfmPeople(data.neighbours));
+        $('#lfmneighbours').html(getLfmPeople(data.neighbours), "lfmn");
     }
     stopWaitingIcon("neighbourwait");
 }
 
 function gotFriendsData(data) {
     gotFriends = true;
-    var html = "";
     if (data.friends.user) {
-        $('div[name="friends"]').html(getLfmPeople(data.friends));
+        $("#lfmfriends").html(getLfmPeople(data.friends), "lfmf");
     }
     stopWaitingIcon("freindswait");
 }
 
-function getLfmPeople(data) {
+function getLfmPeople(data, prefix) {
     var userdata = getArray(data.user);
-    var html = '<table width="100%" class="filetable">';
+    var html = "";
+    var count = 0;
     for(var i in userdata) {
-        html = html + '<tr><td colspan="2" style="padding-top:8px"><b>'+userdata[i].name+'</b></td></tr>';
-        html = html + '<tr><td rowspan="4" align="center"><a href="'+userdata[i].url+'" target="_blank"><img src="'+userdata[i].image[0]['#text']+'" style="vertical-align:middle" width="40px"></a></td>';
-
-        html = html + '<td><a href="#" onclick="doLastFM(\'lastfmuser\', \''+userdata[i].name+'\')">&nbsp;Library Radio</a></td></tr>';
-        html = html + '<tr><td><a href="#" onclick="doLastFM(\'lastfmmix\', \''+userdata[i].name+'\')">&nbsp;Mix Radio</a></td></tr>';
-        html = html + '<tr><td><a href="#" onclick="doLastFM(\'lastfmrecommended\', \''+userdata[i].name+'\')">&nbsp;Recommended Radio</a></td></tr>';
-        html = html + '<tr><td><a href="#" onclick="doLastFM(\'lastfmneighbours\', \''+userdata[i].name+'\')">&nbsp;Neighbourhood Radio</a></td></tr>';
-
+        html = html + '<div class="containerbox menuitem">';
+        html = html + '<img src="images/toggle-closed.png" class="menu fixed" name="'+prefix+count.toString()+'" />';
+        if (userdata[i].image[0]['#text'] != "") {
+            html = html + '<img class="smallcover fixed" src="'+userdata[i].image[0]['#text']+'" />';
+        } else {
+            html = html + '<img class="smallcover fixed" src="images/album-unknown-small.png" />';
+        }
+        html = html + '<div class="expand">'+userdata[i].name+'</div>';
+        html = html + '</div>';
+        html = html + '<div id="'+prefix+count.toString()+'" class="dropmenu">';
+        html = html + '<div class="clickable clicklfm2 indent containerbox padright menuitem" name="lastfmuser" username="'+userdata[i].name+'">';
+        html = html + '<div class="expand">Library Radio</div>';
+        html = html + '</div>';
+        html = html + '<div class="clickable clicklfm2 indent containerbox padright menuitem" name="lastfmmix" username="'+userdata[i].name+'">';
+        html = html + '<div class="expand">Mix Radio</div>';
+        html = html + '</div>';
+        html = html + '<div class="clickable clicklfm2 indent containerbox padright menuitem" name="lastfrecommended" username="'+userdata[i].name+'">';
+        html = html + '<div class="expand">Recommended Radio</div>';
+        html = html + '</div>';
+        html = html + '<div class="clickable clicklfm2 indent containerbox padright menuitem" name="lastfmneighbours" username="'+userdata[i].name+'">';
+        html = html + '<div class="expand">Neighbourhood Radio</div>';
+        html = html + '</div>';
+        html = html + '</div>';
+        count++;
     }
-    html = html + '</table>';
     return html;
 }
 
@@ -742,47 +709,31 @@ var popupWindow = function() {
     };
 }();
 
-function trackSelect(event, elem) {
-    var hc = $(elem).hasClass("selected") ? true : false;
-    var album = null;
-    if ($(elem).hasClass("talbum")) {
-        var link = $(elem).attr("ondblclick");
-        var r = /playlist.addalbum\(\'(.*?)\'/;
-        var result = r.exec(link);
-        if (result && result[1]) {
-            album = result[1];
-        }
-    }
-    if ($(elem).hasClass("dir")) {
-        album = $(elem).attr("name");
-    }
+function albumSelect(event, element) {
+    
+    // Is the clicked element currently selected?
+    var is_currently_selected = element.hasClass("selected") ? true : false;
+    
+    // Unselect all selected items if Ctrl or Meta is not pressed
     if (!event.metaKey && !event.ctrlKey) {
         $(".selected").removeClass("selected");
-    }
-    if (!hc) {
-        $(elem).addClass("selected");
-        if($(elem).hasClass("playlistrow1")) {
-            $(elem).next().addClass("selected");
-        }
-        if($(elem).hasClass("playlistrow2")) {
-            $(elem).prev().addClass("selected");
-        }
-        if (album) {
-            $('div[name="'+album+'"]').find('tr').addClass("selected");
+        // If we've clicked a selected item without Ctrl or Meta,
+        // then all we need to do is unselect everything. Nothing else to do
+        if (is_currently_selected) {
+            return 0;
         }
     }
-    if (hc && (event.metaKey || event.ctrlKey)) {
-        $(elem).removeClass("selected");
-        if($(elem).hasClass("playlistrow1")) {
-            $(elem).next().removeClass("selected");
-        }
-        if($(elem).hasClass("playlistrow2")) {
-            $(elem).prev().removeClass("selected");
-        }
-        if (album) {
-            $('div[name="'+album+'"]').find('tr').removeClass("selected");
-        }
+    
+    var div_to_select = element.attr("name");
+    debug.log("Looking for div",div_to_select);
+    if (is_currently_selected) {
+        element.removeClass("selected");
+        $("#"+div_to_select).find(".clickable").removeClass("selected");
+    } else {
+        element.addClass("selected");
+        $("#"+div_to_select).find(".clickable").addClass("selected");
     }
+    
 }
 
 function clearPlaylist() {

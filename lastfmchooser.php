@@ -1,34 +1,98 @@
-<ul class="sourcenav">
-    <li><table><tr><td><img src="images/lastfm.png"></td><td><h3>Last.FM Personal Radio</h3></td></tr></table></li>
-    <li><a href="#" onclick="doLastFM('lastfmuser', lastfm.username())">Library Radio</a></li>
-    <li><a href="#" onclick="doLastFM('lastfmmix', lastfm.username())">Mix Radio</a></li>
-    <li><a href="#" onclick="doLastFM('lastfmrecommended', lastfm.username())">Recommended Radio</a></li>
-    <li><a href="#" onclick="doLastFM('lastfmneighbours', lastfm.username())">Neighbourhood Radio</a></li><br>
-    <li><b>Last.FM Artist Radio</b></li>
-    <li>
-        <input class="sourceform" id="lastfmartist" type="text" size="60"/>
-        <button class="topformbutton" onclick="doLastFM('lastfmartist')">Play</button>
-    </li>
-    <li><b>Last.FM Artist Fan Radio</b></li>
-    <li>
-        <input class="sourceform" id="lastfmfan" type="text" size="60"/>
-        <button class="topformbutton" onclick="doLastFM('lastfmfan')">Play</button>
-    </li>
-    <li><b>Last.FM Global Tag Radio</b></li>
-    <li>
-        <input class="sourceform" id="lastfmglobaltag" type="text" size="60"/>
-        <button class="topformbutton" onclick="doLastFM('lastfmglobaltag')">Play</button>
-    </li>
-    <li>
-        <a name="friends" style="padding-left:0px" href="#" onclick="getFriends(event)"><img src="images/toggle-closed.png"></a><b>Friends</b>
-        <img id="freindswait" height="20px" src="images/transparent-32x32.png" />
-    </li>
-        <div id="albummenu" name="friends"></div>
-    </li>
-    <li>
-        <a name="neighbours" style="padding-left:0px" href="#" onclick="getNeighbours(event)"><img src="images/toggle-closed.png"></a><b>Neighbours</b>
-        <img id="neighbourwait" height="20px" src="images/transparent-32x32.png" />
-    </li>
-        <div id="albummenu" name="neighbours"></div>
-    </li>
-</ul>
+<?php
+include ("vars.php");
+?>
+
+<div class="noselection fullwidth">
+    <div class="containerbox menuitem">
+        <img src="images/lastfm.png" class="fixed smallcover">
+        <h3>Last.FM Personal Radio</h3>
+    </div>
+    <div class="clickable clicklfm indent containerbox padright menuitem", name="lastfmuser">
+        <div class="fixed playlisticon"><img src="images/start.png" height="12px""></div>
+        <div class="expand">
+<?php
+            if ($prefs['lastfm_user'] != "") {
+                print $prefs['lastfm_user']."'s ";
+            }
+            print "Library Radio";
+?>
+        </div>
+    </div>
+    <div class="clickable clicklfm indent containerbox padright menuitem", name="lastfmmix">
+        <div class="fixed playlisticon"><img src="images/start.png" height="12px""></div>
+        <div class="expand">
+<?php
+            if ($prefs['lastfm_user'] != "") {
+                print $prefs['lastfm_user']."'s ";
+            }
+            print "Mix Radio";
+?>
+        </div>
+    </div>
+    <div class="clickable clicklfm indent containerbox padright menuitem", name="lastfmrecommended">
+        <div class="fixed playlisticon"><img src="images/start.png" height="12px""></div>
+        <div class="expand">
+<?php
+            if ($prefs['lastfm_user'] != "") {
+                print $prefs['lastfm_user']."'s ";
+            }
+            print "Recommended Radio";
+?>
+        </div>
+    </div>
+    <div class="clickable clicklfm indent containerbox padright menuitem", name="lastfmneighbours">
+        <div class="fixed playlisticon"><img src="images/start.png" height="12px""></div>
+        <div class="expand">
+<?php
+            if ($prefs['lastfm_user'] != "") {
+                print $prefs['lastfm_user']."'s ";
+            }
+            print "Neighbourhood Radio";
+?>
+        </div>
+    </div>
+
+    <div class="indent containerbox padright">
+        <h3>Last.FM Artist Radio</h3>
+    </div>
+    <div class="indent containerbox padright">
+        <input class="sourceform expand" id="lastfmartist" type="text" size="60"/>        
+        <button class="topformbutton fixed" onclick="doLastFM('lastfmartist')">Play</button>
+    </div>
+
+    <div class="indent containerbox padright">
+        <h3>Last.FM Artist Fan Radio</h3>
+    </div>
+    <div class="indent containerbox padright">
+        <input class="sourceform expand" id="lastfmfan" type="text" size="60"/>        
+        <button class="topformbutton fixed" onclick="doLastFM('lastfmfan')">Play</button>
+    </div>
+
+    <div class="indent containerbox padright">
+        <h3>Last.FM Global Tag Radio</h3>
+    </div>
+    <div class="indent containerbox padright">
+        <input class="sourceform expand" id="lastfmglobaltag" type="text" size="60"/>        
+        <button class="topformbutton fixed" onclick="doLastFM('lastfmglobal')">Play</button>
+    </div>
+    
+    <div class="noselection fullwidth">
+    <div class="containerbox menuitem">
+        <img src="images/toggle-closed.png" class="menu fixed" onclick="getFriends(event)" name="lfmfriends">
+        Friends
+        <img id="freindswait" height="14px" width="14px" src="images/transparent-32x32.png" />
+    </div>
+    <div id="lfmfriends" class="dropmenu"></div>
+    </div>
+    
+    <div class="noselection fullwidth">
+    <div class="containerbox menuitem">
+        <img src="images/toggle-closed.png" class="menu fixed" onclick="getNeighbours(event)" name="lfmneighbours">
+        Neighbours
+        <img id="neighbourwait" height="14px" width="14px" src="images/transparent-32x32.png" />
+    </div>
+    <div id="lfmneighbours" class="dropmenu"></div>
+    </div>
+
+    
+</div>

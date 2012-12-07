@@ -125,10 +125,10 @@ function Album(artist, album, index, rolledup) {
     this.deleteSelf = function() {
         var todelete = new Array();
         for(var i in tracks) {
-            $("#"+tracks[i].playlistpos).fadeOut('fast');
-            todelete.push(tracks[i].backendid);
+            $("#"+tracks[i].playlistpos).empty();
+             todelete.push(tracks[i].backendid);
         }
-        $('#item[name="'+self.index+'"]').fadeOut('fast');
+         $('#item[name="'+self.index+'"]').empty();
         mpd.deleteTracksByID(todelete, playlist.repopulate)
     }
 
@@ -250,10 +250,10 @@ function Stream(index, album, rolledup) {
     this.deleteSelf = function() {
         var todelete = new Array();
         for(var i in tracks) {
-            $("#"+tracks[i].playlistpos).fadeOut('fast');
+            $("#"+tracks[i].playlistpos).empty();
             todelete.push(tracks[i].backendid);
         }
-        $('#item[name="'+self.index+'"]').fadeOut('fast');
+        $('#item[name="'+self.index+'"]').empty();
         mpd.deleteTracksByID(todelete, playlist.repopulate)
     }
 
@@ -397,9 +397,9 @@ function LastFMRadio(tuneurl, station, index, rolledup) {
         var todelete = new Array();
         for (var i in tracks) {
             todelete.push(tracks[i].backendid);
-            $("#"+tracks[i].playlistpos).fadeOut('fast');
+            $("#"+tracks[i].playlistpos).empty();
         }
-        $('#item[name="'+self.index+'"]').fadeOut('fast');
+        $('#item[name="'+self.index+'"]').empty();
         $.post("removeStation.php", {remove: hex_md5(self.station)});
         mpd.deleteTracksByID(todelete, playlist.repopulate);
     }
@@ -409,7 +409,7 @@ function LastFMRadio(tuneurl, station, index, rolledup) {
         for (var i in tracks) {
             if (tracks[i].backendid == songid) {
                 playlist.removelfm([songid], tuneurl, (parseInt(tracks[tracks.length-1].playlistpos))+1);
-                $('div[name="'+tracks[i].playlistpos+'"]').filter('[id=booger]').fadeOut('fast');
+                $('div[name="'+tracks[i].playlistpos+'"]').filter('[id=booger]').empty();
                 result = true;
                 break;
             }
@@ -592,9 +592,13 @@ function Playlist() {
             html = html + tracklist[i].getHTML();
         }
         
+        
+        // Remove the contents of the playlist
+        $('#track').empty();
+        $('#item').empty();
+        
         // Invisible empty div tacked on the end gives something to drop draggables onto
         html = html + '<div name="waiter"><table width="100%" class="playlistitem"><tr><td align="left"><img src="images/transparent-32x32.png"></td></tr></table></div>';
-
         $("#sortable").html(html);
 
         $("#sortable").sortable({ items: "div" });
@@ -631,20 +635,17 @@ function Playlist() {
                 }
                 if (ui.item.hasClass("draggable")) {
                     var cmdlist = new Array();
-                    $(ui.item).find('tr').each(function (index, element) {
-                        if (!$(element).hasClass("dir")) {
-                            var link = $(element).attr("ondblclick");
-                            var r = /playlist.addtrack\(\'(.*?)\'/;
-                            var result = r.exec(link);
-                            if (result && result[1]) {
-                                cmdlist.push('add "'+decodeURIComponent(result[1])+'"');
-                            }
+                    $(ui.item).find('.clicktrack').each(function (index, element) {
+                        var uri = $(element).attr("name");
+                        if (uri) {
+                            cmdlist.push('add "'+decodeURIComponent(uri)+'"');
                         }
                     });
                     var elbow = (parseInt(finaltrack))+1;
                     var arse = elbow+cmdlist.length;
                     cmdlist.push('move "'+elbow.toString()+":"+arse.toString()+'" "'+moveto.toString()+'"');
                     mpd.do_command_list(cmdlist, playlist.repopulate);
+                    $('.selected').removeClass('selected');
                 } else {
                     if (elementmoved == "track") {
                         itemstomove = ui.item.attr("name");
@@ -755,6 +756,7 @@ function Playlist() {
         clearProgressTimer();
         if (finaltrack == -1) {
             // Playlist is empty
+            debug.log("Playlistis empty");
             nowplaying.newTrack(emptytrack);
             $("#progress").progressbar("option", "value", 0);
             $("#playbackTime").html("");
@@ -801,6 +803,7 @@ function Playlist() {
                     return 0;
                 }
                 if (currentTrack && currentTrack.type != "stream") {
+                    debug.log("Creating new track");
                     nowplaying.newTrack(currentTrack);
                 }
                 for(var i in tracklist) {
@@ -822,6 +825,7 @@ function Playlist() {
                 if (duration > 0 && nowplaying.track.type != "stream") {
                     if (progress >= duration) {
                         progresstimer = setTimeout("mpd.update()", safetytimer);
+                        debug.log("Starting safety timer");
                         if (safetytimer < 5000) { safetytimer += 500 }
                     } else {
                         progresstimer = setTimeout("playlist.checkProgress()", 1000);
@@ -921,28 +925,26 @@ function Playlist() {
         self.checkProgress();
     }
 
-    this.addtrack = function(url) {
+    this.addtrack = function(element) {
         self.waiting();
         if (mpd.status.state == "stop") {
             var cmdlist = new Array();
-            cmdlist.push('add "'+decodeURIComponent(url)+'"');
+            cmdlist.push('add "'+decodeURIComponent(element.attr("name"))+'"');
             cmdlist.push('play "'+(((finaltrack)+1).toString())+'"');
             mpd.do_command_list(cmdlist, playlist.repopulate);
         } else {
-            mpd.command("command=add&arg="+url, playlist.repopulate);
+            mpd.command("command=add&arg="+element.attr("name"), playlist.repopulate);
         }
         scrollto = (finaltrack)+1;
     }
 
-    this.addalbum = function(key) {
+    this.addalbum = function(element) {
         self.waiting();
         var list = new Array();
-        $('div[name="'+key+'"]').find('tr').each(function (index, element) { 
-            var link = $(element).attr("ondblclick");
-            var r = /playlist.addtrack\(\'(.*?)\'/;
-            var result = r.exec(link);
-            if (result && result[1]) {
-                list.push('add "'+decodeURIComponent(result[1])+'"');
+        $('#'+element.attr("name")).find('.clicktrack').each(function (index, element) { 
+            var uri = $(element).attr("name");
+            if (uri) {
+                list.push('add "'+decodeURIComponent(uri)+'"');
             }
         });
         if (mpd.status.state == 'stop') {

@@ -29,6 +29,12 @@ h2
     margin-bottom:0px;
 }
 
+h3
+{
+    padding-bottom:0px;
+    margin-bottom:8px;
+}
+
 h1,h2,h3,h4,h5,h6
 {
     background-color:transparent;
@@ -237,6 +243,83 @@ a
 
 /*-- divs and classes used in the albums list --*/
 
+.containerbox
+{
+    display:-webkit-box;
+    display:-moz-box;
+    display:-o-box;
+    display:box;
+    display:flexbox;
+    display:flex-box;
+}    
+
+.vertical
+{
+    -moz-box-orient:vertical;
+    -webkit-box-orient:vertical;
+    box-orient:vertical;
+}
+
+.menuitem
+{
+    font-weight:bold;
+    margin:0px;
+    padding-left:8px;
+    padding-right:0px;
+    padding-top:2px;
+    padding-bottom:2px;
+    box-align:center;
+    -moz-box-align:center;
+    -webkit-box-align:center;
+}
+
+.menu
+{
+    width:18px;
+    vertical-align:middle;
+    cursor:pointer;
+}
+ 
+.expand
+{
+    -moz-box-flex:1.0; /* Firefox */
+    -webkit-box-flex:1.0; /* Safari and Chrome */
+    box-flex:1.0;
+    width:2000px; /* Firefox will ONLY shrink elements in a box layout, not expand them */
+}
+
+.fixed
+{
+    -moz-box-flex:0; /* Firefox */
+    -webkit-box-flex:0; /* Safari and Chrome */
+    box-flex:0;
+}
+
+.dropmenu
+{
+    display:none;
+    margin:0px;
+    padding-left:8px;
+    padding-right:0px;
+    padding-top:px;
+    padding-bottom:2px;
+}
+
+.fullwidth
+{
+    width:100%;
+    padding:0px;
+    margin:0px;
+}
+
+.smallcover
+{
+    width:32px;
+    height:32px;
+    vertical-align:middle;
+    margin-right:8px;
+}
+
 .tracknumber
 {
     height:1.3em;
@@ -244,6 +327,22 @@ a
     font-weight:bold;
 }
 
+.clicktrack
+{
+    font-size:96%;
+    padding-top:2px;
+}
+
+.noselection
+{
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+    cursor:default;
+}
+    
 .tracknumbr
 {
     width:2em;
@@ -255,29 +354,22 @@ a
     font-size:110%;
     padding-top:2px;
     padding-bottom:2px;
+    display:block;
 }
 
-a.album:hover,a.album:active
+.padright
 {
-    font-size:120%;
-}
-
-#artistname
-{
-    padding-top:2px;
-    padding-bottom:2px;
-    padding-left:4px;
-    font-weight:bold;
-}
-
-#albummenu
-{
-    padding-top:0px;
-    padding-left:8px;
     padding-right:4px;
+}
+
+.whatdoicallthis
+{
+    padding-left:4px;
+    padding-top:2px;
     padding-bottom:4px;
     font-size:96%;
-    display:none;
+    font-weight:normal;
+    font-style:italic;
 }
 
 .dirname
@@ -287,52 +379,24 @@ a.album:hover,a.album:active
     font-weight:bold;
 }
 
-.filedropmenu
-{
-    padding-top:0px;
-    padding-left:8px;
-    display:none;
-}
-
-.filemenu
-{
-    padding-left:2px;
-    margin-left:22px;
-    font-size:96%;
-}
-
 .indent
 {
     margin-left:16px;
 }
 
-#albumname
-{
-    padding-top:4px;
-    padding-bottom:0px;
-    padding-left:4px;
-    padding-right:4px;
-    font-size:98%;
-    font-weight:bold;
-}
-
-/*--
-
-ul.sourcenav li a
-{
-    padding-left:8px;
-}
-
---*/
-.soma
-{
-    padding:0px;
-    margin:0px;
-}
-
 .selected
 {
     background-color:#CC5500;
+}
+
+.bold
+{
+    font-weight:bold;
+}
+
+.clickable
+{
+    cursor:default;
 }
 
 /*-- divs and classes used in the playlist --*/
@@ -371,9 +435,6 @@ ul.sourcenav li a
 
 .playlistrow2
 {
-    padding-right:0px;
-    padding-top:0px;
-    padding-bottom:2px;
     font-size:90%;
     font-style:italic;
     font-weight:normal;
@@ -386,6 +447,17 @@ ul.sourcenav li a
     padding-top:0px;
     padding-bottom:0px;
     width:20px;
+    vertical-align:middle;
+}
+
+.clickicon
+{
+    cursor:pointer;
+}
+
+.amid
+{
+    vertical-align:middle;
 }
 
 #sortable
@@ -515,6 +587,7 @@ ul.sourcenav li a
 #dragger
 {
     position:absolute;
+    width:300px;
 }
 
 .dragsort
@@ -574,7 +647,7 @@ ul.sourcenav li a
 
 #wobblebottom
 {
-    width:800px;
+    width:960px;
     margin-right:auto;
     margin-left:auto;
     height:80%;
@@ -583,7 +656,7 @@ ul.sourcenav li a
 
 #albumcovers
 {
-    width:800px;
+    width:960px;
     margin-right:auto;
     margin-left:auto;
 }

@@ -576,93 +576,100 @@ function do_albums($artistkey, $compilations, $showartist, $prefix, $output) {
 
     $albumlist = $collection->getAlbumList($artistkey, $compilations, false);
     if (count($albumlist) > 0) {
+    
+        // Create a div to hold the entire data for this artist
+        $output->writeLine('<div class="noselection fullwidth '.$divtype.'">');
 
         $artist = $collection->artistName($artistkey);
-
-       // We have albums for this artist
-        $output->writeLine( '<div id="artistname" class="'.$divtype.'">'."\n");
-        $output->writeLine( '<table width="100%" class="filetable">');
-        $output->writeLine( '<tr class="talbum draggable nottweaked" onclick="trackSelect(event, this)" ondblclick="playlist.addalbum(\''.$prefix.'artist'.$count.'\')">');
-        $output->writeLine( '<td width="18px"><a href="#" onclick="doMenu(event, \''.$prefix.'artist'.$count.'\');" name="'.$prefix.'artist'.$count.'"><img src="images/toggle-closed.png"></a></td>');
-        $output->writeLine( '<td width="1px"></td><td>'.$artist.'</td><td></td></tr></table></div>');
-        $output->writeLine( '<div id="albummenu" name="'.$prefix.'artist'.$count.'" class="'.$divtype.'">'."\n");
-
-        // albumlist is now an array of album objects
+        // Create Artist Name item
+        $output->writeLine('<div class="clickable clickalbum draggable containerbox menuitem" name="'.$prefix.'artist'.$count.'">');
+        $output->writeLine('<img src="images/toggle-closed.png" class="menu fixed" name="'.$prefix.'artist'.$count.'">');
+        $output->writeLine('<div class="expand">'.$artist.'</div>');
+        $output->writeLine('</div>');
+        
+        // Create the drop-down div that will hold this artist's albums
+        $output->writeLine('<div id="'.$prefix.'artist'.$count.'" class="dropmenu">');
+        
         foreach($albumlist as $album) {
+        
+            // Creat the header for the album
+            $output->writeLine('<div class="clickable clickalbum draggable containerbox menuitem" name="'.$prefix.'album'.$count.'">');
+            $output->writeLine('<img src="images/toggle-closed.png" class="menu fixed" name="'.$prefix.'album'.$count.'">');
 
-            $output->writeLine( '<div id="albumname" class="'.$divtype.'">'."\n");
-            $output->writeLine( '<table class="albumname filetable" width="100%"><tr class="talbum draggable nottweaked" onclick="trackSelect(event, this)" ondblclick="playlist.addalbum(\''.$prefix.'album'.$count.'\')"><td width="18px">');
-            $output->writeLine( '<a href="#" onclick="doMenu(event, \''.$prefix.'album'.$count.'\');" name="'.$prefix.'album'.$count.'"><img src="images/toggle-closed.png"></a></td>');
             // We don't set the src tags for the images when the page loads, otherwise we'd be loading in
             // literally hundres of images we don't need. Instead we set the name tag to the url
             // of the image, and then use jQuery magic to set the src tag when the menu is opened -
             // so we only ever load the images we need.
             
             // We also add an artist and album name tag to the image so we can use this for the auto-image lookup later on
-            // We only do this for images that don't exist, just to keep the size of the HTML down
-            $output->writeLine( '<td width="34px">');
-            $artname = md5($album->artist." ".$album->name);
-            // NOTE: The format and ORDER of the tags in the <img> is VERY important as it matched by a regexp
-            // when album art is retrieved
-            if (file_exists("albumart/original/".$artname.".jpg")) {
-                $class = "updateable";
-                $output->writeLine( '<img class="'.$class.'" name="'.$artname.'" style="vertical-align:middle" height="32" src=""></td>');
-            } else {
-                $class = "updateable notexist";
-                $output->writeLine( '<img class="'.$class.'" romprartist="'.rawurlencode($album->artist).'" rompralbum="'.rawurlencode($album->name).'" name="'.$artname.'" style="vertical-align:middle" height="32" src=""></td>');
-            }
-            $output->writeLine( '<td><b>'.$album->name.'</b>');
-            $output->writeLine( "</td><td></td></tr></table>");
-            $output->writeLine( "</div>\n");
+            // We only do this for images that don't exist, just to keep the size of the HTML down            
 
-            $output->writeLine( '<div id="albummenu" name="'.$prefix.'album'.$count.'" class="indent '.$divtype.'">'."\n");
-            $output->writeLine( '<table width="100%" class="filetable">');
+            // NOTE: The format and ORDER of the tags in the <img> is VERY important as it matched by a regexp
+            // when album art is retrieved$artname = md5($album->artist." ".$album->name);
+
+            $artname = md5($album->artist." ".$album->name);
+            if (file_exists("albumart/original/".$artname.".jpg")) {
+                $class = "smallcover updateable fixed";
+                $output->writeLine( '<img class="'.$class.'" name="'.$artname.'" src="" />');
+            } else {
+                $class = "smallcover updateable notexist fixed";
+                $output->writeLine( '<img class="'.$class.'" romprartist="'.rawurlencode($album->artist).'" rompralbum="'.rawurlencode($album->name).'" name="'.$artname.'" src="" />');
+            }
+            $output->writeLine('<div class="expand">'.$album->name.'</div>');
+            $output->writeLine('</div>');
+            
+            // Create the drop-down div that will hold this album's tracks
+            $output->writeLine('<div id="'.$prefix.'album'.$count.'" class="dropmenu">');
             $numdiscs = $album->sortTracks();
             $currdisc = -1;
             foreach($album->tracks as $trackobj) {
+                // Disc Numbers
                 if ($numdiscs > 1) {
                     if ($trackobj->disc != null && $trackobj->disc != $currdisc) {
                         $currdisc = $trackobj->disc;
-                        $output->writeLine( '<tr><td class="discnumber" colspan="3">Disc '.$currdisc.'</td></tr>');
+                        $output->writeLine( '<div class="discnumber indent">Disc '.$currdisc.'</div>');
                     }
                 }
+
+                // Do we need to display the artist info?
                 $dorow2 = false;
-                $classes = "draggable nottweaked";
                 if ( ($showartist || 
                     ($trackobj->albumartist != null && ($trackobj->albumartist != $trackobj->artist))) &&
                     ($trackobj->artist != null && $trackobj->artist != '.')
                 ) {
                     $dorow2 = true;
-                    $classes = $classes." playlistrow1";
                 }
-                $output->writeLine( '<tr class="'.$classes.'" onclick="trackSelect(event, this)" ondblclick="playlist.addtrack(\''.rawurlencode($trackobj->url).'\')"><td align="left" class="tracknumber"');
+                
+                // Track info
                 if ($dorow2) {
-                    $output->writeLine( 'rowspan="2"');
+                    $output->writeLine('<div class="clickable clicktrack draggable indent containerbox vertical padright" name="'.rawurlencode($trackobj->url).'">');
+                    $output->writeLine('<div class="containerbox">');
+                } else {
+                    $output->writeLine('<div class="clickable clicktrack draggable indent containerbox padright" name="'.rawurlencode($trackobj->url).'">');
                 }
-                $output->writeLine( '>' . $trackobj->number . "</td><td>");
+                $output->writeLine('<div class="tracknumber fixed">'.$trackobj->number.'</div>');
                 if (substr($trackobj->url,0,strlen('spotify')) == "spotify") {
-                    $output->writeLine('<img height="12px" src="images/spotify-logo.png" />');
+                    $output->writeLine('<div class="playlisticon fixed"><img height="12px" src="images/spotify-logo.png" /></div>');
                 }
-                $output->writeline("</td>");
-                $output->writeLine( '<td>'.$trackobj->name);
-                $output->writeLine( "</td>\n");
-                $output->writeLine( '<td align="right">'.format_time($trackobj->duration).'</td>');
-                $output->writeLine( "</tr>\n");
+                $output->writeLine('<div class="expand">'.$trackobj->name.'</div>');
+                $output->writeLine('<div class="fixed playlistrow2">'.format_time($trackobj->duration).'</div>');
                 if ($dorow2) {
-                    $output->writeLine( '<tr onclick="trackSelect(event, this)" class="draggable nottweaked playlistrow2"><td></td><td colspan="2">'.$trackobj->artist.'</td></tr>');
+                    $output->writeLine('</div><div class="containerbox">');
+                    $output->writeLine('<div class="tracknumber fixed"></div>');
+                    $output->writeline('<div class="expand playlistrow2">'.$trackobj->artist.'</div>');
+                    $output->writeLine('</div>');
                 }
+                $output->writeLine('</div>');
+                $count++;
             }
-
-            $output->writeLine( "</table>\n");
-            $output->writeLine( "</div>\n");
-
-            $count++;
+            $output->writeLine('</div>');
         }
-        $output->writeLine( "</div>\n");
-
-        $count++;
+        $output->writeLine('</div>');
+        $output->writeLine("</div>\n");
         $divtype = ($divtype == "album1") ? "album2" : "album1";
+        $count++;
     }
+    
 }
 
 function parse_mopidy_tagcache($collection) {

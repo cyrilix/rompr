@@ -48,18 +48,10 @@ function loadCollection(albums, files) {
     $("#loadinglabel2").stop().effect('pulsate', { times:100 }, 2000);    
     $("#loadinglabel").html("Loading Collection");
     $("#loadinglabel2").html("Loading Files");
-    $("#collection").load(albums, function() {
-        $("#collection").children('div').children('table').find(".nottweaked").each( function(index, element) {
-            setDraggable(element);
-        });
-    });
+    $("#collection").load(albums);
     $('#search').load("search.php");
-    $("#filecollection").load(files, function() {
-        $("#filecollection").children('div').children('table').find(".nottweaked").each( function(index, element) {
-            setDraggable(element);
-        });
-        $('#filesearch').load("filesearch.php");
-    });
+    $("#filecollection").load(files);
+    $('#filesearch').load("filesearch.php");
 }
 
 function pollAlbumList() {
@@ -87,7 +79,6 @@ function sourcecontrol(source) {
             break;
         }
     }
-
     switchsource(source);
 }
 

@@ -1,24 +1,30 @@
 <?php
 $x = simplexml_load_file("resources/somafm.xml");
 $count = 0;
+print '<div class="noselection fullwidth">';
 foreach($x->stations->station as $i => $station) {
     
-    $count++;
+    print '<div class="containerbox menuitem">';
+    print '<img src="images/toggle-closed.png" class="menu fixed" name="somafm'.$count.'">';
+    print '<div  class="smallcover fixed"><img height="32px" width="32px" src="'.$station->image.'" /></div>';
+    print '<div class="expand">'.utf8_encode($station->name).'</div>';
+    print '</div>';
    
-    print '<div id="artistname">';
-    print '<table><tr style="vertical-align:top"><td rowspan="2" style="width:24px">';
-    print '<a href="#" onclick="doMenu(event, \'somafm'.$count.'\');" name="somafm'.$count.'"><img src="images/toggle-closed.png"></a></td><td rowspan="2">' . "\n";
-    print '<img src="'.$station->image.'" height="32"></td><td>';
-    print $station->name;
-    print '</td></tr><tr><td style="font-weight:normal;font-size:96%">'.$station->description."</td></tr></table></div>\n";
-
-    print '<div id="albummenu" name="somafm'.$count.'">' . "\n";
-    print '<table width="100%">';
+    print '<div id="somafm'.$count.'" class="dropmenu">';
+    print '<div class="containerbox indent padright">';
+    print '<div class="expand whatdoicallthis">'.$station->description.'</div>';
+    print '</div>';
     foreach($station->link as $j => $link) {
         $pl = preg_replace('/ /', '&nbsp;', $link->desc);
-        print '<tr><td width="56px"></td><td><b><a href="#" onclick="getInternetPlaylist(\''.$link->playlist.'\', \''.$station->image.'\', \''.$station->name.'\', \'Soma FM\')">'.$pl.'</a></b></td></tr>';
+        print '<div class="clickable clicksoma indent containerbox padright menuitem" name="'.$link->playlist.'" somaimg="'.$station->image.'" somaname="'.$station->name.'">';
+        print '<div class="playlisticon fixed"><img height="12px" src="images/broadcast.png" /></div>';
+        print '<div class="expand">'.utf8_encode($pl).'</div>';
+        print '</div>';
     }
-    print '</table></div>';
+    print '</div>';
+    $count++;
 
 }
+print '</div>';
+
 ?>
