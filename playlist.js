@@ -125,10 +125,10 @@ function Album(artist, album, index, rolledup) {
     this.deleteSelf = function() {
         var todelete = new Array();
         for(var i in tracks) {
-            $("#"+tracks[i].playlistpos).empty();
+            $("#"+tracks[i].playlistpos).remove();
              todelete.push(tracks[i].backendid);
         }
-         $('#item[name="'+self.index+'"]').empty();
+        $('#item[name="'+self.index+'"]').remove();
         mpd.deleteTracksByID(todelete, playlist.repopulate)
     }
 
@@ -250,10 +250,10 @@ function Stream(index, album, rolledup) {
     this.deleteSelf = function() {
         var todelete = new Array();
         for(var i in tracks) {
-            $("#"+tracks[i].playlistpos).empty();
+            $("#"+tracks[i].playlistpos).remove();
             todelete.push(tracks[i].backendid);
         }
-        $('#item[name="'+self.index+'"]').empty();
+        $('#item[name="'+self.index+'"]').remove();
         mpd.deleteTracksByID(todelete, playlist.repopulate)
     }
 
@@ -397,9 +397,9 @@ function LastFMRadio(tuneurl, station, index, rolledup) {
         var todelete = new Array();
         for (var i in tracks) {
             todelete.push(tracks[i].backendid);
-            $("#"+tracks[i].playlistpos).empty();
+            $("#"+tracks[i].playlistpos).remove();
         }
-        $('#item[name="'+self.index+'"]').empty();
+        $('#item[name="'+self.index+'"]').remove();
         $.post("removeStation.php", {remove: hex_md5(self.station)});
         mpd.deleteTracksByID(todelete, playlist.repopulate);
     }
@@ -594,80 +594,12 @@ function Playlist() {
         
         
         // Remove the contents of the playlist
-        $('#track').empty();
-        $('#item').empty();
+        $('#sortable').empty();
         
         // Invisible empty div tacked on the end gives something to drop draggables onto
         html = html + '<div name="waiter"><table width="100%" class="playlistitem"><tr><td align="left"><img src="images/transparent-32x32.png"></td></tr></table></div>';
         $("#sortable").html(html);
 
-        $("#sortable").sortable({ items: "div" });
-        $("#sortable").disableSelection();
-        $("#sortable").sortable({ 
-            axis: 'y', 
-            containment: '#sortable', 
-            scroll: 'true', 
-            scrollSpeed: 10,
-            tolerance: 'pointer' 
-        });
-        $("#sortable").sortable({ 
-            start: function(event, ui) { 
-                ui.item.css("background", "#555555"); 
-                ui.item.css("opacity", "0.7") 
-            } 
-        });
-        $("#sortable").sortable({ 
-            stop: function(event, ui) {
-                var itemstomove;
-                var firstmoveitem;
-                var numitems;
-                var moveto;
-                var elementmoved = ui.item.attr("id");
-                var nextelement = $(ui.item).next().attr("id");
-                if (nextelement == "track") { 
-                    moveto = $(ui.item).next().attr("name") 
-                }
-                if (nextelement == "item" ) { 
-                    moveto = tracklist[parseInt($(ui.item).next().attr("name"))].getFirst() 
-                }
-                if (typeof(moveto) == "undefined") {
-                    moveto = (parseInt(finaltrack))+1;
-                }
-                if (ui.item.hasClass("draggable")) {
-                    var cmdlist = new Array();
-                    $(ui.item).find('.clicktrack').each(function (index, element) {
-                        var uri = $(element).attr("name");
-                        if (uri) {
-                            cmdlist.push('add "'+decodeURIComponent(uri)+'"');
-                        }
-                    });
-                    var elbow = (parseInt(finaltrack))+1;
-                    var arse = elbow+cmdlist.length;
-                    cmdlist.push('move "'+elbow.toString()+":"+arse.toString()+'" "'+moveto.toString()+'"');
-                    mpd.do_command_list(cmdlist, playlist.repopulate);
-                    $('.selected').removeClass('selected');
-                } else {
-                    if (elementmoved == "track") {
-                        itemstomove = ui.item.attr("name");
-                        firstmoveitem = itemstomove;
-                        numitems = 1;
-                    }
-                    if (elementmoved == "item") {
-                        itemstomove = tracklist[parseInt(ui.item.attr("name"))].getRange();
-                        firstmoveitem = tracklist[parseInt(ui.item.attr("name"))].getFirst();
-                        numitems = tracklist[parseInt(ui.item.attr("name"))].getSize();
-
-                    }
-                    // If we move DOWN we have to calculate what the position will be AFTER the items
-                    // have been moved. Bit daft, that.
-                    if (parseInt(firstmoveitem) < parseInt(moveto)) {
-                        moveto = parseInt(moveto) - parseInt(numitems);
-                        if (moveto < 0) { moveto = 0; }
-                    }
-                    mpd.command("command=move&arg="+itemstomove+"&arg2="+moveto, self.repopulate);
-                }
-            }
-        });
 
         if (scrollto > -1) {
             $("#playlist").scrollTo('div[name="'+scrollto.toString()+'"]');
@@ -701,9 +633,60 @@ function Playlist() {
          });
 
     }
+    
+    this.dragstopped = function(event, ui) {
+        var itemstomove;
+        var firstmoveitem;
+        var numitems;
+        var moveto;
+        var elementmoved = ui.item.attr("id");
+        var nextelement = $(ui.item).next().attr("id");
+        if (nextelement == "track") { 
+            moveto = $(ui.item).next().attr("name") 
+        }
+        if (nextelement == "item" ) { 
+            moveto = tracklist[parseInt($(ui.item).next().attr("name"))].getFirst() 
+        }
+        if (typeof(moveto) == "undefined") {
+            moveto = (parseInt(finaltrack))+1;
+        }
+        if (ui.item.hasClass("draggable")) {
+            var cmdlist = new Array();
+            $(ui.item).find('.clicktrack').each(function (index, element) {
+                var uri = $(element).attr("name");
+                if (uri) {
+                    cmdlist.push('add "'+decodeURIComponent(uri)+'"');
+                }
+            });
+            var elbow = (parseInt(finaltrack))+1;
+            var arse = elbow+cmdlist.length;
+            cmdlist.push('move "'+elbow.toString()+":"+arse.toString()+'" "'+moveto.toString()+'"');
+            mpd.do_command_list(cmdlist, playlist.repopulate);
+            $('.selected').removeClass('selected');
+        } else {
+            if (elementmoved == "track") {
+                itemstomove = ui.item.attr("name");
+                firstmoveitem = itemstomove;
+                numitems = 1;
+            }
+            if (elementmoved == "item") {
+                itemstomove = tracklist[parseInt(ui.item.attr("name"))].getRange();
+                firstmoveitem = tracklist[parseInt(ui.item.attr("name"))].getFirst();
+                numitems = tracklist[parseInt(ui.item.attr("name"))].getSize();
+
+            }
+            // If we move DOWN we have to calculate what the position will be AFTER the items
+            // have been moved. Bit daft, that.
+            if (parseInt(firstmoveitem) < parseInt(moveto)) {
+                moveto = parseInt(moveto) - parseInt(numitems);
+                if (moveto < 0) { moveto = 0; }
+            }
+            mpd.command("command=move&arg="+itemstomove+"&arg2="+moveto, playlist.repopulate);
+        }        
+    }
 
     this.delete = function(id, pos) {
-        $("#"+pos).fadeOut('fast');
+        $("#"+pos).remove();
         mpd.command("command=deleteid&arg="+id, playlist.repopulate);
     }
 

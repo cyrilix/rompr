@@ -104,10 +104,26 @@ $(document).ready(function(){
     setDraggable('filecollection');
     setDraggable('search');
     setDraggable('filesearch');
-
+    
+    $("#sortable").disableSelection();
+    $("#sortable").sortable({ 
+        items: "div",
+        axis: 'y', 
+        containment: '#sortable', 
+        scroll: 'true', 
+        scrollSpeed: 10,
+        tolerance: 'pointer',
+        start: function(event, ui) { 
+            ui.item.css("background", "#555555"); 
+            ui.item.css("opacity", "0.7") 
+        },
+        stop: function(event, ui) {
+            playlist.dragstopped(event, ui);
+        }
+    });
     setBottomPaneSize();
-    $("#collection").html('<div class="dirname"><h2 id="loadinglabel"></h2></div>');
-    $("#filecollection").html('<div class="dirname"><h2 id="loadinglabel2"></h2></div>');
+//     $("#collection").html('<div class="dirname"><h2 id="loadinglabel"></h2></div>');
+//     $("#filecollection").html('<div class="dirname"><h2 id="loadinglabel2"></h2></div>');
     $("#loadinglabel3").effect('pulsate', { times:100 }, 2000);
     $("#progress").progressbar();
     $("#progress").click(function(evt) { infobar.seek(evt) });

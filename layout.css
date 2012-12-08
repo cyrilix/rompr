@@ -399,6 +399,14 @@ a
     cursor:default;
 }
 
+.line
+{
+    padding-bottom:2px;
+    box-align:center;
+    -moz-box-align:center;
+    -webkit-box-align:center;
+}
+
 /*-- divs and classes used in the playlist --*/
 
 .playlistitem

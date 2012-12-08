@@ -17,7 +17,6 @@ include ("vars.php");
 var sources = new Array();
 var update_load_timer = 0;
 var update_load_timer_running = false;
-
 <?php
 if ($prefs['updateeverytime'] == "true" ||
         !file_exists($ALBUMSLIST) ||
@@ -27,16 +26,23 @@ if ($prefs['updateeverytime'] == "true" ||
     print "updateCollection('update');\n";
 } else {
     // error_log("Loading Music Cache");
+    print "prepareForLiftOff()\n";
     print "loadCollection('".$ALBUMSLIST."', '".$FILESLIST."');\n";
 }
 ?>
 
-function updateCollection(cmd) {
-    debug.log("Updating collection with command", cmd);
+function prepareForLiftOff() {
+    $('#collection').empty();
+    $('#filecollection').empty();
     $("#collection").html('<div class="dirname"><h2 id="loadinglabel">Updating Collection...</h2></div>');
     $("#filecollection").html('<div class="dirname"><h2 id="loadinglabel2">Scanning Files...</h2></div>');
     $("#loadinglabel").effect('pulsate', { times:100 }, 2000);
     $("#loadinglabel2").effect('pulsate', { times:100 }, 2000);
+}
+
+function updateCollection(cmd) {
+    debug.log("Updating collection with command", cmd);
+    prepareForLiftOff();
     $.getJSON("ajaxcommand.php", "command="+cmd, function() { 
                 update_load_timer = setTimeout("pollAlbumList()", 2000);
                 update_load_timer_running = true;
@@ -44,8 +50,6 @@ function updateCollection(cmd) {
 }
 
 function loadCollection(albums, files) {
-    $("#loadinglabel").stop().effect('pulsate', { times:100 }, 2000);
-    $("#loadinglabel2").stop().effect('pulsate', { times:100 }, 2000);    
     $("#loadinglabel").html("Loading Collection");
     $("#loadinglabel2").html("Loading Files");
     $("#collection").load(albums);

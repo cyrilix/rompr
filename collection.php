@@ -605,7 +605,7 @@ function do_albums($artistkey, $compilations, $showartist, $prefix, $output) {
             // We only do this for images that don't exist, just to keep the size of the HTML down            
 
             // NOTE: The format and ORDER of the tags in the <img> is VERY important as it matched by a regexp
-            // when album art is retrieved$artname = md5($album->artist." ".$album->name);
+            // when album art is retrieved
 
             $artname = md5($album->artist." ".$album->name);
             if (file_exists("albumart/original/".$artname.".jpg")) {
@@ -643,9 +643,9 @@ function do_albums($artistkey, $compilations, $showartist, $prefix, $output) {
                 // Track info
                 if ($dorow2) {
                     $output->writeLine('<div class="clickable clicktrack draggable indent containerbox vertical padright" name="'.rawurlencode($trackobj->url).'">');
-                    $output->writeLine('<div class="containerbox">');
+                    $output->writeLine('<div class="containerbox line">');
                 } else {
-                    $output->writeLine('<div class="clickable clicktrack draggable indent containerbox padright" name="'.rawurlencode($trackobj->url).'">');
+                    $output->writeLine('<div class="clickable clicktrack draggable indent containerbox padright line" name="'.rawurlencode($trackobj->url).'">');
                 }
                 $output->writeLine('<div class="tracknumber fixed">'.$trackobj->number.'</div>');
                 if (substr($trackobj->url,0,strlen('spotify')) == "spotify") {
@@ -654,7 +654,7 @@ function do_albums($artistkey, $compilations, $showartist, $prefix, $output) {
                 $output->writeLine('<div class="expand">'.$trackobj->name.'</div>');
                 $output->writeLine('<div class="fixed playlistrow2">'.format_time($trackobj->duration).'</div>');
                 if ($dorow2) {
-                    $output->writeLine('</div><div class="containerbox">');
+                    $output->writeLine('</div><div class="containerbox line">');
                     $output->writeLine('<div class="tracknumber fixed"></div>');
                     $output->writeline('<div class="expand playlistrow2">'.$trackobj->artist.'</div>');
                     $output->writeLine('</div>');
@@ -673,7 +673,6 @@ function do_albums($artistkey, $compilations, $showartist, $prefix, $output) {
 }
 
 function parse_mopidy_tagcache($collection) {
-
 
     error_log("Starting Mopidy Tag Cache Scan ");
     
