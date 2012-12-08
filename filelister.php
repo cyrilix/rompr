@@ -36,12 +36,13 @@ class mpdlistthing {
                 $dirpath = $dirpath.$this->name."/";
                 $output->writeLine('<div class="clickable clickalbum draggable containerbox menuitem" name="dir'.$prefix.$count.'">');
                 $output->writeLine('<img src="images/toggle-closed.png" class="menu fixed" name="dir'.$prefix.$count.'">');
-                $output->writeLine('<span class="expand">'.rawurldecode($this->name).'</span>');
+                $output->writeLine('<div class="fixed playlisticon"><img width="16px" src="images/folder.png" /></div>');
+                $output->writeLine('<div class="expand">'.rawurldecode($this->name).'</div>');
                 $output->writeLine('</div>');
                 $output->writeLine('<div id="dir'.$prefix.$count.'" class="dropmenu">');
                 $count++;
             } else {
-                $output->writeLine('<div class="clickable clicktrack draggable indent containerbox padright" name="'.rawurlencode($protocol.$this->fullpath).'">');
+                $output->writeLine('<div class="clickable clicktrack draggable indent containerbox padright line" name="'.rawurlencode($protocol.$this->fullpath).'">');
                 $output->writeLine('<div class="playlisticon fixed"><img height="16px" src="images/audio-x-generic.png" /></div>');
                 $output->writeLine('<div class="expand">'.rawurldecode($this->name).'</div>');
                 $output->writeLine('</div>');
@@ -61,10 +62,7 @@ class mpdlistthing {
                 $dirpath = "";
             }
         }
-
-
     }
-    
 }
 
 function doFileList($command) {
