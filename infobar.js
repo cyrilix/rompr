@@ -98,7 +98,7 @@ function infoBar() {
 
     this.donelove = function(track,artist) {
         $("#love").effect('pulsate', {times: 1}, 2000);
-        browser.justloved(track,artist);
+        browser.justloved(track,artist,true);
     }
         
     this.seek = function(e) {

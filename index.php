@@ -75,6 +75,8 @@ var playlisthidden = false;
  print "var lastfm = new LastFM('".$prefs["lastfm_user"]."');\n";
  print "var browser = new Info('infopane', '".$prefs["infosource"]."');\n";
  print "var shownupdatewindow = ".$prefs['shownupdatewindow'].";\n";
+ print "var autotagloved = ".$prefs['autotagloved'].";\n";
+ print "var autotagname = '".$prefs['autotagname']."';\n";
  print "var coverscraper = new coverScraper(0, false, false, ".$prefs['downloadart'].");\n";
 
 ?>

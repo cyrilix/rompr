@@ -187,7 +187,7 @@ function LastFM(user) {
                     sk: lastfm_session_key,
                     track: tr },
                     function() { 
-                        callback(tr,ar);
+                        callback(tr,ar,true);
                     },
                     function() { 
                         alert("Love Failed!"); 
@@ -205,7 +205,7 @@ function LastFM(user) {
                     sk: lastfm_session_key,
                     track: tr },
                     function() { 
-                        callback(tr,ar); 
+                        callback(tr,ar,false); 
                     },
                     function() { 
                         alert("Unlove Failed!"); 

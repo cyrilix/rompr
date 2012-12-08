@@ -44,12 +44,12 @@ function Album(artist, album, index, rolledup) {
             } else {
                 html = html + ' width="1px"';
             }
-            html = html + '></td><td align="left"><a href="#" class="album" onclick="mpd.command(\'command=playid&arg='+tracks[trackpointer].backendid+'\')">'+
+            html = html + '></td><td align="left"><a class="album" href="javascript:mpd.command(\'command=playid&arg='+tracks[trackpointer].backendid+'\')">'+
                             tracks[trackpointer].title+'</a></td>';
 
             html = html + '<td align="right" width="7em" class="tiny">'+formatTimeString(tracks[trackpointer].duration)+'</td>';
 
-            html = html + '<td class="playlisticon" align="right"><a href="#" onclick="playlist.delete(\''+tracks[trackpointer].backendid+'\',\''+tracks[trackpointer].playlistpos+'\')">'+
+            html = html + '<td class="playlisticon" align="right"><a href="javascript:playlist.delete(\''+tracks[trackpointer].backendid+'\',\''+tracks[trackpointer].playlistpos+'\')">'+
                             '<img src="images/edit-delete.png"></a></td></tr>';
             if (showartist) {
                 html = html + '<tr><td align="left" colspan="4" class="playlistrow2">'+tracks[trackpointer].creator+'</td></tr>';
@@ -59,10 +59,10 @@ function Album(artist, album, index, rolledup) {
         return html;
     }
 
-    this.header = function() {
+    this.header = function() {        
         var html = "";
         html = html + '<div id="item" name="'+self.index+'"><table class="playlisttitle" name="'+self.index+'" width="100%"><tr><td rowspan="2" width="40px">';
-        html = html + '<a href="#" title="Click to Roll Up" onclick="javascript:playlist.hideItem('+self.index+')">';
+        html = html + '<a title="Click to Roll Up" href="javascript:playlist.hideItem('+self.index+')">';
         if (tracks[0].image) {
             html = html + '<img width="32" height="32" src="'+tracks[0].image+'"/>';
         } else {
@@ -72,7 +72,7 @@ function Album(artist, album, index, rolledup) {
         }
         html = html + '</a>';
         html = html + '</td><td align="left" colspan="2">';
-        html = html + self.artist+'</td></tr><tr><td align="left" ><i><a href="#" class="album" onclick="mpd.command(\'command=play&arg='+tracks[0].playlistpos+'\')">'+self.album+'</a></i></td>';
+        html = html + self.artist+'</td></tr><tr><td align="left" ><i><a class="album" href="javascript:mpd.command(\'command=play&arg='+tracks[0].playlistpos+'\')">'+self.album+'</a></i></td>';
         html = html + '<td class="playlisticon" align="right"><a href="#" onclick="playlist.deleteGroup(\''+self.index+'\')">'+
                         '<img src="images/edit-delete.png"></a></td>';
         html = html + '</tr></table></div>';
@@ -175,7 +175,7 @@ function Stream(index, album, rolledup) {
             html = html + '<td colspan="2" align="left" class="tiny" style="font-weight:normal">'+
                             tracks[trackpointer].stream+'</td></tr>';
             html = html + '<tr><td width="20px"><img src="images/broadcast.png" width="16px"></td>'+
-                            '<td align="left" class="tiny" style="font-weight:normal"><a href="#" class="album" onclick="mpd.command(\'command=playid&arg='+tracks[trackpointer].backendid+'\')">'+
+                            '<td align="left" class="tiny" style="font-weight:normal"><a class="album" href="javscript:mpd.command(\'command=playid&arg='+tracks[trackpointer].backendid+'\')">'+
                             tracks[trackpointer].location+'</a></td></tr>';
             html = html + '</table></div>';
         }
@@ -193,11 +193,11 @@ function Stream(index, album, rolledup) {
         }
 
         html = html + tracks[0].creator+'</td><td class="playlisticon" align="right">'
-                        +'<a href="#" title="Add Station to Favourites" onclick="playlist.addFavourite(\''+self.index+'\')"><img height="14px" width="14px" src="images/broadcast.png"></a>'
+                        +'<a title="Add Station to Favourites" href="javscript:playlist.addFavourite(\''+self.index+'\')"><img height="14px" width="14px" src="images/broadcast.png"></a>'
                         +'</td></tr><tr><td align="left"><i>'
-                        +'<a class="album" href="#" onclick="mpd.command(\'command=play&arg='+tracks[0].playlistpos+'\')">'
+                        +'<a class="album" href="javscript:mpd.command(\'command=play&arg='+tracks[0].playlistpos+'\')">'
                         +tracks[0].album+'</a></i></td>';
-        html = html + '<td class="playlisticon" align="right"><a href="#" onclick="playlist.deleteGroup(\''+self.index+'\')">'+
+        html = html + '<td class="playlisticon" align="right"><a href="javascript:playlist.deleteGroup(\''+self.index+'\')">'+
                         '<img src="images/edit-delete.png"></a></td>';
         html = html + '</tr></table></div>';
         return html;
@@ -299,7 +299,7 @@ function LastFMRadio(tuneurl, station, index, rolledup) {
             html = html + '<td colspan="3" align="left" class="album">'+tracks[trackpointer].title+'</a></td></tr>';
             html = html + '<tr><td class="playlistrow2" align="left" width="40%">'+tracks[trackpointer].creator+'</td><td align="left" class="playlistrow2">'+tracks[trackpointer].album+'</td>'
             // Use checkSongIdAfterStop to delete tracks because that will make sure the station gets updated
-            html = html + '<td class="playlisticon" align="right"><a href="#" onclick="playlist.checkSongIdAfterStop(\''+tracks[trackpointer].backendid+'\')">'+
+            html = html + '<td class="playlisticon" align="right"><a href="javascript:playlist.checkSongIdAfterStop(\''+tracks[trackpointer].backendid+'\')">'+
                             '<img src="images/edit-delete.png"></a></td></tr></table>';
 
             html = html + '</div>';
@@ -310,13 +310,13 @@ function LastFMRadio(tuneurl, station, index, rolledup) {
     this.header = function() {
         var html = "";
         html = html + '<div id="item" name="'+self.index+'"><table name="'+self.index+'" width="100%" class="playlisttitle"><tr><td rowspan="2" width="40px">';
-        html = html + '<a href="#" title="Click to Roll Up" onclick="javascript:playlist.hideItem('+self.index+')">';
+        html = html + '<a title="Click to Roll Up" href="javascript:playlist.hideItem('+self.index+')">';
         html = html + '<img src="images/lastfm.png"/>';
         html = html + '</a>';
         html = html + '</td><td colspan="2" align="left">';
-        html = html + 'Last.FM</td></tr><tr><td align="left" ><i><a class="album" href="#" onclick="mpd.command(\'command=play&arg='+tracks[0].playlistpos+'\')">'
+        html = html + 'Last.FM</td></tr><tr><td align="left" ><i><a class="album" href="javascript:mpd.command(\'command=play&arg='+tracks[0].playlistpos+'\')">'
                         +self.station+'</a></i></td>';
-        html = html + '<td class="playlisticon" align="right"><a href="#" onclick="playlist.deleteGroup(\''+self.index+'\')">'+
+        html = html + '<td class="playlisticon" align="right"><a href="javascript:playlist.deleteGroup(\''+self.index+'\')">'+
                         '<img src="images/edit-delete.png"></a></td>';
         html = html + '</tr></table></div>';
         return html;

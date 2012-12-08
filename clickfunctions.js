@@ -110,7 +110,7 @@ function doMenu(event, element) {
                 return "albumart/small/" + $(this).attr("name") + ".jpg";
             }
         });
-    } else {
+    } else if (element.attr("src") == "images/toggle-open.png"){
         element.attr("src", "images/toggle-closed.png");
     }
     $('#'+menutoopen).slideToggle('fast');

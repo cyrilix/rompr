@@ -728,7 +728,8 @@ function Info(target, source) {
         lastfm.track.unlove(history[displaypointer].track.name(), history[displaypointer].artist.name(), self.justloved);
     }
 
-    this.justloved = function(track,artist) {
+    this.justloved = function(track,artist,l) {
+        // l is true if track was just loved, false if unloved
         if (track == history[displaypointer].track.name() &&
             artist == history[displaypointer].artist.name())
         {
@@ -738,6 +739,16 @@ function Info(target, source) {
                 history[displaypointer].track.showMe();
             }
         }
+        
+        if (autotagloved && autotagname != '') {
+            for (var h in history) {
+                if (history[h].track.name() == track && history[h].artist.name() == artist) {
+                    debug.log("Adding Auto Tag to loved track", autotagname);
+                    history[h].track.addTags("fatgermanlovesthis");
+                }
+            }
+        }
+        
     }
 
     /*

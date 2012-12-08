@@ -29,7 +29,9 @@ $prefs = array( "mpd_host" => "localhost",
                 "playlistwidthpercent" => 22,
                 "shownupdatewindow" => "false",
                 "updateeverytime" => "false",
-                "downloadart" => "true"
+                "downloadart" => "true",
+                "autotagloved" => "true",
+                "autotagname" => "fatgermanlovesthis"
                 );
 loadPrefs();
 
