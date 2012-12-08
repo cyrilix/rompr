@@ -67,26 +67,6 @@ var gotFriends = false;
 var sourceshidden = false;
 var playlisthidden = false;
 
-// function where_am_i() {
-//     var N= navigator.appName, ua= navigator.userAgent, tem;
-//     var M= ua.match(/(opera|chrome|safari|firefox|msie)\/?\s*(\.?\d+(\.\d+)*)/i);
-//     if(M && (tem= ua.match(/version\/([\.\d]+)/i))!= null) M[2]= tem[1];
-//     M= M? [M[1], M[2]]: [N, navigator.appVersion, '-?'];
-//     return M;
-// }
-// 
-// debug.log("Browser Version:", where_am_i());
-// 
-// switch (where_am_i()[0].toLowerCase()) {
-//     case "opera":
-//         alert("Rompr will probably not work properly in Opera. I know you probably won't like this, but they're being really slow adding CSS3 support");
-//         break;
-//     case "msie":
-//         alert("Internet Explorer? Are you joking? RompR probably won't work. This is because Internet Explorer does not support the latest web standards. Microsoft are assholes. Use at least version 10, or get a proper browser");
-//         break;
-// }
-
-// var resizeTimer;
 <?php
  print "var scrobblepercent = ".$prefs['scrobblepercent'].";\n";
  print "var sourceswidthpercent = ".$prefs['sourceswidthpercent'].";\n";
@@ -122,8 +102,9 @@ $(document).ready(function(){
 
     setDraggable('collection');
     setDraggable('filecollection');
+    setDraggable('search');
+    setDraggable('filesearch');
 
-    
     setBottomPaneSize();
     $("#collection").html('<div class="dirname"><h2 id="loadinglabel"></h2></div>');
     $("#filecollection").html('<div class="dirname"><h2 id="loadinglabel2"></h2></div>');
@@ -176,14 +157,11 @@ $(document).ready(function(){
         });
     });
     
-    
     $("#lastfmlist").load("lastfmchooser.php");
     $("#bbclist").load("bbcradio.php");
     $("#somafmlist").load("somafm.php");
     $("#yourradiolist").load("yourradio.php");
     $("#icecastlist").load("getIcecast.php");
-    
-    
     
     loadKeyBindings();
     if (!shownupdatewindow) {
