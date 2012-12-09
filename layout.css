@@ -193,6 +193,17 @@ a
     margin-top:4px;
 }
 
+#notifications
+{
+    position:absolute;
+    width:300px;
+    padding:8px;
+    background-color:#000000;
+    opacity:0.7;
+    top:0px;
+    display:none;
+}
+
 /*-- Classes used to control flow and layout --*/
 
 .tright
@@ -414,20 +425,24 @@ a
     padding-left:8px;
     padding-right:4px;
     padding-top:0px;
-    padding-bottom:0px;
+    padding-bottom:2px;
     font-weight:bold;
     font-size:90%;
-    border-spacing:2px 1px;
 }
 
 .playlisttitle
 {
     padding-right:4px;
+    padding-top:4px;
+    padding-bottom:4px;
+    font-size:110%;
 }
 
 .playlistcurrenttitle
 {
-    font-size:105%;
+    font-size:120%;
+    padding-top:8px;
+    padding-bottom:8px;
     padding-right:4px;
 }
 
@@ -438,7 +453,7 @@ a
     padding-top:0px;
     padding-bottom:2px;
     font-weight:bold;
-    font-size:105%;
+    font-size:100%;
 }
 
 .playlistrow2
@@ -470,21 +485,9 @@ a
 
 #sortable
 {
-    list-style-type:none;
+    /* -- list-style-type:none; --*/
     margin:0px;
     padding:0px;
-    width:98%;
-}
-
-#item
-{
-    margin-top:2px;
-    padding-top:2px;
-    padding-bottom:2px;
-    font-weight:bold;
-    font-size:110%;
-    width:100%;
-    clear:both;
 }
 
 /*-- For Wikipedia and Last.FM pages --*/

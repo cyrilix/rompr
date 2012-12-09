@@ -506,11 +506,12 @@ function Info(target, source) {
 
     this.tagAddFailed = function(type,tags) {
         stopWaitingIcon("tagadd"+type);
-        alert("Failed to add "+tags+" to "+type);
+        infobar.notify(infobar.ERROR, "Failed to add "+tags+" to "+type);
     }
 
     this.gotFailure = function(data) {
         debug.log("FAILED with something:",data);
+        infobar.notify(infobar.ERROR, "Unspecified, non-serious error. Carry on as if nothing had happened");
     }
 
     function appendTag(table, name, url) {
@@ -558,7 +559,7 @@ function Info(target, source) {
 
     this.noAlbumBuyLinks = function() {
         stopWaitingIcon("buyalbumbutton");
-        alert("Could not find any information on buying this album");
+        infobar.notify(infobar.NOTIFY, "Could not find any information on buying this album");
     }
 
     function getBuyHtml(data) {
@@ -604,7 +605,7 @@ function Info(target, source) {
 
     this.noTrackBuyLinks = function() {
         stopWaitingIcon("buytrackbutton");
-        alert("Could not find any information on buying this track");
+        infobar.notify(infobar.NOTIFY, "Could not find any information on buying this track");
     }
 
 
@@ -729,6 +730,11 @@ function Info(target, source) {
     }
 
     this.justloved = function(track,artist,l) {
+        if (l) {
+            infobar.notify(infobar.NOTIFY, "Loved "+track);
+        } else {
+            infobar.notify(infobar.NOTIFY, "Unloved "+track);
+        }
         // l is true if track was just loved, false if unloved
         if (track == history[displaypointer].track.name() &&
             artist == history[displaypointer].artist.name())
@@ -740,7 +746,7 @@ function Info(target, source) {
             }
         }
         
-        if (autotagloved && autotagname != '') {
+        if (autotagname != '') {
             for (var h in history) {
                 if (history[h].track.name() == track && history[h].artist.name() == artist) {
                     debug.log("Adding Auto Tag to loved track", autotagname);
@@ -759,6 +765,10 @@ function Info(target, source) {
    
     function getSlideShow(artist) {
         lastfm.artist.getImages({artist: artist}, self.prepareSlideshow, self.noImages);
+    }
+    
+    this.noImages = function() {
+        infobar.notify(infobar.NOTIFY, "No images found for "+artist);
     }
 
     this.prepareSlideshow = function(data) {

@@ -109,7 +109,7 @@ function LastFM(user) {
                     lastfm_session_key: lastfm_session_key,
                     lastfm_user: username
                 });
-                reloadPlaylistControls();
+                //reloadPlaylistControls();
                 lastfm.revealloveban();
                 popupWindow.close();
                 },

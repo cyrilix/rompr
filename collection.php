@@ -549,6 +549,10 @@ function createHTML($artistlist, $prefix, $output) {
 
     global $numtracks;
     global $totaltime;    
+
+    
+    
+    
     
     $output->writeLine( '<div id="booger"><table width="100%" class="playlistitem"><tr><td align="left">');
     $output->writeLine( $numtracks . ' tracks</td><td align="right">Duration : ');

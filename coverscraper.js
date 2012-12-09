@@ -43,13 +43,13 @@ function coverScraper(flag, ls, u, o) {
         self.updateInfo(0);
     }
 
-    function doNextImage(timer) {
+    function doNextImage(time) {
         if (sendUpdates) {
             var percent = ((numAlbums - formObjects.length)/numAlbums)*100;
             $("#progress").progressbar("option", "value", parseInt(percent.toString()));
         }
         if (formObjects.length > 0) {
-            timer = setTimeout(self.processForm, timer);
+            timer = setTimeout(self.processForm, time);
             timer_running = true;
         } else {
             $("#status").html("");
@@ -131,7 +131,9 @@ function coverScraper(flag, ls, u, o) {
                         });
                     }
                 },
-                error: function() { doNextImage(1000); }
+                error: function() { 
+                    doNextImage(1000); 
+                }
         });
     }
     

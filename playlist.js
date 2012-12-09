@@ -1,4 +1,3 @@
-
 function Track(options) {
 
     var self = this;
@@ -14,8 +13,7 @@ function Album(artist, album, index, rolledup) {
     this.artist = artist;
     this.album = album;
     this.index = index;
-    var rolledup = rolledup;
-
+    
     this.newtrack = function (track) {
         tracks.push(track);
     }
@@ -28,61 +26,55 @@ function Album(artist, album, index, rolledup) {
                 (tracks[trackpointer].albumartist != "" && tracks[trackpointer].albumartist != tracks[trackpointer].creator)) {
                 showartist = true;
             }
-            html = html + '<div id="track" name="'+tracks[trackpointer].playlistpos+'"';
-            if (rolledup) {
-                html = html + ' class="invisible"';
-            }
-            html = html + '><table width="100%" class="playlistitem" id="'+tracks[trackpointer].playlistpos+'">';
-            html = html + '<tr><td ';
-            if (showartist) {
-                html = html + 'rowspan="2" ';
-            }
-            html = html + 'class="tracknumbr">'+format_tracknum(tracks[trackpointer].tracknumber)+'</td><td';
+            html = html + '<div id="track" name="'+tracks[trackpointer].playlistpos+'" romprid="'+tracks[trackpointer].backendid+'" class="clickable clickplaylist sortable containerbox playlistitem menuitem">';
+            html = html + '<div class="tracknumbr fixed">'+format_tracknum(tracks[trackpointer].tracknumber)+'</div>';
             var l = tracks[trackpointer].location;
             if (l.substring(0, 7) == "spotify") {
-                html = html + ' width="14px"><img height="12px" src="images/spotify-logo.png" /';
-            } else {
-                html = html + ' width="1px"';
+                html = html + '<div class="playlisticon fixed"><img height="12px" src="images/spotify-logo.png" /></div>';
             }
-            html = html + '></td><td align="left"><a class="album" href="javascript:mpd.command(\'command=playid&arg='+tracks[trackpointer].backendid+'\')">'+
-                            tracks[trackpointer].title+'</a></td>';
-
-            html = html + '<td align="right" width="7em" class="tiny">'+formatTimeString(tracks[trackpointer].duration)+'</td>';
-
-            html = html + '<td class="playlisticon" align="right"><a href="javascript:playlist.delete(\''+tracks[trackpointer].backendid+'\',\''+tracks[trackpointer].playlistpos+'\')">'+
-                            '<img src="images/edit-delete.png"></a></td></tr>';
             if (showartist) {
-                html = html + '<tr><td align="left" colspan="4" class="playlistrow2">'+tracks[trackpointer].creator+'</td></tr>';
+                html = html + '<div class="containerbox vertical expand">';
+                html = html + '<div class="line">'+tracks[trackpointer].title+'</div>';
+                html = html + '<div class="line playlistrow2">'+tracks[trackpointer].creator+'</div>';
+                html = html + '</div>';
+            } else {
+                html = html + '<div class="expand line">'+tracks[trackpointer].title+'</div>';
             }
-            html = html + '</table></div>';
+            html = html + '<div class="tiny fixed">'+formatTimeString(tracks[trackpointer].duration)+'</div>';
+            html = html + '<div class="playlisticon fixed clickable clickicon clickremovetrack" romprid="'+tracks[trackpointer].backendid+'"><img src="images/edit-delete.png" /></div>';
+            html = html + '</div>';
         }
+        // Close the rollup div we added in the header
+        html = html + '</div>'
         return html;
     }
 
     this.header = function() {        
         var html = "";
-        html = html + '<div id="item" name="'+self.index+'"><table class="playlisttitle" name="'+self.index+'" width="100%"><tr><td rowspan="2" width="40px">';
-        html = html + '<a title="Click to Roll Up" href="javascript:playlist.hideItem('+self.index+')">';
+        html = html + '<div id="item" name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="clickable clickplaylist sortable containerbox menuitem playlisttitle">';
         if (tracks[0].image) {
-            html = html + '<img width="32" height="32" src="'+tracks[0].image+'"/>';
+            html = html + '<img class="smallcover updateable fixed clickable clickicon clickrollup" romprname="'+self.index+'" src="'+tracks[0].image+'"/>';
         } else {
-            html = html +   '<img class="notexist" name="'+hex_md5(self.artist+" "+self.album)+'" width="32" height="32"'
+            html = html +   '<img class="smallcover updateable notexist fixed clickable clickicon clickrollup" romprname="'+self.index+'" name="'+hex_md5(self.artist+" "+self.album)+'" '
                         +   ' romprartist="'+encodeURIComponent(self.artist)+'" rompralbum="'+encodeURIComponent(self.album)+'" romprupdate="yes"'
                         +   ' src="images/album-unknown-small.png"/>';
         }
-        html = html + '</a>';
-        html = html + '</td><td align="left" colspan="2">';
-        html = html + self.artist+'</td></tr><tr><td align="left" ><i><a class="album" href="javascript:mpd.command(\'command=play&arg='+tracks[0].playlistpos+'\')">'+self.album+'</a></i></td>';
-        html = html + '<td class="playlisticon" align="right"><a href="#" onclick="playlist.deleteGroup(\''+self.index+'\')">'+
-                        '<img src="images/edit-delete.png"></a></td>';
-        html = html + '</tr></table></div>';
+        html = html + '<div class="containerbox vertical expand">';
+        html = html + '<div class="line">'+self.artist+'</div>';
+        html = html + '<div class="line">'+self.album+'</div>';
+        html = html + '</div>';
+        html = html + '<div class="playlisticon fixed clickable clickicon clickremovealbum" name="'+self.index+'"><img src="images/edit-delete.png" /></div>';
+        html = html + '</div>';
+        html = html + '<div class="trackgroup';
+        if (rolledup) {
+            html = html + ' invisible';
+        }
+        html = html + '" name="'+self.index+'">';
         return html;
     }
 
     this.rollUp = function() {
-        for (var i in tracks) {
-            $('#track[name="'+tracks[i].playlistpos+'"]').slideToggle('slow');
-        }
+        $('.trackgroup[name="'+self.index+'"]').slideToggle('slow');
         rolledup = !rolledup;
         if (rolledup) {
             playlist.rolledup[this.artist+this.album] = true;
@@ -113,8 +105,8 @@ function Album(artist, album, index, rolledup) {
         var result = null;
         for(var i in tracks) {
             if (tracks[i].playlistpos == which) {
-                $('table[name="'+self.index+'"]').attr("class", "playlistcurrenttitle");
-                $("#"+which).attr("class", "playlistcurrentitem");
+                $('#item[name="'+self.index+'"]').removeClass('playlisttitle').addClass('playlistcurrenttitle');
+                $('#track[name="'+which+'"]').removeClass('playlistitem').addClass('playlistcurrentitem');
                 result = tracks[i];
                 break;
             }
@@ -125,7 +117,7 @@ function Album(artist, album, index, rolledup) {
     this.deleteSelf = function() {
         var todelete = new Array();
         for(var i in tracks) {
-            $("#"+tracks[i].playlistpos).remove();
+            $('#track[name="'+tracks[i].playlistpos+'"]').remove();
              todelete.push(tracks[i].backendid);
         }
         $('#item[name="'+self.index+'"]').remove();
@@ -166,47 +158,43 @@ function Stream(index, album, rolledup) {
     this.getHTML = function() {
         var html = self.header();
         for (var trackpointer in tracks) {
-            html = html + '<div id="booger" name="'+tracks[trackpointer].playlistpos+'"';
-            if (rolledup) {
-                html = html + ' class="invisible"';
-            }
-            html = html + '><table width="100%" class="playlistitem" id="'+tracks[trackpointer].playlistpos+'">';
-            html = html + '<tr>';
-            html = html + '<td colspan="2" align="left" class="tiny" style="font-weight:normal">'+
-                            tracks[trackpointer].stream+'</td></tr>';
-            html = html + '<tr><td width="20px"><img src="images/broadcast.png" width="16px"></td>'+
-                            '<td align="left" class="tiny" style="font-weight:normal"><a class="album" href="javscript:mpd.command(\'command=playid&arg='+tracks[trackpointer].backendid+'\')">'+
-                            tracks[trackpointer].location+'</a></td></tr>';
-            html = html + '</table></div>';
+            html = html + '<div id="booger" name="'+tracks[trackpointer].playlistpos+'" romprid="'+tracks[trackpointer].backendid+'" class="clickable clickplaylist containerbox playlistitem menuitem">';
+            html = html + '<div class="playlisticon fixed"><img height="12px" src="images/broadcast.png" /></div>';
+            html = html + '<div class="containerbox vertical expand">';
+            html = html + '<div class="playlistrow2 line">'+tracks[trackpointer].stream+'</div>';
+            html = html + '<div class="tiny line">'+tracks[trackpointer].location+'</div>';
+            html = html + '</div>';
+            html = html + '</div>';
         }
+        // Close the rollup div we added in the header
+        html = html + '</div>';
         return html;
     }
 
     this.header = function() {
         var html = "";
-        html = html + '<div id="item" name="'+self.index+'"><table name="'+self.index+'" width="100%" class="playlisttitle"><tr><td rowspan="2" width="40px">';
-        html = html + '<a href="#" title="Click to Roll Up" onclick="javascript:playlist.hideItem('+self.index+')">';
-        if (tracks[0].image) {
-            html = html + '<img src="'+tracks[0].image+'" height="32px" width="32px"/></td><td>';
-        } else {
-            html = html + '<img src="images/broadcast.png" height="32px" width="32px"/></a></td><td>';
+        html = html + '<div id="item" name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="clickable clickplaylist sortable containerbox menuitem playlisttitle">';
+        var image = (tracks[0].image) ? tracks[0].image : "images/broadcast.png";
+        html = html + '<img class="smallcover updateable fixed clickable clickicon clickrollup" romprname="'+self.index+'" src="'+image+'"/>';
+        html = html + '<div class="containerbox vertical expand">';
+        html = html + '<div class="line">'+tracks[0].creator+'</div>';
+        html = html + '<div class="line">'+tracks[0].album+'</div>';
+        html = html + '</div>';
+        html = html + '<div class="containerbox vertical fixed">';
+        html = html + '<div class="playlisticon clickable clickicon clickaddfave" name="'+self.index+'"><img height="14px" width="14px" src="images/broadcast.png"></div>';
+        html = html + '<div class="playlisticon clickable clickicon clickremovealbum" name="'+self.index+'"><img src="images/edit-delete.png"></div>';
+        html = html + '</div>';
+        html = html + '</div>';
+        html = html + '<div class="trackgroup';
+        if (rolledup) {
+            html = html + ' invisible';
         }
-
-        html = html + tracks[0].creator+'</td><td class="playlisticon" align="right">'
-                        +'<a title="Add Station to Favourites" href="javscript:playlist.addFavourite(\''+self.index+'\')"><img height="14px" width="14px" src="images/broadcast.png"></a>'
-                        +'</td></tr><tr><td align="left"><i>'
-                        +'<a class="album" href="javscript:mpd.command(\'command=play&arg='+tracks[0].playlistpos+'\')">'
-                        +tracks[0].album+'</a></i></td>';
-        html = html + '<td class="playlisticon" align="right"><a href="javascript:playlist.deleteGroup(\''+self.index+'\')">'+
-                        '<img src="images/edit-delete.png"></a></td>';
-        html = html + '</tr></table></div>';
+        html = html + '" name="'+self.index+'">';
         return html;
     }
 
     this.rollUp = function() {
-        for (var i in tracks) {
-            $('#booger[name="'+tracks[i].playlistpos+'"]').slideToggle('slow');
-        }
+        $('.trackgroup[name="'+self.index+'"]').slideToggle('slow');
         rolledup = !rolledup;
         // Logic is backwards for streams, because they're hidden by default
         if (rolledup) {
@@ -238,8 +226,8 @@ function Stream(index, album, rolledup) {
         var result = null;
         for(var i in tracks) {
             if (tracks[i].playlistpos == which) {
-                $('table[name="'+self.index+'"]').attr("class", "playlistcurrenttitle");
-                $("#"+which).attr("class", "playlistcurrentitem");
+                $('#item[name="'+self.index+'"]').removeClass('playlisttitle').addClass('playlistcurrenttitle');
+                $('#booger[name="'+which+'"]').removeClass('playlistitem').addClass('playlistcurrentitem');
                 result = tracks[i];
                 break;
             }
@@ -250,7 +238,7 @@ function Stream(index, album, rolledup) {
     this.deleteSelf = function() {
         var todelete = new Array();
         for(var i in tracks) {
-            $("#"+tracks[i].playlistpos).remove();
+            $('#booger[name="'+tracks[i].playlistpos+'"]').remove();
             todelete.push(tracks[i].backendid);
         }
         $('#item[name="'+self.index+'"]').remove();
@@ -287,45 +275,41 @@ function LastFMRadio(tuneurl, station, index, rolledup) {
     this.getHTML = function() {
         var html = self.header();
         for (var trackpointer in tracks) {
-            html = html + '<div id="booger" name="'+tracks[trackpointer].playlistpos+'"';
-            var opac = (1/(parseInt(trackpointer)+1)) + 0.3;
-            if (opac > 1) { opac = 1 }
-            html = html + ' style="opacity:'+opac.toString()+'"';
-            if (rolledup) {
-                html = html + ' class="invisible"';
-            }
-            html = html + '><table width="100%" class="playlistitem" id="'+tracks[trackpointer].playlistpos+'">';
-            html = html + '<tr><td rowspan="2" width="38px"><img src="'+tracks[trackpointer].image+'" width="32" height="32"></td>';
-            html = html + '<td colspan="3" align="left" class="album">'+tracks[trackpointer].title+'</a></td></tr>';
-            html = html + '<tr><td class="playlistrow2" align="left" width="40%">'+tracks[trackpointer].creator+'</td><td align="left" class="playlistrow2">'+tracks[trackpointer].album+'</td>'
-            // Use checkSongIdAfterStop to delete tracks because that will make sure the station gets updated
-            html = html + '<td class="playlisticon" align="right"><a href="javascript:playlist.checkSongIdAfterStop(\''+tracks[trackpointer].backendid+'\')">'+
-                            '<img src="images/edit-delete.png"></a></td></tr></table>';
-
+            html = html + '<div id="booger" name="'+tracks[trackpointer].playlistpos+'" romprid="'+tracks[trackpointer].backendid+'" class="containerbox playlistitem menuitem">';
+            html = html + '<img class="smallcover fixed" src="'+tracks[trackpointer].image+'"/>';
+            html = html + '<div class="containerbox vertical expand">';
+            html = html + '<div class="line">'+tracks[trackpointer].title+'</div>';
+            html = html + '<div class="line playlistrow2">'+tracks[trackpointer].creator+'</div>';            
+            html = html + '<div class="line playlistrow2">'+tracks[trackpointer].album+'</div>';            
+            html = html + '</div>';
+            html = html + '<div class="playlisticon fixed clickable clickicon clickremovelfmtrack" romprid="'+tracks[trackpointer].backendid+'"><img src="images/edit-delete.png" /></div>';
             html = html + '</div>';
         }
+        html = html + '</div>'
         return html;
     }
 
     this.header = function() {
         var html = "";
-        html = html + '<div id="item" name="'+self.index+'"><table name="'+self.index+'" width="100%" class="playlisttitle"><tr><td rowspan="2" width="40px">';
-        html = html + '<a title="Click to Roll Up" href="javascript:playlist.hideItem('+self.index+')">';
-        html = html + '<img src="images/lastfm.png"/>';
-        html = html + '</a>';
-        html = html + '</td><td colspan="2" align="left">';
-        html = html + 'Last.FM</td></tr><tr><td align="left" ><i><a class="album" href="javascript:mpd.command(\'command=play&arg='+tracks[0].playlistpos+'\')">'
-                        +self.station+'</a></i></td>';
-        html = html + '<td class="playlisticon" align="right"><a href="javascript:playlist.deleteGroup(\''+self.index+'\')">'+
-                        '<img src="images/edit-delete.png"></a></td>';
-        html = html + '</tr></table></div>';
+        
+        html = html + '<div id="item" name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="clickable clickplaylist sortable containerbox menuitem playlisttitle">';
+        html = html + '<img class="smallcover updateable fixed clickable clickicon clickrollup" romprname="'+self.index+'" src="images/lastfm.png"/>';
+        html = html + '<div class="containerbox vertical expand">';
+        html = html + '<div class="line">Last.FM</div>';
+        html = html + '<div class="line">'+self.station+'</div>';
+        html = html + '</div>';
+        html = html + '<div class="playlisticon fixed clickable clickicon clickremovealbum" name="'+self.index+'"><img src="images/edit-delete.png" /></div>';
+        html = html + '</div>';
+        html = html + '<div class="trackgroup';
+        if (rolledup) {
+            html = html + ' invisible';
+        }
+        html = html + '" name="'+self.index+'">';
         return html;
     }
 
     this.rollUp = function() {
-        for (var i in tracks) {
-            $('#booger[name="'+tracks[i].playlistpos+'"]').slideToggle('slow');
-        }
+        $('.trackgroup[name="'+self.index+'"]').slideToggle('slow');
         rolledup = !rolledup;
         if (rolledup) {
             playlist.rolledup[this.station] = true;
@@ -357,11 +341,11 @@ function LastFMRadio(tuneurl, station, index, rolledup) {
         for(var i in tracks) {
             debug.log("Track",i,"expires in", parseInt(tracks[i].expires) - unixtimestamp);
             if (unixtimestamp > parseInt(tracks[i].expires)) {
-                $('div[name="'+tracks[i].playlistpos+'"]').filter('[id=booger]').fadeOut('fast');
+                $('#booger[name="'+tracks[i].playlistpos+'"]').remove();
                 index = i;
             } else if (previoussong == tracks[i].backendid && currentsong != tracks[i].playlistpos) {
                 debug.log("Removing track which was playing but has been skipped")
-                $('div[name="'+tracks[i].playlistpos+'"]').filter('[id=booger]').fadeOut('fast');
+                $('#booger[name="'+tracks[i].playlistpos+'"]').remove();
                 index = i;
             } else if (tracks[i].playlistpos == currentsong && i>0) {
                 debug.log("We're in the middle of a field!")
@@ -384,8 +368,8 @@ function LastFMRadio(tuneurl, station, index, rolledup) {
         var result = null;
         for(var i in tracks) {
             if (tracks[i].playlistpos == which) {
-                $('table[name="'+self.index+'"]').attr("class", "playlistcurrenttitle");
-                $("#"+which).attr("class", "playlistcurrentitem");
+                $('#item[name="'+self.index+'"]').removeClass('playlisttitle').addClass('playlistcurrenttitle');
+                $('#booger[name="'+which+'"]').removeClass('playlistitem').addClass('playlistcurrentitem');
                 result = tracks[i];
                 break;
             }
@@ -396,8 +380,8 @@ function LastFMRadio(tuneurl, station, index, rolledup) {
     this.deleteSelf = function() {
         var todelete = new Array();
         for (var i in tracks) {
+            $('#booger[name="'+tracks[i].playlistpos+'"]').remove();
             todelete.push(tracks[i].backendid);
-            $("#"+tracks[i].playlistpos).remove();
         }
         $('#item[name="'+self.index+'"]').remove();
         $.post("removeStation.php", {remove: hex_md5(self.station)});
@@ -409,7 +393,7 @@ function LastFMRadio(tuneurl, station, index, rolledup) {
         for (var i in tracks) {
             if (tracks[i].backendid == songid) {
                 playlist.removelfm([songid], tuneurl, (parseInt(tracks[tracks.length-1].playlistpos))+1);
-                $('div[name="'+tracks[i].playlistpos+'"]').filter('[id=booger]').empty();
+                $('#booger[name="'+tracks[i].playlistpos+'"]').remove();
                 result = true;
                 break;
             }
@@ -685,18 +669,15 @@ function Playlist() {
         }        
     }
 
-    this.delete = function(id, pos) {
-        $("#"+pos).remove();
+    this.delete = function(id) {
+        $('#track[romprid="'+id.toString()+'"]').remove();
         mpd.command("command=deleteid&arg="+id, playlist.repopulate);
     }
 
     this.waiting = function() {
-        var html = '<table width="100%" class="playlisttitle"><tr><td rowspan="2" width="40px">';
-        html = html + '<img src="images/waiting2.gif" height="32px"/></td><td colspan="2" align="left">';
-        html = html + 'Incoming....</td></tr><tr><td align="left" ></td>';
-        html = html + '<td class="playlisticon" align="right"></td>';
-        html = html + '</tr></table>';
-        $('div[name="waiter"]').attr("id", "item");
+        var html = '<div id="item" class="containerbox menuitem playlisttitle">';
+        html = html + '<img class="smallcover fixed" src="images/waiting2.gif"/>';
+        html = html + '<div class="expand">Incoming....</div></div>';
         $('div[name="waiter"]').html(html);
     }
 
@@ -750,8 +731,8 @@ function Playlist() {
             if (mpd.status.song != currentsong || mpd.status.songid != previoussong) {
                 debug.log("Updating current song");
                 currentsong = mpd.status.song;
-                $(".playlistcurrentitem").attr("class", "playlistitem");
-                $(".playlistcurrenttitle").attr("class", "playlisttitle");
+                $(".playlistcurrentitem").removeClass('playlistcurrentitem').addClass('playlistitem');
+                $(".playlistcurrenttitle").removeClass('playlistcurrenttitle').addClass('playlisttitle');
                 if (typeof(currentsong) == "undefined") {
                     currentTrack = emptytrack;
                 } else {

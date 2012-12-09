@@ -47,6 +47,8 @@ include ("connection.php");
                 <li class="wide"><div id="scrobwrangler"></div></li>
 <?php
                 print '<li class="wide"><input type="checkbox" class="topcheck" onclick="lastfm.setscrobblestate()" id="autocorrect">Last.FM Autocorrect Enabled</input></li>';
+                print '<li class="wide">Tag Loved Tracks With:</li>';
+                print '<li class="wide"><input class="topform" name="taglovedwith" type="text" size="40" value="'.$prefs['autotagname'].'"/><button class="topformbutton" onclick="setAutoTag()">Set</button></li>';
 ?>
 
         </ul>
@@ -63,28 +65,7 @@ include ("connection.php");
     </li>
     <li>
         <a href="#" title="Load Saved Playlist"><img src="images/document-open-folder.png" height="24px"></a>
-        <ul id="playlistslist" class="subnav wide">
-            <li class="tleft wide"><b>Playlists</b></li>
-<?php
-            $playlists = do_mpd_command($connection, "listplaylists", null, true);
-            if ($playlists['playlist'] && !is_array($playlists['playlist'])) {
-                $temp = $playlists['playlist'];
-                $playlists = array();
-                $playlists['playlist'][0] = $temp;
-            }
-            if (is_array($playlists['playlist'])) {
-                sort($playlists['playlist'], SORT_STRING);
-                print '<li class="tleft wide"><table width="100%">';
-                foreach ($playlists['playlist'] as $pl) {
-
-                    print '<tr><td align="left"><a href="#" onclick="mpd.command(\'command=load&arg='.rawurlencode($pl).'\', playlist.repopulate)">'.htmlspecialchars($pl).'</a></td>';
-                    print '<td class="playlisticon" align="right"><a href="#" onclick="mpd.command(\'command=rm&arg='.rawurlencode($pl).'\', reloadPlaylistControls)"><img src="images/edit-delete.png"></a></td></tr>';
-
-                }
-                print '</table></li>';
-            }
-?>
-        </ul>
+        <ul id="playlistslist" class="subnav wide"></ul>
     </li>
     <li>
         <a href="#" title="Save Playlist"><img src="images/document-save.png" height="24px"></a>

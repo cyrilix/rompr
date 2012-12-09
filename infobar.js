@@ -54,6 +54,9 @@ function infoBar() {
     var self = this;
     this.playbutton = new playControl();
     var volumeslider = new volumeControl();
+    var notifytimer = null;
+    this.NOTIFY = 0;
+    this.ERROR = 1;
             
     this.updateWindowValues = function() {
         volumeslider.setState(mpd.status.volume);
@@ -117,7 +120,7 @@ function infoBar() {
             mpd.command("command=setvol&arg="+parseInt(volume.toString()));
             savePrefs({volume: parseInt(volume.toString())});
         } else {
-            alert("MPD can only set the volume while playing.");
+            infobar.notify(infobar.ERROR, "MPD can only set the volume while playing.");
             volumeslider.restoreState();
         }
     }
@@ -132,8 +135,31 @@ function infoBar() {
             mpd.command("command=setvol&arg="+parseInt(volume.toString()));
             savePrefs({volume: parseInt(volume.toString())});
         } else {
-            alert("MPD can only set the volume while playing.");
+            infobar.notify(infobar.ERROR, "MPD can only set the volume while playing.");
         }
+    }
+    
+    this.notify = function(type, message) {
+        var html = '<div class="containerbox menuitem">';
+        if (type == self.NOTIFY) {
+            html = html + '<img class="fixed" src="images/dialog-information.png" />';
+        } else if (type == self.ERROR) {
+            html = html + '<img class="fixed" src="images/dialog-error.png" />';
+        }
+        html = html + '<div class="expand indent">'+message+'</div></div>';
+        $('#notifications').html(html);
+        if (notifytimer != null) {
+            clearTimeout(notifytimer);
+            notifytimer = null;
+        } else {
+            $('#notifications').show('slow');
+            notifytimer = setTimeout(this.removenotify, 5000);
+        }
+    }
+    
+    this.removenotify = function() {
+        notifytimer = null;
+        $('#notifications').hide('slow');
     }
 
 }

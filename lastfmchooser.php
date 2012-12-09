@@ -8,7 +8,6 @@ include ("vars.php");
         <h3>Last.FM Personal Radio</h3>
     </div>
     <div class="clickable clicklfm indent containerbox padright menuitem", name="lastfmuser">
-        <div class="fixed playlisticon"><img src="images/start.png" height="12px""></div>
         <div class="expand">
 <?php
             if ($prefs['lastfm_user'] != "") {
@@ -19,7 +18,6 @@ include ("vars.php");
         </div>
     </div>
     <div class="clickable clicklfm indent containerbox padright menuitem", name="lastfmmix">
-        <div class="fixed playlisticon"><img src="images/start.png" height="12px""></div>
         <div class="expand">
 <?php
             if ($prefs['lastfm_user'] != "") {
@@ -30,7 +28,6 @@ include ("vars.php");
         </div>
     </div>
     <div class="clickable clicklfm indent containerbox padright menuitem", name="lastfmrecommended">
-        <div class="fixed playlisticon"><img src="images/start.png" height="12px""></div>
         <div class="expand">
 <?php
             if ($prefs['lastfm_user'] != "") {
@@ -41,7 +38,6 @@ include ("vars.php");
         </div>
     </div>
     <div class="clickable clicklfm indent containerbox padright menuitem", name="lastfmneighbours">
-        <div class="fixed playlisticon"><img src="images/start.png" height="12px""></div>
         <div class="expand">
 <?php
             if ($prefs['lastfm_user'] != "") {

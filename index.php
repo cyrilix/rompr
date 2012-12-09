@@ -75,7 +75,6 @@ var playlisthidden = false;
  print "var lastfm = new LastFM('".$prefs["lastfm_user"]."');\n";
  print "var browser = new Info('infopane', '".$prefs["infosource"]."');\n";
  print "var shownupdatewindow = ".$prefs['shownupdatewindow'].";\n";
- print "var autotagloved = ".$prefs['autotagloved'].";\n";
  print "var autotagname = '".$prefs['autotagname']."';\n";
  print "var coverscraper = new coverScraper(0, false, false, ".$prefs['downloadart'].");\n";
 
@@ -101,6 +100,7 @@ $(document).ready(function(){
     $("#lastfmlist").dblclick(onLastFMDoubleClicked);
     $("#radiolist").click(onRadioClicked);
     $("#radiolist").dblclick(onRadioDoubleClicked);
+    $("#sortable").click(onPlaylistClicked);
 
     setDraggable('collection');
     setDraggable('filecollection');
@@ -109,7 +109,7 @@ $(document).ready(function(){
     
     $("#sortable").disableSelection();
     $("#sortable").sortable({ 
-        items: "div",
+        items: ".sortable",
         axis: 'y', 
         containment: '#sortable', 
         scroll: 'true', 
@@ -124,8 +124,6 @@ $(document).ready(function(){
         }
     });
     setBottomPaneSize();
-//     $("#collection").html('<div class="dirname"><h2 id="loadinglabel"></h2></div>');
-//     $("#filecollection").html('<div class="dirname"><h2 id="loadinglabel2"></h2></div>');
     $("#loadinglabel3").effect('pulsate', { times:100 }, 2000);
     $("#progress").progressbar();
     $("#progress").click(function(evt) { infobar.seek(evt) });
@@ -203,6 +201,8 @@ $(document).ready(function(){
 </head>
 <body>
 
+<div id="notifications"></div>
+
 <div id="infobar">
     <div id="leftholder" class="infobarlayout tleft bordered">
         <div id="buttons">
@@ -261,8 +261,7 @@ $(document).ready(function(){
     <div style="padding-left:12px">
     <a href="#" title="Search Music" onclick="toggleSearch()"><img class="topimg" height="20px" src="images/system-search.png"></a>
     </div>
-    <div id="search" class="invisible searchbox">
-    </div>
+    <div id="search" class="invisible searchbox"></div>
     <div id="collection" class="noborder"></div>    
     </div>
 
@@ -343,7 +342,7 @@ $(document).ready(function(){
 </div>
 
 <div id="playlist" class="tright column noborder">
-<ul id="sortable"></ul>
+<div id="sortable" class="noselection fullwidth"><div>
 </div>
 
 </div>

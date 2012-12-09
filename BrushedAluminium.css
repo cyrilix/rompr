@@ -74,12 +74,12 @@ a.album:hover,a.album:active
 
 /*-- divs and classes used in the playlist --*/
 
-.playlistcurrentitem tr td a.album
+.playlistcurrentitem
 {
     color:#cc0000;
 }
 
-.playlistcurrenttitle tr td a.album
+.playlistcurrenttitle
 {
     color:#cc0000;
 }

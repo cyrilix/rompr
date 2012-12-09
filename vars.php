@@ -30,7 +30,6 @@ $prefs = array( "mpd_host" => "localhost",
                 "shownupdatewindow" => "false",
                 "updateeverytime" => "false",
                 "downloadart" => "true",
-                "autotagloved" => "true",
                 "autotagname" => "fatgermanlovesthis"
                 );
 loadPrefs();

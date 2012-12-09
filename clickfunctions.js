@@ -79,6 +79,30 @@ function onRadioDoubleClicked(event) {
 
 }
 
+function onPlaylistClicked(event) {
+    var clickedElement = findClickableElement(event);
+    debug.log("Playlist was clicked",clickedElement);
+    if (clickedElement.hasClass("clickplaylist")) {
+        event.stopImmediatePropagation();
+        mpd.command("command=playid&arg="+clickedElement.attr("romprid"));
+    } else if (clickedElement.hasClass("clickremovetrack")) {
+        event.stopImmediatePropagation();
+        playlist.delete(clickedElement.attr("romprid"));
+    } else if (clickedElement.hasClass("clickremovealbum")) {
+        event.stopImmediatePropagation();
+        playlist.deleteGroup(clickedElement.attr("name"));
+    } else if (clickedElement.hasClass("clickrollup")) {
+        event.stopImmediatePropagation();
+        playlist.hideItem(clickedElement.attr("romprname"));
+    } else if (clickedElement.hasClass("clickaddfave")) {
+        event.stopImmediatePropagation();
+        playlist.addFavourite(clickedElement.attr("name"));
+    } else if (clickedElement.hasClass("clickremovelfmtrack")) {
+        event.stopImmediatePropagation();
+        playlist.checkSongIdAfterStop(clickedElement.attr("romprid"));
+    }
+}
+
 function findClickableElement(event) {
 
     var clickedElement = $(event.target);

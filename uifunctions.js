@@ -13,8 +13,14 @@ function reloadPlaylistControls() {
         $("#playlistresizer").bind("dragstop", function(event, ui){
             debug.log("Saving playlist panel width");
             savePrefs({playlistwidthpercent: playlistwidthpercent.toString()})
-        });        
+        });   
+        reloadPlaylists();
     });
+}
+
+function reloadPlaylists() {
+    $("#playlistslist").empty();
+    $("#playlistslist").load("loadplaylists.php");
 }
 
 function formatTimeString(duration) {
@@ -137,6 +143,8 @@ function setBottomPaneSize() {
     var ws = getWindowSize();
     var newheight = ws.y - 148;
     $("#bottompage").css("height", newheight.toString()+"px");
+    var notpos = ws.x - 340;
+    $("#notifications").css("left", notpos.toString()+"px");
 }
 
 function lastfmlogin() {
@@ -150,6 +158,12 @@ function sethistorylength() {
     max_history_length = parseInt(length);
     $("#configpanel").fadeOut(1000);
     savePrefs({historylength: max_history_length});    
+}
+
+function setAutoTag() {
+    autotagname = $("#configpanel").find('input[name|="taglovedwith"]').attr("value");
+    $("#configpanel").fadeOut(1000);
+    savePrefs({autotagname: autotagname});    
 }
 
 function getArray(data) {
@@ -764,7 +778,7 @@ function savePlaylist() {
     if (name.indexOf("/") >= 0 || name.indexOf("\\") >= 0) {
         alert("Playlist name cannot contain / or \\");
     } else {
-        mpd.command("command=save&arg="+encodeURIComponent(name), reloadPlaylistControls);
+        mpd.command("command=save&arg="+encodeURIComponent(name), reloadPlaylists);
     }
     
 }
