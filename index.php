@@ -16,7 +16,7 @@ print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme']
 ?>
 <link rel="shortcut icon" href="images/favicon.ico" />
 <link type="text/css" href="jqueryui1.8.16/css/start/jquery-ui-1.8.23.custom.css" rel="stylesheet" />
-<script type="text/javascript" src="jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="jquery-1.8.3-min.js"></script>
 <script type="text/javascript" src="jquery.form.js"></script>
 <script type="text/javascript" src="jqueryui1.8.16/js/jquery-ui-1.8.23.custom.js"></script>
 <script type="text/javascript" src="jquery.jsonp-2.3.1.min.js"></script>
@@ -26,13 +26,12 @@ print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme']
 <script type="text/javascript" src="functions.js"></script>
 <script type="text/javascript" src="uifunctions.js"></script>
 <script type="text/javascript" src="clickfunctions.js"></script>
-<script type="text/javascript" src="lfmdatafunctions.js"></script>
 <script type="text/javascript" src="lastfmstation.js"></script>
 <script type="text/javascript" src="jshash-2.2/md5-min.js"></script>
 <script type="text/javascript" src="ba-debug.js"></script>
 <script type="text/javascript" src="mpd.js"></script>
 <script type="text/javascript" src="nowplaying.js"></script>
-<script type="text/javascript" src="infobar.js"></script>
+<script type="text/javascript" src="infobar2.js"></script>
 <script type="text/javascript" src="lastfm.js"></script>
 <script type="text/javascript" src="playlist.js"></script>
 <script type="text/javascript" src="info.js"></script>
@@ -48,24 +47,27 @@ if (file_exists("prefs/prefs.js")) {
 var lastfm_api_key = "15f7532dff0b8d84635c757f9f18aaa3";
 var lastfm_session_key;
 var lastfm_country_code = "United Kingdom";
-var emptytrack = new Track({    creator: "",
-                                album: "",
-                                title: "",
-                                duration: 0,
-                                image: "images/album-unknown.png"
-});
-var emptylfmtrack = new lfmtrack("", "", null);
-var emptylfmalbum = new lfmalbum("", "", null);
-var emptylfmartist = new lfmartist("", null);
+var emptytrack = {  creator: "",
+                    album: "",
+                    title: "",
+                    duration: 0,
+                    image: "images/album-unknown.png"
+};
 var mpd = new mpdController();
 var playlist = new Playlist();
 var nowplaying = new playInfo();
-var infobar = new infoBar();
 var lfmprovider = new lastFMprovider();
 var gotNeighbours = false;
 var gotFriends = false;
 var sourceshidden = false;
 var playlisthidden = false;
+var progresstimer = null;
+
+function aADownloadFinished() {
+    /* We need one of these in global scope so coverscraper works here
+    */
+    debug.log("Album Art Download Has Finished");
+}
 
 <?php
  print "var scrobblepercent = ".$prefs['scrobblepercent'].";\n";
@@ -86,7 +88,7 @@ $(document).ready(function(){
         debug.log("Adding Storage Event Listener");
         window.addEventListener("storage", onStorageChanged, false);
     }
-    
+        
     // Set up all our click event listeners
     $("#collection").click(onCollectionClicked);
     $("#collection").dblclick(onCollectionDoubleClicked);    
@@ -126,11 +128,11 @@ $(document).ready(function(){
     setBottomPaneSize();
     $("#loadinglabel3").effect('pulsate', { times:100 }, 2000);
     $("#progress").progressbar();
-    $("#progress").click(function(evt) { infobar.seek(evt) });
+    $("#progress").click( infobar.seek );
     $("#volume").slider();
     $("#volume").slider("option", "orientation", "vertical");
     $("#volume" ).slider({
-        stop: function(event, ui) { infobar.setvolume(event) }
+        stop: infobar.setvolume
     });
     $('#infocontrols').load("infocontrols.php", function() { 
 <?php
@@ -161,16 +163,8 @@ $(document).ready(function(){
             containment: '#headerbar',
             axis: 'x'
         });
-        $("#sourcesresizer").bind("drag", function(event, ui){
-            var size = getWindowSize();
-            if (ui.offset.left < 120) { ui.offset.left = 120; }
-            sourceswidthpercent = ((ui.offset.left+8)/size.x)*100;
-            doThatFunkyThang();
-            $(this).data('draggable').position.left = 0;
-        });
-        $("#sourcesresizer").bind("dragstop", function(event, ui){
-            savePrefs({sourceswidthpercent: sourceswidthpercent.toString()})
-        });
+        $("#sourcesresizer").bind("drag", srDrag);
+        $("#sourcesresizer").bind("dragstop", srDragStop)
     });
     
     $("#lastfmlist").load("lastfmchooser.php");
@@ -206,10 +200,10 @@ $(document).ready(function(){
 <div id="infobar">
     <div id="leftholder" class="infobarlayout tleft bordered">
         <div id="buttons">
-            <a href="#" title="Previous Track" onclick="playlist.previous()" class="controlbutton"><img src="images/media-skip-backward.png"></a>
-            <a href="#" title="Play/Pause" onclick="infobar.playbutton.clicked()" id="playbutton" class="controlbutton"><img id="playbuttonimg" src="images/media-playback-pause.png"></a>
-            <a href="#" title="Stop" onclick="playlist.stop()" class="controlbutton"><img src="images/media-playback-stop.png"></a>
-            <a href="#" title="Next Track" onclick="playlist.next()" class="controlbutton"><img src="images/media-skip-forward.png"></a>
+            <a href="javascript:playlist.previous()" title="Previous Track" class="controlbutton"><img src="images/media-skip-backward.png"></a>
+            <a href="javascript:infobar.playbutton.clicked()" title="Play/Pause" id="playbutton" class="controlbutton"><img id="playbuttonimg" src="images/media-playback-pause.png"></a>
+            <a href="javascript:playlist.stop()" title="Stop" class="controlbutton"><img src="images/media-playback-stop.png"></a>
+            <a href="javascript:playlist.next()" title="Next Track" class="controlbutton"><img src="images/media-skip-forward.png"></a>
         </div>
         <div id="progress"></div>
         <div id="playbackTime">
@@ -226,12 +220,12 @@ $(document).ready(function(){
 
     <div id="leftholder" class="infobarlayout tleft bordered">
         <div id="albumcover">
-            <img id="albumpicture" src="images/album-unknown.png">
+            <a href="javascript:playlist.checkProgress()"><img id="albumpicture" src="images/album-unknown.png" /></a>
         </div>
         <div id="nowplaying"></div>
         <div id="lastfm" class="infobarlayout">
             <div><ul class="topnav"><a title="Love this track" id="love" href="javascript:infobar.love()"><img height="24px" src="images/lastfm-love.png"></a></ul></div>
-            <div><ul class="topnav"><a title="Ban this track" id="ban" href="javascript:lastfm.track.ban()"><img height="24px" src="images/lastfm-ban.png"></a></ul></div>
+            <div><ul class="topnav"><a title="Ban this track" id="ban" href="javascript:nowplaying.ban()"><img height="24px" src="images/lastfm-ban.png"></a></ul></div>
         </div>
     </div>
 </div>
@@ -297,7 +291,7 @@ $(document).ready(function(){
     }
     ?>
 
-    <div class="containerbox menuitem">
+    <div class="containerbox menuitem noselection">
         <img src="images/toggle-closed.png" class="menu fixed" name="yourradiolist">
         <div class="smallcover fixed"><img height="32px" width="32px" src="images/broadcast.png"></div>
         <div class="expand">Your Radio Stations</div>
@@ -305,7 +299,7 @@ $(document).ready(function(){
     <div id="yourradiolist" class="dropmenu">
     </div>
     
-    <div class="containerbox menuitem">
+    <div class="containerbox menuitem noselection">
         <img src="images/toggle-closed.png" class="menu fixed" name="somafmlist">
         <div class="smallcover fixed"><img height="32px" width="32px" src="images/somafm.png"></div>
         <div class="expand">Soma FM</div>
@@ -313,7 +307,7 @@ $(document).ready(function(){
     <div id="somafmlist" class="dropmenu">
     </div>
     
-    <div class="containerbox menuitem">
+    <div class="containerbox menuitem noselection">
         <img src="images/toggle-closed.png" class="menu fixed" name="bbclist">
         <div class="smallcover fixed"><img height="32px" width="32px" src="images/bbcr.png"></div>
         <div class="expand">Live BBC Radio</div>
@@ -321,7 +315,7 @@ $(document).ready(function(){
     <div id="bbclist" class="dropmenu">
     </div>
     
-    <div class="containerbox menuitem">
+    <div class="containerbox menuitem noselection">
         <img src="images/toggle-closed.png" class="menu fixed" name="icecastlist">
         <div class="smallcover fixed"><img height="32px" width="32px" src="images/icecast.png"></div>
         <div class="expand">Icecast Radio</div>

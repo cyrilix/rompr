@@ -68,7 +68,11 @@ function getFileInfo($file, $pos) {
                     .xmlnode("location", $track->url)
                     .xmlnode("backendid", $track->backendid)
                     .xmlnode("stream", $track->stream)
-                    .xmlnode("playlistpos", $track->playlistpos);
+                    .xmlnode("playlistpos", $track->playlistpos)
+                    .xmlnode("mbartistid", $track->musicbrainz_artistid)
+                    .xmlnode("mbalbumid", $track->musicbrainz_albumid)
+                    .xmlnode("mbalbumartistid", $track->musicbrainz_albumartistid)
+                    .xmlnode("mbtrackid", $track->musicbrainz_trackid);                    
         if ($track->albumobject->isCompilation()) {
             $xml = $xml.xmlnode("compilation", "yes");
             if ($image == null || $image == "") {

@@ -32,19 +32,19 @@ if ($prefs['updateeverytime'] == "true" ||
 ?>
 
 function prepareForLiftOff() {
-    $('#collection').empty();
-    $('#filecollection').empty();
+    $("#collection").empty();
+    $("#filecollection").empty();
     $("#collection").html('<div class="dirname"><h2 id="loadinglabel">Updating Collection...</h2></div>');
     $("#filecollection").html('<div class="dirname"><h2 id="loadinglabel2">Scanning Files...</h2></div>');
-    $("#loadinglabel").effect('pulsate', { times:100 }, 2000);
-    $("#loadinglabel2").effect('pulsate', { times:100 }, 2000);
+    $("#loadinglabel").effect('pulsate', { times:200 }, 2000);
+    $("#loadinglabel2").effect('pulsate', { times:200 }, 2000);
 }
 
 function updateCollection(cmd) {
     debug.log("Updating collection with command", cmd);
     prepareForLiftOff();
     $.getJSON("ajaxcommand.php", "command="+cmd, function() { 
-                update_load_timer = setTimeout("pollAlbumList()", 2000);
+                update_load_timer = setTimeout( pollAlbumList, 2000);
                 update_load_timer_running = true;
     });    
 }
@@ -66,7 +66,7 @@ function pollAlbumList() {
     $.getJSON("ajaxcommand.php", "", function(data) {
         if (data.updating_db) {
             debug.log("Updating DB");
-            update_load_timer = setTimeout("pollAlbumList()", 1000);
+            update_load_timer = setTimeout( pollAlbumList, 1000);
             update_load_timer_running = true;
         } else {
             loadCollection("albums.php", "dirbrowser.php");

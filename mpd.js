@@ -2,26 +2,26 @@ function mpdController() {
 	var self = this;
 	this.status = {};
 
-	this.update = function() {
-		self.command("");
-	}
-
     this.command = function(cmd, callback) {
-        debug.log("mpd command",cmd);
+       debug.log("mpd command",cmd);
         $.getJSON("ajaxcommand.php", cmd)
         .done(function(data) {
             self.status = data;
-            nowplaying.track.setStartTime(self.status.elapsed); 
+            nowplaying.setStartTime(self.status.elapsed); 
             if (callback) { 
                 callback();
                 infobar.updateWindowValues(); 
             } else {
                playlist.checkProgress(); 
                infobar.updateWindowValues();
-            }
-            
+            }            
         })
-        .fail( function(data) { alert("Failed to send command to MPD") });
+        .fail( function(data) { alert("Failed to send command '"+cmd+"' to MPD") });
+    }
+    
+    // Don't access mpd.status directly from outside this scope, it causes memory leaks.
+    this.getStatus = function(key) {
+        return self.status[key];
     }
 
     this.do_command_list = function(list, callback) {
@@ -32,7 +32,7 @@ function mpdController() {
             data: {'commands[]': list},
             success: function(data) {
                 self.status = data;
-                nowplaying.track.setStartTime(self.status.elapsed); 
+                nowplaying.setStartTime(self.status.elapsed); 
                 if (callback) { 
                     infobar.updateWindowValues(); 
                     callback();
@@ -53,6 +53,7 @@ function mpdController() {
             list.push('deleteid "'+tracks[i]+'"');
         }
         self.do_command_list(list, callback);
+        list = null;
     }
 
 }

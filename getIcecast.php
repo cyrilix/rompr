@@ -66,7 +66,7 @@ foreach($xml->entry as $i => $entry) {
     }
     
 }
-
+print '<div class="noselection fullwidth">';
 print '<div id="booger" style="border-bottom:1px solid #dddddd;margin-bottom:4px"><table width="100%" class="playlistitem"><tr><td align="left">';
 print count($stations) . ' IceCast Radio Stations</td></tr></table></div>';
 
@@ -90,6 +90,7 @@ foreach ($genres as $i => $name) {
     $count++;
 }
 
+print '</div>';
 print '</div>';
 
 $output = '<?xml version="1.0" encoding="utf-8"?><playlist version="1">'."\n".

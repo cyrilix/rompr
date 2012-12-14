@@ -75,3 +75,16 @@ function cloneObject(obj) {
     }
     return clone;
 }
+
+function clearSelection() {
+    /* Really wierd behaviour. If some text is selected when we change the contents of
+     * a panel in the browser, Chrome's CPU usage climbs and climbs.
+     * Perhaps a Chrome bug, but not tested in other browsers. This function gets called
+     * to clear any selected text before we do anything.
+     */
+    if ( document.selection ) {
+        document.selection.empty();
+    } else if ( window.getSelection ) {
+        window.getSelection().removeAllRanges();
+    }
+}

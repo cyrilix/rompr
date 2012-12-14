@@ -96,19 +96,33 @@ if ($error == 0) {
 }
 
 function check_file($file, $data) {
-    $r = system('file "'.$file.'"');
-    if (preg_match('/HTML/', $r)) {
-        error_log("check_file thinks it has found a diversion");
-        $matches=array();
-        if (preg_match('/<a href="(.*?)"/', $data, $matches)) {
-            $new_url = $matches[1];
-            system('rm "'.$file.'"');
-            $aagh = url_get_contents($new_url);
-            error_log("check_file is getting ".$new_url);
-            $fp = fopen($file, "x");
-            if ($fp) {
-                fwrite($fp, $aagh['contents']);
-                fclose($fp);
+    // NOTE. WE've configured curl to follow redirects, so in truth this code should never do anything
+    $matches = array();
+    if (preg_match('/See: (.*)/', $data, $matches)) {
+        error_log("check_file has found an silly musicbrainz diversion ".$data);
+        $new_url = $matches[1];
+        system('rm "'.$file.'"');
+        $aagh = url_get_contents($new_url);
+        error_log("check_file is getting ".$new_url);
+        $fp = fopen($file, "x");
+        if ($fp) {
+            fwrite($fp, $aagh['contents']);
+            fclose($fp);
+        }
+    } else {
+        $r = system('file "'.$file.'"');
+        if (preg_match('/HTML/', $r)) {
+            error_log("check_file thinks it has found a diversion");
+            if (preg_match('/<a href="(.*?)"/', $data, $matches)) {
+                $new_url = $matches[1];
+                system('rm "'.$file.'"');
+                $aagh = url_get_contents($new_url);
+                error_log("check_file is getting ".$new_url);
+                $fp = fopen($file, "x");
+                if ($fp) {
+                    fwrite($fp, $aagh['contents']);
+                    fclose($fp);
+                }
             }
         }
     }
@@ -130,9 +144,10 @@ function find_convert_path() {
 
 function download_file($src, $fname, $convert_path) {
     global $error;
-    $file_extension = substr(strrchr($src,'.'),1);
-    $download_file = "albumart/".$fname.".".$file_extension;
-    error_log("Getting Album Art: ".$src." ".$file_extension." ".$fname);
+    //$file_extension = substr(strrchr($src,'.'),1);
+    //$download_file = "albumart/".$fname.".".$file_extension;
+    $download_file = "albumart/".$fname;
+    error_log("Getting Album Art: ".$src." ".$fname." ".$download_file);
 
     if (file_exists($download_file)) {
         unlink ($download_file);
@@ -178,15 +193,19 @@ function update_cache($fname, $class) {
         $fp = fopen($ALBUMSLIST, 'r+');
         if ($fp) {
             $crap = true;
+            // Get an exclusive lock on the file. We can't have two threads trying to update it at once.
+            // That would be bad.
             if (flock($fp, LOCK_EX, $crap)) {
                 $cache = file_get_contents($ALBUMSLIST);
-                $newcache = preg_replace('/<img class="updateable.*?(name=\"'.$fname.'\".*?)src=.*?>/m', '<img class="'.$class.'" $1 src="">', $cache);
+                $newcache = preg_replace('/\<img class=\"smallcover fixed updateable.*?(name=\"'.$fname.'\".*?) src=.*?\>/', '<img class="smallcover fixed '.$class.'" $1 src="">', $cache);
                 if ($newcache != null) {
                     ftruncate($fp, 0);
                     fwrite($fp, $newcache);
                     fflush($fp);
                     flock($fp, LOCK_UN);
-                } 
+                } else {
+                    error_log("PHP regular expressions are rubbish");
+                }
             } else {
                 error_log("FAILED TO GET FILE LOCK!!!!!!!!!!!!!!!!!!!!!");
             }
@@ -194,5 +213,4 @@ function update_cache($fname, $class) {
         fclose($fp);
     }
 }
-
 ?>

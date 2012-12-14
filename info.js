@@ -6,7 +6,6 @@ function Info(target, source) {
     var hidden = false;
     var history = new Array();
     var displaypointer = -1;
-    var autoupdate = true;
     var panelclosed = {artist: false, album: false, track: false};
 
     /*
@@ -14,105 +13,87 @@ function Info(target, source) {
     /     Various Functions to do with receiving and storing our history
     /
     */
-
-    this.updatesComing = function(stuff) {
-        // nowplaying sends us this, populated with 3 last.fm objects every time
-        // it detects that the playing track has changed.
-        stuff.source = current_source;
-        if ((current_source == "wikipedia" || current_source == "slideshow") && history.length > 0) {
-            if (stuff.artist.mpd_name != history[(history.length)-1].artist.mpd_name && 
-                stuff.artist.mpd_name != "") {
-                // For Wikipedia or Slideshow, we only bother with the data if the artist is
-                // different to the currently displayed artist and has a name, since we only care about artists
-                history.push(stuff);
-                if (autoupdate) {
-                    self.doBrowserUpdates((history.length)-1);
-                } else {
-                    updateHistory();
+    
+    this.newTrack = function(index) {
+     
+        /* nowplaying is telling us that there is a new track playing */
+        switch (true) {
+            case (displaypointer == -1):
+                /* This is the first one, so yes we care, and we've nothing to compare with
+                   so just go straight ahead and give us everything */
+                showMeTheMonkey(index, true, true, true, nowplaying.getnames(index));
+                break;
+            case (displaypointer < (history.length)-1):
+                /* We are not displaying the most recent entry in our history, so we don't want to update */
+                break;
+            case (current_source == "lastfm"):
+                /* When we're displaying LastFM stuff, we always care about changes */
+                var currentnames = nowplaying.getnames(history[displaypointer].nowplayingindex);
+                var newnames = nowplaying.getnames(index);
+                showMeTheMonkey(index, 
+                                (currentnames.artist != newnames.artist),
+                                (currentnames.album != newnames.album),
+                                (currentnames.track != newnames.track),
+                                newnames
+                               );
+                break;
+            case (current_source == "slideshow" || current_source == "wikipedia"):
+                var currentnames = nowplaying.getnames(history[displaypointer].nowplayingindex);
+                var newnames = nowplaying.getnames(index);
+                if (currentnames.artist != newnames.artist) {
+                    showMeTheMonkey(index, true, false, false, newnames);
                 }
-            }
-        } else {
-            if (stuff.artist.mpd_name != "" || stuff.album.mpd_name != "" || stuff.track.mpd_name != "") {
-                // For Last.FM, so long as at least one of the items has a name, we use the data.
-                // The case where no items have names is the case where nothing is in the playlist,
-                // or the last playing track has been removed while the playlist was stopped,
-                // or probably some other bizzarre edge case that mpd will throw at me some time.
-                history.push(stuff);
-                if (autoupdate) {
-                    self.doBrowserUpdates((history.length)-1);
-                } else {
-                    updateHistory();
-                }
-            }
+                break;
+            default:
+                debug.log("AWOOOOGA! Something I hadn't anticipated has just happened");
+                break;
         }
     }
-
-    this.doBrowserUpdates = function(which) {
-        var hp_sauce = current_source;
-        var hp_pointer = displaypointer;
-        current_source = history[which].source;
-        displaypointer = which;
-        
-        // 5 things we check for the artist before we decide to display the data:
-        // 1. hp_pointer = -1 means this is the first thing we've displayed
-        // 2. if either the new or current items are wiki items (links followed from wikipedia pages)
-        //      then we must just display as the artist info in those is irrelevant and could be the same
-        // 3. see above
-        // 4. data source has changed
-        // 5. artist name has changed
-        // For track and album it's less complicated but much the same
-
-        // Note that the last.fm objects exist but may contain no data at this point -
-        //  they are populating themselves through the magic of asynchronous JSON requests
-        //  If we want the data we tell them we want it and they will call us back when they have it
-
-        if (hp_pointer == -1 || 
-            history[which].wiki || 
-            history[hp_pointer].wiki || 
-            hp_sauce != history[which].source || 
-            history[which].artist.mpd_name != history[hp_pointer].artist.mpd_name) 
-        {
-            history[which].artist.showMe();
-        }
-        if (hp_pointer == -1 || 
-            hp_sauce != history[which].source || 
-            history[which].album.mpd_name != history[hp_pointer].album.mpd_name) 
-        {
-            history[which].album.showMe();
-        }
-        if (hp_pointer == -1 || 
-            hp_sauce != history[which].source || 
-            history[which].track.mpd_name != history[hp_pointer].track.mpd_name) 
-        {
-            history[which].track.showMe();
-        }
-        if (displaypointer == (history.length)-1) {
-            autoupdate = true;
-        } else {
-            autoupdate = false;
-        }
+    
+    function showMeTheMonkey(npi, showartist, showalbum, showtrack, names) {
+        displaypointer = history.length;
+        history[displaypointer] = { nowplayingindex: npi,
+                                    source: current_source,
+                                    artist: names.artist,
+                                    album: names.album,
+                                    track: names.track };
         updateHistory();
+        clearSelection();
+        if (!hidden) {
+            if (showartist) { updateArtistBrowser() };
+            if (showalbum)  { updateAlbumBrowser() };
+            if (showtrack)  { updateTrackBrowser() };
+        }
     }
-
+    
+    this.doHistory = function(index) {
+        displaypointer = index;
+        updateHistory();
+        clearSelection();
+        if (!hidden) {
+            updateArtistBrowser();
+            updateAlbumBrowser();
+            updateTrackBrowser();
+        }
+    }
+    
     this.switchSource = function(source) {
-        var playingtrack = { 
-            artist: nowplaying.artist.lfm_data,
-            album: nowplaying.album.lfm_data,
-            track: nowplaying.track.lfm_data,
-            source: source 
-        };
-        history.push(playingtrack);
+        current_source = source;
         savePrefs({infosource: source});
         self.slideshow.killTimer();
-        self.doBrowserUpdates((history.length)-1)
+        showMeTheMonkey(nowplaying.getcurrentindex(), 
+                        true,
+                        (source == "lastfm" ? true : false),
+                        (source == "lastfm" ? true : false),
+                        nowplaying.getnames(nowplaying.getcurrentindex()));
     }
 
     this.back = function() {
-        self.doBrowserUpdates(displaypointer-1);
+        self.doHistory(displaypointer-1);
     }
 
     this.forward = function() {
-        self.doBrowserUpdates(displaypointer+1);
+        self.doHistory(displaypointer+1);
     }
 
     this.getWiki = function(link) {
@@ -121,13 +102,14 @@ function Info(target, source) {
             artist: history[displaypointer].artist,
             album: history[displaypointer].album,
             track: history[displaypointer].track,
+            nowplayingindex: history[displaypointer].nowplayingindex,
             source: "wikipedia",
             wiki: link 
         };
         history.splice(displaypointer+1,(history.length)-displaypointer,currentdisplay);
         displaypointer++;
         updateHistory();
-        self.updateArtistBrowser(currentdisplay.artist);
+        updateArtistBrowser();
     }
 
     /*
@@ -136,39 +118,31 @@ function Info(target, source) {
     /
     */
 
-    function noNeedToDisplay(lfmdata, selector) {
-        if (lfmdata.mpd_name == "") {
-            $(selector).fadeOut('fast');
-        }
-        if (hidden || lfmdata.mpd_name == "") {
-            return true;
-        }
-        return false;
-    }
-
     function prepareArtistPane() {
         $("#infopane").removeClass("infoslideshow");
         $("#infopane").removeClass("infowiki");
         $("#infopane").addClass("infowiki");
     }
 
-    this.updateArtistBrowser = function(lfmdata) {
-        if (noNeedToDisplay(lfmdata, "#artistinformation")) { return 0; }
-        switch(current_source) {
+    updateArtistBrowser = function() {
+        switch(history[displaypointer].source) {
             case "wikipedia":
                 $("#albuminformation").fadeOut('fast');
                 $("#trackinformation").fadeOut('fast');
                 prepareArtistPane();
                 $('#artistinformation').fadeOut('fast', function() {
-                    setWikiWaiting('#artistinformation', "images/Wikipedia-logo.png");
-                    if (history[displaypointer].wiki) {
-                        $('#artistinformation').load("info_wikipedia.php?wiki="+history[displaypointer].wiki, function () {
-                            $('#'+target_frame).animate({ scrollTop: 0}, { duration: 'fast', easing: 'swing'});
-                        });
-                    } else {
-                        $('#artistinformation').load("info_wikipedia.php?artist="+encodeURIComponent(history[displaypointer].artist.name()), function () {
-                            $('#'+target_frame).animate({ scrollTop: 0}, { duration: 'fast', easing: 'swing'});
-                        });
+                    if (history[displaypointer].artist != "") {
+                        $('#artistinformation').empty();
+                        setWikiWaiting('#artistinformation', "images/Wikipedia-logo.png");
+                        if (history[displaypointer].wiki) {
+                            $('#artistinformation').load("info_wikipedia.php?wiki="+history[displaypointer].wiki, function () {
+                                $('#'+target_frame).animate({ scrollTop: 0}, { duration: 'fast', easing: 'swing'});
+                            });
+                        } else {
+                            $('#artistinformation').load("info_wikipedia.php?artist="+encodeURIComponent(history[displaypointer].artist), function () {
+                                $('#'+target_frame).animate({ scrollTop: 0}, { duration: 'fast', easing: 'swing'});
+                            });
+                        }
                     }
                 });
                 break;
@@ -176,8 +150,11 @@ function Info(target, source) {
             case "lastfm":
                 prepareArtistPane();
                 $('#artistinformation').fadeOut('fast', function() {
-                    doArtistUpdate(lfmdata);
-                    $('#artistinformation').fadeIn(1000);
+                    if (history[displaypointer].artist != "") {
+                        //$('#artistinformation').empty();
+                        doArtistUpdate();
+                        $('#artistinformation').fadeIn(1000);
+                    }
                 });
                 break;
 
@@ -188,40 +165,47 @@ function Info(target, source) {
                 $("#infopane").removeClass("infowiki");
                 $("#infopane").addClass("infoslideshow");
                 $('#artistinformation').fadeOut('fast', function() {
-                    getSlideShow(lfmdata.mpd_name);
+                    if (history[displaypointer].artist != "") {
+                        //$('#artistinformation').empty();
+                        getSlideShow(history[displaypointer].artist);
+                    }
                 });
                 break;
 
         }
     }
 
-    this.updateAlbumBrowser = function(lfmdata) {
-        if (noNeedToDisplay(lfmdata, "#albuminformation")) { return 0; }
-        switch(current_source) {
+    updateAlbumBrowser = function(lfmdata) {
+        switch(history[displaypointer].source) {
             case "wikipedia":
             case "slideshow":
                 break;
 
             case "lastfm":
                 $('#albuminformation').fadeOut('fast', function() {
-                    doAlbumUpdate(lfmdata);
-                    $('#albuminformation').fadeIn(1000);
+                    if (history[displaypointer].album != "") {
+                        //$('#albuminformation').empty();
+                        doAlbumUpdate();
+                        $('#albuminformation').fadeIn(1000);
+                    }
                 });
                 break;
         }
     }
 
-    this.updateTrackBrowser = function(lfmdata) {
-        if (noNeedToDisplay(lfmdata, "#trackinformation")) { return 0; }
-        switch(current_source) {
+    updateTrackBrowser = function(lfmdata) {
+        switch(history[displaypointer].source) {
             case "wikipedia":
             case "slideshow":
                 break;
 
             case "lastfm":
                 $('#trackinformation').fadeOut('fast', function() {
-                    doTrackUpdate(lfmdata);
-                    $('#trackinformation').fadeIn(1000);
+                    if (history[displaypointer].track != "") {
+                        //$('#trackinformation').empty();
+                        doTrackUpdate();
+                        $('#trackinformation').fadeIn(1000);
+                    }
                 });
                 break;
         }
@@ -236,6 +220,7 @@ function Info(target, source) {
                     '</td></tr></table>'+
                     '</div>';
         $(frame).html(html);
+        html = null;
         $('#flashthis').effect('pulsate', { times:100 }, 2000);
         $(frame).fadeIn('fast');
     }
@@ -261,14 +246,16 @@ function Info(target, source) {
     /
     */
 
-    function doArtistUpdate(lfmdata) {
-        var html = lastFmBanner(lfmdata, "Artist", panelclosed.artist);
+    function doArtistUpdate() {
+        
+        var lfmdata = new lfmDataExtractor(nowplaying.getArtistData(history[displaypointer].nowplayingindex));
+        var html = lastFmBanner(lfmdata, "Artist", panelclosed.artist, history[displaypointer].artist);
         if (lfmdata.error()) {
             html = html + formatLastFmError(lfmdata);
         } else {
             html = html + sectionHeader(lfmdata);
-            html = html + '<br><li class="tiny">Hear artists similar to '+lfmdata.name()+'&nbsp;&nbsp;<a href="#" onclick="doLastFM(\'lastfmartist\', \''+lfmdata.name()+'\')"><img style="vertical-align:middle" src="images/start.png" height="12px"></a></li>';
-            html = html + '<br><li class="tiny">Play what fans of '+lfmdata.name()+' are listening to&nbsp;&nbsp;<a href="#" onclick="doLastFM(\'lastfmfan\', \''+lfmdata.name()+'\')"><img style="vertical-align:middle" src="images/start.png" height="12px"></a></li>';
+            html = html + '<br><li class="tiny">Hear artists similar to '+history[displaypointer].artist+'&nbsp;&nbsp;<a href="#" onclick="doLastFM(\'lastfmartist\', \''+history[displaypointer].artist+'\')"><img style="vertical-align:middle" src="images/start.png" height="12px"></a></li>';
+            html = html + '<br><li class="tiny">Play what fans of '+history[displaypointer].artist+' are listening to&nbsp;&nbsp;<a href="#" onclick="doLastFM(\'lastfmfan\', \''+history[displaypointer].artist+'\')"><img style="vertical-align:middle" src="images/start.png" height="12px"></a></li>';
             html = html + '</ul><br>';
 
             html = html + doTags(lfmdata.tags());
@@ -284,6 +271,9 @@ function Info(target, source) {
             html = html +  '<p>';
             html = html + formatBio(lfmdata.bio());
             html = html + '</p></div>';
+            if (lfmdata.mbid()) {
+                html = html + '<p class="tiny"><img style="vertical-align:middle" src="images/musicbrainz_logo.png" width="24px"><a href="http://musicbrainz.org/artist/'+lfmdata.mbid()+'" target="_blank">View '+history[displaypointer].artist+' on Musicbrainz.org</a></p>';
+            }
             html = html + '</div>';
 
             html = html + '<div id="similarartists" class="bordered"><h3 align="center">Similar Artists</h3><table width="100%" cellspacing="0" cellpadding="0"><tr><td align="center"><table cellspacing="0" id="smlrtst"><tr>';
@@ -304,6 +294,7 @@ function Info(target, source) {
         html = html + '</div>';
 
         $("#artistinformation").html(html);
+        html = null;
         $("#artistinformation #frog").click(function() {
             $("#artistinformation #foldup").toggle('slow');
             panelclosed.artist = !panelclosed.artist;
@@ -314,13 +305,17 @@ function Info(target, source) {
             }
             return false;
         });
+        lfmdata = null;
 
-        self.updateUserTags(lfmdata.usertags(), "artist")
+        nowplaying.getusertags(history[displaypointer].nowplayingindex, 'artist');
 
     }
 
-    function doAlbumUpdate(lfmdata) {
-        var html = lastFmBanner(lfmdata, "Album", panelclosed.album);
+    function doAlbumUpdate() {
+        
+        var lfmdata = new lfmDataExtractor(nowplaying.getAlbumData(history[displaypointer].nowplayingindex));
+        
+        var html = lastFmBanner(lfmdata, "Album", panelclosed.album, history[displaypointer].album);
         if (lfmdata.error()) {
             html = html + formatLastFmError(lfmdata);
         } else {
@@ -358,10 +353,15 @@ function Info(target, source) {
             }
             html = html + '</table>';
             html = html + '<p>'+formatBio(lfmdata.bio())+'</p>';
-            html = html + '</div></div>';
+            html = html + '</div>'
+            if (lfmdata.mbid()) {
+                html = html + '<p class="tiny"><img style="vertical-align:middle" src="images/musicbrainz_logo.png" width="24px"><a href="http://musicbrainz.org/release/'+lfmdata.mbid()+'" target="_blank">View '+history[displaypointer].album+' on Musicbrainz.org</a></p>';
+            }
+            html = html + '</div>';
         }
         html = html + '</div>';
         $("#albuminformation").html(html);
+        html = null;
         $("#albuminformation #frog").click(function() {
             $("#albuminformation #foldup").toggle('slow');
             panelclosed.album = !panelclosed.album;
@@ -372,23 +372,19 @@ function Info(target, source) {
             }
             return false;
         });
-        self.updateUserTags(lfmdata.usertags(), "album")
+        lfmdata = null;
+        nowplaying.getusertags(history[displaypointer].nowplayingindex, 'album');
 
     }
 
-    function doTrackUpdate(lfmdata) {
-        var html = lastFmBanner(lfmdata, "Track", panelclosed.track);
+    function doTrackUpdate() {
+        var lfmdata = new lfmDataExtractor(nowplaying.getTrackData(history[displaypointer].nowplayingindex));
+        var html = lastFmBanner(lfmdata, "Track", panelclosed.track, history[displaypointer].track);
         if (lfmdata.error()) {
             html = html + formatLastFmError(lfmdata);
         } else {
             html = html + sectionHeader(lfmdata);
-            if (lfmdata.userloved()) {
-                html = html + '<li><b>Loved:</b> Yes';
-                html = html+'&nbsp;&nbsp;&nbsp;<a href="#" onclick="browser.unlove()"><img src="images/lastfm-unlove.png" height="12px"></a>';
-            } else {
-                html = html + '<li><b>Loved:</b> No';
-                html = html+'&nbsp;&nbsp;&nbsp;<a href="#" onclick="browser.love()"><img src="images/lastfm-love.png" height="12px"></a>';
-            }
+            html = html + '<li name="userloved">';
             html = html  +'</li>';
             html = html + '<br><ul id="buytrack"><li><b>BUY THIS TRACK&nbsp;</b><a href="#" onclick="browser.buyTrack()"><img height="20px" id="buytrackbutton" style="vertical-align:middle" src="images/cart.png"></a></li></ul>';
             html = html + '</ul><br>';
@@ -398,10 +394,19 @@ function Info(target, source) {
             html = html + doUserTags("track");
             html = html + '</div>';
             html = html + '<p>'+formatBio(lfmdata.bio())+'</p>';
+            if (lfmdata.mbid()) {
+                html = html + '<p class="tiny"><img style="vertical-align:middle" src="images/musicbrainz_logo.png" width="24px"><a href="http://musicbrainz.org/recording/'+lfmdata.mbid()+'" target="_blank">View '+history[displaypointer].track+' on Musicbrainz.org</a></p>';
+            }            
             html = html + '</div>';
         }
         html = html + '</div>';
         $("#trackinformation").html(html);
+        html = null;
+        if (lfmdata.userloved()) {
+            doUserLoved(true)
+        } else {
+            doUserLoved(false);
+        }
 
         $("#trackinformation #frog").click(function() {
             $("#trackinformation #foldup").toggle('slow');
@@ -413,8 +418,22 @@ function Info(target, source) {
             }
             return false;
         });
-        self.updateUserTags(lfmdata.usertags(), "track")
+        lfmdata = null;
+        nowplaying.getusertags(history[displaypointer].nowplayingindex, 'track');
 
+    }
+    
+    function doUserLoved(flag) {
+        var html = "";
+        if (flag) {
+            html = html + '<b>Loved:</b> Yes';
+            html = html+'&nbsp;&nbsp;&nbsp;<a href="#" onclick="browser.unlove()"><img src="images/lastfm-unlove.png" height="12px"></a>';
+        } else {
+            html = html + '<li><b>Loved:</b> No';
+            html = html+'&nbsp;&nbsp;&nbsp;<a href="#" onclick="browser.love()"><img src="images/lastfm-love.png" height="12px"></a>';
+        }
+        $('li[name="userloved"]').html(html);
+        html = null;
     }
 
     function formatLastFmError(lfmdata) {
@@ -430,10 +449,10 @@ function Info(target, source) {
         return html;
     }
 
-    function lastFmBanner(data, title, hidden) {    
+    function lastFmBanner(data, title, hidden, name) {    
         var html = '<div id="infosection">';
         html = html + '<table width="100%"><tr><td width="80%">';
-        html = html + '<h2>'+title+' : ' + data.name() + '</h2>';
+        html = html + '<h2>'+title+' : ' + name + '</h2>';
         html = html + '</td><td align="left"><a href="#" id="frog">';
         if (hidden) {
             html = html + "CLICK TO SHOW";
@@ -491,17 +510,20 @@ function Info(target, source) {
         return html;
     }
 
-    this.updateUserTags = function(taglist, name) {
-        stopWaitingIcon("tagadd"+name);
-        $('table[name="'+name+'tagtable"]').find("tr").remove();
-        for(var i in taglist) {
-            appendTag(name, taglist[i].name, taglist[i].url);
+    this.userTagsIncoming = function(taglist, name, index) {
+        if (index == history[displaypointer].nowplayingindex && history[displaypointer].source == "lastfm") {
+            debug.log("Receieved user tag data for",name,taglist);
+            stopWaitingIcon("tagadd"+name);
+            $('table[name="'+name+'tagtable"]').find("tr").remove();
+            for(var i in taglist) {
+                appendTag(name, taglist[i].name, taglist[i].url);
+            }
         }
     }
 
     this.addTags = function (type) {
         makeWaitingIcon("tagadd"+type);
-        history[displaypointer][type].addTags($("#add"+type+"tags").attr("value"));
+        nowplaying.addtags(history[displaypointer].nowplayingindex, type, $("#add"+type+"tags").attr("value"));
     }
 
     this.tagAddFailed = function(type,tags) {
@@ -509,6 +531,11 @@ function Info(target, source) {
         infobar.notify(infobar.ERROR, "Failed to add "+tags+" to "+type);
     }
 
+    this.tagRemoveFailed = function(type,tags) {
+        stopWaitingIcon("tagadd"+type);
+        infobar.notify(infobar.ERROR, "Failed to remove tag "+tags);
+    }
+    
     this.gotFailure = function(data) {
         debug.log("FAILED with something:",data);
         infobar.notify(infobar.ERROR, "Unspecified, non-serious error. Carry on as if nothing had happened");
@@ -519,29 +546,13 @@ function Info(target, source) {
         html = html + '<td><a href="#" id="'+table+'tag" name="'+name+'"><img style="vertical-align:middle" src="images/edit-delete.png" height="12px"></a></td>';
         html = html + '<td align="right"><a href="#" onclick="doLastFM(\'lastfmglobaltag\', \''+name+'\')"><img style="vertical-align:middle" src="images/start.png" height="12px"></a></td></tr>';
         $('table[name="'+table+'tagtable"]').append(html);
+        html = null;
         $(".newtag").toggle(1000);
         $(".newtag").each( function(index, element) {
             $(element).removeClass("newtag");
             $(element).find("#"+table+"tag").click( function() {
                 var tag = $(element).find("#"+table+"tag").attr("name");
-                var options = new Object;
-                options.tag = tag;
-                options.artist = history[displaypointer].artist.name();
-                options[table] = history[displaypointer][table].name();
-                makeWaitingIcon("tagadd"+table);
-                lastfm[table].removeTag(
-                    options,
-                    function(tag) {
-                        $('tr[name="'+table+tag+'"]').fadeOut('fast', function() {
-                            $('tr[name="'+table+tag+'"]').remove();
-                            stopWaitingIcon("tagadd"+table);
-                        });
-                    },
-                    function(tag) {
-                        alert("Failed to remove "+tag);
-                        stopWaitingIcon("tagadd"+table);
-                    }
-                );
+                nowplaying.removetags(history[displaypointer].nowplayingindex, table, tag);
             });
             return true;
         });
@@ -554,7 +565,7 @@ function Info(target, source) {
 
     this.buyAlbum = function() {
         makeWaitingIcon("buyalbumbutton");
-        lastfm.album.getBuylinks({album: history[displaypointer].album.name(), artist: history[displaypointer].artist.name()}, browser.showAlbumBuyLinks, browser.noAlbumBuyLinks);
+        lastfm.album.getBuylinks({album: history[displaypointer].album, artist: nowplaying.albumartist(history[displaypointer].nowplayingindex)}, browser.showAlbumBuyLinks, browser.noAlbumBuyLinks);
     }
 
     this.noAlbumBuyLinks = function() {
@@ -600,7 +611,7 @@ function Info(target, source) {
 
     this.buyTrack = function() {
         makeWaitingIcon("buytrackbutton");
-        lastfm.track.getBuylinks({track: history[displaypointer].track.name(), artist: history[displaypointer].artist.name()}, browser.showTrackBuyLinks, browser.noTrackBuyLinks);
+        lastfm.track.getBuylinks({track: history[displaypointer].track, artist: history[displaypointer].artist}, browser.showTrackBuyLinks, browser.noTrackBuyLinks);
     }
 
     this.noTrackBuyLinks = function() {
@@ -622,6 +633,18 @@ function Info(target, source) {
     /    History Buttons and Menu
     /
     */
+    
+    this.thePubsCloseTooEarly = function() {
+        /* nowplaying has truncated its history by removing the first one in its list.
+         * This means that all of our stored indices are now out by one
+         * so we must adjust them
+         */
+        debug.log("Reducing the badger episodes becasue of too many carrots");
+        for (var i in history) {
+            var sidePocketForAToad = history[i].nowplayingindex;
+            history[i].nowplayingindex = sidePocketForAToad-1;
+        }
+    }
 
     function updateHistory() {
         if (displaypointer > 0) {
@@ -630,11 +653,7 @@ function Info(target, source) {
                 displaypointer--;
             }
         }
-        updateHistoryButtons();
-        updateHistoryMenu();
-    }
 
-    function updateHistoryButtons() {
         if (displaypointer == 0) {
             $("#backbutton").unbind('click');
             $("#backbutton").removeAttr("href");
@@ -655,9 +674,7 @@ function Info(target, source) {
             $("#forwardbutton").click(function () {browser.forward()});
             $("#forwardbutton img").attr("src", "images/forwardbutton.png");
         }
-    }
 
-    function updateHistoryMenu() {
         var html = '<li class="wider"><b>HISTORY</b></li>';
         html = html + '<li class="wider"><table width="100%">';
         var count = 0;
@@ -678,7 +695,7 @@ function Info(target, source) {
                     html = html + 'images/slideshow.png';
                     break;
             }
-            html = html + '"></td><td><a href="#" onclick="browser.doBrowserUpdates('+count.toString()+')">';
+            html = html + '"></td><td><a href="#" onclick="browser.doHistory('+count.toString()+')">';
             if (count == displaypointer) {
                 html = html + '<b>';
             }
@@ -689,20 +706,20 @@ function Info(target, source) {
                     if (this.wiki) {
                         s = this.wiki;
                     } else {
-                        s = this.artist.mpd_name;
+                        s = this.artist;
                     }
                     html = html + s.replace(/_/g, " ");
                     break;
                 case "lastfm":
-                    html = html + this.track.mpd_name;
-                    if (this.track.mpd_name != "" && this.artist.mpd_name != "") {
+                    html = html + this.track;
+                    if (this.track != "" && this.artist != "") {
                         html = html + " <small><i>by</i></small> "
                     }
-                    html = html + this.artist.mpd_name;
-                    if ((this.track.mpd_name != "" || this.artist.mpd_name != "") && this.album.mpd_name != "") {
+                    html = html + this.artist;
+                    if ((this.track != "" || this.artist != "") && this.album != "") {
                         html = html + " <small><i>on</i></small> "
                     }
-                    html = html + this.album.mpd_name;
+                    html = html + this.album;
                     break;
             }
             if (count == displaypointer) {
@@ -712,7 +729,9 @@ function Info(target, source) {
             count++;
         });
         html = html + '</table></li>';
+        $("#historypanel").empty();
         $("#historypanel").html(html);
+        html = null;
     }
 
     /*
@@ -722,39 +741,21 @@ function Info(target, source) {
     */
 
     this.love = function() {
-        lastfm.track.love(history[displaypointer].track.name(), history[displaypointer].artist.name(), self.justloved);
+        nowplaying.love(history[displaypointer].nowplayingindex);
     }
 
     this.unlove = function() {
-        lastfm.track.unlove(history[displaypointer].track.name(), history[displaypointer].artist.name(), self.justloved);
+        nowplaying.unlove(history[displaypointer].nowplayingindex);
     }
 
-    this.justloved = function(track,artist,l) {
-        if (l) {
-            infobar.notify(infobar.NOTIFY, "Loved "+track);
-        } else {
-            infobar.notify(infobar.NOTIFY, "Unloved "+track);
-        }
-        // l is true if track was just loved, false if unloved
-        if (track == history[displaypointer].track.name() &&
-            artist == history[displaypointer].artist.name())
-        {
-            history[displaypointer].track.trackinfo = null;
-            history[displaypointer].track.populate();
-            if (current_source == "lastfm") {
-                history[displaypointer].track.showMe();
+    this.justloved = function(index, flag) {
+        if (index == history[displaypointer].nowplayingindex) {
+            debug.log("The track we are viewing has just been loved. Aaaaahhhhhhh");
+            if (history[displaypointer].source == "lastfm") {
+                debug.log("We shall reflect that change");
+                doUserLoved(flag);
             }
         }
-        
-        if (autotagname != '') {
-            for (var h in history) {
-                if (history[h].track.name() == track && history[h].artist.name() == artist) {
-                    debug.log("Adding Auto Tag to loved track", autotagname);
-                    history[h].track.addTags("fatgermanlovesthis");
-                }
-            }
-        }
-        
     }
 
     /*
@@ -779,6 +780,7 @@ function Info(target, source) {
         html = html + '<a href="#" onclick="browser.slideshow.nextimage(1)"><img src="images/forward.png"></a></td></tr></table></div>';
         html = html + '<table border="0" cellpadding="0" cellspacing ="0" width="100%"><tr><td align="center" class="infoslideshow"><img id="lastfmimage"></td></tr></table>';
         $("#artistinformation").html(html);
+        html = null;
         $("#artistinformation").hover(function() { $("#slidecon").fadeIn(500); }, function() { $("#slidecon").fadeOut(500); });
         $("#artistinformation").fadeIn(1000);
         self.slideshow.slideshowGo(data);
@@ -909,7 +911,7 @@ function Info(target, source) {
                     });
 
                     if (!paused && images.length > 1) {
-                        timer = setTimeout("browser.slideshow.timerExpiry()", 10000);
+                        timer = setTimeout( browser.slideshow.timerExpiry, 10000);
                         timer_running = true;
                     }
                 }

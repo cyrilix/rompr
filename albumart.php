@@ -16,7 +16,7 @@ set_time_limit(240);
 print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme'].'" />'."\n";
 ?>
 <link type="text/css" href="jqueryui1.8.16/css/start/jquery-ui-1.8.23.custom.css" rel="stylesheet" />
-<script type="text/javascript" src="jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="jquery-1.8.3-min.js"></script>
 <script type="text/javascript" src="jquery.form.js"></script>
 <script type="text/javascript" src="jqueryui1.8.16/js/jquery-ui-1.8.23.custom.js"></script>
 <script type="text/javascript" src="jquery.jsonp-2.3.1.min.js"></script>
@@ -26,27 +26,49 @@ print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme']
 <script type="text/javascript" src="coverscraper.js"></script>
 <script src="https://www.google.com/jsapi?key=ABQIAAAAD8fM_RJ2TaPVvDsHb-8MdxS61EkEqhmzf3WQQFI0-v4LA4gElhRtzkt_mX1FPwUDz9DchkRCsKg3SA"></script>
 <script language="JavaScript">
+// debug.setLevel(0);
 var lastfm_api_key = "15f7532dff0b8d84635c757f9f18aaa3";
-google.load('search', '1');
 
 var imageSearch;
 var imagekey = '';
 var windowScroll;
 var useLocalStorage = false;
 var coverscraper = null;
+var running = false;
 
-function getNewAlbumArt() {
+google.load('search', 1);
+
+function getNewAlbumArt(div) {
 
     coverscraper.reset(-1);
-    $("#wobblebottom").find("img").each( function() {
+    debug.log("Getting art in",div);
+    $(div).find("img").each( function() {
         if ($(this).hasClass("notexist")) {
             coverscraper.getNewAlbumArt(this);
+            if (running == false) {
+                running = true;
+                $("#harold").unbind("click");
+                $("#harold").bind("click", function() { coverscraper.reset(-1) } );
+                $("#harold").html("Stop Download");
+            }
         }
     });
 
 }
 
+function aADownloadFinished() {
+    if (running == true) {
+        running = false;
+        $("#harold").unbind("click");
+        $("#harold").bind("click", function() { getNewAlbumArt('#wobblebottom') });
+        $("#harold").html("Get Missing Covers");
+    }
+    $("#status").html("");
+    $("#progress").progressbar("option", "value", 0);
+}
+
 $(document).ready(function () {
+
     $("#totaltext").html(numcovers+" albums");
     $("#progress").progressbar();
     wobbleMyBottom();
@@ -58,6 +80,7 @@ $(document).ready(function () {
     }
     coverscraper = new coverScraper(1, useLocalStorage, true, true);
     coverscraper.reset(albums_without_cover);
+    $("#harold").click( function() { getNewAlbumArt('#wobblebottom') } );
 });
 
 function wobbleMyBottom() {
@@ -67,7 +90,6 @@ function wobbleMyBottom() {
 }
 
 function doGoogleSearch(artist, album, key) {
-
     imagekey = key;
     windowScroll = getScrollXY();
     var googlePopup = popupWindow.create(700, 540, "googlepopup", false, "Choose Album Picture");
@@ -88,6 +110,11 @@ function doGoogleSearch(artist, album, key) {
 
     $("#searchphrase").attr("value", decodeURIComponent(artist)+" "+decodeURIComponent(album));
     popupWindow.open();
+    imageSearch = new google.search.ImageSearch();
+    imageSearch.setSearchCompleteCallback(this, googleSearchComplete, null);
+    imageSearch.setResultSetSize(8);
+    google.search.Search.getBranding('branding');
+    imageSearch.execute(decodeURIComponent(artist)+" "+decodeURIComponent(album));  
     $("#uform").ajaxForm( function(data) {
         closeGooglePopup();
         $('img[name="'+imagekey+'"]').attr("src", "albumart/original/"+imagekey+".jpg");
@@ -101,11 +128,6 @@ function doGoogleSearch(artist, album, key) {
             sendLocalStorageEvent(key);
         }
     });
-    imageSearch = new google.search.ImageSearch();
-    imageSearch.setSearchCompleteCallback(this, googleSearchComplete, null);
-    imageSearch.setResultSetSize(8);
-    google.search.Search.getBranding('branding');
-    imageSearch.execute(decodeURIComponent(artist)+" "+decodeURIComponent(album));
 }
 
 function research() {
@@ -181,7 +203,7 @@ function updateImage(key, url) {
 <tr><td><p id="totaltext"></p><p id="infotext"></p></td>
 <td width="40%"><div id="progress"></div><br><div id="status"></div></td>
 <td align="right">
-<button class="topformbutton" onclick="getNewAlbumArt()">Get Missing Covers</button>
+<button id="harold" class="topformbutton">Get Missing Covers</button>
 </td></tr>
 <?php
 if(array_key_exists("nocover", $_REQUEST)) {
@@ -214,6 +236,7 @@ if (array_search("various artists", $artistlist)) {
 foreach($artistlist as $artistkey) {
     do_albumcovers($artistkey, true, $covers);
 }
+
 close_mpd($connection);
 
 do_radio_stations($covers);
@@ -238,9 +261,9 @@ function do_albumcovers($artistkey, $comps, $covers) {
     if (count($albumlist) > 0) {
         $artist = $collection->artistName($artistkey);
         print '<div id="albumsection">';
-        print '<h2>'.$artist.'</h2>';
+        print '<div class="tleft"><h2>'.$artist.'</h2></div><div class="tright"><button class="topformbutton" onclick="getNewAlbumArt(\'#album'.$count.'\')">Get These Covers</button></div>';
         print "</div>\n";
-        print '<div id="artistinfo">';
+        print '<div id="album'.$count.'">';
         $albumnames = array();
         print '<table align="center" cellpadding="4"><tr>';
         $colcount = 0;
@@ -266,7 +289,11 @@ function do_albumcovers($artistkey, $comps, $covers) {
                $src = "images/album-unknown.png";
                $albums_without_cover++;
             }
-            print '<img class="'.$class.'" romprartist="'.rawurlencode($album->artist).'" rompralbum="'.rawurlencode($album->name).'" name="'.$artname.'" style="vertical-align:middle" height="94" src="'.$src.'">';
+            print '<img class="'.$class.'" romprartist="'.rawurlencode($album->artist).'" rompralbum="'.rawurlencode($album->name).'"';
+            if ($album->musicbrainz_albumid) {
+                print ' rompralbumid="'.$album->musicbrainz_albumid.'"';
+            }
+            print ' name="'.$artname.'" style="vertical-align:middle" height="94" src="'.$src.'">';
 
             print '</a>';
             array_push($albumnames, $album->name);

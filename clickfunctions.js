@@ -33,6 +33,9 @@ function onLastFMClicked(event) {
     debug.log("Last.FM was clicked",clickedElement);
     if (clickedElement.hasClass("menu")) {
         doMenu(event, clickedElement);
+    } else if (clickedElement.hasClass("clicklfmuser")) {
+        event.stopImmediatePropagation();
+        window.open("http://www.last.fm/user/"+clickedElement.attr("name"), "_blank");
     }
 }
 
@@ -76,7 +79,6 @@ function onRadioDoubleClicked(event) {
         event.stopImmediatePropagation();
         playUserStream(clickedElement.attr("name"));
     }
-
 }
 
 function onPlaylistClicked(event) {
@@ -107,7 +109,8 @@ function findClickableElement(event) {
 
     var clickedElement = $(event.target);
     // Search upwards through the parent elements to find the clickable object
-    while (!clickedElement.hasClass("clickable") && !clickedElement.hasClass("menu") && clickedElement.prop("id") != "sources") {
+    while (!clickedElement.hasClass("clickable") && !clickedElement.hasClass("menu") && 
+            clickedElement.prop("id") != "sources" && clickedElement.prop("id") != "sortable") {
         clickedElement = clickedElement.parent();
     }
     return clickedElement;
@@ -120,7 +123,6 @@ function doMenu(event, element) {
         event.stopImmediatePropagation();
     }
     var menutoopen = element.attr("name");
-    debug.log("Blahdeblah",menutoopen);
     if (element.attr("src") == "images/toggle-closed.png") {
         element.attr("src", "images/toggle-open.png");
         $('#'+menutoopen).find(".updateable").attr("src", function () {
@@ -161,3 +163,14 @@ function setDraggable(divname) {
     });    
 }
 
+function srDrag(event, ui) {
+    var size = getWindowSize();
+    if (ui.offset.left < 120) { ui.offset.left = 120; }
+    sourceswidthpercent = ((ui.offset.left+8)/size.x)*100;
+    doThatFunkyThang();
+    $(this).data('draggable').position.left = 0;
+}
+
+function srDragStop(event, ui) {
+    savePrefs({sourceswidthpercent: sourceswidthpercent.toString()});
+}    

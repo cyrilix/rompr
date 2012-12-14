@@ -20,6 +20,7 @@ class album {
         $this->tracks = array();
         $this->folder = null;
         $this->iscompilation = false;
+        $this->musicbrainz_albumid = null;
     }
 
     public function newTrack($object) {
@@ -120,7 +121,7 @@ class artist {
 class track {
     public function __construct($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
                                 $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station,
-                                $albumartist, $disc, $stream) {
+                                $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack) {
 
         $this->artist = $artist;
         $this->album = $album;
@@ -143,10 +144,15 @@ class track {
         $this->stationurl = $stationurl;
         $this->station = $station;
         $this->stream = $stream;
+        $this->musicbrainz_artistid = $mbartist;
+        $this->musicbrainz_albumid = $mbalbum;
+        $this->musicbrainz_albumartistid = $mbalbumartist;
+        $this->musicbrainz_trackid = $mbtrack;
     }
 
     public function setAlbumObject($object) {
         $this->albumobject = $object;
+        $object->musicbrainz_albumid = $this->musicbrainz_albumid;
     }
 }
 
@@ -190,7 +196,7 @@ class musicCollection {
 
     public function newTrack($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
                                 $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, 
-                                $albumartist, $disc, $stream) {
+                                $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack) {
 
         global $current_album;
         global $current_artist;
@@ -201,7 +207,7 @@ class musicCollection {
         $artistkey = strtolower(preg_replace('/^The /i', '', $sortartist));
         $t = new track($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
                         $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, 
-                        $albumartist, $disc, $stream);
+                        $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack);
         // If artist doesn't exist, create it - indexed by all lower case name for convenient sorting and grouping
         if (!array_key_exists($artistkey, $this->artists)) {
             $this->artists[$artistkey] = new artist($sortartist);
@@ -333,10 +339,10 @@ function process_file($collection, $filedata) {
 
     list (  $name, $duration, $number, $date, $genre, $artist, $album, $folder,
             $type, $image, $expires, $stationurl, $station, $backendid, $playlistpos, 
-            $albumartist, $disc)
+            $albumartist, $disc, $mbartist, $mbalbum, $mbalbumartist, $mbtrack)
         = array (   null, 0, "", null, null, null, null, null,
                     "local", null, null, null, null, null, null, 
-                    null, 0 );
+                    null, 0, null, null, null, null );
 
     if (preg_match('/^http:\/\//', $file) || preg_match('/^mms:\/\//', $file)) {
 
@@ -355,6 +361,10 @@ function process_file($collection, $filedata) {
         $disc = (array_key_exists('Disc', $filedata)) ? format_tracknum($filedata['Disc']) : 0;
         $date = (array_key_exists('Date',$filedata)) ? $filedata['Date'] : null;
         $genre = (array_key_exists('Genre', $filedata)) ? $filedata['Genre'] : null;
+        $mbartist = (array_key_exists('MUSICBRAINZ_ARTISTID', $filedata)) ? $filedata['MUSICBRAINZ_ARTISTID'] : null;
+        $mbalbum = (array_key_exists('MUSICBRAINZ_ALBUMID', $filedata)) ? $filedata['MUSICBRAINZ_ALBUMID'] : null;
+        $mbalbumartist = (array_key_exists('MUSICBRAINZ_ALBUMARTISTID', $filedata)) ? $filedata['MUSICBRAINZ_ALBUMARTISTID'] : null;
+        $mbtrack = (array_key_exists('MUSICBRAINZ_TRACKID', $filedata)) ? $filedata['MUSICBRAINZ_TRACKID'] : null;
         $folder = dirname($file);
         $stream = "";
     }
@@ -374,7 +384,7 @@ function process_file($collection, $filedata) {
 
     $collection->newTrack(  $name, $file, $duration, $number, $date, $genre, $artist, $album, $folder,
                             $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, 
-                            $albumartist, $disc, $stream);
+                            $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack);
 
     $numtracks++;
     $totaltime += $duration;
@@ -549,10 +559,6 @@ function createHTML($artistlist, $prefix, $output) {
 
     global $numtracks;
     global $totaltime;    
-
-    
-    
-    
     
     $output->writeLine( '<div id="booger"><table width="100%" class="playlistitem"><tr><td align="left">');
     $output->writeLine( $numtracks . ' tracks</td><td align="right">Duration : ');
@@ -610,14 +616,20 @@ function do_albums($artistkey, $compilations, $showartist, $prefix, $output) {
 
             // NOTE: The format and ORDER of the tags in the <img> is VERY important as it matched by a regexp
             // when album art is retrieved
+            
+            // NOTE also: the newline at the end of the line is ESSENTIAL, because php's regular expressions don't quite work right. 
+            // Specifically, .*? seems to not-quite work as it should. Almost. In a way that's REALLY FUCKING ANNOYING.
+            // I should have done this in perl.
 
+            // Don't mess with this section without also updating the regexp in getalbumcover.php.
+            // Proceed at your own risk
             $artname = md5($album->artist." ".$album->name);
             if (file_exists("albumart/original/".$artname.".jpg")) {
-                $class = "smallcover updateable fixed";
-                $output->writeLine( '<img class="'.$class.'" name="'.$artname.'" src="" />');
+                $class = "smallcover fixed updateable";
+                $output->writeLine( '<img class="'.$class.'" name="'.$artname.'" src="" />'."\n");
             } else {
-                $class = "smallcover updateable notexist fixed";
-                $output->writeLine( '<img class="'.$class.'" romprartist="'.rawurlencode($album->artist).'" rompralbum="'.rawurlencode($album->name).'" name="'.$artname.'" src="" />');
+                $class = "smallcover fixed updateable notexist";
+                $output->writeLine( '<img class="'.$class.'" romprartist="'.rawurlencode($album->artist).'" rompralbum="'.rawurlencode($album->name).'" name="'.$artname.'" src="" />'."\n");
             }
             $output->writeLine('<div class="expand">'.$album->name.'</div>');
             $output->writeLine('</div>');

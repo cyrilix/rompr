@@ -19,7 +19,7 @@ function reloadPlaylistControls() {
 }
 
 function reloadPlaylists() {
-    $("#playlistslist").empty();
+    //$("#playlistslist").empty();
     $("#playlistslist").load("loadplaylists.php");
 }
 
@@ -45,7 +45,7 @@ function changetheme() {
 
 function toggleOption(thing) {
     var tocheck = (thing == "crossfade") ? "xfade" : thing;
-    var new_value = (mpd.status[tocheck] == 0) ? 1 : 0;
+    var new_value = (mpd.getStatus(tocheck) == 0) ? 1 : 0;
     mpd.command("command="+thing+"&arg="+new_value);
     var options = new Object;
     options[thing] = new_value;
@@ -304,6 +304,9 @@ function doLastFM(station, value) {
         case "lastfmglobaltag":
             url = "lastfm://globaltags/"+value;
             break;
+        case "lastfmloved":
+            url = "lastfm://globaltags/"+$('input[name="taglovedwith"]').attr("value");
+            break;
     }
     playlist.waiting();
     lfmprovider.getTracks(url, 5, -1, true, null);
@@ -311,7 +314,7 @@ function doLastFM(station, value) {
 
 function lastFMTuneFailed(data) {
     playlist.repopulate();
-    alert("Failed to tune Last.FM Radio Station");
+    infobar.notify(infobar.ERROR, "Failed to tune Last.FM Radio Station");
 }
 
 function addLastFMTrack(artist, track) {
@@ -324,41 +327,6 @@ function gotTrackInfoForStream(data) {
     var url = "lastfm://play/tracks/"+data.track.id;
     lastfm.track.getPlaylist({url: url}, playlist.newInternetRadioStation, lastFMTuneFailed);
 
-}
-
-function scrobble() {
-    if (!nowplaying.track.scrobbled) {
-        if (nowplaying.track.name() != "" && nowplaying.artist.name() != "") {
-            var options = { 
-                timestamp: parseInt(nowplaying.track.starttime.toString()),
-                track: nowplaying.track.name(),
-                artist: nowplaying.artist.name(),
-                album: nowplaying.album.name()
-            };
-            if (nowplaying.track.mpd_data.type == 'local') {
-                options.chosenByUser = "1";
-            } else {
-                options.chosenByUser = "0";
-            }
-            debug.log("Scrobbling", options.track);
-            lastfm.track.scrobble( options );
-            nowplaying.track.scrobbled = true;
-        }
-    }
-}
-
-function updateNowPlaying() {
-    if (!nowplaying.track.nowplaying_updated) {
-        if (nowplaying.track.name() != "" && nowplaying.artist.name() != "") {
-            debug.log("Updating Now Playing", nowplaying.track.name());
-            lastfm.track.updateNowPlaying( { 
-                track: nowplaying.track.name(), 
-                album: nowplaying.album.name(),
-                artist: nowplaying.artist.name()
-            });
-            nowplaying.track.nowplaying_updated = true;
-        }
-    }
 }
 
 function savePrefs(options) {
@@ -404,10 +372,12 @@ function getFriends(event) {
 
 function gotNoNeighbours(data) {
     stopWaitingIcon("neighbourwait");
+    infobar.notify(infobar.NOTIFY, "Didn't find any neighbours");
 }
 
 function gotNoFriends(data) {
     stopWaitingIcon("freindswait");
+    infobar.notify(infobar.NOTIFY, "You have 0 friends");
 }
 
 function toggleSearch() {
@@ -421,7 +391,9 @@ function toggleFileSearch() {
 function gotNeighbourData(data) {
     gotNeighbours = true;
     if (data.neighbours.user) {
-        $('#lfmneighbours').html(getLfmPeople(data.neighbours), "lfmn");
+        var html = getLfmPeople(data.neighbours, "lfmn");
+        $('#lfmneighbours').html(html);
+        html = null;
     }
     stopWaitingIcon("neighbourwait");
 }
@@ -429,7 +401,9 @@ function gotNeighbourData(data) {
 function gotFriendsData(data) {
     gotFriends = true;
     if (data.friends.user) {
-        $("#lfmfriends").html(getLfmPeople(data.friends), "lfmf");
+        var html = getLfmPeople(data.friends, "lfmf");
+        $("#lfmfriends").html(html);
+        html = null;
     }
     stopWaitingIcon("freindswait");
 }
@@ -442,9 +416,9 @@ function getLfmPeople(data, prefix) {
         html = html + '<div class="containerbox menuitem">';
         html = html + '<img src="images/toggle-closed.png" class="menu fixed" name="'+prefix+count.toString()+'" />';
         if (userdata[i].image[0]['#text'] != "") {
-            html = html + '<img class="smallcover fixed" src="'+userdata[i].image[0]['#text']+'" />';
+            html = html + '<img class="smallcover fixed clickable clickicon clicklfmuser" name="'+userdata[i].name+'" src="'+userdata[i].image[0]['#text']+'" />';
         } else {
-            html = html + '<img class="smallcover fixed" src="images/album-unknown-small.png" />';
+            html = html + '<img class="smallcover fixed clickable clickicon clicklfmuser" name="'+userdata[i].name+'" src="images/album-unknown-small.png" />';
         }
         html = html + '<div class="expand">'+userdata[i].name+'</div>';
         html = html + '</div>';
@@ -762,12 +736,12 @@ function onStorageChanged(e) {
     if (key.substring(0,1) == "!") {
         key = key.substring(1,key.length);
         debug.log("Marking as notfound:",key);
-        $('img[name="'+key+'"]', '#collection').removeClass("notexist");
-        $('img[name="'+key+'"]', '#collection').addClass("notfound");
+        $('img[name="'+key+'"]').removeClass("notexist");
+        $('img[name="'+key+'"]').addClass("notfound");
     } else {
-        $('img[name="'+key+'"]', '#collection').attr("src", "albumart/small/"+key+".jpg");
-        $('img[name="'+key+'"]', '#collection').removeClass("notexist");
-        $('img[name="'+key+'"]', '#collection').removeClass("notfound");
+        $('img[name="'+key+'"]').attr("src", "albumart/small/"+key+".jpg");
+        $('img[name="'+key+'"]').removeClass("notexist");
+        $('img[name="'+key+'"]').removeClass("notfound");
     }
 }
 

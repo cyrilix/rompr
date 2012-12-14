@@ -140,7 +140,7 @@ function format_tracknum($tracknum) {
 }
 
 # url_get_contents function by Andy Langton: http://andylangton.co.uk/
-function url_get_contents($url,$useragent='RompR Media Player/0.1',$headers=false,$follow_redirects=false,$debug=true) {
+function url_get_contents($url,$useragent='RompR Media Player/0.1',$headers=false,$follow_redirects=true,$debug=true) {
 
     // error_log("Getting ".$url);
     # initialise the CURL library

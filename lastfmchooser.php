@@ -48,6 +48,16 @@ include ("vars.php");
         </div>
     </div>
 
+<?php
+    if ($prefs['autotagname'] != "" && $prefs['lastfm_user'] != "") {
+        print '<div class="clickable clicklfm indent containerbox padright menuitem", name="lastfmloved">';
+        print '<div class="expand">';
+        print "Tracks Tagged With '".$prefs['autotagname']."'";
+        print '</div>';
+        print '</div>';
+    }
+?>
+
     <div class="indent containerbox padright">
         <h3>Last.FM Artist Radio</h3>
     </div>
@@ -69,7 +79,7 @@ include ("vars.php");
     </div>
     <div class="indent containerbox padright">
         <input class="sourceform expand" id="lastfmglobaltag" type="text" size="60"/>        
-        <button class="topformbutton fixed" onclick="doLastFM('lastfmglobal')">Play</button>
+        <button class="topformbutton fixed" onclick="doLastFM('lastfmglobaltag')">Play</button>
     </div>
     
     <div class="noselection fullwidth">

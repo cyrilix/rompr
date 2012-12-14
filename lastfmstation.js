@@ -68,7 +68,7 @@ function lastfmstation(tuneurl) {
                     cmdlist.push('deleteid "'+self.toremove[i]+'"');
                 }
             }
-            if (self.playafterinsert && mpd.status.state == 'stop') {
+            if (self.playafterinsert && mpd.getStatus('state') == 'stop') {
                 cmdlist.push(playlist.playfromend());
             }
             self.numtrackswanted = 0;
