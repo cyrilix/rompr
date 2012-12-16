@@ -500,7 +500,8 @@ function doCollection($command) {
                 if (is_array($parts)) {
                     if ($parts[0] != "playlist" && $parts[0] != "Last-Modified") {
                         if ($parts[0] == $firstline) {
-                            $files[] = $filedata;
+//                             $files[] = $filedata;
+                            process_file($collection, $filedata);
                             $filedata = array();
                         }
                         $filedata[$parts[0]] = $parts[1];
@@ -512,22 +513,23 @@ function doCollection($command) {
         }
 
         if (array_key_exists('file', $filedata) && $filedata['file']) {
-            $files[] = $filedata;
+            process_file($collection, $filedata);
+//             $files[] = $filedata;
         }
         
-        if (count($files) == 0 && $command == "listallinfo") {
-            error_log("No local files found. Are you running mopidy?");
-            if (file_exists("mopidy-tags/tag_cache")) {
-                error_log("Yes, you are!");
-                $files = parse_mopidy_tagcache($collection);
-            }
-        } else {
-            error_log(count($files)." files found in scan ".$command);
-        }
-        
-        foreach($files as $file) {
-            process_file($collection, $file);
-        }
+//         if (count($files) == 0 && $command == "listallinfo") {
+//             error_log("No local files found. Are you running mopidy?");
+//             if (file_exists("mopidy-tags/tag_cache")) {
+//                 error_log("Yes, you are!");
+//                 $files = parse_mopidy_tagcache($collection);
+//             }
+//         } else {
+//             error_log(count($files)." files found in scan ".$command);
+//         }
+//         
+//         foreach($files as $file) {
+//             process_file($collection, $file);
+//         }
         // Rescan stage - to find albums that are compilations but have been missed by the above step
         $possible_compilations = array();
         foreach($collection->albums as $i => $al) {
@@ -583,6 +585,8 @@ function do_albums($artistkey, $compilations, $showartist, $prefix, $output) {
     global $count;
     global $collection;
     global $divtype;
+    
+    error_log("Doing Artist: ".$artistkey);
 
     $albumlist = $collection->getAlbumList($artistkey, $compilations, false);
     if (count($albumlist) > 0) {
@@ -601,6 +605,8 @@ function do_albums($artistkey, $compilations, $showartist, $prefix, $output) {
         $output->writeLine('<div id="'.$prefix.'artist'.$count.'" class="dropmenu">');
         
         foreach($albumlist as $album) {
+        
+            error_log("Doing Album ".$album->name);
         
             // Creat the header for the album
             $output->writeLine('<div class="clickable clickalbum draggable containerbox menuitem" name="'.$prefix.'album'.$count.'">');

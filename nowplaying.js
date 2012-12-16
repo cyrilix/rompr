@@ -316,15 +316,16 @@ function trackDataCollection(ind, mpdinfo, art, alb, tra) {
                                         album: self.album.name()
                         };
                         options.chosenByUser = (mpd_data.type == 'local') ? 1 : 0;
-                        if (this.mbid()) {
-                            options.mbid = this.mbid();
-                        }
-                        if (mpd_data.albumartist && mpd_data.albumartist != "" && (mpd_data.albumartist).toLowerCase() != (self.artist.name()).toLowerCase()) {
-                            options.albumArtist = mpd_data.albumartist;
-                        }
-                        if (mpd_data.duration && mpd_data.duration > 0) {
-                            options.duration = (Math.floor(mpd_data.duration)).toString();
-                        }
+                        // One of these is probably making it fail
+//                         if (this.mbid()) {
+//                             options.mbid = this.mbid();
+//                         }
+//                         if (mpd_data.albumartist && mpd_data.albumartist != "" && (mpd_data.albumartist).toLowerCase() != (self.artist.name()).toLowerCase()) {
+//                             options.albumArtist = mpd_data.albumartist;
+//                         }
+//                         if (mpd_data.duration && mpd_data.duration > 0) {
+//                             options.duration = (Math.floor(mpd_data.duration)).toString();
+//                         }
                         debug.log("Scrobbling", options);
                         lastfm.track.scrobble( options );
                         scrobbled = true;

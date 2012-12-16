@@ -41,7 +41,7 @@ if ($flag == "") {
         if (file_exists($small_file)) {
             unlink($small_file);
         }
-            $r = system( $convert_path.'convert "'.$download_file.'" "'.$main_file.'"');
+            $r = system( $convert_path.'convert -resize 82x82 "'.$download_file.'" "'.$main_file.'"');
             $r = system( $convert_path.'convert -resize 32x32 "'.$download_file.'" "'.$small_file.'"');
     }
     if (file_exists($download_file)) {

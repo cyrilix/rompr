@@ -1,9 +1,9 @@
 function coverScraper(flag, ls, u, o) {
 
-    var formObjects = new Array();
+    var self = this;
     var timer;
     var timer_running = false;
-    var self = this;
+    var formObjects = new Array();
     var size = flag;
     var numAlbums = 0;
     var albums_without_cover = 0;
@@ -11,15 +11,15 @@ function coverScraper(flag, ls, u, o) {
     var sendUpdates = u;
     var enabled = o;
     var timerlink = processForm();
-    
+
     // I need to try and limit the number of lookups per second I do to last.fm
     // Otherwise they will set the lions on me - hence the use of setTimeout
     
-    // Pass the img object to this function
-    this.getNewAlbumArt = function(object) {
+    // Pass the img name to this function
+    this.GetNewAlbumArt = function(name) {
         if (enabled) {
-            debug.log("New Album Pushed to coverscraper", object);
-            formObjects.push(object);
+            debug.log("New Album Pushed to coverscraper", name);
+            formObjects.push(name);
             numAlbums++;
             if (timer_running == false) {
                 doNextImage(1000);
@@ -36,13 +36,22 @@ function coverScraper(flag, ls, u, o) {
         if (awc > -1) {
             albums_without_cover = awc;
         }
-        formObjects = new Array();
+        formObjects = [];
         if (timer_running) {
             clearTimeout(timer);
             timer_running = false;
         }
         self.updateInfo(0);
         aADownloadFinished();
+    }
+    
+    this.updateInfo = function(n) {
+        if (sendUpdates) {
+            albums_without_cover = albums_without_cover - n;
+            var html = albums_without_cover+" albums without a cover";
+            $("#infotext").html(html);
+            html = null;
+        }
     }
 
     function doNextImage(time) {
@@ -60,150 +69,204 @@ function coverScraper(flag, ls, u, o) {
         }
     }
 
-    function processForm() {
-        return (function() {
+   function processForm() {
+       return (function() {
             if (timer_running) {
                 clearTimeout(timer);
             }
-            var object = formObjects.shift();
-            var artist = $(object).attr("romprartist");
-            var album = $(object).attr("rompralbum");
-            var stream = $(object).attr("romprstream");
-            var key = $(object).attr("name");
-            var update = $(object).attr("romprupdate");
-            var mbid = $(object).attr("rompralbumid");
+            var name = formObjects.shift();
+            var artist = $('img[name="'+name+'"]').attr("romprartist");
+            var album = $('img[name="'+name+'"]').attr("rompralbum");
+            var stream = $('img[name="'+name+'"]').attr("romprstream");
+            var update = $('img[name="'+name+'"]').attr("romprupdate");
+            var mbid = $('img[name="'+name+'"]').attr("rompralbumid");
             
-            debug.log("Getting Cover for", artist, album, key, mbid);
+            debug.log("Getting Cover for", artist, album, mbid);
             if (sendUpdates) {
                 $("#status").html("Getting "+decodeURIComponent(album));
             }
             if (size == 0) {
-                $(object).attr("src", "images/waiting2.gif");
+                $('img[name="'+name+'"]').attr("src", "images/waiting2.gif");
             } else {
-                $(object).attr("src", "images/image-update.gif");
+                $('img[name="'+name+'"]').attr("src", "images/image-update.gif");
             }
             
             //Don't use the Musicbrainz tag on Last.FM requests, it's not as accurate as artist/album lookup !!??!!
-            var url = "http://ws.audioscrobbler.com/2.0/?method=album.getinfo&album="+album+"&artist="+artist+"&autocorrect=1&api_key="+lastfm_api_key+"&format=json&callback=?";
-            debug.log("   URL is:",url);
-            var success = gotLastfmImage(object, stream, key, update, mbid);
-            var failure = gotNoLastfmImage(object, stream, key, update, mbid);
-            $.jsonp({url: url,
-                    success: success,
-                    error: failure
-            });
-        });
-    }
+            //var url = "http://ws.audioscrobbler.com/2.0/?method=album.getinfo&album="+album+"&artist="+artist+"&autocorrect=1&api_key="+lastfm_api_key+"&format=json&callback=?";
+            //debug.log("   URL is:",url);
+//             $.jsonp({
+//                     url: url,
+//                     url: "http://ws.audioscrobbler.com/2.0/",
+//                     data: "method=album.getinfo&album="+album+"&artist="+artist+"&autocorrect=1&api_key="+lastfm_api_key+"&format=json&callback=?",
+//                     cache: false,
+//                     pageCache: false,
+//                     success: gotLastfmImage(name, stream, update, mbid),
+//                     error: gotNoLastfmImage(name, stream, update, mbid)
+//             });
+//             $.get("http://ws.audioscrobbler.com/2.0/?method=album.getinfo&album="+album+"&artist="+artist+"&autocorrect=1&api_key="+lastfm_api_key)
+//                 .done(doesthiswork(name, stream, update, mbid))
+//                 .fail(gotNoLastfmImage(name, stream, update, mbid));
 
-    function gotNoLastfmImage(object, stream, key, update, mbid) {
-        return (function() {
-            var noImg = everythingFailed(object, stream, key, update, mbid);
-            var gotImg = gotImage(object, stream, key, update, mbid);
-            debug.log("  No LastFM Cover Found");
-            if (mbid) {
-                // Try musicbrainz
-                debug.log("    Looking up on musicbrainz for mbid",mbid);
-                var getstring = "key="+encodeURIComponent(key)+"&src="+encodeURIComponent("http://coverartarchive.org/release/"+mbid+"/front");
+                // I'm using REST requests (XML response) instead of JSONP. This works better cross-site
+                // Also, every jsonp response is interpreted as a script, which means it stays in memory.
+                // Using jsonp leaks RAM by the megabyte.
+                $.ajax({
+                        //url: "http://ws.audioscrobbler.com/2.0/?method=album.getinfo&album="+album+"&artist="+artist+"&autocorrect=1&api_key="+lastfm_api_key,
+                        url: "http://ws.audioscrobbler.com/2.0/",
+                        type: "GET",
+                        //cache: false,
+                        data: "method=album.getinfo&api_key="+lastfm_api_key+"&album="+album+"&artist="+artist+"&autocorrect=1",
+                        contentType: "text/xml; charset=utf-8",
+                        dataType: "xml",
+                        timeout: 60000,
+                        success: gotLastfmImage(name, stream, update, mbid),
+                        error: gotNoLastfmImage(name, stream, update, mbid) 
+                        });
+                       
+       });
+    }
+    
+    function gotLastfmImage(name, stream, update, mbid) {
+        return (function(data) {
+            var image = "";
+            var pic = "";
+            $(data).find("image").each( function() {
+//                 debug.log($(this).text(), $(this).attr("size"));
+                pic = $(this).text();
+                if ($(this).attr("size") == "large") { image = $(this).text() }
+            });
+            if (!mbid) {
+                mbid = $(data).find("album").children("mbid").text();
+                debug.log("     LastFM MBID is",mbid);
+            }
+            if (image == "") { image = pic }
+            data = null;
+            if (image != "") {
+                debug.log("     Getting",image);
+                var getstring = "key="+encodeURIComponent(name)+"&src="+encodeURIComponent(image);
                 if (typeof(stream) != "undefined") {
                     getstring = getstring + "&stream="+stream;
                 }
                 $.get("getalbumcover.php", getstring)
-                .done( gotImg )
-                .fail( noImg );
+                .done( gotImage(name, stream, update, mbid) )
+                .fail( gotNoLastfmImage(name, stream, update, mbid) );
             } else {
-                noImg();
+                debug.log("     No Last.FM Image Found");
+                gotNoLastfmImage(name, stream, update, mbid)(null,null,null);
+            }
+        });
+    }
+
+//     function gotLastfmImage (name, stream, update, mbid) {
+//         return (function(data,t,j) {
+//             debug.log("   Got Last.FM response",data);
+//             var image = "";
+//             if (data.album) {
+//                 $.each(data.album.image, function (index, value) {
+//                     var pic = "";
+//                     $.each(value, function (index, value) {
+//                         if (index == "#text") { pic = value; }
+//                         if (index == "size" && value == "large") { image = pic; }
+//                         if (image == "") { image = pic; }
+//                     });
+//                 });
+//                 if (!mbid && data.album.mbid) {
+//                     debug.log("     last.fm has given us a mbid");
+//                     mbid = data.album.mbid;
+//                 }
+//             }
+//             data = null;
+//             t= null;
+//             j = null;
+//             if (image != "") {
+//                 debug.log("     Getting",image);
+//                 var getstring = "key="+encodeURIComponent(name)+"&src="+encodeURIComponent(image);
+//                 if (typeof(stream) != "undefined") {
+//                     getstring = getstring + "&stream="+stream;
+//                 }
+//                 $.get("getalbumcover.php", getstring)
+//                 .done( gotImage(name, stream, update, mbid) )
+//                 .fail( gotNoLastfmImage(name, stream, update, mbid) );
+//             } else {
+//                 debug.log("     No Last.FM Image Found");
+//                 gotNoLastfmImage(name, stream, update, mbid)(null,null,null);
+//             }
+//         });
+//     }
+
+    function gotNoLastfmImage(name, stream, update, mbid) {
+        return (function(data,t,j) {
+            debug.log("  No LastFM Cover Found");
+            data = null;
+            t= null;
+            j = null;
+            if (mbid) {
+                // Try musicbrainz
+                debug.log("    Looking up on musicbrainz for mbid",mbid);
+                var getstring = "key="+encodeURIComponent(name)+"&src="+encodeURIComponent("http://coverartarchive.org/release/"+mbid+"/front");
+                if (typeof(stream) != "undefined") {
+                    getstring = getstring + "&stream="+stream;
+                }
+                $.get("getalbumcover.php", getstring)
+                .done( gotImage(name, stream, update, mbid) )
+                .fail( everythingFailed(name, stream, update, mbid) );
+            } else {
+                everythingFailed(name, stream, update, mbid)(null,null,null);
             }
         });
    }
 
-   function gotImage(object, stream, key, update, mbid) {
-       return (function() {
+   function gotImage(name, stream, update, mbid) {
+       return (function(data,t,j) {
+            data = null;
+            t= null;
+            j = null;
             if (size == 0) {
-                $(object).attr("src", "albumart/small/"+key+".jpg");
+                $('img[name="'+name+'"]').attr("src", "albumart/small/"+name+".jpg");
             } else {
-                $(object).attr("src", "albumart/original/"+key+".jpg");
+                $('img[name="'+name+'"]').attr("src", "albumart/original/"+name+".jpg");
             }
-            $(object).removeClass("notexist");
+            $('img[name="'+name+'"]').removeClass("notexist");
             self.updateInfo(1);
             if (useLocalStorage || update == "yes") {
-                sendLocalStorageEvent(key, update);
+                sendLocalStorageEvent(name, update);
             }
             doNextImage(1000);
        });
    }
 
-   
-    function everythingFailed(object, stream, key, update, mbid) {
-        return (function() {
-            var finalCall = revertCover(object, key, update);
-            debug.log("  Everything failed for",key);
-            $.get("getalbumcover.php", "key="+encodeURIComponent(key)+"&flag=notfound")
-            .done( finalCall )
-            .fail( finalCall );
-        });
-    }
-
-    function gotLastfmImage (object, stream, key, update, mbid) {
-        return (function(data) {
-            var successRef = gotImage(object, stream, key, update, mbid);
-            debug.log("   Got Last.FM response",data);
-            var image = "";
-            if (data.album) {
-                $.each(data.album.image, function (index, value) {
-                    var pic = "";
-                    $.each(value, function (index, value) {
-                        if (index == "#text") { pic = value; }
-                        if (index == "size" && value == "large") { image = pic; }
-                        if (image == "") { image = pic; }
-                    });
-                });
-                if (!mbid && data.album.mbid) {
-                    debug.log("     last.fm has given us a mbid");
-                    mbid = data.album.mbid;
-                }
-            }
+    function everythingFailed(name, stream, update, mbid) {
+        return (function(data,t,j) {
             data = null;
-            var funcRef = gotNoLastfmImage(object, stream, key, update, mbid);
-            if (image != "") {
-                debug.log("     Getting",image);
-                var getstring = "key="+encodeURIComponent(key)+"&src="+encodeURIComponent(image);
-                if (typeof(stream) != "undefined") {
-                    getstring = getstring + "&stream="+stream;
-                }
-                $.get("getalbumcover.php", getstring)
-                .done( successRef )
-                .fail( funcRef );
-            } else {
-                debug.log("     No Last.FM Image Found");
-                funcRef();
-            }
+            t= null;
+            j = null;
+            debug.log("  Everything failed for",name);
+            $.get("getalbumcover.php", "key="+encodeURIComponent(name)+"&flag=notfound")
+            .done( revertCover(name, update) )
+            .fail( revertCover(name, update) );
         });
     }
     
-    function revertCover(object, key, update) {
-        return (function() {
+    function revertCover(name, update) {
+        return (function(data,t,j) {
             debug.log("  Revert Cover");
+            data = null;
+            t= null;
+            j = null;
             if (size == 0) {
-                $(object).attr("src", "images/album-unknown-small.png");
+                $('img[name="'+name+'"]').attr("src", "images/album-unknown-small.png");
             } else {
-                $(object).attr("src", "images/album-unknown.png");
+                $('img[name="'+name+'"]').attr("src", "images/album-unknown.png");
             }
-            $(object).removeClass("notexist");
-            $(object).addClass("notfound");
+            $('img[name="'+name+'"]').removeClass("notexist");
+            $('img[name="'+name+'"]').addClass("notfound");
             if (useLocalStorage || update == "yes") {
-                sendLocalStorageEvent("!"+key, update);
+                sendLocalStorageEvent("!"+name, update);
             }
             doNextImage(1000);
         });
     }
     
-    this.updateInfo = function(n) {
-        if (sendUpdates) {
-            albums_without_cover = albums_without_cover - n;
-            $("#infotext").html(albums_without_cover+" albums without a cover");
-        }
-    }
-        
 }
 
 function sendLocalStorageEvent(key, update) {
@@ -216,3 +279,4 @@ function sendLocalStorageEvent(key, update) {
         localStorage.setItem("key", key);
     }
 }
+

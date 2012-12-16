@@ -128,7 +128,7 @@ function doMenu(event, element) {
         $('#'+menutoopen).find(".updateable").attr("src", function () {
             $(this).removeClass("updateable");
             if ($(this).hasClass("notexist")) {
-                coverscraper.getNewAlbumArt(this);
+                coverscraper.getNewAlbumArt($(this).attr('name'));
                 return "images/album-unknown-small.png";
             } else if ($(this).hasClass("notfound")) {
                 return "images/album-unknown-small.png";

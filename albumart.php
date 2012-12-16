@@ -35,6 +35,7 @@ var windowScroll;
 var useLocalStorage = false;
 var coverscraper = null;
 var running = false;
+var processor = process();
 
 google.load('search', 1);
 
@@ -42,25 +43,40 @@ function getNewAlbumArt(div) {
 
     coverscraper.reset(-1);
     debug.log("Getting art in",div);
-    $(div).find("img").each( function() {
+    $(div).find("img").each( processor );
+}
+
+function process() {
+    return (function() {
         if ($(this).hasClass("notexist")) {
-            coverscraper.getNewAlbumArt(this);
+            coverscraper.GetNewAlbumArt($(this).attr('name'));
             if (running == false) {
                 running = true;
                 $("#harold").unbind("click");
-                $("#harold").bind("click", function() { coverscraper.reset(-1) } );
+                $("#harold").bind("click", reset );
                 $("#harold").html("Stop Download");
             }
         }
     });
+}
 
+var reset = function() {
+    coverscraper.reset(-1);
+}
+
+var onresize = function() {
+    wobbleMyBottom();
+}
+
+var start = function() {
+    getNewAlbumArt('#wobblebottom');
 }
 
 function aADownloadFinished() {
     if (running == true) {
         running = false;
         $("#harold").unbind("click");
-        $("#harold").bind("click", function() { getNewAlbumArt('#wobblebottom') });
+        $("#harold").bind("click", start );
         $("#harold").html("Get Missing Covers");
     }
     $("#status").html("");
@@ -72,15 +88,14 @@ $(document).ready(function () {
     $("#totaltext").html(numcovers+" albums");
     $("#progress").progressbar();
     wobbleMyBottom();
-    $(window).bind('resize', function() {
-        wobbleMyBottom();
-    });
+    $(window).bind('resize', onresize );
     if ("localStorage" in window && window["localStorage"] != null) {
         useLocalStorage = true;
     }
     coverscraper = new coverScraper(1, useLocalStorage, true, true);
     coverscraper.reset(albums_without_cover);
-    $("#harold").click( function() { getNewAlbumArt('#wobblebottom') } );
+    $("#harold").click( start );
+    //$.ajaxSetup({cache: false});
 });
 
 function wobbleMyBottom() {
@@ -293,7 +308,7 @@ function do_albumcovers($artistkey, $comps, $covers) {
             if ($album->musicbrainz_albumid) {
                 print ' rompralbumid="'.$album->musicbrainz_albumid.'"';
             }
-            print ' name="'.$artname.'" style="vertical-align:middle" height="94" src="'.$src.'">';
+            print ' name="'.$artname.'" style="vertical-align:middle" height="82px" width="82px" src="'.$src.'">';
 
             print '</a>';
             array_push($albumnames, $album->name);

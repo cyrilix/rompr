@@ -220,7 +220,7 @@ $(document).ready(function(){
 
     <div id="leftholder" class="infobarlayout tleft bordered">
         <div id="albumcover">
-            <a href="javascript:playlist.checkProgress()"><img id="albumpicture" src="images/album-unknown.png" /></a>
+            <img id="albumpicture" src="images/album-unknown.png" />
         </div>
         <div id="nowplaying"></div>
         <div id="lastfm" class="infobarlayout">
