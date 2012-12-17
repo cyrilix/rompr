@@ -2,7 +2,7 @@ function lastfmstation(tuneurl) {
 
 	var self = this;
 	this.url = tuneurl;
-	this.tracks = new Array();
+	this.tracks = [];
 	this.numtrackswanted = 0;
 	this.trackinsertpos = -1;
 	this.playafterinsert = false;
@@ -44,14 +44,14 @@ function lastfmstation(tuneurl) {
             self.repopulate();
             return 0;
         }
-        var pushtracks = new Array();
+        var pushtracks = [];
         var counter = self.numtrackswanted;
         while (counter > 0 && self.tracks.length > 0) {
             pushtracks.push(self.tracks.shift());
             counter--;
         }
         if (counter == 0 && self.numtrackswanted > 0) {
-            var cmdlist = new Array();
+            var cmdlist = [];
             for (var i in pushtracks) {
                 debug.log("Pushing last.fm track",pushtracks[i]);
                 cmdlist.push('add "'+pushtracks[i]+'"');
@@ -103,7 +103,7 @@ function lastfmstation(tuneurl) {
 
 function lastFMprovider() {
     var self = this;
-    var stations = new Array();
+    var stations = [];
 
     this.getTracks = function(tuneurl, numtracks, insertpos, play, remove) {
         debug.log("Getting tracks for",tuneurl,numtracks,insertpos,play);

@@ -4,7 +4,7 @@ function Info(target, source) {
     var self = this;
     var current_source = source;
     var hidden = false;
-    var history = new Array();
+    var history = [];
     var displaypointer = -1;
     var panelclosed = {artist: false, album: false, track: false};
 
@@ -790,7 +790,7 @@ function Info(target, source) {
         
         // var running = false;
         var paused = false;
-        var images = new Array();
+        var images = [];
         var counter = 0;
         var timer_running = false;
         var timer = 0;

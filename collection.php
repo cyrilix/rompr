@@ -500,7 +500,6 @@ function doCollection($command) {
                 if (is_array($parts)) {
                     if ($parts[0] != "playlist" && $parts[0] != "Last-Modified") {
                         if ($parts[0] == $firstline) {
-//                             $files[] = $filedata;
                             process_file($collection, $filedata);
                             $filedata = array();
                         }
@@ -514,7 +513,6 @@ function doCollection($command) {
 
         if (array_key_exists('file', $filedata) && $filedata['file']) {
             process_file($collection, $filedata);
-//             $files[] = $filedata;
         }
         
 //         if (count($files) == 0 && $command == "listallinfo") {
@@ -635,7 +633,8 @@ function do_albums($artistkey, $compilations, $showartist, $prefix, $output) {
                 $output->writeLine( '<img class="'.$class.'" name="'.$artname.'" src="" />'."\n");
             } else {
                 $class = "smallcover fixed updateable notexist";
-                $output->writeLine( '<img class="'.$class.'" romprartist="'.rawurlencode($album->artist).'" rompralbum="'.rawurlencode($album->name).'" name="'.$artname.'" src="" />'."\n");
+                $b = munge_album_name($album->name);
+                $output->writeLine( '<img class="'.$class.'" romprartist="'.rawurlencode($album->artist).'" rompralbum="'.rawurlencode($b).'" name="'.$artname.'" src="" />'."\n");
             }
             $output->writeLine('<div class="expand">'.$album->name.'</div>');
             $output->writeLine('</div>');

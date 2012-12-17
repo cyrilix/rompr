@@ -663,6 +663,10 @@ a
     padding-right:12px;
     display:table;
     width:100%;
+    background-color:#000000;
+    margin-right:12px;
+    margin-left:4px;
+    margin-top:8px;
 }
 
 /*-- For Album Cover Art and sundry popups --*/

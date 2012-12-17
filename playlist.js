@@ -1,7 +1,7 @@
 function Playlist() {
 
     var self = this;
-    var tracklist = new Array();
+    var tracklist = [];
     var currentsong = 0;
     var currentalbum = -1;
     var progress_timer_running = false;
@@ -11,11 +11,11 @@ function Playlist() {
     var streamflag = true;
     var finaltrack = -1;
     var previoussong = -1;
-    this.rolledup = new Array();
+    this.rolledup = [];
     var updatecounter = 0;
     var do_delayed_update = false;
     var scrollto = -1;
-    var searchedimages = new Array();
+    var searchedimages = [];
     var progress = null;
     var duration = null;
     var percent = null;
@@ -197,10 +197,10 @@ function Playlist() {
                 searchedimages[name] = true;
                 colobj = $('img[name="'+name+'"]', '#collection');
                 schobj = $('img[name="'+name+'"]', '#search');
-                if ((colobj.length > 0 && colobj.hasClass('notexist')) ||
-                    (schobj.length > 0 && schobj.hasClass('notexist')))
+                if ((colobj.length == 0 || colobj.hasClass('notexist')) ||
+                    (schobj.length == 0 || schobj.hasClass('notexist')))
                 {
-                    coverscraper.getNewAlbumArt(this);
+                    coverscraper.GetNewAlbumArt($(this).attr("name"));
                 }
             }
          });
@@ -224,7 +224,7 @@ function Playlist() {
             moveto = (parseInt(finaltrack))+1;
         }
         if (ui.item.hasClass("draggable")) {
-            var cmdlist = new Array();
+            var cmdlist = [];
             $(ui.item).find('.clicktrack').each(function (index, element) {
                 var uri = $(element).attr("name");
                 if (uri) {
@@ -274,7 +274,7 @@ function Playlist() {
 
     // This is used for adding stream playlists ONLY
     this.newInternetRadioStation = function (list) {
-        var cmdlist = new Array();
+        var cmdlist = [];
         $(list).find("track").each( function() {
             cmdlist.push('add "'+$(this).find("location").text()+'"');
         });
@@ -487,7 +487,7 @@ function Playlist() {
     this.addtrack = function(element) {
         self.waiting();
         if (mpd.getStatus('state') == "stop") {
-            var cmdlist = new Array();
+            var cmdlist = [];
             cmdlist.push('add "'+decodeURIComponent(element.attr("name"))+'"');
             cmdlist.push('play "'+(((finaltrack)+1).toString())+'"');
             mpd.do_command_list(cmdlist, playlist.repopulate);
@@ -499,7 +499,7 @@ function Playlist() {
 
     this.addalbum = function(element) {
         self.waiting();
-        var list = new Array();
+        var list = [];
         $('#'+element.attr("name")).find('.clicktrack').each(function (index, element) { 
             var uri = $(element).attr("name");
             if (uri) {
@@ -525,7 +525,7 @@ function Playlist() {
     this.Album = function(artist, album, index, rolledup) {
 
         var self = this;
-        var tracks = new Array();
+        var tracks = [];
         this.artist = artist;
         this.album = album;
         this.index = index;
@@ -631,7 +631,7 @@ function Playlist() {
         }
 
         this.deleteSelf = function() {
-            var todelete = new Array();
+            var todelete = [];
             for(var i in tracks) {
                 $('#track[name="'+tracks[i].playlistpos+'"]').remove();
                 todelete.push(tracks[i].backendid);
@@ -662,7 +662,7 @@ function Playlist() {
 
     this.Stream = function(index, album, rolledup) {
         var self = this;
-        var tracks = new Array();
+        var tracks = [];
         this.index = index;
         var rolledup = rolledup;
         this.album = album;
@@ -752,7 +752,7 @@ function Playlist() {
         }
 
         this.deleteSelf = function() {
-            var todelete = new Array();
+            var todelete = [];
             for(var i in tracks) {
                 $('#booger[name="'+tracks[i].playlistpos+'"]').remove();
                 todelete.push(tracks[i].backendid);
@@ -778,7 +778,7 @@ function Playlist() {
 
     this.LastFMRadio = function(tuneurl, station, index, rolledup) {
         var self = this;
-        var tracks = new Array();
+        var tracks = [];
         this.station = station;
         var tuneurl = tuneurl;
         this.index = index;
@@ -856,7 +856,7 @@ function Playlist() {
         }
 
         this.invalidateOldTracks = function(currentsong, previoussong) {
-            var todelete = new Array();
+            var todelete = [];
             var unixtimestamp = Math.round(new Date()/1000);
             var index = -1;
             var result = false;
@@ -901,7 +901,7 @@ function Playlist() {
         }
 
         this.deleteSelf = function() {
-            var todelete = new Array();
+            var todelete = [];
             for (var i in tracks) {
                 $('#booger[name="'+tracks[i].playlistpos+'"]').remove();
                 todelete.push(tracks[i].backendid);

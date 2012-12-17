@@ -35,29 +35,19 @@ var windowScroll;
 var useLocalStorage = false;
 var coverscraper = null;
 var running = false;
-var processor = process();
-
 google.load('search', 1);
 
 function getNewAlbumArt(div) {
 
-    coverscraper.reset(-1);
     debug.log("Getting art in",div);
-    $(div).find("img").each( processor );
-}
+    $(div).find("img").filter( function() { return $(this).hasClass("notexist") } ).each( function() { coverscraper.GetNewAlbumArt($(this).attr('name')) } );
+    if (running == false) {
+        running = true;
+        $("#harold").unbind("click");
+        $("#harold").bind("click", reset );
+        $("#harold").html("Stop Download");
+    }
 
-function process() {
-    return (function() {
-        if ($(this).hasClass("notexist")) {
-            coverscraper.GetNewAlbumArt($(this).attr('name'));
-            if (running == false) {
-                running = true;
-                $("#harold").unbind("click");
-                $("#harold").bind("click", reset );
-                $("#harold").html("Stop Download");
-            }
-        }
-    });
 }
 
 var reset = function() {
@@ -95,7 +85,6 @@ $(document).ready(function () {
     coverscraper = new coverScraper(1, useLocalStorage, true, true);
     coverscraper.reset(albums_without_cover);
     $("#harold").click( start );
-    //$.ajaxSetup({cache: false});
 });
 
 function wobbleMyBottom() {
@@ -140,7 +129,7 @@ function doGoogleSearch(artist, album, key) {
             $('img[name="'+imagekey+'"]').removeClass("notfound");
         }
         if (useLocalStorage) {
-            sendLocalStorageEvent(key);
+            coverscraper.sendLocalStorageEvent(key);
         }
     });
 }
@@ -192,7 +181,7 @@ function updateImage(key, url) {
     $.get("getalbumcover.php", getstring)
     .done(function () {
         if (useLocalStorage) {
-            sendLocalStorageEvent(key);
+            coverscraper.sendLocalStorageEvent(key);
         }
         $('img[name="'+key+'"]').attr("src", "albumart/original/"+key+".jpg");
         if ($('img[name="'+key+'"]').hasClass("notexist") ||
@@ -287,16 +276,8 @@ function do_albumcovers($artistkey, $comps, $covers) {
             $artname = md5($album->artist . " " . $album->name);
             // Do some album name munging to try and help us get things - Last.FM seems to work best with this combination
             // of things removed from album names, at least with my collection.
-            $b = preg_replace('/\[.*?\]/', "", $album->name);       // Anything inside [  ]
-            $b = preg_replace('/\(disc\s*\d+.*?\)/i', "", $b);      // (disc 1) or (disc 1 of 2) or (disc 1-2) etc
-            $b = preg_replace('/\(*cd\s*\d+.*?\)*/i', "", $b);      // (cd 1) or (cd 1 of 2) etc
-            $b = preg_replace('/\sdisc\s*\d+.*?$/i', "", $b);       //  disc 1 or disc 1 of 2 etc
-            $b = preg_replace('/\scd\s*\d+.*?$/i', "", $b);         //  cd 1 or cd 1 of 2 etc
-            $b = preg_replace('/\(\d+\s*of\s*\d+\)/i', "", $b);     // (1 of 2) or (1of2)
-            $b = preg_replace('/\(\d+\s*-\s*\d+\)/i', "", $b);      // (1 - 2) or (1-2)
-            $b = preg_replace('/\(Remastered\)/i', "", $b);         // (Remastered)
-            $b = preg_replace('/\s+-\s*$/', "", $b);                // Chops any stray - off the end that could have been left by the previous
-            print '<a href="#" onclick="doGoogleSearch(\''.rawurlencode($artist).'\', \''.rawurlencode($album->name).'\', \''.$artname.'\')">';
+            $b = munge_album_name($album->name);
+            print '<a href="#" onclick="doGoogleSearch(\''.rawurlencode($artist).'\', \''.rawurlencode($b).'\', \''.$artname.'\')">';
             $class = "";
             $src = 'albumart/original/'.$artname.'.jpg';
             if (!file_exists("albumart/original/".$artname.".jpg")) {
@@ -304,7 +285,7 @@ function do_albumcovers($artistkey, $comps, $covers) {
                $src = "images/album-unknown.png";
                $albums_without_cover++;
             }
-            print '<img class="'.$class.'" romprartist="'.rawurlencode($album->artist).'" rompralbum="'.rawurlencode($album->name).'"';
+            print '<img class="'.$class.'" romprartist="'.rawurlencode($album->artist).'" rompralbum="'.rawurlencode($b).'"';
             if ($album->musicbrainz_albumid) {
                 print ' rompralbumid="'.$album->musicbrainz_albumid.'"';
             }

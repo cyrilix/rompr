@@ -48,7 +48,7 @@ function mpdController() {
     }
 
     this.deleteTracksByID = function(tracks, callback) {
-        var list = new Array();
+        var list = [];
         for(var i in tracks) {
             list.push('deleteid "'+tracks[i]+'"');
         }

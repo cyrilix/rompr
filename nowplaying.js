@@ -506,7 +506,7 @@ function playInfo() {
  
     var self = this;
     var currenttrack = 0;
-    var history = new Array();
+    var history = [];
     
     /* Initialise ourself with a dummy track - prevents early callbacks during loading from
      * producing errors - otherwise we'd have to check if (currenttrack == 0) all over the place
