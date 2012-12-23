@@ -4,7 +4,7 @@ include ("functions.php");
 include ("connection.php");
 include ("collection.php");
 ?>
-
+<div>
 <form name="search" action="search.php" method="get">
 <ul class="sourcenav">
 <li><b>Search For:</b></li>
@@ -15,7 +15,7 @@ include ("collection.php");
 <button class="topformbutton" type="submit">Search</button></li>
 </ul>
 </form>
-
+</div>
 <?php
 
 $cmd = "";
@@ -49,7 +49,7 @@ function doSearch() {
 
     global $collection;
     $output = new collectionOutput("");
-    $output->writeLine('<div id="artistname">');
+    $output->writeLine('<div class="menuitem">');
     $output->writeLine("<h3>Search Results:</h3>");
     $output->writeLine("</div>");
     createHTML($collection->getSortedArtistList(), "b", $output);  

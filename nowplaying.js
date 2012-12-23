@@ -526,17 +526,19 @@ function playInfo() {
         } else {
             npinfo.image = "images/album-unknown.png";
         }
+        if (mpdinfo.origimage && mpdinfo.origimage != "") {
+            npinfo.origimage = mpdinfo.origimage;
+        }
         infobar.setNowPlayingInfo(npinfo);
 
         if (mpdinfo.creator == "" && mpdinfo.title == "" && mpdinfo.album == "") {
             return 0;
         }
+        
+        browser.trackHasChanged(npinfo);
 
         /* Need to check what's different between this one and the previous one so we can copy the data
          * - prevents us from repeatedly querying last.fm for the same data */
-        
-        /* TESTME - what happens when we start truncating the history. Does copied data get lost?
-         */
         
         var newartistdata = null;
         var newalbumdata = null;
@@ -651,6 +653,13 @@ function playInfo() {
                     album: history[index].album.name(),
                     track: history[index].track.name()
         }
+    }
+    
+    this.getmpdnames = function(index) {
+        return {    artist: history[index].mpd('creator'),
+                    album: history[index].mpd('album'),
+                    track: history[index].mpd('title') 
+        };
     }
     
     this.getcurrentindex = function() {

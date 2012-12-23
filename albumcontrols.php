@@ -2,12 +2,12 @@
 include ("vars.php");
 ?>
 
-<div id="columntitle" style="padding-right:0px">
+<div class="columntitle" style="padding-right:0px">
 <table width="100%"><tr><td name="sourcecontrol" align="left">
 <a href="#" title="Local Music" onclick="sourcecontrol('albumlist')"><img class="topimg" height="24px" src="images/audio-x-generic.png"></a>
 <a href="#" title="File Browser" onclick="sourcecontrol('filelist')"><img class="topimg" height="24px" src="images/folder.png"></a>
 <a href="#" title="Last.FM Radio" onclick="sourcecontrol('lastfmlist')"><img class="topimg" height="24px" src="images/lastfm.png"></a>
-<a href="#" title="Internet Radio Stations" onclick="sourcecontrol('radiolist')"><img class="topimg" height="24px" src="images/broadcast.png"></a>
+<a href="#" title="Internet Radio Stations" onclick="sourcecontrol('radiolist')"><img class="topimg" height="24px" src="images/broadcast-24.png"></a>
 </td>
 <td align="right"><img id="sourcesresizer" src="images/resize_handle.png" style="cursor:move"></td>
 </tr></table>

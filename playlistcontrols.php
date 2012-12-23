@@ -3,7 +3,7 @@ include ("vars.php");
 include ("functions.php");
 include ("connection.php");
 ?>
-<div id="columntitle" style="padding-left:0px">
+<div class="columntitle" style="padding-left:0px">
 <div class="tleft">
 <img id="playlistresizer" src="images/resize_handle.png" style="cursor:move">
 </div>

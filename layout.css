@@ -121,7 +121,7 @@ a
     padding-bottom:4px;
 }
 
-#controlbutton
+.controlbutton
 {
     margin:0px;
     padding:0px;
@@ -244,7 +244,7 @@ a
 
 /*-- divs used in the headerbar --*/
 
-#columntitle
+.columntitle
 {
     padding-top:4px;
     padding-bottom:4px;
@@ -524,13 +524,13 @@ a
     padding-right:8px;
 }
 
-#standout
+.standout
 {
     margin-bottom:12px;
     margin-top:12px;
 }
 
-#foldup
+.foldup
 {
     width:100%;
 }
@@ -541,7 +541,7 @@ a
     width:20%;
 }
 
-#frog
+.frog
 {
     opacity:0.4;
     font-weight:bold;
@@ -555,22 +555,27 @@ a
     padding-right:0px;
 }
 
-#standout ul
+.standout ul
 {
     list-style:none;
     margin:2px;
     padding:0px;
 }
 
-#standout ul li
+.standout ul li
 {
     line-height:1.5em;
 }
 
-#holdingcell
+.holdingcell
 {
     display:inline-block;
     width:100%
+}
+
+.wotsit
+{
+    display:inline-block;
 }
 
 .statsbox
@@ -647,7 +652,7 @@ a
     margin-top:12px;
 }
 
-#infosection
+.infosection
 {
     padding-top:4px;
     padding-bottom:4px;
@@ -655,18 +660,23 @@ a
     padding-right:12px;
 }
 
-#albumsection
+.albumsection
 {
     padding-top:4px;
     padding-bottom:4px;
     padding-left:12px;
-    padding-right:12px;
+    padding-right:24px;
     display:table;
     width:100%;
     background-color:#000000;
-    margin-right:12px;
-    margin-left:4px;
+    margin-right:24px;
+    margin-left:0px;
     margin-top:8px;
+}
+
+.covercontainer
+{
+    margin:8px;
 }
 
 /*-- For Album Cover Art and sundry popups --*/
@@ -734,22 +744,12 @@ a
     padding:8px;
 }
 
-.bumfinger
-{
-    padding:8px;
-}
-
-#albumimage
-{
-    cursor:pointer;
-}
-
-#holdingcell li input
+.holdingcell li input
 {
     width:90%;
 }
 
-#holdingcell li button
+.holdingcell li button
 {
     margin-right:6px;
 }
@@ -764,6 +764,14 @@ a
     display:inline-block;
     padding-left:8px;
     padding-right:8px;
+}
+
+.albumimg
+{
+    margin:8px;
+    box-align:center;
+    -moz-box-align:center;
+    -webkit-box-align:center;
 }
 
 /*-- Styles for drop-down menus --*/
@@ -919,6 +927,13 @@ button.sourceform
     margin-bottom:4px;
 }
 
+.topformbutton
+{
+    font-size:90%;
+    border-radius: 2px 2px 2px 2px;
+    border: 1px solid;
+}    
+
 ul.buyalbum li
 {
     font-size:90%;
@@ -996,4 +1011,10 @@ ul.buyalbum li
     display:table;
     margin:8px;
     width:360px;
+}
+
+.rightpad
+{
+    padding-right:16px;
+    margin-right:16px;
 }

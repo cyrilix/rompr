@@ -4,7 +4,7 @@ include ("functions.php");
 include ("connection.php");
 include ("filelister.php");
 ?>
-
+<div>
 <form name="filesearch" action="filesearch.php" method="get">
 <ul class="sourcenav">
 <li><b>Search For Files Containing:</b></li>
@@ -12,7 +12,7 @@ include ("filelister.php");
 <button class="topformbutton" type="submit">Search</button></li>
 </ul>
 </form>
-
+</div>
 <?php
 
 $cmd = "";
@@ -34,7 +34,7 @@ function doFileSearch($cmd) {
 
     $output = new collectionOutput("");
     $tree = doFileList($cmd);
-    $output->writeLine('<div id="artistname">');
+    $output->writeLine('<div class="menuitem">');
     $output->writeLine("<h3>Search Results:</h3>");
     $output->writeLine("</div>");
     $tree->getHTML("b", $output);

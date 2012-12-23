@@ -17,7 +17,7 @@ foreach($x->stations->station as $i => $station) {
     foreach($station->link as $j => $link) {
         $pl = preg_replace('/ /', '&nbsp;', $link->desc);
         print '<div class="clickable clicksoma indent containerbox padright menuitem" name="'.$link->playlist.'" somaimg="'.$station->image.'" somaname="'.$station->name.'">';
-        print '<div class="playlisticon fixed"><img height="12px" src="images/broadcast.png" /></div>';
+        print '<div class="playlisticon fixed"><img height="12px" src="images/broadcast-12.png" /></div>';
         print '<div class="expand">'.utf8_encode($pl).'</div>';
         print '</div>';
     }

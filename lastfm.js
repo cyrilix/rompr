@@ -135,6 +135,7 @@ function LastFM(user) {
         // error callbacks you give it. I'm using the jsonp plugin, which works.
         $.jsonp({
             url: url,
+            timeout: 30000,
             success: success,
             error: fail
         });

@@ -67,7 +67,7 @@ foreach($xml->entry as $i => $entry) {
     
 }
 print '<div class="noselection fullwidth">';
-print '<div id="booger" style="border-bottom:1px solid #dddddd;margin-bottom:4px"><table width="100%" class="playlistitem"><tr><td align="left">';
+print '<div class="underlined"><table width="100%" class="playlistitem"><tr><td align="left">';
 print count($stations) . ' IceCast Radio Stations</td></tr></table></div>';
 
 ksort($genres, SORT_STRING);
@@ -82,7 +82,7 @@ foreach ($genres as $i => $name) {
     print '<div id="genre'.$count.'" class="dropmenu">';
     foreach($genres[$i]->stations as $n => $station) {
         print '<div class="clickable clickicecast indent containerbox padright" name="'.rawurlencode($stations[$station]->name).'">';
-        print '<div class="playlisticon fixed"><img height="12px" src="images/broadcast.png" /></div>';
+        print '<div class="playlisticon fixed"><img height="12px" src="images/broadcast-12.png" /></div>';
         print '<div class="expand">'.utf8_encode($stations[$station]->name).'</div>';
         print '</div>';
     }

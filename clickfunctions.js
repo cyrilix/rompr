@@ -125,23 +125,25 @@ function doMenu(event, element) {
     var menutoopen = element.attr("name");
     if (element.attr("src") == "images/toggle-closed.png") {
         element.attr("src", "images/toggle-open.png");
-        $('#'+menutoopen).find(".updateable").attr("src", function () {
-            $(this).removeClass("updateable");
-            if ($(this).hasClass("notexist")) {
-                coverscraper.GetNewAlbumArt($(this).attr('name'));
-                return "images/album-unknown-small.png";
-            } else if ($(this).hasClass("notfound")) {
-                return "images/album-unknown-small.png";
-            } else {
-                return "albumart/small/" + $(this).attr("name") + ".jpg";
-            }
-        });
+        $('#'+menutoopen).find(".updateable").attr("src", noAnonymousFunctions);
     } else if (element.attr("src") == "images/toggle-open.png"){
         element.attr("src", "images/toggle-closed.png");
     }
     $('#'+menutoopen).slideToggle('fast');
 
 }
+
+function noAnonymousFunctions() {
+    $(this).removeClass("updateable");
+    if ($(this).hasClass("notexist")) {
+        coverscraper.GetNewAlbumArt($(this).attr('name'));
+        return "images/album-unknown-small.png";
+    } else if ($(this).hasClass("notfound")) {
+        return "images/album-unknown-small.png";
+    } else {
+        return "albumart/small/" + $(this).attr("name") + ".jpg";
+    }
+}    
 
 function setDraggable(divname) {
 

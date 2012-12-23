@@ -649,6 +649,9 @@ var popupWindow = function() {
 
     var popup;
     var userheight;
+    var wantedwidth;
+    var wantedheight;
+    var wantshrink;
 
     return {
         create:function(w,h,id,shrink,title) {
@@ -657,8 +660,11 @@ var popupWindow = function() {
                 $(popup).addClass("popupwindow");
                 document.body.appendChild(popup);
             }
+            $(popup).empty();
+            wantedwidth = w;
+            wantedheight = h;
+            wantshrink = shrink;
             popup.setAttribute('id',id);
-            $(popup).html('');
             popup.style.height = 'auto';
             $(popup).append('<div id="cheese"></div>');
             $("#cheese").append('<table width="100%"><tr><td width="30px"></td><td align="center"><h2>'+title+
@@ -683,7 +689,7 @@ var popupWindow = function() {
             return popup;
         },
         open:function() {
-            $(popup).fadeIn('slow');
+            $(popup).show();
             var calcheight = $(popup).outerHeight(true);
             if (userheight > calcheight) {
                 popup.style.height = parseInt(calcheight) + 'px';
@@ -692,7 +698,27 @@ var popupWindow = function() {
             }
         },
         close:function() {
-            $(popup).fadeOut('fast');
+            $(popup).hide();
+            if (window.iveHadEnoughOfThis) {
+                iveHadEnoughOfThis();
+            }
+        },
+        setsize:function() {
+            var winsize=getWindowSize();
+            var windowScroll = getScrollXY();
+            var width = winsize.x - 128;
+            var height = winsize.y - 128;
+            if (width > wantedwidth) { width = wantedwidth; }
+            if (height > wantedheight) { height = wantedheight; }
+            var x = (winsize.x - width)/2 + windowScroll.x;
+            var y = (winsize.y - height)/2 + windowScroll.y;
+            popup.style.width = parseInt(width) + 'px';
+            userheight = height;
+            if (!wantshrink) {
+                popup.style.height = parseInt(height) + 'px';
+            }
+            popup.style.top = parseInt(y) + 'px';
+            popup.style.left = parseInt(x) + 'px';
         }
     };
 }();

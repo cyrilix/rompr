@@ -5,6 +5,10 @@ $FILESLIST = 'prefs/files_'.$LISTVERSION.'.html';
 $connection = null;
 $is_connected = false;
 
+// NOTE: sortbydate can be set to "true' to make the collection sort albums by date
+// - however mpd can only read the Date ID3 tag, whereas the 'Original Release Date'
+//   tag is MUCH more useful. So I haven't added a GUI option to enable this option
+//   because it usually just results in a jumble
 $prefs = array( "mpd_host" => "localhost",
                 "mpd_port" => 6600,
                 "unix_socket" => '',
@@ -30,7 +34,8 @@ $prefs = array( "mpd_host" => "localhost",
                 "shownupdatewindow" => "false",
                 "updateeverytime" => "false",
                 "downloadart" => "true",
-                "autotagname" => ""
+                "autotagname" => "",
+                "sortbydate" => "false"
                 );
 loadPrefs();
 

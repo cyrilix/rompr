@@ -21,6 +21,7 @@ class album {
         $this->folder = null;
         $this->iscompilation = false;
         $this->musicbrainz_albumid = null;
+        $this->datestamp = null;
     }
 
     public function newTrack($object) {
@@ -97,6 +98,14 @@ class album {
         }
         return null;
     }
+    
+    public function getDate() {
+        if (preg_match('/(\d\d\d\d)/', $this->datestamp, $matches)) {
+            return $matches[1];
+        } else {
+            return null;
+        }
+    }
 
 }
 
@@ -121,7 +130,7 @@ class artist {
 class track {
     public function __construct($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
                                 $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station,
-                                $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack) {
+                                $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack, $origimage) {
 
         $this->artist = $artist;
         $this->album = $album;
@@ -134,6 +143,7 @@ class track {
         $this->folder = $directory;
         $this->albumartist = $albumartist;
         $this->disc = $disc;
+        $this->original_image = $origimage;
         // Only used by playlist
         $this->albumobject = null;
         $this->type = $type;
@@ -153,6 +163,9 @@ class track {
     public function setAlbumObject($object) {
         $this->albumobject = $object;
         $object->musicbrainz_albumid = $this->musicbrainz_albumid;
+        if ($object->datestamp == null) {
+            $object->datestamp = $this->datestamp;
+        }
     }
 }
 
@@ -196,7 +209,7 @@ class musicCollection {
 
     public function newTrack($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
                                 $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, 
-                                $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack) {
+                                $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack, $origimage) {
 
         global $current_album;
         global $current_artist;
@@ -207,7 +220,7 @@ class musicCollection {
         $artistkey = strtolower(preg_replace('/^The /i', '', $sortartist));
         $t = new track($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
                         $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, 
-                        $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack);
+                        $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack, $origimage);
         // If artist doesn't exist, create it - indexed by all lower case name for convenient sorting and grouping
         if (!array_key_exists($artistkey, $this->artists)) {
             $this->artists[$artistkey] = new artist($sortartist);
@@ -270,6 +283,7 @@ class musicCollection {
     }
 
     public function getAlbumList($artist, $ignore_compilations, $only_without_cover) {
+        global $prefs;
         $albums = array();
         foreach($this->artists[$artist]->albums as $object) {
             if ($object->isCompilation() && $ignore_compilations) {
@@ -281,12 +295,24 @@ class musicCollection {
                         $albums[(string) $object->name] = $object;
                     }
                 } else {
-                    $albums[(string) $object->name] = $object;
+                    if ($prefs['sortbydate'] == "true") {
+                        $d = $object->getDate();
+                        if ($d == null) {
+                            $albums[] = $object;
+                        } else {
+                            while (array_key_exists($d, $albums)) {
+                                $d = "0".$d;
+                            }
+                            $albums[$d] = $object;
+                        }
+                    } else {
+                        $albums[(string) $object->name] = $object;
+                    }
                 }
             }
         }
 
-	   ksort($albums, SORT_STRING);
+	   ksort($albums, SORT_NATURAL);
 	   return $albums;
     }
 
@@ -339,10 +365,10 @@ function process_file($collection, $filedata) {
 
     list (  $name, $duration, $number, $date, $genre, $artist, $album, $folder,
             $type, $image, $expires, $stationurl, $station, $backendid, $playlistpos, 
-            $albumartist, $disc, $mbartist, $mbalbum, $mbalbumartist, $mbtrack)
+            $albumartist, $disc, $mbartist, $mbalbum, $mbalbumartist, $mbtrack, $origimage)
         = array (   null, 0, "", null, null, null, null, null,
                     "local", null, null, null, null, null, null, 
-                    null, 0, null, null, null, null );
+                    null, 0, null, null, null, null, null );
 
     if (preg_match('/^http:\/\//', $file) || preg_match('/^mms:\/\//', $file)) {
 
@@ -377,6 +403,10 @@ function process_file($collection, $filedata) {
         if (file_exists("albumart/original/".$artname.".jpg")) {
             $image = "albumart/original/".$artname.".jpg";
         }
+    
+        if (file_exists("albumart/asdownloaded/".$artname.".jpg")) {
+            $origimage = "albumart/asdownloaded/".$artname.".jpg";
+        }
     }
 
     $backendid = (array_key_exists('Id',$filedata)) ? $filedata['Id'] : null;
@@ -384,7 +414,7 @@ function process_file($collection, $filedata) {
 
     $collection->newTrack(  $name, $file, $duration, $number, $date, $genre, $artist, $album, $folder,
                             $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, 
-                            $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack);
+                            $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack, $origimage);
 
     $numtracks++;
     $totaltime += $duration;
@@ -560,7 +590,7 @@ function createHTML($artistlist, $prefix, $output) {
     global $numtracks;
     global $totaltime;    
     
-    $output->writeLine( '<div id="booger"><table width="100%" class="playlistitem"><tr><td align="left">');
+    $output->writeLine( '<div><table width="100%" class="playlistitem"><tr><td align="left">');
     $output->writeLine( $numtracks . ' tracks</td><td align="right">Duration : ');
     $output->writeLine( format_time($totaltime) . '</td></tr></table></div>');
 

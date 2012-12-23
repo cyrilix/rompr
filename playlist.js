@@ -89,6 +89,7 @@ function Playlist() {
                 playlistpos: $(this).find("playlistpos").text(),
                 expires: $(this).find("expires").text(),
                 image: $(this).find("image").text(),
+                origimage: $(this).find("origimage").text(),
                 type: $(this).find("type").text(),
                 station: $(this).find("station").text(),
                 stationurl: $(this).find("stationurl").text(),
@@ -161,7 +162,7 @@ function Playlist() {
 
         var html = "";
         if (finaltrack > -1) {
-            html = '<div id="booger"><table width="100%" class="playlistitem"><tr><td align="left">'
+            html = '<div class="booger"><table width="100%" class="playlistitem"><tr><td align="left">'
                     +(finaltrack+1).toString()+
                     ' tracks</td><td align="right">Duration : '+formatTimeString(totaltime)+'</td></tr></table></div>';
         }
@@ -572,7 +573,7 @@ function Playlist() {
                 html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="'+tracks[0].image+'"/></div>';
             } else {
                 html = html +   '<img class="smallcover updateable notexist fixed clickable clickicon clickrollup" romprname="'+self.index+'" name="'+hex_md5(self.artist+" "+self.album)+'" '
-                            +   ' romprartist="'+encodeURIComponent(self.artist)+'" rompralbum="'+encodeURIComponent(self.album)+'" romprupdate="yes"'
+                            +   ' romprartist="'+encodeURIComponent(self.artist)+'" rompralbum="'+encodeURIComponent(self.album)+'"'
                             +   ' src="images/album-unknown-small.png"/>';
             }
             html = html + '<div class="containerbox vertical expand">';
@@ -674,7 +675,7 @@ function Playlist() {
         this.getHTML = function() {
             var html = self.header();
             for (var trackpointer in tracks) {
-                html = html + '<div id="booger" name="'+tracks[trackpointer].playlistpos+'" romprid="'+tracks[trackpointer].backendid+'" class="clickable clickplaylist containerbox playlistitem menuitem">';
+                html = html + '<div name="'+tracks[trackpointer].playlistpos+'" romprid="'+tracks[trackpointer].backendid+'" class="booger clickable clickplaylist containerbox playlistitem menuitem">';
                 html = html + '<div class="playlisticon fixed"><img height="12px" src="images/broadcast.png" /></div>';
                 html = html + '<div class="containerbox vertical expand">';
                 html = html + '<div class="playlistrow2 line">'+tracks[trackpointer].stream+'</div>';
@@ -697,7 +698,7 @@ function Playlist() {
             html = html + '<div class="line">'+tracks[0].album+'</div>';
             html = html + '</div>';
             html = html + '<div class="containerbox vertical fixed">';
-            html = html + '<div class="playlisticon clickable clickicon clickaddfave" name="'+self.index+'"><img height="14px" width="14px" src="images/broadcast.png"></div>';
+            html = html + '<div class="playlisticon clickable clickicon clickaddfave" name="'+self.index+'"><img height="12px" width="12px" src="images/broadcast-12.png"></div>';
             html = html + '<div class="playlisticon clickable clickicon clickremovealbum" name="'+self.index+'"><img src="images/edit-delete.png"></div>';
             html = html + '</div>';
             html = html + '</div>';
@@ -743,7 +744,7 @@ function Playlist() {
             for(var i in tracks) {
                 if (tracks[i].playlistpos == which) {
                     $('#item[name="'+self.index+'"]').removeClass('playlisttitle').addClass('playlistcurrenttitle');
-                    $('#booger[name="'+which+'"]').removeClass('playlistitem').addClass('playlistcurrentitem');
+                    $('.booger[name="'+which+'"]').removeClass('playlistitem').addClass('playlistcurrentitem');
                     result = tracks[i];
                     break;
                 }
@@ -754,7 +755,7 @@ function Playlist() {
         this.deleteSelf = function() {
             var todelete = [];
             for(var i in tracks) {
-                $('#booger[name="'+tracks[i].playlistpos+'"]').remove();
+                $('.booger[name="'+tracks[i].playlistpos+'"]').remove();
                 todelete.push(tracks[i].backendid);
             }
             $('#item[name="'+self.index+'"]').remove();
@@ -792,7 +793,7 @@ function Playlist() {
             var html = self.header();
             var opacity = 1;
             for (var trackpointer in tracks) {
-                html = html + '<div id="booger" style="opacity:'+opacity.toString()+'" name="'+tracks[trackpointer].playlistpos+'" romprid="'+tracks[trackpointer].backendid+'" class="containerbox playlistitem menuitem noclick">';
+                html = html + '<div style="opacity:'+opacity.toString()+'" name="'+tracks[trackpointer].playlistpos+'" romprid="'+tracks[trackpointer].backendid+'" class="booger containerbox playlistitem menuitem noclick">';
                 if (tracks[trackpointer].image) {
                     html = html + '<div class="smallcover fixed"><img class="smallcover" src="'+tracks[trackpointer].image+'"/></div>';
                 } else {
@@ -864,11 +865,11 @@ function Playlist() {
             for(var i in tracks) {
                 debug.log("Track",i,"expires in", parseInt(tracks[i].expires) - unixtimestamp);
                 if (unixtimestamp > parseInt(tracks[i].expires)) {
-                    $('#booger[name="'+tracks[i].playlistpos+'"]').slideUp('fast');
+                    $('.booger[name="'+tracks[i].playlistpos+'"]').slideUp('fast');
                     index = i;
                 } else if (previoussong == tracks[i].backendid && currentsong != tracks[i].playlistpos) {
                     debug.log("Removing track which was playing but has been skipped")
-                    $('#booger[name="'+tracks[i].playlistpos+'"]').slideUp('fast');
+                    $('.booger[name="'+tracks[i].playlistpos+'"]').slideUp('fast');
                     index = i;
                 } else if (tracks[i].playlistpos == currentsong && i>0) {
                     debug.log("We're in the middle of a field!")
@@ -892,7 +893,7 @@ function Playlist() {
             for(var i in tracks) {
                 if (tracks[i].playlistpos == which) {
                     $('#item[name="'+self.index+'"]').removeClass('playlisttitle').addClass('playlistcurrenttitle');
-                    $('#booger[name="'+which+'"]').removeClass('playlistitem').addClass('playlistcurrentitem');
+                    $('.booger[name="'+which+'"]').removeClass('playlistitem').addClass('playlistcurrentitem');
                     result = tracks[i];
                     break;
                 }
@@ -903,7 +904,7 @@ function Playlist() {
         this.deleteSelf = function() {
             var todelete = [];
             for (var i in tracks) {
-                $('#booger[name="'+tracks[i].playlistpos+'"]').remove();
+                $('.booger[name="'+tracks[i].playlistpos+'"]').remove();
                 todelete.push(tracks[i].backendid);
             }
             $('#item[name="'+self.index+'"]').remove();
@@ -916,7 +917,7 @@ function Playlist() {
             for (var i in tracks) {
                 if (tracks[i].backendid == songid) {
                     playlist.removelfm([songid], tuneurl, (parseInt(tracks[tracks.length-1].playlistpos))+1);
-                    $('#booger[name="'+tracks[i].playlistpos+'"]').slideUp('fast');
+                    $('.booger[name="'+tracks[i].playlistpos+'"]').slideUp('fast');
                     result = true;
                     break;
                 }

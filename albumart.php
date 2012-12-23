@@ -11,6 +11,11 @@ set_time_limit(240);
 <head>
 <title>RompR Album Art</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="cache-control" content="max-age=0" />
+<meta http-equiv="cache-control" content="no-cache" />
+<meta http-equiv="expires" content="0" />
+<meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+<meta http-equiv="pragma" content="no-cache" />
 <link rel="stylesheet" type="text/css" href="layout.css" />
 <?php
 print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme'].'" />'."\n";
@@ -19,7 +24,6 @@ print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme']
 <script type="text/javascript" src="jquery-1.8.3-min.js"></script>
 <script type="text/javascript" src="jquery.form.js"></script>
 <script type="text/javascript" src="jqueryui1.8.16/js/jquery-ui-1.8.23.custom.js"></script>
-<script type="text/javascript" src="jquery.jsonp-2.3.1.min.js"></script>
 <script type="text/javascript" src="functions.js"></script>
 <script type="text/javascript" src="uifunctions.js"></script>
 <script type="text/javascript" src="ba-debug.js"></script>
@@ -31,34 +35,51 @@ var lastfm_api_key = "15f7532dff0b8d84635c757f9f18aaa3";
 
 var imageSearch;
 var imagekey = '';
-var windowScroll;
+var imgobj = null;
 var useLocalStorage = false;
-var coverscraper = null;
 var running = false;
+var clickindex = null;
+var wobblebottom;
+var searchcontent;
+var allshown = true;
 google.load('search', 1);
 
 function getNewAlbumArt(div) {
 
     debug.log("Getting art in",div);
-    $(div).find("img").filter( function() { return $(this).hasClass("notexist") } ).each( function() { coverscraper.GetNewAlbumArt($(this).attr('name')) } );
+    $(div).find("img").filter( filterImages ).each( myMonkeyHasBigEars );
     if (running == false) {
         running = true;
         $("#harold").unbind("click");
         $("#harold").bind("click", reset );
+//         $("#harold").bind("click", stepthrough );
         $("#harold").html("Stop Download");
     }
 
 }
 
-var reset = function() {
-    coverscraper.reset(-1);
+function filterImages() {
+    return $(this).hasClass("notexist");
 }
 
-var onresize = function() {
+function myMonkeyHasBigEars() {
+    var a = this.getAttribute('name');
+    covergetter.GetNewAlbumArt(a);
+}
+
+function reset() {
+    covergetter.reset(-1);
+}
+
+// function stepthrough() {
+//     covergetter.step();
+// }
+
+function onresize() {
     wobbleMyBottom();
 }
 
-var start = function() {
+function start() {
     getNewAlbumArt('#wobblebottom');
 }
 
@@ -73,153 +94,220 @@ function aADownloadFinished() {
     $("#progress").progressbar("option", "value", 0);
 }
 
+function onWobblebottomClicked(event) {
+    
+    var clickedElement = findClickableElement(event);
+    if (clickedElement.hasClass("clickalbumcover")) {
+        event.stopImmediatePropagation();
+        doGoogleSearch(clickedElement.attr('romprartist'), clickedElement.attr('rompralbum'), clickedElement.attr('name'));
+    } 
+}
+
+function onGoogleSearchClicked(event) {
+
+    debug.log("Goo=gle Search Clicked");
+    
+    var clickedElement = findClickableElement(event);
+    if (clickedElement.hasClass("clickgimage")) {
+        debug.log("Doing :",clickedElement.attr('romprsrc'), clickedElement.attr('romprindex'));
+        event.stopImmediatePropagation();
+        updateImage(clickedElement.attr('romprsrc'), clickedElement.attr('romprindex'));
+    } 
+}
+
+function findClickableElement(event) {
+
+    var clickedElement = $(event.target);
+    // Search upwards through the parent elements to find the clickable object
+    while (!clickedElement.hasClass("clickable") &&
+            clickedElement.prop("id") != "wobblebottom" &&
+            clickedElement.prop("id") != "searchcontent") {
+        clickedElement = clickedElement.parent();
+    }
+    return clickedElement;
+    
+}
+
+function boogerbenson() {
+    if (allshown) {
+        $("img", "#wobblebottom").filter( onlywithcovers ).parent().parent().hide();
+        $("#finklestein").html("Show All Covers");
+        $(".albumsection").filter( emptysections ).hide();
+        $(".bigholder").filter( emptysections2 ).hide();
+    } else {
+        $(".bigholder").filter( emptysections2 ).show();
+        $(".albumsection").filter( emptysections ).show();
+        $("img", "#wobblebottom").filter( onlywithcovers ).parent().parent().show();
+        $("#finklestein").html("Show Only Albums Without Covers");
+    }
+    allshown = !allshown;
+}
+
+function onlywithcovers() {
+    return !($(this).hasClass('notexist') || $(this).hasClass('notfound'));
+}
+
+function emptysections() {
+    var empty = true;
+    $(this).next().find('.albumimg').each( function() { if (!$(this).is(':hidden')) { empty = false } });
+    return empty;
+}
+
+function emptysections2() {
+    var empty = true;
+    $(this).find('.albumimg').each( function() { if (!$(this).is(':hidden')) { empty = false } });
+    return empty;
+}
+
 $(document).ready(function () {
 
     $("#totaltext").html(numcovers+" albums");
     $("#progress").progressbar();
-    wobbleMyBottom();
     $(window).bind('resize', onresize );
     if ("localStorage" in window && window["localStorage"] != null) {
         useLocalStorage = true;
     }
-    coverscraper = new coverScraper(1, useLocalStorage, true, true);
-    coverscraper.reset(albums_without_cover);
+    covergetter = new coverScraper(1, useLocalStorage, true, true);
+    covergetter.reset(albums_without_cover);
     $("#harold").click( start );
+    $("#finklestein").click( boogerbenson );
+    imageSearch = new google.search.ImageSearch();
+    imageSearch.setSearchCompleteCallback(this, googleSearchComplete, null);
+    imageSearch.setRestriction(
+        google.search.Search.RESTRICT_SAFESEARCH,
+        google.search.Search.SAFESEARCH_OFF
+    );    
+    imageSearch.setResultSetSize(8);
+    createPopup();
+    wobblebottom = $('#wobblebottom');
+    wobblebottom.click(onWobblebottomClicked);
+    wobbleMyBottom();
 });
+
+function createPopup() {
+
+    popupWindow.create(700, 540, "googlepopup", false, "Choose Album Picture");
+    
+    var googleinput = $('<div>', { id: 'googleinput' }).appendTo($("#popupcontents"));
+    var g1 = $('<div>', { class: 'holdingcell' }).append('<h3>Upload A File</h3>').appendTo(googleinput);
+    var uform = $('<form>', { id: 'uform', action: 'getalbumcover.php', method: 'post', enctype: 'multipart/form-data' }).appendTo(g1);
+
+    uform.append($('<input>', { id: 'imagekey', type: 'hidden', name: 'key', value: '' }));
+    uform.append($('<input>', { name: 'ufile', type: 'file', size: '80', class: 'tleft sourceform', style: 'color:#ffffff' }));
+    uform.append($('<input>', { type: 'submit', class: 'tright topformbutton', value: 'Upload', style: 'width:8em' }));
+    
+    var g2 = $('<div>', { class: 'holdingcell underlined' }).append('<h3>Or Search Google Images</h3>').appendTo(googleinput);
+    g2.append($('<input>', { type: 'text', id: 'searchphrase', class: 'tleft sourceform', size: '80' }));
+    var b = $('<button>', { class: 'tright topformbutton', onclick: 'research()', style: 'width:8em' }).appendTo(g2);
+    b.html('Search');
+    
+    $("#popupcontents").append($('<div>', {id: 'branding'}));
+    searchcontent = $('<div>').appendTo($("#popupcontents"));
+    google.search.Search.getBranding('branding');
+    uform.ajaxForm( uploadComplete );
+    searchcontent.click(onGoogleSearchClicked);
+
+}
 
 function wobbleMyBottom() {
     var ws = getWindowSize();
-    var newheight = ws.y - $("#wobblebottom").offset().top;
-    $("#wobblebottom").css("height", newheight.toString()+"px");
+    var newheight = ws.y - wobblebottom.offset().top;
+    wobblebottom.css("height", newheight.toString()+"px");
 }
 
 function doGoogleSearch(artist, album, key) {
+    wobblebottom.unbind("click");
     imagekey = key;
-    windowScroll = getScrollXY();
-    var googlePopup = popupWindow.create(700, 540, "googlepopup", false, "Choose Album Picture");
-
-    $("#popupcontents").append('<div id="googleinput"></div>');
-    $("#googleinput").append('<div name="g1" id="holdingcell"><h3>Upload A File</h3></div>');
-    $('div[name="g1"]').append('<form id="uform" action="getalbumcover.php" method="post" enctype="multipart/form-data"></form>');
-    $("#uform").append('<input type="hidden" name="key" value="'+imagekey+'" />');
-    $("#uform").append('<table width="100%" cellpadding="0" cellspacing="0" id="gibbon"></table>');
-    $("#gibbon").append('<tr><td><input style="color:#ffffff" class="tleft sourceform" type="file" size="80" name="ufile" /></td>'+
-                        '<td><input style="width:8em" class="tright topformbutton" type="submit" value="Upload" /></td></tr>');
-    $("#googleinput").append('<div name="g2" id="holdingcell" class="underlined"><h3>Or Search Google Images</h3></div>');
-    $('div[name="g2"]').append('<table width="100%" cellpadding="0" cellspacing="0" id="penguin"></table>');
-    $("#penguin").append('<tr><td><input type="text" id="searchphrase" class="tleft sourceform" size="80"></input></td>'+
-                            '<td><button style="width:8em" class="tright topformbutton" onclick="research()">Search</button></td></tr>');
-    $("#popupcontents").append('<div id="branding"></div>');
-    $("#popupcontents").append('<div id="searchcontent"></div>');
-
-    $("#searchphrase").attr("value", decodeURIComponent(artist)+" "+decodeURIComponent(album));
+    imgobj = $('img[name="'+imagekey+'"]');
+    var monkeybrains = decodeURIComponent(artist)+" "+decodeURIComponent(album);
+    $("#searchphrase").attr("value", monkeybrains);
+    $("#imagekey").attr("value", imagekey);
+    popupWindow.setsize();
+    imageSearch.execute(monkeybrains);  
     popupWindow.open();
-    imageSearch = new google.search.ImageSearch();
-    imageSearch.setSearchCompleteCallback(this, googleSearchComplete, null);
-    imageSearch.setResultSetSize(8);
-    google.search.Search.getBranding('branding');
-    imageSearch.execute(decodeURIComponent(artist)+" "+decodeURIComponent(album));  
-    $("#uform").ajaxForm( function(data) {
-        closeGooglePopup();
-        $('img[name="'+imagekey+'"]').attr("src", "albumart/original/"+imagekey+".jpg");
-        if ($('img[name="'+imagekey+'"]').hasClass("notexist") ||
-            $('img[name="'+imagekey+'"]').hasClass("notfound")) {
-            coverscraper.updateInfo(1);
-            $('img[name="'+imagekey+'"]').removeClass("notexist");
-            $('img[name="'+imagekey+'"]').removeClass("notfound");
-        }
-        if (useLocalStorage) {
-            coverscraper.sendLocalStorageEvent(key);
-        }
-    });
 }
 
 function research() {
-    var thing = $("#searchphrase").attr("value");
-    imageSearch.execute(thing);
+    searchcontent.empty();
+    imageSearch.execute($("#searchphrase").attr("value"));
 }
 
 function closeGooglePopup() {
-    $("#googlepopup").fadeOut('fast', function () {
-        window.scroll(windowScroll.x, windowScroll.y);
-    });
+    popupWindow.close();
+}
+
+function iveHadEnoughOfThis() {
+    searchcontent.empty();
+    wobblebottom.click(onWobblebottomClicked);
 }
 
 function googleSearchComplete() {
-
     if (imageSearch.results && imageSearch.results.length > 0) {
-        $("#searchcontent").html("");
-        var imagesizes = {w:0, h:0};
-        var results = imageSearch.results;
-        for (var i = 0; i < results.length; i++) {
-            var result = results[i];
-            $("#searchcontent").append('<div id="'+i+'" class="gimage"></div>');
-            $("#"+i).append('<img id="img'+i+'" class="bumfinger" src="'+result.tbUrl+'"></img>');
-            $("#img"+i).wrap('<a href="javascript:updateImage(\''+imagekey+'\', \''+result.url+'\')" />');
-            var thisimagesize = {w:parseInt(result.tbWidth), h:parseInt(result.tbHeight)};
-            if (thisimagesize.w > imagesizes.w) {
-                imagesizes.w = thisimagesize.w;
-            }
-            if (thisimagesize.h > imagesizes.h) {
-                imagesizes.h = thisimagesize.h;
-            }
-            $(".gimage").width(imagesizes.w);
-            $(".gimage").height(imagesizes.h);
+        for (var i in imageSearch.results) {
+            var result = imageSearch.results[i];
+             searchcontent.append($("<img>", { 
+                                                id: "img"+i,
+                                                romprsrc: result.url,
+                                                romprindex: i,
+                                                class: "gimage clickable clickicon clickgimage" ,
+                                                src: result.tbUrl
+                                            })
+                                );
         }
+        $(".gimage").css("height", "120px");
+    } else {
+        searchcontent.html('<h3>No Images Found</h3>');
     }
 }
 
-function updateImage(key, url) {
-    closeGooglePopup();
-    $('img[name="'+key+'"]').attr("src", "images/image-update.gif");
-    var getstring = "key="+encodeURIComponent(key)+"&src="+encodeURIComponent(url);
-    var stream = $('img[name="'+key+'"]').attr("romprstream");
-    debug.log("stream",stream);
+function updateImage(url, index) {
+    clickindex = index;
+    $('#img'+clickindex).attr('src', 'images/image-update.gif');
+    var options = { key: imagekey,
+                    src: url
+                    };
+    var stream = imgobj.attr("romprstream");
     if (typeof(stream) != "undefined") {
-        getstring = getstring + "&stream="+stream;
+        options.stream = stream;
     }
-    $.get("getalbumcover.php", getstring)
-    .done(function () {
-        if (useLocalStorage) {
-            coverscraper.sendLocalStorageEvent(key);
-        }
-        $('img[name="'+key+'"]').attr("src", "albumart/original/"+key+".jpg");
-        if ($('img[name="'+key+'"]').hasClass("notexist") ||
-            $('img[name="'+key+'"]').hasClass("notfound")) {
-            coverscraper.updateInfo(1);
-            $('img[name="'+key+'"]').removeClass("notexist");
-            $('img[name="'+key+'"]').removeClass("notfound");
-        }
-    })
-    .fail(function () {
-        debug.log("Album Cover Get Failed");
-        $('img[name="'+key+'"]').attr("src", "images/album-unknown.png");
+    $.ajax({
+        url: "getalbumcover.php",
+        type: "POST",
+        data: options,
+        cache:false,
+        success: uploadComplete,
+        error: searchFail
     });
+}
+
+
+function searchFail() {
+    $('#img'+clickindex).attr('src', 'images/notfound.png');
+}
+
+function uploadComplete() {
+    debug.log("Success for",imagekey);
+    closeGooglePopup();
+    imgobj.attr("src", "albumart/original/"+imagekey+".jpg");
+    if (imgobj.hasClass("notexist") ||
+        imgobj.hasClass("notfound")) {
+        covergetter.updateInfo(1);
+        imgobj.removeClass("notexist notfound");
+    }
+    if (useLocalStorage) {
+        sendLocalStorageEvent(imagekey);
+    }
 }
 
 </script>
 </head>
 <body>
 <div id="albumcovers">
-<div id="infosection">
-<table width="100%"><tr><td>
-<h2>Album Art</h2></td></tr>
-<tr><td><p id="totaltext"></p><p id="infotext"></p></td>
-<td width="40%"><div id="progress"></div><br><div id="status"></div></td>
-<td align="right">
-<button id="harold" class="topformbutton">Get Missing Covers</button>
-</td></tr>
-<?php
-if(array_key_exists("nocover", $_REQUEST)) {
-?>
-<tr><td></td><td></td><td align="right"><a href="albumart.php">Show All Albums</a></td></tr>
-<?php
-} else {
-?>
-<tr><td></td><td></td><td align="right"><a href="albumart.php?nocover=yes">Show Only Albums Without Covers</a></td></tr>
-<?php
-}
-?>
+<div class="infosection">
+<table width="100%">
+<tr><td colspan="3"><h2>Album Art</h2></td></tr>
+<tr><td width="30%"><div id="totaltext"></div></td><td width="40%"><div id="progress"></div></td><td width="30%" align="right"><button id="harold" class="topformbutton">Get Missing Covers</button></td></tr>
+<tr><td width="30%"><div id="infotext"></div></td><td width="40%" align="center"><div id="status"></div></td><td width="30%" align="right"><button id="finklestein" class="topformbutton">Show Only Albums Without Covers</button></td></tr>
 </table>
 </div>
 </div>
@@ -264,61 +352,44 @@ function do_albumcovers($artistkey, $comps, $covers) {
 
     if (count($albumlist) > 0) {
         $artist = $collection->artistName($artistkey);
-        print '<div id="albumsection">';
-        print '<div class="tleft"><h2>'.$artist.'</h2></div><div class="tright"><button class="topformbutton" onclick="getNewAlbumArt(\'#album'.$count.'\')">Get These Covers</button></div>';
+        print '<div class="albumsection">';
+        print '<div class="tleft"><h2>'.$artist.'</h2></div><div class="tright rightpad"><button class="topformbutton" onclick="getNewAlbumArt(\'#album'.$count.'\')">Get These Covers</button></div>';
         print "</div>\n";
-        print '<div id="album'.$count.'">';
-        $albumnames = array();
-        print '<table align="center" cellpadding="4"><tr>';
+        print '<div id="album'.$count.'" class="fullwidth bigholder">';
+        
+        print '<div class="containerbox covercontainer">';
         $colcount = 0;
-        foreach($albumlist as $album) {
-            print '<td align="center">';
+        foreach ($albumlist as $album) {
+            print '<div class="expand containerbox vertical albumimg">';
+            print '<div class="albumimg fixed">';
             $artname = md5($album->artist . " " . $album->name);
-            // Do some album name munging to try and help us get things - Last.FM seems to work best with this combination
-            // of things removed from album names, at least with my collection.
             $b = munge_album_name($album->name);
-            print '<a href="#" onclick="doGoogleSearch(\''.rawurlencode($artist).'\', \''.rawurlencode($b).'\', \''.$artname.'\')">';
             $class = "";
             $src = 'albumart/original/'.$artname.'.jpg';
-            if (!file_exists("albumart/original/".$artname.".jpg")) {
+            if (!file_exists($src)) {
                $class = "notexist";
                $src = "images/album-unknown.png";
                $albums_without_cover++;
             }
-            print '<img class="'.$class.'" romprartist="'.rawurlencode($album->artist).'" rompralbum="'.rawurlencode($b).'"';
+            print '<img class="clickable clickicon clickalbumcover '.$class.'" romprartist="'.rawurlencode($album->artist).'" rompralbum="'.rawurlencode($b).'"';
             if ($album->musicbrainz_albumid) {
                 print ' rompralbumid="'.$album->musicbrainz_albumid.'"';
             }
-            print ' name="'.$artname.'" style="vertical-align:middle" height="82px" width="82px" src="'.$src.'">';
-
-            print '</a>';
-            array_push($albumnames, $album->name);
-            print '</td>';
+            print ' name="'.$artname.'" height="82px" width="82px" src="'.$src.'">';
+            print '</div>';
+            print '<div class="albumimg fixed">'.$album->name.'</div>';
+            print '</div>';
+            
             $colcount++;
             if ($colcount == 7) {
-                print "</tr><tr>\n";
-                foreach($albumnames as $key => $value) {
-                    print '<td align="center">'.$value."</td>";
-                }
-                print "</tr><tr>";
+                print "</div>\n".'<div class="containerbox covercontainer">';
                 $colcount = 0;
-                $albumnames = array();
             }
             $count++;
         }
-        while ($colcount < 7) {
-            print "<td></td>";
-            $colcount++;
-        }
-        print "</tr><tr>\n";
-        foreach($albumnames as $key => $value) {
-            print '<td align="center">'.$value."</td>";
-        }
-
-        print "</tr>\n";
-        print "</table>\n";
-        print "</div>\n";
+        print "</div></div>\n";
     }
+            
 }
 
 function do_radio_stations($covers) {
@@ -327,15 +398,16 @@ function do_radio_stations($covers) {
     global $albums_without_cover;
     $playlists = glob("prefs/USERSTREAM*.xspf");
     if (count($playlists) > 0) {
-        print '<div id="albumsection">';
-        print '<h2>Radio Stations</h2>';
+        print '<div class="albumsection">';
+        print '<div class="tleft"><h2>Radio Stations</h2></div><div class="tright rightpad"><button class="topformbutton" onclick="getNewAlbumArt(\'#album'.$count.'\')">Get These Covers</button></div>';
         print "</div>\n";
-        print '<div id="artistinfo">';
-        $albumnames = array();
-        print '<table align="center" cellpadding="4"><tr>';
+        print '<div id="album'.$count.'" class="fullwidth bigholder">';
+        
+        print '<div class="containerbox covercontainer">';
         $colcount = 0;
-
         foreach ($playlists as $i => $file) {
+            print '<div class="expand containerbox vertical albumimg">';
+            print '<div class="albumimg fixed">';
             $x = simplexml_load_file($file);
             foreach($x->trackList->track as $i => $track) {
                 if ($track->album) {
@@ -346,8 +418,6 @@ function do_radio_stations($covers) {
                             break;
                         }
                     }
-                    print '<td align="center">';
-                    print '<a href="#" onclick="doGoogleSearch(\'Internet%20Radio\', \''.rawurlencode($track->album).'\', \''.$artname.'\')">';
                     $class = "";
                     $src = "images/broadcast.png";
                     if ($track->image != "images/broadcast.png") {
@@ -358,37 +428,24 @@ function do_radio_stations($covers) {
                         $class = "notexist";
                         $albums_without_cover++;
                     }
-                    array_push($albumnames, $track->album);
-                    print '<img class="'.$class.'" romprartist="Internet%20Radio" rompralbum="'.rawurlencode($track->album).'" romprstream="'.$file.'" name="'.$artname.'" style="vertical-align:middle" height="94" src="'.$src.'">';
-                    print '</a>';
-                    print '</td>';
+                    print '<img class="clickable clickicon clickalbumcover '.$class.'" romprstream="'.$file.'" romprartist="Internet%20Radio" rompralbum="'.rawurlencode($track->album).'"';
+                    print ' name="'.$artname.'" height="82px" width="82px" src="'.$src.'">';
+                    print '</div>';
+                    print '<div class="albumimg fixed">'.$track->album.'</div>';
+                    print '</div>';
+                    
                     $colcount++;
                     if ($colcount == 7) {
-                        print "</tr><tr>\n";
-                        foreach($albumnames as $key => $value) {
-                            print '<td align="center">'.$value."</td>";
-                        }
-                        print "</tr><tr>";
+                        print "</div>\n".'<div class="containerbox covercontainer">';
                         $colcount = 0;
-                        $albumnames = array();
                     }
                     $count++;
                     break;
                 }
             }
         }
-
-        while ($colcount < 7) {
-            print "<td></td>";
-            $colcount++;
-        }
-        print "</tr><tr>\n";
-        foreach($albumnames as $key => $value) {
-            print '<td align="center">'.$value."</td>";
-        }
-
-        print "</tr>\n";
-        print "</table>\n";
-        print "</div>\n";
+        print "</div></div>\n";
     }
+            
 }
+    

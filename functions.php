@@ -158,6 +158,8 @@ function url_get_contents($url,$useragent='RompR Media Player/0.1',$headers=fals
     # ignore SSL errors
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
+    curl_setopt($ch, CURLOPT_TIMEOUT, 45);
+    
     # return headers as requested
     if ($headers==true){
         curl_setopt($ch, CURLOPT_HEADER,1);
@@ -174,6 +176,7 @@ function url_get_contents($url,$useragent='RompR Media Player/0.1',$headers=fals
     }
 
     $result['contents']=curl_exec($ch);
+    $result['status'] = curl_getinfo($ch,CURLINFO_HTTP_CODE);
     # if debugging, return an array with CURL's debug info and the URL contents
     if ($debug==true) {
         $result['info']=curl_getinfo($ch);

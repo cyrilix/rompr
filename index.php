@@ -293,7 +293,7 @@ $(document).ready(function(){
 
     <div class="containerbox menuitem noselection">
         <img src="images/toggle-closed.png" class="menu fixed" name="yourradiolist">
-        <div class="smallcover fixed"><img height="32px" width="32px" src="images/broadcast.png"></div>
+        <div class="smallcover fixed"><img height="32px" width="32px" src="images/broadcast-32.png"></div>
         <div class="expand">Your Radio Stations</div>
     </div>
     <div id="yourradiolist" class="dropmenu">

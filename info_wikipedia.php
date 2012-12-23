@@ -240,7 +240,7 @@ function wikipedia_bio_header($prefix, $artistname) {
     
     $artistname = preg_replace( '/_/', ' ', $artistname );
     
-    $html = '<div id="infosection">' .
+    $html = '<div class="infosection">' .
             '<table width="100%"><tr><td width="80%">' .
             '<h2>' . $prefix . $artistname . '</h2>' .
             '</td><td align="right">' .

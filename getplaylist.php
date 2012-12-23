@@ -67,6 +67,7 @@ function getFileInfo($file, $pos) {
                     .xmlnode("station", $track->station)
                     .xmlnode("location", $track->url)
                     .xmlnode("backendid", $track->backendid)
+                    .xmlnode("origimage", $track->original_image)
                     .xmlnode("stream", $track->stream)
                     .xmlnode("playlistpos", $track->playlistpos)
                     .xmlnode("mbartistid", $track->musicbrainz_artistid)

@@ -105,13 +105,13 @@ a.album:hover,a.album:active
     background:#ffffff;
 }
 
-#infosection
+.infosection
 {
     background-color:#131330;
     border-bottom:1px solid #000000;
 }
 
-#albumsection
+.albumsection
 {
     border-top:1px solid #000000;
 }

@@ -1,6 +1,9 @@
 var infobar = function() {
     
     var notifytimer = null;
+    var img = new Image();
+    var mousepos;
+    
     var volumeslider = function() {
         volume = 0;
         return {
@@ -94,13 +97,30 @@ var infobar = function() {
             if (info.image && $('#albumpicture').attr("src") != info.image) {
                 $('#albumpicture').fadeOut(1000, function () {
                     $('#albumpicture').attr("src", info.image);
-                    $('#albumpicture').fadeIn(1000);
+                    $('#albumpicture').fadeIn(1000, function() {
+                        debug.log("Hammer Time");
+                        $("#albumpicture").unbind('click');
+                        $("#albumpicture").removeClass('clickicon');
+                        if (info.origimage) {
+                            img.src = info.origimage;
+                            $("#albumpicture").bind('click', infobar.displayimage);
+                            $("#albumpicture").addClass('clickicon');
+                        }
+                    });
                 });
             }
         },
         
+        displayimage: function() {
+            debug.log("Chocolate and Gravy");
+            var mousepos = getPosition();
+            var dimensions = imagePopup.create(img.width, img.height, mousepos.x, mousepos.y);
+            imagePopup.contents('<img src="'+img.src+'" height="'+parseInt(dimensions.height)+'" width="'+parseInt(dimensions.width)+'">');
+            imagePopup.show();
+        },
+        
         love: function() {
-            nowplaying.love(-1, self.donelove);
+            nowplaying.love(-1, infobar.donelove);
         },
 
         donelove: function(track,artist) {

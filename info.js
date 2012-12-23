@@ -13,10 +13,45 @@ function Info(target, source) {
     /     Various Functions to do with receiving and storing our history
     /
     */
+
+    this.trackHasChanged = function(npinfo) {
+        /* nowplaying is telling us that something has changed but it dosn't yet have data to display */
+        if (displaypointer > -1) {
+            var currentnames = nowplaying.getmpdnames(history[displaypointer].nowplayingindex);
+            playTheWaitingGame( npinfo,
+                                (currentnames.artist != npinfo.artist),
+                                (currentnames.album != npinfo.album),
+                                (currentnames.track != npinfo.track)
+            );
+        }
+    }
+    
+    function playTheWaitingGame(npinfo, doartist, doalbum, dotrack) {
+        
+        clearSelection();
+        if (doartist) {
+            $("#artistinformation").html(waitingBanner('Artist', npinfo.artist));
+        }
+        if (doalbum) {
+            $("#albuminformation").html(waitingBanner('Album', npinfo.album));
+        }
+        if (dotrack) {
+            $("#trackinformation").html(waitingBanner('Track', npinfo.track));
+        }
+        
+    }
+    
+    function waitingBanner(title, name) {    
+        var html = '<div class="infosection">';
+        html = html + '<h3>'+title+' : ' + name + '  (Getting Info....)</h3>';
+        html = html + '</div>';
+        return html;
+    }
+
     
     this.newTrack = function(index) {
      
-        /* nowplaying is telling us that there is a new track playing */
+        /* nowplaying is giving us some new data */
         switch (true) {
             case (displaypointer == -1):
                 /* This is the first one, so yes we care, and we've nothing to compare with
@@ -59,6 +94,9 @@ function Info(target, source) {
                                     track: names.track };
         updateHistory();
         clearSelection();
+        $('#artistinformation').stop();
+        $('#albuminformation').stop();
+        $('#trackinformation').stop();
         if (!hidden) {
             if (showartist) { updateArtistBrowser() };
             if (showalbum)  { updateAlbumBrowser() };
@@ -212,7 +250,7 @@ function Info(target, source) {
     }
 
     function setWikiWaiting(frame,image) {
-        var html = '<div id="infosection">'+
+        var html = '<div class="infosection">'+
                     '<table width="100%"><tr><td width="80%">'+
                     '<h2 id="flashthis">Loading...</h2>'+
                     '</td><td align="right">'+
@@ -266,7 +304,7 @@ function Info(target, source) {
 
             imageurl = lfmdata.image("extralarge");
             if (imageurl != '') {
-                html = html +  '<img class="stright" src="' + imageurl + '" id="standout" />';
+                html = html +  '<img class="stright" src="' + imageurl + '" class="standout" />';
             }
             html = html +  '<p>';
             html = html + formatBio(lfmdata.bio());
@@ -295,13 +333,13 @@ function Info(target, source) {
 
         $("#artistinformation").html(html);
         html = null;
-        $("#artistinformation #frog").click(function() {
-            $("#artistinformation #foldup").toggle('slow');
+        $("#artistinformation .frog").click(function() {
+            $("#artistinformation .foldup").toggle('slow');
             panelclosed.artist = !panelclosed.artist;
             if (panelclosed.artist) {
-                $("#artistinformation #frog").text("CLICK TO SHOW");
+                $("#artistinformation .frog").text("CLICK TO SHOW");
             } else {
-                $("#artistinformation #frog").text("CLICK TO HIDE");
+                $("#artistinformation .frog").text("CLICK TO HIDE");
             }
             return false;
         });
@@ -330,7 +368,7 @@ function Info(target, source) {
             html = html + '</div><div class="statsbox">';
             imageurl = lfmdata.image("large");
             if (imageurl != '') {
-                html = html +  '<img class="stright" src="' + imageurl + '" id="standout" />';
+                html = html +  '<img class="stright" src="' + imageurl + '" class="standout" />';
             }
             html = html +  '<p>';
             html = html + '<b>Release Date : </b>'+lfmdata.releasedate();
@@ -362,13 +400,13 @@ function Info(target, source) {
         html = html + '</div>';
         $("#albuminformation").html(html);
         html = null;
-        $("#albuminformation #frog").click(function() {
-            $("#albuminformation #foldup").toggle('slow');
+        $("#albuminformation .frog").click(function() {
+            $("#albuminformation .foldup").toggle('slow');
             panelclosed.album = !panelclosed.album;
             if (panelclosed.album) {
-                $("#albuminformation #frog").text("CLICK TO SHOW");
+                $("#albuminformation .frog").text("CLICK TO SHOW");
             } else {
-                $("#albuminformation #frog").text("CLICK TO HIDE");
+                $("#albuminformation .frog").text("CLICK TO HIDE");
             }
             return false;
         });
@@ -408,13 +446,13 @@ function Info(target, source) {
             doUserLoved(false);
         }
 
-        $("#trackinformation #frog").click(function() {
-            $("#trackinformation #foldup").toggle('slow');
+        $("#trackinformation .frog").click(function() {
+            $("#trackinformation .foldup").toggle('slow');
             panelclosed.track = !panelclosed.track;
             if (panelclosed.track) {
-                $("#trackinformation #frog").text("CLICK TO SHOW");
+                $("#trackinformation .frog").text("CLICK TO SHOW");
             } else {
-                $("#trackinformation #frog").text("CLICK TO HIDE");
+                $("#trackinformation .frog").text("CLICK TO HIDE");
             }
             return false;
         });
@@ -441,8 +479,8 @@ function Info(target, source) {
     }
 
     function sectionHeader(data) {
-        var html = '<div id="holdingcell">';
-        html = html + '<div id="standout" class="stleft statsbox"><ul>';
+        var html = '<div class="holdingcell">';
+        html = html + '<div class="standout stleft statsbox"><ul>';
         html = html + '<li><b>Listeners:</b> '+data.listeners()+'</li>';
         html = html + '<li><b>Plays:</b> '+data.playcount()+'</li>';
         html = html + '<li><b>Your Plays:</b> '+data.userplaycount()+'</li>';
@@ -450,10 +488,10 @@ function Info(target, source) {
     }
 
     function lastFmBanner(data, title, hidden, name) {    
-        var html = '<div id="infosection">';
+        var html = '<div class="infosection">';
         html = html + '<table width="100%"><tr><td width="80%">';
         html = html + '<h2>'+title+' : ' + name + '</h2>';
-        html = html + '</td><td align="left"><a href="#" id="frog">';
+        html = html + '</td><td align="left"><a href="#" class="frog">';
         if (hidden) {
             html = html + "CLICK TO SHOW";
         } else {
@@ -463,7 +501,7 @@ function Info(target, source) {
         html = html + '<a href="' + data.url() + '" title="View In New Tab" target="_blank"><img src="images/lastfm.png"></a>';
         html = html + '</td></tr></table>';
         html = html + '</div>';
-        html = html + '<div id="foldup"';
+        html = html + '<div class="foldup"';
         if (hidden) {
             html = html + ' class="invisible"';
         }
@@ -496,7 +534,7 @@ function Info(target, source) {
     }
 
     function tagsInput(type) {
-        var html = '<ul id="holdingcell"><li><b>ADD TAGS</b></li>';
+        var html = '<ul class="holdingcell"><li><b>ADD TAGS</b></li>';
         html = html + '<li><input class="tiny inbrowser" id="add'+type+'tags" type="text"></input></li>';
         html = html + '<li class="tiny">Add tags, comma-separated</li>';
         html = html + '<li><button class="topformbutton tiny" onclick="browser.addTags(\''+type+'\')">ADD</button>'+
@@ -838,19 +876,19 @@ function Info(target, source) {
                 if (direction != dir) {
                     direction = dir;
                     counter+=direction;
-                    this.cacheImage();
+                    self.slideshow.cacheImage();
                 }
                 if (timer_running) {
                     clearTimeout(timer);
                     timer_running = false;
                 }
-                this.displayimage(false);
+                self.slideshow.displayimage(false);
             },
 
             timerExpiry: function() {
                 debug.log("Timer Expired");
                 timer_running = false;
-                this.displayimage(paused);
+                self.slideshow.displayimage(paused);
             },
 
             killTimer: function() {
@@ -864,7 +902,7 @@ function Info(target, source) {
                 if (paused) {
                     $('#lastfmimagecontrol').attr("src", "images/pause.png");
                     paused = false;
-                    this.displayimage(paused);
+                    self.slideshow.displayimage(paused);
                 } else {
                     $('#lastfmimagecontrol').attr("src", "images/play.png");
                     paused = true;
@@ -877,7 +915,7 @@ function Info(target, source) {
 
             cacheImage: function() {
                 counter += direction;
-                if (counter == images.length) { counter = 0; }
+                if (counter >= images.length) { counter = 0; }
                 if (counter < 0) { counter = images.length-1; }
                 img.src = images[counter].url;
                 debug.log("Image Caching Started", img.src);
@@ -916,7 +954,7 @@ function Info(target, source) {
                     }
                 }
             }
-        };
+        }
 
     }();
 

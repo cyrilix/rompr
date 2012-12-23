@@ -120,13 +120,13 @@ div.clickable.selected:hover
     background:#ffffff;
 }
 
-#infosection
+.infosection
 {
     background-color:#000000;
     border-bottom:1px solid #000000;
 }
 
-#albumsection
+.albumsection
 {
     border-top:1px solid #000000;
 }
