@@ -403,7 +403,6 @@ function process_file($collection, $filedata) {
         if (file_exists("albumart/original/".$artname.".jpg")) {
             $image = "albumart/original/".$artname.".jpg";
         }
-    
         if (file_exists("albumart/asdownloaded/".$artname.".jpg")) {
             $origimage = "albumart/asdownloaded/".$artname.".jpg";
         }

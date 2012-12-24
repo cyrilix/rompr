@@ -431,7 +431,11 @@ function Info(target, source) {
         } else {
             html = html + sectionHeader(lfmdata);
             html = html + '<li name="userloved">';
-            html = html  +'</li>';
+            html = html +'</li>';
+            
+            //html = html + '<li><div class="rating"><div id="trackratebar" class="ratebar"></div><img class="stars" src="images/star.png" /></div></li>';
+            
+            
             html = html + '<br><ul id="buytrack"><li><b>BUY THIS TRACK&nbsp;</b><img class="clickicon" onclick="browser.buyTrack()" height="20px" id="buytrackbutton" style="vertical-align:middle" src="images/cart.png"></li></ul>';
             html = html + '</ul><br>';
 

@@ -1042,3 +1042,33 @@ ul.buyalbum li
     padding-right:16px;
     margin-right:16px;
 }
+
+.rating
+{
+    width:116px;
+    height:22px;
+    position:relative;
+    top:0px;
+    left:0px;
+    overflow:hidden;
+}
+
+.ratebar
+{
+    width:116px;
+    height:22px;
+    position:absolute;
+    top:0px;
+    left:-100px;
+    background-color:#ff4800;
+    z-index:99;
+}
+
+.stars
+{
+    z-index:100;
+    position:absolute;
+    top:0px;
+    left:0px;
+}
+

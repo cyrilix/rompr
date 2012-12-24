@@ -55,6 +55,19 @@ function getFileInfo($file, $pos) {
                     .xmlnode("creator", "Unknown");
     } else {
         $image = $track->image;
+        $origimage = $track->original_image;
+        if ($track->albumobject->isCompilation()) {
+            $xml = $xml.xmlnode("compilation", "yes");
+            if ($image == null || $image == "") {
+                $artname = md5("Various Artists ".$track->album);
+                if (file_exists("albumart/original/".$artname.".jpg")) {
+                    $image = "albumart/original/".$artname.".jpg";
+                }
+                if (file_exists("albumart/asdownloaded/".$artname.".jpg")) {
+                    $origimage = "albumart/asdownloaded/".$artname.".jpg";
+                }
+            }
+        }
         $xml = $xml.xmlnode("title", $track->name)
                     .xmlnode("album", $track->album)
                     .xmlnode("creator", $track->artist)
@@ -67,23 +80,14 @@ function getFileInfo($file, $pos) {
                     .xmlnode("station", $track->station)
                     .xmlnode("location", $track->url)
                     .xmlnode("backendid", $track->backendid)
-                    .xmlnode("origimage", $track->original_image)
+                    .xmlnode("image", $image)
+                    .xmlnode("origimage", $origimage)
                     .xmlnode("stream", $track->stream)
                     .xmlnode("playlistpos", $track->playlistpos)
                     .xmlnode("mbartistid", $track->musicbrainz_artistid)
                     .xmlnode("mbalbumid", $track->musicbrainz_albumid)
                     .xmlnode("mbalbumartistid", $track->musicbrainz_albumartistid)
                     .xmlnode("mbtrackid", $track->musicbrainz_trackid);                    
-        if ($track->albumobject->isCompilation()) {
-            $xml = $xml.xmlnode("compilation", "yes");
-            if ($image == null || $image == "") {
-                $artname = md5("Various Artists ".$track->album);
-                if (file_exists("albumart/original/".$artname.".jpg")) {
-                    $image = "albumart/original/".$artname.".jpg";
-                }
-            }
-        }
-        $xml = $xml.xmlnode("image", $image);
     }
     $xml = $xml . '</track>'."\n";
 }

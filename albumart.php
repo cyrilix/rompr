@@ -53,7 +53,6 @@ function getNewAlbumArt(div) {
         $("#progress").fadeIn('slow');
         $("#harold").unbind("click");
         $("#harold").bind("click", reset );
-//         $("#harold").bind("click", stepthrough );
         $("#harold").html("Stop Download");
     }
 
@@ -71,10 +70,6 @@ function myMonkeyHasBigEars() {
 function reset() {
     covergetter.reset(-1);
 }
-
-// function stepthrough() {
-//     covergetter.step();
-// }
 
 function onresize() {
     wobbleMyBottom();

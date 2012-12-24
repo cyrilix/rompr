@@ -35,10 +35,6 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
         enabled = o;
     }
     
-//     this.step = function() {
-//         doNextImage(250);
-//     }
-    
     this.reset = function(awc) {
         numAlbums = 0;
         if (awc > -1) {
@@ -59,8 +55,8 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
     
     function doNextImage(time) {
         if (formObjects.length > 0) {
-            setTimeout(processForm, 1000);
             timer_running = true;
+            setTimeout(processForm, 1000);
         } else {
             $(statusobj).html("");
             timer_running = false;
