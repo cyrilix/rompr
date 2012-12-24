@@ -50,6 +50,7 @@ function getNewAlbumArt(div) {
     $(div).find("img").filter( filterImages ).each( myMonkeyHasBigEars );
     if (running == false) {
         running = true;
+        $("#progress").fadeIn('slow');
         $("#harold").unbind("click");
         $("#harold").bind("click", reset );
 //         $("#harold").bind("click", stepthrough );
@@ -91,6 +92,7 @@ function aADownloadFinished() {
         $("#harold").html("Get Missing Covers");
     }
     $("#status").html("");
+    $("#progress").fadeOut('slow');
     $("#progress").progressbar("option", "value", 0);
 }
 
@@ -306,8 +308,8 @@ function uploadComplete() {
 <div class="infosection">
 <table width="100%">
 <tr><td colspan="3"><h2>Album Art</h2></td></tr>
-<tr><td width="30%"><div id="totaltext"></div></td><td width="40%"><div id="progress"></div></td><td width="30%" align="right"><button id="harold" class="topformbutton">Get Missing Covers</button></td></tr>
-<tr><td width="30%"><div id="infotext"></div></td><td width="40%" align="center"><div id="status"></div></td><td width="30%" align="right"><button id="finklestein" class="topformbutton">Show Only Albums Without Covers</button></td></tr>
+<tr><td class="outer" id="totaltext"></td><td class="inner"><div class="inner invisible" id="progress"></div></td><td class="outer" align="right"><button id="harold" class="topformbutton">Get Missing Covers</button></td></tr>
+<tr><td class="outer" id="infotext"></td><td class="inner" align="center"><div class="inner" id="status"></div></td><td class="outer" align="right"><button id="finklestein" class="topformbutton">Show Only Albums Without Covers</button></td></tr>
 </table>
 </div>
 </div>

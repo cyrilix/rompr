@@ -4,10 +4,11 @@ include ("vars.php");
 
 <div class="columntitle" style="padding-right:0px">
 <table width="100%"><tr><td name="sourcecontrol" align="left">
-<a href="#" title="Local Music" onclick="sourcecontrol('albumlist')"><img class="topimg" height="24px" src="images/audio-x-generic.png"></a>
-<a href="#" title="File Browser" onclick="sourcecontrol('filelist')"><img class="topimg" height="24px" src="images/folder.png"></a>
-<a href="#" title="Last.FM Radio" onclick="sourcecontrol('lastfmlist')"><img class="topimg" height="24px" src="images/lastfm.png"></a>
-<a href="#" title="Internet Radio Stations" onclick="sourcecontrol('radiolist')"><img class="topimg" height="24px" src="images/broadcast-24.png"></a>
+<a title="Local Music" href="#" onclick="sourcecontrol('albumlist')"><img class="topimg" height="24px" src="images/audio-x-generic.png"></a>
+<a title="File Browser" href="#" onclick="sourcecontrol('filelist')"><img class="topimg" height="24px" src="images/folder.png"></a>
+<a title="Last.FM Radio" href="#" onclick="sourcecontrol('lastfmlist')"><img class="topimg" height="24px" src="images/lastfm.png"></a>
+<a title="Internet Radio Stations" href="#" onclick="sourcecontrol('radiolist')"><img class="topimg" height="24px" src="images/broadcast-24.png"></a>
+<a href="albumart.php" title="Album Art Manager" target="_blank"><img class="topimg" src="images/cd_jewel_case.jpg" height="24px"></a>
 </td>
 <td align="right"><img id="sourcesresizer" src="images/resize_handle.png" style="cursor:move"></td>
 </tr></table>
@@ -84,6 +85,7 @@ function sourcecontrol(source) {
         }
     }
     switchsource(source);
+    return false;
 }
 
 function switchsource(source) {

@@ -113,6 +113,7 @@ function Info(target, source) {
             updateAlbumBrowser();
             updateTrackBrowser();
         }
+        return false;
     }
     
     this.switchSource = function(source) {
@@ -124,14 +125,17 @@ function Info(target, source) {
                         (source == "lastfm" ? true : false),
                         (source == "lastfm" ? true : false),
                         nowplaying.getnames(nowplaying.getcurrentindex()));
+        return false;
     }
 
     this.back = function() {
         self.doHistory(displaypointer-1);
+        return false;
     }
 
     this.forward = function() {
         self.doHistory(displaypointer+1);
+        return false;
     }
 
     this.getWiki = function(link) {
@@ -148,6 +152,7 @@ function Info(target, source) {
         displaypointer++;
         updateHistory();
         updateArtistBrowser();
+        return false;
     }
 
     /*
@@ -333,20 +338,21 @@ function Info(target, source) {
 
         $("#artistinformation").html(html);
         html = null;
-        $("#artistinformation .frog").click(function() {
-            $("#artistinformation .foldup").toggle('slow');
-            panelclosed.artist = !panelclosed.artist;
-            if (panelclosed.artist) {
-                $("#artistinformation .frog").text("CLICK TO SHOW");
-            } else {
-                $("#artistinformation .frog").text("CLICK TO HIDE");
-            }
-            return false;
-        });
+        $("#artistinformation .frog").click( toggleArtistInfo );
         lfmdata = null;
 
         nowplaying.getusertags(history[displaypointer].nowplayingindex, 'artist');
-
+    }
+    
+    function toggleArtistInfo() {
+        $("#artistinformation .foldup").toggle('slow');
+        panelclosed.artist = !panelclosed.artist;
+        if (panelclosed.artist) {
+            $("#artistinformation .frog").text("CLICK TO SHOW");
+        } else {
+            $("#artistinformation .frog").text("CLICK TO HIDE");
+        }
+        return false;
     }
 
     function doAlbumUpdate() {
@@ -400,21 +406,23 @@ function Info(target, source) {
         html = html + '</div>';
         $("#albuminformation").html(html);
         html = null;
-        $("#albuminformation .frog").click(function() {
-            $("#albuminformation .foldup").toggle('slow');
-            panelclosed.album = !panelclosed.album;
-            if (panelclosed.album) {
-                $("#albuminformation .frog").text("CLICK TO SHOW");
-            } else {
-                $("#albuminformation .frog").text("CLICK TO HIDE");
-            }
-            return false;
-        });
+        $("#albuminformation .frog").click( toggleAlbumInfo );
         lfmdata = null;
         nowplaying.getusertags(history[displaypointer].nowplayingindex, 'album');
 
     }
-
+            
+     function toggleAlbumInfo() {
+        $("#albuminformation .foldup").toggle('slow');
+        panelclosed.album = !panelclosed.album;
+        if (panelclosed.album) {
+            $("#albuminformation .frog").text("CLICK TO SHOW");
+        } else {
+            $("#albuminformation .frog").text("CLICK TO HIDE");
+        }
+        return false;
+    }
+    
     function doTrackUpdate() {
         var lfmdata = new lfmDataExtractor(nowplaying.getTrackData(history[displaypointer].nowplayingindex));
         var html = lastFmBanner(lfmdata, "Track", panelclosed.track, history[displaypointer].track);
@@ -424,7 +432,7 @@ function Info(target, source) {
             html = html + sectionHeader(lfmdata);
             html = html + '<li name="userloved">';
             html = html  +'</li>';
-            html = html + '<br><ul id="buytrack"><li><b>BUY THIS TRACK&nbsp;</b><a href="#" onclick="browser.buyTrack()"><img height="20px" id="buytrackbutton" style="vertical-align:middle" src="images/cart.png"></a></li></ul>';
+            html = html + '<br><ul id="buytrack"><li><b>BUY THIS TRACK&nbsp;</b><img class="clickicon" onclick="browser.buyTrack()" height="20px" id="buytrackbutton" style="vertical-align:middle" src="images/cart.png"></li></ul>';
             html = html + '</ul><br>';
 
             html = html + doTags(lfmdata.tags());
@@ -446,29 +454,31 @@ function Info(target, source) {
             doUserLoved(false);
         }
 
-        $("#trackinformation .frog").click(function() {
-            $("#trackinformation .foldup").toggle('slow');
-            panelclosed.track = !panelclosed.track;
-            if (panelclosed.track) {
-                $("#trackinformation .frog").text("CLICK TO SHOW");
-            } else {
-                $("#trackinformation .frog").text("CLICK TO HIDE");
-            }
-            return false;
-        });
+        $("#trackinformation .frog").click( toggleTrackInfo )
         lfmdata = null;
         nowplaying.getusertags(history[displaypointer].nowplayingindex, 'track');
 
     }
     
+    function toggleTrackInfo() {
+        $("#trackinformation .foldup").toggle('slow');
+        panelclosed.track = !panelclosed.track;
+        if (panelclosed.track) {
+            $("#trackinformation .frog").text("CLICK TO SHOW");
+        } else {
+            $("#trackinformation .frog").text("CLICK TO HIDE");
+        }
+        return false;
+    }
+            
     function doUserLoved(flag) {
         var html = "";
         if (flag) {
             html = html + '<b>Loved:</b> Yes';
-            html = html+'&nbsp;&nbsp;&nbsp;<a href="#" onclick="browser.unlove()"><img src="images/lastfm-unlove.png" height="12px"></a>';
+            html = html+'&nbsp;&nbsp;&nbsp;<a title="Unlove This Track" href="#" onclick="browser.unlove()"><img src="images/lastfm-unlove.png" height="12px"></a>';
         } else {
             html = html + '<li><b>Loved:</b> No';
-            html = html+'&nbsp;&nbsp;&nbsp;<a href="#" onclick="browser.love()"><img src="images/lastfm-love.png" height="12px"></a>';
+            html = html+'&nbsp;&nbsp;&nbsp;<a title="Love This Track" href="#" onclick="browser.love()"><img src="images/lastfm-love.png" height="12px"></a>';
         }
         $('li[name="userloved"]').html(html);
         html = null;
@@ -650,6 +660,7 @@ function Info(target, source) {
     this.buyTrack = function() {
         makeWaitingIcon("buytrackbutton");
         lastfm.track.getBuylinks({track: history[displaypointer].track, artist: history[displaypointer].artist}, browser.showTrackBuyLinks, browser.noTrackBuyLinks);
+        return false;
     }
 
     this.noTrackBuyLinks = function() {
@@ -780,10 +791,12 @@ function Info(target, source) {
 
     this.love = function() {
         nowplaying.love(history[displaypointer].nowplayingindex);
+        return false;
     }
 
     this.unlove = function() {
         nowplaying.unlove(history[displaypointer].nowplayingindex);
+        return false;
     }
 
     this.justloved = function(index, flag) {
@@ -813,9 +826,9 @@ function Info(target, source) {
     this.prepareSlideshow = function(data) {
         var html = '<div class="controlholder"><table id="slidecon" class="invisible" border="0" cellpadding="0" cellspacing ="0" width="100%">';
         html = html + '<tr height="62px"><td align="center" class="infoslideshow">';
-        html = html + '<a href="#" onclick="browser.slideshow.nextimage(-1)"><img src="images/backward.png"></a>';
-        html = html + '<a href="#" onclick="browser.slideshow.toggle()"><img id="lastfmimagecontrol" src="images/pause.png"></a>';
-        html = html + '<a href="#" onclick="browser.slideshow.nextimage(1)"><img src="images/forward.png"></a></td></tr></table></div>';
+        html = html + '<img class="clickicon" onclick="browser.slideshow.nextimage(-1)" src="images/backward.png">';
+        html = html + '<img class="clickicon" onclick="browser.slideshow.toggle()" id="lastfmimagecontrol" src="images/pause.png">';
+        html = html + '<img class="clickicon" onclick="browser.slideshow.nextimage(1)" src="images/forward.png"></td></tr></table></div>';
         html = html + '<table border="0" cellpadding="0" cellspacing ="0" width="100%"><tr><td align="center" class="infoslideshow"><img id="lastfmimage"></td></tr></table>';
         $("#artistinformation").html(html);
         html = null;

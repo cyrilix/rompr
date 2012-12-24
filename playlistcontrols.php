@@ -10,9 +10,6 @@ include ("connection.php");
 <div class="tright">
 <ul class="topnav">
     <li>
-        <a href="albumart.php" title="Album Art Manager" target="_blank"><img src="images/cd_jewel_case.jpg" height="24px"></a>
-    </li>
-    <li>
         <a href="#" title="RompR/mpd Preferences"><img src="images/preferences.png" height="24px"></a>
         <ul id="configpanel" class="subnav wide">
             <li class="wide"><b>CONFIGURATION</b></li>
@@ -86,11 +83,12 @@ include ("connection.php");
 $("ul.topnav li a").unbind('click');
 $("ul.topnav li a").click(function() {
     $(this).parent().find("ul.subnav").slideToggle('fast');
+    return false;
 });
 
 $("#scrobwrangler").progressbar();
 $("#scrobwrangler").progressbar("option", "value", parseInt(scrobblepercent.toString()));
-$("#scrobwrangler").click(function(evt) { setscrob(evt) });
+$("#scrobwrangler").click( setscrob );
 
 <?php
     print '    $("#scrobbling").attr("checked", ';

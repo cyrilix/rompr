@@ -2,7 +2,7 @@
 <table width="100%">
 <tr>
 <td align="left" width="100px">
-<a href="#" title="Toggle Sources Panel" onclick="expandInfo('left')"><img id="expandleft" height="24px" src="images/arrow-left-double.png"></a>
+<a title="Toggle Sources Panel" href="#" onclick="expandInfo('left')"><img id="expandleft" height="24px" src="images/arrow-left-double.png"></a>
 </td>
 <td align="left" width="100px">
 <ul class="topnav">
@@ -18,15 +18,15 @@
 </ul>
 </td>
 <td align="center">
-<a href="#" title="Artist Info from Wikipedia" onclick="browser.switchSource('wikipedia')"><img height="24px" src="images/Wikipedia-logo.png"></a>
-<a href="#" title="Artist, Album, and Song Info from Last.FM" onclick="browser.switchSource('lastfm')"><img height="24px" src="images/lastfm.png"></a>
-<a href="#" title="Artist Slideshow" onclick="browser.switchSource('slideshow')"><img height="24px" src="images/slideshow.png"></a>
+<a title="Artist Info from Wikipedia" href="#" onclick="browser.switchSource('wikipedia')"><img height="24px" src="images/Wikipedia-logo.png"></a>
+<a title="Artist, Album, and Song Info from Last.FM" href="#" onclick="browser.switchSource('lastfm')"><img height="24px" src="images/lastfm.png"></a>
+<a title="Artist Slideshow" href="#" onclick="browser.switchSource('slideshow')"><img height="24px" src="images/slideshow.png"></a>
 </td>
 <td align="right" width="100px">
 <a id="forwardbutton" title="Forward"><img height="24px" src="images/forwardbutton_disabled.png"></a>
 </td>
 <td align="right" width="100px">
-<a href="#" title="Toggle Playlist" onclick="expandInfo('right')"><img height="24px" id="expandright" src="images/arrow-right-double.png"></a>
+<a title="Toggle Playlist" href="#" onclick="expandInfo('right')"><img height="24px" id="expandright" src="images/arrow-right-double.png"></a>
 </td>
 </tr>
 </table>

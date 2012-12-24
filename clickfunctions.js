@@ -123,13 +123,14 @@ function doMenu(event, element) {
         event.stopImmediatePropagation();
     }
     var menutoopen = element.attr("name");
+    $('#'+menutoopen).slideToggle('fast');
     if (element.attr("src") == "images/toggle-closed.png") {
         element.attr("src", "images/toggle-open.png");
-        $('#'+menutoopen).find(".updateable").attr("src", noAnonymousFunctions);
+        $('#'+menutoopen).find(".updateable").each(noAnonymousFunctions);
     } else if (element.attr("src") == "images/toggle-open.png"){
         element.attr("src", "images/toggle-closed.png");
     }
-    $('#'+menutoopen).slideToggle('fast');
+    return false;
 
 }
 
@@ -137,11 +138,9 @@ function noAnonymousFunctions() {
     $(this).removeClass("updateable");
     if ($(this).hasClass("notexist")) {
         coverscraper.GetNewAlbumArt($(this).attr('name'));
-        return "images/album-unknown-small.png";
     } else if ($(this).hasClass("notfound")) {
-        return "images/album-unknown-small.png";
     } else {
-        return "albumart/small/" + $(this).attr("name") + ".jpg";
+        $(this).attr("src", "albumart/small/" + $(this).attr("name") + ".jpg");
     }
 }    
 

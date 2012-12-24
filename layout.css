@@ -674,6 +674,13 @@ a
     margin-top:8px;
 }
 
+.lrspace
+{
+    margin-left:12px;
+    margin-right:12px;
+    margin-top:8px;
+}
+
 .covercontainer
 {
     margin:8px;
@@ -772,6 +779,23 @@ a
     box-align:center;
     -moz-box-align:center;
     -webkit-box-align:center;
+}
+
+#status
+{
+    font-weight:bold;
+    white-space:nowrap;
+    overflow:hidden;
+}
+
+.outer
+{
+    width:200px;
+}
+
+.inner
+{
+    width:560px;
 }
 
 /*-- Styles for drop-down menus --*/

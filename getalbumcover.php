@@ -239,7 +239,7 @@ function update_cache($fname, $class) {
             // That would be bad.
             if (flock($fp, LOCK_EX, $crap)) {
                 $cache = file_get_contents($ALBUMSLIST);
-                $newcache = preg_replace('/\<img class=\"smallcover fixed updateable.*?(name=\"'.$fname.'\".*?) src=.*?\>/', '<img class="smallcover fixed '.$class.'" $1 src="">', $cache);
+                $newcache = preg_replace('/\<img class=\"smallcover fixed updateable.*?(name=\"'.$fname.'\".*?) src=.*?\>/', '<img class="smallcover fixed '.$class.'" $1 src="images/album-unknown-small.png">', $cache);
                 if ($newcache != null) {
                     ftruncate($fp, 0);
                     fwrite($fp, $newcache);

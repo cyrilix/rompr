@@ -645,6 +645,8 @@ function do_albums($artistkey, $compilations, $showartist, $prefix, $output) {
             // of the image, and then use jQuery magic to set the src tag when the menu is opened -
             // so we only ever load the images we need.
             
+            // NOTE: Having empty src tags will make Chrome crash... eventually. Hence we set them all to album-unknown-small.png.
+            
             // We also add an artist and album name tag to the image so we can use this for the auto-image lookup later on
             // We only do this for images that don't exist, just to keep the size of the HTML down            
 
@@ -652,7 +654,7 @@ function do_albums($artistkey, $compilations, $showartist, $prefix, $output) {
             // when album art is retrieved
             
             // NOTE also: the newline at the end of the line is ESSENTIAL, because php's regular expressions don't quite work right. 
-            // Specifically, .*? seems to not-quite work as it should. Almost. In a way that's REALLY FUCKING ANNOYING.
+            // Specifically, .*? seems to not-quite work as it should. Almost. In a way that's bugged me for months.
             // I should have done this in perl.
 
             // Don't mess with this section without also updating the regexp in getalbumcover.php.
@@ -660,11 +662,11 @@ function do_albums($artistkey, $compilations, $showartist, $prefix, $output) {
             $artname = md5($album->artist." ".$album->name);
             if (file_exists("albumart/original/".$artname.".jpg")) {
                 $class = "smallcover fixed updateable";
-                $output->writeLine( '<img class="'.$class.'" name="'.$artname.'" src="" />'."\n");
+                $output->writeLine( '<img class="'.$class.'" name="'.$artname.'" src="images/album-unknown-small.png" />'."\n");
             } else {
                 $class = "smallcover fixed updateable notexist";
                 $b = munge_album_name($album->name);
-                $output->writeLine( '<img class="'.$class.'" romprartist="'.rawurlencode($album->artist).'" rompralbum="'.rawurlencode($b).'" name="'.$artname.'" src="" />'."\n");
+                $output->writeLine( '<img class="'.$class.'" romprartist="'.rawurlencode($album->artist).'" rompralbum="'.rawurlencode($b).'" name="'.$artname.'" src="images/album-unknown-small.png" />'."\n");
             }
             $output->writeLine('<div class="expand">'.$album->name.'</div>');
             $output->writeLine('</div>');

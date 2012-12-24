@@ -121,6 +121,7 @@ var infobar = function() {
         
         love: function() {
             nowplaying.love(-1, infobar.donelove);
+            return false;
         },
 
         donelove: function(track,artist) {
@@ -136,6 +137,7 @@ var infobar = function() {
                 var seekto = ((position.x - offset.left)/width)*parseFloat(d);
                 mpd.command("command=seek&arg="+mpd.getStatus('song')+"&arg2="+parseInt(seekto.toString()));
             }
+            return false;
         },
         
         setvolume: function(e) {
@@ -176,14 +178,14 @@ var infobar = function() {
                 clearTimeout(notifytimer);
                 notifytimer = null;
             } else {
-                $('#notifications').show('slow');
+                $('#notifications').slideDown('slow');
                 notifytimer = setTimeout(this.removenotify, 5000);
             }
         },
         
         removenotify: function() {
             notifytimer = null;
-            $('#notifications').hide('slow');
+            $('#notifications').slideUp('slow');
         }
     }
 }();

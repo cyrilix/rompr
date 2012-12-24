@@ -60,6 +60,7 @@ function setscrob(e) {
     if (scrobblepercent < 50) { scrobblepercent = 50; }
     $('#scrobwrangler').progressbar("option", "value", parseInt(scrobblepercent.toString()));
     savePrefs({scrobblepercent: scrobblepercent});
+    return false;
 }
 
 function makeWaitingIcon(selector) {
@@ -101,6 +102,7 @@ function expandInfo(side) {
     savePrefs({ sourceshidden: sourceshidden.toString(),
                 playlisthidden: playlisthidden.toString()});
     doThatFunkyThang();
+    return false;
 
 }
 
@@ -382,10 +384,12 @@ function gotNoFriends(data) {
 
 function toggleSearch() {
     $("#search").slideToggle('fast');
+    return false;
 }
 
 function toggleFileSearch() {
     $("#filesearch").slideToggle('fast');
+    return false;
 }
 
 function gotNeighbourData(data) {
@@ -668,8 +672,8 @@ var popupWindow = function() {
             popup.style.height = 'auto';
             $(popup).append('<div id="cheese"></div>');
             $("#cheese").append('<table width="100%"><tr><td width="30px"></td><td align="center"><h2>'+title+
-                '</h2></td><td align="right" width="30px"><a href="#" onclick="javascript:popupWindow.close()">'+
-                '<img src="images/edit-delete.png"></a></td></tr></table>');
+                '</h2></td><td align="right" width="30px">'+
+                '<img class="clickicon" onclick="popupWindow.close()" src="images/edit-delete.png"></td></tr></table>');
             $(popup).append('<div id="popupcontents"></div>');
             var winsize=getWindowSize();
             var windowScroll = getScrollXY();

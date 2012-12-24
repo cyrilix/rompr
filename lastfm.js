@@ -88,8 +88,7 @@ function LastFM(user) {
             $("#lfmlogintable").append('<tr><td align="center"><a href="http://www.last.fm/api/auth/?api_key='+lastfm_api_key+'&token='+token+'" target="_blank">'+
                                         '<button class="topformbutton">Click Here To Log In</button></a></td></tr>');
             $("#lfmlogintable").append('<tr><td>Once you have logged in to Last.FM, click the OK button below to complete the process</td></tr>');
-            $("#lfmlogintable").append('<tr><td align="center"><a href="#" onclick="javascript:lastfm.finishlogin()">'+
-                                        '<button class="topformbutton">OK</button></a></td></tr>');
+            $("#lfmlogintable").append('<tr><td align="center"><button class="topformbutton" onclick="lastfm.finishlogin()">OK</button></td></tr>');
 
             popupWindow.open();
         });
@@ -197,7 +196,7 @@ function LastFM(user) {
 
         unlove : function(options,callback,callback2) {
             if (logged_in) {
-                adSetOptions(options, "track.unlove");
+                addSetOptions(options, "track.unlove");
                 LastFMSignedRequest(
                     options,
                     function() { 

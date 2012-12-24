@@ -200,10 +200,10 @@ $(document).ready(function(){
 <div id="infobar">
     <div id="leftholder" class="infobarlayout tleft bordered">
         <div id="buttons">
-            <a href="javascript:playlist.previous()" title="Previous Track" class="controlbutton"><img src="images/media-skip-backward.png"></a>
-            <a href="javascript:infobar.playbutton.clicked()" title="Play/Pause" id="playbutton" class="controlbutton"><img id="playbuttonimg" src="images/media-playback-pause.png"></a>
-            <a href="javascript:playlist.stop()" title="Stop" class="controlbutton"><img src="images/media-playback-stop.png"></a>
-            <a href="javascript:playlist.next()" title="Next Track" class="controlbutton"><img src="images/media-skip-forward.png"></a>
+            <img class="clickicon controlbutton" onclick="playlist.previous()" src="images/media-skip-backward.png">
+            <img class="clickicon controlbutton" onclick="infobar.playbutton.clicked()" id="playbuttonimg" src="images/media-playback-pause.png">
+            <img class="clickicon controlbutton" onclick="playlist.stop()" src="images/media-playback-stop.png">
+            <img class="clickicon controlbutton" onclick="playlist.next()" src="images/media-skip-forward.png">
         </div>
         <div id="progress"></div>
         <div id="playbackTime">
@@ -224,8 +224,8 @@ $(document).ready(function(){
         </div>
         <div id="nowplaying"></div>
         <div id="lastfm" class="infobarlayout">
-            <div><ul class="topnav"><a title="Love this track" id="love" href="javascript:infobar.love()"><img height="24px" src="images/lastfm-love.png"></a></ul></div>
-            <div><ul class="topnav"><a title="Ban this track" id="ban" href="javascript:nowplaying.ban()"><img height="24px" src="images/lastfm-ban.png"></a></ul></div>
+            <div><ul class="topnav"><a title="Love this track" id="love" href="#" onclick="infobar.love()"><img height="24px" src="images/lastfm-love.png"></a></ul></div>
+            <div><ul class="topnav"><a title="Ban this track" id="ban" href="#" onclick="nowplaying.ban()"><img height="24px" src="images/lastfm-ban.png"></a></ul></div>
         </div>
     </div>
 </div>
@@ -253,7 +253,7 @@ $(document).ready(function(){
     }
     ?>    
     <div style="padding-left:12px">
-    <a href="#" title="Search Music" onclick="toggleSearch()"><img class="topimg" height="20px" src="images/system-search.png"></a>
+    <a title="Search Music" href="#" onclick="toggleSearch()"><img class="topimg clickicon" height="20px" src="images/system-search.png"></a>
     </div>
     <div id="search" class="invisible searchbox"></div>
     <div id="collection" class="noborder"></div>    
@@ -267,7 +267,7 @@ $(document).ready(function(){
     }
     ?>
     <div style="padding-left:12px">
-    <a href="#" title="Search Files" onclick="toggleFileSearch()"><img class="topimg" height="20px" src="images/system-search.png"></a>
+    <a title="Search Files" href="#" onclick="toggleFileSearch()"><img class="topimg" height="20px" src="images/system-search.png"></a>
     </div>
     <div id="filesearch" class="invisible searchbox">
     </div>

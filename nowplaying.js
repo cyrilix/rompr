@@ -622,6 +622,7 @@ function playInfo() {
 
     this.ban = function() {
         history[currenttrack].track.ban();
+        return false;
     }
 
     this.mpd = function(index, key) {
