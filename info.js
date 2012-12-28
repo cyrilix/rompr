@@ -302,8 +302,10 @@ function Info(target, source) {
             html = html + '</ul><br>';
 
             html = html + doTags(lfmdata.tags());
-            html = html + tagsInput("artist");
-            html = html + doUserTags("artist");
+            if (lastfm.isLoggedIn()) {
+                html = html + tagsInput("artist");
+                html = html + doUserTags("artist");
+            }
 
             html = html + '</div><div class="statsbox">';
 
@@ -341,7 +343,9 @@ function Info(target, source) {
         $("#artistinformation .frog").click( toggleArtistInfo );
         lfmdata = null;
 
-        nowplaying.getusertags(history[displaypointer].nowplayingindex, 'artist');
+        if (lastfm.isLoggedIn()) {
+            nowplaying.getusertags(history[displaypointer].nowplayingindex, 'artist');
+        }
     }
     
     function toggleArtistInfo() {
@@ -368,8 +372,10 @@ function Info(target, source) {
             html = html + '</ul><br>';
 
             html = html + doTags(lfmdata.tags());
-            html = html + tagsInput("album");
-            html = html + doUserTags("album");
+            if (lastfm.isLoggedIn()) {
+                html = html + tagsInput("album");
+                html = html + doUserTags("album");
+            }
 
             html = html + '</div><div class="statsbox">';
             imageurl = lfmdata.image("large");
@@ -408,7 +414,9 @@ function Info(target, source) {
         html = null;
         $("#albuminformation .frog").click( toggleAlbumInfo );
         lfmdata = null;
-        nowplaying.getusertags(history[displaypointer].nowplayingindex, 'album');
+        if (lastfm.isLoggedIn()) {
+            nowplaying.getusertags(history[displaypointer].nowplayingindex, 'album');
+        }
 
     }
             
@@ -440,8 +448,10 @@ function Info(target, source) {
             html = html + '</ul><br>';
 
             html = html + doTags(lfmdata.tags());
-            html = html + tagsInput("track");
-            html = html + doUserTags("track");
+            if (lastfm.isLoggedIn()) {
+                html = html + tagsInput("track");
+                html = html + doUserTags("track");
+            }
             html = html + '</div>';
             html = html + '<p>'+formatBio(lfmdata.bio())+'</p>';
             if (lfmdata.mbid()) {
@@ -452,15 +462,18 @@ function Info(target, source) {
         html = html + '</div>';
         $("#trackinformation").html(html);
         html = null;
-        if (lfmdata.userloved()) {
-            doUserLoved(true)
-        } else {
-            doUserLoved(false);
+        if (lastfm.isLoggedIn()) {
+            if (lfmdata.userloved()) {
+                doUserLoved(true)
+            } else {
+                doUserLoved(false);
+            }
         }
-
         $("#trackinformation .frog").click( toggleTrackInfo )
         lfmdata = null;
-        nowplaying.getusertags(history[displaypointer].nowplayingindex, 'track');
+        if (lastfm.isLoggedIn()) {
+            nowplaying.getusertags(history[displaypointer].nowplayingindex, 'track');
+        }
 
     }
     

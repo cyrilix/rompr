@@ -23,7 +23,6 @@ class mpdlistthing {
     }
     
     public function setprotocol($p) {
-        error_log("Setting protocol to ".$p);
         $this->protocol = $p;
     }
     
@@ -42,7 +41,7 @@ class mpdlistthing {
                 $output->writeLine('<div id="dir'.$prefix.$count.'" class="dropmenu">');
                 $count++;
             } else {
-                $output->writeLine('<div class="clickable clicktrack draggable indent containerbox padright line" name="'.rawurlencode($protocol.$this->fullpath).'">');
+                $output->writeLine('<div class="clickable clicktrack ninesix draggable indent containerbox padright line" name="'.rawurlencode($protocol.$this->fullpath).'">');
                 $output->writeLine('<div class="playlisticon fixed"><img height="16px" src="images/audio-x-generic.png" /></div>');
                 $output->writeLine('<div class="expand">'.rawurldecode($this->name).'</div>');
                 $output->writeLine('</div>');
@@ -50,7 +49,6 @@ class mpdlistthing {
         } else {
             $protocol = $this->protocol;
             $dirpath = "";
-            error_log("Choosing Protocol ".$protocol);
         }
         foreach($this->children as $thing) {
             $thing->getHTML($prefix, $output, $protocol);

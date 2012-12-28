@@ -1,4 +1,5 @@
 <?php
+include ("vars.php");
             
 $keys = array(  "nextrack" => "right+++right",
                 "prevtrack" => "left+++left",
@@ -31,7 +32,7 @@ function saveKeyBindings() {
             fwrite($fp, $key . "=" . $value . "\n");
         }
         if(!fclose($fp)) {
-            error_log("Error! Couldn't close the keybindings file.");
+            debug_print("Error! Couldn't close the keybindings file.");
         }
     }
 }

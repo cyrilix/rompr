@@ -10,7 +10,7 @@ if($is_connected) {
     if(array_key_exists("command", $_REQUEST)) {
         $command = $_REQUEST["command"];
         if(array_key_exists("arg", $_REQUEST) && strlen($_REQUEST["arg"])>0) {
-            error_log("Arg is ".$_REQUEST['arg']);
+            debug_print("Arg is ".$_REQUEST['arg']);
             //$command.=" \"".format_for_mpd(rawurldecode($_REQUEST["arg"]))."\"";
             $command.=" \"".format_for_mpd($_REQUEST["arg"])."\"";
         }

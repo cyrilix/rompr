@@ -1,4 +1,5 @@
 <?php
+include ("vars.php");
 include ("functions.php");
 if(array_key_exists("wiki", $_REQUEST)) {
     $html = get_wikipedia_page( $_REQUEST['wiki'] );

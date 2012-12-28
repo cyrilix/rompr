@@ -754,6 +754,29 @@ function albumSelect(event, element) {
     
 }
 
+function trackSelect(event, element) {
+    
+    // Is the clicked element currently selected?
+    var is_currently_selected = element.hasClass("selected") ? true : false;
+    
+    // Unselect all selected items if Ctrl or Meta is not pressed
+    if (!event.metaKey && !event.ctrlKey) {
+        $(".selected").removeClass("selected");
+        // If we've clicked a selected item without Ctrl or Meta,
+        // then all we need to do is unselect everything. Nothing else to do
+        if (is_currently_selected) {
+            return 0;
+        }
+    }
+    
+   if (is_currently_selected) {
+        element.removeClass("selected");
+    } else {
+        element.addClass("selected");
+    }
+    
+}
+
 function clearPlaylist() {
     mpd.command('command=clear', playlist.repopulate);
     $("#clrplst").slideToggle('fast');

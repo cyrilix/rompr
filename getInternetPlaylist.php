@@ -1,4 +1,5 @@
 <?php
+include ("vars.php");
 
 // This is for getting a remote playlist from a radio station - eg PLS or ASX files
 // This script parses that remote playlist and creates a local XSPF which will be
@@ -21,12 +22,12 @@ $creator = (array_key_exists('creator', $_REQUEST)) ? rawurldecode($_REQUEST['cr
 $image = (array_key_exists('image', $_REQUEST)) ? rawurldecode($_REQUEST['image']) : "images/broadcast.png";
 $usersupplied = (array_key_exists('usersupplied', $_REQUEST)) ? true : false;
 
-// error_log("Getting Internet Stream:");
-// error_log("  url : ".$url);
-// error_log("  station : ".$station);
-// error_log("  creator : ".$creator);
-// error_log("  image : ".$image);
-// error_log("  user : ".$usersupplied);
+// debug_print("Getting Internet Stream:");
+// debug_print("  url : ".$url);
+// debug_print("  station : ".$station);
+// debug_print("  creator : ".$creator);
+// debug_print("  image : ".$image);
+// debug_print("  user : ".$usersupplied);
 
 if ($url) {
 
@@ -34,7 +35,7 @@ if ($url) {
 	$type = pathinfo($path, PATHINFO_EXTENSION);
 	$qpos = strpos($type, "?");
   	if ($qpos != false) $type = substr($type, 0, $qpos);
-	// error_log("Playlist Type Is ".$type);
+	// debug_print("Playlist Type Is ".$type);
 	if ($type != "" && $type != null) {
 
 		$playlist = null;
@@ -87,7 +88,7 @@ if ($url) {
 
 		}
 	} else {
-		// error_log("Could not determine playlist type");
+		// debug_print("Could not determine playlist type");
 	}
 }
 

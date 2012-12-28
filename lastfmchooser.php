@@ -1,5 +1,7 @@
 <?php
 include ("vars.php");
+
+if ($prefs['lastfm_user'] != "") {
 ?>
 
 <div class="noselection fullwidth">
@@ -10,9 +12,7 @@ include ("vars.php");
     <div class="clickable clicklfm indent containerbox padright menuitem", name="lastfmuser">
         <div class="expand">
 <?php
-            if ($prefs['lastfm_user'] != "") {
-                print $prefs['lastfm_user']."'s ";
-            }
+            print $prefs['lastfm_user']."'s ";
             print "Library Radio";
 ?>
         </div>
@@ -20,9 +20,7 @@ include ("vars.php");
     <div class="clickable clicklfm indent containerbox padright menuitem", name="lastfmmix">
         <div class="expand">
 <?php
-            if ($prefs['lastfm_user'] != "") {
-                print $prefs['lastfm_user']."'s ";
-            }
+            print $prefs['lastfm_user']."'s ";
             print "Mix Radio";
 ?>
         </div>
@@ -30,9 +28,7 @@ include ("vars.php");
     <div class="clickable clicklfm indent containerbox padright menuitem", name="lastfmrecommended">
         <div class="expand">
 <?php
-            if ($prefs['lastfm_user'] != "") {
-                print $prefs['lastfm_user']."'s ";
-            }
+            print $prefs['lastfm_user']."'s ";
             print "Recommended Radio";
 ?>
         </div>
@@ -40,9 +36,7 @@ include ("vars.php");
     <div class="clickable clicklfm indent containerbox padright menuitem", name="lastfmneighbours">
         <div class="expand">
 <?php
-            if ($prefs['lastfm_user'] != "") {
-                print $prefs['lastfm_user']."'s ";
-            }
+            print $prefs['lastfm_user']."'s ";
             print "Neighbourhood Radio";
 ?>
         </div>
@@ -102,3 +96,16 @@ include ("vars.php");
 
     
 </div>
+
+<?php
+} else {
+?>
+<div class="noselection fullwidth">
+<div class="indent">
+<h3>Please log in to Last.FM to use Last.FM radio</h3>
+<p>Please Note: Last.FM radio requires a subscription and may not be available in your country</p>
+</div>
+</div>
+<?php
+}
+?>

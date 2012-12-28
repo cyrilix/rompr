@@ -4,7 +4,7 @@ include ("vars.php");
 include ("functions.php");
 include ("connection.php");
 include ("filelister.php");
-// error_log("Building Files List");
+// debug_print("Building Files List");
 $count = 1;
 doFileCollection($FILESLIST);
 close_mpd($connection);

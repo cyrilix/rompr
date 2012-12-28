@@ -65,7 +65,7 @@ function parse_mpd_var($in_str) {
     if(strncmp("OK", $got,strlen("OK"))==0)
         return true;
     if(strncmp("ACK", $got,strlen("ACK"))==0) {
-        error_log("MPD command error : ".$got);
+        debug_print("MPD command error : ".$got);
         return array(0 => false, 1 => $got);
     }
     $key = trim(strtok($got, ":"));
@@ -79,7 +79,7 @@ function do_mpd_command($conn, $command, $varname = null, $return_array = false)
     $retarr = array();
     if ($is_connected) {
     
-        error_log("MPD Command ".$command);
+        debug_print("MPD Command ".$command);
     
         $success = fputs($conn, $command."\n");
         if ($success) {
@@ -96,7 +96,7 @@ function do_mpd_command($conn, $command, $varname = null, $return_array = false)
                     if ($var[0] == false) {
                         if ($return_array == true) {
                             $retarr['error'] = $var[1];
-                            error_log("Setting Error Flag");
+                            debug_print("Setting Error Flag");
                         }
                         break;
                     }
@@ -142,7 +142,7 @@ function format_tracknum($tracknum) {
 # url_get_contents function by Andy Langton: http://andylangton.co.uk/
 function url_get_contents($url,$useragent='RompR Media Player/0.1',$headers=false,$follow_redirects=true,$debug=true) {
 
-    // error_log("Getting ".$url);
+    // debug_print("Getting ".$url);
     # initialise the CURL library
     $ch = curl_init();
 
@@ -244,7 +244,7 @@ class collectionOutput {
     
     public function dumpFile() {
         if ($this->fname != "") {
-            // error_log("Dumping Files List to ".$this->fname);
+            // debug_print("Dumping Files List to ".$this->fname);
             $file = fopen($this->fname, 'r');
             while(!feof($file))
             {

@@ -1,7 +1,8 @@
 <?php
+include ("vars.php");
 include ("keybindings.php");
 foreach($_POST as $key => $value) {
-    // error_log($key."=".$value);
+    // debug_print($key."=".$value);
     $keys[$key] = $value;
 }
 saveKeyBindings();

@@ -7,7 +7,7 @@ include ("collection.php");
 header('Content-Type: text/xml; charset=utf-8');
 
 $collection = doCollection("playlistinfo");
-error_log("Collection scan playlistinfo finished");
+debug_print("Collection scan playlistinfo finished");
 $pos = 0;
 // Now we have a collection, which will have worked out compilations,
 // We can go through the tracks again and build up a playlist
@@ -48,7 +48,7 @@ function getFileInfo($file, $pos) {
     $xml = $xml . '<track>'."\n";
     $track = $collection->findTrack($file, $pos);
     if ($track == null) {
-        error_log("FAILED TO FIND TRACK! ".$file);
+        debug_print("FAILED TO FIND TRACK! ".$file);
         $xml = $xml.xmlnode("title", "Unknown")
                     .xmlnode("album", "Unknown")
                     .xmlnode("duration", 0)

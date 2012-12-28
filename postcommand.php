@@ -16,11 +16,11 @@ if($is_connected) {
         $part1 = substr($cmd, 0, $cmdstart);
         if ($part1 == "move") {
             // NASTY HACK!
-            error_log("Command List: ".$cmd);
+            debug_print("Command List: ".$cmd);
             fputs($connection, $cmd."\n");
         } else {
             $part2 = substr($cmd, $cmdstart+1, strlen($cmd));
-            error_log("Command List: ".$part1.' "'.format_for_mpd(trim($part2, '"')).'"');
+            debug_print("Command List: ".$part1.' "'.format_for_mpd(trim($part2, '"')).'"');
             fputs($connection, $part1.' "'.format_for_mpd(trim($part2, '"')).'"'."\n");
         }
     }
@@ -28,12 +28,12 @@ if($is_connected) {
     $cmd_status = do_mpd_command($connection, "command_list_end", null, true);
     $mpd_status = do_mpd_command ($connection, "status", null, true);
     if (is_array($cmd_status) && !array_key_exists('error', $mpd_status)) {
-        error_log("Command List Error ".$cmd_status['error']);
+        debug_print("Command List Error ".$cmd_status['error']);
         $mpd_status = array_merge($mpd_status, $cmd_status);
     }
     
     if (array_key_exists('song', $mpd_status) && !array_key_exists('error', $mpd_status)) {
-        error_log("DoBEBEBEBEBEBEBEBEDO");
+        debug_print("DoBEBEBEBEBEBEBEBEDO");
         $songinfo = array();
         $songinfo = do_mpd_command($connection, 'playlistinfo "' . $mpd_status['song'] . '"', null, true);
         $mpd_status = array_merge($mpd_status, $songinfo);

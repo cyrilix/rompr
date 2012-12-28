@@ -37,6 +37,10 @@ function LastFM(user) {
             lovebanshown = false;
         }
     }
+    
+    this.isLoggedIn = function() {
+        return logged_in;
+    }
 
     this.setscrobblestate = function() {
         scrobbling = $("#scrobbling").is(":checked");
@@ -111,7 +115,8 @@ function LastFM(user) {
                 //reloadPlaylistControls();
                 lastfm.revealloveban();
                 popupWindow.close();
-                },
+                $("#lastfmlist").load("lastfmchooser.php");
+            },
             function(data) {
                 popupWindow.close();
                 alert("Failed to log in to Last.FM");

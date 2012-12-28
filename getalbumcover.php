@@ -15,27 +15,27 @@ $searchfunctions = array( 'tryLastFM', 'tryMusicBrainz');
 $fname = $_REQUEST['key'];
 if (array_key_exists("src", $_REQUEST)) {
     $src = $_REQUEST['src'];
-    error_log("Get Album Cover from ".$src);
+    debug_print("Get Album Cover from ".$src);
 }
 if (array_key_exists("stream", $_REQUEST)) {
     $stream = $_REQUEST['stream'];
-    error_log("Stream is ".$stream);
+    debug_print("Stream is ".$stream);
 }
 if (array_key_exists("ufile", $_FILES)) {
     $file = $_FILES['ufile']['name'];
-    error_log("Uploading User File ".$file);
+    debug_print("Uploading User File ".$file);
 }
 if (array_key_exists("artist", $_REQUEST)) {
     $artist = $_REQUEST['artist'];
-    error_log("Artist : ".$artist);
+    debug_print("Artist : ".$artist);
 }
 if (array_key_exists("album", $_REQUEST)) {
     $album = $_REQUEST['album'];
-    error_log("Album : ".$album);
+    debug_print("Album : ".$album);
 }
 if (array_key_exists("mbid", $_REQUEST)) {
     $mbid = $_REQUEST['mbid'];
-    error_log("MBID : ".$mbid);
+    debug_print("MBID : ".$mbid);
 }
 
 // Attempt to download an image file
@@ -61,7 +61,7 @@ if ($file != "") {
     }
     if ($src == "") {
         $error = 1;
-        error_log("No valid files found");
+        debug_print("No valid files found");
     }
 }
 
@@ -101,14 +101,14 @@ if (file_exists($ALBUMSLIST) && $stream == "") {
     if ($error == 1) {
         $class = "updateable notfound";
     }
-    error_log("Classing ".$fname." as ".$class);
+    debug_print("Classing ".$fname." as ".$class);
     update_cache($fname, $class);
 }
 
 if ($error == 0) {
     if ($stream != "") {
         if (file_exists($stream)) {
-            error_log("Updating stream playlist ".$stream);
+            debug_print("Updating stream playlist ".$stream);
             $x = simplexml_load_file($stream);
             foreach($x->trackList->track as $i => $track) {
                 $track->image = $main_file;
@@ -149,12 +149,12 @@ function find_convert_path() {
 
 function get_user_file($src, $fname, $tmpname) {
     global $error;
-    error_log("Uploading ".$src." ".$fname." ".$tmpname);
+    debug_print("Uploading ".$src." ".$fname." ".$tmpname);
     $download_file = "prefs/".$fname;
     if (move_uploaded_file($tmpname, $download_file)) {
-        error_log("File ".$src." is valid, and was successfully uploaded.");
+        debug_print("File ".$src." is valid, and was successfully uploaded.");
     } else {
-        error_log("Possible file upload attack!");
+        debug_print("Possible file upload attack!");
         $error = 1;
     }
     return $download_file;
@@ -164,7 +164,7 @@ function download_file($src, $fname, $convert_path) {
     global $error;
 
     $download_file = "albumart/".$fname;
-    error_log("Getting Album Art: ".$src." ".$fname." ".$download_file);
+    debug_print("Getting Album Art: ".$src." ".$fname." ".$download_file);
 
     if (file_exists($download_file)) {
         unlink ($download_file);
@@ -177,16 +177,16 @@ function download_file($src, $fname, $convert_path) {
         check_file($download_file, $aagh['contents']);
         $o = array();
         $r = exec( $convert_path."identify \"".$download_file."\" 2>&1", $o);
-        error_log("Return value from identify was ".$r);
+        debug_print("Return value from identify was ".$r);
         if ($r == '' || 
             preg_match('/GIF 1x1/', $r) ||
             preg_match('/unable to open/', $r) ||
             preg_match('/no decode delegate/', $r)) {
-            error_log("Broken/Invalid file returned");
+            debug_print("Broken/Invalid file returned");
             $error = 1;
         }
     } else {
-        error_log("File open failed!");
+        debug_print("File open failed!");
         $error = 1;
     }
     return $download_file;
@@ -197,11 +197,11 @@ function check_file($file, $data) {
     // NOTE. WE've configured curl to follow redirects, so in truth this code should never do anything
     $matches = array();
     if (preg_match('/See: (.*)/', $data, $matches)) {
-        error_log("check_file has found an silly musicbrainz diversion ".$data);
+        debug_print("check_file has found an silly musicbrainz diversion ".$data);
         $new_url = $matches[1];
         system('rm "'.$file.'"');
         $aagh = url_get_contents($new_url);
-        error_log("check_file is getting ".$new_url);
+        debug_print("check_file is getting ".$new_url);
         $fp = fopen($file, "x");
         if ($fp) {
             fwrite($fp, $aagh['contents']);
@@ -211,12 +211,12 @@ function check_file($file, $data) {
         $o = array();
         $r = exec("file \"".$file."\" 2>&1", $o);
         if (preg_match('/HTML/', $r)) {
-            error_log("check_file thinks it has found a diversion");
+            debug_print("check_file thinks it has found a diversion");
             if (preg_match('/<a href="(.*?)"/', $data, $matches)) {
                 $new_url = $matches[1];
                 system('rm "'.$file.'"');
                 $aagh = url_get_contents($new_url);
-                error_log("check_file is getting ".$new_url);
+                debug_print("check_file is getting ".$new_url);
                 $fp = fopen($file, "x");
                 if ($fp) {
                     fwrite($fp, $aagh['contents']);
@@ -246,10 +246,10 @@ function update_cache($fname, $class) {
                     fflush($fp);
                     flock($fp, LOCK_UN);
                 } else {
-                    error_log("PHP regular expressions are rubbish");
+                    debug_print("PHP regular expressions are rubbish");
                 }
             } else {
-                error_log("FAILED TO GET FILE LOCK!!!!!!!!!!!!!!!!!!!!!");
+                debug_print("FAILED TO GET FILE LOCK!!!!!!!!!!!!!!!!!!!!!");
             }
         }
         fclose($fp);
@@ -264,10 +264,10 @@ function tryLastFM() {
     $retval = "";
     $pic = "";
     
-    error_log("Trying last.FM for ".$artist." ".$album);
+    debug_print("Trying last.FM for ".$artist." ".$album);
     $xml = loadXML("http://ws.audioscrobbler.com", "/2.0/?method=album.getinfo&api_key=15f7532dff0b8d84635c757f9f18aaa3&album=".rawurlencode($album)."&artist=".rawurlencode($artist)."&autocorrect=1");
     if ($xml == false) {
-        error_log("Received error response from Last.FM");
+        debug_print("Received error response from Last.FM");
         return "";
     } else {
         foreach ($xml->album->image as $i => $image) {
@@ -282,10 +282,10 @@ function tryLastFM() {
         }
         if ($mbid == "") {
             $mbid = $xml->album->mbid;
-            error_log("    Last.FM gave us the MBID of ".$mbid);
+            debug_print("    Last.FM gave us the MBID of ".$mbid);
         }
     }
-    error_log("Last.FM gave us ".$retval);
+    debug_print("Last.FM gave us ".$retval);
     return $retval;
     
 }

@@ -9,7 +9,7 @@ function onCollectionClicked(event) {
         albumSelect(event, clickedElement);
     } else if (clickedElement.hasClass("clicktrack")) {
         event.stopImmediatePropagation();
-        albumSelect(event, clickedElement);
+        trackSelect(event, clickedElement);
     }
     
 }
@@ -123,6 +123,7 @@ function doMenu(event, element) {
         event.stopImmediatePropagation();
     }
     var menutoopen = element.attr("name");
+    debug.log("Opeining Menu",menutoopen);
     $('#'+menutoopen).slideToggle('fast');
     if (element.attr("src") == "images/toggle-closed.png") {
         element.attr("src", "images/toggle-open.png");

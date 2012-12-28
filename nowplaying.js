@@ -33,7 +33,7 @@ function trackDataCollection(ind, mpdinfo, art, alb, tra) {
             lfmResponseHandler: function(data) {
                 debug.log("Got Artist Info for",mpd_data.creator, data);
                 if (data.error) {
-                    artist_data.artist = data;
+                    artist_data = {artist: data};
                 } else {
                     artist_data = data;
                 }
@@ -128,28 +128,34 @@ function trackDataCollection(ind, mpdinfo, art, alb, tra) {
     this.album = function() {
         return {
             populate: function() {
-                if (album_data == null) {
-                    var searchartist = (mpd_data.albumartist && mpd_data.albumartist != "") ? mpd_data.albumartist : self.artist.name();
-                    var options = { artist: searchartist, album: mpd_data.album };
-//                     if (this.mbid() != "") {
-//                         options.mbid = this.mbid();
-//                     }
-                    debug.log("Getting last.fm data for album",mpd_data.album,"by",searchartist,options);
-                    lastfm.album.getInfo( options,
-                                            this.lfmResponseHandler, 
-                                            this.lfmResponseHandler );
-                } else {
+                if (mpd_data.type == "stream") {
+                    album_data = {album: {error: 1, message: "(Internet Radio Station)"}};
                     self.track.populate();
+                } else {
+                    if (album_data == null) {
+                        var searchartist = (mpd_data.albumartist && mpd_data.albumartist != "") ? mpd_data.albumartist : self.artist.name();
+                        var options = { artist: searchartist, album: mpd_data.album };
+    //                     if (this.mbid() != "") {
+    //                         options.mbid = this.mbid();
+    //                     }
+                        debug.log("Getting last.fm data for album",mpd_data.album,"by",searchartist,options);
+                        lastfm.album.getInfo( options,
+                                                this.lfmResponseHandler, 
+                                                this.lfmResponseHandler );
+                    } else {
+                        self.track.populate();
+                    }
                 }
             },
 
             lfmResponseHandler: function(data) {
                 debug.log("Got Album Info for",mpd_data.album, data);
                 if (data.error) {
-                    album_data.album = data;
+                    album_data = {album: data};
                 } else {
                     album_data = data;
                 }
+                debug.log("Calling track populator");
                 self.track.populate();
             },
             
@@ -291,7 +297,7 @@ function trackDataCollection(ind, mpdinfo, art, alb, tra) {
             lfmResponseHandler: function(data) {
                 debug.log("Got Track Info for",mpd_data.title, data);
                 if (data.error) {
-                    track_data.track = data;
+                    track_data = {track: data};
                 } else {
                     track_data = data;
                 }

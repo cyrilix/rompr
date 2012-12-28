@@ -4,6 +4,7 @@ $ALBUMSLIST = 'prefs/albums_'.$LISTVERSION.'.html';
 $FILESLIST = 'prefs/files_'.$LISTVERSION.'.html';
 $connection = null;
 $is_connected = false;
+$DEBUG = 1;
 
 // NOTE: sortbydate can be set to "true' to make the collection sort albums by date
 // - however mpd can only read the Date ID3 tag, whereas the 'Original Release Date'
@@ -38,6 +39,14 @@ $prefs = array( "mpd_host" => "localhost",
                 "sortbydate" => "false"
                 );
 loadPrefs();
+
+
+function debug_print($out) {
+    global $DEBUG;
+    if ($DEBUG) {
+        error_log($out);
+    }
+}
 
 function savePrefs() {
     global $prefs;

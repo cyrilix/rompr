@@ -1,8 +1,9 @@
 <?php
+include ("vars.php");
 include("functions.php");
-// error_log("Getting IceCast List...");
+// debug_print("Getting IceCast List...");
 $content = url_get_contents("http://dir.xiph.org/yp.xml");
-// error_log("Got IceCast List...");
+// debug_print("Got IceCast List...");
 $xml = simplexml_load_string($content['contents'], 'SimpleXMLElement', LIBXML_NOCDATA);
 
 set_time_limit(240);

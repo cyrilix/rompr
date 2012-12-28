@@ -312,7 +312,6 @@ function uploadComplete() {
 <?php
 
 // Do Local Albums
-$covers = (array_key_exists("nocover", $_REQUEST)) ? true : false;
 $collection = doCollection("listallinfo");
 $artistlist = $collection->getSortedArtistList();
 $count = 0;
@@ -320,15 +319,15 @@ $albums_without_cover = 0;
 if (array_search("various artists", $artistlist)) {
     $key = array_search("various artists", $artistlist);
     unset($artistlist[$key]);
-    do_albumcovers("various artists", false, $covers);
+    do_albumcovers("various artists", false);
 }
 foreach($artistlist as $artistkey) {
-    do_albumcovers($artistkey, true, $covers);
+    do_albumcovers($artistkey, true);
 }
 
 close_mpd($connection);
 
-do_radio_stations($covers);
+do_radio_stations();
 
 print "</div>\n";
 print "</div>\n";
@@ -339,13 +338,13 @@ print "</script>\n";
 print "</body>\n";
 print "</html>\n";
 
-function do_albumcovers($artistkey, $comps, $covers) {
+function do_albumcovers($artistkey, $comps) {
 
     global $collection;
     global $count;
     global $albums_without_cover;
 
-    $albumlist = $collection->getAlbumList($artistkey, $comps, $covers);
+    $albumlist = $collection->getAlbumList($artistkey, $comps);
 
     if (count($albumlist) > 0) {
         $artist = $collection->artistName($artistkey);
@@ -389,7 +388,7 @@ function do_albumcovers($artistkey, $comps, $covers) {
             
 }
 
-function do_radio_stations($covers) {
+function do_radio_stations() {
 
     global $count;
     global $albums_without_cover;
@@ -409,12 +408,6 @@ function do_radio_stations($covers) {
             foreach($x->trackList->track as $i => $track) {
                 if ($track->album) {
                     $artname = md5($track->album);
-                    if (file_exists("albumart/original/".$artname.".jpg") ||
-                        $track->image != "images/broadcast.png") {
-                        if ($covers) {
-                            break;
-                        }
-                    }
                     $class = "";
                     $src = "images/broadcast.png";
                     if ($track->image != "images/broadcast.png") {

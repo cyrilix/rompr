@@ -23,10 +23,10 @@ if ($prefs['updateeverytime'] == "true" ||
         !file_exists($ALBUMSLIST) ||
         !file_exists($FILESLIST)) 
 {
-    // error_log("Rebuilding Music Cache");
+    // debug_print("Rebuilding Music Cache");
     print "updateCollection('update');\n";
 } else {
-    // error_log("Loading Music Cache");
+    // debug_print("Loading Music Cache");
     print "prepareForLiftOff()\n";
     print "loadCollection('".$ALBUMSLIST."', '".$FILESLIST."');\n";
 }

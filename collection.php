@@ -12,6 +12,7 @@ $stream_xspfs = array();
 $current_artist = "";
 $current_album = "";
 $abm = false;
+$curr_is_spotify = false;
 
 class album {
     public function __construct($name, $artist) {
@@ -22,10 +23,14 @@ class album {
         $this->iscompilation = false;
         $this->musicbrainz_albumid = null;
         $this->datestamp = null;
+        $this->spotilink = null;
+        $this->is_spotify = false;
     }
 
     public function newTrack($object) {
-
+        if (substr($object->url,0,8) == "spotify:") {
+            $this->is_spotify = true;
+        }
         $this->tracks[] = $object;
 
         if ($this->folder == null) {
@@ -36,6 +41,11 @@ class album {
 
     public function isCompilation() {
         return $this->iscompilation;
+    }
+    
+    public function setSpotilink($link) {
+        $this->spotilink = $link;
+        $this->is_spotify = true;
     }
 
     public function setAsCompilation() {
@@ -114,15 +124,23 @@ class artist {
     public function __construct($name) {
         $this->name = $name;
         $this->albums = array();
+        $this->spotilink = null;
     }
 
     public function newAlbum($object) {
         // Pass an album object to this function
-        if (array_key_exists(strtolower($object->name), $this->albums)) {
-            error_log("Trying to add new album '" . $object->name . "' to artist '" . $this->name . "' but it already exists");
-        } else {
-            $this->albums[strtolower($object->name)] = $object;
+        $key = strtolower($object->name);
+        while (array_key_exists($key, $this->albums)) {
+            debug_print("Trying to add new album '" . $key . "' to artist '" . $this->name . "' but it already exists");
+            $key = $key."1";
         }
+        $this->albums[$key] = $object;
+    
+//         if (array_key_exists(strtolower($object->name), $this->albums)) {
+//             debug_print("Trying to add new album '" . $object->name . "' to artist '" . $this->name . "' but it already exists");
+//         } else {
+//             $this->albums[strtolower($object->name)] = $object;
+//         }
     }
 
 }
@@ -187,19 +205,18 @@ class musicCollection {
         return $results;
     }
 
-    private function findAlbum($album, $artist, $directory) {
+    private function findAlbum($album, $artist, $directory, $sptfy) {
         if ($artist != null) {
             $a = trim($album);
             foreach ($this->artists[strtolower($artist)]->albums as $object) {
-            //foreach($this->getAlbumList(strtolower($artist), false, false) as $object) {
-                if ($a == trim($object->name)) {
+                if ($a == trim($object->name) && $object->is_spotify == $sptfy) {
                     return $object;
                 }
             }
         }
         if ($directory != null) {
             foreach ($this->findAlbumByName(strtolower($album)) as $object) {
-                if ($directory == $object->folder) {
+                if ($directory == $object->folder && $object->is_spotify == $sptfy) {
                     return $object;
                 }
             }
@@ -214,6 +231,7 @@ class musicCollection {
         global $current_album;
         global $current_artist;
         global $abm;
+        global $curr_is_spotify;
         
         $sortartist = ($albumartist == null) ? $artist : $albumartist;
 
@@ -224,19 +242,43 @@ class musicCollection {
         // If artist doesn't exist, create it - indexed by all lower case name for convenient sorting and grouping
         if (!array_key_exists($artistkey, $this->artists)) {
             $this->artists[$artistkey] = new artist($sortartist);
+            if (substr($file,0,14) == "spotify:artist") {
+                $this->artists[$artistkey]->spotilink = $file;
+                return true;
+            }
         }
-        if ($album != $current_album || $sortartist != $current_artist) {
+        
+        if (substr($file,0,13) == "spotify:album") {
+            $abm = $this->findAlbum($album, $artistkey, null, true);
+            if ($abm == false) {
+                $abm = new album($album, $sortartist);
+                $this->albums[] = $abm;
+                $this->artists[$artistkey]->newAlbum($abm);
+            }
+            $abm->setSpotilink($file);
+            $current_artist = $sortartist;
+            $current_album = $album;
+            $curr_is_spotify = true;
+            return true;
+        } 
+        
+        $sptfy = false;
+        if (substr($file,0,8) == "spotify:") {
+            $sptfy = true;
+        }
+                
+        if ($album != $current_album || $sortartist != $current_artist || $sptfy != $curr_is_spotify) {
             $abm = false;
-	}
+        }
 
         // Albums are not indexed by name, since we may have 2 or more albums with the same name by multiple artists
         // Does an album with this name by this aritst already exist?
 
         if ($abm == false) {
-            $abm = $this->findAlbum($album, $artistkey, null);
+            $abm = $this->findAlbum($album, $artistkey, null, $sptfy);
             if ($abm == false) {
                 // Does an album with this name where the tracks are in the same directory exist?
-                $abm = $this->findAlbum($album, null, $directory);
+                $abm = $this->findAlbum($album, null, $directory, $sptfy);
                 if ($abm != false) {
                     // We found one - it's not by the same artist so we need to mark it as a compilation if it isn't already
                     if (!($abm->isCompilation())) {
@@ -261,6 +303,7 @@ class musicCollection {
             // This one change provided a 10% speed increase on my Atom-based server.
             $current_artist = $sortartist;
             $current_album = $album;
+            $curr_is_spotify = $sptfy;
         }
         $abm->newTrack($t);
     }
@@ -282,32 +325,25 @@ class musicCollection {
         return $this->artists[$artist]->name;
     }
 
-    public function getAlbumList($artist, $ignore_compilations, $only_without_cover) {
+    public function getAlbumList($artist, $ignore_compilations) {
         global $prefs;
         $albums = array();
-        foreach($this->artists[$artist]->albums as $object) {
+        foreach($this->artists[$artist]->albums as $i => $object) {
             if ($object->isCompilation() && $ignore_compilations) {
 
             } else {
-                if ($only_without_cover) {
-                    $artname = md5($object->artist . " " . $object->name);
-                    if (!file_exists("albumart/original/".$artname.".jpg")) {
-                        $albums[(string) $object->name] = $object;
+                if ($prefs['sortbydate'] == "true") {
+                    $d = $object->getDate();
+                    if ($d == null) {
+                        $albums[] = $object;
+                    } else {
+                        while (array_key_exists($d, $albums)) {
+                            $d = "0".$d;
+                        }
+                        $albums[$d] = $object;
                     }
                 } else {
-                    if ($prefs['sortbydate'] == "true") {
-                        $d = $object->getDate();
-                        if ($d == null) {
-                            $albums[] = $object;
-                        } else {
-                            while (array_key_exists($d, $albums)) {
-                                $d = "0".$d;
-                            }
-                            $albums[$d] = $object;
-                        }
-                    } else {
-                        $albums[(string) $object->name] = $object;
-                    }
+                    $albums[$i] = $object;
                 }
             }
         }
@@ -315,17 +351,23 @@ class musicCollection {
 	   ksort($albums, SORT_NATURAL);
 	   return $albums;
     }
+    
+    public function spotilink($artist) {
+        return $this->artists[$artist]->spotilink;
+    }
 
-    public function createCompilation($album) {
-        global $COMPILATION_THRESHOLD;
+    public function createCompilation($name, $albums) {
+        debug_print("Creating Compilation out of ".$name);
         // mark an already existing album as a compilation
-        $abm = new album($album, "");
-        foreach($this->albums as $object) {
-            if (strtolower(utf8_decode($object->name)) == strtolower($album)) {
-                $object->setAsCompilation();
-                foreach($object->tracks as $t) {
-                    $abm->newTrack($t);
-                }
+        $abm = new album($name, "");
+        // Take all the tracks from the existing albums with the same name
+        foreach($albums as $i => $object) {
+            $object->setAsCompilation();
+            if ($abm->spotilink == null) {
+                $abm->spotilink = $object->spotilink;
+            }
+            foreach($object->tracks as $t) {
+                $abm->newTrack($t);
             }
         }
         $this->albums[] = $abm;
@@ -515,10 +557,10 @@ function doCollection($command) {
     global $COMPILATION_THRESHOLD;
     $collection = new musicCollection($connection);
     
-    error_log("Starting Collection Scan ".$command);
+    debug_print("Starting Collection Scan ".$command);
     
     $files = array();
-
+    $filecount = 0;
     if ($is_connected) {
         fputs($connection, $command."\n");
         $firstline = null;
@@ -529,6 +571,7 @@ function doCollection($command) {
                 if (is_array($parts)) {
                     if ($parts[0] != "playlist" && $parts[0] != "Last-Modified") {
                         if ($parts[0] == $firstline) {
+                            $filecount++;
                             process_file($collection, $filedata);
                             $filedata = array();
                         }
@@ -541,22 +584,20 @@ function doCollection($command) {
         }
 
         if (array_key_exists('file', $filedata) && $filedata['file']) {
+            $filecount++;
             process_file($collection, $filedata);
         }
         
-//         if (count($files) == 0 && $command == "listallinfo") {
-//             error_log("No local files found. Are you running mopidy?");
-//             if (file_exists("mopidy-tags/tag_cache")) {
-//                 error_log("Yes, you are!");
-//                 $files = parse_mopidy_tagcache($collection);
-//             }
-//         } else {
-//             error_log(count($files)." files found in scan ".$command);
-//         }
-//         
-//         foreach($files as $file) {
-//             process_file($collection, $file);
-//         }
+        if ($filecount == 0 && $command == "listallinfo") {
+            debug_print("No local files found. Are you running mopidy?");
+            if (file_exists("mopidy-tags/tag_cache")) {
+                debug_print("Yes, you are!");
+                parse_mopidy_tagcache($collection);
+            }
+        } else {
+            debug_print(count($files)." files found in scan ".$command);
+        }
+
         // Rescan stage - to find albums that are compilations but have been missed by the above step
         $possible_compilations = array();
         foreach($collection->albums as $i => $al) {
@@ -564,18 +605,22 @@ function doCollection($command) {
             if (!$al->isCompilation() && $an != "") {
                 $numtracks = $al->trackCount();
                 if ($numtracks < $COMPILATION_THRESHOLD) {
-                    if (array_key_exists($an, $possible_compilations)) {
-                        $possible_compilations[$an]++;
+                    $spt = $al->spotilink;
+                    if ($spt == null) {
+                        $spt = "";
+                    }
+                    if (array_key_exists($an.$spt, $possible_compilations)) {
+                        $possible_compilations[$an.$spt][] = $al;
                     } else {
-                        $possible_compilations[$an] = 1;
+                        $possible_compilations[$an.$spt] = [$al];
                     }
                 }
             }
         }
 
-        foreach($possible_compilations as $name => $count) {
-            if ($count > 1) {
-                $collection->createCompilation($name);
+        foreach($possible_compilations as $name => $array) {
+            if (count($array) > 1) {
+                $collection->createCompilation($name, $array);
             }
         }
     }
@@ -596,8 +641,8 @@ function createHTML($artistlist, $prefix, $output) {
     // Make sure 'Various Artists' is the first one in the list
     if (array_search("various artists", $artistlist)) {
         $key = array_search("various artists", $artistlist);
-        unset($artistlist[$key]);
         do_albums("various artists", false, true, $prefix, $output);
+        unset($artistlist[$key]);
     }
 
     // Add all the other artists
@@ -613,7 +658,7 @@ function do_albums($artistkey, $compilations, $showartist, $prefix, $output) {
     global $collection;
     global $divtype;
     
-    error_log("Doing Artist: ".$artistkey);
+    //debug_print("Doing Artist: ".$artistkey);
 
     $albumlist = $collection->getAlbumList($artistkey, $compilations, false);
     if (count($albumlist) > 0) {
@@ -623,21 +668,34 @@ function do_albums($artistkey, $compilations, $showartist, $prefix, $output) {
 
         $artist = $collection->artistName($artistkey);
         // Create Artist Name item
-        $output->writeLine('<div class="clickable clickalbum draggable containerbox menuitem" name="'.$prefix.'artist'.$count.'">');
-        $output->writeLine('<img src="images/toggle-closed.png" class="menu fixed" name="'.$prefix.'artist'.$count.'">');
-        $output->writeLine('<div class="expand">'.$artist.'</div>');
-        $output->writeLine('</div>');
+        if ($collection->spotilink($artistkey) != null) {
+            $output->writeLine('<div class="clickable clicktrack draggable containerbox menuitem" name="'.rawurlencode($collection->spotilink($artistkey)).'">');
+            $output->writeLine('<img src="images/toggle-closed.png" class="menu fixed" name="'.$prefix.'artist'.$count.'">');
+            $output->writeLine('<div class="playlisticon fixed"><img height="12px" src="images/spotify-logo.png" /></div>');
+            $output->writeLine('<div class="expand">'.$artist.'</div>');
+            $output->writeLine('</div>');
+        } else {
+            $output->writeLine('<div class="clickable clickalbum draggable containerbox menuitem" name="'.$prefix.'artist'.$count.'">');
+            $output->writeLine('<img src="images/toggle-closed.png" class="menu fixed" name="'.$prefix.'artist'.$count.'">');
+            $output->writeLine('<div class="expand">'.$artist.'</div>');
+            $output->writeLine('</div>');
+        }
         
         // Create the drop-down div that will hold this artist's albums
         $output->writeLine('<div id="'.$prefix.'artist'.$count.'" class="dropmenu">');
         
         foreach($albumlist as $album) {
         
-            error_log("Doing Album ".$album->name);
+            //debug_print("Doing Album ".$album->name);
         
             // Creat the header for the album
-            $output->writeLine('<div class="clickable clickalbum draggable containerbox menuitem" name="'.$prefix.'album'.$count.'">');
-            $output->writeLine('<img src="images/toggle-closed.png" class="menu fixed" name="'.$prefix.'album'.$count.'">');
+            if ($album->spotilink != null) {
+                $output->writeLine('<div class="clickable clicktrack draggable containerbox menuitem" name="'.rawurlencode($album->spotilink).'">');
+                $output->writeLine('<img src="images/toggle-closed.png" class="menu fixed" name="'.$prefix.'album'.$count.'">');
+            } else {
+                $output->writeLine('<div class="clickable clickalbum draggable containerbox menuitem" name="'.$prefix.'album'.$count.'">');
+                $output->writeLine('<img src="images/toggle-closed.png" class="menu fixed" name="'.$prefix.'album'.$count.'">');
+            }
 
             // We don't set the src tags for the images when the page loads, otherwise we'd be loading in
             // literally hundres of images we don't need. Instead we set the name tag to the url
@@ -667,6 +725,11 @@ function do_albums($artistkey, $compilations, $showartist, $prefix, $output) {
                 $b = munge_album_name($album->name);
                 $output->writeLine( '<img class="'.$class.'" romprartist="'.rawurlencode($album->artist).'" rompralbum="'.rawurlencode($b).'" name="'.$artname.'" src="images/album-unknown-small.png" />'."\n");
             }
+
+            if ($album->spotilink != null) {
+                $output->writeLine('<div class="playlisticon fixed"><img height="12px" src="images/spotify-logo.png" /></div>');
+            }
+            
             $output->writeLine('<div class="expand">'.$album->name.'</div>');
             $output->writeLine('</div>');
             
@@ -674,47 +737,52 @@ function do_albums($artistkey, $compilations, $showartist, $prefix, $output) {
             $output->writeLine('<div id="'.$prefix.'album'.$count.'" class="dropmenu">');
             $numdiscs = $album->sortTracks();
             $currdisc = -1;
-            foreach($album->tracks as $trackobj) {
-                // Disc Numbers
-                if ($numdiscs > 1) {
-                    if ($trackobj->disc != null && $trackobj->disc != $currdisc) {
-                        $currdisc = $trackobj->disc;
-                        $output->writeLine( '<div class="discnumber indent">Disc '.$currdisc.'</div>');
+            if (count($album->tracks) == 0) {
+                $output->writeLine( '<div class="playlistrow2" style="padding-left:64px">No Individual Tracks Returned By Search</div>');
+            } else {
+                foreach($album->tracks as $trackobj) {
+                    // Disc Numbers
+                    if ($numdiscs > 1) {
+                        if ($trackobj->disc != null && $trackobj->disc != $currdisc) {
+                            $currdisc = $trackobj->disc;
+                            $output->writeLine( '<div class="discnumber indent">Disc '.$currdisc.'</div>');
+                        }
                     }
-                }
 
-                // Do we need to display the artist info?
-                $dorow2 = false;
-                if ( ($showartist || 
-                    ($trackobj->albumartist != null && ($trackobj->albumartist != $trackobj->artist))) &&
-                    ($trackobj->artist != null && $trackobj->artist != '.')
-                ) {
-                    $dorow2 = true;
-                }
-                
-                // Track info
-                if ($dorow2) {
-                    $output->writeLine('<div class="clickable clicktrack draggable indent containerbox vertical padright" name="'.rawurlencode($trackobj->url).'">');
-                    $output->writeLine('<div class="containerbox line">');
-                } else {
-                    $output->writeLine('<div class="clickable clicktrack draggable indent containerbox padright line" name="'.rawurlencode($trackobj->url).'">');
-                }
-                $output->writeLine('<div class="tracknumber fixed">'.$trackobj->number.'</div>');
-                if (substr($trackobj->url,0,strlen('spotify')) == "spotify") {
-                    $output->writeLine('<div class="playlisticon fixed"><img height="12px" src="images/spotify-logo.png" /></div>');
-                }
-                $output->writeLine('<div class="expand">'.$trackobj->name.'</div>');
-                $output->writeLine('<div class="fixed playlistrow2">'.format_time($trackobj->duration).'</div>');
-                if ($dorow2) {
-                    $output->writeLine('</div><div class="containerbox line">');
-                    $output->writeLine('<div class="tracknumber fixed"></div>');
-                    $output->writeline('<div class="expand playlistrow2">'.$trackobj->artist.'</div>');
+                    // Do we need to display the artist info?
+                    $dorow2 = false;
+                    if ( ($showartist || 
+                        ($trackobj->albumartist != null && ($trackobj->albumartist != $trackobj->artist))) &&
+                        ($trackobj->artist != null && $trackobj->artist != '.')
+                    ) {
+                        $dorow2 = true;
+                    }
+                    
+                    // Track info
+                    if ($dorow2) {
+                        $output->writeLine('<div class="clickable clicktrack ninesix draggable indent containerbox vertical padright" name="'.rawurlencode($trackobj->url).'">');
+                        $output->writeLine('<div class="containerbox line">');
+                    } else {
+                        $output->writeLine('<div class="clickable clicktrack ninesix draggable indent containerbox padright line" name="'.rawurlencode($trackobj->url).'">');
+                    }
+                    $output->writeLine('<div class="tracknumber fixed">'.$trackobj->number.'</div>');
+                    if (substr($trackobj->url,0,strlen('spotify')) == "spotify") {
+                        $output->writeLine('<div class="playlisticon fixed"><img height="12px" src="images/spotify-logo.png" /></div>');
+                    }
+                    $output->writeLine('<div class="expand">'.$trackobj->name.'</div>');
+                    $output->writeLine('<div class="fixed playlistrow2">'.format_time($trackobj->duration).'</div>');
+                    if ($dorow2) {
+                        $output->writeLine('</div><div class="containerbox line">');
+                        $output->writeLine('<div class="tracknumber fixed"></div>');
+                        $output->writeline('<div class="expand playlistrow2">'.$trackobj->artist.'</div>');
+                        $output->writeLine('</div>');
+                    }
                     $output->writeLine('</div>');
+                    $count++;
                 }
-                $output->writeLine('</div>');
-                $count++;
             }
             $output->writeLine('</div>');
+            $count++;
         }
         $output->writeLine('</div>');
         $output->writeLine("</div>\n");
@@ -726,9 +794,8 @@ function do_albums($artistkey, $compilations, $showartist, $prefix, $output) {
 
 function parse_mopidy_tagcache($collection) {
 
-    error_log("Starting Mopidy Tag Cache Scan ");
+    debug_print("Starting Mopidy Tag Cache Scan ");
     
-    $files = array();
     $firstline = null;
     $filedata = array();
     $parts = true;
@@ -744,30 +811,26 @@ function parse_mopidy_tagcache($collection) {
             if (is_array($parts)) {
                 if ($parts[0] != "playlist" && $parts[0] != "Last-Modified") {
                     if ($parts[0] == $firstline) {
-                        $files[] = $filedata;
+                        process_file($collection, $filedata);
                         $filedata = array();
                     }
                     if ($parts[0] == 'file') {
                         $parts[1] = "file:///home/bob/Music/".$parts[1];
-                        $parts[1] = rawurlencode($parts[1]);
-                        $parts[1] = str_replace("%2F", "/", $parts[1]);
-                        $parts[1] = str_replace("%3A", ":", $parts[1]);
+                        //$parts[1] = str_replace(" ", "%20", $parts[1]);
                     }
                     $filedata[$parts[0]] = $parts[1];
                     if ($firstline == null) {
                         $firstline = $parts[0];
-                        error_log("Setting firstline to ".$firstline);
                     }
                 }
             }
         }
 
         if (array_key_exists('file', $filedata) && $filedata['file']) {
-            $files[] = $filedata;
+             process_file($collection, $filedata);
         }
     }
     fclose($fp);
-    return $files;
 }
 
 ?>
