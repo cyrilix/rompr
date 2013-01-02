@@ -4,7 +4,6 @@ include ("functions.php");
 include ("connection.php");
 include ("collection.php");
 set_time_limit(240);
-// session_start();
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -31,7 +30,6 @@ print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme']
 <script src="https://www.google.com/jsapi?key=ABQIAAAAD8fM_RJ2TaPVvDsHb-8MdxS61EkEqhmzf3WQQFI0-v4LA4gElhRtzkt_mX1FPwUDz9DchkRCsKg3SA"></script>
 <script language="JavaScript">
 // debug.setLevel(0);
-var lastfm_api_key = "15f7532dff0b8d84635c757f9f18aaa3";
 
 var imageSearch;
 var imagekey = '';
@@ -42,6 +40,7 @@ var clickindex = null;
 var wobblebottom;
 var searchcontent;
 var allshown = true;
+var firefoxcrapnesshack = 0;
 google.load('search', 1);
 
 function getNewAlbumArt(div) {
@@ -285,12 +284,34 @@ function searchFail() {
 function uploadComplete() {
     debug.log("Success for",imagekey);
     closeGooglePopup();
-    imgobj.attr("src", "albumart/original/"+imagekey+".jpg");
-    if (imgobj.hasClass("notexist") ||
-        imgobj.hasClass("notfound")) {
-        covergetter.updateInfo(1);
-        imgobj.removeClass("notexist notfound");
-    }
+    
+    // In nearly every browser we can just update the src attribute of the image and even
+    // though the URL hasn't changed the browser will check with the server and update the image.
+    // But not firefox, oh no. Not firefox. Just for Mozilla, because these days they can't be
+    // trusted to do ANYTHING properly, we have to delete the image and create a new one.
+    // And EVEN THAT isn't enough because the new image has the same URL as the old one and firefox
+    // STILL won't just check with the server EVEN THOUGH we have used every cache-control setting
+    // known to mankind. So we concoct a made-up URL that has to be different EVERY TIME and let our 404
+    // redirect it to the actual image. 
+    
+    // Just to make the point again. FIREFOX USED TO BE GREAT. NOW IT'S SHIT. STOP USING IT. please.
+    
+    var p = imgobj.parent();
+    var ra = imgobj.attr("romprartist");
+    var rl = imgobj.attr("rompralbum");
+    var n = imgobj.attr("name");
+    imgobj.remove();
+    var newimg = $('<img>', {   class: 'clickable clickicon clickalbumcover',
+                                romprartist: ra,
+                                rompralbum: rl,
+                                name: n,
+                                height: '82px',
+                                width: '82px',
+                                src: "albumart/firefoxiscrap/"+imagekey+"---"+firefoxcrapnesshack.toString()
+                            }
+                    );
+    firefoxcrapnesshack++;
+    p.append(newimg);
     if (useLocalStorage) {
         sendLocalStorageEvent(imagekey);
     }

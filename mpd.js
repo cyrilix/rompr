@@ -2,8 +2,13 @@ function mpdController() {
 	var self = this;
 	this.status = {};
 
+    // NOTE: THese functions all clear the playlists's progress timer.
+    // playlist.checkProgress restarts it if necessary. If a callback is supplied it MUST call
+    // playlist.checkProgress at the end.
+    
     this.command = function(cmd, callback) {
        debug.log("mpd command",cmd);
+        playlist.clearProgressTimer();
         $.getJSON("ajaxcommand.php", cmd)
         .done(function(data) {
             self.status = data;
@@ -16,16 +21,15 @@ function mpdController() {
                infobar.updateWindowValues();
             }            
         })
-        .fail( function(data) { alert("Failed to send command '"+cmd+"' to MPD") });
+        .fail( function() { 
+            alert("Failed to send command '"+cmd+"' to MPD");
+            playlist.checkProgress();   
+        });
     }
     
-    // Don't access mpd.status directly from outside this scope, it causes memory leaks.
-    this.getStatus = function(key) {
-        return self.status[key];
-    }
-
     this.do_command_list = function(list, callback) {
         
+        playlist.clearProgressTimer();
         $.ajax({
             type: 'POST',
             url: 'postcommand.php',
@@ -34,13 +38,17 @@ function mpdController() {
                 self.status = data;
                 nowplaying.setStartTime(self.status.elapsed); 
                 if (callback) { 
-                    infobar.updateWindowValues(); 
                     callback();
+                    infobar.updateWindowValues(); 
                 } else {
                     playlist.checkProgress(); 
                     infobar.updateWindowValues();
                 }
             
+            },
+            error: function() {
+                alert("Failed sending command list to mpd");
+                playlist.checkProgress();
             },
             dataType: 'json'
         });
@@ -53,7 +61,10 @@ function mpdController() {
             list.push('deleteid "'+tracks[i]+'"');
         }
         self.do_command_list(list, callback);
-        list = null;
+    }
+
+    this.getStatus = function(key) {
+        return self.status[key];
     }
 
 }

@@ -17,10 +17,6 @@ function trackDataCollection(ind, mpdinfo, art, alb, tra) {
                 if (artist_data == null) {
                     var options = {};
                     var options = { artist: mpd_data.creator };
-//      Don't use the Musicbrainz ID, it's less accurate than doing name lookups!
-//                     if (this.mbid() != "") {
-//                         options.mbid = this.mbid();
-//                     }
                     debug.log("Getting last.fm data for artist",mpd_data.creator,options);
                     lastfm.artist.getInfo( options, 
                                         this.lfmResponseHandler, 
@@ -31,7 +27,7 @@ function trackDataCollection(ind, mpdinfo, art, alb, tra) {
             },
             
             lfmResponseHandler: function(data) {
-                debug.log("Got Artist Info for",mpd_data.creator, data);
+                debug.log("Got Artist Info for", mpd_data.creator, data);
                 if (data.error) {
                     artist_data = {artist: data};
                 } else {
@@ -124,7 +120,7 @@ function trackDataCollection(ind, mpdinfo, art, alb, tra) {
             }
         }
     }();
-
+    
     this.album = function() {
         return {
             populate: function() {
@@ -135,9 +131,6 @@ function trackDataCollection(ind, mpdinfo, art, alb, tra) {
                     if (album_data == null) {
                         var searchartist = (mpd_data.albumartist && mpd_data.albumartist != "") ? mpd_data.albumartist : self.artist.name();
                         var options = { artist: searchartist, album: mpd_data.album };
-    //                     if (this.mbid() != "") {
-    //                         options.mbid = this.mbid();
-    //                     }
                         debug.log("Getting last.fm data for album",mpd_data.album,"by",searchartist,options);
                         lastfm.album.getInfo( options,
                                                 this.lfmResponseHandler, 
@@ -326,9 +319,9 @@ function trackDataCollection(ind, mpdinfo, art, alb, tra) {
 //                         if (this.mbid()) {
 //                             options.mbid = this.mbid();
 //                         }
-//                         if (mpd_data.albumartist && mpd_data.albumartist != "" && (mpd_data.albumartist).toLowerCase() != (self.artist.name()).toLowerCase()) {
-//                             options.albumArtist = mpd_data.albumartist;
-//                         }
+                         if (mpd_data.albumartist && mpd_data.albumartist != "" && (mpd_data.albumartist).toLowerCase() != (self.artist.name()).toLowerCase()) {
+                             options.albumArtist = mpd_data.albumartist;
+                         }
 //                         if (mpd_data.duration && mpd_data.duration > 0) {
 //                             options.duration = (Math.floor(mpd_data.duration)).toString();
 //                         }
@@ -483,12 +476,9 @@ function trackDataCollection(ind, mpdinfo, art, alb, tra) {
     }
     
     this.donelove = function(tr, ar, loved, callback) {
-        debug.log("Trip Fontaine");
         if (callback) {
-            debug.log("Calling back");
             callback();
         }
-        debug.log("Googoogajoob");
         browser.justloved(index, loved);
         if (loved) {
             infobar.notify(infobar.NOTIFY, "Loved "+tr);
@@ -711,9 +701,7 @@ function playInfo() {
 
 }
 
-function lfmDataExtractor(d) {
-
-    data = d;
+function lfmDataExtractor(data) {
     
     this.error = function() {
         if (data.error) {

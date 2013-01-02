@@ -344,10 +344,10 @@ function togglePref(pref) {
     }
 }
 
-
-function getWikimedia(url) {
-    var mousepos = getPosition();
-    url = "http://en.wikipedia.org/w/api.php?action=query&iiprop=url|size&prop=imageinfo&titles=" + url + "&format=json&callback=?";
+function getWikimedia(event) {
+    event.stopImmediatePropagation();
+    var mousepos = getPosition(event);
+    var url = "http://en.wikipedia.org/w/api.php?action=query&iiprop=url|size&prop=imageinfo&titles=" + event.currentTarget.getAttribute('name') + "&format=json&callback=?";
     $.getJSON(url, function(data) {
         $.each(data.query.pages, function(index, value) {
             var dimensions = imagePopup.create(value.imageinfo[0].width, value.imageinfo[0].height, mousepos.x, mousepos.y);
@@ -356,6 +356,7 @@ function getWikimedia(url) {
             return false;
         });
     });
+    return false;
 }
 
 function getNeighbours(event) {
@@ -808,4 +809,15 @@ function savePlaylist() {
         mpd.command("command=save&arg="+encodeURIComponent(name), reloadPlaylists);
     }
     
+}
+
+function bodgeitup(ui) {
+    var properjob;
+    if (ui.hasClass("item")) {
+        properjob = "item";
+    }
+    if (ui.hasClass("track")) {
+        properjob = "track";
+    }
+    return properjob;
 }

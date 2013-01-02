@@ -93,7 +93,7 @@ div.clickable.selected:hover
     color:#cc0000;
 }
 
-#item
+.item
 {
     border-top:1px solid #cccccc;
 }

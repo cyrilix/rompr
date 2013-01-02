@@ -59,20 +59,22 @@ function loadCollection(albums, files) {
     $('#filesearch').load("filesearch.php");
 }
 
+function checkPoll(data) {
+    if (data.updating_db) {
+        debug.log("Updating DB");
+        update_load_timer = setTimeout( pollAlbumList, 1000);
+        update_load_timer_running = true;
+    } else {
+        loadCollection("albums.php", "dirbrowser.php");
+    }
+}
+
 function pollAlbumList() {
     if(update_load_timer_running) {
         clearTimeout(update_load_timer);
         update_load_timer_running = false;
     }
-    $.getJSON("ajaxcommand.php", "", function(data) {
-        if (data.updating_db) {
-            debug.log("Updating DB");
-            update_load_timer = setTimeout( pollAlbumList, 1000);
-            update_load_timer_running = true;
-        } else {
-            loadCollection("albums.php", "dirbrowser.php");
-        }
-    });
+    $.getJSON("ajaxcommand.php", checkPoll);
 }
 
 function sourcecontrol(source) {

@@ -348,7 +348,7 @@ class musicCollection {
             }
         }
 
-	   ksort($albums, SORT_NATURAL);
+	   ksort($albums, SORT_STRING);
 	   return $albums;
     }
     
@@ -595,7 +595,7 @@ function doCollection($command) {
                 parse_mopidy_tagcache($collection);
             }
         } else {
-            debug_print(count($files)." files found in scan ".$command);
+            debug_print($filecount." files found in scan ".$command);
         }
 
         // Rescan stage - to find albums that are compilations but have been missed by the above step
@@ -612,7 +612,7 @@ function doCollection($command) {
                     if (array_key_exists($an.$spt, $possible_compilations)) {
                         $possible_compilations[$an.$spt][] = $al;
                     } else {
-                        $possible_compilations[$an.$spt] = [$al];
+                        $possible_compilations[$an.$spt] = array($al);
                     }
                 }
             }

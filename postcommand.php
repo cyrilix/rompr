@@ -33,7 +33,6 @@ if($is_connected) {
     }
     
     if (array_key_exists('song', $mpd_status) && !array_key_exists('error', $mpd_status)) {
-        debug_print("DoBEBEBEBEBEBEBEBEDO");
         $songinfo = array();
         $songinfo = do_mpd_command($connection, 'playlistinfo "' . $mpd_status['song'] . '"', null, true);
         $mpd_status = array_merge($mpd_status, $songinfo);

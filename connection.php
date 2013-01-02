@@ -11,11 +11,9 @@ if($is_connected) {
         $command = $_REQUEST["command"];
         if(array_key_exists("arg", $_REQUEST) && strlen($_REQUEST["arg"])>0) {
             debug_print("Arg is ".$_REQUEST['arg']);
-            //$command.=" \"".format_for_mpd(rawurldecode($_REQUEST["arg"]))."\"";
             $command.=" \"".format_for_mpd($_REQUEST["arg"])."\"";
         }
         if(array_key_exists("arg2", $_REQUEST) && strlen($_REQUEST["arg2"])>0) {
-            //$command.=" \"".format_for_mpd(rawurldecode($_REQUEST["arg2"]))."\"";
             $command.=" \"".format_for_mpd($_REQUEST["arg2"])."\"";
         }
         $cmd_status = do_mpd_command($connection, $command, null, true);
@@ -25,6 +23,7 @@ if($is_connected) {
     while ($mpd_status['state'] == 'play' && 
             !array_key_exists('elapsed', $mpd_status))
     {
+        debug_print("Playing but no elapsed time yet.. waiting");
         sleep(1);
         $mpd_status = do_mpd_command ($connection, "status", null, true);
     }

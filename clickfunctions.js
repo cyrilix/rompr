@@ -101,6 +101,7 @@ function onPlaylistClicked(event) {
         playlist.addFavourite(clickedElement.attr("name"));
     } else if (clickedElement.hasClass("clickremovelfmtrack")) {
         event.stopImmediatePropagation();
+        playlist.clearProgressTimer();
         playlist.checkSongIdAfterStop(clickedElement.attr("romprid"));
     }
 }
@@ -156,8 +157,12 @@ function setDraggable(divname) {
             var dragger = document.createElement('div');
             dragger.setAttribute("id", "dragger");
             $(dragger).addClass("draggable dragsort containerbox vertical");
-                if (!clickedElement.hasClass("selected")) {
-                albumSelect(event, clickedElement);
+            if (!clickedElement.hasClass("selected")) {
+                if (clickedElement.hasClass("clickalbum")) {
+                    albumSelect(event, clickedElement);
+                } else if (clickedElement.hasClass("clicktrack")) {
+                    trackSelect(event, clickedElement);
+                }
             }
             $(".selected").clone().removeClass("selected").appendTo(dragger);
             return dragger;

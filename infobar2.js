@@ -17,7 +17,7 @@ var infobar = function() {
                 $("#volume").slider("option", "value", parseInt(self.volume));
             }
         }
-    }()
+    }();
     
     return {
         NOTIFY: 0,
@@ -84,36 +84,33 @@ var infobar = function() {
             if (info.album) {
                 contents=contents+'<p>on <b>'+info.album+'</b></p>';
             }
-            //$("#nowplaying").empty();
-            $("#nowplaying").html(contents);
+            $("#nowplaying").empty().html(contents);
             contents = null;
             document.title = doctitle;
             doctitle = null;
-            if (info.track == "") {
-                lastfm.hideloveban();
+            lastfm.showloveban((info.track != ""));
+            if (info.artist == "" && info.track == "" && info.album == "") {
+                $('#albumpicture').fadeOut(1000);
             } else {
-                lastfm.revealloveban();
-            }
-            if (info.image && $('#albumpicture').attr("src") != info.image) {
-                $('#albumpicture').fadeOut(1000, function () {
-                    $('#albumpicture').attr("src", info.image);
-                    $('#albumpicture').fadeIn(1000, function() {
-                        debug.log("Hammer Time");
-                        $("#albumpicture").unbind('click');
-                        $("#albumpicture").removeClass('clickicon');
-                        if (info.origimage) {
-                            img.src = info.origimage;
-                            $("#albumpicture").bind('click', infobar.displayimage);
-                            $("#albumpicture").addClass('clickicon');
-                        }
+                if (info.image && $('#albumpicture').attr("src") != info.image) {
+                    $('#albumpicture').fadeOut(1000, function () {
+                        $('#albumpicture').attr("src", info.image);
+                        $('#albumpicture').fadeIn(1000, function() {
+                            $("#albumpicture").unbind('click');
+                            $("#albumpicture").removeClass('clickicon');
+                            if (info.origimage) {
+                                img.src = info.origimage;
+                                $("#albumpicture").bind('click', infobar.displayimage);
+                                $("#albumpicture").addClass('clickicon');
+                            }
+                        });
                     });
-                });
+                }
             }
         },
         
-        displayimage: function() {
-            debug.log("Chocolate and Gravy");
-            var mousepos = getPosition();
+        displayimage: function(event) {
+            var mousepos = getPosition(event);
             var dimensions = imagePopup.create(img.width, img.height, mousepos.x, mousepos.y);
             imagePopup.contents('<img src="'+img.src+'" height="'+parseInt(dimensions.height)+'" width="'+parseInt(dimensions.width)+'">');
             imagePopup.show();
@@ -172,7 +169,7 @@ var infobar = function() {
                 html = html + '<img class="fixed" src="images/dialog-error.png" />';
             }
             html = html + '<div class="expand indent">'+message+'</div></div>';
-            $('#notifications').html(html);
+            $('#notifications').empty().html(html);
             html = null;
             if (notifytimer != null) {
                 clearTimeout(notifytimer);

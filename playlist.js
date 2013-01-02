@@ -4,7 +4,6 @@ function Playlist() {
     var tracklist = [];
     var currentsong = 0;
     var currentalbum = -1;
-    var progress_timer_running = false;
     var safetytimer = 500;
     var currentTrack = null;
     var AlanPartridge = 0;
@@ -24,14 +23,13 @@ function Playlist() {
         debug.log("Repopulating Playlist");
         updatecounter++;        
         $.ajax({
-            type: "POST",
+            type: "GET",
             url: "getplaylist.php",
             cache: false,
             contentType: "text/xml; charset=utf-8",
-            data: "{}",
             dataType: "xml",
             success: playlist.newXSPF,
-            error: function(data, status) { 
+            error: function(data) { 
                 alert("Something went wrong retrieving the playlist!"); 
             }
         });
@@ -68,7 +66,7 @@ function Playlist() {
         // ***********
 
         debug.log("Got Playlist from MPD");
-
+        self.clearProgressTimer();
         finaltrack = -1;
         currentsong = -1;
         currentalbum = -1;
@@ -174,7 +172,7 @@ function Playlist() {
         //$('#sortable').empty();
         // Invisible empty div tacked on the end gives something to drop draggables onto
         html = html + '<div name="waiter"><table width="100%" class="playlistitem"><tr><td align="left"><img src="images/transparent-32x32.png"></td></tr></table></div>';
-        $('#sortable').html(html);
+        $('#sortable').empty().html(html);
         html = null;
 
         if (scrollto > -1) {
@@ -184,27 +182,28 @@ function Playlist() {
 
         self.checkProgress();
         
-        // Would like to search for missing album art in the playlist, and it's easy to do.
-        // Trouble is it re-searches for missing art at every playlist refresh.
-        // The check I put in here stops it searching for art which has been marked as notfound 
-        // in the albums list or search pane.
-        // Also we keep a list of stuff we've searched for, just in case it's not in either list
-        // (eg it's got there via a playlist loaded in from spotify)
-        // All this is to keep to an absolute minimum the number of requests we make to last.fm
-
-        $('#sortable').find(".notexist").each( function() {
-            var name = $(this).attr("name");
-            if (typeof(searchedimages[name]) == "undefined") {
-                searchedimages[name] = true;
-                colobj = $('img[name="'+name+'"]', '#collection');
-                schobj = $('img[name="'+name+'"]', '#search');
-                if ((colobj.length == 0 || colobj.hasClass('notexist')) ||
-                    (schobj.length == 0 || schobj.hasClass('notexist')))
-                {
-                    coverscraper.GetNewAlbumArt($(this).attr("name"));
-                }
-            }
-         });
+// Not sure this is necessary. Auto download should take care of this anyway in every conceivable situation
+//         // Would like to search for missing album art in the playlist, and it's easy to do.
+//         // Trouble is it re-searches for missing art at every playlist refresh.
+//         // The check I put in here stops it searching for art which has been marked as notfound 
+//         // in the albums list or search pane.
+//         // Also we keep a list of stuff we've searched for, just in case it's not in either list
+//         // (eg it's got there via a playlist loaded in from spotify)
+//         // All this is to keep to an absolute minimum the number of requests we make to last.fm
+// 
+//         $('#sortable').find(".notexist").each( function() {
+//             var name = $(this).attr("name");
+//             if (typeof(searchedimages[name]) == "undefined") {
+//                 searchedimages[name] = true;
+//                 colobj = $('img[name="'+name+'"]', '#collection');
+//                 schobj = $('img[name="'+name+'"]', '#search');
+//                 if ((colobj.length == 0 || colobj.hasClass('notexist')) ||
+//                     (schobj.length == 0 || schobj.hasClass('notexist')))
+//                 {
+//                     coverscraper.GetNewAlbumArt($(this).attr("name"));
+//                 }
+//             }
+//          });
 
     }
     
@@ -213,8 +212,8 @@ function Playlist() {
         var firstmoveitem;
         var numitems;
         var moveto;
-        var elementmoved = ui.item.attr("id");
-        var nextelement = $(ui.item).next().attr("id");
+        var elementmoved = bodgeitup(ui.item);
+        var nextelement = bodgeitup($(ui.item).next());
         if (nextelement == "track") { 
             moveto = $(ui.item).next().attr("name") 
         }
@@ -224,6 +223,7 @@ function Playlist() {
         if (typeof(moveto) == "undefined") {
             moveto = (parseInt(finaltrack))+1;
         }
+        debug.log(nextelement, moveto, finaltrack);
         if (ui.item.hasClass("draggable")) {
             var cmdlist = [];
             $(ui.item).find('.clicktrack').each(function (index, element) {
@@ -238,17 +238,18 @@ function Playlist() {
             cmdlist.push('move "'+elbow.toString()+":"+arse.toString()+'" "'+moveto.toString()+'"');
             mpd.do_command_list(cmdlist, playlist.repopulate);
             $('.selected').removeClass('selected');
+            $("#dragger").remove();
         } else {
+            var nom = ui.item.attr("name");
             if (elementmoved == "track") {
-                itemstomove = ui.item.attr("name");
+                itemstomove = nom;
                 firstmoveitem = itemstomove;
                 numitems = 1;
             }
             if (elementmoved == "item") {
-                itemstomove = tracklist[parseInt(ui.item.attr("name"))].getRange();
-                firstmoveitem = tracklist[parseInt(ui.item.attr("name"))].getFirst();
-                numitems = tracklist[parseInt(ui.item.attr("name"))].getSize();
-
+                itemstomove = tracklist[parseInt(nom)].getRange();
+                firstmoveitem = tracklist[parseInt(nom)].getFirst();
+                numitems = tracklist[parseInt(nom)].getSize();
             }
             // If we move DOWN we have to calculate what the position will be AFTER the items
             // have been moved. Bit daft, that.
@@ -261,12 +262,12 @@ function Playlist() {
     }
 
     this.delete = function(id) {
-        $('#track[romprid="'+id.toString()+'"]').remove();
+        $('.track[romprid="'+id.toString()+'"]').remove();
         mpd.command("command=deleteid&arg="+id, playlist.repopulate);
     }
 
     this.waiting = function() {
-        var html = '<div id="item" class="containerbox menuitem playlisttitle">';
+        var html = '<div class="item containerbox menuitem playlisttitle">';
         html = html + '<img class="smallcover fixed" src="images/waiting2.gif"/>';
         html = html + '<div class="expand">Incoming....</div></div>';
         $('div[name="waiter"]').html(html);
@@ -309,13 +310,13 @@ function Playlist() {
     }
 
     this.checkProgress = function() {
-        clearProgressTimer();
+        self.clearProgressTimer();
         if (finaltrack == -1) {
             // Playlist is empty
             debug.log("Playlist is empty");
             nowplaying.newTrack(emptytrack);
             $("#progress").progressbar("option", "value", 0);
-            $("#playbackTime").html("");
+            $("#playbackTime").empty();
         } else {
             // currentsong is used mainly so we can update the playlist to highlight the currently playing song
             // A change in currentsong is not taken as a new track being played, because currentsong
@@ -352,8 +353,7 @@ function Playlist() {
                     infobar.setNowPlayingInfo({ track: 'Waiting for station info...',
                                                 image: currentTrack.image
                     });
-                    progresstimer = setTimeout( function() { mpd.command("", playlist.checkStream) }, 5000);
-                    progress_timer_running = true;
+                    setTheClock(playlist.streamfunction, 5000);
                     return 0;
                 }
                 if (currentTrack && currentTrack.type != "stream") {
@@ -365,6 +365,7 @@ function Playlist() {
                 }
                 previoussong = mpd.getStatus('songid');
                 streamflag = true;
+                safetytimer = 500;
             }
 
              progress = nowplaying.progress();
@@ -372,7 +373,7 @@ function Playlist() {
              percent = (duration == 0) ? 0 : (progress/duration) * 100;
              $("#progress").progressbar("option", "value", Math.round(percent));
              var html = formatTimeString(progress) + " of " + formatTimeString(duration);
-             $("#playbackTime").html(html);
+             $("#playbackTime").empty().html(html);
              html = null;
             
             if (mpd.getStatus('state') == "play") {
@@ -380,29 +381,35 @@ function Playlist() {
                 if (percent >= scrobblepercent) { nowplaying.scrobble(); }
                 if (duration > 0 && nowplaying.mpd(-1, "type") != "stream") {
                     if (progress >= duration) {
-                        progresstimer = setTimeout( function() { mpd.command("", false) }, safetytimer);
                         debug.log("Starting safety timer");
+                        setTheClock(playlist.checkchange, safetytimer);
                         if (safetytimer < 5000) { safetytimer += 500 }
                     } else {
-                        progresstimer = setTimeout( playlist.checkProgress, 1000);
+                        setTheClock( playlist.checkProgress, 1000);
                     }
-                    progress_timer_running = true;
                 } else {
                     AlanPartridge++;
                     if (AlanPartridge < 7) {
-                        progresstimer = setTimeout( playlist.checkProgress, 1000);
+                        setTheClock( playlist.checkProgress, 1000);
                     } else {
                         AlanPartridge = 0;
-                        progresstimer = setTimeout( function() { mpd.command("", playlist.checkStream) }, 1000);
+                        setTheClock( playlist.streamfunction, 1000);
                     }
-                    progress_timer_running = true;
                 }
             }
         }
     }
+    
+    this.checkchange = function() {
+        mpd.command("", false);
+    }
+    
+    this.streamfunction = function() {
+        mpd.command("", playlist.checkStream);
+    }
 
     this.checkStream = function() {
-        clearProgressTimer();
+        self.clearProgressTimer();
         updateStreamInfo();
         self.checkProgress();
     }
@@ -445,13 +452,17 @@ function Playlist() {
             });
         }
     }
+    
+    function setTheClock(callback, timeout) {
+        // ONLY set the progresstimer by using this function!
+        // Otherwise it's possible that we get multiple timers running
+        // (seems to be a problem in Chrome)
+        self.clearProgressTimer();
+        progresstimer = setTimeout(callback, timeout);
+    }
 
-    function clearProgressTimer() {
-//        if (progress_timer_running) {
-            clearTimeout(progresstimer);
-//            progresstimer = null;
-//            progress_timer_running = false;
-//        }     
+    this.clearProgressTimer = function() {
+        clearTimeout(progresstimer);
     }        
 
     this.stop = function() {
@@ -543,7 +554,7 @@ function Playlist() {
                     (tracks[trackpointer].albumartist != "" && tracks[trackpointer].albumartist != tracks[trackpointer].creator)) {
                     showartist = true;
                 }
-                html = html + '<div id="track" name="'+tracks[trackpointer].playlistpos+'" romprid="'+tracks[trackpointer].backendid+'" class="clickable clickplaylist sortable containerbox playlistitem menuitem">';
+                html = html + '<div name="'+tracks[trackpointer].playlistpos+'" romprid="'+tracks[trackpointer].backendid+'" class="track clickable clickplaylist sortable containerbox playlistitem menuitem">';
                 html = html + '<div class="tracknumbr fixed">'+format_tracknum(tracks[trackpointer].tracknumber)+'</div>';
                 var l = tracks[trackpointer].location;
                 if (l.substring(0, 7) == "spotify") {
@@ -568,7 +579,7 @@ function Playlist() {
 
         this.header = function() {        
             var html = "";
-            html = html + '<div id="item" name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="clickable clickplaylist sortable containerbox menuitem playlisttitle">';
+            html = html + '<div name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="item clickable clickplaylist sortable containerbox menuitem playlisttitle">';
             if (tracks[0].image) {
                 html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="'+tracks[0].image+'"/></div>';
             } else {
@@ -622,8 +633,8 @@ function Playlist() {
             var result = null;
             for(var i in tracks) {
                 if (tracks[i].playlistpos == which) {
-                    $('#item[name="'+self.index+'"]').removeClass('playlisttitle').addClass('playlistcurrenttitle');
-                    $('#track[name="'+which+'"]').removeClass('playlistitem').addClass('playlistcurrentitem');
+                    $('.item[name="'+self.index+'"]').removeClass('playlisttitle').addClass('playlistcurrenttitle');
+                    $('.track[name="'+which+'"]').removeClass('playlistitem').addClass('playlistcurrentitem');
                     result = tracks[i];
                     break;
                 }
@@ -634,10 +645,10 @@ function Playlist() {
         this.deleteSelf = function() {
             var todelete = [];
             for(var i in tracks) {
-                $('#track[name="'+tracks[i].playlistpos+'"]').remove();
+                $('.track[name="'+tracks[i].playlistpos+'"]').remove();
                 todelete.push(tracks[i].backendid);
             }
-            $('#item[name="'+self.index+'"]').remove();
+            $('.item[name="'+self.index+'"]').remove();
             mpd.deleteTracksByID(todelete, playlist.repopulate)
         }
 
@@ -690,7 +701,7 @@ function Playlist() {
 
         this.header = function() {
             var html = "";
-            html = html + '<div id="item" name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="clickable clickplaylist sortable containerbox menuitem playlisttitle">';
+            html = html + '<div name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="item clickable clickplaylist sortable containerbox menuitem playlisttitle">';
             var image = (tracks[0].image) ? tracks[0].image : "images/broadcast.png";
             html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="'+image+'"/></div>';
             html = html + '<div class="containerbox vertical expand">';
@@ -743,7 +754,7 @@ function Playlist() {
             var result = null;
             for(var i in tracks) {
                 if (tracks[i].playlistpos == which) {
-                    $('#item[name="'+self.index+'"]').removeClass('playlisttitle').addClass('playlistcurrenttitle');
+                    $('.item[name="'+self.index+'"]').removeClass('playlisttitle').addClass('playlistcurrenttitle');
                     $('.booger[name="'+which+'"]').removeClass('playlistitem').addClass('playlistcurrentitem');
                     result = tracks[i];
                     break;
@@ -758,7 +769,7 @@ function Playlist() {
                 $('.booger[name="'+tracks[i].playlistpos+'"]').remove();
                 todelete.push(tracks[i].backendid);
             }
-            $('#item[name="'+self.index+'"]').remove();
+            $('.item[name="'+self.index+'"]').remove();
             mpd.deleteTracksByID(todelete, playlist.repopulate)
         }
 
@@ -816,7 +827,7 @@ function Playlist() {
         this.header = function() {
             var html = "";
             
-            html = html + '<div id="item" name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="clickable clickplaylist sortable containerbox menuitem playlisttitle">';
+            html = html + '<div name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="item clickable clickplaylist sortable containerbox menuitem playlisttitle">';
             html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="images/lastfm.png"/></div>';
             html = html + '<div class="containerbox vertical expand">';
             html = html + '<div class="line">Last.FM</div>';
@@ -892,7 +903,7 @@ function Playlist() {
             var result = null;
             for(var i in tracks) {
                 if (tracks[i].playlistpos == which) {
-                    $('#item[name="'+self.index+'"]').removeClass('playlisttitle').addClass('playlistcurrenttitle');
+                    $('.item[name="'+self.index+'"]').removeClass('playlisttitle').addClass('playlistcurrenttitle');
                     $('.booger[name="'+which+'"]').removeClass('playlistitem').addClass('playlistcurrentitem');
                     result = tracks[i];
                     break;
@@ -907,7 +918,7 @@ function Playlist() {
                 $('.booger[name="'+tracks[i].playlistpos+'"]').remove();
                 todelete.push(tracks[i].backendid);
             }
-            $('#item[name="'+self.index+'"]').remove();
+            $('.item[name="'+self.index+'"]').remove();
             $.post("removeStation.php", {remove: hex_md5(self.station)});
             mpd.deleteTracksByID(todelete, playlist.repopulate);
         }

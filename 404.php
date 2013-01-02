@@ -8,6 +8,11 @@ if (preg_match('/albumart\/small\//', $request)) {
 	header("Cache-Control: no-cache, must-revalidate");
 	header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");    
 	header("Location: /rompr/images/album-unknown-small.png");
+} elseif (preg_match('/albumart\/firefoxiscrap\/(.*?)---.*/', $request, $matches)) {
+    header("HTTP/1.1 301 Moved Permanently");
+    header("Cache-Control: no-cache, must-revalidate");
+    header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");    
+    header("Location: /rompr/albumart/original/".$matches[1].".jpg");
 } else {
 	// Custom 404 page for anything else
     header("HTTP/1.1 404 Not Found");

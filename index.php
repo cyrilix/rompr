@@ -177,10 +177,8 @@ $(document).ready(function(){
     if (!shownupdatewindow) {
         var fnarkle = popupWindow.create(500,300,"fnarkle",true,"Information About This Version");
         $("#popupcontents").append('<div id="fnarkler" class="mw-headline"></div>');
-        $("#fnarkler").append('<p>Thanks for installing this version of RompR. If you used a previous version there is a change in this version that I wanted to let you know about.</p>');
-        $("#fnarkler").append('<p>To add tracks and albums to the playlist you must now <i>Double Click</i>. A single-click will <i>select</i> things so that they can be dragged to the playlist.</p>');
-        $("#fnarkler").append('<p>The Basic RompR Manual is at: <a href="https://sourceforge.net/p/rompr/wiki/Basic%20Manual/" target="_blank">https://sourceforge.net/p/rompr/wiki/Basic%20Manual/</a></p>');
-        $("#fnarkler").append('<p>The Discussion Forum is at: <a href="https://sourceforge.net/p/rompr/discussion/" target="_blank">https://sourceforge.net/p/rompr/discussion/</a></p>');
+        $("#fnarkler").append('<p>The Basic RompR Manual is at: <a href="https://sourceforge.net/p/rompr/wiki/Basic%20Manual/" target="_blank">http://sourceforge.net/p/rompr/wiki/Basic%20Manual/</a></p>');
+        $("#fnarkler").append('<p>The Discussion Forum is at: <a href="https://sourceforge.net/p/rompr/discussion/" target="_blank">http://sourceforge.net/p/rompr/discussion/</a></p>');
         $("#fnarkler").append('<p><button style="width:8em" class="tright topformbutton" onclick="popupWindow.close()">OK</button></p>');
         popupWindow.open();
         shownupdatewindow = true;
@@ -223,7 +221,7 @@ $(document).ready(function(){
             <img id="albumpicture" src="images/album-unknown.png" />
         </div>
         <div id="nowplaying"></div>
-        <div id="lastfm" class="infobarlayout">
+        <div id="lastfm" class="infobarlayout invisible">
             <div><ul class="topnav"><a title="Love this track" id="love" href="#" onclick="infobar.love()"><img height="24px" src="images/lastfm-love.png"></a></ul></div>
             <div><ul class="topnav"><a title="Ban this track" id="ban" href="#" onclick="nowplaying.ban()"><img height="24px" src="images/lastfm-ban.png"></a></ul></div>
         </div>

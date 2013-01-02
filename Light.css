@@ -83,7 +83,7 @@ a.album:hover,a.album:active
     color:#cc0000;
 }
 
-#item
+.item
 {
     border-top:1px solid #222222;
 }

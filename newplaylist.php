@@ -40,7 +40,6 @@ switch ($playlist_type) {
 
 print "<html><body></body></html>";
 
-
 function mergeXML($out, $in) {
     foreach ($in->children() as $child)
     {
@@ -55,6 +54,5 @@ function mergeXML($out, $in) {
         }
     }
 }
-
 
 ?>

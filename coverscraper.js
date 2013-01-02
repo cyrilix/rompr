@@ -16,6 +16,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
     var album = null;
     var stream = null;
     var mbid = null;
+    var covertimer = null;
 
     // I need to try and limit the number of lookups per second I do to last.fm
     // Otherwise they will set the lions on me - hence the use of setTimeout
@@ -54,11 +55,12 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
     }
     
     function doNextImage(time) {
+        clearTimeout(covertimer);
         if (formObjects.length > 0) {
             timer_running = true;
-            setTimeout(processForm, 1000);
+            covertimer = setTimeout(processForm, 1000);
         } else {
-            $(statusobj).html("");
+            $(statusobj).empty();
             timer_running = false;
             aADownloadFinished();
         }
@@ -76,7 +78,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
         
         debug.log("Getting Cover for", artist, album, mbid);
          if (sendUpdates) {
-             statusobj.html("Getting "+decodeURIComponent(artist)+" - "+decodeURIComponent(album));
+             statusobj.empty().html("Getting "+decodeURIComponent(artist)+" - "+decodeURIComponent(album));
              var percent = ((numAlbums - formObjects.length)/numAlbums)*100;
              progress.progressbar("option", "value", parseInt(percent.toString()));
          }

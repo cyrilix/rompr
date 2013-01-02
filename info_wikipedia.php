@@ -152,7 +152,7 @@ function wikipedia_get_list_of_suggestions($term) {
     $html = $html . "<ul>";
     foreach ($artistinfo->query->search->p as $id) {
         $link = preg_replace('/\s/', '_', $id['title']);
-        $html = $html . '<li><a href="#" onclick="browser.getWiki(\''.$link.'\')">'.$id['title'].'</a></li>';
+        $html = $html . '<li><a href="#" onclick="browser.getWiki(\''.htmlspecialchars($link, ENT_QUOTES).'\')">'.$id['title'].'</a></li>';
     }
     return wikipedia_bio_header('Wikipedia : ', $term) . $html;
     
@@ -164,7 +164,7 @@ function get_wikipedia_artistinfo($artist) {
     if ($page == null) {
         // No results returned. If there's an '&' or 'and' or '+' in the name - such as 'Fruitbat & Umbrella'
         // try querying for 'Fruitbat' and 'Umbrella' separately and if there are any results, display them all
-        $artist = preg_replace('/and/', '&', $artist);
+        $artist = preg_replace('/ and /', ' & ', $artist);
         $artist = preg_replace('/\+/', '&', $artist);
         if (preg_match('/ & /', $artist) > 0) {
             $alist = explode(' & ', $artist);
@@ -231,10 +231,18 @@ function format_wikipedia_page($html) {
     //<a href="/w/index.php?title=J%C3%B6rg_Schwenke&amp;action=edit&amp;redlink=1" class="new" title="JÃ¶rg Schwenke (page does not exist)">JÃ¶rg Schwenke</a>
     $html = preg_replace( '/<a href="\/w\/.*?">(.*?)<\/a>/', '$1', $html );
     //Reformat wikimedia links so they go to our AJAX query : <a href="/wiki/File:Billbongo.jpg"
-    $html = preg_replace( '/<a href="\/wiki\/(File:.*?)"/', '<a href="#" onclick="getWikimedia(\'$1\')"', $html );
+    $html = preg_replace_callback( '/<a href="\/wiki\/(File:.*?)"/', 'callback1', $html );
     //Redirect intra-wikipedia links so they come back to us and we can parse them
-    $html = preg_replace( '/<a href="\/wiki\/(.*?)"/', '<a href="#" onclick="browser.getWiki(\'$1\')"', $html );
+    $html = preg_replace_callback( '/<a href="\/wiki\/(.*?)"/', 'callback2', $html );
     return $html;
+}
+
+function callback1($matches) {
+    return '<a href="#" name="'.htmlspecialchars($matches[1], ENT_QUOTES).'" onclick="getWikimedia(event)"';
+}
+
+function callback2($matches) {
+    return '<a href="#" onclick="browser.getWiki(\''.htmlspecialchars($matches[1], ENT_QUOTES).'\')"';
 }
 
 function wikipedia_bio_header($prefix, $artistname) {
