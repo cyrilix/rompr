@@ -62,6 +62,7 @@ var gotFriends = false;
 var sourceshidden = false;
 var playlisthidden = false;
 var progresstimer = null;
+var prefsbuttons = ["images/button-off.png", "images/button-on.png"];
 
 function aADownloadFinished() {
     /* We need one of these in global scope so coverscraper works here
@@ -79,6 +80,7 @@ function aADownloadFinished() {
  print "var shownupdatewindow = ".$prefs['shownupdatewindow'].";\n";
  print "var autotagname = '".$prefs['autotagname']."';\n";
  print "var coverscraper = new coverScraper(0, false, false, ".$prefs['downloadart'].");\n";
+ print "var playlistcontrolsvisible = ".$prefs['playlistcontrolsvisible'].";\n";
 
 ?>
 $(document).ready(function(){
@@ -334,6 +336,44 @@ $(document).ready(function(){
 </div>
 
 <div id="playlist" class="tright column noborder">
+    <div style="padding-left:12px">
+    <a title="Playlist Controls" href="#" onclick="togglePlaylistButtons()"><img class="topimg clickicon" height="20px" src="images/pushbutton.png"></a>
+    </div>
+<?php
+    if ($prefs['playlistcontrolsvisible'] == 'true') {
+        print '<div id="playlistbuttons" class="searchbox">';
+    } else {
+        print '<div id="playlistbuttons" class="invisible searchbox">';
+    }
+?>
+        <table width="90%" align="center">
+        <tr>
+        <td align="right">SHUFFLE</td><td class="togglebutton">
+<?php
+        print '<img src="'.$prefsbuttons[$prefs['random']].'" id="random" onclick="toggleoption(\'random\')" class="togglebutton clickicon" />';
+?>
+        </td>
+        <td class="togglebutton">
+<?php
+        print '<img src="'.$prefsbuttons[$prefs['crossfade']].'" id="crossfade" onclick="toggleoption(\'crossfade\')" class="togglebutton clickicon" />';
+?>
+        </td><td align="left">CROSSFADE</td>
+        </tr>
+        <tr>
+        <td align="right">REPEAT</td><td class="togglebutton">
+<?php
+        print '<img src="'.$prefsbuttons[$prefs['repeat']].'" id="repeat" onclick="toggleoption(\'repeat\')" class="togglebutton clickicon" />';
+?>
+        </td>
+        <td class="togglebutton">
+<?php
+        print '<img src="'.$prefsbuttons[$prefs['consume']].'" id="consume" onclick="toggleoption(\'consume\')" class="togglebutton clickicon" />';
+?>
+        </td><td align="left">CONSUME</td>
+        </tr>
+        </table>
+    </div>
+
 <div id="sortable" class="noselection fullwidth"><div>
 </div>
 

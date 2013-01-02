@@ -43,13 +43,15 @@ function changetheme() {
     savePrefs({theme: $("#themeselector").val()});
 }
 
-function toggleOption(thing) {
+function toggleoption(thing) {
     var tocheck = (thing == "crossfade") ? "xfade" : thing;
     var new_value = (mpd.getStatus(tocheck) == 0) ? 1 : 0;
+    $("#"+thing).attr("src", prefsbuttons[new_value]);
     mpd.command("command="+thing+"&arg="+new_value);
     var options = new Object;
     options[thing] = new_value;
     savePrefs(options);
+
 }
 
 function setscrob(e) {
@@ -390,6 +392,13 @@ function toggleSearch() {
 
 function toggleFileSearch() {
     $("#filesearch").slideToggle('fast');
+    return false;
+}
+
+function togglePlaylistButtons() {
+    $("#playlistbuttons").slideToggle('fast');
+    playlistcontrolsvisible = !playlistcontrolsvisible;
+    savePrefs({ playlistcontrolsvisible: playlistcontrolsvisible.toString() });
     return false;
 }
 

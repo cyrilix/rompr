@@ -25,9 +25,6 @@ include ("connection.php");
                         </select></li>
                         <li class="wide"><button class="topformbutton" onclick="editkeybindings()">Edit Keyboard Shortcuts...</button></li>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="browser.hide()" id="hideinfobutton">Hide Information Panel</input></li>
-                        <li class="wide"><input type="checkbox" class="topcheck" onclick="toggleOption('random')" id="shufflebutton">Playlist Shuffle</input></li>
-                        <li class="wide"><input type="checkbox" class="topcheck" onclick="toggleOption('crossfade')" id="xfadebutton">Crossfade Tracks</input></li>
-                        <li class="wide"><input type="checkbox" class="topcheck" onclick="toggleOption('repeat')" id="repeatbutton">Repeat Playlist</input></li>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="togglePref('downloadart')" id="downloadart">Automatically Download Covers</input></li>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="togglePref('updateeverytime')" id="updateeverytime">Update Collection On Start</input></li>
                         <li class="wide"><button class="topformbutton" onclick="updateCollection('update')">Update Collection Now</button></li>
@@ -117,35 +114,10 @@ $("#scrobwrangler").click( setscrob );
     }
     print ");\n";
 
-    print '    $("#shufflebutton").attr("checked", ';
-    if ($prefs['random'] == 0) {
-        print 'false';
-    } else {
-        print 'true';
-    }
-    print ");\n";
-
-    print '    $("#xfadebutton").attr("checked", ';
-    if ($prefs['crossfade'] == 0) {
-        print 'false';
-    } else {
-        print 'true';
-    }
-    print ");\n";
-
-    print '    $("#repeatbutton").attr("checked", ';
-    if ($prefs['repeat'] == 0) {
-        print 'false';
-    } else {
-        print 'true';
-    }
-    print ");\n";
-
     print '    $("#updateeverytime").attr("checked", '.$prefs['updateeverytime'].");\n";
     print '    $("#downloadart").attr("checked", '.$prefs['downloadart'].");\n";
 
-    
-   print '$("#themeselector").val("'.$prefs['theme'].'");'."\n";
+    print '$("#themeselector").val("'.$prefs['theme'].'");'."\n";
 
 ?>
 lastfm.setscrobblestate();

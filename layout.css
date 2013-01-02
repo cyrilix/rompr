@@ -98,6 +98,12 @@ a
     overflow:auto;
 }
 
+#sortable
+{
+    margin:0px;
+    padding:0px;
+}
+
 /*-- divs used to create infobar layout --*/
 
 .infobarlayout
@@ -477,6 +483,14 @@ a
     vertical-align:middle;
 }
 
+.togglebutton
+{
+    padding:0px;
+    height:16px;
+    width:33px;
+    vertical-align:middle;
+}
+
 .clickicon
 {
     cursor:pointer;
@@ -490,13 +504,6 @@ a
 .noclick
 {
     cursor:default;
-}
-
-#sortable
-{
-    /* -- list-style-type:none; --*/
-    margin:0px;
-    padding:0px;
 }
 
 /*-- For Wikipedia and Last.FM pages --*/

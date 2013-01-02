@@ -16,7 +16,7 @@ function Info(target, source) {
 
     this.trackHasChanged = function(npinfo) {
         /* nowplaying is telling us that something has changed but it dosn't yet have data to display */
-        if (displaypointer > -1) {
+        if (displaypointer > -1 && displaypointer >= (history.length)-1) {
             var currentnames = nowplaying.getmpdnames(history[displaypointer].nowplayingindex);
             playTheWaitingGame( npinfo,
                                 (currentnames.artist != npinfo.artist),
@@ -59,7 +59,15 @@ function Info(target, source) {
                 showMeTheMonkey(index, true, true, true, nowplaying.getnames(index));
                 break;
             case (displaypointer < (history.length)-1):
-                /* We are not displaying the most recent entry in our history, so we don't want to update */
+                /* We are not displaying the most recent entry in our history, so we don't want to update
+                   but we do want to put the entry into our history*/
+                var newnames = nowplaying.getnames(index);
+                showMeTheMonkey(index, 
+                                false,
+                                false,
+                                false,
+                                newnames
+                               );
                 break;
             case (current_source == "lastfm"):
                 /* When we're displaying LastFM stuff, we always care about changes */
@@ -86,12 +94,15 @@ function Info(target, source) {
     }
     
     function showMeTheMonkey(npi, showartist, showalbum, showtrack, names) {
-        displaypointer = history.length;
-        history[displaypointer] = { nowplayingindex: npi,
-                                    source: current_source,
-                                    artist: names.artist,
-                                    album: names.album,
-                                    track: names.track };
+        var thisone = history.length;
+        history[thisone] = { nowplayingindex: npi,
+                             source: current_source,
+                             artist: names.artist,
+                             album: names.album,
+                             track: names.track };
+        if (showartist || showalbum || showtrack) {
+            displaypointer = thisone;
+        }
         updateHistory();
         clearSelection();
         $('#artistinformation').stop();

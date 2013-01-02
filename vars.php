@@ -5,6 +5,7 @@ $FILESLIST = 'prefs/files_'.$LISTVERSION.'.html';
 $connection = null;
 $is_connected = false;
 $DEBUG = 1;
+$prefsbuttons = array("images/button-off.png", "images/button-on.png");
 
 // NOTE: sortbydate can be set to "true' to make the collection sort albums by date
 // - however mpd can only read the Date ID3 tag, whereas the 'Original Release Date'
@@ -36,7 +37,8 @@ $prefs = array( "mpd_host" => "localhost",
                 "updateeverytime" => "false",
                 "downloadart" => "true",
                 "autotagname" => "",
-                "sortbydate" => "false"
+                "sortbydate" => "false",
+                "playlistcontrolsvisible" => "false"
                 );
 loadPrefs();
 

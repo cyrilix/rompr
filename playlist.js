@@ -8,6 +8,7 @@ function Playlist() {
     var currentTrack = null;
     var AlanPartridge = 0;
     var streamflag = true;
+    var consumeflag = true;
     var finaltrack = -1;
     var previoussong = -1;
     this.rolledup = [];
@@ -342,6 +343,11 @@ function Playlist() {
             // Track changes are detected based on the playlist id. This prevents us from repopulating
             // the browser every time the playlist gets repopulated.
             if (mpd.getStatus('songid') != previoussong) {
+                if (mpd.getStatus('consume') == 1 && consumeflag) {
+                    consumeflag = false;
+                    self.repopulate();
+                    return 0;
+                }
                 debug.log("Track has changed");
                 if (currentTrack && currentTrack.type == "stream" && streamflag) {
                     debug.log("Waiting for stream info......");
@@ -365,6 +371,7 @@ function Playlist() {
                 }
                 previoussong = mpd.getStatus('songid');
                 streamflag = true;
+                consumeflag = true;
                 safetytimer = 500;
             }
 
