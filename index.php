@@ -123,9 +123,10 @@ $(document).ready(function(){
             ui.item.css("background", "#555555"); 
             ui.item.css("opacity", "0.7") 
         },
-        stop: function(event, ui) {
-            playlist.dragstopped(event, ui);
-        }
+//         stop: function(event, ui) {
+//             playlist.dragstopped(event, ui);
+//         }
+        stop: playlist.dragstopped
     });
     setBottomPaneSize();
     $("#loadinglabel3").effect('pulsate', { times:100 }, 2000);

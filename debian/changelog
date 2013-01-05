@@ -1,3 +1,11 @@
+mpd-client-rompr (0.19.6) precise; urgency=low
+
+  * Another testing release - major internal channges to almost
+    everything.
+    
+ -- Mark Greenwood <fatgerman@gmail.com>  Wed, 02 Jan 2013 17:30:00 +0000
+   
+   
 mpd-client-rompr (0.19.5) precise; urgency=low
 
   * Another testing release - major internal channges to almost

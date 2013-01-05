@@ -19,10 +19,12 @@ function Playlist() {
     var progress = null;
     var duration = null;
     var percent = null;
+    var lastfmcleanuptimer = null;
 
     this.repopulate = function() {
         debug.log("Repopulating Playlist");
-        updatecounter++;        
+        updatecounter++;
+        self.cleanupCleanupTimer();
         $.ajax({
             type: "GET",
             url: "getplaylist.php",
@@ -44,6 +46,9 @@ function Playlist() {
         var current_station = "";
         var current_type = "";
         var track;
+        var expiresin = null;
+
+        self.cleanupCleanupTimer();
 
         // This is a mechanism to prevent multiple repeated updates of the playlist in the case
         // where, for example, the user is clicking rapidly on the delete button for lots of tracks
@@ -74,6 +79,7 @@ function Playlist() {
         tracklist = [];
         var totaltime = 0;
 
+        var unixtimestamp = Math.round(new Date()/1000);
         $(list).find("track").each( function() {
 
             track = { 
@@ -140,6 +146,10 @@ function Playlist() {
                             tracklist[count] = item;
                             count++;
                         }
+                        var expirytime = parseInt(track.expires)-unixtimestamp;
+                        if (expirytime > 0 && (expiresin === null || expirytime < expiresin)) {
+                            expiresin = expirytime;
+                        }
                         break;
                     default:
                         item = new playlist.Album(sortartist, track.album, count);
@@ -154,6 +164,7 @@ function Playlist() {
             item.newtrack(track);
 
         });
+        
         if (track) {
             finaltrack = parseInt(track.playlistpos);
             debug.log("Playlist: finaltrack is",finaltrack);
@@ -169,8 +180,6 @@ function Playlist() {
             html = html + tracklist[i].getHTML();
         }
         
-        // Remove the contents of the playlist
-        //$('#sortable').empty();
         // Invisible empty div tacked on the end gives something to drop draggables onto
         html = html + '<div name="waiter"><table width="100%" class="playlistitem"><tr><td align="left"><img src="images/transparent-32x32.png"></td></tr></table></div>';
         $('#sortable').empty().html(html);
@@ -182,6 +191,11 @@ function Playlist() {
         }
 
         self.checkProgress();
+        
+        if (expiresin != null) {
+            debug.log("Last.FM Items in this playlist expire in",expiresin);
+            lastfmcleanuptimer = setTimeout(self.lastfmcleanup, (expiresin+1)*1000);
+        }
         
 // Not sure this is necessary. Auto download should take care of this anyway in every conceivable situation
 //         // Would like to search for missing album art in the playlist, and it's easy to do.
@@ -206,6 +220,17 @@ function Playlist() {
 //             }
 //          });
 
+    }
+    
+    this.lastfmcleanup = function() {
+        debug.log("Running last.fm cleanup");
+        for(var i in tracklist) {
+            if (tracklist[i].invalidateOldTracks(mpd.getStatus('song'), -1)) { break; }
+        }
+    }
+    
+    this.cleanupCleanupTimer = function() {
+        clearTimeout(lastfmcleanuptimer);
     }
     
     this.dragstopped = function(event, ui) {
@@ -383,7 +408,7 @@ function Playlist() {
              $("#playbackTime").empty().html(html);
              html = null;
             
-            if (mpd.getStatus('state') == "play") {
+             if (mpd.getStatus('state') == "play") {
                 if (progress > 4) { nowplaying.updateNowPlaying() };
                 if (percent >= scrobblepercent) { nowplaying.scrobble(); }
                 if (duration > 0 && nowplaying.mpd(-1, "type") != "stream") {
@@ -394,7 +419,7 @@ function Playlist() {
                     } else {
                         setTheClock( playlist.checkProgress, 1000);
                     }
-                } else {
+             } else {
                     AlanPartridge++;
                     if (AlanPartridge < 7) {
                         setTheClock( playlist.checkProgress, 1000);
@@ -878,25 +903,32 @@ function Playlist() {
             var todelete = [];
             var unixtimestamp = Math.round(new Date()/1000);
             var index = -1;
+            var startindex = -1;
             var result = false;
             debug.log("Checking Last.FM Playlist item");
             for(var i in tracks) {
                 debug.log("Track",i,"expires in", parseInt(tracks[i].expires) - unixtimestamp);
-                if (unixtimestamp > parseInt(tracks[i].expires)) {
+                if (unixtimestamp > parseInt(tracks[i].expires) && currentsong != tracks[i].playlistpos) {
+                    // Remove track if it has expired, but not if it's currently playing
+                    debug.log("Track",i,"has expired",currentsong,tracks[i].playlistpos);
                     $('.booger[name="'+tracks[i].playlistpos+'"]').slideUp('fast');
                     index = i;
+                    if (startindex == -1) { startindex = i }
                 } else if (previoussong == tracks[i].backendid && currentsong != tracks[i].playlistpos) {
                     debug.log("Removing track which was playing but has been skipped")
                     $('.booger[name="'+tracks[i].playlistpos+'"]').slideUp('fast');
                     index = i;
+                    startindex = 0;
                 } else if (tracks[i].playlistpos == currentsong && i>0) {
                     debug.log("We're in the middle of a field!")
                     index = i-1;
+                    startindex = 0;
                 }
             }
 
             if (index >= 0) {
-                for(var j = 0; j <= index; j++) {
+                playlist.cleanupCleanupTimer();
+                for(var j = startindex; j <= index; j++) {
                     todelete.push(tracks[j].backendid);
                 }
                 playlist.removelfm(todelete, tuneurl, (parseInt(tracks[tracks.length - 1].playlistpos))+1);

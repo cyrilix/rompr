@@ -20,9 +20,16 @@ function lastfmstation(tuneurl) {
 
 	this.gotNewTracks = function(xml) {
         debug.log("Got tracks for",self.url);
+        var expiry = $(xml).find("link").text();
+        expiry = parseInt(expiry) + Math.round(new Date()/1000);
+        debug.log("Last.FM: expiry at",expiry);
         $(xml).find("track").each( function() {
-            self.tracks.push($(this).find("location").text());
-            debug.log($(this).find("location").text(), $(this).find("title").text());
+            var track = {
+                url: $(this).find("location").text(),
+                expiry: expiry
+            };
+            self.tracks.push( track );
+            debug.log("New Track", $(this).find("location").text());
         });
         var oSerializer = new XMLSerializer(); 
         var xmlString = oSerializer.serializeToString(xml);
@@ -47,14 +54,20 @@ function lastfmstation(tuneurl) {
         var pushtracks = [];
         var counter = self.numtrackswanted;
         while (counter > 0 && self.tracks.length > 0) {
-            pushtracks.push(self.tracks.shift());
-            counter--;
+            newtrack = self.tracks.shift();
+            if (newtrack.expiry > (new Date()/1000)) {
+                debug.log("Shifted:",newtrack.url);
+                pushtracks.push(newtrack);
+                counter--;
+            } else {
+                debug.log(newtrack.url," has expired");
+            }
         }
         if (counter == 0 && self.numtrackswanted > 0) {
             var cmdlist = [];
             for (var i in pushtracks) {
-                debug.log("Pushing last.fm track",pushtracks[i]);
-                cmdlist.push('add "'+pushtracks[i]+'"');
+                debug.log("Pushing last.fm track",pushtracks[i].url);
+                cmdlist.push('add "'+pushtracks[i].url+'"');
             }
             if (self.trackinsertpos > -1) {
                 var elbow = playlist.getfinaltrack()+1;
@@ -77,6 +90,7 @@ function lastfmstation(tuneurl) {
         }
         if (counter > 0) {
             // We didn't get enough tracks
+            debug.log("last.FM didn't get enough tracks");
             self.tracks = pushtracks;
             self.repopulate();
         }

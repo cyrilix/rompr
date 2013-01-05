@@ -1,4 +1,5 @@
 <?php
+ob_start();
 $playlist_type = $_POST['type'];
 $playlist = $_POST['xml'];
 
@@ -38,7 +39,8 @@ switch ($playlist_type) {
 
 }
 
-print "<html><body></body></html>";
+header('HTTP/1.1 204 No Content');
+ob_flush();
 
 function mergeXML($out, $in) {
     foreach ($in->children() as $child)
@@ -47,7 +49,10 @@ function mergeXML($out, $in) {
             $chld = $out->addChild($child->getName());
             mergeXML($chld, $child);
         } else {
-            $chld = $out->addChild($child->getName(), $child);
+            // Either Last.FM are returning non-standard XML or PHP is doing something to it.
+            // Oh no wait, it'll be getting munged by the javascript when it gets posted to here.
+            // Hence htmlspecialchars.
+            $chld = $out->addChild($child->getName(), htmlspecialchars($child));
         }
         foreach($child->attributes() as $a => $b) {
             $chld->addAttribute($a, $b);
