@@ -1,3 +1,33 @@
+mpd-client-rompr (0.20.1) precise; urgency=low
+
+  * Bugfix - RompR would crash if 'Don't Scrobbel Radio Tracks' was enabled.
+    
+ -- Mark Greenwood <fatgerman@gmail.com>  Tue, 08 Jan 2013 13:54:00 +0000
+   
+   
+mpd-client-rompr (0.20) precise; urgency=low
+
+  * Major internal changes to code. This version requires a modern browser.
+    
+ -- Mark Greenwood <fatgerman@gmail.com>  Sun, 06 Jan 2013 22:18:00 +0000
+   
+   
+mpd-client-rompr (0.19.8) precise; urgency=low
+
+  * Another testing release - major internal channges to almost
+    everything.
+    
+ -- Mark Greenwood <fatgerman@gmail.com>  Sun, 06 Jan 2013 15:08:00 +0000
+   
+   
+mpd-client-rompr (0.19.7) precise; urgency=low
+
+  * Another testing release - major internal channges to almost
+    everything.
+    
+ -- Mark Greenwood <fatgerman@gmail.com>  Sat, 05 Jan 2013 13:01:00 +0000
+   
+   
 mpd-client-rompr (0.19.6) precise; urgency=low
 
   * Another testing release - major internal channges to almost

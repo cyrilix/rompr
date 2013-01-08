@@ -32,6 +32,10 @@ a:hover,a:active
 
 
 
+#notifications
+{
+    background-image:url('images/silver2.jpg');;
+}
 
 
 /*-- divs used to create infobar layout --*/
@@ -71,6 +75,15 @@ a.album:hover,a.album:active
     border-left:1px solid #000000;
 }
 
+div.clickable:hover
+{
+    color:#ff4800;
+}    
+
+div.clickable.selected:hover
+{
+    color:#dddddd;
+}    
 
 /*-- divs and classes used in the playlist --*/
 
@@ -114,7 +127,7 @@ a.album:hover,a.album:active
 
 .albumsection
 {
-    border-top:1px solid #000000;
+    background-color:#e7e7e7;
 }
 
 .translucent

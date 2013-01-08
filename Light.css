@@ -34,6 +34,11 @@ a:hover,a:active
     background-color:#f8f8f8;
 }
 
+#notifications
+{
+    background-color:#e7e7e7;
+}
+
 /*-- divs used to create infobar layout --*/
 
 .bordered
@@ -71,14 +76,24 @@ a.album:hover,a.album:active
     border-left:1px solid #444444;
 }
 
+div.clickable:hover
+{
+    color:#ff4800;
+}    
+
+div.clickable.selected:hover
+{
+    color:#dddddd;
+}    
+
 /*-- divs and classes used in the playlist --*/
 
-.playlistcurrentitem tr td a.album
+.playlistcurrentitem
 {
     color:#cc0000;
 }
 
-.playlistcurrenttitle tr td a.album
+.playlistcurrenttitle 
 {
     color:#cc0000;
 }
@@ -110,15 +125,15 @@ a.album:hover,a.album:active
     background:#ffffff;
 }
 
-#infosection
+.infosection
 {
     background-color:#ededed;
     border-bottom:1px solid #000000;
 }
 
-#albumsection
+.albumsection
 {
-    border-top:1px solid #000000;
+    background-color:#d5d5d5;
 }
 
 .translucent

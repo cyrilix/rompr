@@ -29,16 +29,17 @@ function Info(target, source) {
     function playTheWaitingGame(npinfo, doartist, doalbum, dotrack) {
         
         clearSelection();
-        if (doartist) {
-            $("#artistinformation").html(waitingBanner('Artist', npinfo.artist));
+        if (!hidden) {
+            if (doartist) {
+                $("#artistinformation").html(waitingBanner('Artist', npinfo.artist));
+            }
+            if (doalbum) {
+                $("#albuminformation").html(waitingBanner('Album', npinfo.album));
+            }
+            if (dotrack) {
+                $("#trackinformation").html(waitingBanner('Track', npinfo.track));
+            }
         }
-        if (doalbum) {
-            $("#albuminformation").html(waitingBanner('Album', npinfo.album));
-        }
-        if (dotrack) {
-            $("#trackinformation").html(waitingBanner('Track', npinfo.track));
-        }
-        
     }
     
     function waitingBanner(title, name) {    

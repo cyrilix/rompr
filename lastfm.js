@@ -281,7 +281,7 @@ function LastFM(user) {
 
         scrobble : function(options) {
             if (logged_in && scrobbling) {
-                if (dontscrobbleradio == 1 && nowplaying.type(-1) != "local") {
+                if (dontscrobbleradio == 1 && nowplaying.mpd(-1, 'type') != "local") {
                     debug.log("Not Scrobbling because track is not local");
                     return 0;
                 }

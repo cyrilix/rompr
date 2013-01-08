@@ -44,6 +44,10 @@ a:hover,a:active
     border-top:1px solid #000000;
 }
 
+#notifications
+{
+    background-color:#000000;
+}
 /*-- divs and classes used in the albums list --*/
 
 .album1
@@ -128,7 +132,7 @@ div.clickable.selected:hover
 
 .albumsection
 {
-    border-top:1px solid #000000;
+    background-color:#000000;
 }
 
 .translucent

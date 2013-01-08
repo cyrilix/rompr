@@ -186,7 +186,7 @@ function trackDataCollection(ind, mpdinfo, art, alb, tra) {
             
             lfmdata: function() {
                 try {
-                    return album_data.album;
+                    return album_data.album;;
                 } catch(err) {
                     return {};
                 }
