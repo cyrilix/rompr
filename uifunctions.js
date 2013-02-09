@@ -43,6 +43,47 @@ function changetheme() {
     savePrefs({theme: $("#themeselector").val()});
 }
 
+function changeClickPolicy() {
+    clickmode = $('[name=clickselect]:checked').val();
+    debug.log("Click Policy now set to",clickmode);
+    savePrefs({clickmode: clickmode});
+    setClickHandlers();
+}
+
+function setClickHandlers() {
+    
+    // Set up all our click event listeners
+    
+    $("#collection").unbind('click');
+    $("#collection").unbind('dblclick');
+    $("#filecollection").unbind('click');
+    $("#filecollection").unbind('dblclick');
+    $("#search").unbind('click');
+    $("#search").unbind('dblclick');
+    $("#filesearch").unbind('click');
+    $("#filesearch").unbind('dblclick');
+    $("#lastfmlist").unbind('click');
+    $("#lastfmlist").unbind('dblclick');
+    $("#radiolist").unbind('click');
+    $("#radiolist").unbind('dblclick');
+    
+    $("#collection").click(onCollectionClicked);
+    $("#filecollection").click(onCollectionClicked);
+    $("#search").click(onCollectionClicked);
+    $("#filesearch").click(onCollectionClicked);
+    $("#lastfmlist").click(onLastFMClicked);
+    $("#radiolist").click(onRadioClicked);
+
+    if (clickmode == "double") {
+        $("#collection").dblclick(onCollectionDoubleClicked);    
+        $("#filecollection").dblclick(onCollectionDoubleClicked);
+        $("#search").dblclick(onCollectionDoubleClicked);    
+        $("#filesearch").dblclick(onCollectionDoubleClicked);
+        $("#lastfmlist").dblclick(onLastFMDoubleClicked);
+        $("#radiolist").dblclick(onRadioDoubleClicked);    
+    }
+}
+
 function toggleoption(thing) {
     var tocheck = (thing == "crossfade") ? "xfade" : thing;
     var new_value = (mpd.getStatus(tocheck) == 0) ? 1 : 0;
@@ -570,7 +611,26 @@ function editkeybindings() {
             $(".buttonchange").keydown( function(ev) { changeHotKey(ev) } );
             popupWindow.open();
         })
-        .fail( function(data) {  });
+        .fail( function() { alert("Failed To Read Key Bindings!") });
+
+}
+
+function editmpdoutputs() {
+
+    $("#configpanel").slideToggle('fast');
+
+    $.getJSON("getaudiooutputs.php")
+        .done(function(data) {
+            debug.log(data);
+            var audiopu = popupWindow.create(500,300,"audiopu",true,"Audio Outputs");
+            $("#popupcontents").append('<table align="center" cellpadding="4" id="outputtable" width="80%"></table>');
+            for (var i in data) {
+                $("#outputtable").append('<tr><td width="50%" align="right">'+data[i].outputname+'</td><td>'+format_outputswitch(data[i].outputenabled, data[i].outputid)+'</td></tr>');
+            }
+            $("#outputtable").append('<tr><td colspan="2"><button  style="width:8em" class="tright topformbutton" onclick="popupWindow.close()">OK</button></td></tr>');
+            popupWindow.open();
+        })
+        .fail( function() { alert("Failed To Get Audio Outputs From MPD!") });
 
 }
 
@@ -578,6 +638,25 @@ function format_keyinput(inpname, data) {
     return '<input id="'+inpname+'" class="tleft sourceform buttonchange" type="text" size="10" value="'+getHotKeyDisplay(data[inpname])+'"></input>' +
             '<input name="'+inpname+'" class="buttoncode" type="hidden" value="'+getHotKey(data[inpname])+'"></input>';
 }
+
+function format_outputswitch(enabled, id) {
+    if (enabled == 0) {
+        return '<img src="images/button-off.png" id="outputbutton'+id+'" onclick="outputswitch(\''+id+'\')" class="togglebutton clickicon" />';
+    } else {
+        return '<img src="images/button-on.png" id="outputbutton'+id+'" onclick="outputswitch(\''+id+'\')" class="togglebutton clickicon" />';
+    }
+}
+
+function outputswitch(id) {
+    debug.log("Output Switch for output",id);
+    if ($('#outputbutton'+id).attr("src") == "images/button-off.png") {
+        $('#outputbutton'+id).attr("src", "images/button-on.png");
+        mpd.command("command=enableoutput&arg="+id);
+    } else {
+        $('#outputbutton'+id).attr("src", "images/button-off.png");
+        mpd.command("command=disableoutput&arg="+id);
+    }
+}    
 
 function changeHotKey(ev) {
 

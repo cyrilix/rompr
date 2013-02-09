@@ -81,6 +81,7 @@ function aADownloadFinished() {
  print "var autotagname = '".$prefs['autotagname']."';\n";
  print "var coverscraper = new coverScraper(0, false, false, ".$prefs['downloadart'].");\n";
  print "var playlistcontrolsvisible = ".$prefs['playlistcontrolsvisible'].";\n";
+ print "var clickmode = '".$prefs['clickmode']."';\n";
 
 ?>
 $(document).ready(function(){
@@ -91,19 +92,7 @@ $(document).ready(function(){
         window.addEventListener("storage", onStorageChanged, false);
     }
         
-    // Set up all our click event listeners
-    $("#collection").click(onCollectionClicked);
-    $("#collection").dblclick(onCollectionDoubleClicked);    
-    $("#filecollection").click(onCollectionClicked);
-    $("#filecollection").dblclick(onCollectionDoubleClicked);
-    $("#search").click(onCollectionClicked);
-    $("#search").dblclick(onCollectionDoubleClicked);    
-    $("#filesearch").click(onCollectionClicked);
-    $("#filesearch").dblclick(onCollectionDoubleClicked);
-    $("#lastfmlist").click(onLastFMClicked);
-    $("#lastfmlist").dblclick(onLastFMDoubleClicked);
-    $("#radiolist").click(onRadioClicked);
-    $("#radiolist").dblclick(onRadioDoubleClicked);
+    setClickHandlers();
     $("#sortable").click(onPlaylistClicked);
 
     setDraggable('collection');

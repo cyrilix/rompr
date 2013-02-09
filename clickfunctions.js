@@ -1,23 +1,22 @@
 function onCollectionClicked(event) {
-    
     var clickedElement = findClickableElement(event);
-    debug.log("Collection was clicked",clickedElement);
     if (clickedElement.hasClass("menu")) {
         doMenu(event, clickedElement);
-    } else if (clickedElement.hasClass("clickalbum")) {
-        event.stopImmediatePropagation();
-        albumSelect(event, clickedElement);
-    } else if (clickedElement.hasClass("clicktrack")) {
-        event.stopImmediatePropagation();
-        trackSelect(event, clickedElement);
+    } else if (clickmode == "double") {
+        if (clickedElement.hasClass("clickalbum")) {
+            event.stopImmediatePropagation();
+            albumSelect(event, clickedElement);
+        } else if (clickedElement.hasClass("clicktrack")) {
+            event.stopImmediatePropagation();
+            trackSelect(event, clickedElement);
+        }
+    } else {
+        onCollectionDoubleClicked(event);
     }
-    
 }
 
 function onCollectionDoubleClicked(event) {
-
     var clickedElement = findClickableElement(event);
-    debug.log("Collection was double clicked",clickedElement);
     if (clickedElement.hasClass("clickalbum")) {
         event.stopImmediatePropagation();
         playlist.addalbum(clickedElement);
@@ -25,24 +24,22 @@ function onCollectionDoubleClicked(event) {
         event.stopImmediatePropagation();
         playlist.addtrack(clickedElement);
     }
-        
 }
 
 function onLastFMClicked(event) {
     var clickedElement = findClickableElement(event);
-    debug.log("Last.FM was clicked",clickedElement);
     if (clickedElement.hasClass("menu")) {
         doMenu(event, clickedElement);
     } else if (clickedElement.hasClass("clicklfmuser")) {
         event.stopImmediatePropagation();
         window.open("http://www.last.fm/user/"+clickedElement.attr("name"), "_blank");
+    } else if (clickmode == "single") {
+        onLastFMDoubleClicked(event);
     }
 }
 
 function onLastFMDoubleClicked(event) {
-    
     var clickedElement = findClickableElement(event);
-    debug.log("Last.FM was clicked",clickedElement);
     if (clickedElement.hasClass("clicklfm")) {
         event.stopImmediatePropagation();
         doLastFM(clickedElement.attr("name"), lastfm.username());
@@ -54,18 +51,18 @@ function onLastFMDoubleClicked(event) {
 
 function onRadioClicked(event) {
     var clickedElement = findClickableElement(event);
-    debug.log("Radio was clicked",clickedElement);
     if (clickedElement.hasClass("menu")) {
         doMenu(event, clickedElement);
     } else if (clickedElement.hasClass("clickradioremove")) {
         event.stopImmediatePropagation();
         removeUserStream(clickedElement.attr("name"));
+    } else if (clickmode == "single") {
+        onRadioDoubleClicked(event);
     }
 }
 
 function onRadioDoubleClicked(event) {
     var clickedElement = findClickableElement(event);
-    debug.log("Radio was double clicked",clickedElement);
     if (clickedElement.hasClass("clickicecast")) {
         event.stopImmediatePropagation();
         addIceCast(clickedElement.attr("name"));
@@ -83,7 +80,6 @@ function onRadioDoubleClicked(event) {
 
 function onPlaylistClicked(event) {
     var clickedElement = findClickableElement(event);
-    debug.log("Playlist was clicked",clickedElement);
     if (clickedElement.hasClass("clickplaylist")) {
         event.stopImmediatePropagation();
         mpd.command("command=playid&arg="+clickedElement.attr("romprid"));
@@ -124,7 +120,6 @@ function doMenu(event, element) {
         event.stopImmediatePropagation();
     }
     var menutoopen = element.attr("name");
-    debug.log("Opeining Menu",menutoopen);
     $('#'+menutoopen).slideToggle('fast');
     if (element.attr("src") == "images/toggle-closed.png") {
         element.attr("src", "images/toggle-open.png");

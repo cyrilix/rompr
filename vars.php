@@ -38,7 +38,8 @@ $prefs = array( "mpd_host" => "localhost",
                 "downloadart" => "true",
                 "autotagname" => "",
                 "sortbydate" => "false",
-                "playlistcontrolsvisible" => "false"
+                "playlistcontrolsvisible" => "false",
+                "clickmode" => "double"
                 );
 loadPrefs();
 

@@ -26,9 +26,15 @@ include ("connection.php");
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="browser.hide()" id="hideinfobutton">Hide Information Panel</input></li>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="togglePref('downloadart')" id="downloadart">Automatically Download Covers</input></li>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="togglePref('updateeverytime')" id="updateeverytime">Update Collection On Start</input></li>
+
+                        <li class="wide"><b>Music Selection Click Behaviour</b></li>
+                        <li class="wide"><input type="radio" class="topcheck" onclick="changeClickPolicy()" name="clickselect" value="double">Double-click to add, Click to select</input></li>
+                        <li class="wide"><input type="radio" class="topcheck" onclick="changeClickPolicy()" name="clickselect" value="single">Click to add, no selection</input></li>
+
                         <li class="wide"><button class="topformbutton" onclick="updateCollection('update')">Update Collection Now</button></li>
                         <li class="wide"><button class="topformbutton" onclick="updateCollection('rescan')">Full Collection Rescan</button></li>
                         <li class="wide"><button class="topformbutton" onclick="editkeybindings()">Edit Keyboard Shortcuts...</button></li>
+                        <li class="wide"><button class="topformbutton" onclick="editmpdoutputs()">MPD Audio Outputs...</button></li>
 <?php
                 //print '<li class="wide">Information Panel History Depth</li>';
                 //print '<li class="wide"><input class="topform" name="historylength" type="text" size="3" value="'.$prefs['historylength'].'"/><button class="topformbutton" onclick="sethistorylength()">Set</button></li>';
@@ -118,6 +124,8 @@ $("#scrobwrangler").click( setscrob );
     print '    $("#downloadart").attr("checked", '.$prefs['downloadart'].");\n";
 
     print '$("#themeselector").val("'.$prefs['theme'].'");'."\n";
+    
+    print '$("[name=clickselect][value='.$prefs['clickmode'].']").attr("checked", true);'."\n";
 
 ?>
 lastfm.setscrobblestate();
