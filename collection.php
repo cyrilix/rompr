@@ -14,6 +14,8 @@ $current_album = "";
 $abm = false;
 $curr_is_spotify = false;
 
+$playlist = array();
+
 class album {
     public function __construct($name, $artist) {
         $this->artist = $artist;
@@ -100,15 +102,6 @@ class album {
         return $numdiscs;
     }
 
-    public function getTrack($url, $pos) {
-        foreach($this->tracks as $track) {
-            if ($track->url == $url && $pos == $track->playlistpos) {
-                return $track;
-            }
-        }
-        return null;
-    }
-    
     public function getDate() {
         if (preg_match('/(\d\d\d\d)/', $this->datestamp, $matches)) {
             return $matches[1];
@@ -232,6 +225,7 @@ class musicCollection {
         global $current_artist;
         global $abm;
         global $curr_is_spotify;
+        global $playlist;
         
         $sortartist = ($albumartist == null) ? $artist : $albumartist;
 
@@ -306,6 +300,10 @@ class musicCollection {
             $curr_is_spotify = $sptfy;
         }
         $abm->newTrack($t);
+        
+        if ($playlistpos !== null) {
+            $playlist[$playlistpos] = $t;
+        }
     }
 
     // NOTE :   If it's a track from a compilation, it's now been added to the track artist AND various artists 
@@ -377,16 +375,6 @@ class musicCollection {
         }
         // Add the album to the various artists group
         $this->artists["various artists"]->newAlbum($abm);
-    }
-
-    public function findTrack($file, $pos = null) {
-        foreach($this->albums as $album) {
-            $track = $album->getTrack($file, $pos);
-            if ($track != null) {
-                return $track;
-            }
-        }
-        return null;
     }
 
 }

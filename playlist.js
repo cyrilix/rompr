@@ -110,7 +110,7 @@ function Playlist() {
 
             var sortartist = track.creator;
             if (track.albumartist != "") { sortartist = track.albumartist }
-            if ((sortartist.toLowerCase() != current_artist.toLowerCase() && track.compilation != "yes") || 
+            if ((track.compilation != "yes" && sortartist.toLowerCase() != current_artist.toLowerCase()) || 
                 track.album.toLowerCase() != current_album.toLowerCase() ||
                 track.type != current_type)
             {
@@ -165,25 +165,21 @@ function Playlist() {
 
         });
         
+        $("#sortable").empty();
         if (track) {
             finaltrack = parseInt(track.playlistpos);
-            debug.log("Playlist: finaltrack is",finaltrack);
+            //debug.log("Playlist: finaltrack is",finaltrack);
+            $("#sortable").append('<div class="booger"><table width="100%" class="playlistitem"><tr><td align="left">'
+                                    +(finaltrack+1).toString()
+                                    +' tracks</td><td align="right">Duration : '+formatTimeString(totaltime)+'</td></tr></table></div>');
         }
 
-        var html = "";
-        if (finaltrack > -1) {
-            html = '<div class="booger"><table width="100%" class="playlistitem"><tr><td align="left">'
-                    +(finaltrack+1).toString()+
-                    ' tracks</td><td align="right">Duration : '+formatTimeString(totaltime)+'</td></tr></table></div>';
-        }
         for (var i in tracklist) {
-            html = html + tracklist[i].getHTML();
+            $("#sortable").append(tracklist[i].getHTML());
         }
         
         // Invisible empty div tacked on the end gives something to drop draggables onto
-        html = html + '<div name="waiter"><table width="100%" class="playlistitem"><tr><td align="left"><img src="images/transparent-32x32.png"></td></tr></table></div>';
-        $('#sortable').empty().html(html);
-        html = null;
+        $("#sortable").append('<div name="waiter"><table width="100%" class="playlistitem"><tr><td align="left"><img src="images/transparent-32x32.png"></td></tr></table></div>');
 
         if (scrollto > -1) {
             $("#playlist").scrollTo('div[name="'+scrollto.toString()+'"]');

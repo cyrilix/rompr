@@ -8,88 +8,58 @@ header('Content-Type: text/xml; charset=utf-8');
 
 $collection = doCollection("playlistinfo");
 debug_print("Collection scan playlistinfo finished");
-$pos = 0;
-// Now we have a collection, which will have worked out compilations,
-// We can go through the tracks again and build up a playlist
 
-$xml =  '<?xml version="1.0" encoding="utf-8"?>'."\n".
+print  '<?xml version="1.0" encoding="utf-8"?>'."\n".
         '<playlist version="1">'."\n".
         '<title>Current Playlist</title>'."\n".
         '<creator>RompR</creator>'."\n".
         '<trackList>'."\n";
-
-if ($is_connected) {
-    fputs($connection, "playlistinfo\n");
-    $parts = true;
-    while(!feof($connection) && $parts) {
-        $parts = getline($connection);
-        if (is_array($parts)) {
-            if ($parts[0] == "file") {
-                getFileInfo($parts[1], $pos);
-                $pos++;
+        
+foreach ($playlist as $track) {
+    print '<track>'."\n";
+    $image = $track->image;
+    $origimage = $track->original_image;
+    if ($track->albumobject->isCompilation()) {
+        print xmlnode("compilation", "yes");
+        if ($image === null || $image == "") {
+            $artname = md5("Various Artists ".$track->album);
+            if (file_exists("albumart/original/".$artname.".jpg")) {
+                $image = "albumart/original/".$artname.".jpg";
+            }
+            if (file_exists("albumart/asdownloaded/".$artname.".jpg")) {
+                $origimage = "albumart/asdownloaded/".$artname.".jpg";
             }
         }
     }
-
-    close_mpd($connection);
+    print xmlnode("title", $track->name)
+            .xmlnode("album", $track->album)
+            .xmlnode("creator", $track->artist)
+            .xmlnode("albumartist", $track->albumartist)
+            .xmlnode("duration", $track->duration)
+            .xmlnode("type", $track->type)
+            .xmlnode("tracknumber", $track->number)
+            .xmlnode("expires", $track->expires)
+            .xmlnode("stationurl", $track->stationurl)
+            .xmlnode("station", $track->station)
+            .xmlnode("location", $track->url)
+            .xmlnode("backendid", $track->backendid)
+            .xmlnode("image", $image)
+            .xmlnode("origimage", $origimage)
+            .xmlnode("stream", $track->stream)
+            .xmlnode("playlistpos", $track->playlistpos)
+            .xmlnode("mbartistid", $track->musicbrainz_artistid)
+            .xmlnode("mbalbumid", $track->musicbrainz_albumid)
+            .xmlnode("mbalbumartistid", $track->musicbrainz_albumartistid)
+            .xmlnode("mbtrackid", $track->musicbrainz_trackid);                    
+    print '</track>'."\n";
 }
 
-$xml = $xml . "</trackList>\n</playlist>\n";
+print "</trackList>\n</playlist>\n";
 
 //  $fp = fopen("prefs/Current.xml", "w");
 //  fwrite($fp, $xml);
 //  fclose($fp);
 
-print $xml;
-
-function getFileInfo($file, $pos) {
-    global $xml;
-    global $collection;
-    $xml = $xml . '<track>'."\n";
-    $track = $collection->findTrack($file, $pos);
-    if ($track == null) {
-        debug_print("FAILED TO FIND TRACK! ".$file);
-        $xml = $xml.xmlnode("title", "Unknown")
-                    .xmlnode("album", "Unknown")
-                    .xmlnode("duration", 0)
-                    .xmlnode("creator", "Unknown");
-    } else {
-        $image = $track->image;
-        $origimage = $track->original_image;
-        if ($track->albumobject->isCompilation()) {
-            $xml = $xml.xmlnode("compilation", "yes");
-            if ($image == null || $image == "") {
-                $artname = md5("Various Artists ".$track->album);
-                if (file_exists("albumart/original/".$artname.".jpg")) {
-                    $image = "albumart/original/".$artname.".jpg";
-                }
-                if (file_exists("albumart/asdownloaded/".$artname.".jpg")) {
-                    $origimage = "albumart/asdownloaded/".$artname.".jpg";
-                }
-            }
-        }
-        $xml = $xml.xmlnode("title", $track->name)
-                    .xmlnode("album", $track->album)
-                    .xmlnode("creator", $track->artist)
-                    .xmlnode("albumartist", $track->albumartist)
-                    .xmlnode("duration", $track->duration)
-                    .xmlnode("type", $track->type)
-                    .xmlnode("tracknumber", $track->number)
-                    .xmlnode("expires", $track->expires)
-                    .xmlnode("stationurl", $track->stationurl)
-                    .xmlnode("station", $track->station)
-                    .xmlnode("location", $track->url)
-                    .xmlnode("backendid", $track->backendid)
-                    .xmlnode("image", $image)
-                    .xmlnode("origimage", $origimage)
-                    .xmlnode("stream", $track->stream)
-                    .xmlnode("playlistpos", $track->playlistpos)
-                    .xmlnode("mbartistid", $track->musicbrainz_artistid)
-                    .xmlnode("mbalbumid", $track->musicbrainz_albumid)
-                    .xmlnode("mbalbumartistid", $track->musicbrainz_albumartistid)
-                    .xmlnode("mbtrackid", $track->musicbrainz_trackid);                    
-    }
-    $xml = $xml . '</track>'."\n";
-}
+debug_print("Playlist Output Is Done");
 
 ?>
