@@ -2,7 +2,7 @@ function onCollectionClicked(event) {
     var clickedElement = findClickableElement(event);
     if (clickedElement.hasClass("menu")) {
         doMenu(event, clickedElement);
-    } else if (clickmode == "double") {
+    } else if (prefs.clickmode == "double") {
         if (clickedElement.hasClass("clickalbum")) {
             event.stopImmediatePropagation();
             albumSelect(event, clickedElement);
@@ -33,7 +33,7 @@ function onLastFMClicked(event) {
     } else if (clickedElement.hasClass("clicklfmuser")) {
         event.stopImmediatePropagation();
         window.open("http://www.last.fm/user/"+clickedElement.attr("name"), "_blank");
-    } else if (clickmode == "single") {
+    } else if (prefs.clickmode == "single") {
         onLastFMDoubleClicked(event);
     }
 }
@@ -56,7 +56,7 @@ function onRadioClicked(event) {
     } else if (clickedElement.hasClass("clickradioremove")) {
         event.stopImmediatePropagation();
         removeUserStream(clickedElement.attr("name"));
-    } else if (clickmode == "single") {
+    } else if (prefs.clickmode == "single") {
         onRadioDoubleClicked(event);
     }
 }
@@ -168,11 +168,23 @@ function setDraggable(divname) {
 function srDrag(event, ui) {
     var size = getWindowSize();
     if (ui.offset.left < 120) { ui.offset.left = 120; }
-    sourceswidthpercent = ((ui.offset.left+8)/size.x)*100;
+    prefs.sourceswidthpercent = ((ui.offset.left+8)/size.x)*100;
     doThatFunkyThang();
     $(this).data('draggable').position.left = 0;
 }
 
 function srDragStop(event, ui) {
-    savePrefs({sourceswidthpercent: sourceswidthpercent.toString()});
+    prefs.save({sourceswidthpercent: prefs.sourceswidthpercent});
 }    
+
+function prDrag(event, ui) {
+    var size = getWindowSize();
+    if ((size.x - ui.offset.left) < 120) { ui.offset.left = size.x - 120; }
+    prefs.playlistwidthpercent = (((size.x - ui.offset.left))/size.x)*100;
+    doThatFunkyThang();
+    $(this).data('draggable').position.left = 0;
+}
+
+function prDragStop(event, ui) {
+    prefs.save({playlistwidthpercent: prefs.playlistwidthpercent})
+}

@@ -484,14 +484,14 @@ function trackDataCollection(ind, mpdinfo, art, alb, tra) {
             infobar.notify(infobar.NOTIFY, "Loved "+tr);
             // Rather than re-get all the details, we can just edit the track data directly.
             track_data.track.userloved = 1;
-            if (autotagname != '') {
-                self.track.addtags(autotagname);
+            if (prefs.autotagname != '') {
+                self.track.addtags(prefs.autotagname);
             }
         } else {
             infobar.notify(infobar.NOTIFY, "UnLoved "+tr);
             track_data.track.userloved = 0;
-            if (autotagname != '') {
-                self.track.removetags(autotagname);
+            if (prefs.autotagname != '') {
+                self.track.removetags(prefs.autotagname);
             }
         }
     }
@@ -555,7 +555,7 @@ function playInfo() {
             }
         }
         
-        if (history.length > max_history_length) {
+        if (history.length > prefs.historylength) {
             var t = history.shift();
             currenttrack--;
             browser.thePubsCloseTooEarly();

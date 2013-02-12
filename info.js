@@ -3,7 +3,6 @@ function Info(target, source) {
     var target_frame = target;
     var self = this;
     var current_source = source;
-    var hidden = false;
     var history = [];
     var displaypointer = -1;
     var panelclosed = {artist: false, album: false, track: false};
@@ -29,7 +28,7 @@ function Info(target, source) {
     function playTheWaitingGame(npinfo, doartist, doalbum, dotrack) {
         
         clearSelection();
-        if (!hidden) {
+        if (!prefs.hidebrowser) {
             if (doartist) {
                 $("#artistinformation").html(waitingBanner('Artist', npinfo.artist));
             }
@@ -109,7 +108,7 @@ function Info(target, source) {
         $('#artistinformation').stop();
         $('#albuminformation').stop();
         $('#trackinformation').stop();
-        if (!hidden) {
+        if (!prefs.hidebrowser) {
             if (showartist) { updateArtistBrowser() };
             if (showalbum)  { updateAlbumBrowser() };
             if (showtrack)  { updateTrackBrowser() };
@@ -120,7 +119,7 @@ function Info(target, source) {
         displaypointer = index;
         updateHistory();
         clearSelection();
-        if (!hidden) {
+        if (!prefs.hidebrowser) {
             updateArtistBrowser();
             updateAlbumBrowser();
             updateTrackBrowser();
@@ -130,7 +129,7 @@ function Info(target, source) {
     
     this.switchSource = function(source) {
         current_source = source;
-        savePrefs({infosource: source});
+        prefs.save({infosource: source});
         self.slideshow.killTimer();
         showMeTheMonkey(nowplaying.getcurrentindex(), 
                         true,
@@ -257,7 +256,6 @@ function Info(target, source) {
             case "lastfm":
                 $('#trackinformation').fadeOut('fast', function() {
                     if (history[displaypointer].track != "") {
-                        //$('#trackinformation').empty();
                         doTrackUpdate();
                         $('#trackinformation').fadeIn(1000);
                     }
@@ -281,18 +279,13 @@ function Info(target, source) {
     }
 
     this.hide = function() {
-        if (hidden) {
-            hidden = false;
+        if (prefs.hidebrowser) {
+            prefs.save({sourceswidthpercent: 25,
+                       playlistwidthpercent: 25});
             self.switchSource(current_source);
-        } else {
-            hidden = true;
         }
-        savePrefs({hidebrowser: hidden.toString()});
+        prefs.save({hidebrowser: !prefs.hidebrowser});
         doThatFunkyThang();
-    }
-
-    this.hiddenState = function() {
-        return hidden;
     }
 
     /*
@@ -452,9 +445,6 @@ function Info(target, source) {
             html = html + sectionHeader(lfmdata);
             html = html + '<li name="userloved">';
             html = html +'</li>';
-            
-            //html = html + '<li><div class="rating"><div id="trackratebar" class="ratebar"></div><img class="stars" src="images/star.png" /></div></li>';
-            
             
             html = html + '<br><ul id="buytrack"><li><b>BUY THIS TRACK&nbsp;</b><img class="clickicon" onclick="browser.buyTrack()" height="20px" id="buytrackbutton" style="vertical-align:middle" src="images/cart.png"></li></ul>';
             html = html + '</ul><br>';
@@ -666,6 +656,9 @@ function Info(target, source) {
     }
 
     this.showAlbumBuyLinks = function(data) {
+        
+        debug.log("Got Album Buy Links",data);
+        
         $("#buyalbum").slideUp('fast', function() {
             $("#buyalbum").css("display", "none");
             $("#buyalbum").html(getBuyHtml(data));
@@ -679,7 +672,11 @@ function Info(target, source) {
             html = html + '<li><img width="12px" src="'+values[i].supplierIcon+'">&nbsp;<a href="'+values[i].buyLink+'" target="_blank">'+
                             values[i].supplierName+'</a>';
             if (values[i].price) {
-                html = html + '    '+values[i].price.amount;
+                if (values[i].price.formatted) {
+                    html = html + '    '+values[i].price.formatted;
+                } else {
+                    html = html + '    '+values[i].price.amount;
+                }
             }
             html = html +'</li>';
         }
@@ -726,7 +723,7 @@ function Info(target, source) {
 
     function updateHistory() {
         if (displaypointer > 0) {
-            if (history.length > max_history_length) {
+            if (history.length > prefs.historylength) {
                 var t = history.shift();
                 displaypointer--;
             }

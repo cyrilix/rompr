@@ -406,7 +406,7 @@ function Playlist() {
             
              if (mpd.getStatus('state') == "play") {
                 if (progress > 4) { nowplaying.updateNowPlaying() };
-                if (percent >= scrobblepercent) { nowplaying.scrobble(); }
+                if (percent >= prefs.scrobblepercent) { nowplaying.scrobble(); }
                 if (duration > 0 && nowplaying.mpd(-1, "type") != "stream") {
                     if (progress >= duration) {
                         debug.log("Starting safety timer");

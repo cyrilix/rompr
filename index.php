@@ -46,7 +46,6 @@ if (file_exists("prefs/prefs.js")) {
 // debug.setLevel(0);
 var lastfm_api_key = "15f7532dff0b8d84635c757f9f18aaa3";
 var lastfm_session_key;
-var lastfm_country_code = "United Kingdom";
 var emptytrack = {  creator: "",
                     album: "",
                     title: "",
@@ -59,8 +58,6 @@ var nowplaying = new playInfo();
 var lfmprovider = new lastFMprovider();
 var gotNeighbours = false;
 var gotFriends = false;
-var sourceshidden = false;
-var playlisthidden = false;
 var progresstimer = null;
 var prefsbuttons = ["images/button-off.png", "images/button-on.png"];
 
@@ -71,24 +68,36 @@ function aADownloadFinished() {
 }
 
 <?php
- print "var scrobblepercent = ".$prefs['scrobblepercent'].";\n";
- print "var sourceswidthpercent = ".$prefs['sourceswidthpercent'].";\n";
- print "var playlistwidthpercent = ".$prefs['playlistwidthpercent'].";\n";
- print "var max_history_length = ".$prefs["historylength"].";\n";;
- print "var lastfm = new LastFM('".$prefs["lastfm_user"]."');\n";
- print "var browser = new Info('infopane', '".$prefs["infosource"]."');\n";
- print "var shownupdatewindow = ".$prefs['shownupdatewindow'].";\n";
- print "var autotagname = '".$prefs['autotagname']."';\n";
- print "var coverscraper = new coverScraper(0, false, false, ".$prefs['downloadart'].");\n";
- print "var playlistcontrolsvisible = ".$prefs['playlistcontrolsvisible'].";\n";
- print "var clickmode = '".$prefs['clickmode']."';\n";
-
+ 
+ print "var prefs = {\n";
+ foreach ($prefs as $index => $value) {
+    if ($value == "true" || $value == "false" || is_numeric($value)) {
+        print "    ".$index.": ".$value.",\n";
+    } else {
+        print "    ".$index.": '".$value."',\n";
+    }
+}
 ?>
+    save: function(options) {
+        for (var i in options) {
+            prefs[i] = options[i];
+            if (options[i] === true || options[i] === false) {
+                options[i] = options[i].toString();
+            }
+            //debug.log("Save Pref:",i,options[i],prefs[i]);
+        }
+        $.post('saveprefs.php', options);
+    }
+}
+
+var lastfm = new LastFM(prefs.lastfm_user);
+var browser = new Info('infopane', prefs.infosource);
+var coverscraper = new coverScraper(0, false, false, prefs.downloadart);
+
 $(document).ready(function(){
     // Check to see if HTML5 local storage is supported - we use this for communication between the
     // album art manager and the albums list
     if ("localStorage" in window && window["localStorage"] != null) {
-        debug.log("Adding Storage Event Listener");
         window.addEventListener("storage", onStorageChanged, false);
     }
         
@@ -122,43 +131,42 @@ $(document).ready(function(){
     $("#progress").progressbar();
     $("#progress").click( infobar.seek );
     $("#volume").slider();
-    $("#volume").slider("option", "orientation", "vertical");
-    $("#volume" ).slider({
+    $("#volume").slider({
+        orientation: 'vertical',
+        value: prefs.volume,
         stop: infobar.setvolume
     });
-    $('#infocontrols').load("infocontrols.php", function() { 
-<?php
-    print '$("#volume").slider("option", "value", '.$prefs['volume'].");\n";
 
-    if ($prefs['hidebrowser'] == 'true') {
-        print "    browser.hide();\n";
-    } else {
-        print "    doThatFunkyThang()\n";
-    }
-    if ($prefs['sourceshidden'] == 'true' && $prefs['playlisthidden'] == 'true') {
-        print "    expandInfo('both');\n";
-    } else {
-        if ($prefs['sourceshidden'] == 'true') {
-            print "    expandInfo('left');\n";
-        }
-        if ($prefs['playlisthidden'] == 'true') {
-            print "    expandInfo('right');\n";
-        }
-    }
-?>
-    });
-    mpd.command("",playlist.repopulate);
+    // Load the controls in the controls bar
+    // These have to be chained since we can't add the click/drag handlers
+    // or do the size adjustments until everything is in place
     $('#albumcontrols').load("albumcontrols.php", function() { 
-        debug.log("Album Controls Loaded");
-        reloadPlaylistControls();
         $("#sourcesresizer").draggable({
             containment: '#headerbar',
             axis: 'x'
         });
         $("#sourcesresizer").bind("drag", srDrag);
-        $("#sourcesresizer").bind("dragstop", srDragStop)
+        $("#sourcesresizer").bind("dragstop", srDragStop);
+        $('#playlistcontrols').load('playlistcontrols.php', function() {
+            $("#playlistresizer").draggable({   
+                containment: 'headerbar',
+                axis: 'x'
+            });
+            $("#playlistresizer").bind("drag", prDrag);
+            $("#playlistresizer").bind("dragstop", prDragStop);
+            reloadPlaylists();
+            $('#infocontrols').load("infocontrols.php", function() { 
+                doThatFunkyThang();
+                //$("ul.topnav li a").unbind('click');
+                $("ul.topnav li a").click(function() {
+                    $(this).parent().find("ul.subnav").slideToggle('fast');
+                    return false;
+                });
+            });
+        });
     });
     
+    mpd.command("",playlist.repopulate);
     $("#lastfmlist").load("lastfmchooser.php");
     $("#bbclist").load("bbcradio.php");
     $("#somafmlist").load("somafm.php");
@@ -166,15 +174,14 @@ $(document).ready(function(){
     $("#icecastlist").load("getIcecast.php");
     
     loadKeyBindings();
-    if (!shownupdatewindow) {
+    if (!prefs.shownupdatewindow) {
         var fnarkle = popupWindow.create(500,300,"fnarkle",true,"Information About This Version");
         $("#popupcontents").append('<div id="fnarkler" class="mw-headline"></div>');
         $("#fnarkler").append('<p>The Basic RompR Manual is at: <a href="https://sourceforge.net/p/rompr/wiki/Basic%20Manual/" target="_blank">http://sourceforge.net/p/rompr/wiki/Basic%20Manual/</a></p>');
         $("#fnarkler").append('<p>The Discussion Forum is at: <a href="https://sourceforge.net/p/rompr/discussion/" target="_blank">http://sourceforge.net/p/rompr/discussion/</a></p>');
         $("#fnarkler").append('<p><button style="width:8em" class="tright topformbutton" onclick="popupWindow.close()">OK</button></p>');
         popupWindow.open();
-        shownupdatewindow = true;
-        savePrefs({shownupdatewindow: shownupdatewindow.toString()});
+        prefs.save({shownupdatewindow: true});
     }
     $(window).bind('resize', function() {
         setBottomPaneSize();

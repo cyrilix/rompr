@@ -1,11 +1,10 @@
 <?php
 include ("vars.php");
 include ("functions.php");
-include ("connection.php");
 ?>
 <div class="columntitle" style="padding-left:0px">
 <div class="tleft">
-<img id="playlistresizer" src="images/resize_handle.png" style="cursor:move">
+<img id="playlistresizer" src="images/resize2.png" style="cursor:move">
 </div>
 <div class="tright">
 <ul class="topnav">
@@ -49,6 +48,14 @@ include ("connection.php");
                 print '<li class="wide"><input type="checkbox" class="topcheck" onclick="lastfm.setscrobblestate()" id="autocorrect">Last.FM Autocorrect Enabled</input></li>';
                 print '<li class="wide">Tag Loved Tracks With:</li>';
                 print '<li class="wide"><input class="topform" name="taglovedwith" type="text" size="40" value="'.$prefs['autotagname'].'"/><button class="topformbutton" onclick="setAutoTag()">Set</button></li>';
+
+                print '<li class="wide">COUNTRY (for Last.FM) <select id="countryselector" class="topformbutton" onchange="changecountry()">'."\n";
+                $x = simplexml_load_file('iso3166.xml');
+                foreach($x->CountryEntry as $i => $c) {
+                    print '<option value="'.$c->CountryCode.'">'.mb_convert_case($c->CountryName, MB_CASE_TITLE, "UTF-8")."</option>\n";
+                }
+                print "</select></li>\n";
+                
 ?>
 
         </ul>
@@ -81,57 +88,17 @@ include ("connection.php");
 </div>
 </div>
 
-<script type="text/javascript">
-
-$("ul.topnav li a").unbind('click');
-$("ul.topnav li a").click(function() {
-    $(this).parent().find("ul.subnav").slideToggle('fast');
-    return false;
-});
-
-$("#scrobwrangler").progressbar();
-$("#scrobwrangler").progressbar("option", "value", parseInt(scrobblepercent.toString()));
-$("#scrobwrangler").click( setscrob );
-
-<?php
-    print '    $("#scrobbling").attr("checked", ';
-    if ($prefs['lastfm_scrobbling'] == 0) {
-        print 'false';
-    } else {
-        print 'true';
-    }
-    print ");\n";
-
-    print '    $("#radioscrobbling").attr("checked", ';
-    if ($prefs['dontscrobbleradio'] == 0) {
-        print 'false';
-    } else {
-        print 'true';
-    }
-    print ");\n";
-
-    print '    $("#hideinfobutton").attr("checked", '.$prefs['hidebrowser'].");\n";
-
-    print '    $("#autocorrect").attr("checked", ';
-    if ($prefs['lastfm_autocorrect'] == 0) {
-        print 'false';
-    } else {
-        print 'true';
-    }
-    print ");\n";
-
-    print '    $("#updateeverytime").attr("checked", '.$prefs['updateeverytime'].");\n";
-    print '    $("#downloadart").attr("checked", '.$prefs['downloadart'].");\n";
-
-    print '$("#themeselector").val("'.$prefs['theme'].'");'."\n";
-    
-    print '$("[name=clickselect][value='.$prefs['clickmode'].']").attr("checked", true);'."\n";
-
-?>
-lastfm.setscrobblestate();
-
+<script language="javascript">
+    $("#scrobwrangler").progressbar();
+    $("#scrobwrangler").progressbar("option", "value", parseInt(prefs.scrobblepercent.toString()));
+    $("#scrobwrangler").click( setscrob );
+    $("#scrobbling").attr("checked", prefs.lastfm_scrobbling);
+    $("#radioscrobbling").attr("checked", prefs.dontscrobbleradio);
+    $("#autocorrect").attr("checked", prefs.lastfm_autocorrect);
+    $("#hideinfobutton").attr("checked", prefs.hidebrowser);
+    $("#updateeverytime").attr("checked", prefs.updateeverytime);
+    $("#downloadart").attr("checked", prefs.downloadart);
+    $("#themeselector").val(prefs.theme);
+    $("#countryselector").val(prefs.lastfm_country_code);
+    $("[name=clickselect][value="+prefs.clickmode+"]").attr("checked", true);        
 </script>
-
-<?php
-close_mpd($connection);
-?>

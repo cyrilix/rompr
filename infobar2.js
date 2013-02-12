@@ -149,7 +149,7 @@ var infobar = function() {
             if (mpd.getStatus('state') == "play") {
                 var volume = $("#volume").slider("value");
                 mpd.command("command=setvol&arg="+parseInt(volume.toString()));
-                savePrefs({volume: parseInt(volume.toString())});
+                prefs.save({volume: parseInt(volume.toString())});
             } else {
                 infobar.notify(infobar.ERROR, "MPD can only set the volume while playing.");
                 volumeslider.restoreState();
@@ -163,7 +163,7 @@ var infobar = function() {
                 if (volume > 100) { volume = 100 };
                 if (volume < 0) { volume = 0 };
                 mpd.command("command=setvol&arg="+parseInt(volume.toString()));
-                savePrefs({volume: parseInt(volume.toString())});
+                prefs.save({volume: parseInt(volume.toString())});
             } else {
                 infobar.notify(infobar.ERROR, "MPD can only set the volume while playing.");
             }

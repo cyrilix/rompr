@@ -20,8 +20,8 @@ $prefs = array( "mpd_host" => "localhost",
                 "crossfade" => 0,
                 "volume" => 100,
                 "lastfm_user" => "",
-                "lastfm_scrobbling" => 0,
-                "lastfm_autocorrect" => 0,
+                "lastfm_scrobbling" => "false",
+                "lastfm_autocorrect" => "false",
                 "theme" => "BrushedAluminium.css",
                 "scrobblepercent" => 50,
                 "hidebrowser" => "false",
@@ -30,7 +30,7 @@ $prefs = array( "mpd_host" => "localhost",
                 "infosource" => "lastfm",
                 "chooser" => "albumlist",
                 "historylength" => 25,
-                "dontscrobbleradio" => 0,
+                "dontscrobbleradio" => "false",
                 "sourceswidthpercent" => 22,
                 "playlistwidthpercent" => 22,
                 "shownupdatewindow" => "false",
@@ -39,7 +39,8 @@ $prefs = array( "mpd_host" => "localhost",
                 "autotagname" => "",
                 "sortbydate" => "false",
                 "playlistcontrolsvisible" => "false",
-                "clickmode" => "double"
+                "clickmode" => "double",
+                "lastfm_country_code" => "GB"
                 );
 loadPrefs();
 
@@ -73,6 +74,15 @@ function loadPrefs() {
                 $a = explode("||||", $line);
                 if ($a[1]) {
                     $prefs[$a[0]] = trim($a[1]);
+                }
+            }
+            
+            // Convert old pref types to new booleans
+            foreach (array('dontscrobbleradio', 'lastfm_scrobbling', 'lastfm_autocorrect') as $i) {
+                if ($prefs[$i] == 0) {
+                    $prefs[$i] = "false";
+                } else if ($prefs[$i] == 1) {
+                    $prefs[$i] = "true";
                 }
             }
         }

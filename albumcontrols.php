@@ -10,7 +10,7 @@ include ("vars.php");
 <a title="Internet Radio Stations" href="#" onclick="sourcecontrol('radiolist')"><img class="topimg" height="24px" src="images/broadcast-24.png"></a>
 <a href="albumart.php" title="Album Art Manager" target="_blank"><img class="topimg" src="images/cd_jewel_case.jpg" height="24px"></a>
 </td>
-<td align="right"><img id="sourcesresizer" src="images/resize_handle.png" style="cursor:move"></td>
+<td align="right"><img id="sourcesresizer" src="images/resize2.png" style="cursor:move"></td>
 </tr></table>
 </div>
 
@@ -96,7 +96,7 @@ function switchsource(source) {
     if (togo) {
         $("#"+togo).fadeOut('fast', function() { switchsource(source) });
     } else {
-        savePrefs({chooser: source});
+        prefs.save({chooser: source});
         $("#"+source).fadeIn('fast');
     }
 

@@ -5,9 +5,6 @@ function LastFM(user) {
     var logged_in = false;
     var username = user;
     var token = "";
-    var scrobbling = false;
-    var autocorrect = 0;
-    var dontscrobbleradio = 0;
     this.tunedto = "";
     var self=this;
     var lovebanshown = false;
@@ -17,11 +14,7 @@ function LastFM(user) {
     }
 
     this.getScrobbling = function() {
-        if (scrobbling) {
-            return 1;
-        } else {
-            return 0;
-        }
+        return prefs.lastfm_scrobbling ? 1 : 0;
     }
     
     this.showloveban = function(flag) {
@@ -36,20 +29,10 @@ function LastFM(user) {
     }
 
     this.setscrobblestate = function() {
-        scrobbling = $("#scrobbling").is(":checked");
-        autocorrect = $("#autocorrect").is(":checked") ? 1 : 0;
-        dontscrobbleradio = $("#radioscrobbling").is(":checked") ? 1 : 0;
-        if (scrobbling) { 
-            savePrefs({ lastfm_scrobbling: "1", 
-                        lastfm_autocorrect: autocorrect,
-                        dontscrobbleradio: dontscrobbleradio }
-            );
-        } else { 
-            savePrefs({ lastfm_scrobbling: "0", 
-                        lastfm_autocorrect: autocorrect,
-                        dontscrobbleradio: dontscrobbleradio }
-            ); 
-        }
+        prefs.save({ lastfm_scrobbling: $("#scrobbling").is(":checked"), 
+                    lastfm_autocorrect: $("#autocorrect").is(":checked"),
+                    dontscrobbleradio: $("#radioscrobbling").is(":checked")}
+        );
     }
 
     this.username = function() {
@@ -105,8 +88,6 @@ function LastFM(user) {
                     lastfm_session_key: lastfm_session_key,
                     lastfm_user: username
                 });
-                //reloadPlaylistControls();
-                //lastfm.revealloveban();
                 popupWindow.close();
                 $("#lastfmlist").load("lastfmchooser.php");
             },
@@ -165,7 +146,7 @@ function LastFM(user) {
 
     function addGetOptions(options, method) {
         options.api_key = lastfm_api_key;
-        options.autocorrect = autocorrect;
+        options.autocorrect = prefs.lastfm_autocorrect ? 1 : 0;
         options.method = method;
     }
 
@@ -269,7 +250,7 @@ function LastFM(user) {
         },
 
         updateNowPlaying : function(options) {
-            if (logged_in && scrobbling) {
+            if (logged_in && prefs.lastfm_scrobbling) {
                 addSetOptions(options, "track.updateNowPlaying");
                 LastFMSignedRequest(    
                     options,
@@ -280,8 +261,8 @@ function LastFM(user) {
         },
 
         scrobble : function(options) {
-            if (logged_in && scrobbling) {
-                if (dontscrobbleradio == 1 && nowplaying.mpd(-1, 'type') != "local") {
+            if (logged_in && prefs.lastfm_scrobbling) {
+                if (prefs.dontscrobbleradio && nowplaying.mpd(-1, 'type') != "local") {
                     debug.log("Not Scrobbling because track is not local");
                     return 0;
                 }
@@ -306,7 +287,7 @@ function LastFM(user) {
 
         getBuylinks: function(options, callback, failcallback) {
             addGetOptions(options, "track.getBuylinks");
-            options.country = lastfm_country_code;
+            options.country = prefs.lastfm_country_code;
             LastFMGetRequest(
                 options,
                 callback,
@@ -321,7 +302,7 @@ function LastFM(user) {
         getInfo: function(options, callback, failcallback) {
             addGetOptions(options, "album.getInfo");
             if (username != "") { options.username = username }
-            options.autocorrect = autocorrect;
+            options.autocorrect = prefs.lastfm_autocorrect ? 1 : 0;
             LastFMGetRequest(
                 options,
                 callback,
@@ -363,7 +344,7 @@ function LastFM(user) {
 
         getBuylinks: function(options, callback, failcallback) {
             addGetOptions(options, "album.getBuylinks");
-            options.country = lastfm_country_code;
+            options.country = prefs.lastfm_country_code;
             LastFMGetRequest(
                 options,
                 callback,

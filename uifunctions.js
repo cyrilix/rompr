@@ -1,25 +1,4 @@
-function reloadPlaylistControls() {
-    $('#playlistcontrols').load('playlistcontrols.php', function() {
-        $("#playlistresizer").draggable({   containment: 'headerbar',
-                                            axis: 'x'
-        });
-        $("#playlistresizer").bind("drag", function(event, ui){
-            var size = getWindowSize();
-            if ((size.x - ui.offset.left) < 120) { ui.offset.left = size.x - 120; }
-            playlistwidthpercent = (((size.x - ui.offset.left))/size.x)*100;
-            doThatFunkyThang();
-            $(this).data('draggable').position.left = 0;
-        });
-        $("#playlistresizer").bind("dragstop", function(event, ui){
-            debug.log("Saving playlist panel width");
-            savePrefs({playlistwidthpercent: playlistwidthpercent.toString()})
-        });   
-        reloadPlaylists();
-    });
-}
-
 function reloadPlaylists() {
-    //$("#playlistslist").empty();
     $("#playlistslist").load("loadplaylists.php");
 }
 
@@ -40,13 +19,15 @@ function formatTimeString(duration) {
 
 function changetheme() {
     $("#theme").attr({href: $("#themeselector").val()});
-    savePrefs({theme: $("#themeselector").val()});
+    prefs.save({theme: $("#themeselector").val()});
+}
+
+function changecountry() {
+    prefs.save({lastfm_country_code: $("#countryselector").val()});
 }
 
 function changeClickPolicy() {
-    clickmode = $('[name=clickselect]:checked').val();
-    debug.log("Click Policy now set to",clickmode);
-    savePrefs({clickmode: clickmode});
+    prefs.save({clickmode: $('[name=clickselect]:checked').val()});
     setClickHandlers();
 }
 
@@ -74,7 +55,7 @@ function setClickHandlers() {
     $("#lastfmlist").click(onLastFMClicked);
     $("#radiolist").click(onRadioClicked);
 
-    if (clickmode == "double") {
+    if (prefs.clickmode == "double") {
         $("#collection").dblclick(onCollectionDoubleClicked);    
         $("#filecollection").dblclick(onCollectionDoubleClicked);
         $("#search").dblclick(onCollectionDoubleClicked);    
@@ -91,7 +72,7 @@ function toggleoption(thing) {
     mpd.command("command="+thing+"&arg="+new_value);
     var options = new Object;
     options[thing] = new_value;
-    savePrefs(options);
+    prefs.save(options);
 
 }
 
@@ -99,10 +80,10 @@ function setscrob(e) {
     var position = getPosition(e);
     var width = $('#scrobwrangler').width();
     var offset = $('#scrobwrangler').offset();
-    scrobblepercent = ((position.x - offset.left)/width)*100;
+    var scrobblepercent = ((position.x - offset.left)/width)*100;
     if (scrobblepercent < 50) { scrobblepercent = 50; }
     $('#scrobwrangler').progressbar("option", "value", parseInt(scrobblepercent.toString()));
-    savePrefs({scrobblepercent: scrobblepercent});
+    prefs.save({scrobblepercent: scrobblepercent});
     return false;
 }
 
@@ -117,33 +98,14 @@ function stopWaitingIcon(selector) {
 function expandInfo(side) {
     switch(side) {
         case "left":
-            if (sourceshidden) {
-                sourceshidden = false;
-                $("#expandleft").attr("src", "images/arrow-left-double.png");
-            } else {
-                sourceshidden = true;
-                $("#expandleft").attr("src", "images/arrow-right-double.png");
-            }
+            var p = !prefs.sourceshidden;
+            prefs.save({sourceshidden: p});
             break;
         case "right":
-            if (playlisthidden) {
-                playlisthidden = false;
-                $("#expandright").attr("src", "images/arrow-right-double.png");
-            } else {
-                playlisthidden = true;
-                $("#expandright").attr("src", "images/arrow-left-double.png");
-            }
+            var p = !prefs.playlisthidden;
+            prefs.save({playlisthidden: p});
             break;
-        case "both":
-            sourceshidden = true;
-            $("#expandleft").attr("src", "images/arrow-right-double.png");
-            playlisthidden = true;
-            $("#expandright").attr("src", "images/arrow-left-double.png");
-            break;        
-
     }
-    savePrefs({ sourceshidden: sourceshidden.toString(),
-                playlisthidden: playlisthidden.toString()});
     doThatFunkyThang();
     return false;
 
@@ -151,15 +113,14 @@ function expandInfo(side) {
 
 function doThatFunkyThang() {
 
-    var sourcesweight = (sourceshidden) ? 0 : 1;
-    var playlistweight = (playlisthidden) ? 0 : 1;
-    var browserweight = (browser.hiddenState()) ? 0 : 1;
+    var sourcesweight = (prefs.sourceshidden) ? 0 : 1;
+    var playlistweight = (prefs.playlisthidden) ? 0 : 1;
+    var browserweight = (prefs.hidebrowser) ? 0 : 1;
 
-    var browserwidth = (100 - (playlistwidthpercent*playlistweight) - (sourceswidthpercent*sourcesweight))*browserweight;
-    var sourceswidth = (100 - (playlistwidthpercent*playlistweight) - browserwidth)*sourcesweight;
+    var browserwidth = (100 - (prefs.playlistwidthpercent*playlistweight) - (prefs.sourceswidthpercent*sourcesweight))*browserweight;
+    var sourceswidth = (100 - (prefs.playlistwidthpercent*playlistweight) - browserwidth)*sourcesweight;
     var playlistwidth = (100 - sourceswidth - browserwidth)*playlistweight;
 
-    // debug.log("Widths:",sourceswidth,browserwidth,playlistwidth)
     $("#sources").css("width", sourceswidth.toString()+"%");
     $("#albumcontrols").css("width", sourceswidth.toString()+"%");
     $("#playlist").css("width", playlistwidth.toString()+"%");
@@ -167,21 +128,26 @@ function doThatFunkyThang() {
     $("#infopane").css("width", browserwidth.toString()+"%");
     $("#infocontrols").css("width", browserwidth.toString()+"%");
 
-    if (sourceshidden != $("#sources").is(':hidden')) {
+    if (prefs.sourceshidden != $("#sources").is(':hidden')) {
         $("#sources").toggle("fast");
         $("#albumcontrols").toggle("fast");
     }
 
-    if (playlisthidden != $("#playlist").is(':hidden')) {
+    if (prefs.playlisthidden != $("#playlist").is(':hidden')) {
         $("#playlist").toggle("fast");
         $("#playlistcontrols").toggle("fast");
     }
 
-    if (browser.hiddenState() != $("#infopane").is(':hidden')) {
+    if (prefs.hidebrowser != $("#infopane").is(':hidden')) {
         $("#infopane").toggle("fast");
         $("#infocontrols").toggle("fast");
     }
 
+    var i = (prefs.sourceshidden) ? "images/arrow-right-double.png" : "images/arrow-left-double.png";
+    $("#expandleft").attr("src", i);
+    i = (prefs.playlisthidden) ? "images/arrow-left-double.png" : "images/arrow-right-double.png";
+    $("#expandright").attr("src", i);
+    
 }
 
 function setBottomPaneSize() {
@@ -198,17 +164,15 @@ function lastfmlogin() {
     $("#configpanel").fadeOut(1000);
 }
 
-function sethistorylength() {
-    var length = $("#configpanel").find('input[name|="historylength"]').attr("value");
-    max_history_length = parseInt(length);
-    $("#configpanel").fadeOut(1000);
-    savePrefs({historylength: max_history_length});    
-}
+// function sethistorylength() {
+//     var length = parseInt($("#configpanel").find('input[name|="historylength"]').attr("value"));
+//     $("#configpanel").fadeOut(1000);
+//     prefs.save({historylength: length});    
+// }
 
 function setAutoTag() {
-    autotagname = $("#configpanel").find('input[name|="taglovedwith"]').attr("value");
     $("#configpanel").fadeOut(1000);
-    savePrefs({autotagname: autotagname});    
+    prefs.save({autotagname: $("#configpanel").find('input[name|="taglovedwith"]').attr("value")});    
 }
 
 function getArray(data) {
@@ -374,14 +338,14 @@ function gotTrackInfoForStream(data) {
 
 }
 
-function savePrefs(options) {
-    $.post("saveprefs.php", options);
-}
+// function savePrefs(options) {
+//     $.post("saveprefs.php", options);
+// }
 
 function togglePref(pref) {
     var prefobj = new Object;
-    prefobj[pref] = ($("#"+pref).is(":checked")).toString();
-    savePrefs( prefobj );
+    prefobj[pref] = ($("#"+pref).is(":checked"));
+    prefs.save( prefobj );    
     if (pref == 'downloadart') {
         coverscraper.toggle($("#"+pref).is(":checked"));
     }
@@ -438,8 +402,8 @@ function toggleFileSearch() {
 
 function togglePlaylistButtons() {
     $("#playlistbuttons").slideToggle('fast');
-    playlistcontrolsvisible = !playlistcontrolsvisible;
-    savePrefs({ playlistcontrolsvisible: playlistcontrolsvisible.toString() });
+    var p = !prefs.playlistcontrolsvisible;
+    prefs.save({ playlistcontrolsvisible: p });
     return false;
 }
 
