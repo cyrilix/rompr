@@ -8,9 +8,16 @@ $DEBUG = 1;
 $prefsbuttons = array("images/button-off.png", "images/button-on.png");
 
 // NOTE: sortbydate can be set to "true' to make the collection sort albums by date
-// - however mpd can only read the Date ID3 tag, whereas the 'Original Release Date'
+// - however mpd can only read the 'Date' ID3 tag, whereas the 'Original Release Date'
 //   tag is MUCH more useful. So I haven't added a GUI option to enable this option
 //   because it usually just results in a jumble
+
+// Set unix_socket to a value to make rompr connect to mpd via a unix domain socket
+// (see mpd.conf). There's no real reason to do this, although it is marginally faster.
+// If unix_socket is set to anything then mpd_host will be ignored
+
+// Note that mpd_host is relative to the APACHE SERVER not the browser.
+
 $prefs = array( "mpd_host" => "localhost",
                 "mpd_port" => 6600,
                 "unix_socket" => '',
@@ -43,7 +50,6 @@ $prefs = array( "mpd_host" => "localhost",
                 "lastfm_country_code" => "GB"
                 );
 loadPrefs();
-
 
 function debug_print($out) {
     global $DEBUG;
@@ -79,10 +85,12 @@ function loadPrefs() {
             
             // Convert old pref types to new booleans
             foreach (array('dontscrobbleradio', 'lastfm_scrobbling', 'lastfm_autocorrect') as $i) {
-                if ($prefs[$i] == 0) {
-                    $prefs[$i] = "false";
-                } else if ($prefs[$i] == 1) {
-                    $prefs[$i] = "true";
+                if ($prefs[$i] != "false" && $prefs[$i] != "true") {
+                    if ($prefs[$i] == 0) {
+                        $prefs[$i] = "false";
+                    } else if ($prefs[$i] == 1) {
+                        $prefs[$i] = "true";
+                    }
                 }
             }
         }

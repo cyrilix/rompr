@@ -60,6 +60,8 @@ var gotNeighbours = false;
 var gotFriends = false;
 var progresstimer = null;
 var prefsbuttons = ["images/button-off.png", "images/button-on.png"];
+var prefsInLocalStorage = ["hidebrowser", "sourceshidden", "playlisthidden", "infosource",
+                            "sourceswidthpercent", "playlistwidthpercent", "downloadart", "clickmode"];
 
 function aADownloadFinished() {
     /* We need one of these in global scope so coverscraper works here
@@ -67,29 +69,73 @@ function aADownloadFinished() {
     debug.log("Album Art Download Has Finished");
 }
 
-<?php
  
- print "var prefs = {\n";
+var prefs = function() {
+
+    var useLocal = false;
+    if ("localStorage" in window && window["localStorage"] != null) {
+        useLocal = true;
+    }
+    
+    return {
+<?php
  foreach ($prefs as $index => $value) {
     if ($value == "true" || $value == "false" || is_numeric($value)) {
-        print "    ".$index.": ".$value.",\n";
+        print "        ".$index.": ".$value.",\n";
     } else {
-        print "    ".$index.": '".$value."',\n";
+        print "        ".$index.": '".$value."',\n";
     }
 }
 ?>
-    save: function(options) {
-        for (var i in options) {
-            prefs[i] = options[i];
-            if (options[i] === true || options[i] === false) {
-                options[i] = options[i].toString();
+        updateLocal: function() {
+            if (useLocal) {
+                prefsInLocalStorage.forEach(function(p) {
+//                     debug.log("Checking Pref",p,localStorage.getItem("prefs."+p));
+                    if (localStorage.getItem("prefs."+p) != null && localStorage.getItem("prefs."+p) != "") {
+                        prefs[p] = localStorage.getItem("prefs."+p);
+                        if (prefs[p] == "false") {
+                            prefs[p] = false;
+                        }
+                        if (prefs[p] == "true") {
+                            prefs[p] = true;
+                        }
+                        debug.log("Using Local Value for",p,prefs[p],localStorage.getItem("prefs."+p));
+                    }
+                });
+            }    
+        },
+        
+        save: function(options) {
+            var prefsToSave = {};
+            var postSave = false;
+            for (var i in options) {
+                prefs[i] = options[i];
+                if (options[i] === true || options[i] === false) {
+                    options[i] = options[i].toString();
+                }
+                if (useLocal) {
+                    if (prefsInLocalStorage.indexOf(i) > -1) {
+                        debug.log("Save Pref Locally:",i,options[i],prefs[i]);
+                        localStorage.setItem("prefs."+i, options[i]);
+                    } else {
+                        prefsToSave[i] = options[i];
+                        postSave = true;
+                    }
+                } else {
+                    prefsToSave[i] = options[i];
+                    postSave = true;
+                }
             }
-            //debug.log("Save Pref:",i,options[i],prefs[i]);
+            if (postSave) {
+                debug.log("Saving prefs to server",prefsToSave);
+                $.post('saveprefs.php', prefsToSave);
+            }
         }
-        $.post('saveprefs.php', options);
+        
     }
-}
+}();
 
+prefs.updateLocal();
 var lastfm = new LastFM(prefs.lastfm_user);
 var browser = new Info('infopane', prefs.infosource);
 var coverscraper = new coverScraper(0, false, false, prefs.downloadart);

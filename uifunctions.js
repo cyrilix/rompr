@@ -837,17 +837,19 @@ function clearPlaylist() {
 
 function onStorageChanged(e) {
     
-    var key = e.newValue;
-    debug.log("Updating album image for key",key);
-    if (key.substring(0,1) == "!") {
-        key = key.substring(1,key.length);
-        debug.log("Marking as notfound:",key);
-        $('img[name="'+key+'"]').removeClass("notexist");
-        $('img[name="'+key+'"]').addClass("notfound");
-    } else {
-        $('img[name="'+key+'"]').attr("src", "albumart/small/"+key+".jpg");
-        $('img[name="'+key+'"]').removeClass("notexist");
-        $('img[name="'+key+'"]').removeClass("notfound");
+    if (e.key == "key") {
+        var key = e.newValue;
+        debug.log("Updating album image for key",key,e);
+        if (key.substring(0,1) == "!") {
+            key = key.substring(1,key.length);
+            debug.log("Marking as notfound:",key);
+            $('img[name="'+key+'"]').removeClass("notexist");
+            $('img[name="'+key+'"]').addClass("notfound");
+        } else {
+            $('img[name="'+key+'"]').attr("src", "albumart/small/"+key+".jpg");
+            $('img[name="'+key+'"]').removeClass("notexist");
+            $('img[name="'+key+'"]').removeClass("notfound");
+        }
     }
 }
 

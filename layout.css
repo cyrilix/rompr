@@ -878,6 +878,11 @@ ul.subnav li.wide
     width:260px;
 }
 
+#countryselector
+{
+    width:220px;
+}
+
 ul.topnav li ul.wide
 {
     left:-240px;
