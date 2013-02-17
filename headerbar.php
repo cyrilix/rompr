@@ -2,14 +2,59 @@
 include ("vars.php");
 include ("functions.php");
 ?>
-<div class="columntitle" style="padding-left:0px">
-<div class="tleft">
-<img id="playlistresizer" src="images/resize2.png" style="cursor:move">
+
+<div id="albumcontrols" class="column noborder fixed">
+<div class="columntitle containerbox" style="padding-right:0px">
+<div class="expand">
+<a title="Local Music" href="#" onclick="sourcecontrol('albumlist')" id="choose_albumlist"><img class="topimg" height="24px" src="images/audio-x-generic.png"></a>
+<a title="File Browser" href="#" onclick="sourcecontrol('filelist')" id="choose_filelist"><img class="topimg" height="24px" src="images/folder.png"></a>
+<a title="Last.FM Radio" href="#" onclick="sourcecontrol('lastfmlist')" id="choose_lastfmlist"><img class="topimg" height="24px" src="images/lastfm.png"></a>
+<a title="Internet Radio Stations" href="#" onclick="sourcecontrol('radiolist')" id="choose_radiolist"><img class="topimg" height="24px" src="images/broadcast-24.png"></a>
+<a href="albumart.php" title="Album Art Manager" target="_blank"><img class="topimg" src="images/cd_jewel_case.jpg" height="24px"></a>
 </div>
-<div class="tright">
+<div class="fixed">
+<img id="sourcesresizer" class="topimg" height="24px" src="images/resize2.png" style="cursor:move">
+</div>
+</div>
+</div>
+
+<div id="infocontrols" class="cmiddle noborder fixed">
+<div class="columntitle containerbox" style="padding-right:0px;padding-left:0px">
+<div class="fixed">
+<a title="Toggle Sources Panel" href="#" onclick="expandInfo('left')"><img id="expandleft" class="topimg" height="24px" src="images/arrow-left-double.png"></a>
+</div>
+<div class="expand containerbox center">
+<div class="noborder fixed">
+<a id="backbutton" title="Back"><img class="topimg" height="24px" src="images/backbutton_disabled.png"></a>
 <ul class="topnav">
     <li>
-        <a href="#" title="RompR/mpd Preferences"><img src="images/preferences.png" height="24px"></a>
+        <a href="#" title="History"><img src="images/history_icon.png" class="topimg" height="24px"></a>
+        <ul id="historypanel" class="subnav widel">
+            <li class="wider"><b>HISTORY</b></li>
+        </ul>
+    </li>
+</ul>
+<a title="Artist Info from Wikipedia" href="#" onclick="browser.switchSource('wikipedia')"><img class="topimg" height="24px" src="images/Wikipedia-logo.png"></a>
+<a title="Artist, Album, and Song Info from Last.FM" href="#" onclick="browser.switchSource('lastfm')"><img class="topimg" height="24px" src="images/lastfm.png"></a>
+<a title="Artist Slideshow" href="#" onclick="browser.switchSource('slideshow')"><img class="topimg" height="24px" src="images/slideshow.png"></a>
+<a id="forwardbutton" title="Forward"><img class="topimg" height="24px" src="images/forwardbutton_disabled.png"></a>
+</div>
+</div>
+<div class="fixed">
+<a title="Toggle Playlist" href="#" onclick="expandInfo('right')"><img class="topimg" height="24px" id="expandright" src="images/arrow-right-double.png"></a>
+</div>
+</div>
+</div>
+
+<div id="playlistcontrols" class="column noborder fixed">
+<div class="columntitle containerbox" style="padding-left:0px">
+<div class="expand">
+<img id="playlistresizer" src="images/resize2.png" class="topimg" style="cursor:move">
+</div>
+<div class="fixed">
+<ul class="topnav">
+    <li>
+        <a href="#" title="RompR/mpd Preferences"><img class="topimg" src="images/preferences.png" height="24px"></a>
         <ul id="configpanel" class="subnav wide">
             <li class="wide"><b>CONFIGURATION</b></li>
                         <li class="wide">THEME <select id="themeselector" class="topformbutton" onchange="changetheme()">
@@ -22,18 +67,23 @@ include ("functions.php");
                         }
 ?>
                         </select></li>
+                        <li class="wide"><input type="checkbox" class="topcheck" onclick="hidePanel('albumlist')" id="button_hide_albumlist">Hide Albums List</input></li>
+                        <li class="wide"><input type="checkbox" class="topcheck" onclick="hidePanel('filelist')" id="button_hide_filelist">Hide Files List</input></li>
+                        <li class="wide"><input type="checkbox" class="topcheck" onclick="hidePanel('lastfmlist')" id="button_hide_lastfmlist">Hide Last.FM Stations</input></li>
+                        <li class="wide"><input type="checkbox" class="topcheck" onclick="hidePanel('radiolist')" id="button_hide_radiolist">Hide Radio Stations</input></li>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="browser.hide()" id="hideinfobutton">Hide Information Panel</input></li>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="togglePref('downloadart')" id="downloadart">Automatically Download Covers</input></li>
-                        <li class="wide"><input type="checkbox" class="topcheck" onclick="togglePref('updateeverytime')" id="updateeverytime">Update Collection On Start</input></li>
 
                         <li class="wide"><b>Music Selection Click Behaviour</b></li>
                         <li class="wide"><input type="radio" class="topcheck" onclick="changeClickPolicy()" name="clickselect" value="double">Double-click to add, Click to select</input></li>
                         <li class="wide"><input type="radio" class="topcheck" onclick="changeClickPolicy()" name="clickselect" value="single">Click to add, no selection</input></li>
 
+                        <li class="wide"><input type="checkbox" class="topcheck" onclick="togglePref('updateeverytime')" id="updateeverytime">Update Collection On Start</input></li>
                         <li class="wide"><button class="topformbutton" onclick="updateCollection('update')">Update Collection Now</button></li>
                         <li class="wide"><button class="topformbutton" onclick="updateCollection('rescan')">Full Collection Rescan</button></li>
                         <li class="wide"><button class="topformbutton" onclick="editkeybindings()">Edit Keyboard Shortcuts...</button></li>
                         <li class="wide"><button class="topformbutton" onclick="editmpdoutputs()">MPD Audio Outputs...</button></li>
+                <li class="wide"><b>Last.FM</b></li>
 <?php
                 //print '<li class="wide">Information Panel History Depth</li>';
                 //print '<li class="wide"><input class="topform" name="historylength" type="text" size="3" value="'.$prefs['historylength'].'"/><button class="topformbutton" onclick="sethistorylength()">Set</button></li>';
@@ -62,7 +112,7 @@ include ("functions.php");
     </li>
 
     <li>
-        <a href="#" title="Clear Playlist"><img src="images/edit-clear-list.png" height="24px"></a>
+        <a href="#" title="Clear Playlist"><img class="topimg" src="images/edit-clear-list.png" height="24px"></a>
         <ul id="clrplst" class="subnav">
             <li><b>Clear Playlist</b></li>
             <li>
@@ -71,11 +121,11 @@ include ("functions.php");
         </ul>
     </li>
     <li>
-        <a href="#" title="Load Saved Playlist"><img src="images/document-open-folder.png" height="24px"></a>
+        <a href="#" title="Load Saved Playlist"><img class="topimg" src="images/document-open-folder.png" height="24px"></a>
         <ul id="playlistslist" class="subnav wide"></ul>
     </li>
     <li>
-        <a href="#" title="Save Playlist"><img src="images/document-save.png" height="24px"></a>
+        <a href="#" title="Save Playlist"><img class="topimg" src="images/document-save.png" height="24px"></a>
         <ul id="saveplst" class="subnav wide">
             <li class="wide"><b>Save Playlist As</b></li>
             <li class="wide">
@@ -87,6 +137,7 @@ include ("functions.php");
 </ul>
 </div>
 </div>
+</div>
 
 <script language="javascript">
     $("#scrobwrangler").progressbar();
@@ -96,6 +147,10 @@ include ("functions.php");
     $("#radioscrobbling").attr("checked", prefs.dontscrobbleradio);
     $("#autocorrect").attr("checked", prefs.lastfm_autocorrect);
     $("#hideinfobutton").attr("checked", prefs.hidebrowser);
+    $("#button_hide_albumlist").attr("checked", prefs.hide_albumlist);
+    $("#button_hide_filelist").attr("checked", prefs.hide_filelist);
+    $("#button_hide_lastfmlist").attr("checked", prefs.hide_lastfmlist);
+    $("#button_hide_radiolist").attr("checked", prefs.hide_radiolist);
     $("#updateeverytime").attr("checked", prefs.updateeverytime);
     $("#downloadart").attr("checked", prefs.downloadart);
     $("#themeselector").val(prefs.theme);

@@ -475,8 +475,10 @@ function Playlist() {
             $.post("updateplaylist.php", { url: url, name: name })
             .done( function() { 
                 playlist.repopulate();
-                $("#yourradiolist").empty();
-                $("#yourradiolist").load("yourradio.php");
+                if (!prefs.hide_radiolist) {
+                    $("#yourradiolist").empty();
+                    $("#yourradiolist").load("yourradio.php");
+                }
             });
         }
     }
@@ -557,8 +559,10 @@ function Playlist() {
     this.addFavourite = function(index) {
         debug.log("Adding Fave Station, index",index, tracklist[index].album);
         $.post("addfave.php", { station: tracklist[index].album })
-            .done( function() { 
-                $("#yourradiolist").load("yourradio.php");
+            .done( function() {
+                if (!prefs.hide_radiolist) {
+                    $("#yourradiolist").load("yourradio.php");
+                }
             });
     }
     

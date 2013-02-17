@@ -46,6 +46,9 @@ if (file_exists("prefs/prefs.js")) {
 // debug.setLevel(0);
 var lastfm_api_key = "15f7532dff0b8d84635c757f9f18aaa3";
 var lastfm_session_key;
+var sources = new Array();
+var update_load_timer = 0;
+var update_load_timer_running = false;
 var emptytrack = {  creator: "",
                     album: "",
                     title: "",
@@ -60,8 +63,9 @@ var gotNeighbours = false;
 var gotFriends = false;
 var progresstimer = null;
 var prefsbuttons = ["images/button-off.png", "images/button-on.png"];
-var prefsInLocalStorage = ["hidebrowser", "sourceshidden", "playlisthidden", "infosource",
-                            "sourceswidthpercent", "playlistwidthpercent", "downloadart", "clickmode"];
+var prefsInLocalStorage = ["hidebrowser", "sourceshidden", "playlisthidden", "infosource", "playlistcontrolsvisible",
+                            "sourceswidthpercent", "playlistwidthpercent", "downloadart", "clickmode", "chooser",
+                            "hide_albumlist", "hide_filelist", "hide_lastfmlist", "hide_radiolist"];
 
 function aADownloadFinished() {
     /* We need one of these in global scope so coverscraper works here
@@ -172,6 +176,17 @@ $(document).ready(function(){
 //         }
         stop: playlist.dragstopped
     });
+    
+    $("#yourradiolist").sortable({
+        items: ".clickradio",
+        axis: "y",
+        containment: "#yourradiolist",
+        scroll: 'true',
+        scrollSpeed: 10,
+        tolerance: 'pointer',
+        stop: saveRadioOrder
+    });
+    
     setBottomPaneSize();
     $("#loadinglabel3").effect('pulsate', { times:100 }, 2000);
     $("#progress").progressbar();
@@ -183,42 +198,52 @@ $(document).ready(function(){
         stop: infobar.setvolume
     });
 
-    // Load the controls in the controls bar
-    // These have to be chained since we can't add the click/drag handlers
-    // or do the size adjustments until everything is in place
-    $('#albumcontrols').load("albumcontrols.php", function() { 
+    $("#headerbar").load('headerbar.php', function() {
         $("#sourcesresizer").draggable({
             containment: '#headerbar',
             axis: 'x'
         });
         $("#sourcesresizer").bind("drag", srDrag);
         $("#sourcesresizer").bind("dragstop", srDragStop);
-        $('#playlistcontrols').load('playlistcontrols.php', function() {
-            $("#playlistresizer").draggable({   
-                containment: 'headerbar',
-                axis: 'x'
-            });
-            $("#playlistresizer").bind("drag", prDrag);
-            $("#playlistresizer").bind("dragstop", prDragStop);
-            reloadPlaylists();
-            $('#infocontrols').load("infocontrols.php", function() { 
-                doThatFunkyThang();
-                //$("ul.topnav li a").unbind('click');
-                $("ul.topnav li a").click(function() {
-                    $(this).parent().find("ul.subnav").slideToggle('fast');
-                    return false;
-                });
-            });
+        $("#playlistresizer").draggable({   
+            containment: 'headerbar',
+            axis: 'x'
         });
+        $("#playlistresizer").bind("drag", prDrag);
+        $("#playlistresizer").bind("dragstop", prDragStop);
+        reloadPlaylists();
+        doThatFunkyThang();
+        //$("ul.topnav li a").unbind('click');
+        $("ul.topnav li a").click(function() {
+            $(this).parent().find("ul.subnav").slideToggle('fast');
+            return false;
+        });
+        var s = ["albumlist", "filelist", "lastfmlist", "radiolist"];
+        for (var i in s) {
+            if (prefs["hide_"+s[i]]) {
+                $("#choose_"+s[i]).fadeOut('fast');
+            }
+        }
     });
-    
-    mpd.command("",playlist.repopulate);
+    sourcecontrol(prefs.chooser);
     $("#lastfmlist").load("lastfmchooser.php");
     $("#bbclist").load("bbcradio.php");
     $("#somafmlist").load("somafm.php");
     $("#yourradiolist").load("yourradio.php");
     $("#icecastlist").load("getIcecast.php");
-    
+<?php
+if ($prefs['updateeverytime'] == "true" ||
+        !file_exists($ALBUMSLIST) ||
+        !file_exists($FILESLIST)) 
+{
+    // debug_print("Rebuilding Music Cache");
+    print "updateCollection('update');\n";
+} else {
+    // debug_print("Loading Music Cache");
+    print "prepareForLiftOff()\n";
+    print "loadCollection('".$ALBUMSLIST."', '".$FILESLIST."');\n";
+}
+?>
     loadKeyBindings();
     if (!prefs.shownupdatewindow) {
         var fnarkle = popupWindow.create(500,300,"fnarkle",true,"Information About This Version");
@@ -229,6 +254,10 @@ $(document).ready(function(){
         popupWindow.open();
         prefs.save({shownupdatewindow: true});
     }
+    if (prefs.playlistcontrolsvisible) {
+        $("#playlistbuttons").slideToggle('fast');
+    }
+    mpd.command("",playlist.repopulate);
     $(window).bind('resize', function() {
         setBottomPaneSize();
     });
@@ -273,28 +302,14 @@ $(document).ready(function(){
     </div>
 </div>
 
-<div id="headerbar">
-<div id="albumcontrols" class="tleft column noborder">
-</div>
-<div id="infocontrols" class="tleft cmiddle noborder">
-</div>
-<div id="pcholder" class="tright column noborder">
-<div id="playlistcontrols" class="noborder">
-</div>
-</div>
+<div id="headerbar" class="containerbox">
 </div>
 
 <div id="bottompage">
 
 <div id="sources" class="tleft column noborder">
 
-    <?php
-    if ($prefs['chooser'] == "albumlist") {
-        print '<div id="albumlist" class="noborder">'."\n";
-    } else {
-        print '<div id="albumlist" class="invisible noborder">'."\n";
-    }
-    ?>    
+    <div id="albumlist" class="invisible noborder">
     <div style="padding-left:12px">
     <a title="Search Music" href="#" onclick="toggleSearch()"><img class="topimg clickicon" height="20px" src="images/system-search.png"></a>
     </div>
@@ -302,13 +317,7 @@ $(document).ready(function(){
     <div id="collection" class="noborder"></div>    
     </div>
 
-    <?php
-    if ($prefs['chooser'] == "filelist") {
-        print '<div id="filelist">'."\n";
-    } else {
-        print '<div id="filelist" class="invisible">'."\n";
-    }
-    ?>
+    <div id="filelist" class="invisible">
     <div style="padding-left:12px">
     <a title="Search Files" href="#" onclick="toggleFileSearch()"><img class="topimg" height="20px" src="images/system-search.png"></a>
     </div>
@@ -317,23 +326,10 @@ $(document).ready(function(){
     <div id="filecollection" class="noborder"></div>   
     </div>
 
-    <?php
-    if ($prefs['chooser'] == "lastfmlist") {
-        print '<div id="lastfmlist">'."\n";
-    } else {
-        print '<div id="lastfmlist" class="invisible">'."\n";
-    }
-    ?> 
+    <div id="lastfmlist" class="invisible">
     </div>
 
-    <?php
-    if ($prefs['chooser'] == "radiolist") {
-        print '<div id="radiolist">'."\n";
-    } else {
-        print '<div id="radiolist" class="invisible">'."\n";
-    }
-    ?>
-
+    <div id="radiolist" class="invisible">
     <div class="containerbox menuitem noselection">
         <img src="images/toggle-closed.png" class="menu fixed" name="yourradiolist">
         <div class="smallcover fixed"><img height="32px" width="32px" src="images/broadcast-32.png"></div>
@@ -382,13 +378,7 @@ $(document).ready(function(){
     <div style="padding-left:12px">
     <a title="Playlist Controls" href="#" onclick="togglePlaylistButtons()"><img class="topimg clickicon" height="20px" src="images/pushbutton.png"></a>
     </div>
-<?php
-    if ($prefs['playlistcontrolsvisible'] == 'true') {
-        print '<div id="playlistbuttons" class="searchbox">';
-    } else {
-        print '<div id="playlistbuttons" class="invisible searchbox">';
-    }
-?>
+        <div id="playlistbuttons" class="invisible searchbox">
         <table width="90%" align="center">
         <tr>
         <td align="right">SHUFFLE</td><td class="togglebutton">

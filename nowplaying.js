@@ -28,10 +28,16 @@ function trackDataCollection(ind, mpdinfo, art, alb, tra) {
             
             lfmResponseHandler: function(data) {
                 debug.log("Got Artist Info for", mpd_data.creator, data);
-                if (data.error) {
-                    artist_data = {artist: data};
+                if (data) {
+                    if (data.error) {
+                        artist_data = {artist: data};
+                    } else {
+                        artist_data = data;
+                    }
                 } else {
-                    artist_data = data;
+                    artist_data = {artist: {error: 1,
+                                            message: "Artist Not Found"}
+                    };
                 }
                 self.album.populate();
             },
@@ -46,7 +52,7 @@ function trackDataCollection(ind, mpdinfo, art, alb, tra) {
             
             lfmdata: function() {
                 try {
-                    return artist_data.artist;
+                    return artist_data.artist || {};
                 } catch(err) {
                     return {};
                 }
@@ -143,12 +149,17 @@ function trackDataCollection(ind, mpdinfo, art, alb, tra) {
 
             lfmResponseHandler: function(data) {
                 debug.log("Got Album Info for",mpd_data.album, data);
-                if (data.error) {
-                    album_data = {album: data};
+                if (data) {
+                    if (data.error) {
+                        album_data = {album: data};
+                    } else {
+                        album_data = data;
+                    }
                 } else {
-                    album_data = data;
+                    album_data = {album: {error: 1,
+                                          message: "Album Not Found"}
+                    };
                 }
-                debug.log("Calling track populator");
                 self.track.populate();
             },
             
@@ -289,10 +300,16 @@ function trackDataCollection(ind, mpdinfo, art, alb, tra) {
 
             lfmResponseHandler: function(data) {
                 debug.log("Got Track Info for",mpd_data.title, data);
-                if (data.error) {
-                    track_data = {track: data};
+                if (data) {
+                    if (data.error) {
+                        track_data = {track: data};
+                    } else {
+                        track_data = data;
+                    }
                 } else {
-                    track_data = data;
+                    track_data = {track: {error: 1,
+                                          message: "Track Not Found"}
+                    };
                 }
                 self.finished();
             },
@@ -335,11 +352,14 @@ function trackDataCollection(ind, mpdinfo, art, alb, tra) {
             updatenowplaying: function() {
                 if (!nowplaying_updated) {
                     if (self.track.name() != "" && self.artist.name() != "") {
-                        lastfm.track.updateNowPlaying( { 
+                        var opts = {
                             track: self.track.name(), 
-                            album: self.album.name(),
                             artist: self.artist.name()
-                        });
+                        };
+                        if (mpd_data.type != "stream") {
+                            opts.album = self.album.name();
+                        }
+                        lastfm.track.updateNowPlaying(opts);
                         nowplaying_updated = true;
                     }
                 }
@@ -704,7 +724,7 @@ function playInfo() {
 function lfmDataExtractor(data) {
     
     this.error = function() {
-        if (data.error) {
+        if (data && data.error) {
             return data.message;
         } else {
             return false;
@@ -724,7 +744,7 @@ function lfmDataExtractor(data) {
         try {
             return data.stats.listeners || 0;
         } catch(err) {
-            return  data.listeners || 0;
+            return  0;
         }
     }
 
@@ -732,7 +752,7 @@ function lfmDataExtractor(data) {
         try {
             return data.stats.playcount || 0;
         } catch(err) {
-            return  data.playcount || 0;
+            return  0;
         }
     }
 
@@ -745,11 +765,19 @@ function lfmDataExtractor(data) {
     }
 
     this.releasedate = function() {
-        return  data.releasedate || "Unknown";
+        try {
+            return  data.releasedate || "Unknown";
+        } catch(err) {
+            return "Unknown";
+        }
     }
     
     this.mbid = function() {
-        return data.mbid || false;
+        try {
+            return data.mbid || false;
+        } catch(err) {
+            return false;
+        }
     }
     
     this.userplaycount = function() {
@@ -761,16 +789,24 @@ function lfmDataExtractor(data) {
     }
 
     this.url = function() {
-        return  data.url || "";
+        try {
+            return  data.url || "";
+        } catch(err) {
+            return "";
+        }
     }
 
     this.bio = function() {
-        if(data.wiki) { 
-            return data.wiki.content; 
-        }
-        else if (data.bio) {
-            return data.bio.content;
-        } else {
+        try {
+            if(data.wiki) { 
+                return data.wiki.content; 
+            }
+            else if (data.bio) {
+                return data.bio.content;
+            } else {
+                return false;
+            }
+        } catch(err) {
             return false;
         }
     }

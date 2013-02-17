@@ -276,6 +276,12 @@ a
     box-orient:vertical;
 }
 
+.center {
+    box-pack:center;
+    -moz-box-pack:center;
+    -webkit-box-pack:center;
+}
+
 .menuitem
 {
     font-weight:bold;
@@ -380,12 +386,21 @@ a
 
 .whatdoicallthis
 {
-    padding-left:4px;
+    padding-left:0px;
     padding-top:2px;
     padding-bottom:4px;
     font-size:96%;
     font-weight:normal;
+}
+
+.bum
+{
     font-style:italic;
+}
+
+.wibble
+{
+    padding-bottom:6px;
 }
 
 .dirname
@@ -829,7 +844,7 @@ ul.topnav li a
     font-size:120%;
     float:left;
     font-weight:bold;
-    padding-top:4px;
+    /*-- padding-top:4px; --*/
 }
 
 ul.subnav
@@ -1082,3 +1097,8 @@ ul.buyalbum li
     left:0px;
 }
 
+.arsecheese
+{
+    border-spacing:0px;
+    border-width:0px;
+}

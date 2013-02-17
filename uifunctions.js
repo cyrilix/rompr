@@ -124,7 +124,8 @@ function doThatFunkyThang() {
     $("#sources").css("width", sourceswidth.toString()+"%");
     $("#albumcontrols").css("width", sourceswidth.toString()+"%");
     $("#playlist").css("width", playlistwidth.toString()+"%");
-    $("#pcholder").css("width", playlistwidth.toString()+"%");
+//     $("#pcholder").css("width", playlistwidth.toString()+"%");
+    $("#playlistcontrols").css("width", playlistwidth.toString()+"%");
     $("#infopane").css("width", browserwidth.toString()+"%");
     $("#infocontrols").css("width", browserwidth.toString()+"%");
 
@@ -273,7 +274,10 @@ function removeUserStream(xspf) {
         contentType: "text/xml; charset=utf-8",
         data: {remove: xspf},
         success: function(data, status) {
-            $("#yourradiolist").load("yourradio.php");
+            if (!prefs.hide_radiolist) {
+                $("#yourradiolist").load("yourradio.php",
+                    function() { saveRadioOrder() });
+            }
         },
         error: function(data, status) { 
             playlist.repopulate();
@@ -874,4 +878,171 @@ function bodgeitup(ui) {
         properjob = "track";
     }
     return properjob;
+}
+
+function saveRadioOrder() {
+
+    debug.log("Saving Radio Order");
+    var radioOrder = Array();
+    $("#yourradiolist").find(".clickradio").each( function() {
+        debug.log($(this).attr("name"));
+        radioOrder.push($(this).attr("name"));
+    });
+    $.ajax({
+            type: 'POST',
+            url: 'saveRadioOrder.php',
+            data: {'order[]': radioOrder}
+    });
+    
+}
+
+function prepareForLiftOff() {
+    $("#collection").empty();
+    $("#filecollection").empty();
+    $("#collection").html('<div class="dirname"><h2 id="loadinglabel">Updating Collection...</h2></div>');
+    $("#filecollection").html('<div class="dirname"><h2 id="loadinglabel2">Scanning Files...</h2></div>');
+    $("#loadinglabel").effect('pulsate', { times:200 }, 2000);
+    $("#loadinglabel2").effect('pulsate', { times:200 }, 2000);
+}
+
+function updateCollection(cmd) {
+    debug.log("Updating collection with command", cmd);
+    prepareForLiftOff();
+    $.getJSON("ajaxcommand.php", "command="+cmd, function() { 
+                update_load_timer = setTimeout( pollAlbumList, 2000);
+                update_load_timer_running = true;
+    });    
+}
+
+function loadCollection(albums, files) {
+    if (!prefs.hide_albumlist && albums != null) {
+        debug.log("Loading Albums List");
+        $("#loadinglabel").html("Loading Collection");
+        $("#collection").load(albums);
+        $('#search').load("search.php");
+    }
+    if (!prefs.hide_filelist && files != null) {
+        debug.log("Loading Files List");
+        $("#loadinglabel2").html("Loading Files");
+        $("#filecollection").load(files);
+        $('#filesearch').load("filesearch.php");
+    }
+}
+
+function checkPoll(data) {
+    if (data.updating_db) {
+        debug.log("Updating DB");
+        update_load_timer = setTimeout( pollAlbumList, 1000);
+        update_load_timer_running = true;
+    } else {
+        loadCollection("albums.php", "dirbrowser.php");
+    }
+}
+
+function pollAlbumList() {
+    if(update_load_timer_running) {
+        clearTimeout(update_load_timer);
+        update_load_timer_running = false;
+    }
+    $.getJSON("ajaxcommand.php", checkPoll);
+}
+
+function sourcecontrol(source) {
+
+    sources = ["lastfmlist", "albumlist", "filelist", "radiolist"];
+    for(var i in sources) {
+        if (sources[i] == source) {
+            sources.splice(i, 1);
+            break;
+        }
+    }
+    switchsource(source);
+    return false;
+}
+
+function switchsource(source) {
+
+    var togo = sources.shift();
+    if (togo) {
+        $("#"+togo).fadeOut('fast', function() { switchsource(source) });
+    } else {
+        prefs.save({chooser: source});
+        $("#"+source).fadeIn('fast');
+    }
+
+}
+
+function hidePanel(panel) {
+    var is_hidden = $("#"+panel).is(':hidden');
+    var new_state = !prefs["hide_"+panel];
+    debug.log("Panel",panel,is_hidden,new_state);
+    var newprefs = {};
+    newprefs["hide_"+panel] = new_state;
+    prefs.save(newprefs);
+    if (is_hidden != new_state) {
+        if (new_state && prefs.chooser == panel) {
+            $("#"+panel).fadeOut('fast');
+            var s = ["albumlist", "filelist", "lastfmlist", "radiolist"];
+            for (var i in s) {
+                if (s[i] != panel && !prefs["hide_"+s[i]]) {
+                    switchsource(s[i]);
+                    break;
+                }
+            }
+        }
+        if (!new_state && prefs.chooser == panel) {
+            $("#"+panel).fadeIn('fast');
+        }
+    }
+    if (new_state) {
+        $("#choose_"+panel).fadeOut('fast');
+        switch (panel) {
+            case "lastfmlist":
+                $("#lastfmlist").empty();
+                break;
+            case "radiolist":
+                $("#bbclist").empty();
+                $("#somafmlist").empty();
+                $("#yourradiolist").empty();
+                $("#icecastlist").empty();
+                break;
+            case "albumlist":
+                if (update_load_timer_running == false) {
+                    $("#collection").empty();
+                    $("#search").empty();
+                }
+                break;
+            case "filelist":
+                if (update_load_timer_running == false) {
+                    $("#filecollection").empty();
+                    $("#filesearch").empty();
+                }
+                break;
+        }
+    } else {
+        $("#choose_"+panel).fadeIn('fast');
+        switch (panel) {
+            case "lastfmlist":
+                $("#lastfmlist").load("lastfmchooser.php");
+                break;
+            case "radiolist":
+                $("#bbclist").load("bbcradio.php");
+                $("#somafmlist").load("somafm.php");
+                $("#yourradiolist").load("yourradio.php");
+                $("#icecastlist").html('<div class="dirname"><h2 id="loadinglabel3">Loading Stations...</h2></div>');
+                $("#loadinglabel3").effect('pulsate', { times:100 }, 2000);
+                $("#icecastlist").load("getIcecast.php");
+                break;
+            case "albumlist":
+                if (update_load_timer_running == false) {
+                    loadCollection(prefs.albumslist, null);
+                }
+                break;
+            case "filelist":
+                if (update_load_timer_running == false) {
+                    loadCollection(null, prefs.fileslist);
+                }
+                break;
+        }
+    }    
 }

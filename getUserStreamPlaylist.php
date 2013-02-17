@@ -10,8 +10,11 @@ if (array_key_exists('name', $_REQUEST)) {
 
 if (array_key_exists('remove', $_REQUEST)) {
 	$name = rawurldecode($_REQUEST['remove']);
+	// DON'T delete it, as it may be in the playlist
+	// rename it from USERSTREAM to STREAM
+    $newname = preg_replace('/USERSTREAM/', 'STREAM', $name);
 	if (file_exists($name)) {
-		system('rm "'.$name.'"');
+		system('mv "'.$name.'" "'.$newname.'"');
 		print '<html><body></body></html>';
 	}
 }

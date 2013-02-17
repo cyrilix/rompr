@@ -120,13 +120,14 @@ function doMenu(event, element) {
         event.stopImmediatePropagation();
     }
     var menutoopen = element.attr("name");
-    $('#'+menutoopen).slideToggle('fast');
-    if (element.attr("src") == "images/toggle-closed.png") {
-        element.attr("src", "images/toggle-open.png");
-        $('#'+menutoopen).find(".updateable").each(noAnonymousFunctions);
-    } else if (element.attr("src") == "images/toggle-open.png"){
-        element.attr("src", "images/toggle-closed.png");
-    }
+    $('#'+menutoopen).slideToggle('fast', function() {
+        if (element.attr("src") == "images/toggle-closed.png") {
+            element.attr("src", "images/toggle-open.png");
+            $('#'+menutoopen).find(".updateable").each(noAnonymousFunctions);
+        } else if (element.attr("src") == "images/toggle-open.png"){
+            element.attr("src", "images/toggle-closed.png");
+        }
+    });
     return false;
 
 }

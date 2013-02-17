@@ -84,7 +84,7 @@ function LastFM(user) {
             function(data) {   
                 lastfm_session_key = $(data).find("key").text();
                 logged_in = true;
-                savePrefs({ 
+                prefs.save({ 
                     lastfm_session_key: lastfm_session_key,
                     lastfm_user: username
                 });

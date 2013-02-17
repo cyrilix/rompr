@@ -47,7 +47,13 @@ $prefs = array( "mpd_host" => "localhost",
                 "sortbydate" => "false",
                 "playlistcontrolsvisible" => "false",
                 "clickmode" => "double",
-                "lastfm_country_code" => "GB"
+                "lastfm_country_code" => "GB",
+                "hide_albumlist" => "false",
+                "hide_filelist" => "false",
+                "hide_lastfmlist" => "false",
+                "hide_radiolist" => "false",
+                "albumslist" => $ALBUMSLIST,
+                "fileslist" => $FILESLIST
                 );
 loadPrefs();
 
@@ -63,7 +69,12 @@ function savePrefs() {
     $fp = fopen('prefs/prefs', 'w');
     if($fp) {
         foreach($prefs as $key=>$value) {
-            fwrite($fp, $key . "||||" . $value . "\n");
+            // Don't save these two items!!! They're not user-updateable
+            // and saving them will prevent the Javascript from knowing if we
+            // change the format
+            if ($key != "albumslist" && $key != "fileslist") {
+                fwrite($fp, $key . "||||" . $value . "\n");
+            }
         }
         if(!fclose($fp)) {
             echo "Error! Couldn't close the prefs file.";
