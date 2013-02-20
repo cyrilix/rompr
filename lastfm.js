@@ -477,6 +477,15 @@ function LastFM(user) {
                 callback,
                 failcallback
             )
+        },
+
+        getTopArtists: function(options, callback, failcallback) {
+            addGetOptions(options, "user.getTopArtists");
+            LastFMGetRequest(
+                options,
+                callback,
+                failcallback
+            )
         }
 
     }

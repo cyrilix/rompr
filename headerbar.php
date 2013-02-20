@@ -3,27 +3,27 @@ include ("vars.php");
 include ("functions.php");
 ?>
 
-<div id="albumcontrols" class="column noborder fixed">
-<div class="columntitle containerbox" style="padding-right:0px">
-<div class="expand">
+<div id="albumcontrols" class="column noborder tleft">
+<div class="containerbox fullwidth">
+<div class="expand topbox leftbox">
 <a title="Local Music" href="#" onclick="sourcecontrol('albumlist')" id="choose_albumlist"><img class="topimg" height="24px" src="images/audio-x-generic.png"></a>
 <a title="File Browser" href="#" onclick="sourcecontrol('filelist')" id="choose_filelist"><img class="topimg" height="24px" src="images/folder.png"></a>
 <a title="Last.FM Radio" href="#" onclick="sourcecontrol('lastfmlist')" id="choose_lastfmlist"><img class="topimg" height="24px" src="images/lastfm.png"></a>
 <a title="Internet Radio Stations" href="#" onclick="sourcecontrol('radiolist')" id="choose_radiolist"><img class="topimg" height="24px" src="images/broadcast-24.png"></a>
 <a href="albumart.php" title="Album Art Manager" target="_blank"><img class="topimg" src="images/cd_jewel_case.jpg" height="24px"></a>
 </div>
-<div class="fixed">
+<div class="fixed topbox">
 <img id="sourcesresizer" class="topimg" height="24px" src="images/resize2.png" style="cursor:move">
 </div>
 </div>
 </div>
 
-<div id="infocontrols" class="cmiddle noborder fixed">
-<div class="columntitle containerbox" style="padding-right:0px;padding-left:0px">
-<div class="fixed">
+<div id="infocontrols" class="cmiddle noborder tleft">
+<div class="containerbox fullwidth">
+<div class="fixed topbox">
 <a title="Toggle Sources Panel" href="#" onclick="expandInfo('left')"><img id="expandleft" class="topimg" height="24px" src="images/arrow-left-double.png"></a>
 </div>
-<div class="expand containerbox center">
+<div class="expand containerbox center topbox">
 <div class="noborder fixed">
 <a id="backbutton" title="Back"><img class="topimg" height="24px" src="images/backbutton_disabled.png"></a>
 <ul class="topnav">
@@ -40,18 +40,18 @@ include ("functions.php");
 <a id="forwardbutton" title="Forward"><img class="topimg" height="24px" src="images/forwardbutton_disabled.png"></a>
 </div>
 </div>
-<div class="fixed">
+<div class="fixed topbox">
 <a title="Toggle Playlist" href="#" onclick="expandInfo('right')"><img class="topimg" height="24px" id="expandright" src="images/arrow-right-double.png"></a>
 </div>
 </div>
 </div>
 
-<div id="playlistcontrols" class="column noborder fixed">
-<div class="columntitle containerbox" style="padding-left:0px">
-<div class="expand">
-<img id="playlistresizer" src="images/resize2.png" class="topimg" style="cursor:move">
+<div id="playlistcontrols" class="column noborder tleft">
+<div class="containerbox fullwidth">
+<div class="expand topbox">
+<img id="playlistresizer" src="images/resize2.png" height="24px" class="topimg" style="cursor:move">
 </div>
-<div class="fixed">
+<div class="fixed topbox">
 <ul class="topnav">
     <li>
         <a href="#" title="RompR/mpd Preferences"><img class="topimg" src="images/preferences.png" height="24px"></a>
@@ -78,6 +78,10 @@ include ("functions.php");
                         <li class="wide"><input type="radio" class="topcheck" onclick="changeClickPolicy()" name="clickselect" value="double">Double-click to add, Click to select</input></li>
                         <li class="wide"><input type="radio" class="topcheck" onclick="changeClickPolicy()" name="clickselect" value="single">Click to add, no selection</input></li>
 
+                        <li class="wide">Crossfade Duration (seconds)</li>
+<?php
+                        print '<li class="wide"><input class="enter topform" name="michaelbarrymore" type="text" size="3" value="'.$prefs['crossfade_duration'].'"/><button class="topformbutton" onclick="setXfadeDur()">Set</button></li>';
+?>                        
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="togglePref('updateeverytime')" id="updateeverytime">Update Collection On Start</input></li>
                         <li class="wide"><button class="topformbutton" onclick="updateCollection('update')">Update Collection Now</button></li>
                         <li class="wide"><button class="topformbutton" onclick="updateCollection('rescan')">Full Collection Rescan</button></li>
@@ -88,7 +92,7 @@ include ("functions.php");
                 //print '<li class="wide">Information Panel History Depth</li>';
                 //print '<li class="wide"><input class="topform" name="historylength" type="text" size="3" value="'.$prefs['historylength'].'"/><button class="topformbutton" onclick="sethistorylength()">Set</button></li>';
                 print '<li class="wide">Last.FM Username</li>';
-                print '<li class="wide"><input class="topform" name="user" type="text" size="45" value="'.$prefs['lastfm_user'].'"/><button class="topformbutton" onclick="lastfmlogin()">Login</button></li>';
+                print '<li class="wide"><input class="enter topform" name="user" type="text" size="45" value="'.$prefs['lastfm_user'].'"/><button class="topformbutton" onclick="lastfmlogin()">Login</button></li>';
                 print '<li class="wide"><input type="checkbox" class="topcheck" onclick="lastfm.setscrobblestate()" id="scrobbling">Last.FM Scrobbling Enabled</input></li>';
                 print '<li class="wide"><input type="checkbox" class="topcheck" onclick="lastfm.setscrobblestate()" id="radioscrobbling">Don&#39;t Scrobble Radio Tracks</input></li>';
 ?>
@@ -97,7 +101,7 @@ include ("functions.php");
 <?php
                 print '<li class="wide"><input type="checkbox" class="topcheck" onclick="lastfm.setscrobblestate()" id="autocorrect">Last.FM Autocorrect Enabled</input></li>';
                 print '<li class="wide">Tag Loved Tracks With:</li>';
-                print '<li class="wide"><input class="topform" name="taglovedwith" type="text" size="40" value="'.$prefs['autotagname'].'"/><button class="topformbutton" onclick="setAutoTag()">Set</button></li>';
+                print '<li class="wide"><input class="enter topform" name="taglovedwith" type="text" size="40" value="'.$prefs['autotagname'].'"/><button class="topformbutton" onclick="setAutoTag()">Set</button></li>';
 
                 print '<li class="wide">COUNTRY (for Last.FM) <select id="countryselector" class="topformbutton" onchange="changecountry()">'."\n";
                 $x = simplexml_load_file('iso3166.xml');
@@ -129,7 +133,7 @@ include ("functions.php");
         <ul id="saveplst" class="subnav wide">
             <li class="wide"><b>Save Playlist As</b></li>
             <li class="wide">
-                <input class="topform" style="width:195px" id="playlistname" type="text" size="200"/>
+                <input class="enter topform" style="width:195px" name="nigel" id="playlistname" type="text" size="200"/>
                 <button class="topformbutton" onclick="savePlaylist()">Save</button>
             </li>
         </ul>
@@ -155,5 +159,6 @@ include ("functions.php");
     $("#downloadart").attr("checked", prefs.downloadart);
     $("#themeselector").val(prefs.theme);
     $("#countryselector").val(prefs.lastfm_country_code);
-    $("[name=clickselect][value="+prefs.clickmode+"]").attr("checked", true);        
+    $("[name=clickselect][value="+prefs.clickmode+"]").attr("checked", true);     
+    $("#playlistcontrols .enter").keyup( onKeyUp );
 </script>

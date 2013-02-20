@@ -3,6 +3,7 @@ var infobar = function() {
     var notifytimer = null;
     var img = new Image();
     var mousepos;
+    var sliderclamps = 0;
     
     var volumeslider = function() {
         volume = 0;
@@ -13,7 +14,7 @@ var infobar = function() {
                     $("#volume").slider("option", "value", parseInt(volume));
                 }
             },
-            restorestate: function() {
+            restoreState: function() {
                 $("#volume").slider("option", "value", parseInt(self.volume));
             }
         }
@@ -61,9 +62,10 @@ var infobar = function() {
             infobar.playbutton.setState(mpd.getStatus('state'));
             if (mpd.getStatus('error')) { 
                 alert("MPD Error: "+mpd.getStatus('error'));
-                if ((/error decoding/i).test(mpd.getStatus('error'))) {
-                    mpd.command("command=next", playlist.repopulate);
-                }
+                mpd.command('command=clearerror');
+//                 if ((/error decoding/i).test(mpd.getStatus('error'))) {
+//                     mpd.command("command=next", playlist.repopulate);
+//                 }
             }
         },
             
@@ -145,15 +147,34 @@ var infobar = function() {
             return false;
         },
         
-        setvolume: function(e) {
-            if (mpd.getStatus('state') == "play") {
-                var volume = $("#volume").slider("value");
+        setvolume: function(e, u) {
+            if (mpd.getStatus('state') != "stop") {
+                var volume = u.value;
                 mpd.command("command=setvol&arg="+parseInt(volume.toString()));
                 prefs.save({volume: parseInt(volume.toString())});
             } else {
-                infobar.notify(infobar.ERROR, "MPD can only set the volume while playing.");
+                infobar.notify(infobar.ERROR, "MPD cannot adjust volume while playback is stopped");
                 volumeslider.restoreState();
             }
+        },
+        
+        volumemoved: function(e, u) {
+            if (mpd.getStatus('state') != "stop") {
+                if (sliderclamps == 0) {
+                    // Double interlock to prevent hammering mpd:
+                    // We don't send another volume request until two things happen:
+                    // 1. The previous volume command returns
+                    // 2. The timer expires
+                    sliderclamps = 2;
+                    debug.log("Setting Volume on drag to",u.value.toString());
+                    mpd.fastcommand("command=setvol&arg="+parseInt(u.value.toString()), infobar.releaseTheClamps);
+                    setTimeout(infobar.releaseTheClamps, 250);
+                }
+            }
+        },
+        
+        releaseTheClamps: function() {
+            sliderclamps--;
         },
 
         volumeKey: function(inc) {

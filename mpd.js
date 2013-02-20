@@ -20,11 +20,22 @@ function mpdController() {
                playlist.checkProgress(); 
                infobar.updateWindowValues();
             }            
+            if ((data.state == "pause" || data.state=="stop") && data.single == 1) {
+                debug.log("Reverting single state");
+                mpd.fastcommand("command=single&arg=0");
+//                 $("#stopafterbutton").finish();
+            }
         })
         .fail( function() { 
             alert("Failed to send command '"+cmd+"' to MPD");
             playlist.checkProgress();   
         });
+    }
+    
+    this.fastcommand = function(cmd, callback) {
+        $.getJSON("ajaxcommand.php", cmd)
+        .done(function() { if (callback) { callback(); } })
+        .fail(function() { if (callback) { callback(); } })
     }
     
     this.do_command_list = function(list, callback) {

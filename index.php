@@ -61,6 +61,8 @@ var nowplaying = new playInfo();
 var lfmprovider = new lastFMprovider();
 var gotNeighbours = false;
 var gotFriends = false;
+var gotTopTags = false;
+var gotTopArtists = false;
 var progresstimer = null;
 var prefsbuttons = ["images/button-off.png", "images/button-on.png"];
 var prefsInLocalStorage = ["hidebrowser", "sourceshidden", "playlisthidden", "infosource", "playlistcontrolsvisible",
@@ -171,9 +173,6 @@ $(document).ready(function(){
             ui.item.css("background", "#555555"); 
             ui.item.css("opacity", "0.7") 
         },
-//         stop: function(event, ui) {
-//             playlist.dragstopped(event, ui);
-//         }
         stop: playlist.dragstopped
     });
     
@@ -195,9 +194,10 @@ $(document).ready(function(){
     $("#volume").slider({
         orientation: 'vertical',
         value: prefs.volume,
-        stop: infobar.setvolume
+        stop: infobar.setvolume,
+        slide: infobar.volumemoved
     });
-
+    
     $("#headerbar").load('headerbar.php', function() {
         $("#sourcesresizer").draggable({
             containment: '#headerbar',
@@ -261,6 +261,7 @@ if ($prefs['updateeverytime'] == "true" ||
     $(window).bind('resize', function() {
         setBottomPaneSize();
     });
+
 });
 
 </script>
@@ -270,12 +271,13 @@ if ($prefs['updateeverytime'] == "true" ||
 <div id="notifications"></div>
 
 <div id="infobar">
-    <div id="leftholder" class="infobarlayout tleft bordered">
+    <div class="infobarlayout tleft bordered">
         <div id="buttons">
-            <img class="clickicon controlbutton" onclick="playlist.previous()" src="images/media-skip-backward.png">
-            <img class="clickicon controlbutton" onclick="infobar.playbutton.clicked()" id="playbuttonimg" src="images/media-playback-pause.png">
-            <img class="clickicon controlbutton" onclick="playlist.stop()" src="images/media-playback-stop.png">
-            <img class="clickicon controlbutton" onclick="playlist.next()" src="images/media-skip-forward.png">
+            <img title="Previous Track" class="clickicon controlbutton" onclick="playlist.previous()" src="images/media-skip-backward.png">
+            <img title="Play/Pause" class="shiftleft clickicon controlbutton" onclick="infobar.playbutton.clicked()" id="playbuttonimg" src="images/media-playback-pause.png">
+            <img title="Stop" class="shiftleft2 clickicon controlbutton" onclick="playlist.stop()" src="images/media-playback-stop.png">
+            <img title="Stop After Current Track" class="shiftleft3 clickicon controlbutton" onclick="playlist.stopafter()" id="stopafterbutton" src="images/stopafter.png">
+            <img title="Next Track" class="shiftleft4 clickicon controlbutton" onclick="playlist.next()" src="images/media-skip-forward.png">
         </div>
         <div id="progress"></div>
         <div id="playbackTime">
@@ -283,14 +285,14 @@ if ($prefs['updateeverytime'] == "true" ||
         </div>
     </div>
 
-    <div id="leftholder" class="infobarlayout tleft bordered">
+    <div class="infobarlayout tleft bordered">
         <div id="volumecontrol">
             <div id="volume">
             </div>
         </div>
     </div>
 
-    <div id="leftholder" class="infobarlayout tleft bordered">
+    <div class="infobarlayout tleft bordered">
         <div id="albumcover">
             <img id="albumpicture" src="images/album-unknown.png" />
         </div>
@@ -302,7 +304,7 @@ if ($prefs['updateeverytime'] == "true" ||
     </div>
 </div>
 
-<div id="headerbar" class="containerbox">
+<div id="headerbar" class="noborder fullwidth">
 </div>
 
 <div id="bottompage">
@@ -369,6 +371,7 @@ if ($prefs['updateeverytime'] == "true" ||
 </div>
 
 <div id="infopane" class="tleft cmiddle noborder infowiki">
+<div id="nowplayingstuff" class="infotext"></div>
 <div id="artistinformation" class="infotext"><h2 align="center">This is the information panel. Interesting stuff will appear here when you play some music</h2></div>
 <div id="albuminformation" class="infotext"></div>
 <div id="trackinformation" class="infotext"></div>
@@ -381,19 +384,23 @@ if ($prefs['updateeverytime'] == "true" ||
         <div id="playlistbuttons" class="invisible searchbox">
         <table width="90%" align="center">
         <tr>
-        <td align="right">SHUFFLE</td><td class="togglebutton">
+        <td align="right">SHUFFLE</td>
+        <td class="togglebutton">
 <?php
         print '<img src="'.$prefsbuttons[$prefs['random']].'" id="random" onclick="toggleoption(\'random\')" class="togglebutton clickicon" />';
 ?>
         </td>
         <td class="togglebutton">
 <?php
-        print '<img src="'.$prefsbuttons[$prefs['crossfade']].'" id="crossfade" onclick="toggleoption(\'crossfade\')" class="togglebutton clickicon" />';
+        $c = ($prefs['crossfade'] == 0) ? 0 : 1;
+        print '<img src="'.$prefsbuttons[$c].'" id="crossfade" onclick="toggleoption(\'crossfade\')" class="togglebutton clickicon" />';
 ?>
-        </td><td align="left">CROSSFADE</td>
+        </td>
+        <td align="left">CROSSFADE</td>
         </tr>
         <tr>
-        <td align="right">REPEAT</td><td class="togglebutton">
+        <td align="right">REPEAT</td>
+        <td class="togglebutton">
 <?php
         print '<img src="'.$prefsbuttons[$prefs['repeat']].'" id="repeat" onclick="toggleoption(\'repeat\')" class="togglebutton clickicon" />';
 ?>

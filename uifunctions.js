@@ -69,6 +69,9 @@ function toggleoption(thing) {
     var tocheck = (thing == "crossfade") ? "xfade" : thing;
     var new_value = (mpd.getStatus(tocheck) == 0) ? 1 : 0;
     $("#"+thing).attr("src", prefsbuttons[new_value]);
+    if (thing == "crossfade" && new_value == 1) {
+        new_value = prefs.crossfade_duration;
+    }
     mpd.command("command="+thing+"&arg="+new_value);
     var options = new Object;
     options[thing] = new_value;
@@ -384,6 +387,20 @@ function getFriends(event) {
     }
 }
 
+function getTopTags(event) {
+    if (!gotTopTags) {
+        makeWaitingIcon("toptagswait");
+        lastfm.user.getTopTags({user: lastfm.username()}, gotTopTagsData, gotNoTopTags);
+    }
+}
+
+function getTopArtists(event) {
+    if (!gotTopArtists) {
+        makeWaitingIcon("topartistswait");
+        lastfm.user.getTopArtists({user: lastfm.username()}, gotTopArtistsData, gotNoTopArtists);
+    }
+}
+
 function gotNoNeighbours(data) {
     stopWaitingIcon("neighbourwait");
     infobar.notify(infobar.NOTIFY, "Didn't find any neighbours");
@@ -392,6 +409,16 @@ function gotNoNeighbours(data) {
 function gotNoFriends(data) {
     stopWaitingIcon("freindswait");
     infobar.notify(infobar.NOTIFY, "You have 0 friends");
+}
+
+function gotNoTopTags(data) {
+    stopWaitingIcon("toptagswait");
+    infobar.notify(infobar.NOTIFY, "Didn't find any top tags");
+}
+
+function gotNoTopArtists(data) {
+    stopWaitingIcon("topartistswait");
+    infobar.notify(infobar.NOTIFY, "Didn't find any top artists");
 }
 
 function toggleSearch() {
@@ -409,6 +436,36 @@ function togglePlaylistButtons() {
     var p = !prefs.playlistcontrolsvisible;
     prefs.save({ playlistcontrolsvisible: p });
     return false;
+}
+
+function gotTopTagsData(data) {
+    gotTopTags = true;
+    stopWaitingIcon("toptagswait");
+    var tagdata = getArray(data.toptags.tag);
+    var html = "";
+    for (var i in tagdata) {
+        html = html + '<div class="clickable clicklfm2 indent containerbox padright menuitem" name="lastfmglobaltag" username="'+tagdata[i].name+'">';
+        html = html + '<div class="playlisticon fixed"><img width="16px" src="images/lastfm.png" /></div>';
+        html = html + '<div class="expand indent">'+tagdata[i].name+'&nbsp;('+tagdata[i].count+')</div>';
+        html = html + '</div>';
+    }
+    $("#lfmtoptags").html(html);
+    html = null;
+}
+
+function gotTopArtistsData(data) {
+    gotTopArtists = true;
+    stopWaitingIcon("topartistswait");
+    var artistdata = getArray(data.topartists.artist);
+    var html = "";
+    for (var i in artistdata) {
+        html = html + '<div class="clickable clicklfm2 indent containerbox padright menuitem" name="lastfmartist" username="'+artistdata[i].name+'">';
+        html = html + '<div class="playlisticon fixed"><img width="16px" src="images/lastfm.png" /></div>';
+        html = html + '<div class="expand indent">'+artistdata[i].name+'&nbsp;('+artistdata[i].playcount+' plays)</div>';
+        html = html + '</div>';
+    }
+    $("#lfmtopartists").html(html);
+    html = null;
 }
 
 function gotNeighbourData(data) {
@@ -864,9 +921,10 @@ function savePlaylist() {
     if (name.indexOf("/") >= 0 || name.indexOf("\\") >= 0) {
         alert("Playlist name cannot contain / or \\");
     } else {
-        mpd.command("command=save&arg="+encodeURIComponent(name), reloadPlaylists);
+        mpd.fastcommand("command=save&arg="+encodeURIComponent(name), reloadPlaylists);
+        infobar.notify(infobar.NOTIFY, "Playlist saved as "+name);
+        $("#saveplst").slideToggle('fast');
     }
-    
 }
 
 function bodgeitup(ui) {
@@ -1045,4 +1103,12 @@ function hidePanel(panel) {
                 break;
         }
     }    
+}
+
+function setXfadeDur() {
+    $("#configpanel").fadeOut(1000);
+    prefs.save({crossfade_duration: $("#configpanel").find('input[name|="michaelbarrymore"]').attr("value")});    
+    if (prefs.crossfade > 0) {
+        mpd.command("command=crossfade&arg="+prefs.crossfade_duration);
+    }
 }

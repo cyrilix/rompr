@@ -2,7 +2,7 @@
 print '<div class="noselection fullwidth">';
 
 print '<p>Enter a URL of an internet station in this box</p>';
-print '<input class="sourceform" id="yourradioinput" type="text" size="60"/>';
+print '<input class="enter sourceform" name="horace" id="yourradioinput" type="text" size="60"/>';
 print '<button class="topformbutton" onclick="doInternetRadio(\'yourradioinput\')">Play</button>';
 $playlists = [];
 
@@ -43,3 +43,6 @@ foreach($playlists as $i => $file) {
 print '</div>';
 
 ?>
+<script language="javascript">
+    $("#radiolist .enter").keyup( onKeyUp );
+</script>

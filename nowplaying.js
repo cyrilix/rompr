@@ -1,4 +1,4 @@
-function trackDataCollection(ind, mpdinfo, art, alb, tra) {
+function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
     
     var self = this;
     var mpd_data = mpdinfo;  /* From playlist - the basic mpd tags read from status and playlistinfo */
@@ -470,11 +470,16 @@ function trackDataCollection(ind, mpdinfo, art, alb, tra) {
     
     this.populate = function() {
         self.artist.populate();
+        self.getRatingsAndStuff();
     }
     
     this.finished = function() {
         debug.log("Got all data for",mpd_data.title);
         nowplaying.gotdata(index);
+    }
+    
+    this.getRatingsAndStuff = function() {
+       // I was going to put stuff in here but then I got fed up with it. 
     }
     
     this.mpd = function(key) {
@@ -582,7 +587,7 @@ function playInfo() {
         }
         
         currenttrack++;
-        var t = new trackDataCollection(currenttrack, mpdinfo, newartistdata, newalbumdata, newtrackdata);
+        var t = new trackDataCollection(currenttrack, mpdinfo, mpd.getStatus('file'), newartistdata, newalbumdata, newtrackdata);
         history[currenttrack] = t;
         t.populate();
         debug.log("Started the large badger for track",currenttrack);
@@ -718,7 +723,6 @@ function playInfo() {
     this.getTrackData = function(index) {
         return history[index].track.lfmdata();
     }
-
 }
 
 function lfmDataExtractor(data) {
@@ -744,7 +748,11 @@ function lfmDataExtractor(data) {
         try {
             return data.stats.listeners || 0;
         } catch(err) {
-            return  0;
+            try {
+                return  data.listeners || 0;
+            } catch (err) {
+                return 0;
+            }
         }
     }
 
@@ -752,7 +760,11 @@ function lfmDataExtractor(data) {
         try {
             return data.stats.playcount || 0;
         } catch(err) {
-            return  0;
+            try {
+                return  data.playcount || 0;
+            } catch(err) {
+                return 0;
+            }
         }
     }
 

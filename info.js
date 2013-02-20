@@ -351,6 +351,7 @@ function Info(target, source) {
         if (lastfm.isLoggedIn()) {
             nowplaying.getusertags(history[displaypointer].nowplayingindex, 'artist');
         }
+        $("#artistinformation .enter").keyup( onKeyUp );
     }
     
     function toggleArtistInfo() {
@@ -422,6 +423,7 @@ function Info(target, source) {
         if (lastfm.isLoggedIn()) {
             nowplaying.getusertags(history[displaypointer].nowplayingindex, 'album');
         }
+        $("#albuminformation .enter").keyup( onKeyUp );
 
     }
             
@@ -476,6 +478,7 @@ function Info(target, source) {
         if (lastfm.isLoggedIn()) {
             nowplaying.getusertags(history[displaypointer].nowplayingindex, 'track');
         }
+        $("#trackinformation .enter").keyup( onKeyUp );
 
     }
     
@@ -564,9 +567,9 @@ function Info(target, source) {
 
     function tagsInput(type) {
         var html = '<ul class="holdingcell"><li><b>ADD TAGS</b></li>';
-        html = html + '<li><input class="tiny inbrowser" id="add'+type+'tags" type="text"></input></li>';
         html = html + '<li class="tiny">Add tags, comma-separated</li>';
-        html = html + '<li><button class="topformbutton tiny" onclick="browser.addTags(\''+type+'\')">ADD</button>'+
+        html = html + '<li><input class="enter tiny inbrowser" name="phil'+type+'tags" id="add'+type+'tags" type="text"></input>';
+        html = html + '<button class="topformbutton tiny" onclick="browser.addTags(\''+type+'\')">ADD</button>'+
                         '<img class="tright waiting" id="tagadd'+type+'" height="20px" src="images/transparent-32x32.png"></li></ul>';
         return html;
     }

@@ -15,7 +15,7 @@ if (is_array($playlists['playlist'])) {
     foreach ($playlists['playlist'] as $pl) {
 
         print '<tr><td align="left"><a href="#" onclick="mpd.command(\'command=load&arg='.rawurlencode($pl).'\', playlist.repopulate)">'.htmlspecialchars($pl).'</a></td>';
-        print '<td class="playlisticon" align="right"><a href="#" onclick="mpd.command(\'command=rm&arg='.rawurlencode($pl).'\', reloadPlaylists)"><img src="images/edit-delete.png"></a></td></tr>';
+        print '<td class="playlisticon" align="right"><a href="#" onclick="mpd.fastcommand(\'command=rm&arg='.rawurlencode($pl).'\', reloadPlaylists)"><img src="images/edit-delete.png"></a></td></tr>';
 
     }
     print '</table></li>';

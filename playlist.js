@@ -500,6 +500,23 @@ function Playlist() {
             self.checkSongIdAfterStop(previoussong);
         });
     }
+    
+    this.stopafter = function() {
+        if (mpd.getStatus('state') == "play") {
+            var cmds = [];
+            if (prefs.repeat == 1) {
+                cmds.push("repeat 0");
+                $("#repeat").attr("src", prefsbuttons[0]);
+                prefs.save({repeat: 0});
+            }
+            cmds.push("single 1");
+            mpd.do_command_list(cmds);
+            var timeleft = nowplaying.duration(-1) - nowplaying.progress();
+            if (timeleft < 0) { timeleft = 300 };
+            var repeats = Math.round(timeleft / 4);
+            $("#stopafterbutton").effect('pulsate', {times: repeats}, 4000);
+        }
+    }
 
     this.previous = function() {
         if (currentalbum >= 0) {

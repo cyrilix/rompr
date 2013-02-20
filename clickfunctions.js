@@ -189,3 +189,10 @@ function prDrag(event, ui) {
 function prDragStop(event, ui) {
     prefs.save({playlistwidthpercent: prefs.playlistwidthpercent})
 }
+
+function onKeyUp(e) {
+    if (e.keyCode == 13) {
+        debug.log("Key Up",e.target.name);
+        $('[name="'+e.target.name+'"]').next("button").click();
+    }
+}

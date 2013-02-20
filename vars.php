@@ -25,6 +25,7 @@ $prefs = array( "mpd_host" => "localhost",
                 "repeat" => 0,
                 "random" => 0,
                 "crossfade" => 0,
+                'crossfade_duration' => 5,
                 "volume" => 100,
                 "lastfm_user" => "",
                 "lastfm_scrobbling" => "false",
@@ -114,7 +115,11 @@ function setswitches() {
     global $is_connected;
     if ($is_connected) {
         foreach(array("consume", "repeat", "crossfade", "random") as $key => $option) {
-            do_mpd_command($connection, $option." ".$prefs[$option], null, false);
+            if ($option == "crossfade" && $prefs[$option] > 0) {
+                do_mpd_command($connection, $option." ".$prefs['crossfade_duration'], null, false);
+            } else {
+                do_mpd_command($connection, $option." ".$prefs[$option], null, false);
+            }
         }
     }
 }
