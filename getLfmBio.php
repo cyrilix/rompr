@@ -15,7 +15,7 @@ function get_lfm_page($page) {
     $html = $content['contents'];
     $html = preg_replace('/\n/', '</p><p>', $html);
     $html = preg_replace('/<br \/>/', '', $html);
-    $matches = [];
+    $matches = array();
     preg_match('/<div id=\"wiki\">(.*?)<\/div>/', $html, $matches);
     if (array_key_exists(1, $matches)) {
         print "<p>".$matches[1]."</p>";
