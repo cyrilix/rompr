@@ -1,4 +1,4 @@
-mpd-client-rompr (0.21.4) precise; urgency=low
+mpd-client-rompr (0.21.5) precise; urgency=low
 
   * Option to hide individual members of the sources panel
     Saved radio stations can be re-ordered
@@ -8,7 +8,7 @@ mpd-client-rompr (0.21.4) precise; urgency=low
     Crossfade duration can be configured
     Full artist bio can be scraped from Last.FM
     
- -- Mark Greenwood <fatgerman@gmail.com>  Fri, 22 Feb 2013 22:58:58 +0000
+ -- Mark Greenwood <fatgerman@gmail.com>  Sat, 23 Feb 2013 16:17:18 +0000
 
  
 mpd-client-rompr (0.21) precise; urgency=low
