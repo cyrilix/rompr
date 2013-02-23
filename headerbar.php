@@ -13,7 +13,7 @@ include ("functions.php");
 <a href="albumart.php" title="Album Art Manager" target="_blank"><img class="topimg" src="images/cd_jewel_case.jpg" height="24px"></a>
 </div>
 <div class="fixed topbox">
-<img id="sourcesresizer" class="topimg" height="24px" src="images/resize2.png" style="cursor:move">
+<img id="sourcesresizer" height="24px" src="images/resize2.png" style="cursor:move">
 </div>
 </div>
 </div>
@@ -21,7 +21,7 @@ include ("functions.php");
 <div id="infocontrols" class="cmiddle noborder tleft">
 <div class="containerbox fullwidth">
 <div class="fixed topbox">
-<a title="Toggle Sources Panel" href="#" onclick="expandInfo('left')"><img id="expandleft" class="topimg" height="24px" src="images/arrow-left-double.png"></a>
+<a title="Toggle Sources Panel" href="#" onclick="expandInfo('left')"><img id="expandleft" height="24px" src="images/arrow-left-double.png" style="padding-left:4px"></a>
 </div>
 <div class="expand containerbox center topbox">
 <div class="noborder fixed">
@@ -41,7 +41,7 @@ include ("functions.php");
 </div>
 </div>
 <div class="fixed topbox">
-<a title="Toggle Playlist" href="#" onclick="expandInfo('right')"><img class="topimg" height="24px" id="expandright" src="images/arrow-right-double.png"></a>
+<a title="Toggle Playlist" href="#" onclick="expandInfo('right')"><img height="24px" id="expandright" src="images/arrow-right-double.png" style="padding-right:4px"></a>
 </div>
 </div>
 </div>
@@ -49,7 +49,7 @@ include ("functions.php");
 <div id="playlistcontrols" class="column noborder tleft">
 <div class="containerbox fullwidth">
 <div class="expand topbox">
-<img id="playlistresizer" src="images/resize2.png" height="24px" class="topimg" style="cursor:move">
+<img id="playlistresizer" src="images/resize2.png" height="24px" style="cursor:move">
 </div>
 <div class="fixed topbox">
 <ul class="topnav">
@@ -72,6 +72,7 @@ include ("functions.php");
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="hidePanel('lastfmlist')" id="button_hide_lastfmlist">Hide Last.FM Stations</input></li>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="hidePanel('radiolist')" id="button_hide_radiolist">Hide Radio Stations</input></li>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="browser.hide()" id="hideinfobutton">Hide Information Panel</input></li>
+                        <li class="wide"><input type="checkbox" class="topcheck" onclick="togglePref('fullbiobydefault')" id="fullbiobydefault">Retrieve full artist biographies from Last.FM</input></li>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="togglePref('downloadart')" id="downloadart">Automatically Download Covers</input></li>
 
                         <li class="wide"><b>Music Selection Click Behaviour</b></li>
@@ -157,6 +158,7 @@ include ("functions.php");
     $("#button_hide_radiolist").attr("checked", prefs.hide_radiolist);
     $("#updateeverytime").attr("checked", prefs.updateeverytime);
     $("#downloadart").attr("checked", prefs.downloadart);
+    $("#fullbiobydefault").attr("checked", prefs.fullbiobydefault);
     $("#themeselector").val(prefs.theme);
     $("#countryselector").val(prefs.lastfm_country_code);
     $("[name=clickselect][value="+prefs.clickmode+"]").attr("checked", true);     

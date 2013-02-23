@@ -39,7 +39,31 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                                             message: "Artist Not Found"}
                     };
                 }
-                self.album.populate();
+                if (prefs.fullbiobydefault && data.artist.url) {
+                    self.artist.getFullBio(null, null);
+                } else {
+                    self.album.populate();
+                }
+            },
+            
+            getFullBio: function(callback, failcallback) {
+                debug.log("Getting Bio URL:", artist_data.artist.url);
+                $.get("getLfmBio.php?url="+encodeURIComponent(artist_data.artist.url))
+                    .done( function(data) {
+                        artist_data.artist.bio.content = data;
+                        if (callback) {
+                            callback(index, data);
+                        } else {
+                            self.album.populate();
+                        }
+                    })
+                    .fail( function(data) {
+                        if (failcallback) {
+                            failcallback();
+                        } else {
+                            self.album.populate();
+                        }
+                    })
             },
             
             name: function() {
@@ -55,6 +79,14 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                     return artist_data.artist || {};
                 } catch(err) {
                     return {};
+                }
+            },
+            
+            url: function() {
+                try {
+                    return artist_data.artist.url || null;
+                } catch(err) {
+                    return null;
                 }
             },
             
@@ -122,6 +154,13 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                         debug.log("No, there isn't one");
                         return "";
                     }
+                }
+            },
+            
+            setBio: function(text) {
+                try {
+                    artist_data.artist.bio.content = text;
+                } catch(err) {
                 }
             }
         }
@@ -569,14 +608,14 @@ function playInfo() {
             if (mpdinfo.creator == history[i].mpd('creator') && newartistdata == null) {
                 debug.log("Copying Artist data");
                 newartistdata = {artist: history[i].artist.lfmdata()};
-            }
-            if (mpdinfo.album == history[i].mpd('album') && newalbumdata == null) {
-                debug.log("Copying Album data");
-                newalbumdata = {album: history[i].album.lfmdata()};
-            }
-            if (mpdinfo.title == history[i].mpd('title') && newtrackdata == null) {
-                debug.log("Copying Track data");
-                newtrackdata = {track: history[i].track.lfmdata()};
+                if (mpdinfo.album == history[i].mpd('album') && newalbumdata == null) {
+                    debug.log("Copying Album data");
+                    newalbumdata = {album: history[i].album.lfmdata()};
+                }
+                if (mpdinfo.title == history[i].mpd('title') && newtrackdata == null) {
+                    debug.log("Copying Track data");
+                    newtrackdata = {track: history[i].track.lfmdata()};
+                }
             }
         }
         
@@ -722,6 +761,10 @@ function playInfo() {
 
     this.getTrackData = function(index) {
         return history[index].track.lfmdata();
+    }
+
+    this.getFullBio = function(type, index, callback, failcallback) {
+        history[index][type].getFullBio(callback, failcallback);
     }
 }
 
@@ -898,6 +941,10 @@ function lfmDataExtractor(data) {
             return "";
         }
 
+    }
+    
+    this.url = function() {
+        return data.url  || null;
     }
  
 }

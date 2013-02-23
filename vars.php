@@ -53,6 +53,7 @@ $prefs = array( "mpd_host" => "localhost",
                 "hide_filelist" => "false",
                 "hide_lastfmlist" => "false",
                 "hide_radiolist" => "false",
+                "fullbiobydefault" => "true",
                 "albumslist" => $ALBUMSLIST,
                 "fileslist" => $FILESLIST
                 );

@@ -6,6 +6,7 @@ function Info(target, source) {
     var history = [];
     var displaypointer = -1;
     var panelclosed = {artist: false, album: false, track: false};
+//     var gettingbiofor = -1;
 
     /*
     /
@@ -19,8 +20,8 @@ function Info(target, source) {
             var currentnames = nowplaying.getmpdnames(history[displaypointer].nowplayingindex);
             playTheWaitingGame( npinfo,
                                 (currentnames.artist != npinfo.artist),
-                                (currentnames.album != npinfo.album),
-                                (currentnames.track != npinfo.track)
+                                (currentnames.album != npinfo.album || currentnames.artist != npinfo.artist),
+                                (currentnames.track != npinfo.track || currentnames.album != npinfo.album || currentnames.artist != npinfo.artist)
             );
         }
     }
@@ -75,8 +76,8 @@ function Info(target, source) {
                 var newnames = nowplaying.getnames(index);
                 showMeTheMonkey(index, 
                                 (currentnames.artist != newnames.artist),
-                                (currentnames.album != newnames.album),
-                                (currentnames.track != newnames.track),
+                                (currentnames.album != newnames.album || currentnames.artist != newnames.artist),
+                                (currentnames.track != newnames.track || currentnames.album != newnames.album || currentnames.artist != newnames.artist),
                                 newnames
                                );
                 break;
@@ -318,9 +319,9 @@ function Info(target, source) {
             if (imageurl != '') {
                 html = html +  '<img class="stright" src="' + imageurl + '" class="standout" />';
             }
-            html = html +  '<p>';
-            html = html + formatBio(lfmdata.bio());
-            html = html + '</p></div>';
+            html = html +  '<div id="artistbio">';
+            html = html + formatBio(lfmdata.bio(), lfmdata.url());
+            html = html + '</div></div>';
             if (lfmdata.mbid()) {
                 html = html + '<p class="tiny"><img style="vertical-align:middle" src="images/musicbrainz_logo.png" width="24px"><a href="http://musicbrainz.org/artist/'+lfmdata.mbid()+'" target="_blank">View '+history[displaypointer].artist+' on Musicbrainz.org</a></p>';
             }
@@ -541,14 +542,37 @@ function Info(target, source) {
         return html;
     }
 
-    function formatBio(bio) {
+    function formatBio(bio, link) {
+        debug.log("Bio link is",link);
         if (bio) {
             bio = bio.replace(/\n/g, "</p><p>");
             bio = bio.replace(/(<a .*?href="http:\/\/.*?")/g, '$1 target="_blank"');
+            if (link) {
+                link = link.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+                var re = new RegExp("<a href=\""+link+"\" target=\"_blank\">Read more about.*?</a>");
+                bio = bio.replace(re, '<a id="artistbiolink" href="#" onclick="browser.scrapeArtistBio()">Read Full Biography</a>');
+            }
             return bio;
         } else {
             return "";
         }
+    }
+    
+    this.scrapeArtistBio = function() {
+        // So, for some unfathomable reason Last.FM has changed the API so artist biographies are
+        // truncated at 300 characters. So this attempts to scrape the full bio from the website,
+        // thereby increasing their traffic, which is probably what they want, the bastards.
+        nowplaying.getFullBio('artist', history[displaypointer].nowplayingindex, browser.gotFullArtistBio, browser.myFeetHurt);
+    }
+    
+    this.gotFullArtistBio = function(index,data) {
+        if (index == history[displaypointer].nowplayingindex) {
+            $("#artistbio").html(formatBio(data, null));
+        }
+    }
+    
+    this.myFeetHurt = function() {
+        infobar.notify(infobar.NOTIFY, "No full biography available");
     }
 
     /*

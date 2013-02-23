@@ -108,7 +108,6 @@ function LastFM(user) {
             url=url+adder+keys[key]+"="+(options[keys[key]] == "?" ? "?" : encodeURIComponent(options[keys[key]]));
             adder = "&";
         }
-        debug.log("get URL:",url);
         // Don't use JQuery's getJSON function for cross-site requests as it ignores any
         // error callbacks you give it. I'm using the jsonp plugin, which works.
         $.jsonp({

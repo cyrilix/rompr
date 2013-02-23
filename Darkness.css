@@ -318,3 +318,18 @@ input.topformbutton
     color:#000000;
     font-weight:bold;
 }
+
+.quotebox
+{
+    color:#000000;
+}
+
+.quotebox p
+{
+    color:#000000;
+}
+
+.description
+{
+    margin-top:4px;
+}

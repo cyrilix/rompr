@@ -1,11 +1,16 @@
-mpd-client-rompr (0.21.1) precise; urgency=low
+mpd-client-rompr (0.21.4) precise; urgency=low
 
   * Option to hide individual members of the sources panel
     Saved radio stations can be re-ordered
+    Pressing enter in inputs will now work
+    Stop after current track
+    Fix bug where album and track playcounts were not displayed
+    Crossfade duration can be configured
+    Full artist bio can be scraped from Last.FM
     
- -- Mark Greenwood <fatgerman@gmail.com>  Sun, 17 Feb 2013 22:31:00 +0000
-   
-   
+ -- Mark Greenwood <fatgerman@gmail.com>  Fri, 22 Feb 2013 22:58:58 +0000
+
+ 
 mpd-client-rompr (0.21) precise; urgency=low
 
   * Click/Double Click selection, locale selection
@@ -14,27 +19,6 @@ mpd-client-rompr (0.21) precise; urgency=low
     GUI settings now stored in the browser
     
  -- Mark Greenwood <fatgerman@gmail.com>  Fri, 19 Feb 2013 16:06:00 +0000
-   
-   
-mpd-client-rompr (0.20.9.1) precise; urgency=low
-
-  * Click/Double Click selection, locale selection
-    
- -- Mark Greenwood <fatgerman@gmail.com>  Sun, 10 Feb 2013 00:41:00 +0000
-   
-   
-mpd-client-rompr (0.20.9) precise; urgency=low
-
-  * Big speedup in generating the playlist.
-    
- -- Mark Greenwood <fatgerman@gmail.com>  Sun, 10 Feb 2013 00:41:00 +0000
-   
-   
-mpd-client-rompr (0.20.8) precise; urgency=low
-
-  * Selection of MPD outputs, and choose to use single/double click.
-    
- -- Mark Greenwood <fatgerman@gmail.com>  Sat, 09 Feb 2013 17:34:00 +0000
    
    
 mpd-client-rompr (0.20.1) precise; urgency=low
@@ -50,63 +34,7 @@ mpd-client-rompr (0.20) precise; urgency=low
     
  -- Mark Greenwood <fatgerman@gmail.com>  Sun, 06 Jan 2013 22:18:00 +0000
    
-   
-mpd-client-rompr (0.19.8) precise; urgency=low
-
-  * Another testing release - major internal channges to almost
-    everything.
-    
- -- Mark Greenwood <fatgerman@gmail.com>  Sun, 06 Jan 2013 15:08:00 +0000
-   
-   
-mpd-client-rompr (0.19.7) precise; urgency=low
-
-  * Another testing release - major internal channges to almost
-    everything.
-    
- -- Mark Greenwood <fatgerman@gmail.com>  Sat, 05 Jan 2013 13:01:00 +0000
-   
-   
-mpd-client-rompr (0.19.6) precise; urgency=low
-
-  * Another testing release - major internal channges to almost
-    everything.
-    
- -- Mark Greenwood <fatgerman@gmail.com>  Wed, 02 Jan 2013 17:30:00 +0000
-   
-   
-mpd-client-rompr (0.19.5) precise; urgency=low
-
-  * Another testing release - major internal channges to almost
-    everything.
-    
- -- Mark Greenwood <fatgerman@gmail.com>  Sun, 30 Dec 2012 18:53:00 +0000
-   
-   
-mpd-client-rompr (0.19.4) precise; urgency=low
-
-  * Another testing release - major internal channges to almost
-    everything.
-    
- -- Mark Greenwood <fatgerman@gmail.com>  Sat, 29 Dec 2012 18:10:00 +0000
-   
-   
-mpd-client-rompr (0.19.3) precise; urgency=low
-
-  * Another testing release - major internal channges to almost
-    everything.
-    
- -- Mark Greenwood <fatgerman@gmail.com>  Sun, 23 Dec 2012 17:23:00 +0000
-   
-   
-mpd-client-rompr (0.19.2) precise; urgency=low
-
-  * Another testing release - major internal channges to almost
-    everything.
-    
- -- Mark Greenwood <fatgerman@gmail.com>  Mon, 17 Dec 2012 15:02:00 +0000
-   
-   
+      
 mpd-client-rompr (0.16.3) precise; urgency=low
 
   * Minor bugfixes and speedups. Major change to cache the collection

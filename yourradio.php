@@ -4,7 +4,7 @@ print '<div class="noselection fullwidth">';
 print '<p>Enter a URL of an internet station in this box</p>';
 print '<input class="enter sourceform" name="horace" id="yourradioinput" type="text" size="60"/>';
 print '<button class="topformbutton" onclick="doInternetRadio(\'yourradioinput\')">Play</button>';
-$playlists = [];
+$playlists = array();
 
 if (file_exists('prefs/radioorder.txt')) {
 
