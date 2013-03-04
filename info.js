@@ -106,7 +106,6 @@ function Info(target, source) {
         }
         updateHistory();
         clearSelection();
-        debug.log("ShowMeTheMonkey",npi, showartist, showalbum, showtrack, names)
         $('#artistinformation').stop();
         $('#albuminformation').stop();
         $('#trackinformation').stop();
@@ -569,7 +568,6 @@ function Info(target, source) {
     }
 
     function formatBio(bio, link) {
-        debug.log("Bio link is",link);
         if (bio) {
             bio = bio.replace(/\n/g, "</p><p>");
             bio = bio.replace(/(<a .*?href="http:\/\/.*?")/g, '$1 target="_blank"');
@@ -803,8 +801,13 @@ function Info(target, source) {
             $("#forwardbutton img").attr("src", "images/forwardbutton.png");
         }
 
-        var html = '<li class="wider"><b>HISTORY</b></li>';
-        html = html + '<li class="wider"><table width="100%">';
+        var html;
+        if (mobile == "no") {
+            html = '<li class="wider"><b>HISTORY</b></li><li class="wider">';
+        } else {
+            html = '<h3>HISTORY</h3>';
+        }
+        html = html + '<table width="100%">';
         var count = 0;
         $.each(history, function() {
             if (count == displaypointer) {
@@ -823,7 +826,11 @@ function Info(target, source) {
                     html = html + 'images/slideshow.png';
                     break;
             }
-            html = html + '"></td><td><a href="#" onclick="browser.doHistory('+count.toString()+')">';
+            if (mobile == "no") {
+                html = html + '"></td><td><a href="#" onclick="browser.doHistory('+count.toString()+')">';
+            } else {
+                html = html + '"></td><td><a href="#" onclick="browser.doHistory('+count.toString()+');sourcecontrol(\'infopane\')">';                
+            }
             if (count == displaypointer) {
                 html = html + '<b>';
             }
@@ -856,7 +863,10 @@ function Info(target, source) {
             html = html + '</a></td></tr>'
             count++;
         });
-        html = html + '</table></li>';
+        html = html + '</table>';
+        if (mobile == "no") {
+            html = html + '</li>';
+        }
         $("#historypanel").empty();
         $("#historypanel").html(html);
         html = null;

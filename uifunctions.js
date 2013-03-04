@@ -1119,7 +1119,7 @@ function sourcecontrol(source) {
         if (landscape) {
             sources = ["lastfmlist", "albumlist", "filelist", "radiolist", "infopane", "chooser", "prefsm"];
         } else {
-            sources = ["lastfmlist", "albumlist", "filelist", "radiolist", "infopane", "playlistm", "chooser", "playlistman", "prefsm"];
+            sources = ["lastfmlist", "albumlist", "filelist", "radiolist", "infopane", "playlistm", "chooser", "historypanel", "playlistman", "prefsm"];
         }
     }
     for(var i in sources) {
