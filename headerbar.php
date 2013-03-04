@@ -61,7 +61,7 @@ include ("functions.php");
 <?php
                         $themes = glob("*.css");
                         foreach($themes as $theme) {
-                            if ($theme != "layout.css") {
+                            if ($theme != "layout.css" && $theme != "layout_mobile.css") {
                                 print '<option value="'.$theme.'">'.preg_replace('/\.css$/', "", $theme).'</option>';
                             }
                         }

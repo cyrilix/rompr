@@ -616,168 +616,225 @@ function doCollection($command) {
     return $collection;
 }
 
-
-function createHTML($artistlist, $prefix, $output) {
-
+function createXML($artistlist, $prefix, $output) {
     global $numtracks;
-    global $totaltime;    
-    
-    $output->writeLine( '<div><table width="100%" class="playlistitem"><tr><td align="left">');
-    $output->writeLine( $numtracks . ' tracks</td><td align="right">Duration : ');
-    $output->writeLine( format_time($totaltime) . '</td></tr></table></div>');
+    global $totaltime;
 
-    // Make sure 'Various Artists' is the first one in the list
+    $output->writeLine(xmlnode("numtracks", $numtracks));
+    $output->writeLine(xmlnode("duration", format_time($totaltime)));
+
     if (array_search("various artists", $artistlist)) {
         $key = array_search("various artists", $artistlist);
-        do_albums("various artists", false, true, $prefix, $output);
+        do_albums_xml("various artists", false, true, $prefix, $output);
         unset($artistlist[$key]);
     }
 
     // Add all the other artists
     foreach($artistlist as $artistkey) {
-        do_albums($artistkey, true, false, $prefix, $output);
+        do_albums_xml($artistkey, true, false, $prefix, $output);
     }
-    
+
 }
 
-function do_albums($artistkey, $compilations, $showartist, $prefix, $output) {
+function do_albums_xml($artistkey, $compilations, $showartist, $prefix, $output) {
 
     global $count;
     global $collection;
     global $divtype;
     
     //debug_print("Doing Artist: ".$artistkey);
-
+    $artist = $collection->artistName($artistkey);
     $albumlist = $collection->getAlbumList($artistkey, $compilations, false);
-    if (count($albumlist) > 0) {
-    
-        // Create a div to hold the entire data for this artist
-        $output->writeLine('<div class="noselection fullwidth '.$divtype.'">');
-
-        $artist = $collection->artistName($artistkey);
-        // Create Artist Name item
+    if (count($albumlist) > 0) {    
+        $output->writeLine('<artist id="'.$prefix.'artist'.$count.'">'."\n");
+        //$output->writeLine(xmlnode('id', $prefix.'artist'.$count));
+        $output->WriteLine(xmlnode('name', $artist));
         if ($collection->spotilink($artistkey) != null) {
-            $output->writeLine('<div class="clickable clicktrack draggable containerbox menuitem" name="'.rawurlencode($collection->spotilink($artistkey)).'">');
-            $output->writeLine('<img src="images/toggle-closed.png" class="menu fixed" name="'.$prefix.'artist'.$count.'">');
-            $output->writeLine('<div class="playlisticon fixed"><img height="12px" src="images/spotify-logo.png" /></div>');
-            $output->writeLine('<div class="expand">'.$artist.'</div>');
-            $output->writeLine('</div>');
-        } else {
-            $output->writeLine('<div class="clickable clickalbum draggable containerbox menuitem" name="'.$prefix.'artist'.$count.'">');
-            $output->writeLine('<img src="images/toggle-closed.png" class="menu fixed" name="'.$prefix.'artist'.$count.'">');
-            $output->writeLine('<div class="expand">'.$artist.'</div>');
-            $output->writeLine('</div>');
+            $output->writeLine(xmlnode('spotilink', rawurlencode($collection->spotilink($artistkey))));
         }
-        
-        // Create the drop-down div that will hold this artist's albums
-        $output->writeLine('<div id="'.$prefix.'artist'.$count.'" class="dropmenu">');
-        
+        $output->writeLine("<albums>\n");
         foreach($albumlist as $album) {
-        
-            //debug_print("Doing Album ".$album->name);
-        
-            // Creat the header for the album
+            $output->writeLine('<album id="'.$prefix.'album'.$count.'">'."\n");
             if ($album->spotilink != null) {
-                $output->writeLine('<div class="clickable clicktrack draggable containerbox menuitem" name="'.rawurlencode($album->spotilink).'">');
-                $output->writeLine('<img src="images/toggle-closed.png" class="menu fixed" name="'.$prefix.'album'.$count.'">');
-            } else {
-                $output->writeLine('<div class="clickable clickalbum draggable containerbox menuitem" name="'.$prefix.'album'.$count.'">');
-                $output->writeLine('<img src="images/toggle-closed.png" class="menu fixed" name="'.$prefix.'album'.$count.'">');
+                $output->writeLine(xmlnode('spotilink', rawurlencode($album->spotilink)));
             }
+            //$output->writeLine(xmlnode('id', $prefix.'album'.$count));
+            $output->writeLine(xmlnode('name', $album->name));
 
-            // We don't set the src tags for the images when the page loads, otherwise we'd be loading in
-            // literally hundres of images we don't need. Instead we set the name tag to the url
-            // of the image, and then use jQuery magic to set the src tag when the menu is opened -
-            // so we only ever load the images we need.
-            
-            // NOTE: Having empty src tags will make Chrome crash... eventually. Hence we set them all to album-unknown-small.png.
-            
-            // We also add an artist and album name tag to the image so we can use this for the auto-image lookup later on
-            // We only do this for images that don't exist, just to keep the size of the HTML down            
-
-            // NOTE: The format and ORDER of the tags in the <img> is VERY important as it matched by a regexp
-            // when album art is retrieved
-            
-            // NOTE also: the newline at the end of the line is ESSENTIAL, because php's regular expressions don't quite work right. 
-            // Specifically, .*? seems to not-quite work as it should. Almost. In a way that's bugged me for months.
-            // I should have done this in perl.
-
-            // Don't mess with this section without also updating the regexp in getalbumcover.php.
-            // Proceed at your own risk
+            $output->writeLine("<image>\n");
             $artname = md5($album->artist." ".$album->name);
+            $output->writeLine(xmlnode('name', $artname));
             if (file_exists("albumart/original/".$artname.".jpg")) {
-                $class = "smallcover fixed updateable";
-                $output->writeLine( '<img class="'.$class.'" name="'.$artname.'" src="images/album-unknown-small.png" />'."\n");
+                $output->writeLine(xmlnode('src', 'albumart/small/'.$artname.".jpg"));
             } else {
-                $class = "smallcover fixed updateable notexist";
                 $b = munge_album_name($album->name);
-                $output->writeLine( '<img class="'.$class.'" romprartist="'.rawurlencode($album->artist).'" rompralbum="'.rawurlencode($b).'" name="'.$artname.'" src="images/album-unknown-small.png" />'."\n");
+                $output->writeLine(xmlnode('romprartist', rawurlencode($album->artist)));
+                $output->writeLine(xmlnode('rompralbum', rawurlencode($b)));
+                $output->writeLine(xmlnode('src', "images/album-unknown-small.png"));
             }
-
-            if ($album->spotilink != null) {
-                $output->writeLine('<div class="playlisticon fixed"><img height="12px" src="images/spotify-logo.png" /></div>');
-            }
+            $output->writeLine("</image>\n");
             
-            $output->writeLine('<div class="expand">'.$album->name.'</div>');
-            $output->writeLine('</div>');
-            
-            // Create the drop-down div that will hold this album's tracks
-            $output->writeLine('<div id="'.$prefix.'album'.$count.'" class="dropmenu">');
             $numdiscs = $album->sortTracks();
+            $output->writeLine(xmlnode('numdiscs', $numdiscs));
             $currdisc = -1;
-            if (count($album->tracks) == 0) {
-                $output->writeLine( '<div class="playlistrow2" style="padding-left:64px">No Individual Tracks Returned By Search</div>');
-            } else {
+            $output->writeLine("<tracks>\n");
+            if (count($album->tracks) > 0) {
                 foreach($album->tracks as $trackobj) {
+                    $output->writeLine("<track>\n");
                     // Disc Numbers
                     if ($numdiscs > 1) {
                         if ($trackobj->disc != null && $trackobj->disc != $currdisc) {
                             $currdisc = $trackobj->disc;
-                            $output->writeLine( '<div class="discnumber indent">Disc '.$currdisc.'</div>');
+                            $output->writeLine(xmlnode('disc', $currdisc));
                         }
                     }
-
-                    // Do we need to display the artist info?
-                    $dorow2 = false;
                     if ( ($showartist || 
                         ($trackobj->albumartist != null && ($trackobj->albumartist != $trackobj->artist))) &&
                         ($trackobj->artist != null && $trackobj->artist != '.')
                     ) {
-                        $dorow2 = true;
+                        $output->writeLine(xmlnode('artist', $trackobj->artist));
                     }
-                    
-                    // Track info
-                    if ($dorow2) {
-                        $output->writeLine('<div class="clickable clicktrack ninesix draggable indent containerbox vertical padright" name="'.rawurlencode($trackobj->url).'">');
-                        $output->writeLine('<div class="containerbox line">');
-                    } else {
-                        $output->writeLine('<div class="clickable clicktrack ninesix draggable indent containerbox padright line" name="'.rawurlencode($trackobj->url).'">');
-                    }
-                    $output->writeLine('<div class="tracknumber fixed">'.$trackobj->number.'</div>');
-                    if (substr($trackobj->url,0,strlen('spotify')) == "spotify") {
-                        $output->writeLine('<div class="playlisticon fixed"><img height="12px" src="images/spotify-logo.png" /></div>');
-                    }
-                    $output->writeLine('<div class="expand">'.$trackobj->name.'</div>');
-                    $output->writeLine('<div class="fixed playlistrow2">'.format_time($trackobj->duration).'</div>');
-                    if ($dorow2) {
-                        $output->writeLine('</div><div class="containerbox line">');
-                        $output->writeLine('<div class="tracknumber fixed"></div>');
-                        $output->writeline('<div class="expand playlistrow2">'.$trackobj->artist.'</div>');
-                        $output->writeLine('</div>');
-                    }
-                    $output->writeLine('</div>');
+                    // $output->writeLine(xmlnode('albumartist', $trackobj->albumartist));
+                    $output->writeLine(xmlnode('url', rawurlencode($trackobj->url)));
+                    $output->writeLine(xmlnode('number', $trackobj->number));
+                    $output->writeLine(xmlnode('name', $trackobj->name));
+                    $output->writeLine(xmlnode('duration', format_time($trackobj->duration)));
+                    $output->writeLine("</track>\n");
                     $count++;
                 }
             }
-            $output->writeLine('</div>');
+            $output->writeLine("</tracks>\n");
+            $output->writeLine("</album>\n");
             $count++;
         }
-        $output->writeLine('</div>');
-        $output->writeLine("</div>\n");
-        $divtype = ($divtype == "album1") ? "album2" : "album1";
+        $output->writeLine("</albums>\n");
+        $output->writeLine("</artist>\n");
         $count++;
     }
     
+}
+
+function dumpAlbums($which) {
+    global $divtype;
+    global $ARTIST;
+    global $ALBUM;
+    $headers =  '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'.
+                '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">'.
+                '<head>'.
+                '<meta http-equiv="cache-control" content="max-age=0" />'.
+                '<meta http-equiv="cache-control" content="no-cache" />'.
+                '<meta http-equiv="expires" content="0" />'.
+                '<meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />'.
+                '<meta http-equiv="pragma" content="no-cache" />'.
+                '</head>'.
+                '<body>';
+    print $headers;
+    $x = simplexml_load_file(getWhichXML($which));
+    if ($which == 'aalbumroot' || $which == 'balbumroot') {
+        print '<div><table width="100%" class="playlistitem"><tr><td align="left">';
+        print $x->artists->numtracks . ' tracks</td><td align="right">Duration : ';
+        print $x->artists->duration . '</td></tr></table></div>';
+        foreach($x->artists->artist as $i => $artist) {
+            artistHeader($artist);
+            $divtype = ($divtype == "album1") ? "album2" : "album1";
+        }
+    } else {
+        list ($type, $obj) = findItem($x, $which);
+        if ($type == $ARTIST) {
+            albumHeaders($obj);
+        }
+        if ($type == $ALBUM) {
+            albumTracks($obj);
+        }
+        
+    }
+
+    print '</body></html>';
+}
+
+function artistHeader($artist) {
+    global $divtype;
+    print '<div class="noselection fullwidth '.$divtype.'">';
+    if ($artist->spotilink) {
+        print '<div class="clickable clicktrack draggable containerbox menuitem" name="'.$artist->spotilink.'">';
+        print '<img src="images/toggle-closed.png" class="menu fixed" name="'.$artist['id'].'">';
+        print '<div class="playlisticon fixed"><img height="12px" src="images/spotify-logo.png" /></div>';
+        print '<div class="expand">'.$artist->name.'</div>';
+        print '</div>';
+    } else {
+        print '<div class="clickable clickalbum draggable containerbox menuitem" name="'.$artist['id'].'">';
+        print '<img src="images/toggle-closed.png" class="menu fixed" name="'.$artist['id'].'">';
+        print '<div class="expand">'.$artist->name.'</div>';
+        print '</div>';
+    }
+    // Create the drop-down div that will hold this artist's albums
+    print '<div id="'.$artist['id'].'" class="dropmenu notfilled"></div>';
+    print "</div>\n";
+
+}
+
+function albumHeaders($artist) {
+    foreach($artist->albums->album as $i => $album) {
+        if ($album->spotilink) {
+            print '<div class="clickable clicktrack draggable containerbox menuitem" name="'.$album->spotilink.'">';
+            print '<img src="images/toggle-closed.png" class="menu fixed" name="'.$album['id'].'">';
+        } else {
+            print '<div class="clickable clickalbum draggable containerbox menuitem" name="'.$album['id'].'">';
+            print '<img src="images/toggle-closed.png" class="menu fixed" name="'.$album['id'].'">';
+        }
+        if ($album->image->romprartist) {
+            print '<img class="smallcover fixed notexist" romprartist="'.$album->image->romprartist.'" rompralbum="'.$album->image->rompralbum.'" name="'.$album->image->name.'" src="'.$album->image->src.'" />'."\n";
+        } else {
+            print '<img class="smallcover fixed" name="'.$album->image->name.'" src="'.$album->image->src.'" />';
+        }
+        if ($album->spotilink) {
+            print '<div class="playlisticon fixed"><img height="12px" src="images/spotify-logo.png" /></div>';
+        }
+        
+        print '<div class="expand">'.$album->name.'</div>';
+        print '</div>';
+        
+        // Create the drop-down div that will hold this album's tracks
+        print '<div id="'.$album['id'].'" class="dropmenu notfilled"></div>';
+
+    }
+}
+
+function albumTracks($album) {
+    $currdisc = -1;
+    $count = 0;
+    foreach($album->tracks->track as $i => $trackobj) {
+        if ($album->numdiscs > 1) {
+            if ($trackobj->disc && $trackobj->disc != $currdisc) {
+                $currdisc = $trackobj->disc;
+                print '<div class="discnumber indent">Disc '.$currdisc.'</div>';
+            }
+        }
+        if ($trackobj->artist) {
+            print '<div class="clickable clicktrack ninesix draggable indent containerbox vertical padright" name="'.$trackobj->url.'">';
+            print '<div class="containerbox line">';
+        } else {
+            print '<div class="clickable clicktrack ninesix draggable indent containerbox padright line" name="'.$trackobj->url.'">';
+        }
+        print '<div class="tracknumber fixed">'.$trackobj->number.'</div>';
+        if (substr($trackobj->url,0,strlen('spotify')) == "spotify") {
+            print '<div class="playlisticon fixed"><img height="12px" src="images/spotify-logo.png" /></div>';
+        }
+        print '<div class="expand">'.$trackobj->name.'</div>';
+        print '<div class="fixed playlistrow2">'.$trackobj->duration.'</div>';
+        if ($trackobj->artist) {
+            print '</div><div class="containerbox line">';
+            print '<div class="tracknumber fixed"></div>';
+            print '<div class="expand playlistrow2">'.$trackobj->artist.'</div>';
+            print '</div>';
+        }
+        print '</div>';
+        $count++;
+    }
+    if ($count == 0) {
+        print '<div class="playlistrow2" style="padding-left:64px">No Individual Tracks Returned By Search</div>';
+    }
+
 }
 
 function parse_mopidy_tagcache($collection) {

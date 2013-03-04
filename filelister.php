@@ -26,35 +26,36 @@ class mpdlistthing {
         $this->protocol = $p;
     }
     
-    public function getHTML($prefix, $output, $protocol = "") {
+    public function getXML($prefix, $output, $protocol = "") {
         global $count;
         global $dirpath;
         if ($this->name != "/") {
             if (count($this->children) > 0) {
                 // This must be a directory if it has children
                 $dirpath = $dirpath.$this->name."/";
-                $output->writeLine('<div class="clickable clickalbum draggable containerbox menuitem" name="dir'.$prefix.$count.'">');
-                $output->writeLine('<img src="images/toggle-closed.png" class="menu fixed" name="dir'.$prefix.$count.'">');
-                $output->writeLine('<div class="fixed playlisticon"><img width="16px" src="images/folder.png" /></div>');
-                $output->writeLine('<div class="expand">'.rawurldecode($this->name).'</div>');
-                $output->writeLine('</div>');
-                $output->writeLine('<div id="dir'.$prefix.$count.'" class="dropmenu">');
+                $output->writeLine("<item>\n");
+                $output->writeLine(xmlnode('type', 'directory'));
+                $output->writeLine(xmlnode('id', $prefix.'dir'.$count));
+                $output->writeLine(xmlnode('name', $this->name));
+                // We're using 'artists' as a wrapper, just because it makes it easier as that's what the albums list uses
+                $output->writeLine("<artists>\n");
                 $count++;
             } else {
-                $output->writeLine('<div class="clickable clicktrack ninesix draggable indent containerbox padright line" name="'.rawurlencode($protocol.$this->fullpath).'">');
-                $output->writeLine('<div class="playlisticon fixed"><img height="16px" src="images/audio-x-generic.png" /></div>');
-                $output->writeLine('<div class="expand">'.rawurldecode($this->name).'</div>');
-                $output->writeLine('</div>');
+                $output->writeLine("<item>\n");
+                $output->writeLine(xmlnode('type', 'file'));
+                $output->writeLine(xmlnode('url', rawurlencode($protocol.$this->fullpath)));
+                $output->writeLine(xmlnode('name', $this->name));
+                $output->writeLine("</item>\n");
             }
         } else {
             $protocol = $this->protocol;
             $dirpath = "";
         }
         foreach($this->children as $thing) {
-            $thing->getHTML($prefix, $output, $protocol);
+            $thing->getXML($prefix, $output, $protocol);
         }
-        if (count($this->children) > 0) {
-            $output->writeLine("</div>\n");
+        if (count($this->children) > 0 && $this->name != "/") {
+            $output->writeLine("</artists>\n</item>\n");
             $dirpath = dirname($dirpath);
             if ($dirpath == ".") {
                 $dirpath = "";
@@ -62,6 +63,23 @@ class mpdlistthing {
         }
     }
 }
+
+function doFileHTML($item) {
+    if ($item->type == 'directory') {
+        print '<div class="clickable clickalbum draggable containerbox menuitem" name="'.$item->id.'">';
+        print '<img src="images/toggle-closed.png" class="menu fixed" name="'.$item->id.'">';
+        print '<div class="fixed playlisticon"><img width="16px" src="images/folder.png" /></div>';
+        print '<div class="expand">'.$item->name.'</div>';
+        print '</div>';
+        print '<div id="'.$item->id.'" class="dropmenu notfilled"></div>';
+    } else {
+        print '<div class="clickable clicktrack ninesix draggable indent containerbox padright line" name="'.$item->url.'">';
+        print '<div class="playlisticon fixed"><img height="16px" src="images/audio-x-generic.png" /></div>';
+        print '<div class="expand">'.$item->name.'</div>';
+        print '</div>';
+    }
+}
+
 
 function doFileList($command) {
 
@@ -86,6 +104,30 @@ function doFileList($command) {
     return $tree;
 }
 
+function dumpTree($which) {
+    $headers =  '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'.
+                '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">'.
+                '<head>'.
+                '<meta http-equiv="cache-control" content="max-age=0" />'.
+                '<meta http-equiv="cache-control" content="no-cache" />'.
+                '<meta http-equiv="expires" content="0" />'.
+                '<meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />'.
+                '<meta http-equiv="pragma" content="no-cache" />'.
+                '</head>'.
+                '<body>';
+    print $headers;
+    $x = simplexml_load_file(getWhichXML($which));
+    if ($which == 'adirroot' || $which == 'bdirroot') {
+        foreach($x->artists->item as $i => $item) {
+            doFileHTML($item);
+        }
+    } else {
+        $i = findFileItem($x, $which);
+        foreach($i->artists->item as $i => $item) {
+            doFileHTML($item);
+        }
+    }
+}
 
 
 ?>

@@ -57,7 +57,7 @@ if ($prefs['lastfm_user'] != "") {
     </div>
     <div class="indent containerbox padright">
         <input class="enter sourceform expand" name="albert" id="lastfmartist" type="text" size="60"/>        
-        <button class="topformbutton fixed" onclick="doLastFM('lastfmartist')">Play</button>
+        <button class="fixed" onclick="doLastFM('lastfmartist')">Play</button>
     </div>
 
     <div class="indent containerbox padright">
@@ -65,7 +65,7 @@ if ($prefs['lastfm_user'] != "") {
     </div>
     <div class="indent containerbox padright">
         <input class="enter sourceform expand" name="gary" id="lastfmfan" type="text" size="60"/>        
-        <button class="topformbutton fixed" onclick="doLastFM('lastfmfan')">Play</button>
+        <button class="fixed" onclick="doLastFM('lastfmfan')">Play</button>
     </div>
 
     <div class="indent containerbox padright">
@@ -73,7 +73,7 @@ if ($prefs['lastfm_user'] != "") {
     </div>
     <div class="indent containerbox padright">
         <input class="enter sourceform expand" name="throatwobbler' id="lastfmglobaltag" type="text" size="60"/>        
-        <button class="topformbutton fixed" onclick="doLastFM('lastfmglobaltag')">Play</button>
+        <button class="fixed" onclick="doLastFM('lastfmglobaltag')">Play</button>
     </div>
 
     <div class="noselection fullwidth">

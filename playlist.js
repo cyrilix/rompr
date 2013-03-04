@@ -193,29 +193,6 @@ function Playlist() {
             lastfmcleanuptimer = setTimeout(self.lastfmcleanup, (expiresin+1)*1000);
         }
         
-// Not sure this is necessary. Auto download should take care of this anyway in every conceivable situation
-//         // Would like to search for missing album art in the playlist, and it's easy to do.
-//         // Trouble is it re-searches for missing art at every playlist refresh.
-//         // The check I put in here stops it searching for art which has been marked as notfound 
-//         // in the albums list or search pane.
-//         // Also we keep a list of stuff we've searched for, just in case it's not in either list
-//         // (eg it's got there via a playlist loaded in from spotify)
-//         // All this is to keep to an absolute minimum the number of requests we make to last.fm
-// 
-//         $('#sortable').find(".notexist").each( function() {
-//             var name = $(this).attr("name");
-//             if (typeof(searchedimages[name]) == "undefined") {
-//                 searchedimages[name] = true;
-//                 colobj = $('img[name="'+name+'"]', '#collection');
-//                 schobj = $('img[name="'+name+'"]', '#search');
-//                 if ((colobj.length == 0 || colobj.hasClass('notexist')) ||
-//                     (schobj.length == 0 || schobj.hasClass('notexist')))
-//                 {
-//                     coverscraper.GetNewAlbumArt($(this).attr("name"));
-//                 }
-//             }
-//          });
-
     }
     
     this.lastfmcleanup = function() {
@@ -248,10 +225,14 @@ function Playlist() {
         debug.log(nextelement, moveto, finaltrack);
         if (ui.item.hasClass("draggable")) {
             var cmdlist = [];
-            $(ui.item).find('.clicktrack').each(function (index, element) {
+            $.each($('.selected').filter(removeOpenItems), function (index, element) {
                 var uri = $(element).attr("name");
                 if (uri) {
-                    cmdlist.push('add "'+decodeURIComponent(uri)+'"');
+                    if ($(element).hasClass('clickalbum')) {
+                        cmdlist.push("additem "+uri);
+                    } else {
+                        cmdlist.push('add "'+decodeURIComponent(uri)+'"');
+                    }
                 }
                 uri = null;
             });
@@ -281,6 +262,20 @@ function Playlist() {
             }
             mpd.command("command=move&arg="+itemstomove+"&arg2="+moveto, playlist.repopulate);
         }        
+    }
+
+    function removeOpenItems(index) {
+        if ($(this).hasClass('clicktrack')) {
+            return true;
+        }
+        // Filter out artist and album items whose dropdowns have been populated - 
+        // In these cases the individual tracks will exist and will be selected
+        // (and might only have partial selections even if the header is selected)
+        if ($("#"+$(this).attr('name')).hasClass('notfilled')) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     this.delete = function(id) {
@@ -558,18 +553,13 @@ function Playlist() {
 
     this.addalbum = function(element) {
         self.waiting();
-        var list = [];
-        $('#'+element.attr("name")).find('.clicktrack').each(function (index, element) { 
-            var uri = $(element).attr("name");
-            if (uri) {
-                list.push('add "'+decodeURIComponent(uri)+'"');
-            }
-        });
+        var cmds = [];
+        cmds.push("additem "+element.attr('name'));;
         if (mpd.getStatus('state') == 'stop') {
             var f = finaltrack+1;
-            list.push('play "'+f.toString()+'"');
+            cmds.push('play "'+f.toString()+'"');
         }
-        mpd.do_command_list(list, playlist.repopulate);        
+        mpd.do_command_list(cmds, playlist.repopulate);        
         scrollto = (finaltrack)+1;
     }   
 

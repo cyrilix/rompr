@@ -43,6 +43,8 @@ if($is_connected) {
 function check_playlist_commands($cmds) {
 
     global $connection;
+    global $ALBUMSLIST;
+    global $FILESLIST;
 
     if(array_key_exists("command", $cmds)) {
         switch ($cmds['command']) {
@@ -69,6 +71,16 @@ function check_playlist_commands($cmds) {
 
             case "clear":
                 clean_stored_xspf();
+                break;
+
+            case "update":
+            case "rescan":
+                if (file_exists($ALBUMSLIST)) {
+                    unlink($ALBUMSLIST);
+                }
+                if (file_exists($FILESLIST)) {
+                    unlink($FILESLIST);
+                }
                 break;
 
         }

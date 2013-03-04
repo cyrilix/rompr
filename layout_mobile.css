@@ -1,0 +1,199 @@
+body.mobile
+{
+    font-size:11pt;
+}
+
+.winkle
+{
+    color:#000000;
+}
+
+h1
+{
+    font-size:130%;
+}
+
+h2
+{
+    font-size:120%;
+}
+
+.chooser
+{
+    margin-left:auto;
+    margin-right:auto;
+    font-weight:bold;
+    font-size:130%;
+    padding-bottom:1em;
+    text-align:center;
+}
+
+.pref
+{
+    /*-- margin-left:auto;
+    margin-right:auto;
+    font-weight:bold; --*/
+    /*-- text-align:center; --*/
+    margin-left:8px;
+    margin-bottom:12px;
+}
+
+#playlistm
+{
+    height:100%;
+    overflow:auto;
+}
+
+#infopane
+{
+    height:100%;
+    overflow:auto;
+}
+
+.menu
+{
+	width:28px;
+	height:1.8em;
+}
+
+.playlisticon
+{
+    padding-left:4px;
+    width:28px;
+}
+
+#playbackTime
+{
+	font-size:8pt;
+}
+
+#progress
+{
+	font-size:4pt;
+}
+
+#scrobwrangler
+{
+    font-size:4pt;
+    width:90%;
+}
+
+.infobarlayout
+{
+    height:70px;
+}
+
+#lastfm
+{
+    margin-top:4px;
+    margin-right:4px;
+}
+
+.infotext
+{
+	font-size:8pt;
+}
+
+#infobar
+{
+    height:80px;
+    padding-bottom:0px;
+}
+
+#bottompage
+{
+    top:116px;
+}
+
+#headerbar
+{
+	height:28px;
+	overflow:hidden;
+}
+
+#buttons
+{
+	display:inline-block;
+	width:100%;
+    padding-left:0px;
+    padding-right:0px;
+    padding-top:0px;
+    padding-bottom:0px;
+}
+
+#albumpicture
+{
+    height:48px;
+}
+
+#nowplaying
+{
+	font-size:6pt;
+	padding:0px;
+	margin-left:6px;
+ }
+
+#controls
+{
+	padding-bottom:4px;
+}
+
+.larger
+{
+    font-size:130%;
+}
+
+#playinginfo
+{
+	position:relative;
+	left:-12px;
+}
+
+.frog
+{
+	font-size:6pt;
+}
+
+.playlistitem
+{
+    font-size:8pt;
+}
+
+.playlisttitle
+{
+    font-size:9pt;
+}
+
+.playlistcurrenttitle
+{
+    font-size:9.5pt;
+}
+
+.playlistcurrentitem
+{
+    font-size:8.5pt;
+}
+
+.playlistrow2
+{
+    font-size:7pt;
+}
+
+.stleft
+{
+    width: auto;
+}
+
+#notifications
+{
+    position:absolute;
+    width:100%;
+    padding:4px;
+    top:0px;
+    left:0px;
+    display:none;
+    opacity:1.0;
+    font-size:8pt;
+    font-weight:bold;
+    z-index:2000;
+}

@@ -129,8 +129,12 @@ function Info(target, source) {
     }
     
     this.switchSource = function(source) {
-        current_source = source;
-        prefs.save({infosource: source});
+        if (source === null) {
+            source = current_source;
+        } else {
+            current_source = source;
+            prefs.save({infosource: source});
+        }
         self.slideshow.killTimer();
         showMeTheMonkey(nowplaying.getcurrentindex(), 
                         true,
@@ -284,9 +288,18 @@ function Info(target, source) {
             prefs.save({sourceswidthpercent: 25,
                        playlistwidthpercent: 25});
             self.switchSource(current_source);
+            if (mobile != "no") {
+                $(".penbehindtheear").fadeIn('fast');
+            }
+        } else {
+            if (mobile != "no") {
+                $(".penbehindtheear").fadeOut('fast');
+            }
         }
         prefs.save({hidebrowser: !prefs.hidebrowser});
+        self.slideshow.killTimer();
         doThatFunkyThang();
+
     }
 
     /*
@@ -315,7 +328,11 @@ function Info(target, source) {
 
             html = html + '</div><div class="statsbox">';
 
-            imageurl = lfmdata.image("extralarge");
+            if (mobile == "no") {
+                var imageurl = lfmdata.image("extralarge");
+            } else {
+                var imageurl = lfmdata.image("large");
+            }
             if (imageurl != '') {
                 html = html +  '<img class="stright" src="' + imageurl + '" class="standout" />';
             }
@@ -877,15 +894,20 @@ function Info(target, source) {
     }
 
     this.prepareSlideshow = function(data) {
-        var html = '<div class="controlholder"><table id="slidecon" class="invisible" border="0" cellpadding="0" cellspacing ="0" width="100%">';
-        html = html + '<tr height="62px"><td align="center" class="infoslideshow">';
-        html = html + '<img class="clickicon" onclick="browser.slideshow.nextimage(-1)" src="images/backward.png">';
-        html = html + '<img class="clickicon" onclick="browser.slideshow.toggle()" id="lastfmimagecontrol" src="images/pause.png">';
-        html = html + '<img class="clickicon" onclick="browser.slideshow.nextimage(1)" src="images/forward.png"></td></tr></table></div>';
-        html = html + '<table border="0" cellpadding="0" cellspacing ="0" width="100%"><tr><td align="center" class="infoslideshow"><img id="lastfmimage"></td></tr></table>';
-        $("#artistinformation").html(html);
-        html = null;
-        $("#artistinformation").hover(function() { $("#slidecon").fadeIn(500); }, function() { $("#slidecon").fadeOut(500); });
+        if (mobile == "no") {
+            var html = '<div class="controlholder"><table id="slidecon" class="invisible" border="0" cellpadding="0" cellspacing ="0" width="100%">';
+            html = html + '<tr height="62px"><td align="center" class="infoslideshow">';
+            html = html + '<img class="clickicon" onclick="browser.slideshow.nextimage(-1)" src="images/backward.png">';
+            html = html + '<img class="clickicon" onclick="browser.slideshow.toggle()" id="lastfmimagecontrol" src="images/pause.png">';
+            html = html + '<img class="clickicon" onclick="browser.slideshow.nextimage(1)" src="images/forward.png"></td></tr></table></div>';
+            html = html + '<table border="0" cellpadding="0" cellspacing ="0" width="100%"><tr><td align="center" class="infoslideshow"><img id="lastfmimage"></td></tr></table>';
+            $("#artistinformation").html(html);
+            html = null;
+            $("#artistinformation").hover(function() { $("#slidecon").fadeIn(500); }, function() { $("#slidecon").fadeOut(500); });
+        } else {
+            var html = '<table border="0" cellpadding="0" cellspacing ="0" width="100%"><tr><td align="center" class="infoslideshow"><img id="lastfmimage"></td></tr></table>';
+            $("#artistinformation").html(html);
+        }
         $("#artistinformation").fadeIn(1000);
         self.slideshow.slideshowGo(data);
     }
@@ -954,7 +976,9 @@ function Info(target, source) {
             timerExpiry: function() {
                 debug.log("Timer Expired");
                 timer_running = false;
-                self.slideshow.displayimage(paused);
+                if (!prefs.hidebrowser) {
+                    self.slideshow.displayimage(paused);
+                }
             },
 
             killTimer: function() {
@@ -996,12 +1020,19 @@ function Info(target, source) {
                     var imagewidth = img.width;
                     var displaywidth = imagewidth;
                     var displayheight = imageheight;
-                    if (imageheight+96 > windowheight) {
-                        displayheight = windowheight-96;
+                    if (mobile == "no") {
+                        var ha = 96;
+                        var wa = 36;
+                    } else {
+                        var ha = 20;
+                        var wa = 20;
+                    }
+                    if (imageheight+ha > windowheight) {
+                        displayheight = windowheight-ha;
                         displaywidth = imagewidth * (displayheight/imageheight);
                     }
-                    if (displaywidth+36 > windowwidth) {
-                        displaywidth = windowwidth-36;
+                    if (displaywidth+wa > windowwidth) {
+                        displaywidth = windowwidth-wa;
                         displayheight = imageheight * (displaywidth/imagewidth);
                     }
 

@@ -66,9 +66,9 @@ function LastFM(user) {
             $("#lfmlogintable").append('<tr><td>Please click the button below to open the Last.FM website in a new tab. Enter your Last.FM login details if required then give RompR permission to access your account</td></tr>');
             $("#lfmlogintable").append('<tr><td>You can close the new tab when you have finished but do not close this dialog!</td></tr>');
             $("#lfmlogintable").append('<tr><td align="center"><a href="http://www.last.fm/api/auth/?api_key='+lastfm_api_key+'&token='+token+'" target="_blank">'+
-                                        '<button class="topformbutton">Click Here To Log In</button></a></td></tr>');
+                                        '<button>Click Here To Log In</button></a></td></tr>');
             $("#lfmlogintable").append('<tr><td>Once you have logged in to Last.FM, click the OK button below to complete the process</td></tr>');
-            $("#lfmlogintable").append('<tr><td align="center"><button class="topformbutton" onclick="lastfm.finishlogin()">OK</button></td></tr>');
+            $("#lfmlogintable").append('<tr><td align="center"><button onclick="lastfm.finishlogin()">OK</button></td></tr>');
 
             popupWindow.open();
         });

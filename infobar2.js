@@ -72,19 +72,35 @@ var infobar = function() {
         setNowPlayingInfo: function(info) {
             //Now playing info
             debug.log("Setting now playing info",info);
-            var contents = '<p class="larger"><b>';
             var doctitle = "RompR";
-            contents=contents+info.track;
-            if (info.track != "") {
-                doctitle = info.track;
-            }
-            contents=contents+'</b></p>';
-            if (info.artist) {
-                contents=contents+'<p>by <b>'+info.artist+'</b></p>';
-                doctitle = doctitle + " - " + info.artist;
-            }
-            if (info.album) {
-                contents=contents+'<p>on <b>'+info.album+'</b></p>';
+            if (mobile == "no") {
+                var contents = '<span class="larger"><b>';
+                contents=contents+info.track;
+                if (info.track != "") {
+                    doctitle = info.track;
+                }
+                contents=contents+'</b></span>';
+                if (info.artist) {
+                    contents=contents+'<p>by <b>'+info.artist+'</b></p>';
+                    doctitle = doctitle + " - " + info.artist;
+                }
+                if (info.album) {
+                    contents=contents+'<p>on <b>'+info.album+'</b></p>';
+                }
+            } else {
+                var contents = '<span class="larger"><b>';
+                contents=contents+info.track;
+                if (info.track != "") {
+                    doctitle = info.track;
+                }
+                contents=contents+'</b></span><br>';
+                if (info.artist) {
+                    contents=contents+'<span>by <b>'+info.artist+'</b></span><br>';
+                    doctitle = doctitle + " - " + info.artist;
+                }
+                // if (info.album) {
+                //     contents=contents+'<span>on <b>'+info.album+'</b></span>';
+                // }
             }
             $("#nowplaying").empty().html(contents);
             contents = null;

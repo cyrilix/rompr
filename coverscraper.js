@@ -23,6 +23,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
     
     // Pass the img name to this function
     this.GetNewAlbumArt = function(name) {
+        debug.log("getNewAlbumArt",name);
         if (enabled) {
             formObjects.push(name);
             numAlbums = (formObjects.length)-1;
@@ -101,7 +102,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
    
     function gotImage() {
         debug.log("    Retrieved Image");
-        $('img[name="'+name+'"]').each( function() {
+        $.each($('img[name="'+name+'"]'), function() {
             if (size == 0) {
                 $(this).attr("src", "albumart/small/"+name+".jpg");
             } else {
@@ -119,7 +120,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
     function revertCover() {
         debug.log("  Revert Cover");
         imgobj.setAttribute('src', blankicon[size]);
-        $('img[name="'+name+'"]').each( function() {
+        $.each($('img[name="'+name+'"]'), function() {
             $(this).removeClass("notexist");
             $(this).addClass("notfound");
         });

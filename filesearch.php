@@ -8,8 +8,8 @@ include ("filelister.php");
 <form name="filesearch" action="filesearch.php" method="get">
 <ul class="sourcenav">
 <li><b>Search For Files Containing:</b></li>
-<li><input class="sourceform" name="searchtitle" type="text" size="60" />
-<button class="topformbutton" type="submit">Search</button></li>
+<li><input class="sourceform winkle" name="searchtitle" type="text" size="60" />
+<button type="submit">Search</button></li>
 </ul>
 </form>
 </div>

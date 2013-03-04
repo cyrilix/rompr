@@ -11,8 +11,8 @@ include ("collection.php");
 <li><input type="radio" name="stype" value="title"> Track</input></li>
 <li><input type="radio" name="stype" value="album"> Album</input></li>
 <li><input type="radio" name="stype" value="artist"> Artist</input></li>
-<li><input class="sourceform" name="searchtitle" type="text" size="60" />
-<button class="topformbutton" type="submit">Search</button></li>
+<li><input class="sourceform winkle" name="searchtitle" type="text" size="60" />
+<button type="submit">Search</button></li>
 </ul>
 </form>
 </div>
@@ -39,21 +39,23 @@ if ($cmd != "") {
     $count = 1;
     $divtype = "album1";
     $collection = doCollection($cmd);
-    doSearch();
+    doSearch($ALBUMSEARCH);
+    print '<div class="menuitem">';
+    print "<h3>Search Results:</h3>";
+    print "</div>";
+    dumpAlbums('balbumroot');
+    print '<div class="separator"></div>';
 
 }
 
 close_mpd($connection);
 
-function doSearch() {
+function doSearch($file) {
 
     global $collection;
-    $output = new collectionOutput("");
-    $output->writeLine('<div class="menuitem">');
-    $output->writeLine("<h3>Search Results:</h3>");
-    $output->writeLine("</div>");
-    createHTML($collection->getSortedArtistList(), "b", $output);  
-    $output->writeLine('<div class="separator"></div>');
+    $output = new collectionOutput($file);
+    createXML($collection->getSortedArtistList(), "b", $output);  
+    $output->closeFile();
 
 }
 

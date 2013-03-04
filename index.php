@@ -2,6 +2,20 @@
 include("vars.php");
 include("functions.php");
 include("connection.php");
+include 'Mobile_Detect.php';
+if (array_key_exists('mobile', $_REQUEST)) {
+    $mobile = $_REQUEST['mobile'];
+    debug_print("Request asked for mobile mode: ".$mobile);
+} else {
+    $detect = new Mobile_Detect();
+    if ($detect->isMobile() && !$detect->isTablet()) {
+        debug_print("Mobile Browser Detected!");
+        $mobile = "phone";
+    } else {
+        debug_print("Not a mobile browser");
+        $mobile = "no";
+    }
+}
 setswitches();
 close_mpd($connection);
 ?>
@@ -10,17 +24,31 @@ close_mpd($connection);
 <head>
 <title>RompR</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="stylesheet" type="text/css" href="layout.css" />
-<?php
-print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme'].'" />'."\n";
+<?php 
+//if ($mobile != "no") {
+    print '<meta name="viewport" content="width=100%, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0" />'."\n";
+    print '<meta name="apple-mobile-web-app-capable" content="yes" />'."\n";
+//}
 ?>
+<link rel="stylesheet" type="text/css" href="layout.css" />
 <link rel="shortcut icon" href="images/favicon.ico" />
 <link type="text/css" href="jqueryui1.8.16/css/start/jquery-ui-1.8.23.custom.css" rel="stylesheet" />
+<?php
+if ($mobile != "no") {
+print '<link rel="stylesheet" type="text/css" href="layout_mobile.css" />'."\n";
+}
+print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme'].'" />'."\n";
+?>
 <script type="text/javascript" src="jquery-1.8.3-min.js"></script>
 <script type="text/javascript" src="jquery.form.js"></script>
 <script type="text/javascript" src="jqueryui1.8.16/js/jquery-ui-1.8.23.custom.js"></script>
 <script type="text/javascript" src="jquery.jsonp-2.3.1.min.js"></script>
 <script type="text/javascript" src="jquery.scrollTo-1.4.3.1-min.js"></script>
+<?php
+if ($mobile != "no") {
+    print '<script type="text/javascript" src="jquery.touchwipe.min.js"></script>'."\n";
+}
+?>
 <script type="text/javascript" src="shortcut.js"></script>
 <script type="text/javascript" src="keycode.js"></script>
 <script type="text/javascript" src="functions.js"></script>
@@ -55,6 +83,21 @@ var emptytrack = {  creator: "",
                     duration: 0,
                     image: "images/album-unknown.png"
 };
+<?php
+if (file_exists($ALBUMSLIST)) {
+    print "var albumslistexists = true\n";
+} else {
+    print "var albumslistexists = false\n";
+}
+if (file_exists($FILESLIST)) {
+    print "var fileslistexists = true\n";
+} else {
+    print "var fileslistexists = false\n";
+}
+print "var mobile = '".$mobile."';\n";
+?>
+var landscape = false;
+var itisbigger = false;
 var mpd = new mpdController();
 var playlist = new Playlist();
 var nowplaying = new playInfo();
@@ -67,7 +110,7 @@ var progresstimer = null;
 var prefsbuttons = ["images/button-off.png", "images/button-on.png"];
 var prefsInLocalStorage = ["hidebrowser", "sourceshidden", "playlisthidden", "infosource", "playlistcontrolsvisible",
                             "sourceswidthpercent", "playlistwidthpercent", "downloadart", "clickmode", "chooser",
-                            "hide_albumlist", "hide_filelist", "hide_lastfmlist", "hide_radiolist"];
+                            "hide_albumlist", "hide_filelist", "hide_lastfmlist", "hide_radiolist", "twocolumnsinlandscape"];
 
 function aADownloadFinished() {
     /* We need one of these in global scope so coverscraper works here
@@ -86,6 +129,9 @@ var prefs = function() {
     return {
 <?php
  foreach ($prefs as $index => $value) {
+    if ($index == 'clickmode' && $mobile != "no") {
+        $value = 'single';
+    }
     if ($value == "true" || $value == "false" || is_numeric($value)) {
         print "        ".$index.": ".$value.",\n";
     } else {
@@ -156,10 +202,12 @@ $(document).ready(function(){
     setClickHandlers();
     $("#sortable").click(onPlaylistClicked);
 
-    setDraggable('collection');
-    setDraggable('filecollection');
-    setDraggable('search');
-    setDraggable('filesearch');
+    if (mobile == "no") {
+        setDraggable('collection');
+        setDraggable('filecollection');
+        setDraggable('search');
+        setDraggable('filesearch');
+    }
     
     $("#sortable").disableSelection();
     $("#sortable").sortable({ 
@@ -186,65 +234,83 @@ $(document).ready(function(){
         stop: saveRadioOrder
     });
     
-    setBottomPaneSize();
     $("#loadinglabel3").effect('pulsate', { times:100 }, 2000);
     $("#progress").progressbar();
     $("#progress").click( infobar.seek );
-    $("#volume").slider();
-    $("#volume").slider({
-        orientation: 'vertical',
-        value: prefs.volume,
-        stop: infobar.setvolume,
-        slide: infobar.volumemoved
-    });
-    
-    $("#headerbar").load('headerbar.php', function() {
-        $("#sourcesresizer").draggable({
-            containment: '#headerbar',
-            axis: 'x'
+    if (mobile == "no") {
+        $("#volume").slider();
+        $("#volume").slider({
+            orientation: 'vertical',
+            value: prefs.volume,
+            stop: infobar.setvolume,
+            slide: infobar.volumemoved
         });
-        $("#sourcesresizer").bind("drag", srDrag);
-        $("#sourcesresizer").bind("dragstop", srDragStop);
-        $("#playlistresizer").draggable({   
-            containment: 'headerbar',
-            axis: 'x'
+        $("#headerbar").load('headerbar.php', function() {
+            $("#sourcesresizer").draggable({
+                containment: '#headerbar',
+                axis: 'x'
+            });
+            $("#sourcesresizer").bind("drag", srDrag);
+            $("#sourcesresizer").bind("dragstop", srDragStop);
+            $("#playlistresizer").draggable({   
+                containment: 'headerbar',
+                axis: 'x'
+            });
+            $("#playlistresizer").bind("drag", prDrag);
+            $("#playlistresizer").bind("dragstop", prDragStop);
+            reloadPlaylists();
+            doThatFunkyThang();
+            //$("ul.topnav li a").unbind('click');
+            $("ul.topnav li a").click(function() {
+                $(this).parent().find("ul.subnav").slideToggle('fast');
+                return false;
+            });
         });
-        $("#playlistresizer").bind("drag", prDrag);
-        $("#playlistresizer").bind("dragstop", prDragStop);
-        reloadPlaylists();
-        doThatFunkyThang();
-        //$("ul.topnav li a").unbind('click');
-        $("ul.topnav li a").click(function() {
-            $(this).parent().find("ul.subnav").slideToggle('fast');
-            return false;
-        });
-        var s = ["albumlist", "filelist", "lastfmlist", "radiolist"];
-        for (var i in s) {
-            if (prefs["hide_"+s[i]]) {
-                $("#choose_"+s[i]).fadeOut('fast');
-            }
+        loadKeyBindings();
+    } else {
+        $("#headerbar").load('headerbar_phone.php');
+        $("#scrobwrangler").progressbar();
+        $("#scrobwrangler").progressbar("option", "value", parseInt(prefs.scrobblepercent.toString()));
+        $("#scrobwrangler").click( setscrob );
+        $("#scrobbling").attr("checked", prefs.lastfm_scrobbling);
+        $("#radioscrobbling").attr("checked", prefs.dontscrobbleradio);
+        $("#autocorrect").attr("checked", prefs.lastfm_autocorrect);
+        $("#twocolumnsinlandscape").attr("checked", prefs.twocolumnsinlandscape);
+        $("#updateeverytime").attr("checked", prefs.updateeverytime);
+        $("#downloadart").attr("checked", prefs.downloadart);
+        $("#fullbiobydefault").attr("checked", prefs.fullbiobydefault);
+        $("#themeselector").val(prefs.theme);
+        $("#countryselector").val(prefs.lastfm_country_code);
+        $("#button_hide_albumlist").attr("checked", prefs.hide_albumlist);
+        $("#button_hide_filelist").attr("checked", prefs.hide_filelist);
+        $("#button_hide_lastfmlist").attr("checked", prefs.hide_lastfmlist);
+        $("#button_hide_radiolist").attr("checked", prefs.hide_radiolist);
+        $("#hideinfobutton").attr("checked", prefs.hidebrowser);
+        if (prefs.hidebrowser) {
+            $(".penbehindtheear").fadeOut('fast');
         }
-    });
+        reloadPlaylists();
+    }
+    var s = ["albumlist", "filelist", "lastfmlist", "radiolist"];
+    for (var i in s) {
+        if (prefs["hide_"+s[i]]) {
+            $("#choose_"+s[i]).fadeOut('fast');
+        }
+    }
+
+    if (!prefs.hide_lastfmlist) {
+        $("#lastfmlist").load("lastfmchooser.php");
+    }
+    if (!prefs.hide_radiolist) {
+        $("#bbclist").load("bbcradio.php");
+        $("#somafmlist").load("somafm.php");
+        $("#yourradiolist").load("yourradio.php");
+        if (mobile == "no") {
+            $("#icecastlist").load("getIcecast.php");
+        }
+    }
+    checkCollection();
     sourcecontrol(prefs.chooser);
-    $("#lastfmlist").load("lastfmchooser.php");
-    $("#bbclist").load("bbcradio.php");
-    $("#somafmlist").load("somafm.php");
-    $("#yourradiolist").load("yourradio.php");
-    $("#icecastlist").load("getIcecast.php");
-<?php
-if ($prefs['updateeverytime'] == "true" ||
-        !file_exists($ALBUMSLIST) ||
-        !file_exists($FILESLIST)) 
-{
-    // debug_print("Rebuilding Music Cache");
-    print "updateCollection('update');\n";
-} else {
-    // debug_print("Loading Music Cache");
-    print "prepareForLiftOff()\n";
-    print "loadCollection('".$ALBUMSLIST."', '".$FILESLIST."');\n";
-}
-?>
-    loadKeyBindings();
     if (!prefs.shownupdatewindow) {
         var fnarkle = popupWindow.create(500,300,"fnarkle",true,"Information About This Version");
         $("#popupcontents").append('<div id="fnarkler" class="mw-headline"></div>');
@@ -258,166 +324,32 @@ if ($prefs['updateeverytime'] == "true" ||
         $("#playlistbuttons").slideToggle('fast');
     }
     mpd.command("",playlist.repopulate);
+    setBottomPaneSize();
     $(window).bind('resize', function() {
         setBottomPaneSize();
     });
+    if (mobile != "no") {
+        $(window).touchwipe({
+            wipeLeft: function() { swipeyswipe(1); },
+            wipeRight: function() { swipeyswipe(-1) },
+            min_move_x: 240,
+            min_move_y: 1000,
+            preventDefaultEvents: false
+        });
+    }
 
 });
 
 </script>
 </head>
-<body>
 
-<div id="notifications"></div>
-
-<div id="infobar">
-    <div class="infobarlayout tleft bordered">
-        <div id="buttons">
-            <img title="Previous Track" class="clickicon controlbutton" onclick="playlist.previous()" src="images/media-skip-backward.png">
-            <img title="Play/Pause" class="shiftleft clickicon controlbutton" onclick="infobar.playbutton.clicked()" id="playbuttonimg" src="images/media-playback-pause.png">
-            <img title="Stop" class="shiftleft2 clickicon controlbutton" onclick="playlist.stop()" src="images/media-playback-stop.png">
-            <img title="Stop After Current Track" class="shiftleft3 clickicon controlbutton" onclick="playlist.stopafter()" id="stopafterbutton" src="images/stopafter.png">
-            <img title="Next Track" class="shiftleft4 clickicon controlbutton" onclick="playlist.next()" src="images/media-skip-forward.png">
-        </div>
-        <div id="progress"></div>
-        <div id="playbackTime">
-            0:00 of 0:00
-        </div>
-    </div>
-
-    <div class="infobarlayout tleft bordered">
-        <div id="volumecontrol">
-            <div id="volume">
-            </div>
-        </div>
-    </div>
-
-    <div class="infobarlayout tleft bordered">
-        <div id="albumcover">
-            <img id="albumpicture" src="images/album-unknown.png" />
-        </div>
-        <div id="nowplaying"></div>
-        <div id="lastfm" class="infobarlayout invisible">
-            <div><ul class="topnav"><a title="Love this track" id="love" href="#" onclick="infobar.love()"><img height="24px" src="images/lastfm-love.png"></a></ul></div>
-            <div><ul class="topnav"><a title="Ban this track" id="ban" href="#" onclick="nowplaying.ban()"><img height="24px" src="images/lastfm-ban.png"></a></ul></div>
-        </div>
-    </div>
-</div>
-
-<div id="headerbar" class="noborder fullwidth">
-</div>
-
-<div id="bottompage">
-
-<div id="sources" class="tleft column noborder">
-
-    <div id="albumlist" class="invisible noborder">
-    <div style="padding-left:12px">
-    <a title="Search Music" href="#" onclick="toggleSearch()"><img class="topimg clickicon" height="20px" src="images/system-search.png"></a>
-    </div>
-    <div id="search" class="invisible searchbox"></div>
-    <div id="collection" class="noborder"></div>    
-    </div>
-
-    <div id="filelist" class="invisible">
-    <div style="padding-left:12px">
-    <a title="Search Files" href="#" onclick="toggleFileSearch()"><img class="topimg" height="20px" src="images/system-search.png"></a>
-    </div>
-    <div id="filesearch" class="invisible searchbox">
-    </div>
-    <div id="filecollection" class="noborder"></div>   
-    </div>
-
-    <div id="lastfmlist" class="invisible">
-    </div>
-
-    <div id="radiolist" class="invisible">
-    <div class="containerbox menuitem noselection">
-        <img src="images/toggle-closed.png" class="menu fixed" name="yourradiolist">
-        <div class="smallcover fixed"><img height="32px" width="32px" src="images/broadcast-32.png"></div>
-        <div class="expand">Your Radio Stations</div>
-    </div>
-    <div id="yourradiolist" class="dropmenu">
-    </div>
-    
-    <div class="containerbox menuitem noselection">
-        <img src="images/toggle-closed.png" class="menu fixed" name="somafmlist">
-        <div class="smallcover fixed"><img height="32px" width="32px" src="images/somafm.png"></div>
-        <div class="expand">Soma FM</div>
-    </div>
-    <div id="somafmlist" class="dropmenu">
-    </div>
-    
-    <div class="containerbox menuitem noselection">
-        <img src="images/toggle-closed.png" class="menu fixed" name="bbclist">
-        <div class="smallcover fixed"><img height="32px" width="32px" src="images/bbcr.png"></div>
-        <div class="expand">Live BBC Radio</div>
-    </div>
-    <div id="bbclist" class="dropmenu">
-    </div>
-    
-    <div class="containerbox menuitem noselection">
-        <img src="images/toggle-closed.png" class="menu fixed" name="icecastlist">
-        <div class="smallcover fixed"><img height="32px" width="32px" src="images/icecast.png"></div>
-        <div class="expand">Icecast Radio</div>
-    </div>
-    <div id="icecastlist" class="dropmenu">
-        <div class="dirname">
-            <h2 id="loadinglabel3">Loading Stations...</h2>
-        </div>
-    </div>
-    
-</div>
-</div>
-
-<div id="infopane" class="tleft cmiddle noborder infowiki">
-<div id="nowplayingstuff" class="infotext"></div>
-<div id="artistinformation" class="infotext"><h2 align="center">This is the information panel. Interesting stuff will appear here when you play some music</h2></div>
-<div id="albuminformation" class="infotext"></div>
-<div id="trackinformation" class="infotext"></div>
-</div>
-
-<div id="playlist" class="tright column noborder">
-    <div style="padding-left:12px">
-    <a title="Playlist Controls" href="#" onclick="togglePlaylistButtons()"><img class="topimg clickicon" height="20px" src="images/pushbutton.png"></a>
-    </div>
-        <div id="playlistbuttons" class="invisible searchbox">
-        <table width="90%" align="center">
-        <tr>
-        <td align="right">SHUFFLE</td>
-        <td class="togglebutton">
 <?php
-        print '<img src="'.$prefsbuttons[$prefs['random']].'" id="random" onclick="toggleoption(\'random\')" class="togglebutton clickicon" />';
-?>
-        </td>
-        <td class="togglebutton">
-<?php
-        $c = ($prefs['crossfade'] == 0) ? 0 : 1;
-        print '<img src="'.$prefsbuttons[$c].'" id="crossfade" onclick="toggleoption(\'crossfade\')" class="togglebutton clickicon" />';
-?>
-        </td>
-        <td align="left">CROSSFADE</td>
-        </tr>
-        <tr>
-        <td align="right">REPEAT</td>
-        <td class="togglebutton">
-<?php
-        print '<img src="'.$prefsbuttons[$prefs['repeat']].'" id="repeat" onclick="toggleoption(\'repeat\')" class="togglebutton clickicon" />';
-?>
-        </td>
-        <td class="togglebutton">
-<?php
-        print '<img src="'.$prefsbuttons[$prefs['consume']].'" id="consume" onclick="toggleoption(\'consume\')" class="togglebutton clickicon" />';
-?>
-        </td><td align="left">CONSUME</td>
-        </tr>
-        </table>
-    </div>
 
-<div id="sortable" class="noselection fullwidth"><div>
-</div>
+if ($mobile == "no") {
+    include('layout_normal.php');
+} else if ($mobile == "phone") {
+    include('layout_phone.php');
+}
 
-</div>
-
-</body>
+?>
 </html>

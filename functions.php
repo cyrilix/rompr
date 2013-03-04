@@ -206,20 +206,14 @@ class collectionOutput {
     public function __construct($file) {
         $this->fname = $file;
         $this->fhandle = null;
-        
-        $headers =  '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'.
-                    '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">'.
-                    '<head>'.
-                    '<meta http-equiv="cache-control" content="max-age=0" />'.
-                    '<meta http-equiv="cache-control" content="no-cache" />'.
-                    '<meta http-equiv="expires" content="0" />'.
-                    '<meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />'.
-                    '<meta http-equiv="pragma" content="no-cache" />'.
-                    '</head>'.
-                    '<body>';
+
+        $xmlheaders = '<?xml version="1.0" encoding="utf-8"?>'."\n".
+                        '<collection>'."\n".
+                        '<artists>'."\n";
+
         if ($file != "") {
             $this->fhandle = fopen($file, 'w');
-            fwrite($this->fhandle, $headers);
+            fwrite($this->fhandle, $xmlheaders);
         } else {
             print $headers;
         }
@@ -235,7 +229,7 @@ class collectionOutput {
     
     public function closeFile() {
         if ($this->fhandle != null) {
-            fwrite($this->fhandle, '</body></html>');
+            fwrite($this->fhandle, "</artists>\n</collection>\n");
             fclose($this->fhandle);
         } else {
             print '</body></html>';
@@ -267,6 +261,64 @@ function munge_album_name($name) {
     $b = preg_replace('/\(Remastered\)/i', "", $b);         // (Remastered)
     $b = preg_replace('/\s+-\s*$/', "", $b);                // Chops any stray - off the end that could have been left by the previous
     return $b;
+}
+
+function getWhichXML($which) {
+    global $ALBUMSLIST;
+    global $ALBUMSEARCH;
+    global $FILESLIST;
+    global $FILESEARCH;
+    if (substr($which,0,2) == "aa") {
+        return $ALBUMSLIST;
+    } else if (substr($which,0,2) == "ba") {
+        return $ALBUMSEARCH;
+    } else if (substr($which,0,2) == "ad") {
+        return $FILESLIST;
+    } else if (substr($which,0,2) == "bd") {
+        return $FILESEARCH;
+    } else {
+        debug_print("ATTEMPTING TO LOOK FOR SOMETHING WE SHOULDN't BE!");
+        return "";
+    }
+
+}
+
+function findItem($x, $which) {
+    global $ARTIST;
+    global $ALBUM;
+    debug_print("Looking for ".$which);
+    foreach($x->artists->artist as $i => $artist) {
+        if ($artist['id'] == $which) {
+            debug_print("Found it, it's an artist");
+            return array($ARTIST, $artist);
+            break;
+        } else {
+            foreach($artist->albums->album as $j => $album) {
+                if ($album['id'] == $which) {
+                    debug_print("Found it, it's an album");
+                    return array($ALBUM, $album);
+                    break;
+                }
+            }
+        }
+    }
+
+}
+
+function findFileItem($x, $which) {
+    foreach($x->xpath('artists/item') as $i => $item) {
+        if ($item->id) {
+            if ($item->id == $which) {
+                return $item;
+            } else {
+                $i = findFileItem($item, $which);
+                if ($i != null) {
+                    return $i;
+                }
+            }
+        }
+    }
+    return null;
 }
 
 ?>

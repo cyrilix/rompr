@@ -97,12 +97,12 @@ if ($download_file != "" && file_exists($download_file)) {
 // we need to edit the cached albums list so it doesn't get searched again
 // and edit the URL so it points to the correct image if one was found
 if (file_exists($ALBUMSLIST) && $stream == "") {
-    $class = "updateable";
-    if ($error == 1) {
-        $class = "updateable notfound";
-    }
-    debug_print("Classing ".$fname." as ".$class);
-    update_cache($fname, $class);
+    // $class = "updateable";
+    // if ($error == 1) {
+    //     $class = "updateable notfound";
+    // }
+    debug_print("Classing ".$fname." as ".$error);
+    update_cache($fname, $error);
 }
 
 if ($error == 0) {
@@ -227,33 +227,49 @@ function check_file($file, $data) {
     }
 }
 
-function update_cache($fname, $class) {
+function update_cache($fname, $notfound) {
 
     global $ALBUMSLIST;
 
     if (file_exists($ALBUMSLIST)) {
+        // Get an exclusive lock on the file. We can't have two threads trying to update it at once.
+        // That would be bad.
         $fp = fopen($ALBUMSLIST, 'r+');
         if ($fp) {
             $crap = true;
-            // Get an exclusive lock on the file. We can't have two threads trying to update it at once.
-            // That would be bad.
             if (flock($fp, LOCK_EX, $crap)) {
-                $cache = file_get_contents($ALBUMSLIST);
-                $newcache = preg_replace('/\<img class=\"smallcover fixed updateable.*?(name=\"'.$fname.'\".*?) src=.*?\>/', '<img class="smallcover fixed '.$class.'" $1 src="images/album-unknown-small.png">', $cache);
-                if ($newcache != null) {
-                    ftruncate($fp, 0);
-                    fwrite($fp, $newcache);
-                    fflush($fp);
-                    flock($fp, LOCK_UN);
-                } else {
-                    debug_print("PHP regular expressions are rubbish");
+
+                $x = simplexml_load_file($ALBUMSLIST);
+                debug_print("Updating cache for for ".$fname." ".$notfound);
+                foreach($x->artists->artist as $i => $artist) {
+                    foreach($artist->albums->album as $j => $album) {
+                        if ($album->image->name == $fname) {
+                            debug_print("Found it");
+                            // we always want to remove the romprartist and rompralbum items - this will
+                            // prevent it being auto-searched again
+                            // If notfound is 0 we also update the image src tage
+                            unset($album->image->romprartist);
+                            unset($album->image->rompralbum);
+                            if ($notfound == 0) {
+                                $album->image->src = "albumart/small/".$fname.".jpg";
+                            }
+                            ftruncate($fp, 0);
+                            fwrite($fp, $x->asXML());
+                            fflush($fp);
+                            flock($fp, LOCK_UN);
+                            break 2;
+                        }
+                    }
                 }
             } else {
-                debug_print("FAILED TO GET FILE LOCK!!!!!!!!!!!!!!!!!!!!!");
+                debug_print("FAILED TO GET FILE LOCK");
             }
+        } else {
+            debug_print("FAILED TO OPEN CACHE FILE!");
         }
         fclose($fp);
     }
+
 }
 
 function tryLastFM() {

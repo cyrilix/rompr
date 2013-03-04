@@ -1,5 +1,5 @@
 function reloadPlaylists() {
-    $("#playlistslist").load("loadplaylists.php");
+    $("#playlistslist").load("loadplaylists.php?mobile="+mobile);
 }
 
 function formatTimeString(duration) {
@@ -49,7 +49,7 @@ function setClickHandlers() {
     $("#radiolist").unbind('dblclick');
     
     $("#collection").click(onCollectionClicked);
-    $("#filecollection").click(onCollectionClicked);
+    $("#filecollection").click(onFileCollectionClicked);
     $("#search").click(onCollectionClicked);
     $("#filesearch").click(onCollectionClicked);
     $("#lastfmlist").click(onLastFMClicked);
@@ -57,7 +57,7 @@ function setClickHandlers() {
 
     if (prefs.clickmode == "double") {
         $("#collection").dblclick(onCollectionDoubleClicked);    
-        $("#filecollection").dblclick(onCollectionDoubleClicked);
+        $("#filecollection").dblclick(onFileCollectionDoubleClicked);
         $("#search").dblclick(onCollectionDoubleClicked);    
         $("#filesearch").dblclick(onCollectionDoubleClicked);
         $("#lastfmlist").dblclick(onLastFMDoubleClicked);
@@ -116,50 +116,102 @@ function expandInfo(side) {
 
 function doThatFunkyThang() {
 
-    var sourcesweight = (prefs.sourceshidden) ? 0 : 1;
-    var playlistweight = (prefs.playlisthidden) ? 0 : 1;
-    var browserweight = (prefs.hidebrowser) ? 0 : 1;
+    if (mobile == "no") {
+        var sourcesweight = (prefs.sourceshidden) ? 0 : 1;
+        var playlistweight = (prefs.playlisthidden) ? 0 : 1;
+        var browserweight = (prefs.hidebrowser) ? 0 : 1;
 
-    var browserwidth = (100 - (prefs.playlistwidthpercent*playlistweight) - (prefs.sourceswidthpercent*sourcesweight))*browserweight;
-    var sourceswidth = (100 - (prefs.playlistwidthpercent*playlistweight) - browserwidth)*sourcesweight;
-    var playlistwidth = (100 - sourceswidth - browserwidth)*playlistweight;
+        var browserwidth = (100 - (prefs.playlistwidthpercent*playlistweight) - (prefs.sourceswidthpercent*sourcesweight))*browserweight;
+        var sourceswidth = (100 - (prefs.playlistwidthpercent*playlistweight) - browserwidth)*sourcesweight;
+        var playlistwidth = (100 - sourceswidth - browserwidth)*playlistweight;
 
-    $("#sources").css("width", sourceswidth.toString()+"%");
-    $("#albumcontrols").css("width", sourceswidth.toString()+"%");
-    $("#playlist").css("width", playlistwidth.toString()+"%");
-//     $("#pcholder").css("width", playlistwidth.toString()+"%");
-    $("#playlistcontrols").css("width", playlistwidth.toString()+"%");
-    $("#infopane").css("width", browserwidth.toString()+"%");
-    $("#infocontrols").css("width", browserwidth.toString()+"%");
+        $("#sources").css("width", sourceswidth.toString()+"%");
+        $("#albumcontrols").css("width", sourceswidth.toString()+"%");
+        $("#playlist").css("width", playlistwidth.toString()+"%");
+    //     $("#pcholder").css("width", playlistwidth.toString()+"%");
+        $("#playlistcontrols").css("width", playlistwidth.toString()+"%");
+        $("#infopane").css("width", browserwidth.toString()+"%");
+        $("#infocontrols").css("width", browserwidth.toString()+"%");
 
-    if (prefs.sourceshidden != $("#sources").is(':hidden')) {
-        $("#sources").toggle("fast");
-        $("#albumcontrols").toggle("fast");
+        if (prefs.sourceshidden != $("#sources").is(':hidden')) {
+            $("#sources").toggle("fast");
+            $("#albumcontrols").toggle("fast");
+        }
+
+        if (prefs.playlisthidden != $("#playlist").is(':hidden')) {
+            $("#playlist").toggle("fast");
+            $("#playlistcontrols").toggle("fast");
+        }
+
+        if (prefs.hidebrowser != $("#infopane").is(':hidden')) {
+            $("#infopane").toggle("fast");
+            $("#infocontrols").toggle("fast");
+        }
+
+        var i = (prefs.sourceshidden) ? "images/arrow-right-double.png" : "images/arrow-left-double.png";
+        $("#expandleft").attr("src", i);
+        i = (prefs.playlisthidden) ? "images/arrow-left-double.png" : "images/arrow-right-double.png";
+        $("#expandright").attr("src", i);
     }
-
-    if (prefs.playlisthidden != $("#playlist").is(':hidden')) {
-        $("#playlist").toggle("fast");
-        $("#playlistcontrols").toggle("fast");
-    }
-
-    if (prefs.hidebrowser != $("#infopane").is(':hidden')) {
-        $("#infopane").toggle("fast");
-        $("#infocontrols").toggle("fast");
-    }
-
-    var i = (prefs.sourceshidden) ? "images/arrow-right-double.png" : "images/arrow-left-double.png";
-    $("#expandleft").attr("src", i);
-    i = (prefs.playlisthidden) ? "images/arrow-left-double.png" : "images/arrow-right-double.png";
-    $("#expandright").attr("src", i);
-    
 }
 
 function setBottomPaneSize() {
     var ws = getWindowSize();
-    var newheight = ws.y - 148;
+    if (mobile != "no") {
+        debug.log("DOING MOBILE LAYOUT STUFF");
+        if (itisbigger) {
+            var newheight = ws.y-36;
+        } else {
+            var newheight = ws.y - 116;
+        }
+        var gibbon = ws.x-100;
+        $("#nowplaying").css('width', gibbon.toString()+"px");
+        var oldls = landscape;
+        if (ws.x > ws.y) {
+            landscape = prefs.twocolumnsinlandscape;
+            $("#playinginfo").show();
+        } else {
+            landscape = false;
+            $("#playinginfo").hide();
+        }
+        if (oldls != landscape) {
+            switchColumnMode(landscape);
+            sourcecontrol(prefs.chooser);
+        }
+    } else {
+        var newheight = ws.y - 148;
+        var notpos = ws.x - 340;
+        var lp = ws.x - 362;
+        var dd = lp -156;
+        $('#patrickmoore').css("width", lp.toString()+"px");
+        $('#nowplaying').css("width", dd.toString()+"px");
+        $("#notifications").css("left", notpos.toString()+"px");        
+    }
     $("#bottompage").css("height", newheight.toString()+"px");
-    var notpos = ws.x - 340;
-    $("#notifications").css("left", notpos.toString()+"px");
+}
+
+function switchColumnMode(flag) {
+    if (flag) {
+        $("#sources").css({'width' : '50%', 'float' : 'left'});
+        $("#playlistm").css({'width' : '50%', 'float' : 'right'});
+        $("#playlistm").show();
+        $("#sources").show();
+        if (prefs.chooser == "playlistm") {
+            prefs.chooser = "albumlist";
+        }
+        $("#chooseplaylist").hide();
+    } else {
+        $("#sources").css({'width' : '100%', 'float' : 'none'});
+        $("#playlistm").css({'width' : '100%', 'float' : 'none'});
+        if (prefs.chooser == "playlistm") {
+            $("#playlistm").show();
+            $("#sources").hide();
+        } else {
+            $("#playlistm").hide();
+            $("#sources").show();            
+        }
+        $("#chooseplaylist").show();
+    }    
 }
 
 function lastfmlogin() {
@@ -355,6 +407,8 @@ function togglePref(pref) {
     prefs.save( prefobj );    
     if (pref == 'downloadart') {
         coverscraper.toggle($("#"+pref).is(":checked"));
+    } else if (pref == 'twocolumnsinlandscape') {
+        setBottomPaneSize(); 
     }
 }
 
@@ -652,7 +706,7 @@ function editmpdoutputs() {
             for (var i in data) {
                 $("#outputtable").append('<tr><td width="50%" align="right">'+data[i].outputname+'</td><td>'+format_outputswitch(data[i].outputenabled, data[i].outputid)+'</td></tr>');
             }
-            $("#outputtable").append('<tr><td colspan="2"><button  style="width:8em" class="tright topformbutton" onclick="popupWindow.close()">OK</button></td></tr>');
+            $("#outputtable").append('<tr><td colspan="2"><button  style="width:8em" class="tright" onclick="popupWindow.close()">OK</button></td></tr>');
             popupWindow.open();
         })
         .fail( function() { alert("Failed To Get Audio Outputs From MPD!") });
@@ -791,8 +845,13 @@ var popupWindow = function() {
             $(popup).append('<div id="popupcontents"></div>');
             var winsize=getWindowSize();
             var windowScroll = getScrollXY();
-            var width = winsize.x - 128;
-            var height = winsize.y - 128;
+            if (mobile == "no") {
+                var width = winsize.x - 128;
+                var height = winsize.y - 128;
+            } else {
+                var width = winsize.x - 8;
+                var height = winsize.y - 8;
+            }
             if (width > w) { width = w; }
             if (height > h) { height = h; }
             var x = (winsize.x - width)/2 + windowScroll.x;
@@ -824,8 +883,13 @@ var popupWindow = function() {
         setsize:function() {
             var winsize=getWindowSize();
             var windowScroll = getScrollXY();
-            var width = winsize.x - 128;
-            var height = winsize.y - 128;
+            if (mobile == "no") {
+                var width = winsize.x - 128;
+                var height = winsize.y - 128;
+            } else {
+                var width = winsize.x - 8;
+                var height = winsize.y - 8;
+            }
             if (width > wantedwidth) { width = wantedwidth; }
             if (height > wantedheight) { height = wantedheight; }
             var x = (winsize.x - width)/2 + windowScroll.x;
@@ -963,6 +1027,38 @@ function prepareForLiftOff() {
     $("#loadinglabel2").effect('pulsate', { times:200 }, 2000);
 }
 
+function checkCollection() {
+    var update = false;
+    if (prefs.updateeverytime) {
+        debug.log("Updating Collection due to preference");
+        update = true;
+    } else {
+        if (!albumslistexists && !prefs.hide_albumlist) {
+            debug.log("Updating because albums list doesn't exist and it's not hidden");
+            update = true;
+        }
+        if (!fileslistexists && !prefs.hide_filelist) {
+            debug.log("Updating because files list doesn't exist and it's not hidden");
+            update = true;
+        }
+    }
+    if (update) {
+        updateCollection('update');
+    } else {
+        prepareForLiftOff();
+        if (prefs.hide_filelist && !prefs.hide_albumlist) {
+            debug.log("Loading albums cache only");
+            loadCollection('albums.php?item=aalbumroot', null);
+        } else if (prefs.hidealbumlist && !prefs.hide_filelist) {
+            debug.log("Loading Files Cache Only");
+            loadCollection(null, 'dirbrowser.php?item=adirroot');
+        } else if (!prefs.hidealbumlist && !prefs.hide_filelist) {
+            debug.log("Loading Both Caches");
+            loadCollection('albums.php?item=aalbumroot', 'dirbrowser.php?item=adirroot');
+        }
+    }
+}
+
 function updateCollection(cmd) {
     debug.log("Updating collection with command", cmd);
     prepareForLiftOff();
@@ -973,13 +1069,13 @@ function updateCollection(cmd) {
 }
 
 function loadCollection(albums, files) {
-    if (!prefs.hide_albumlist && albums != null) {
+    if (albums != null) {
         debug.log("Loading Albums List");
         $("#loadinglabel").html("Loading Collection");
         $("#collection").load(albums);
         $('#search').load("search.php");
     }
-    if (!prefs.hide_filelist && files != null) {
+    if (files != null) {
         debug.log("Loading Files List");
         $("#loadinglabel2").html("Loading Files");
         $("#filecollection").load(files);
@@ -993,7 +1089,16 @@ function checkPoll(data) {
         update_load_timer = setTimeout( pollAlbumList, 1000);
         update_load_timer_running = true;
     } else {
-        loadCollection("albums.php", "dirbrowser.php");
+        if (prefs.hide_filelist && !prefs.hide_albumlist) {
+            debug.log("Building albums cache only");
+            loadCollection('albums.php', null);
+        } else if (prefs.hidealbumlist && !prefs.hide_filelist) {
+            debug.log("Building Files Cache Only");
+            loadCollection(null, 'dirbrowser.php');
+        } else if (!prefs.hidealbumlist && !prefs.hide_filelist) {
+            debug.log("Building Both Caches");
+            loadCollection('albums.php', 'dirbrowser.php');
+        }
     }
 }
 
@@ -1007,7 +1112,16 @@ function pollAlbumList() {
 
 function sourcecontrol(source) {
 
-    sources = ["lastfmlist", "albumlist", "filelist", "radiolist"];
+    debug.log("Mobile mode is",mobile);
+    if (mobile == "no") {
+        sources = ["lastfmlist", "albumlist", "filelist", "radiolist"];
+    } else if (mobile == "phone") {
+        if (landscape) {
+            sources = ["lastfmlist", "albumlist", "filelist", "radiolist", "infopane", "chooser", "prefsm"];
+        } else {
+            sources = ["lastfmlist", "albumlist", "filelist", "radiolist", "infopane", "playlistm", "chooser", "playlistman", "prefsm"];
+        }
+    }
     for(var i in sources) {
         if (sources[i] == source) {
             sources.splice(i, 1);
@@ -1022,10 +1136,32 @@ function switchsource(source) {
 
     var togo = sources.shift();
     if (togo) {
-        $("#"+togo).fadeOut('fast', function() { switchsource(source) });
+        if ($("#"+togo).is(':visible')) {
+            if (mobile == "no") {
+                $("#"+togo).fadeOut(200, function() { switchsource(source) });
+            } else {
+                $("#"+togo).hide();
+                switchsource(source);
+            }
+        } else {
+            switchsource(source);
+        }
     } else {
         prefs.save({chooser: source});
-        $("#"+source).fadeIn('fast');
+        if (mobile == "no") {
+            $("#"+source).fadeIn(200);
+        } else {
+            $("#"+source).show();
+            if (landscape) {
+                switchColumnMode(source != "infopane");
+            } else {
+                if (source == "playlistm") {
+                    $("#sources").hide();
+                } else {
+                    $("#sources").show();
+                }
+            }
+        }
     }
 
 }
@@ -1037,19 +1173,21 @@ function hidePanel(panel) {
     var newprefs = {};
     newprefs["hide_"+panel] = new_state;
     prefs.save(newprefs);
-    if (is_hidden != new_state) {
-        if (new_state && prefs.chooser == panel) {
-            $("#"+panel).fadeOut('fast');
-            var s = ["albumlist", "filelist", "lastfmlist", "radiolist"];
-            for (var i in s) {
-                if (s[i] != panel && !prefs["hide_"+s[i]]) {
-                    switchsource(s[i]);
-                    break;
+    if (mobile == "no") {
+        if (is_hidden != new_state) {
+            if (new_state && prefs.chooser == panel) {
+                $("#"+panel).fadeOut('fast');
+                var s = ["albumlist", "filelist", "lastfmlist", "radiolist"];
+                for (var i in s) {
+                    if (s[i] != panel && !prefs["hide_"+s[i]]) {
+                        switchsource(s[i]);
+                        break;
+                    }
                 }
             }
-        }
-        if (!new_state && prefs.chooser == panel) {
-            $("#"+panel).fadeIn('fast');
+            if (!new_state && prefs.chooser == panel) {
+                $("#"+panel).fadeIn('fast');
+            }
         }
     }
     if (new_state) {
@@ -1093,12 +1231,12 @@ function hidePanel(panel) {
                 break;
             case "albumlist":
                 if (update_load_timer_running == false) {
-                    loadCollection(prefs.albumslist, null);
+                    loadCollection('albums.php?item=aalbumroot', null);
                 }
                 break;
             case "filelist":
                 if (update_load_timer_running == false) {
-                    loadCollection(null, prefs.fileslist);
+                    loadCollection(null, 'dirbrowser.php?item=adirroot');
                 }
                 break;
         }
@@ -1110,5 +1248,52 @@ function setXfadeDur() {
     prefs.save({crossfade_duration: $("#configpanel").find('input[name|="michaelbarrymore"]').attr("value")});    
     if (prefs.crossfade > 0) {
         mpd.command("command=crossfade&arg="+prefs.crossfade_duration);
+    }
+}
+
+function makeitbigger() {
+    itisbigger = !itisbigger;
+    $("#infobar").slideToggle('fast', function() {
+        if (itisbigger) {
+            $("#bottompage").css('top', "36px");
+        } else {
+            $("#bottompage").css('top', "116px");            
+        }
+    });
+    setBottomPaneSize();
+}
+
+function swipeyswipe(dir) {
+    var order = [];
+    if (!prefs.hide_albumlist) {
+        order.push("albumlist")
+    }
+    if (!prefs.hide_filelist) {
+        order.push("filelist")
+    }
+    if (!prefs.hide_lastfmlist) {
+        order.push("lastfmlist")
+    }
+    if (!prefs.hide_radiolist) {
+        order.push("radiolist")
+    }
+    if (!prefs.hidebrowser) {
+        order.push("infopane");
+    }
+    if (landscape) {
+        if (!prefs.twocolumnsinlandscape) {
+            order.push("playlistm");
+        }
+    } else {
+        order.push("playlistm");
+    }
+    for (var i in order) {
+        if (order[i] == prefs.chooser) {
+            var j = (i*1)+(dir*1);
+            if (j<0) { j=order.length-1; }
+            if (j>=order.length) { j = 0; }
+            sourcecontrol(order[j]);
+            break;
+        }
     }
 }

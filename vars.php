@@ -1,11 +1,15 @@
 <?php
-$LISTVERSION = "0.17";
-$ALBUMSLIST = 'prefs/albums_'.$LISTVERSION.'.html';
-$FILESLIST = 'prefs/files_'.$LISTVERSION.'.html';
+$LISTVERSION = "0.22";
+$ALBUMSLIST = 'prefs/albums_'.$LISTVERSION.'.xml';
+$ALBUMSEARCH = 'prefs/albumsearch_'.$LISTVERSION.'.xml';
+$FILESLIST = 'prefs/files_'.$LISTVERSION.'.xml';
+$FILESEARCH = 'prefs/filesearch_'.$LISTVERSION.'.xml';
 $connection = null;
 $is_connected = false;
 $DEBUG = 1;
 $prefsbuttons = array("images/button-off.png", "images/button-on.png");
+$ARTIST = 0;
+$ALBUM = 1;
 
 // NOTE: sortbydate can be set to "true' to make the collection sort albums by date
 // - however mpd can only read the 'Date' ID3 tag, whereas the 'Original Release Date'
@@ -54,8 +58,7 @@ $prefs = array( "mpd_host" => "localhost",
                 "hide_lastfmlist" => "false",
                 "hide_radiolist" => "false",
                 "fullbiobydefault" => "true",
-                "albumslist" => $ALBUMSLIST,
-                "fileslist" => $FILESLIST
+                "twocolumnsinlandscape" => "true"
                 );
 loadPrefs();
 

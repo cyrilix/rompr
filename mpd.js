@@ -41,10 +41,15 @@ function mpdController() {
     this.do_command_list = function(list, callback) {
         
         playlist.clearProgressTimer();
+        if (typeof list == "string") {
+            data = list;
+        } else {
+            data = {'commands[]': list};
+        }
         $.ajax({
             type: 'POST',
             url: 'postcommand.php',
-            data: {'commands[]': list},
+            data: data,
             success: function(data) {
                 self.status = data;
                 nowplaying.setStartTime(self.status.elapsed); 

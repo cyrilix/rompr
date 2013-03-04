@@ -1,7 +1,7 @@
 function onCollectionClicked(event) {
     var clickedElement = findClickableElement(event);
     if (clickedElement.hasClass("menu")) {
-        doMenu(event, clickedElement);
+        doAlbumMenu(event, clickedElement);
     } else if (prefs.clickmode == "double") {
         if (clickedElement.hasClass("clickalbum")) {
             event.stopImmediatePropagation();
@@ -16,6 +16,34 @@ function onCollectionClicked(event) {
 }
 
 function onCollectionDoubleClicked(event) {
+    var clickedElement = findClickableElement(event);
+    if (clickedElement.hasClass("clickalbum")) {
+        event.stopImmediatePropagation();
+        playlist.addalbum(clickedElement);
+    } else if (clickedElement.hasClass("clicktrack")) {
+        event.stopImmediatePropagation();
+        playlist.addtrack(clickedElement);
+    }
+}
+
+function onFileCollectionClicked(event) {
+    var clickedElement = findClickableElement(event);
+    if (clickedElement.hasClass("menu")) {
+        doFileMenu(event, clickedElement);
+    } else if (prefs.clickmode == "double") {
+        if (clickedElement.hasClass("clickalbum")) {
+            event.stopImmediatePropagation();
+            albumSelect(event, clickedElement);
+        } else if (clickedElement.hasClass("clicktrack")) {
+            event.stopImmediatePropagation();
+            trackSelect(event, clickedElement);
+        }
+    } else {
+        onCollectionDoubleClicked(event);
+    }
+}
+
+function onFileCollectionDoubleClicked(event) {
     var clickedElement = findClickableElement(event);
     if (clickedElement.hasClass("clickalbum")) {
         event.stopImmediatePropagation();
@@ -120,27 +148,64 @@ function doMenu(event, element) {
         event.stopImmediatePropagation();
     }
     var menutoopen = element.attr("name");
-    $('#'+menutoopen).slideToggle('fast', function() {
-        if (element.attr("src") == "images/toggle-closed.png") {
-            element.attr("src", "images/toggle-open.png");
-            $('#'+menutoopen).find(".updateable").each(noAnonymousFunctions);
-        } else if (element.attr("src") == "images/toggle-open.png"){
-            element.attr("src", "images/toggle-closed.png");
-        }
-    });
+    if (element.attr("src") == "images/toggle-closed.png") {
+        element.attr("src", "images/toggle-open.png");
+    } else if (element.attr("src") == "images/toggle-open.png"){
+        element.attr("src", "images/toggle-closed.png");
+    }
+    $('#'+menutoopen).slideToggle('fast');
     return false;
-
 }
 
-function noAnonymousFunctions() {
-    $(this).removeClass("updateable");
-    if ($(this).hasClass("notexist")) {
-        coverscraper.GetNewAlbumArt($(this).attr('name'));
-    } else if ($(this).hasClass("notfound")) {
-    } else {
-        $(this).attr("src", "albumart/small/" + $(this).attr("name") + ".jpg");
+function doAlbumMenu(event, element) {
+
+    if (event) {
+        event.stopImmediatePropagation();
     }
-}    
+    var menutoopen = element.attr("name");
+    if (element.attr("src") == "images/toggle-closed.png") {
+        if ($('#'+menutoopen).hasClass("notfilled")) {
+            $('#'+menutoopen).load("albums.php?item="+menutoopen, function() {
+                $(this).removeClass("notfilled");
+                $(this).slideToggle('fast', function() {
+                    $.each($(this).find('.notexist'), function() {
+                        coverscraper.GetNewAlbumArt($(this).attr('name'));
+                    });
+                })
+            });
+        } else {
+            $('#'+menutoopen).slideToggle('fast');
+        }
+        element.attr("src", "images/toggle-open.png");
+    } else {
+        $('#'+menutoopen).slideToggle('fast');
+        element.attr("src", "images/toggle-closed.png");
+    }
+    return false;
+}
+
+function doFileMenu(event, element) {
+
+    if (event) {
+        event.stopImmediatePropagation();
+    }
+    var menutoopen = element.attr("name");
+    if (element.attr("src") == "images/toggle-closed.png") {
+        if ($('#'+menutoopen).hasClass("notfilled")) {
+            $('#'+menutoopen).load("dirbrowser.php?item="+menutoopen, function() {
+                $(this).removeClass("notfilled");
+                $(this).slideToggle('fast');
+            });
+        } else {
+            $('#'+menutoopen).slideToggle('fast');
+        }
+        element.attr("src", "images/toggle-open.png");
+    } else {
+        $('#'+menutoopen).slideToggle('fast');
+        element.attr("src", "images/toggle-closed.png");
+    }
+    return false;
+}
 
 function setDraggable(divname) {
 

@@ -46,7 +46,7 @@ google.load('search', 1);
 function getNewAlbumArt(div) {
 
     debug.log("Getting art in",div);
-    $(div).find("img").filter( filterImages ).each( myMonkeyHasBigEars );
+    $.each($(div).find("img").filter(filterImages), myMonkeyHasBigEars );
     if (running == false) {
         running = true;
         $("#progress").fadeIn('slow');
@@ -145,13 +145,13 @@ function onlywithcovers() {
 
 function emptysections() {
     var empty = true;
-    $(this).next().find('.albumimg').each( function() { if (!$(this).is(':hidden')) { empty = false } });
+    $.each($(this).next().find('.albumimg'), function() { if (!$(this).is(':hidden')) { empty = false } });
     return empty;
 }
 
 function emptysections2() {
     var empty = true;
-    $(this).find('.albumimg').each( function() { if (!$(this).is(':hidden')) { empty = false } });
+    $.each($(this).find('.albumimg'), function() { if (!$(this).is(':hidden')) { empty = false } });
     return empty;
 }
 
@@ -202,7 +202,15 @@ function createPopup() {
     google.search.Search.getBranding('branding');
     uform.ajaxForm( uploadComplete );
     searchcontent.click(onGoogleSearchClicked);
+    $('#searchphrase').keyup(bumblefuck);
 
+}
+
+function bumblefuck(e) {
+    debug.log("Bumblefuck");
+    if (e.keyCode == 13) {
+        research();
+    }
 }
 
 function wobbleMyBottom() {
