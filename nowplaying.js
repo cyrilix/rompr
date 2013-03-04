@@ -170,7 +170,7 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
         return {
             populate: function() {
                 if (mpd_data.type == "stream") {
-                    album_data = {album: {error: 1, message: "(Internet Radio Station)"}};
+                    album_data = {album: {error: 99, message: "(Internet Radio Station)"}};
                     self.track.populate();
                 } else {
                     if (album_data == null) {
@@ -775,6 +775,14 @@ function lfmDataExtractor(data) {
             return data.message;
         } else {
             return false;
+        }
+    }
+
+    this.errorno = function() {
+        if (data && data.error) {
+            return data.error;
+        } else {
+            return 0;
         }
     }
 

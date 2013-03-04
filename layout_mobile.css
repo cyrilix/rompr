@@ -107,7 +107,8 @@ h2
 
 #headerbar
 {
-	height:28px;
+	height:24px;
+    padding-top:4px;
 	overflow:hidden;
 }
 
@@ -179,11 +180,6 @@ h2
     font-size:7pt;
 }
 
-.stleft
-{
-    width: auto;
-}
-
 #notifications
 {
     position:absolute;
@@ -196,4 +192,11 @@ h2
     font-size:8pt;
     font-weight:bold;
     z-index:2000;
+}
+
+.clrbth
+{
+    clear:both;
+    display:table;
+    margin-top:8px;
 }

@@ -110,7 +110,8 @@ var progresstimer = null;
 var prefsbuttons = ["images/button-off.png", "images/button-on.png"];
 var prefsInLocalStorage = ["hidebrowser", "sourceshidden", "playlisthidden", "infosource", "playlistcontrolsvisible",
                             "sourceswidthpercent", "playlistwidthpercent", "downloadart", "clickmode", "chooser",
-                            "hide_albumlist", "hide_filelist", "hide_lastfmlist", "hide_radiolist", "twocolumnsinlandscape"];
+                            "hide_albumlist", "hide_filelist", "hide_lastfmlist", "hide_radiolist", "twocolumnsinlandscape",
+                            "shownupdatewindow"];
 
 function aADownloadFinished() {
     /* We need one of these in global scope so coverscraper works here
@@ -311,20 +312,33 @@ $(document).ready(function(){
     }
     checkCollection();
     sourcecontrol(prefs.chooser);
-    if (!prefs.shownupdatewindow) {
-        var fnarkle = popupWindow.create(500,300,"fnarkle",true,"Information About This Version");
+    if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < 0.30) {
+        var fnarkle = popupWindow.create(500,600,"fnarkle",true,"Information About This Version");
         $("#popupcontents").append('<div id="fnarkler" class="mw-headline"></div>');
+        if (mobile != "no") {
+            $("#fnarkler").addClass('tiny');
+        }
+        $("#fnarkler").append('<p>Welcome to RompR version 0.30</p>');
+        if (mobile != "no") {
+            $("#fnarkler").append('<p>You are viewing the mobile version of RompR. To view the standard version go to <a href="/rompr/index.php?mobile=no">/rompr/index.php?mobile=no</a></p>');
+        } else {
+            $("#fnarkler").append('<p>To view the mobile version go to <a href="/rompr/index.php?mobile=phone">/rompr/index.php?mobile=phone</a></p>');            
+        }
         $("#fnarkler").append('<p>The Basic RompR Manual is at: <a href="https://sourceforge.net/p/rompr/wiki/Basic%20Manual/" target="_blank">http://sourceforge.net/p/rompr/wiki/Basic%20Manual/</a></p>');
         $("#fnarkler").append('<p>The Discussion Forum is at: <a href="https://sourceforge.net/p/rompr/discussion/" target="_blank">http://sourceforge.net/p/rompr/discussion/</a></p>');
-        $("#fnarkler").append('<p><button style="width:8em" class="tright topformbutton" onclick="popupWindow.close()">OK</button></p>');
+        $("#fnarkler").append('<p><button style="width:8em" class="tright" onclick="popupWindow.close()">OK</button></p>');
         popupWindow.open();
-        prefs.save({shownupdatewindow: true});
+        prefs.save({shownupdatewindow: 0.30});
     }
     if (prefs.playlistcontrolsvisible) {
         $("#playlistbuttons").slideToggle('fast');
     }
     mpd.command("",playlist.repopulate);
-    setBottomPaneSize();
+    if (mobile == "no") {
+        setBottomPaneSize();
+    } else {
+        setTimeout(setBottomPaneSize, 2000);
+    }
     $(window).bind('resize', function() {
         setBottomPaneSize();
     });

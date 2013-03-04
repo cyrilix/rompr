@@ -589,7 +589,8 @@ a
 .stleft
 {
     float:left;
-    width:20%;
+    width:auto;
+    max-width:50%;    
 }
 
 .frog

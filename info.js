@@ -106,6 +106,7 @@ function Info(target, source) {
         }
         updateHistory();
         clearSelection();
+        debug.log("ShowMeTheMonkey",npi, showartist, showalbum, showtrack, names)
         $('#artistinformation').stop();
         $('#albuminformation').stop();
         $('#trackinformation').stop();
@@ -316,6 +317,14 @@ function Info(target, source) {
             html = html + formatLastFmError(lfmdata);
         } else {
             html = html + sectionHeader(lfmdata);
+            if (mobile == "no") {
+                var imageurl = lfmdata.image("extralarge");
+            } else {
+                var imageurl = lfmdata.image("large");
+                if (imageurl != '') {
+                    html = html + '<img src="' + imageurl + '" class="clrbth" />';
+                }
+            }
             html = html + '<br><li class="tiny">Hear artists similar to '+history[displaypointer].artist+'&nbsp;&nbsp;<a href="#" onclick="doLastFM(\'lastfmartist\', \''+history[displaypointer].artist+'\')"><img style="vertical-align:middle" src="images/start.png" height="12px"></a></li>';
             html = html + '<br><li class="tiny">Play what fans of '+history[displaypointer].artist+' are listening to&nbsp;&nbsp;<a href="#" onclick="doLastFM(\'lastfmfan\', \''+history[displaypointer].artist+'\')"><img style="vertical-align:middle" src="images/start.png" height="12px"></a></li>';
             html = html + '</ul><br>';
@@ -328,12 +337,7 @@ function Info(target, source) {
 
             html = html + '</div><div class="statsbox">';
 
-            if (mobile == "no") {
-                var imageurl = lfmdata.image("extralarge");
-            } else {
-                var imageurl = lfmdata.image("large");
-            }
-            if (imageurl != '') {
+            if (mobile == "no" && imageurl != '') {
                 html = html +  '<img class="stright" src="' + imageurl + '" class="standout" />';
             }
             html = html +  '<div id="artistbio">';
@@ -358,6 +362,7 @@ function Info(target, source) {
                 html = html + '<td class="simar" align="center"><a href="#" title="Play Artist Radio Station" onclick="doLastFM(\'lastfmartist\', \''+similies[i].name+'\')"><img src="images/start.png" height="12px"></a></td>';
             }
             html = html + '</tr></table></td></tr></table></div>';
+
         }
         html = html + '</div>';
 
@@ -387,10 +392,17 @@ function Info(target, source) {
         
         var lfmdata = new lfmDataExtractor(nowplaying.getAlbumData(history[displaypointer].nowplayingindex));
         
-        var html = lastFmBanner(lfmdata, "Album", panelclosed.album, history[displaypointer].album);
+        var html;
         if (lfmdata.error()) {
-            html = html + formatLastFmError(lfmdata);
+            if (lfmdata.errorno() == 99) {
+                html = lastFmBanner(lfmdata, "Internet Radio", panelclosed.album, "");
+                html = html + '<p><b>'+history[displaypointer].album+'</b></p>';
+            } else {
+                html = lastFmBanner(lfmdata, "Album", panelclosed.album, history[displaypointer].album);
+                html = html + formatLastFmError(lfmdata);
+            }
         } else {
+            html = lastFmBanner(lfmdata, "Album", panelclosed.album, history[displaypointer].album);
             html = html + sectionHeader(lfmdata);
             html = html + '<br><ul id="buyalbum"><li><b>BUY THIS ALBUM&nbsp;</b><a href="#" onclick="browser.buyAlbum()"><img height="20px" id"buyalbumbutton" style="vertical-align:middle" src="images/cart.png"></a></li></ul>';
             html = html + '</ul><br>';
