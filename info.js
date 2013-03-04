@@ -348,20 +348,17 @@ function Info(target, source) {
             }
             html = html + '</div>';
 
-            html = html + '<div id="similarartists" class="bordered"><h3 align="center">Similar Artists</h3><table width="100%" cellspacing="0" cellpadding="0"><tr><td align="center"><table cellspacing="0" id="smlrtst"><tr>';
             var similies = lfmdata.similar();
+            html = html + '<div id="similarartists" class="bordered"><h3 align="center">Similar Artists</h3>';
+            html = html + '<table width="100%" cellspacing="0" cellpadding="0"><tr><td align="center"><div class="smlrtst">';
             for(var i in similies) {
-                html = html + '<td class="simar" align="center"><a href="'+similies[i].url+'" target="_blank"><img src="'+lfmdata.similarimage(i, "medium")+'"></a></td>';
+                html = html + '<div class="simar">';
+                html = html + '<table><tr><td align="center"><a href="'+similies[i].url+'" target="_blank"><img src="'+lfmdata.similarimage(i, "medium")+'"></a></td></tr>';
+                html = html + '<tr><td align="center">'+similies[i].name+'</td></tr>';
+                html = html + '<tr><td align="center"><a href="#" title="Play Artist Radio Station" onclick="doLastFM(\'lastfmartist\', \''+similies[i].name+'\')"><img src="images/start.png" height="12px"></a></td></tr></table>';
+                html = html + '</div>';
             }
-            html = html + '</tr><tr>';
-            for(var i in similies) {
-                html = html + '<td class="simar" align="center">'+similies[i].name+'</td>';
-            }
-            html = html + '</tr><tr>';
-            for(var i in similies) {
-                html = html + '<td class="simar" align="center"><a href="#" title="Play Artist Radio Station" onclick="doLastFM(\'lastfmartist\', \''+similies[i].name+'\')"><img src="images/start.png" height="12px"></a></td>';
-            }
-            html = html + '</tr></table></td></tr></table></div>';
+            html = html + '</div></td></tr></table></div>';
 
         }
         html = html + '</div>';

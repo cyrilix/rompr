@@ -559,20 +559,26 @@ a
 
 #similarartists
 {
-    margin-left:auto;
-    margin-right:auto;
+
+    width:100%;
 }
 
 #smlrtst
 {
-    display:inline-table;
-    padding:0px;
+    margin-left:auto;
+    margin-right:auto;
+    float:none;
+    display:block;
+    width:auto;
 }
 
 .simar
 {
-    padding-left:8px;
-    padding-right:8px;
+    padding-left:4px;
+    padding-right:4px;
+    padding-top:4px;
+    padding-bottom:4px;
+    display:inline-block;
 }
 
 .standout
