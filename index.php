@@ -266,6 +266,12 @@ $(document).ready(function(){
                 $(this).parent().find("ul.subnav").slideToggle('fast');
                 return false;
             });
+            var s = ["albumlist", "filelist", "lastfmlist", "radiolist"];
+            for (var i in s) {
+                if (prefs["hide_"+s[i]]) {
+                    $("#choose_"+s[i]).fadeOut('fast');
+                }
+            }
         });
         loadKeyBindings();
     } else {
@@ -291,11 +297,11 @@ $(document).ready(function(){
             $(".penbehindtheear").fadeOut('fast');
         }
         reloadPlaylists();
-    }
-    var s = ["albumlist", "filelist", "lastfmlist", "radiolist"];
-    for (var i in s) {
-        if (prefs["hide_"+s[i]]) {
-            $("#choose_"+s[i]).fadeOut('fast');
+        var s = ["albumlist", "filelist", "lastfmlist", "radiolist"];
+        for (var i in s) {
+            if (prefs["hide_"+s[i]]) {
+                $("#choose_"+s[i]).fadeOut('fast');
+            }
         }
     }
 
