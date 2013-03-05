@@ -286,23 +286,22 @@ function getWhichXML($which) {
 function findItem($x, $which) {
     global $ARTIST;
     global $ALBUM;
-    debug_print("Looking for ".$which);
-    foreach($x->artists->artist as $i => $artist) {
-        if ($artist['id'] == $which) {
-            debug_print("Found it, it's an artist");
-            return array($ARTIST, $artist);
-            break;
-        } else {
-            foreach($artist->albums->album as $j => $album) {
-                if ($album['id'] == $which) {
-                    debug_print("Found it, it's an album");
-                    return array($ALBUM, $album);
-                    break;
-                }
+    $t = substr($which, 1, 3);
+    if ($t == "art") {
+        foreach($x->xpath('artists/artist') as $i => $artist) {
+            if ($artist['id'] == $which) {
+                return array($ARTIST, $artist);
+                break;
+            }
+        }
+    } else {
+        foreach($x->xpath('artists/artist/albums/album') as $j => $album) {
+            if ($album['id'] == $which) {
+                return array($ALBUM, $album);
+                break;
             }
         }
     }
-
 }
 
 function findFileItem($x, $which) {

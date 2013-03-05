@@ -1,7 +1,10 @@
 <?php
 include("vars.php");
-include("functions.php");
-include("connection.php");
+if (array_key_exists('mpd_host', $_POST)) {
+    $prefs['mpd_host'] = $_POST['mpd_host'];
+    $prefs['mpd_port'] = $_POST['mpd_port'];
+    savePrefs();
+}
 include 'Mobile_Detect.php';
 if (array_key_exists('mobile', $_REQUEST)) {
     $mobile = $_REQUEST['mobile'];
@@ -15,6 +18,13 @@ if (array_key_exists('mobile', $_REQUEST)) {
         debug_print("Not a mobile browser");
         $mobile = "no";
     }
+}
+include("functions.php");
+include("connection.php");
+if (!$is_connected) {
+    debug_print("MPD Connection Failed");
+    askForMpdValues();
+    exit();
 }
 setswitches();
 close_mpd($connection);

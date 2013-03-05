@@ -1,6 +1,6 @@
 <?php
 
-open_mpd_connection();
+@open_mpd_connection();
 
 if($is_connected) {
 
@@ -104,6 +104,38 @@ function clean_the_toilet($playlist_name) {
         system('rm prefs/"'.$playlist_name.'"/*.*');
         system('rmdir prefs/"'.$playlist_name.'"');
     }
+}
+
+function askForMpdValues() {
+    global $prefs;
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>RompR</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="viewport" content="width=100%, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<link rel="stylesheet" type="text/css" href="layout.css" />
+<link rel="shortcut icon" href="images/favicon.ico" />
+<link rel="stylesheet" type="text/css" href="Darkness.css" />
+</head>
+<body style="padding:8px">
+    <div class="bordered simar">
+    <h3>RompR could not connect to an mpd server</h3>
+    <p>Please enter the IP address and port of your mpd server in this form</p>
+    <p class="tiny">Note: localhost in this context means the computer running the apache server</p>
+    <form name="mpdetails" action="index.php" method="post">
+<?php
+        print '<p>IP Address or hostname: <input type="text" class="winkle" name="mpd_host" value="'.$prefs['mpd_host'].'" /></p>'."\n";
+        print '<p>Port: <input type="text" class="winkle" name="mpd_port" value="'.$prefs['mpd_port'].'" /></p>'."\n";
+?>
+        <p><input type="submit" class="winkle" value="OK" /></p>
+    </form>
+    </div>
+</body>
+</html>
+<?php
 }
 
 ?>
