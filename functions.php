@@ -288,36 +288,17 @@ function findItem($x, $which) {
     global $ALBUM;
     $t = substr($which, 1, 3);
     if ($t == "art") {
-        foreach($x->xpath('artists/artist') as $i => $artist) {
-            if ($artist['id'] == $which) {
-                return array($ARTIST, $artist);
-                break;
-            }
-        }
+        $it = $x->xpath("artists/artist[@id='".$which."']");
+        return array($ARTIST, $it[0]);
     } else {
-        foreach($x->xpath('artists/artist/albums/album') as $j => $album) {
-            if ($album['id'] == $which) {
-                return array($ALBUM, $album);
-                break;
-            }
-        }
+        $it = $x->xpath("artists/artist/albums/album[@id='".$which."']");
+        return array($ALBUM, $it[0]);
     }
 }
 
 function findFileItem($x, $which) {
-    foreach($x->xpath('artists/item') as $i => $item) {
-        if ($item->id) {
-            if ($item->id == $which) {
-                return $item;
-            } else {
-                $i = findFileItem($item, $which);
-                if ($i != null) {
-                    return $i;
-                }
-            }
-        }
-    }
-    return null;
+    $it = $x->xpath("//item[id='".$which."']");
+    return $it[0];
 }
 
 ?>
