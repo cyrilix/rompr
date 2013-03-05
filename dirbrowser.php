@@ -2,16 +2,15 @@
 <?php
 include ("vars.php");
 include ("functions.php");
-include ("connection.php");
 include ("filelister.php");
 
 $count = 1;
 $tree = null;
 
 if (array_key_exists('item', $_REQUEST) && file_exists($FILESLIST)) {
-	debug_print("Doing Big Weasel Function ".$_REQUEST['item']);
 	dumpTree($_REQUEST['item']);
 } else {
+	include ("connection.php");
 	$tree = doFileList("list file");
 	doFileCollection($FILESLIST);
 	dumpTree('adirroot');
