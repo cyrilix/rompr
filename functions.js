@@ -35,7 +35,6 @@ function getWindowSize() {
         size.x = window.innerWidth;
         size.y = window.innerHeight;
     }
-    debug.log("Orientation:",window.orientation)
     size.o = window.orientation;
     return size;
 }
