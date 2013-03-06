@@ -59,7 +59,7 @@ $prefs = array( "mpd_host" => "localhost",
                 "hide_lastfmlist" => "false",
                 "hide_radiolist" => "false",
                 "fullbiobydefault" => "true",
-                "twocolumnsinlandscape" => "true"
+                "twocolumnsinlandscape" => "false"
                 );
 loadPrefs();
 

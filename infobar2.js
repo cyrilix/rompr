@@ -63,9 +63,6 @@ var infobar = function() {
             if (mpd.getStatus('error')) { 
                 alert("MPD Error: "+mpd.getStatus('error'));
                 mpd.command('command=clearerror');
-//                 if ((/error decoding/i).test(mpd.getStatus('error'))) {
-//                     mpd.command("command=next", playlist.repopulate);
-//                 }
             }
         },
             
