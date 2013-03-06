@@ -7,7 +7,6 @@ function mpdController() {
     // playlist.checkProgress at the end.
     
     this.command = function(cmd, callback) {
-       debug.log("mpd command",cmd);
         playlist.clearProgressTimer();
         $.getJSON("ajaxcommand.php", cmd)
         .done(function(data) {
@@ -21,9 +20,7 @@ function mpdController() {
                infobar.updateWindowValues();
             }            
             if ((data.state == "pause" || data.state=="stop") && data.single == 1) {
-                debug.log("Reverting single state");
                 mpd.fastcommand("command=single&arg=0");
-//                 $("#stopafterbutton").finish();
             }
         })
         .fail( function() { 
@@ -33,7 +30,7 @@ function mpdController() {
     }
     
     this.fastcommand = function(cmd, callback) {
-        $.getJSON("ajaxcommand.php", cmd)
+        $.getJSON("ajaxcommand.php?fast", cmd)
         .done(function() { if (callback) { callback(); } })
         .fail(function() { if (callback) { callback(); } })
     }

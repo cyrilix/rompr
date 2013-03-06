@@ -24,6 +24,7 @@ $ALBUM = 1;
 
 $prefs = array( "mpd_host" => "localhost",
                 "mpd_port" => 6600,
+                "mpd_password" => "",
                 "unix_socket" => '',
                 "consume" => 0,
                 "repeat" => 0,

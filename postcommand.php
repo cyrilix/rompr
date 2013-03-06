@@ -4,7 +4,7 @@ include ("functions.php");
 $mpd_status = array();
 $mpd_status['albumart'] = "";
 
-open_mpd_connection();
+@open_mpd_connection();
 
 if($is_connected) {
 

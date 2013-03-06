@@ -3,8 +3,11 @@ include("vars.php");
 if (array_key_exists('mpd_host', $_POST)) {
     $prefs['mpd_host'] = $_POST['mpd_host'];
     $prefs['mpd_port'] = $_POST['mpd_port'];
+    $prefs['mpd_password'] = $_POST['mpd_password'];
+    $prefs['unix_socket'] = $_POST['unix_socket'];
     savePrefs();
 }
+
 include 'Mobile_Detect.php';
 if (array_key_exists('mobile', $_REQUEST)) {
     $mobile = $_REQUEST['mobile'];
@@ -19,29 +22,39 @@ if (array_key_exists('mobile', $_REQUEST)) {
         $mobile = "no";
     }
 }
+
 include("functions.php");
 include("connection.php");
 if (!$is_connected) {
     debug_print("MPD Connection Failed");
-    askForMpdValues();
+    close_mpd($connection);
+    askForMpdValues("Rompr could not connect to an mpd server");
+    exit();
+} else if (array_key_exists('error', $mpd_status)) {
+    debug_print("MPD Password Failed or other status failure");
+    close_mpd($connection);
+    askForMpdValues('There was an error when communicating with your mpd server : '.$mpd_status['error']);
+    exit();
+} else if (array_key_exists('setup', $_REQUEST)) {
+    askForMpdValues("You requested the setup page");
+    close_mpd($connection);
     exit();
 }
+
 setswitches();
 close_mpd($connection);
+
 ?>
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 <title>RompR</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<?php 
-//if ($mobile != "no") {
-    print '<meta name="viewport" content="width=100%, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0" />'."\n";
-    print '<meta name="apple-mobile-web-app-capable" content="yes" />'."\n";
-//}
-?>
-<link rel="stylesheet" type="text/css" href="layout.css" />
 <link rel="shortcut icon" href="images/favicon.ico" />
+<meta name="viewport" content="width=100%, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<link rel="stylesheet" type="text/css" href="layout.css" />
 <link type="text/css" href="jqueryui1.8.16/css/start/jquery-ui-1.8.23.custom.css" rel="stylesheet" />
 <?php
 if ($mobile != "no") {
@@ -57,10 +70,11 @@ print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme']
 <?php
 if ($mobile != "no") {
     print '<script type="text/javascript" src="jquery.touchwipe.min.js"></script>'."\n";
+} else {
+    print '<script type="text/javascript" src="shortcut.js"></script>'."\n";
+    print '<script type="text/javascript" src="keycode.js"></script>'."\n";
 }
 ?>
-<script type="text/javascript" src="shortcut.js"></script>
-<script type="text/javascript" src="keycode.js"></script>
 <script type="text/javascript" src="functions.js"></script>
 <script type="text/javascript" src="uifunctions.js"></script>
 <script type="text/javascript" src="clickfunctions.js"></script>
@@ -153,7 +167,6 @@ var prefs = function() {
         updateLocal: function() {
             if (useLocal) {
                 prefsInLocalStorage.forEach(function(p) {
-//                     debug.log("Checking Pref",p,localStorage.getItem("prefs."+p));
                     if (localStorage.getItem("prefs."+p) != null && localStorage.getItem("prefs."+p) != "") {
                         prefs[p] = localStorage.getItem("prefs."+p);
                         if (prefs[p] == "false") {
@@ -162,7 +175,6 @@ var prefs = function() {
                         if (prefs[p] == "true") {
                             prefs[p] = true;
                         }
-                        debug.log("Using Local Value for",p,prefs[p],localStorage.getItem("prefs."+p));
                     }
                 });
             }    
@@ -178,7 +190,6 @@ var prefs = function() {
                 }
                 if (useLocal) {
                     if (prefsInLocalStorage.indexOf(i) > -1) {
-                        debug.log("Save Pref Locally:",i,options[i],prefs[i]);
                         localStorage.setItem("prefs."+i, options[i]);
                     } else {
                         prefsToSave[i] = options[i];
@@ -190,7 +201,6 @@ var prefs = function() {
                 }
             }
             if (postSave) {
-                debug.log("Saving prefs to server",prefsToSave);
                 $.post('saveprefs.php', prefsToSave);
             }
         }
@@ -212,13 +222,6 @@ $(document).ready(function(){
         
     setClickHandlers();
     $("#sortable").click(onPlaylistClicked);
-
-    if (mobile == "no") {
-        setDraggable('collection');
-        setDraggable('filecollection');
-        setDraggable('search');
-        setDraggable('filesearch');
-    }
     
     $("#sortable").disableSelection();
     $("#sortable").sortable({ 
@@ -245,10 +248,15 @@ $(document).ready(function(){
         stop: saveRadioOrder
     });
     
-    $("#loadinglabel3").effect('pulsate', { times:100 }, 2000);
     $("#progress").progressbar();
     $("#progress").click( infobar.seek );
+
     if (mobile == "no") {
+        setDraggable('collection');
+        setDraggable('filecollection');
+        setDraggable('search');
+        setDraggable('filesearch');
+        $("#loadinglabel3").effect('pulsate', { times:100 }, 2000);
         $("#volume").slider();
         $("#volume").slider({
             orientation: 'vertical',
@@ -271,7 +279,6 @@ $(document).ready(function(){
             $("#playlistresizer").bind("dragstop", prDragStop);
             reloadPlaylists();
             doThatFunkyThang();
-            //$("ul.topnav li a").unbind('click');
             $("ul.topnav li a").click(function() {
                 $(this).parent().find("ul.subnav").slideToggle('fast');
                 return false;
@@ -285,7 +292,6 @@ $(document).ready(function(){
         });
         loadKeyBindings();
     } else {
-        $("#headerbar").load('headerbar_phone.php');
         $("#scrobwrangler").progressbar();
         $("#scrobwrangler").progressbar("option", "value", parseInt(prefs.scrobblepercent.toString()));
         $("#scrobwrangler").click( setscrob );
@@ -336,9 +342,9 @@ $(document).ready(function(){
         }
         $("#fnarkler").append('<p>Welcome to RompR version 0.30</p>');
         if (mobile != "no") {
-            $("#fnarkler").append('<p>You are viewing the mobile version of RompR. To view the standard version go to <a href="/rompr/index.php?mobile=no">/rompr/index.php?mobile=no</a></p>');
+            $("#fnarkler").append('<p>You are viewing the mobile version of RompR. To view the standard version go to <a href="/rompr/?mobile=no">/rompr/?mobile=no</a></p>');
         } else {
-            $("#fnarkler").append('<p>To view the mobile version go to <a href="/rompr/index.php?mobile=phone">/rompr/index.php?mobile=phone</a></p>');            
+            $("#fnarkler").append('<p>To view the mobile version go to <a href="/rompr/?mobile=phone">/rompr/?mobile=phone</a></p>');            
         }
         $("#fnarkler").append('<p>The Basic RompR Manual is at: <a href="https://sourceforge.net/p/rompr/wiki/Basic%20Manual/" target="_blank">http://sourceforge.net/p/rompr/wiki/Basic%20Manual/</a></p>');
         $("#fnarkler").append('<p>The Discussion Forum is at: <a href="https://sourceforge.net/p/rompr/discussion/" target="_blank">http://sourceforge.net/p/rompr/discussion/</a></p>');
@@ -354,11 +360,6 @@ $(document).ready(function(){
         setBottomPaneSize();
     } else {
         setTimeout(setBottomPaneSize, 2000);
-    }
-    $(window).bind('resize', function() {
-        setBottomPaneSize();
-    });
-    if (mobile != "no") {
         $(window).touchwipe({
             wipeLeft: function() { swipeyswipe(1); },
             wipeRight: function() { swipeyswipe(-1) },
@@ -367,19 +368,69 @@ $(document).ready(function(){
             preventDefaultEvents: false
         });
     }
-
+    $(window).bind('resize', function() {
+        setBottomPaneSize();
+    });
 });
 
 </script>
 </head>
 
 <?php
-
 if ($mobile == "no") {
     include('layout_normal.php');
 } else if ($mobile == "phone") {
     include('layout_phone.php');
 }
-
 ?>
 </html>
+
+<?php
+function askForMpdValues($title) {
+    global $prefs;
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>RompR</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="viewport" content="width=100%, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<link rel="stylesheet" type="text/css" href="layout.css" />
+<link rel="shortcut icon" href="images/favicon.ico" />
+<link rel="stylesheet" type="text/css" href="Darkness.css" />
+</head>
+<body style="padding:8px">
+    <div class="bordered simar dingleberry" style="max-width:40em">
+    <h3>
+<?php
+print $title;
+?>
+    </h3>
+    <p>Please enter the IP address and port of your mpd server in this form</p>
+    <p class="tiny">Note: localhost in this context means the computer running the apache server</p>
+    <form name="mpdetails" action="index.php" method="post">
+<?php
+        print '<p>IP Address or hostname<br><input type="text" class="winkle" name="mpd_host" value="'.$prefs['mpd_host'].'" /></p>'."\n";
+        print '<p>Port<br><input type="text" class="winkle" name="mpd_port" value="'.$prefs['mpd_port'].'" /></p>'."\n";
+?>
+        <p><input type="submit" class="winkle" value="OK" /></p>
+
+        <hr class="dingleberry" />
+
+        <h3>Advanced options</h3>
+        <p>Leave these blank unless you know you need them</p>
+<?php
+        print '<p>Password<br><input type="text" class="winkle" name="mpd_password" value="'.$prefs['mpd_password'].'" /></p>'."\n";
+?>
+        <p>UNIX-domain socket</p>
+<?php
+        print '<input type="text" class="winkle" name="unix_socket" value="'.$prefs['unix_socket'].'" /></p>';
+?>
+    </form>
+    </div>
+</body>
+</html>
+<?php
+}
+?>

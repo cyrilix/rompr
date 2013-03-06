@@ -3,7 +3,6 @@
 
 include ("vars.php");
 include ("functions.php");
-include ("collection.php");
 
 $count = 1;
 $divtype = "album1";
@@ -13,6 +12,7 @@ if (array_key_exists('item', $_REQUEST) && file_exists($ALBUMSLIST)) {
 	dumpAlbums($_REQUEST['item']);
 } else {
     include ("connection.php");
+    include ("collection.php");
 	$collection = doCollection("listallinfo");
 	createAlbumsList($ALBUMSLIST);
 	dumpAlbums('aalbumroot');

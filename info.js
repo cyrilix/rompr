@@ -410,7 +410,12 @@ function Info(target, source) {
             }
 
             html = html + '</div><div class="statsbox">';
-            imageurl = lfmdata.image("large");
+            var imageurl;
+            if (mobile == "no") {
+                imageurl = lfmdata.image("large");
+            } else {
+                imageurl = lfmdata.image("medium");                
+            }
             if (imageurl != '') {
                 html = html +  '<img class="stright" src="' + imageurl + '" class="standout" />';
             }

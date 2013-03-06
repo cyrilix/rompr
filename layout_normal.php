@@ -27,11 +27,11 @@
         <div id="albumcover">
             <img id="albumpicture" src="images/album-unknown.png" />
         </div>
-        <div id="nowplaying"></div>
         <div id="lastfm" class="infobarlayout invisible">
             <div><ul class="topnav"><a title="Love this track" id="love" href="#" onclick="infobar.love()"><img height="24px" src="images/lastfm-love.png"></a></ul></div>
             <div><ul class="topnav"><a title="Ban this track" id="ban" href="#" onclick="nowplaying.ban()"><img height="24px" src="images/lastfm-ban.png"></a></ul></div>
         </div>
+        <div id="nowplaying"></div>
     </div>
 </div>
 
