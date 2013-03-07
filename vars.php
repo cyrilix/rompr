@@ -59,7 +59,9 @@ $prefs = array( "mpd_host" => "localhost",
                 "hide_lastfmlist" => "false",
                 "hide_radiolist" => "false",
                 "fullbiobydefault" => "true",
-                "twocolumnsinlandscape" => "false"
+                "twocolumnsinlandscape" => "false",
+                "use_mopidy_tagcache" => 0,
+                "music_directory" => ""
                 );
 loadPrefs();
 

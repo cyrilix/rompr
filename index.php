@@ -5,6 +5,17 @@ if (array_key_exists('mpd_host', $_POST)) {
     $prefs['mpd_port'] = $_POST['mpd_port'];
     $prefs['mpd_password'] = $_POST['mpd_password'];
     $prefs['unix_socket'] = $_POST['unix_socket'];
+    $t = $_POST['music_directory'];
+    if ($t != "" && strripos($t, "/") != strlen($t)-1) {
+        $t = $t."/";
+    }
+    $prefs['music_directory'] = $t;
+    if (array_key_exists('use_mopidy_tagcache', $_POST)) {
+        $prefs['use_mopidy_tagcache'] = 1;
+    } else {
+        $prefs['use_mopidy_tagcache'] = 0;
+    }
+
     savePrefs();
 }
 
@@ -178,6 +189,9 @@ var prefs = function() {
                     }
                 });
             }    
+            if (prefs.use_mopidy_tagcache == 1) {
+                prefs.hide_filelist = true;
+            }
         },
         
         save: function(options) {
@@ -414,10 +428,7 @@ print $title;
         print '<p>IP Address or hostname<br><input type="text" class="winkle" name="mpd_host" value="'.$prefs['mpd_host'].'" /></p>'."\n";
         print '<p>Port<br><input type="text" class="winkle" name="mpd_port" value="'.$prefs['mpd_port'].'" /></p>'."\n";
 ?>
-        <p><input type="submit" class="winkle" value="OK" /></p>
-
         <hr class="dingleberry" />
-
         <h3>Advanced options</h3>
         <p>Leave these blank unless you know you need them</p>
 <?php
@@ -427,6 +438,18 @@ print $title;
 <?php
         print '<input type="text" class="winkle" name="unix_socket" value="'.$prefs['unix_socket'].'" /></p>';
 ?>
+        <hr class="dingleberry" />
+        <h3>Mopidy-specific Settings</h3>
+        <p>PLEASE <a href="https://sourceforge.net/p/rompr/wiki/Rompr%20and%20Mopidy/" target="_blank">read the section about Mopidy on the Wiki</a> before changing these settings</p>
+<?php
+        print '<input type="checkbox" name="use_mopidy_tagcache" value="1"';
+        if ($prefs['use_mopidy_tagcache'] == 1) {
+            print " checked";
+        }
+        print '>Build Music Collection using mopidy tag cache</input>';
+        print '<p>Local Music Directory:<br><input type="text" class="winkle" name="music_directory" value="'.$prefs['music_directory'].'" /></p>'."\n";
+?>
+        <p><input type="submit" class="winkle" value="OK" /></p>
     </form>
     </div>
 </body>

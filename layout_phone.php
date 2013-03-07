@@ -136,9 +136,15 @@
         <div class="pref">
             <input type="checkbox" onclick="hidePanel('albumlist')" id="button_hide_albumlist">Hide Albums List</input>
         </div>
+<?php
+if ($prefs['use_mopidy_tagcache'] == 0) {
+?>
         <div class="pref">
             <input type="checkbox" onclick="hidePanel('filelist')" id="button_hide_filelist">Hide Files List</input>
         </div>
+<?php
+}
+?>
         <div class="pref">
             <input type="checkbox" onclick="hidePanel('lastfmlist')" id="button_hide_lastfmlist">Hide Last.FM Stations</input>
         </div>
@@ -168,9 +174,15 @@
         <div class="pref">
             <input type="checkbox" onclick="togglePref('updateeverytime')" id="updateeverytime">Update Collection On Start</input>
         </div>
+<?php
+if ($prefs['use_mopidy_tagcache'] == 0) {
+?>        
         <div class="pref">
             <button onclick="updateCollection('update')">Update Collection Now</button>
         </div>
+<?php
+}
+?>    
         <div class="pref">
             <button onclick="updateCollection('rescan')">Full Collection Rescan</button>
         </div>

@@ -1062,10 +1062,21 @@ function checkCollection() {
 function updateCollection(cmd) {
     debug.log("Updating collection with command", cmd);
     prepareForLiftOff();
-    $.getJSON("ajaxcommand.php", "command="+cmd, function() { 
-                update_load_timer = setTimeout( pollAlbumList, 2000);
-                update_load_timer_running = true;
-    });    
+    if (prefs.use_mopidy_tagcache == 1) {
+        $.ajax({
+            type: 'GET',
+            url: 'doMopidyScan.php',
+            cache: false,
+            timeout: 1200000,
+            success: function() { checkPoll({data: 'dummy' })},
+            error: function() { alert("Failed to create mopidy tag cache") }
+        });
+    } else {
+        $.getJSON("ajaxcommand.php", "command="+cmd, function() { 
+                    update_load_timer = setTimeout( pollAlbumList, 2000);
+                    update_load_timer_running = true;
+        });
+    }
 }
 
 function loadCollection(albums, files) {

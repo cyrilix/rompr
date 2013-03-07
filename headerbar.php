@@ -68,7 +68,13 @@ include ("functions.php");
 ?>
                         </select></li>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="hidePanel('albumlist')" id="button_hide_albumlist">Hide Albums List</input></li>
+<?php
+if ($prefs['use_mopidy_tagcache'] == 0) {
+?>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="hidePanel('filelist')" id="button_hide_filelist">Hide Files List</input></li>
+<?php
+}
+?>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="hidePanel('lastfmlist')" id="button_hide_lastfmlist">Hide Last.FM Stations</input></li>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="hidePanel('radiolist')" id="button_hide_radiolist">Hide Radio Stations</input></li>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="browser.hide()" id="hideinfobutton">Hide Information Panel</input></li>
@@ -84,7 +90,13 @@ include ("functions.php");
                         print '<li class="wide"><input class="enter topform" name="michaelbarrymore" type="text" size="3" value="'.$prefs['crossfade_duration'].'"/><button class="topformbutton" onclick="setXfadeDur()">Set</button></li>';
 ?>                        
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="togglePref('updateeverytime')" id="updateeverytime">Update Collection On Start</input></li>
+<?php
+if ($prefs['use_mopidy_tagcache'] == 0) {
+?>
                         <li class="wide"><button class="topformbutton" onclick="updateCollection('update')">Update Collection Now</button></li>
+<?php
+}
+?>
                         <li class="wide"><button class="topformbutton" onclick="updateCollection('rescan')">Full Collection Rescan</button></li>
                         <li class="wide"><button class="topformbutton" onclick="editkeybindings()">Edit Keyboard Shortcuts...</button></li>
                         <li class="wide"><button class="topformbutton" onclick="editmpdoutputs()">MPD Audio Outputs...</button></li>

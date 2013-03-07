@@ -543,6 +543,7 @@ function doCollection($command) {
     global $connection;
     global $is_connected;
     global $COMPILATION_THRESHOLD;
+    global $prefs;
     $collection = new musicCollection($connection);
     
     debug_print("Starting Collection Scan ".$command);
@@ -550,40 +551,37 @@ function doCollection($command) {
     $files = array();
     $filecount = 0;
     if ($is_connected) {
-        fputs($connection, $command."\n");
-        $firstline = null;
-        $filedata = array();
-        $parts = true;
-        while(!feof($connection) && $parts) {
-                $parts = getline($connection);
-                if (is_array($parts)) {
-                    if ($parts[0] != "playlist" && $parts[0] != "Last-Modified") {
-                        if ($parts[0] == $firstline) {
-                            $filecount++;
-                            process_file($collection, $filedata);
-                            $filedata = array();
-                        }
-                        $filedata[$parts[0]] = $parts[1];
-                        if ($firstline == null) {
-                            $firstline = $parts[0];
-                        }
-                    }
-                }
-        }
-
-        if (array_key_exists('file', $filedata) && $filedata['file']) {
-            $filecount++;
-            process_file($collection, $filedata);
-        }
-        
-        if ($filecount == 0 && $command == "listallinfo") {
-            debug_print("No local files found. Are you running mopidy?");
+        if ($command == "listallinfo" && $prefs['use_mopidy_tagcache'] == 1) {
+            debug_print("Doing Mopidy tag cache scan.");
             if (file_exists("mopidy-tags/tag_cache")) {
-                debug_print("Yes, you are!");
                 parse_mopidy_tagcache($collection);
             }
         } else {
-            debug_print($filecount." files found in scan ".$command);
+            fputs($connection, $command."\n");
+            $firstline = null;
+            $filedata = array();
+            $parts = true;
+            while(!feof($connection) && $parts) {
+                    $parts = getline($connection);
+                    if (is_array($parts)) {
+                        if ($parts[0] != "playlist" && $parts[0] != "Last-Modified") {
+                            if ($parts[0] == $firstline) {
+                                $filecount++;
+                                process_file($collection, $filedata);
+                                $filedata = array();
+                            }
+                            $filedata[$parts[0]] = $parts[1];
+                            if ($firstline == null) {
+                                $firstline = $parts[0];
+                            }
+                        }
+                    }
+            }
+
+            if (array_key_exists('file', $filedata) && $filedata['file']) {
+                $filecount++;
+                process_file($collection, $filedata);
+            }
         }
 
         // Rescan stage - to find albums that are compilations but have been missed by the above step
@@ -737,7 +735,7 @@ function parse_mopidy_tagcache($collection) {
                         $filedata = array();
                     }
                     if ($parts[0] == 'file') {
-                        $parts[1] = "file:///home/bob/Music/".$parts[1];
+                        $parts[1] = "file://".$prefs['music_directory'].$parts[1];
                         //$parts[1] = str_replace(" ", "%20", $parts[1]);
                     }
                     $filedata[$parts[0]] = $parts[1];

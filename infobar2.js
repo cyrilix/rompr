@@ -60,7 +60,7 @@ var infobar = function() {
         updateWindowValues: function() {
             volumeslider.setState(mpd.getStatus('volume'));
             infobar.playbutton.setState(mpd.getStatus('state'));
-            if (mpd.getStatus('error')) { 
+            if (mpd.getStatus('error') && mpd.getStatus('error') != null) { 
                 alert("MPD Error: "+mpd.getStatus('error'));
                 mpd.command('command=clearerror');
             }

@@ -10,6 +10,11 @@ function mpdController() {
         playlist.clearProgressTimer();
         $.getJSON("ajaxcommand.php", cmd)
         .done(function(data) {
+            if (cmd == "command=clearerror" && data.error) {
+                // Ignore errors on clearerror - we get into an endless loop
+                // (mopidy doesn't support clearerror)
+                data.error = null;
+            }
             self.status = data;
             nowplaying.setStartTime(self.status.elapsed); 
             if (callback) { 
