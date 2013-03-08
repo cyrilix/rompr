@@ -12,7 +12,7 @@ include ("collection.php");
 <li><input type="radio" name="stype" value="album"> Album</input></li>
 <li><input type="radio" name="stype" value="artist"> Artist</input></li>
 <li><input class="sourceform winkle" name="searchtitle" type="text" size="60" />
-<button type="submit">Search</button></li>
+<button id="henrythegippo" type="submit" onclick="doSomethingUseful()">Search</button></li>
 </ul>
 </form>
 </div>

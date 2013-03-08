@@ -171,18 +171,24 @@ if ($prefs['use_mopidy_tagcache'] == 0) {
 ?>
             <button onclick="setXfadeDur()">Set</button>
         </div>
-        <div class="pref">
-            <input type="checkbox" onclick="togglePref('updateeverytime')" id="updateeverytime">Update Collection On Start</input>
-        </div>
 <?php
 if ($prefs['use_mopidy_tagcache'] == 0) {
 ?>        
         <div class="pref">
+            <input type="checkbox" onclick="togglePref('updateeverytime')" id="updateeverytime">Update Collection On Start</input>
+        </div>
+        <div class="pref">
             <button onclick="updateCollection('update')">Update Collection Now</button>
         </div>
 <?php
-}
+} else {
 ?>    
+        <div class="pref">
+            <button onclick="checkPoll()">Re-read Mopidy Tag Cache</button>
+        </div>
+<?php
+}
+?>
         <div class="pref">
             <button onclick="updateCollection('rescan')">Full Collection Rescan</button>
         </div>

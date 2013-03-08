@@ -89,11 +89,15 @@ if ($prefs['use_mopidy_tagcache'] == 0) {
 <?php
                         print '<li class="wide"><input class="enter topform" name="michaelbarrymore" type="text" size="3" value="'.$prefs['crossfade_duration'].'"/><button class="topformbutton" onclick="setXfadeDur()">Set</button></li>';
 ?>                        
-                        <li class="wide"><input type="checkbox" class="topcheck" onclick="togglePref('updateeverytime')" id="updateeverytime">Update Collection On Start</input></li>
 <?php
 if ($prefs['use_mopidy_tagcache'] == 0) {
 ?>
+                        <li class="wide"><input type="checkbox" class="topcheck" onclick="togglePref('updateeverytime')" id="updateeverytime">Update Collection On Start</input></li>
                         <li class="wide"><button class="topformbutton" onclick="updateCollection('update')">Update Collection Now</button></li>
+<?php
+} else {
+?>
+                        <li class="wide"><button class="topformbutton" onclick="checkPoll()">Re-read Mopidy Tag Cache</button></li>
 <?php
 }
 ?>

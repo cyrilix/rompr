@@ -158,7 +158,6 @@ function doThatFunkyThang() {
 function setBottomPaneSize() {
     var ws = getWindowSize();
     if (mobile != "no") {
-        debug.log("DOING MOBILE LAYOUT STUFF");
         if (itisbigger) {
             var newheight = ws.y-36;
         } else {
@@ -1307,4 +1306,8 @@ function swipeyswipe(dir) {
             break;
         }
     }
+}
+
+function doSomethingUseful() {
+    $("#henrythegippo").html('Searching...');
 }

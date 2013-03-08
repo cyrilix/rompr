@@ -1,9 +1,8 @@
 <?php
 include ("vars.php");
 include("functions.php");
-// debug_print("Getting IceCast List...");
+
 $content = url_get_contents("http://dir.xiph.org/yp.xml");
-// debug_print("Got IceCast List...");
 $xml = simplexml_load_string($content['contents'], 'SimpleXMLElement', LIBXML_NOCDATA);
 
 set_time_limit(240);
@@ -67,6 +66,7 @@ foreach($xml->entry as $i => $entry) {
     }
     
 }
+
 print '<div class="noselection fullwidth">';
 print '<div class="underlined"><table width="100%" class="playlistitem"><tr><td align="left">';
 print count($stations) . ' IceCast Radio Stations</td></tr></table></div>';

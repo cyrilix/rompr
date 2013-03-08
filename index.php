@@ -12,6 +12,7 @@ if (array_key_exists('mpd_host', $_POST)) {
     $prefs['music_directory'] = $t;
     if (array_key_exists('use_mopidy_tagcache', $_POST)) {
         $prefs['use_mopidy_tagcache'] = 1;
+        $prefs['updateeverytime'] = "false";
     } else {
         $prefs['use_mopidy_tagcache'] = 0;
     }

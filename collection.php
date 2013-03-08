@@ -714,6 +714,7 @@ function do_albums_xml($artistkey, $compilations, $showartist, $prefix, $output)
 
 function parse_mopidy_tagcache($collection) {
 
+    global $prefs;
     debug_print("Starting Mopidy Tag Cache Scan ");
     
     $firstline = null;
