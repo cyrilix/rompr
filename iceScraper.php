@@ -60,7 +60,7 @@ for ($i = 0; $i < $items->length; $i++) {
 		    	$link = $l;
 		    	break;
 		    }
-		 }
+		}
 		if ($link != "") {
 			$items->item($i)->nodeValue = "";
 			$f = $DOM->createDocumentFragment();
@@ -89,9 +89,11 @@ $outdoc->appendChild($stuff);
 </form>
 </div>
 <div class="containerbox fullwidth">
+<div class="expand">
 <?php
 print $outdoc->saveHTML();
 ?>
+</div>
 </div>
 <script type="text/javascript"> 
 
