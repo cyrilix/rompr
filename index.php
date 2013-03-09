@@ -271,7 +271,6 @@ $(document).ready(function(){
         setDraggable('filecollection');
         setDraggable('search');
         setDraggable('filesearch');
-        $("#loadinglabel3").effect('pulsate', { times:100 }, 2000);
         $("#volume").slider();
         $("#volume").slider({
             orientation: 'vertical',
@@ -343,9 +342,7 @@ $(document).ready(function(){
         $("#bbclist").load("bbcradio.php");
         $("#somafmlist").load("somafm.php");
         $("#yourradiolist").load("yourradio.php");
-        if (mobile == "no") {
-            $("#icecastlist").load("getIcecast.php");
-        }
+        refreshMyDrink(false);
     }
     checkCollection();
     sourcecontrol(prefs.chooser);

@@ -91,10 +91,7 @@ function onRadioClicked(event) {
 
 function onRadioDoubleClicked(event) {
     var clickedElement = findClickableElement(event);
-    if (clickedElement.hasClass("clickicecast")) {
-        event.stopImmediatePropagation();
-        addIceCast(clickedElement.attr("name"));
-    } else if (clickedElement.hasClass("clickbbc")) {
+    if (clickedElement.hasClass("clickbbc")) {
         event.stopImmediatePropagation();
         getInternetPlaylist(clickedElement.attr("name"), clickedElement.attr("bbcimg"));
     } else if (clickedElement.hasClass("clicksoma")) {

@@ -82,6 +82,14 @@
     </div>
     <div id="bbclist" class="dropmenu">
     </div>
+
+    <div class="containerbox menuitem noselection">
+        <img src="images/toggle-closed.png" class="menu fixed" name="icecastlist">
+        <div class="smallcover fixed"><img height="32px" width="32px" src="images/icecast.png"></div>
+        <div class="expand">Icecast Radio</div>
+    </div>
+    <div id="icecastlist" class="dropmenu">
+    </div>
     
     </div>
 

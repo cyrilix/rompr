@@ -258,6 +258,7 @@ function doInternetRadio(input) {
 }
 
 function getInternetPlaylist(url, image, station, creator, usersupplied) {
+    debug.log("Funky:",url, image, station, creator, usersupplied);
     playlist.waiting();
     data = {url: encodeURIComponent(url)};
     if (image) { data.image = encodeURIComponent(image) }
@@ -278,24 +279,6 @@ function getInternetPlaylist(url, image, station, creator, usersupplied) {
                 $("#yourradiolist").load("yourradio.php");
             }
         },
-        error: function(data, status) { 
-            playlist.repopulate();
-            alert("Failed To Tune Radio Station"); 
-        }
-    } );
-}
-
-function addIceCast(name) {
-    playlist.waiting();
-    debug.log("Adding IceCast Station",name);
-    $.ajax( {
-        type: "GET",
-        url: "getIcecastPlaylist.php",
-        cache: false,
-        contentType: "text/xml; charset=utf-8",
-        data: {name: name},
-        dataType: "xml",
-        success: playlist.newInternetRadioStation,
         error: function(data, status) { 
             playlist.repopulate();
             alert("Failed To Tune Radio Station"); 
@@ -1236,8 +1219,7 @@ function hidePanel(panel) {
                 $("#somafmlist").load("somafm.php");
                 $("#yourradiolist").load("yourradio.php");
                 $("#icecastlist").html('<div class="dirname"><h2 id="loadinglabel3">Loading Stations...</h2></div>');
-                $("#loadinglabel3").effect('pulsate', { times:100 }, 2000);
-                $("#icecastlist").load("getIcecast.php");
+                refreshMyDrink('');
                 break;
             case "albumlist":
                 if (update_load_timer_running == false) {
@@ -1310,4 +1292,18 @@ function swipeyswipe(dir) {
 
 function doSomethingUseful() {
     $("#henrythegippo").html('Searching...');
+}
+
+function faffing() {
+    //$("#content").html("<h2>Searching....</h2>");
+}
+
+function refreshMyDrink(path) {
+    faffing();
+    if (path === false) {
+        $("#icecastlist").load("iceScraper.php");
+    } else {
+        debug.log("Fanoogling the hubstraff",path);
+        $("#icecastlist").load("iceScraper.php?path="+path);
+    }
 }

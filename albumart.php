@@ -32,6 +32,7 @@ print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme']
 // debug.setLevel(0);
 
 var imageSearch;
+var mobile = "no";
 var imagekey = '';
 var imgobj = null;
 var useLocalStorage = false;

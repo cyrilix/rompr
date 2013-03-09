@@ -93,16 +93,12 @@
         <div class="expand">Icecast Radio</div>
     </div>
     <div id="icecastlist" class="dropmenu">
-        <div class="dirname">
-            <h2 id="loadinglabel3">Loading Stations...</h2>
-        </div>
     </div>
     
 </div>
 </div>
 
 <div id="infopane" class="tleft cmiddle noborder infowiki">
-<div id="nowplayingstuff" class="infotext"></div>
 <div id="artistinformation" class="infotext"><h2 align="center">This is the information panel. Interesting stuff will appear here when you play some music</h2></div>
 <div id="albuminformation" class="infotext"></div>
 <div id="trackinformation" class="infotext"></div>

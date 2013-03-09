@@ -264,7 +264,7 @@ class m3uFile {
 				preg_match('/^\s*$/', $line)) {
 
 			} else {
-				array_push($this->tracks, $line);
+				array_push($this->tracks, trim($line));
 			}
 		}
 	}
