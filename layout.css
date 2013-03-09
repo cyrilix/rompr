@@ -1204,6 +1204,11 @@ table.servers-list tr td
     padding-bottom:0.8em;
 }
 
+table.servers-list div.stream-tags ul
+{
+    display: inline;
+}
+
 table.servers-list div.stream-tags ul li
 {
     display: inline;
@@ -1240,4 +1245,9 @@ ul.pager li
 ul.pager li a.active
 {
     font-weight:bold;
+}
+
+.stream-description
+{
+    font-style:italic;
 }
