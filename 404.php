@@ -2,6 +2,7 @@
 <head>
 <?php
 include('vars.php');
+$request = $_SERVER['REQUEST_URI'];
 // Custom redirect for small album covers that don't exist.
 if (preg_match('/albumart\/small\//', $request)) {
     header("HTTP/1.1 301 Moved Permanently");
