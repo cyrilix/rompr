@@ -497,7 +497,11 @@ function Playlist() {
     }
     
     this.stopafter = function() {
-        if (mpd.getStatus('state') == "play") {
+        if (currentTrack.type == "stream") {
+            infobar.notify(infobar.ERROR, "Not supported for radio streams");
+        } else if (prefs.use_mopidy_tagcache == 1) { 
+            infobar.notify(infobar.ERROR, "Not supported with mopidy");            
+        } else if (mpd.getStatus('state') == "play") {
             var cmds = [];
             if (prefs.repeat == 1) {
                 cmds.push("repeat 0");

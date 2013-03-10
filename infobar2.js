@@ -110,7 +110,9 @@ var infobar = function() {
                 $("#progress").css("cursor", "default");
             }
             if (info.artist == "" && info.track == "" && info.album == "") {
-                $('#albumpicture').fadeOut(1000);
+                $('#albumpicture').fadeOut(1000, function() {
+                    $('#albumpicture').attr("src", "images/album-unknown.png");
+                });
             } else {
                 if (info.image && $('#albumpicture').attr("src") != info.image) {
                     $('#albumpicture').fadeOut(1000, function () {
