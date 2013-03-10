@@ -1,3 +1,23 @@
+mpd-client-rompr (0.30) precise; urgency=low
+
+  * Major speedup in loading the albums and files lists
+    Initial mobile version of RompR
+    Mopidy-related tweaks - including the ability to create
+    a collection from mopidy's tag cache
+    Support mpd password and UNIX domain socket
+    Add setup screen /rompr/?setup
+    Rewrite of IceCast radio panel
+  
+ -- Mark Greenwood <fatgerman@gmail.com>  Sun, 10 Mar 2013 14:15:16 +0000
+
+ 
+mpd-client-rompr (0.21.6) precise; urgency=low
+
+  * This is actually 0.21.5. I really hate Launchpad.
+  
+ -- Mark Greenwood <fatgerman@gmail.com>  Sun, 24 Feb 2013 00:15:15 +0000
+
+ 
 mpd-client-rompr (0.21.5) precise; urgency=low
 
   * Option to hide individual members of the sources panel

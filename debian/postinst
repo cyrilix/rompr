@@ -2,6 +2,7 @@
 
 chown -R www-data /usr/share/rompr/prefs
 chown -R www-data /usr/share/rompr/albumart
+chown -R www-data /usr/share/rompr/mopidy-tags
 
 a2enmod expires
 a2enmod headers
