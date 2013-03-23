@@ -309,6 +309,9 @@ function uploadComplete() {
     var ra = imgobj.attr("romprartist");
     var rl = imgobj.attr("rompralbum");
     var n = imgobj.attr("name");
+    if (imgobj.hasClass('notexist') || imgobj.hasClass('notfound')) {
+        covergetter.updateInfo(1);
+    }
     imgobj.remove();
     var newimg = $('<img>', {   class: 'clickable clickicon clickalbumcover',
                                 romprartist: ra,

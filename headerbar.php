@@ -97,7 +97,7 @@ if ($prefs['use_mopidy_tagcache'] == 0) {
 <?php
 } else {
 ?>
-                        <li class="wide"><button class="topformbutton" onclick="checkPoll()">Re-read Mopidy Tag Cache</button></li>
+                        <li class="wide"><button class="topformbutton" onclick="mopidyUpdate()">Re-read Mopidy Tag Cache</button></li>
 <?php
 }
 ?>

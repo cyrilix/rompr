@@ -72,7 +72,7 @@ function lastfmstation(tuneurl) {
             if (self.trackinsertpos > -1) {
                 var elbow = playlist.getfinaltrack()+1;
                 var arse = elbow+pushtracks.length;
-                cmdlist.push('move '+elbow.toString()+':'+arse.toString()+' '+self.trackinsertpos.toString());
+                cmdlist.push('move "'+elbow.toString()+':'+arse.toString()+'" "'+self.trackinsertpos.toString()+'"');
                 debug.log("Move command is : "+'move '+elbow.toString()+':'+arse.toString()+' '+self.trackinsertpos.toString());
             }
             if (self.toremove != null) {

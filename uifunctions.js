@@ -1095,6 +1095,12 @@ function checkPoll(data) {
     }
 }
 
+function mopidyUpdate() {
+    prepareForLiftOff();
+    $("#loadinglabel").html("Loading Collection");
+    checkPoll({data: 'dummy' });
+}
+
 function pollAlbumList() {
     if(update_load_timer_running) {
         clearTimeout(update_load_timer);

@@ -154,6 +154,7 @@ function wikipedia_get_list_of_suggestions($term) {
         $link = preg_replace('/\s/', '_', $id['title']);
         $html = $html . '<li><a href="#" onclick="browser.getWiki(\''.htmlspecialchars($link, ENT_QUOTES).'\')">'.$id['title'].'</a></li>';
     }
+    $html = $html . "</ul>";
     return wikipedia_bio_header('Wikipedia : ', $term) . $html;
     
 }

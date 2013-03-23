@@ -39,7 +39,7 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                                             message: "Artist Not Found"}
                     };
                 }
-                if (prefs.fullbiobydefault && data.artist.url) {
+                if (prefs.fullbiobydefault && artist_data.artist.url) {
                     self.artist.getFullBio(null, null);
                 } else {
                     self.album.populate();
