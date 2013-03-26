@@ -273,14 +273,35 @@ function update_cache($fname, $notfound) {
 function tryLocal() {
     global $albumpath;
     global $covernames;
+    global $album;
+    global $artist;
+    global $fname;
     if ($albumpath == "") {
         return "";
     }
+    debug_print("SEARCHING:".strtolower($artist." - ".$album));
     $files = scan_for_images($albumpath);
+    foreach ($files as $i => $file) {
+        $info = pathinfo($file);
+        $file_name = strtolower(rawurldecode(html_entity_decode(basename($file,'.'.$info['extension']))));
+        if ($file_name == $fname) {
+            debug_print("Returning archived image");
+            return $file;
+        }
+    }
+    foreach ($files as $i => $file) {
+        $info = pathinfo($file);
+        $file_name = strtolower(rawurldecode(html_entity_decode(basename($file,'.'.$info['extension']))));
+        if ($file_name == strtolower($artist." - ".$album) ||
+            $file_name == strtolower($album)) {
+            debug_print("Returning file matching album name");
+            return $file;
+        }
+    }
     foreach ($covernames as $j => $name) {
         foreach ($files as $i => $file) {
             $info = pathinfo($file);
-            $file_name = strtolower(basename($file,'.'.$info['extension']));
+            $file_name = strtolower(rawurldecode(html_entity_decode(basename($file,'.'.$info['extension']))));        
             if ($file_name == $name) {
                 debug_print("  Returning ".$file);
                 return $file;
