@@ -80,6 +80,10 @@ if ($prefs['use_mopidy_tagcache'] == 0) {
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="browser.hide()" id="hideinfobutton">Hide Information Panel</input></li>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="togglePref('fullbiobydefault')" id="fullbiobydefault">Retrieve full artist biographies from Last.FM</input></li>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="togglePref('downloadart')" id="downloadart">Automatically Download Covers</input></li>
+                        <li class="wide tiny">To use art from your music folders, enter the path to your music in this box:</li>
+<?php
+                        print '<li class="wide"><input class="enter topform" name="music_directory_albumart" type="text" size="40" value="'.$prefs['music_directory_albumart'].'"/><button class="topformbutton" onclick="setMusicDirectory()">Set</button></li>';
+?>
 
                         <li class="wide"><b>Music Selection Click Behaviour</b></li>
                         <li class="wide"><input type="radio" class="topcheck" onclick="changeClickPolicy()" name="clickselect" value="double">Double-click to add, Click to select</input></li>

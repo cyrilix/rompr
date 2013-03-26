@@ -379,10 +379,6 @@ function gotTrackInfoForStream(data) {
 
 }
 
-// function savePrefs(options) {
-//     $.post("saveprefs.php", options);
-// }
-
 function togglePref(pref) {
     var prefobj = new Object;
     prefobj[pref] = ($("#"+pref).is(":checked"));
@@ -852,8 +848,10 @@ var popupWindow = function() {
             var calcheight = $(popup).outerHeight(true);
             if (userheight > calcheight) {
                 popup.style.height = parseInt(calcheight) + 'px';
+                $("#popupcontents").css("height", parseInt(calcheight - $("#cheese").height()) + 'px');
             } else {
                 popup.style.height = parseInt(userheight) + 'px';
+                $("#popupcontents").css("height", parseInt(userheight - $("#cheese").height()) + 'px');
             }
         },
         close:function() {
@@ -1247,6 +1245,12 @@ function setXfadeDur() {
     if (prefs.crossfade > 0) {
         mpd.command("command=crossfade&arg="+prefs.crossfade_duration);
     }
+}
+
+function setMusicDirectory() {
+    $("#configpanel").fadeOut(1000);
+    prefs.save({music_directory_albumart: $("#configpanel").find('input[name|="music_directory_albumart"]').attr("value")});    
+    $.post("setFinklestein.php", {dir: $("#configpanel").find('input[name|="music_directory_albumart"]').attr("value")});
 }
 
 function makeitbigger() {

@@ -169,6 +169,13 @@ if ($prefs['use_mopidy_tagcache'] == 0) {
         <div class="pref">
             <input type="checkbox" onclick="togglePref('downloadart')" id="downloadart">Automatically Download Covers</input>
         </div>
+
+        <div class="pref">
+            <span class="tiny">To use art from your music folders, enter the path to your music in this box:</span>
+<?php
+            print '<input class="winkle" name="music_directory_albumart" type="text" size="40" value="'.$prefs['music_directory_albumart'].'"/><button onclick="setMusicDirectory()">Set</button>';
+?>
+        </div>
         <div class="pref">
             <input type="checkbox" onclick="togglePref('twocolumnsinlandscape')" id="twocolumnsinlandscape">Use 2 columns in landscape mode</input>
         </div>

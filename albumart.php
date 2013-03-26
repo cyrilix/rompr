@@ -40,6 +40,7 @@ var running = false;
 var clickindex = null;
 var wobblebottom;
 var searchcontent;
+var localimages;
 var allshown = true;
 var firefoxcrapnesshack = 0;
 google.load('search', 1);
@@ -57,6 +58,9 @@ function getNewAlbumArt(div) {
     }
 
 }
+
+// Does anybody ever read the comments in code?
+// I hope they do, because most of the comments in my code are entirely useless.
 
 function filterImages() {
     return $(this).hasClass("notexist");
@@ -96,14 +100,12 @@ function onWobblebottomClicked(event) {
     var clickedElement = findClickableElement(event);
     if (clickedElement.hasClass("clickalbumcover")) {
         event.stopImmediatePropagation();
-        doGoogleSearch(clickedElement.attr('romprartist'), clickedElement.attr('rompralbum'), clickedElement.attr('name'));
+        doGoogleSearch(clickedElement.attr('romprartist'), clickedElement.attr('rompralbum'), 
+            clickedElement.attr('name'), clickedElement.attr('romprpath'));
     } 
 }
 
-function onGoogleSearchClicked(event) {
-
-    debug.log("Goo=gle Search Clicked");
-    
+function onGoogleSearchClicked(event) {    
     var clickedElement = findClickableElement(event);
     if (clickedElement.hasClass("clickgimage")) {
         debug.log("Doing :",clickedElement.attr('romprsrc'), clickedElement.attr('romprindex'));
@@ -199,16 +201,17 @@ function createPopup() {
     b.html('Search');
     
     $("#popupcontents").append($('<div>', {id: 'branding'}));
-    searchcontent = $('<div>').appendTo($("#popupcontents"));
+    searchcontent = $('<div>', {class: 'holdingcell'}).appendTo($("#popupcontents"));
+    localimages = $('<div>', {class: 'holdingcell'}).appendTo($("#popupcontents"));
     google.search.Search.getBranding('branding');
     uform.ajaxForm( uploadComplete );
     searchcontent.click(onGoogleSearchClicked);
+    localimages.click(onGoogleSearchClicked);
     $('#searchphrase').keyup(bumblefuck);
 
 }
 
 function bumblefuck(e) {
-    debug.log("Bumblefuck");
     if (e.keyCode == 13) {
         research();
     }
@@ -220,7 +223,7 @@ function wobbleMyBottom() {
     wobblebottom.css("height", newheight.toString()+"px");
 }
 
-function doGoogleSearch(artist, album, key) {
+function doGoogleSearch(artist, album, key, path) {
     wobblebottom.unbind("click");
     imagekey = key;
     imgobj = $('img[name="'+imagekey+'"]');
@@ -228,7 +231,10 @@ function doGoogleSearch(artist, album, key) {
     $("#searchphrase").attr("value", monkeybrains);
     $("#imagekey").attr("value", imagekey);
     popupWindow.setsize();
-    imageSearch.execute(monkeybrains);  
+    imageSearch.execute(monkeybrains);
+    if (path) {
+        $.getJSON("findLocalImages.php?path="+path, gotLocalImages)
+    }
     popupWindow.open();
 }
 
@@ -237,12 +243,33 @@ function research() {
     imageSearch.execute($("#searchphrase").attr("value"));
 }
 
+function gotLocalImages(data) {
+    debug.log("Local Images: ",data);
+    if (data && data.length > 0) {
+        localimages.append("<h3>&nbsp;&nbsp;Or Choose An Image From The Album Folder</h3>")
+        for (var i in data) {
+            var result = data[i];
+            debug.log(result);
+             localimages.append($("<img>", { 
+                                                id: "img"+(i+100).toString(),
+                                                romprsrc: result,
+                                                romprindex: i+100,
+                                                class: "gimage clickable clickicon clickgimage" ,
+                                                src: result
+                                            })
+                                );
+        }
+        $(".gimage").css("height", "120px");
+    }
+}
+
 function closeGooglePopup() {
     popupWindow.close();
 }
 
 function iveHadEnoughOfThis() {
     searchcontent.empty();
+    localimages.empty();
     wobblebottom.click(onWobblebottomClicked);
 }
 
@@ -285,7 +312,6 @@ function updateImage(url, index) {
     });
 }
 
-
 function searchFail() {
     $('#img'+clickindex).attr('src', 'images/notfound.png');
 }
@@ -302,13 +328,15 @@ function uploadComplete() {
     // STILL won't just check with the server EVEN THOUGH we have used every cache-control setting
     // known to mankind. So we concoct a made-up URL that has to be different EVERY TIME and let our 404
     // redirect it to the actual image. 
-    
-    // Just to make the point again. FIREFOX USED TO BE GREAT. NOW IT'S SHIT. STOP USING IT. please.
+    // Although I don't know what the hell's going on at Mozilla these days, I'd hazard a guess
+    // that the reason they've gone from being the exciting new kids on the block to being the
+    // stodgy old unreliable mess they now are is one word - management. They need less of it.    
     
     var p = imgobj.parent();
     var ra = imgobj.attr("romprartist");
     var rl = imgobj.attr("rompralbum");
     var n = imgobj.attr("name");
+    var pth = imgobj.attr("romprpath");
     if (imgobj.hasClass('notexist') || imgobj.hasClass('notfound')) {
         covergetter.updateInfo(1);
     }
@@ -317,6 +345,7 @@ function uploadComplete() {
                                 romprartist: ra,
                                 rompralbum: rl,
                                 name: n,
+                                romprpath: pth,
                                 height: '82px',
                                 width: '82px',
                                 src: "albumart/firefoxiscrap/"+imagekey+"---"+firefoxcrapnesshack.toString()
@@ -403,6 +432,9 @@ function do_albumcovers($artistkey, $comps) {
             print '<img class="clickable clickicon clickalbumcover '.$class.'" romprartist="'.rawurlencode($album->artist).'" rompralbum="'.rawurlencode($b).'"';
             if ($album->musicbrainz_albumid) {
                 print ' rompralbumid="'.$album->musicbrainz_albumid.'"';
+            }
+            if (!$album->is_spotify && $album->folder != null) {
+                print ' romprpath="'.rawurlencode($album->folder).'"';
             }
             print ' name="'.$artname.'" height="82px" width="82px" src="'.$src.'">';
             print '</div>';

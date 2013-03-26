@@ -387,7 +387,7 @@ function albumHeaders($artist) {
             print '<img src="images/toggle-closed.png" class="menu fixed" name="'.$album['id'].'">';
         }
         if ($album->image->romprartist) {
-            print '<img class="smallcover fixed notexist" romprartist="'.$album->image->romprartist.'" rompralbum="'.$album->image->rompralbum.'" name="'.$album->image->name.'" src="'.$album->image->src.'" />'."\n";
+            print '<img class="smallcover fixed notexist" romprartist="'.$album->image->romprartist.'" rompralbum="'.$album->image->rompralbum.'" romprpath="'.$album->directory.'" name="'.$album->image->name.'" src="'.$album->image->src.'" />'."\n";
         } else {
             print '<img class="smallcover fixed" name="'.$album->image->name.'" src="'.$album->image->src.'" />';
         }
@@ -441,5 +441,88 @@ function albumTracks($album) {
 
 }
 
+function get_base_url() {
+
+    // I found this function on CleverLogic:
+    // http://www.cleverlogic.net/tutorials/how-dynamically-get-your-sites-main-or-base-url
+
+    /* First we need to get the protocol the website is using */
+    $protocol = strtolower(substr($_SERVER["SERVER_PROTOCOL"], 0, 5)) == 'https://' ? 'https://' : 'http://';
+
+    /* returns /myproject/index.php */
+    $path = $_SERVER['PHP_SELF'];
+
+    /*
+     * returns an array with:
+     * Array (
+     *  [dirname] => /myproject/
+     *  [basename] => index.php
+     *  [extension] => php
+     *  [filename] => index
+     * )
+     */
+    $path_parts = pathinfo($path);
+    $directory = $path_parts['dirname'];
+    /*
+     * If we are visiting a page off the base URL, the dirname would just be a "/",
+     * If it is, we would want to remove this
+     */
+    $directory = ($directory == "/") ? "" : $directory;
+
+    /* Returns localhost OR mysite.com */
+    $host = $_SERVER['HTTP_HOST'];
+
+    /*
+     * Returns:
+     * http://localhost/mysite
+     * OR
+     * https://mysite.com
+     */
+    return $protocol . $host . $directory;
+}
+
+function scan_for_images($albumpath) {
+    $result = array();
+    if (is_dir("prefs/MusicFolders")) {
+        $albumpath = munge_filepath($albumpath);
+        $result = array_merge($result, get_images($albumpath));
+        // Is the album dir part of a multi-disc set?
+        if (preg_match('/^CD\s*\d+$|^disc\s*\d+$/i', basename($albumpath))) {
+            $albumpath = dirname($albumpath);
+            $result = array_merge($result, get_images($albumpath));
+        }
+        // Are there any subdirectories?
+        $globpath = preg_replace('/(\*|\?|\[)/', '[$1]', $albumpath);
+        $lookfor = glob($globpath."/*", GLOB_ONLYDIR);
+        foreach ($lookfor as $i => $f) {
+            if (is_dir($f)) {
+                $result = array_merge($result, get_images($f));
+            }
+        }
+    }
+    return $result;
+}
+
+function get_images($dir_path) {
+
+    $funkychicken = array();
+    debug_print("Scanning : ".$dir_path);
+    $globpath = preg_replace('/(\*|\?|\[)/', '[$1]', $dir_path);
+    $files = glob($globpath."/*.{jpg,png,bmp,gif,jpeg,JPEG,JPG,BMP,GIF,PNG}", GLOB_BRACE);
+    foreach($files as $i => $f) {
+        $f = preg_replace('/%/', '%25', $f);
+        array_push($funkychicken, get_base_url()."/".preg_replace('/ /', "%20", $f));
+    }
+    return $funkychicken;
+}
+
+function munge_filepath($p) {
+    global $prefs;
+    $f = "file://".$prefs['music_directory'];
+    if (substr($p, 0, strlen($f)) == $f) {
+        $p = substr($p, strlen($f), strlen($p));
+    }
+    return "prefs/MusicFolders/".$p;
+}
 
 ?>

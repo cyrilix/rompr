@@ -2,18 +2,19 @@
 <head>
 <?php
 include('vars.php');
+include("functions.php");
 $request = $_SERVER['REQUEST_URI'];
 // Custom redirect for small album covers that don't exist.
 if (preg_match('/albumart\/small\//', $request)) {
     header("HTTP/1.1 301 Moved Permanently");
 	header("Cache-Control: no-cache, must-revalidate");
 	header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");    
-	header("Location: /rompr/images/album-unknown-small.png");
+	header("Location: ".get_base_url()."/images/album-unknown-small.png");
 } elseif (preg_match('/albumart\/firefoxiscrap\/(.*?)---.*/', $request, $matches)) {
     header("HTTP/1.1 301 Moved Permanently");
     header("Cache-Control: no-cache, must-revalidate");
     header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");    
-    header("Location: /rompr/albumart/original/".$matches[1].".jpg");
+    header("Location: ".get_base_url()."/albumart/original/".$matches[1].".jpg");
 } else {
 	// Custom 404 page for anything else
     header("HTTP/1.1 404 Not Found");

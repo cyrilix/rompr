@@ -10,7 +10,8 @@ $file = "";
 $artist = "";
 $album = "";
 $mbid = "";
-$searchfunctions = array( 'tryLastFM', 'tryMusicBrainz');
+$albumpath = "";
+$searchfunctions = array( 'tryLocal', 'tryLastFM', 'tryMusicBrainz');
 
 $fname = $_REQUEST['key'];
 if (array_key_exists("src", $_REQUEST)) {
@@ -36,6 +37,10 @@ if (array_key_exists("album", $_REQUEST)) {
 if (array_key_exists("mbid", $_REQUEST)) {
     $mbid = $_REQUEST['mbid'];
     debug_print("MBID : ".$mbid);
+}
+if (array_key_exists("albumpath", $_REQUEST)) {
+    $albumpath = $_REQUEST['albumpath'];
+    debug_print("PATH : ".$albumpath);
 }
 
 // Attempt to download an image file
@@ -97,10 +102,6 @@ if ($download_file != "" && file_exists($download_file)) {
 // we need to edit the cached albums list so it doesn't get searched again
 // and edit the URL so it points to the correct image if one was found
 if (file_exists($ALBUMSLIST) && $stream == "") {
-    // $class = "updateable";
-    // if ($error == 1) {
-    //     $class = "updateable notfound";
-    // }
     debug_print("Classing ".$fname." as ".$error);
     update_cache($fname, $error);
 }
@@ -120,17 +121,15 @@ if ($error == 0) {
             fclose($fp);
         }
     }
-    //print "<HTML><body></body></html>";
     header('HTTP/1.1 204 No Content');
-    ob_flush();
 } else {
     // Didn't get a valid image, so return a server error to prevent the javascript
     // from trying to modify things - don't use 404 because we have a redirect in place
     // for 404 errors and that wouldn't be good.
     header('HTTP/1.1 400 Bad Request');
-    ob_flush();
 }
 
+ob_flush();
 
 function find_convert_path() {
 
@@ -191,7 +190,6 @@ function download_file($src, $fname, $convert_path) {
     }
     return $download_file;
 }
-
 
 function check_file($file, $data) {
     // NOTE. WE've configured curl to follow redirects, so in truth this code should never do anything
@@ -272,6 +270,31 @@ function update_cache($fname, $notfound) {
 
 }
 
+function tryLocal() {
+    global $albumpath;
+    global $covernames;
+    if ($albumpath == "") {
+        return "";
+    }
+    $files = scan_for_images($albumpath);
+    foreach ($covernames as $j => $name) {
+        foreach ($files as $i => $file) {
+            $info = pathinfo($file);
+            $file_name = strtolower(basename($file,'.'.$info['extension']));
+            if ($file_name == $name) {
+                debug_print("  Returning ".$file);
+                return $file;
+            }
+        }
+    }
+    // If we haven't found one but there's only one, then return that
+    if (count($files) == 1) {
+        debug_print("  Returning ".$files[0]);
+        return $files[0];
+    }
+    return "";
+}
+
 function tryLastFM() {
 
     global $artist;
@@ -282,7 +305,7 @@ function tryLastFM() {
     
     debug_print("Trying last.FM for ".$artist." ".$album);
     $xml = loadXML("http://ws.audioscrobbler.com", "/2.0/?method=album.getinfo&api_key=15f7532dff0b8d84635c757f9f18aaa3&album=".rawurlencode($album)."&artist=".rawurlencode($artist)."&autocorrect=1");
-    if ($xml == false) {
+    if ($xml === false) {
         debug_print("Received error response from Last.FM");
         return "";
     } else {
