@@ -518,6 +518,7 @@ function get_images($dir_path) {
 
 function munge_filepath($p) {
     global $prefs;
+    $p = rawurldecode(html_entity_decode($p));
     $f = "file://".$prefs['music_directory'];
     if (substr($p, 0, strlen($f)) == $f) {
         $p = substr($p, strlen($f), strlen($p));
