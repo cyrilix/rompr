@@ -387,7 +387,11 @@ function albumHeaders($artist) {
             print '<img src="images/toggle-closed.png" class="menu fixed" name="'.$album['id'].'">';
         }
         if ($album->image->romprartist) {
-            print '<img class="smallcover fixed notexist" romprartist="'.$album->image->romprartist.'" rompralbum="'.$album->image->rompralbum.'" romprpath="'.$album->directory.'" name="'.$album->image->name.'" src="'.$album->image->src.'" />'."\n";
+            print '<img class="smallcover fixed notexist" romprartist="'.$album->image->romprartist.'" rompralbum="'.$album->image->rompralbum;
+            if ($album->directory) {
+                print '" romprpath="'.$album->directory;
+            }
+            print '" name="'.$album->image->name.'" src="'.$album->image->src.'" />'."\n";
         } else {
             print '<img class="smallcover fixed" name="'.$album->image->name.'" src="'.$album->image->src.'" />';
         }

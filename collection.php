@@ -658,7 +658,9 @@ function do_albums_xml($artistkey, $compilations, $showartist, $prefix, $output)
             }
             //$output->writeLine(xmlnode('id', $prefix.'album'.$count));
             $output->writeLine(xmlnode('name', $album->name));
-            $output->writeLine(xmlnode('directory', rawurlencode($album->folder)));
+            if (!$album->is_spotify) {
+                $output->writeLine(xmlnode('directory', rawurlencode($album->folder)));
+            }
             $output->writeLine("<image>\n");
             $artname = md5($album->artist." ".$album->name);
             $output->writeLine(xmlnode('name', $artname));
