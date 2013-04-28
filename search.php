@@ -20,16 +20,6 @@ include ("collection.php");
 
 $cmd = "";
 
-if(array_key_exists("findalbum", $_REQUEST)) {
-    $cmd = "find ";
-    if ($_REQUEST['findalbum'] != "") {
-        $cmd = $cmd . 'album "'.format_for_mpd(html_entity_decode($_REQUEST['findalbum'])).'" ';
-    }
-    if ($_REQUEST['findartist'] != "") {
-        $cmd = $cmd . 'artist "'.format_for_mpd(html_entity_decode($_REQUEST['findartist'])).'"';
-    }
-}
-
 if(array_key_exists("searchtitle", $_REQUEST)) {
     $cmd = "search ".$_REQUEST['stype'].' "'.format_for_mpd(html_entity_decode($_REQUEST['searchtitle'])).'"';
 }
@@ -72,18 +62,11 @@ $pigeon = "title";
 if (array_key_exists("stype", $_REQUEST)) {
     $pigeon = $_REQUEST['stype'];
 }
+
 print '    $(\'input[value="'.$pigeon.'"]\').attr("checked", true);'."\n";
 
 if (array_key_exists("searchtitle", $_REQUEST)) {
-    print '    $(\'input[name="searchtitle"]\').val(\''.$_REQUEST['searchtitle'].'\');'."\n";
-}
-
-if (array_key_exists("findalbum", $_REQUEST)) {
-    print '    $(\'input[name="findalbum"]\').val(\''.$_REQUEST['findalbum'].'\');'."\n";
-}
-
-if (array_key_exists("findartist", $_REQUEST)) {
-    print '    $(\'input[name="findartist"]\').val(\''.$_REQUEST['findartist'].'\');'."\n";
+    print '    $(\'input[name="searchtitle"]\').val(\''.addslashes($_REQUEST['searchtitle']).'\');'."\n";
 }
 
 ?>
