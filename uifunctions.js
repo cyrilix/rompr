@@ -51,7 +51,7 @@ function setClickHandlers() {
     $("#collection").click(onCollectionClicked);
     $("#filecollection").click(onFileCollectionClicked);
     $("#search").click(onCollectionClicked);
-    $("#filesearch").click(onCollectionClicked);
+    $("#filesearch").click(onFileCollectionClicked);
     $("#lastfmlist").click(onLastFMClicked);
     $("#radiolist").click(onRadioClicked);
 

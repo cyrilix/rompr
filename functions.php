@@ -232,7 +232,7 @@ class collectionOutput {
             $this->fhandle = fopen($file, 'w');
             fwrite($this->fhandle, $xmlheaders);
         } else {
-            print $headers;
+            print $xmlheaders;
         }
     }
     

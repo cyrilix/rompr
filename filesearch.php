@@ -31,15 +31,16 @@ if ($cmd != "") {
 close_mpd($connection);
 
 function doFileSearch($cmd) {
-
-    $output = new collectionOutput("");
+    global $FILESEARCH;
+    $output = new collectionOutput($FILESEARCH);
     $tree = doFileList($cmd);
-    $output->writeLine('<div class="menuitem">');
-    $output->writeLine("<h3>Search Results:</h3>");
-    $output->writeLine("</div>");
-    $tree->getHTML("b", $output);
-    $output->writeLine('<div class="separator"></div>');
-
+    $tree->getXML("b", $output);
+    $output->closeFile();
+    print '<div class="menuitem">';
+    print "<h3>Search Results:</h3>";
+    print "</div>";
+    dumpTree('bdirroot');
+    print '<div class="separator"></div>';
 }
 
 ?>

@@ -127,6 +127,7 @@ function dumpTree($which) {
             doFileHTML($item);
         }
     }
+    print '</body></html>';
 }
 
 

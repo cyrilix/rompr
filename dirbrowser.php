@@ -8,12 +8,15 @@ $count = 1;
 $tree = null;
 
 if (array_key_exists('item', $_REQUEST) && file_exists($FILESLIST)) {
+
+	error_log("Dumping Tree : ".$_REQUEST['item']);
+
 	dumpTree($_REQUEST['item']);
 } else {
 	include ("connection.php");
 	$tree = doFileList("list file");
 	doFileCollection($FILESLIST);
-	dumpTree('adirroot');
+   	dumpTree('adirroot');
 }
 
 close_mpd($connection);
