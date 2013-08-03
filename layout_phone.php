@@ -36,7 +36,7 @@
 
 <div id="bottompage">
 
-<div id="sources" class="fullwdith noborder">
+<div id="sources" class="fullwdith noborder scroller">
 
     <div id="albumlist" class="invisible noborder">
     <div style="padding-left:12px">

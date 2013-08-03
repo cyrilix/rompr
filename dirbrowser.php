@@ -8,9 +8,6 @@ $count = 1;
 $tree = null;
 
 if (array_key_exists('item', $_REQUEST) && file_exists($FILESLIST)) {
-
-	error_log("Dumping Tree : ".$_REQUEST['item']);
-
 	dumpTree($_REQUEST['item']);
 } else {
 	include ("connection.php");
