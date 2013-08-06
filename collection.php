@@ -436,6 +436,9 @@ function process_file($collection, $filedata) {
         if (file_exists("albumart/asdownloaded/".$artname.".jpg")) {
             $origimage = "albumart/asdownloaded/".$artname.".jpg";
         }
+        if (substr($file, 0, 11) == "soundcloud:") {
+            $image = "images/soundcloud-logo.png";
+        }
     }
 
     $backendid = (array_key_exists('Id',$filedata)) ? $filedata['Id'] : null;

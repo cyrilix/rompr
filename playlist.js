@@ -598,8 +598,12 @@ function Playlist() {
                     showartist = true;
                 }
                 html = html + '<div name="'+tracks[trackpointer].playlistpos+'" romprid="'+tracks[trackpointer].backendid+'" class="track clickable clickplaylist sortable containerbox playlistitem menuitem">';
-                html = html + '<div class="tracknumbr fixed">'+format_tracknum(tracks[trackpointer].tracknumber)+'</div>';
                 var l = tracks[trackpointer].location;
+                if (l.substring(0,11) == "soundcloud:") {
+                    html = html + '<div class="playlisticon fixed"><img height="12px" src="images/soundcloud-logo.png" /></div>';
+                } else {
+                    html = html + '<div class="tracknumbr fixed">'+format_tracknum(tracks[trackpointer].tracknumber)+'</div>';
+                }
                 if (l.substring(0, 7) == "spotify") {
                     html = html + '<div class="playlisticon fixed"><img height="12px" src="images/spotify-logo.png" /></div>';
                 }
