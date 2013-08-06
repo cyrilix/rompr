@@ -395,6 +395,7 @@ function Playlist() {
              duration = nowplaying.duration(-1);
              percent = (duration == 0) ? 0 : (progress/duration) * 100;
              $("#progress").progressbar("option", "value", Math.round(percent));
+             browser.soundcloudProgress(percent);
              var html = formatTimeString(progress) + " of " + formatTimeString(duration);
              $("#playbackTime").empty().html(html);
              html = null;

@@ -6,6 +6,7 @@ function Info(target, source) {
     var history = [];
     var displaypointer = -1;
     var panelclosed = {artist: false, album: false, track: false};
+    var lastsource = "lastfm";
 //     var gettingbiofor = -1;
 
     /*
@@ -70,7 +71,7 @@ function Info(target, source) {
                                 newnames
                                );
                 break;
-            case (current_source == "lastfm"):
+            case (current_source == "lastfm" || current_source == "soundcloud"):
                 /* When we're displaying LastFM stuff, we always care about changes */
                 var currentnames = nowplaying.getnames(history[displaypointer].nowplayingindex);
                 var newnames = nowplaying.getnames(index);
@@ -127,11 +128,20 @@ function Info(target, source) {
         }
         return false;
     }
+
+    this.switchFromSoundCloud = function() {
+        if (current_source == "soundcloud") {
+            current_source = lastsource;
+        }
+    }
     
     this.switchSource = function(source) {
         if (source === null) {
             source = current_source;
         } else {
+            if (source == "soundcloud") {
+                lastsource = current_source;
+            }
             current_source = source;
             prefs.save({infosource: source});
         }
@@ -206,6 +216,20 @@ function Info(target, source) {
                 });
                 break;
 
+            case "soundcloud":
+                $("#albuminformation").fadeOut('fast');
+                $("#trackinformation").fadeOut('fast');
+                prepareArtistPane();
+                $('#artistinformation').fadeOut('fast', function() {
+                    if (history[displaypointer].artist != "") {
+                        //$('#artistinformation').empty();
+                        doSoundCloudShit();
+                        $('#artistinformation').fadeIn(1000);
+                    }
+                });
+                break;
+
+
             case "lastfm":
                 prepareArtistPane();
                 $('#artistinformation').fadeOut('fast', function() {
@@ -238,6 +262,7 @@ function Info(target, source) {
         switch(history[displaypointer].source) {
             case "wikipedia":
             case "slideshow":
+            case "soundcloud":
                 break;
 
             case "lastfm":
@@ -256,6 +281,7 @@ function Info(target, source) {
         switch(history[displaypointer].source) {
             case "wikipedia":
             case "slideshow":
+            case "soundcloud":
                 break;
 
             case "lastfm":
@@ -760,6 +786,96 @@ function Info(target, source) {
     }
 
     /*
+    /   SoundCloud Data
+    */
+
+    function doSoundCloudShit() {
+        var data = nowplaying.getSoundCloudData(history[displaypointer].nowplayingindex);
+        var html = '<div class="infosection">';
+        html = html + '<table width="100%"><tr><td width="80%">';
+        html = html + '<h2>SoundCloud : ' + history[displaypointer].track + ' by ' + history[displaypointer].artist + '</h2>';
+        html = html + '</td><td align="right">';
+        html = html + '<a href="' + data.track.permalink_url + '" title="View In New Tab" target="_blank"><img height="32px" src="images/soundcloud-logo.png"></a>';
+        html = html + '</td></tr></table>';
+        html = html + '</div>';
+        html = html + '<div class="foldup"><div class="holdingcell">';
+
+        html = html + '<div class="standout stleft statsbox"><ul>';
+        if (data.user.avatar_url) {
+            html = html + '<li><img src="'+data.user.avatar_url+'" /></li>';
+        }
+        html = html + '<li><b>Full Name:</b> '+formatSCMessyBits(data.user.full_name)+'</li>';
+        html = html + '<li><b>Country:</b> '+formatSCMessyBits(data.user.country)+'</li>';
+        html = html + '<li><b>City:</b> '+formatSCMessyBits(data.user.city)+'</li>';
+        if (data.user.website) {
+            html = html + '<li><b><a href="' + data.user.website + '" target="_blank">Visit Website</a></b></li>';
+        }
+
+        var f = formatSCMessyBits(data.user.description)
+        f = f.replace(/\n/g, "</p><p>");
+        html = html + '<li><p>'+ f +'</p></li>';
+        html = html + '</ul></div>';
+
+        html = html + '<div class="statsbox">';
+
+        if (data.track.artwork_url) {
+            html = html +  '<img class="stright" src="' + data.track.artwork_url + '" class="standout" />';
+        }
+        html = html +  '<div id="artistbio"><ul>';
+        html = html + '<li><b>Plays:</b> '+formatSCMessyBits(data.track.playback_count)+'</li>';
+        html = html + '<li><b>Downloads:</b> '+formatSCMessyBits(data.track.download_count)+'</li>';
+        html = html + '<li><b>Faves:</b> '+formatSCMessyBits(data.track.favoritings_count)+'</li>';
+        html = html + '<li><b>State:</b> '+formatSCMessyBits(data.track.state)+'</li>';
+        html = html + '<li><b>Genre:</b> '+formatSCMessyBits(data.track.genre)+'</li>';
+        html = html + '<li><b>Label:</b> '+formatSCMessyBits(data.track.label_name)+'</li>';
+        html = html + '<li><b>License:</b> '+formatSCMessyBits(data.track.license)+'</li>';
+        if (data.track.purchase_url) {
+            html = html + '<li><b><a href="' + data.track.purchase_url + '" target="_blank">Buy Track</a></b></li>';
+        }
+        html = html + '</ul>';
+        var d = formatSCMessyBits(data.track.description);
+        d = d.replace(/\n/g, "</p><p>");
+        html = html + '<p>'+d+'</p>';
+        html = html + '</div></div></div>';
+
+        var w = $("#infopane").width();
+        w = w - 128;
+        html = html + '<div id="similarartists" class="bordered" style="position:relative"><div id="scprog" style="position:absolute;width:2px;top:4px;background-color:#ff6600;opacity:0.6;z-index:100"></div>'+
+        '<table width="100%"><tr><td align="center"><img id="gosblin" src="'+formatSCMessyBits(data.track.waveform_url)+'" width="' + w.toString() + 'px" /></td></tr></table></div>';
+        html = html + "</div>";
+        $("#artistinformation").html(html);
+        html = null;
+
+    }
+
+    function formatSCMessyBits(bits) {
+        try {
+            if (bits) {
+
+                return bits;
+            } else {
+                return "";
+            }
+        } catch(err) {
+            return "";
+        }
+    }
+
+    this.soundcloudProgress = function(percent) {
+        if (current_source != "soundcloud" ||
+            displaypointer < history.length - 1) {
+            return;
+        }
+        var p = $("#gosblin").position();
+        if (p) {
+            var w = Math.round($("#gosblin").width()*percent/100)+p.left;
+            var h = $("#gosblin").css("height");
+            $("#scprog").css({height: h});
+            $("#scprog").stop().animate({left: w.toString()+"px"}, 1000, "linear");
+        }
+    }
+
+    /*
     /
     /    History Buttons and Menu
     /
@@ -824,6 +940,9 @@ function Info(target, source) {
                 case "wikipedia":
                     html = html +  'images/Wikipedia-logo.png';
                     break;
+                case "soundcloud":
+                    html = html +  'images/soundcloud-logo.png';
+                    break;
                 case "lastfm":
                     html = html + 'images/lastfm.png';
                     break;
@@ -851,6 +970,7 @@ function Info(target, source) {
                     html = html + s.replace(/_/g, " ");
                     break;
                 case "lastfm":
+                case "soundcloud":
                     html = html + this.track;
                     if (this.track != "" && this.artist != "") {
                         html = html + " <small><i>by</i></small> "

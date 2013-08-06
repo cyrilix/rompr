@@ -8,7 +8,48 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
     var index = ind;
     var scrobbled = false;
     var nowplaying_updated = false;
+    var sc_track = null;
+    var sc_user = null;
     var starttime = (Date.now())/1000 - parseFloat(mpd.getStatus('elapsed'));
+
+    this.sndcld = function() {
+        return {
+            populate: function() {
+                soundcloud.getTrackInfo(mpd_data.location, this.gotSoundCloudTrack);
+            },
+
+            gotSoundCloudTrack: function(data) {
+                debug.log("Got SoundCloud Track Data:",data);
+                if (mpd_data.creator == "." && data.user && data.user.username) {
+                    mpd_data.creator = data.user.username;
+                    debug.log("setting artist name from soundcloud data to",mpd_data.creator);
+                }
+                if (data.artwork_url) {
+                    mpd_data.image = "";
+                }
+                sc_track = data;
+                self.sndcld.getUserData();
+            },
+
+            getUserData: function() {
+                debug.log("Getting SoundCloud User Data",sc_track.user_id);
+                soundcloud.getUserInfo(sc_track.user_id, this.gotSoundCloudUser);
+            },
+
+            gotSoundCloudUser: function(data) {
+                debug.log("Got SoundCloud User Data",data);
+                if (data.avatar_url) {
+                    mpd_data.image="";
+                }
+                sc_user = data;
+                self.artist.populate();
+            },
+
+            getData: function() {
+                return {user: sc_user, track: sc_track};
+            }
+        }
+    }();
     
     /* Populating the data is daisy-chained, artist, album, track */
     this.artist = function() {
@@ -217,20 +258,34 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                 /* This function is duplicated in lastmDataExtractor for reasons of
                 * expediency and laziness, with the latter much in the ascendancy
                 */
-                try {
-                    var url = "";
-                    var temp_url = "";
-                    for(var i in album_data.album.image) {
-                        temp_url = album_data.album.image[i]['#text'];
-                        if (album_data.album.image[i].size == size) {
-                            url = temp_url;
-                            break;
-                        }
+                if (sc_track) {
+                    // This track has soundcloud data and is therefore a soundcloud track
+                    // so use that image
+                    if (sc_track.artwork_url) {
+                        debug.log("Using SoundCloud track image");
+                        return sc_track.artwork_url;
+                    } else if (sc_user.avatar_url) {
+                        debug.log("Using SoundCloud user avatar");
+                        return sc_user.avatar_url;
+                    } else {
+                        return "";
                     }
-                    if (url == "") { url = temp_url; }
-                    return url;
-                } catch(err) {
-                    return "";
+                } else {
+                    try {
+                        var url = "";
+                        var temp_url = "";
+                        for(var i in album_data.album.image) {
+                            temp_url = album_data.album.image[i]['#text'];
+                            if (album_data.album.image[i].size == size) {
+                                url = temp_url;
+                                break;
+                            }
+                        }
+                        if (url == "") { url = temp_url; }
+                        return url;
+                    } catch(err) {
+                        return "";
+                    }
                 }
             },
             
@@ -508,17 +563,21 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
     }();
     
     this.populate = function() {
-        self.artist.populate();
-        self.getRatingsAndStuff();
+        var a = mpd_data.location;
+        if (a.substr(0,11) == "soundcloud:") {
+            artist_data = null;
+            self.sndcld.populate();
+            $("#soundcloudbutton").fadeIn("fast");
+        } else {
+            $("#soundcloudbutton").fadeOut("fast");
+            browser.switchFromSoundCloud();
+            self.artist.populate();
+        }
     }
-    
+
     this.finished = function() {
         debug.log("Got all data for",mpd_data.title);
         nowplaying.gotdata(index);
-    }
-    
-    this.getRatingsAndStuff = function() {
-       // I was going to put stuff in here but then I got fed up with it. 
     }
     
     this.mpd = function(key) {
@@ -765,6 +824,10 @@ function playInfo() {
 
     this.getFullBio = function(type, index, callback, failcallback) {
         history[index][type].getFullBio(callback, failcallback);
+    }
+
+    this.getSoundCloudData = function(index) {
+        return history[index].sndcld.getData();
     }
 }
 

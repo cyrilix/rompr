@@ -97,6 +97,7 @@ if ($mobile != "no") {
 <script type="text/javascript" src="nowplaying.js"></script>
 <script type="text/javascript" src="infobar2.js"></script>
 <script type="text/javascript" src="lastfm.js"></script>
+<script type="text/javascript" src="soundcloud.js"></script>
 <script type="text/javascript" src="playlist.js"></script>
 <script type="text/javascript" src="info.js"></script>
 <script type="text/javascript" src="coverscraper.js"></script>
@@ -138,6 +139,7 @@ var mpd = new mpdController();
 var playlist = new Playlist();
 var nowplaying = new playInfo();
 var lfmprovider = new lastFMprovider();
+var soundcloud = new SoundCloud();
 var gotNeighbours = false;
 var gotFriends = false;
 var gotTopTags = false;
