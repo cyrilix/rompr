@@ -133,6 +133,7 @@ if (file_exists($FILESLIST)) {
 }
 print "var mobile = '".$mobile."';\n";
 ?>
+var tempcanvas = document.createElement('canvas');
 var landscape = false;
 var itisbigger = false;
 var mpd = new mpdController();
@@ -236,7 +237,6 @@ $(document).ready(function(){
     if ("localStorage" in window && window["localStorage"] != null) {
         window.addEventListener("storage", onStorageChanged, false);
     }
-        
     setClickHandlers();
     $("#sortable").click(onPlaylistClicked);
     
@@ -354,7 +354,7 @@ $(document).ready(function(){
         if (mobile != "no") {
             $("#fnarkler").addClass('tiny');
         }
-        $("#fnarkler").append('<p>Welcome to RompR version 0.30</p>');
+        $("#fnarkler").append('<p>Welcome to RompR version 0.33</p>');
         if (mobile != "no") {
             $("#fnarkler").append('<p>You are viewing the mobile version of RompR. To view the standard version go to <a href="/rompr/?mobile=no">/rompr/?mobile=no</a></p>');
         } else {
@@ -364,7 +364,7 @@ $(document).ready(function(){
         $("#fnarkler").append('<p>The Discussion Forum is at: <a href="https://sourceforge.net/p/rompr/discussion/" target="_blank">http://sourceforge.net/p/rompr/discussion/</a></p>');
         $("#fnarkler").append('<p><button style="width:8em" class="tright" onclick="popupWindow.close()">OK</button></p>');
         popupWindow.open();
-        prefs.save({shownupdatewindow: 0.30});
+        prefs.save({shownupdatewindow: 0.33});
     }
     if (prefs.playlistcontrolsvisible) {
         $("#playlistbuttons").slideToggle('fast');

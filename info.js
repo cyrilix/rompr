@@ -7,6 +7,7 @@ function Info(target, source) {
     var displaypointer = -1;
     var panelclosed = {artist: false, album: false, track: false};
     var lastsource = "lastfm";
+    var scImg = new Image();
 //     var gettingbiofor = -1;
 
     /*
@@ -221,8 +222,8 @@ function Info(target, source) {
                 $("#trackinformation").fadeOut('fast');
                 prepareArtistPane();
                 $('#artistinformation').fadeOut('fast', function() {
+                    $('#artistinformation').empty();
                     if (history[displaypointer].artist != "") {
-                        //$('#artistinformation').empty();
                         doSoundCloudShit();
                         $('#artistinformation').fadeIn(1000);
                     }
@@ -801,6 +802,7 @@ function Info(target, source) {
         html = html + '<div class="foldup"><div class="holdingcell">';
 
         html = html + '<div class="standout stleft statsbox"><ul>';
+        html = html + '<li><h3>SoundCloud User:</h3></li>';
         if (data.user.avatar_url) {
             html = html + '<li><img src="'+data.user.avatar_url+'" /></li>';
         }
@@ -822,6 +824,7 @@ function Info(target, source) {
             html = html +  '<img class="stright" src="' + data.track.artwork_url + '" class="standout" />';
         }
         html = html +  '<div id="artistbio"><ul>';
+        html = html + '<li><h3>Track Info:</h3></li>';
         html = html + '<li><b>Plays:</b> '+formatSCMessyBits(data.track.playback_count)+'</li>';
         html = html + '<li><b>Downloads:</b> '+formatSCMessyBits(data.track.download_count)+'</li>';
         html = html + '<li><b>Faves:</b> '+formatSCMessyBits(data.track.favoritings_count)+'</li>';
@@ -832,18 +835,23 @@ function Info(target, source) {
         if (data.track.purchase_url) {
             html = html + '<li><b><a href="' + data.track.purchase_url + '" target="_blank">Buy Track</a></b></li>';
         }
+        html = html + '<li><a href="' + data.track.permalink_url + '" title="View In New Tab" target="_blank"><b>View on SoundCloud</b></a></li>';
+
         html = html + '</ul>';
         var d = formatSCMessyBits(data.track.description);
         d = d.replace(/\n/g, "</p><p>");
         html = html + '<p>'+d+'</p>';
         html = html + '</div></div></div>';
 
-        var w = $("#infopane").width();
-        w = w - 128;
-        html = html + '<div id="similarartists" class="bordered" style="position:relative"><div id="scprog" style="position:absolute;width:2px;top:4px;background-color:#ff6600;opacity:0.6;z-index:100"></div>'+
-        '<table width="100%"><tr><td align="center"><img id="gosblin" src="'+formatSCMessyBits(data.track.waveform_url)+'" width="' + w.toString() + 'px" /></td></tr></table></div>';
+        html = html +   '<div id="similarartists" class="bordered" style="position:relative">'+
+                        '<div id="scprog" class="infowiki" style="position:absolute;width:2px;top:0px;opacity:0.6;z-index:100;left:0px"></div>'+
+                        '<canvas style="position:relative;left:64px" id="gosblin"></canvas>'+
+                        '</div>';
+                        
         html = html + "</div>";
         $("#artistinformation").html(html);
+        scImg.onload = browser.doSCImageStuff;
+        scImg.src = "getRemoteImage.php?url="+formatSCMessyBits(data.track.waveform_url);
         html = null;
 
     }
@@ -851,7 +859,6 @@ function Info(target, source) {
     function formatSCMessyBits(bits) {
         try {
             if (bits) {
-
                 return bits;
             } else {
                 return "";
@@ -862,16 +869,67 @@ function Info(target, source) {
     }
 
     this.soundcloudProgress = function(percent) {
-        if (current_source != "soundcloud" ||
-            displaypointer < history.length - 1) {
-            return;
+        if (current_source == "soundcloud" &&
+            displaypointer == (history.length) - 1) {
+            var p = $("#gosblin").position();
+            if (p) {
+                var w = Math.round($("#gosblin").width()*percent/100)+p.left;
+                $("#scprog").stop().animate({left: w.toString()+"px"}, 1000, "linear");
+            }
         }
-        var p = $("#gosblin").position();
-        if (p) {
-            var w = Math.round($("#gosblin").width()*percent/100)+p.left;
-            var h = $("#gosblin").css("height");
-            $("#scprog").css({height: h});
-            $("#scprog").stop().animate({left: w.toString()+"px"}, 1000, "linear");
+    }
+
+    this.doSCImageStuff = function() {
+        debug.log("IMAGE LOADED");
+        var bgColor = $(".infowiki").css('background-color');
+        debug.log("Background color is ",bgColor);
+        var rgbvals = /rgb\((.+),(.+),(.+)\)/i.exec(bgColor);
+        tempcanvas.width = scImg.width;
+        tempcanvas.height = scImg.height;
+        var ctx = tempcanvas.getContext("2d");
+        ctx.drawImage(scImg,0,0,tempcanvas.width,tempcanvas.height);
+        var pixels = ctx.getImageData(0,0,tempcanvas.width,tempcanvas.height);
+        var data = pixels.data;
+        for (var i = 0; i<data.length; i += 4) {
+            data[i] = parseInt(rgbvals[1]);
+            data[i+1] = parseInt(rgbvals[2]);
+            data[i+2] = parseInt(rgbvals[3]);
+        }
+        ctx.clearRect(0,0,tempcanvas.width,tempcanvas.height);
+        ctx.putImageData(pixels,0,0);
+        // We can't jump directly to the drawing of the image - we have to return from the
+        // onload routine first, otherwise the image width and height get messed up
+        setTimeout(browser.secondRoutine, 250);
+    }
+
+    this.secondRoutine = function() {
+        scImg.onload = browser.drawSCWaveform;
+        scImg.src = tempcanvas.toDataURL();
+    }
+
+    this.drawSCWaveform = function() {
+        debug.log("DRAWING IMAGE");
+        if (current_source == "soundcloud") {
+            var wi = $("#similarartists").width();
+            w = Math.round(wi*0.95);
+            var l = Math.round((wi-w)/2);
+            var h = Math.round((w/scImg.width)*scImg.height);
+            var c = document.getElementById("gosblin");
+            if (c) {
+                c.style.left = l.toString()+"px";
+                c.width = w;
+                c.height = h;
+                var ctx = c.getContext("2d");
+                ctx.clearRect(0,0,c.width,c.height);
+                var gradient = ctx.createLinearGradient(0,0,0,h);
+                gradient.addColorStop(0,'#ff6600');
+                gradient.addColorStop(0.5,'#551100');
+                gradient.addColorStop(1,'#ff6600');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0,0,w,h);
+                ctx.drawImage(scImg,0,0,w,h);
+                $("#scprog").css({height: h.toString()+"px"});
+            }
         }
     }
 

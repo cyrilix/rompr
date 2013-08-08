@@ -187,11 +187,7 @@ function setBottomPaneSize() {
         $("#notifications").css("left", notpos.toString()+"px");        
     }
     $("#bottompage").css("height", newheight.toString()+"px");
-    var w = $("#infopane").width();
-    if (w) {
-        w = w - 128;
-        $("#gosblin").css({width: w.toString()+"px"});
-    }
+    browser.drawSCWaveform();
 }
 
 function switchColumnMode(flag) {

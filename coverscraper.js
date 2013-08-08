@@ -73,6 +73,10 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
         name = formObjects.shift();
         
         imgobj = document.getElementsByName(name)[0];
+        if (!imgobj) {
+            doNextImage();
+            return 0;
+        }
         artist = imgobj.getAttribute("romprartist");
         album = imgobj.getAttribute("rompralbum");
         stream = imgobj.getAttribute("romprstream");
@@ -86,7 +90,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
              progress.progressbar("option", "value", parseInt(percent.toString()));
          }
          
-         imgobj.setAttribute('src', waitingicon[size]);
+        imgobj.setAttribute('src', waitingicon[size]);
         
         var options = { key: name,
                         artist: decodeURIComponent(artist),

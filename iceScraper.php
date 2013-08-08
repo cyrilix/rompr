@@ -2,6 +2,12 @@
 
 include("vars.php");
 include("functions.php");
+// The HTML parser doesn't link the icecast page very much
+// Their HTML is obviously crap :)
+// So we need to disable error reporting for this page otherwise people using php development settings
+// on their apache server will see a mass of crap in the icecast panel.
+// Comment out the following line when trying to debug this script.
+error_reporting(0);
 $getstr = "http://dir.xiph.org/";
 if (array_key_exists('path', $_REQUEST)) {
 	$getstr = $getstr . $_REQUEST['path'];
@@ -71,7 +77,7 @@ for ($i = 0; $i < $items->length; $i++) {
 }
 
 // Why I can't just output that node to HTML is anybody's guess.
-// PHP is a bit shit sometimes.
+// PHP is a bit shit sometimes. Written by programmers, who don't think like normal people.
 // Of course, it might be possible to do it, but if it is then it sure isn't obvious.
 $outdoc = new DOMDocument;
 $outdoc->formatOutput = true;

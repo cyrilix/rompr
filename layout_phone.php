@@ -107,6 +107,7 @@
         <div id="chooseplaylist" class="chooser"><a href="#" onclick="sourcecontrol('playlistm')">Playlist</a></div>
         <div class="chooser penbehindtheear"><a href="#" onclick="browser.switchSource('lastfm');sourcecontrol('infopane')">Information Panel (Last.FM)</a></div>
         <div class="chooser penbehindtheear"><a href="#" onclick="browser.switchSource('wikipedia');sourcecontrol('infopane')">Information Panel (Wikipedia)</a></div>
+        <div id="soundcloudbutton" class="chooser penbehindtheear"><a href="#" onclick="browser.switchSource('soundcloud');sourcecontrol('infopane')">Information Panel (SoundCloud)</a></div>
         <div class="chooser penbehindtheear"><a href="#" onclick="browser.switchSource('slideshow');sourcecontrol('infopane')">Artist Slideshow</a></div>
         <div class="chooser penbehindtheear"><a href="#" onclick="sourcecontrol('historypanel')">Info Panel History</a></div>
         <div class="chooser"><a href="#" onclick="clearPlaylist()">Clear Playlist</a></div>

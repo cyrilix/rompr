@@ -194,6 +194,20 @@ function Playlist() {
         }
         
     }
+
+    this.load = function(name) {
+        self.clearProgressTimer();
+        self.cleanupCleanupTimer();        
+        finaltrack = -1;
+        currentsong = -1;
+        currentalbum = -1;
+        tracklist = [];
+        $("#sortable").empty();
+        $("#sortable").html('<div class="dirname"><h2 id="dan">Loading Playlist...</h2></div>');
+        $("#playlistslist").hide();
+        $("#dan").effect('pulsate', { times:200 }, 2000);
+        mpd.command('command=load&arg='+name, playlist.repopulate);
+    }
     
     this.lastfmcleanup = function() {
         debug.log("Running last.fm cleanup");
@@ -634,6 +648,7 @@ function Playlist() {
                 html = html +   '<img class="smallcover updateable notexist fixed clickable clickicon clickrollup" romprname="'+self.index+'" name="'+hex_md5(self.artist+" "+self.album)+'" '
                             +   ' romprartist="'+encodeURIComponent(self.artist)+'" rompralbum="'+encodeURIComponent(self.album)+'"'
                             +   ' src="images/album-unknown-small.png"/>';
+                            coverscraper.GetNewAlbumArt(hex_md5(self.artist+" "+self.album));
             }
             html = html + '<div class="containerbox vertical expand">';
             html = html + '<div class="line">'+self.artist+'</div>';
