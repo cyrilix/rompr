@@ -46,6 +46,7 @@ class album {
     }
     
     public function setSpotilink($link) {
+        debug_print("Setting spotilink for album ".$this->name." to ".$link);
         $this->spotilink = $link;
         $this->is_spotify = true;
     }

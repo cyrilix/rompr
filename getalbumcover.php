@@ -11,7 +11,8 @@ $artist = "";
 $album = "";
 $mbid = "";
 $albumpath = "";
-$searchfunctions = array( 'tryLocal', 'tryLastFM', 'tryMusicBrainz');
+$spotilink = "";
+$searchfunctions = array( 'tryLocal', 'trySpotify', 'tryLastFM', 'tryMusicBrainz');
 
 $fname = $_REQUEST['key'];
 if (array_key_exists("src", $_REQUEST)) {
@@ -28,11 +29,11 @@ if (array_key_exists("ufile", $_FILES)) {
 }
 if (array_key_exists("artist", $_REQUEST)) {
     $artist = $_REQUEST['artist'];
-    debug_print("Artist : ".$artist);
+    debug_print("ARTIST : ".$artist);
 }
 if (array_key_exists("album", $_REQUEST)) {
     $album = $_REQUEST['album'];
-    debug_print("Album : ".$album);
+    debug_print("ALBUM : ".$album);
 }
 if (array_key_exists("mbid", $_REQUEST)) {
     $mbid = $_REQUEST['mbid'];
@@ -41,6 +42,10 @@ if (array_key_exists("mbid", $_REQUEST)) {
 if (array_key_exists("albumpath", $_REQUEST)) {
     $albumpath = $_REQUEST['albumpath'];
     debug_print("PATH : ".$albumpath);
+}
+if (array_key_exists("spotilink", $_REQUEST)) {
+    $spotilink = $_REQUEST['spotilink'];
+    debug_print("SPOTIFY : ".$spotilink);
 }
 
 // Attempt to download an image file
@@ -101,7 +106,7 @@ if ($download_file != "" && file_exists($download_file)) {
 // Now that we've attempted to retrieve an image, even if it failed,
 // we need to edit the cached albums list so it doesn't get searched again
 // and edit the URL so it points to the correct image if one was found
-if (file_exists($ALBUMSLIST) && $stream == "") {
+if (file_exists($ALBUMSLIST) && $stream == "" && $spotilink == "") {
     debug_print("Classing ".$fname." as ".$error);
     update_cache($fname, $error);
 }
@@ -128,6 +133,8 @@ if ($error == 0) {
     // for 404 errors and that wouldn't be good.
     header('HTTP/1.1 400 Bad Request');
 }
+
+debug_print("------------------------------------");
 
 ob_flush();
 
@@ -311,6 +318,39 @@ function tryLocal() {
         return $files[0];
     }
     return "";
+}
+
+function trySpotify() {
+    global $spotilink;
+    if ($spotilink == "") {
+        return "";
+    }
+    $image = "";
+    debug_print("Trying Spotify for ".$spotilink);
+    // php strict prevents me from doing end(explode()) because
+    // only variable can be passed by reference. Stupid php.
+    $spaffy = explode(":", $spotilink);
+    $spiffy = end($spaffy);
+    $url = "http://open.spotify.com/album/".$spiffy;
+    debug_print("   Getting ".$url);
+    $content = url_get_contents($url);
+    $DOM = new DOMDocument;
+    // stop libmxl from spaffing error reports into the log
+    libxml_use_internal_errors(true);
+    $DOM->loadHTML($content['contents']);
+    $stuff = $DOM->getElementById('big-cover');
+    if ($stuff) {
+        $image = $stuff->getAttribute('src');
+        if ($image) {
+            debug_print("Returning result from Spotify : ".$image);
+        } else {
+            debug_print("No valid image link found");
+            $image = "";
+        }
+    } else {
+        debug_print("No Spotify Image Found");
+    }
+    return $image;
 }
 
 function tryLastFM() {

@@ -1160,6 +1160,10 @@ ul.buyalbum li
     list-style-type:none;
 }
 
+.mw-editsection {
+    display:none;
+}
+
 /*-- For IceCast Scraper --*/
 
 #content

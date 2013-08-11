@@ -197,7 +197,8 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
             <button onclick="setXfadeDur()">Set</button>
         </div>
 <?php
-if ($prefs['use_mopidy_tagcache'] == 0) {
+if ($prefs['use_mopidy_tagcache'] == 0 &&
+    $prefs['use_mopidy_http'] == 0) {
 ?>        
         <div class="pref">
             <input type="checkbox" onclick="togglePref('updateeverytime')" id="updateeverytime">Update Collection On Start</input>
@@ -213,11 +214,15 @@ if ($prefs['use_mopidy_tagcache'] == 0) {
         </div>
 <?php
 }
+if (($prefs['use_mopidy_tagcache'] == 0 &&
+    $prefs['use_mopidy_http'] == 0) ||
+    $prefs['use_mopidy_tagcache'] == 1) {
 ?>
         <div class="pref">
             <button onclick="player.updateCollection('rescan')">Full Collection Rescan</button>
         </div>
 <?php
+}
 if ($prefs['use_mopidy_tagcache'] == 0 &&
     $prefs['use_mopidy_http'] == 0) {
 ?>        

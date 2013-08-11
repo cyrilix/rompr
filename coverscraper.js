@@ -17,6 +17,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
     var stream = null;
     var mbid = null;
     var albumpath = null;
+    var spotilink = null;
     var covertimer = null;
 
     // I need to try and limit the number of lookups per second I do to last.fm
@@ -82,6 +83,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
         stream = imgobj.getAttribute("romprstream");
         mbid = imgobj.getAttribute("rompralbumid");
         albumpath = imgobj.getAttribute("romprpath");
+        spotilink = imgobj.getAttribute("romprspotilink")
         
         debug.log("Getting Cover for", artist, album, mbid);
          if (sendUpdates) {
@@ -102,6 +104,9 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
         }
         if (albumpath) {
             options.albumpath = decodeURIComponent(albumpath);
+        }
+        if (spotilink) {
+            options.spotilink = decodeURIComponent(spotilink);
         }
         $.post("getalbumcover.php", options)
         .done( gotImage )

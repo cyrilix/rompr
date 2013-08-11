@@ -96,7 +96,8 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
                         <li class="wide"><input type="radio" class="topcheck" onclick="changeClickPolicy()" name="clickselect" value="single">Click to add, no selection</input></li>
 
 <?php
-if ($prefs['use_mopidy_tagcache'] == 0) {
+if ($prefs['use_mopidy_tagcache'] == 0 &&
+    $prefs['use_mopidy_http'] == 0) {
 ?>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="togglePref('updateeverytime')" id="updateeverytime">Update Collection On Start</input></li>
                         <li class="wide"><button class="topformbutton" onclick="player.updateCollection('update')">Update Collection Now</button></li>
@@ -106,8 +107,14 @@ if ($prefs['use_mopidy_tagcache'] == 0) {
                         <li class="wide"><button class="topformbutton" onclick="player.mopidyUpdate()">Rebuild Albums List</button></li>
 <?php
 }
+if (($prefs['use_mopidy_tagcache'] == 0 &&
+    $prefs['use_mopidy_http'] == 0) ||
+    $prefs['use_mopidy_tagcache'] == 1) {
 ?>
                         <li class="wide"><button class="topformbutton" onclick="player.updateCollection('rescan')">Full Collection Rescan</button></li>
+<?php
+}
+?>
                         <li class="wide"><button class="topformbutton" onclick="editkeybindings()">Edit Keyboard Shortcuts...</button></li>
 <?php
 if ($prefs['use_mopidy_tagcache'] == 0 &&

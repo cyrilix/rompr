@@ -394,6 +394,9 @@ function albumHeaders($artist) {
             if ($album->mbid) {
                 print '" rompralbumid="'.$album->mbid;
             }
+            if ($album->spotilink) {
+                print '" romprspotilink="'.$album->spotilink;
+            }
             print '" name="'.$album->image->name.'" src="'.$album->image->src.'" />'."\n";
         } else {
             print '<img class="smallcover fixed" name="'.$album->image->name.'" src="'.$album->image->src.'" />';

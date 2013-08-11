@@ -135,6 +135,7 @@ function dualPlayerController() {
         if (uri.indexOf("?") < 0) {
             // This means we want to update the cache
             if (self.mopidyReady) {
+                // Mobile browsers can't handle the amoune of data this takes
                 // Get the list of files from mopidy using the HTTP connection
                 debug.log("Getting list of files using mopidy websocket search");
                 mopidy.library.search({}, ['file:']).then( function(data) {
