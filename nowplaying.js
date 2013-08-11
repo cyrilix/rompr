@@ -567,10 +567,7 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
         if (a.substr(0,11) == "soundcloud:") {
             artist_data = null;
             self.sndcld.populate();
-            $("#soundcloudbutton").fadeIn("fast");
         } else {
-            $("#soundcloudbutton").fadeOut("fast");
-            browser.switchFromSoundCloud();
             self.artist.populate();
         }
     }
@@ -634,11 +631,14 @@ function playInfo() {
     history[0] = new trackDataCollection(0, emptytrack, null, null, null);
     
     this.newTrack = function(mpdinfo) {
+
+        debug.log("New Track:",mpdinfo);
         
         /* Update the now playing info. This can be modified later when the last.fm data comes back */
         var npinfo = {  artist: mpdinfo.creator,
                         album: mpdinfo.album,
-                        track: mpdinfo.title
+                        track: mpdinfo.title,
+                        location: mpdinfo.location
         };
         if (mpdinfo.image && mpdinfo.image != "") {
             npinfo.image = mpdinfo.image;

@@ -70,7 +70,8 @@ include ("functions.php");
                         </select></li>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="hidePanel('albumlist')" id="button_hide_albumlist">Hide Albums List</input></li>
 <?php
-if ($prefs['use_mopidy_tagcache'] == 0) {
+if ($prefs['use_mopidy_tagcache'] == 0 &&
+    $prefs['use_mopidy_http'] == 0) {
 ?>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="hidePanel('filelist')" id="button_hide_filelist">Hide Files List</input></li>
 <?php
@@ -85,31 +86,38 @@ if ($prefs['use_mopidy_tagcache'] == 0) {
 <?php
                         print '<li class="wide"><input class="enter topform" name="music_directory_albumart" type="text" size="40" value="'.$prefs['music_directory_albumart'].'"/><button class="topformbutton" onclick="setMusicDirectory()">Set</button></li>';
 ?>
+                        <li class="wide">Crossfade Duration (seconds)</li>
+<?php
+                        print '<li class="wide"><input class="enter topform" name="michaelbarrymore" type="text" size="3" value="'.$prefs['crossfade_duration'].'"/><button class="topformbutton" onclick="setXfadeDur()">Set</button></li>';
+?>                        
 
                         <li class="wide"><b>Music Selection Click Behaviour</b></li>
                         <li class="wide"><input type="radio" class="topcheck" onclick="changeClickPolicy()" name="clickselect" value="double">Double-click to add, Click to select</input></li>
                         <li class="wide"><input type="radio" class="topcheck" onclick="changeClickPolicy()" name="clickselect" value="single">Click to add, no selection</input></li>
 
-                        <li class="wide">Crossfade Duration (seconds)</li>
-<?php
-                        print '<li class="wide"><input class="enter topform" name="michaelbarrymore" type="text" size="3" value="'.$prefs['crossfade_duration'].'"/><button class="topformbutton" onclick="setXfadeDur()">Set</button></li>';
-?>                        
 <?php
 if ($prefs['use_mopidy_tagcache'] == 0) {
 ?>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="togglePref('updateeverytime')" id="updateeverytime">Update Collection On Start</input></li>
-                        <li class="wide"><button class="topformbutton" onclick="updateCollection('update')">Update Collection Now</button></li>
+                        <li class="wide"><button class="topformbutton" onclick="player.updateCollection('update')">Update Collection Now</button></li>
 <?php
 } else {
 ?>
-                        <li class="wide"><button class="topformbutton" onclick="mopidyUpdate()">Re-read Mopidy Tag Cache</button></li>
+                        <li class="wide"><button class="topformbutton" onclick="player.mopidyUpdate()">Rebuild Albums List</button></li>
 <?php
 }
 ?>
-                        <li class="wide"><button class="topformbutton" onclick="updateCollection('rescan')">Full Collection Rescan</button></li>
+                        <li class="wide"><button class="topformbutton" onclick="player.updateCollection('rescan')">Full Collection Rescan</button></li>
                         <li class="wide"><button class="topformbutton" onclick="editkeybindings()">Edit Keyboard Shortcuts...</button></li>
+<?php
+if ($prefs['use_mopidy_tagcache'] == 0 &&
+    $prefs['use_mopidy_http'] == 0) {
+?>                        
                         <li class="wide"><button class="topformbutton" onclick="editmpdoutputs()">MPD Audio Outputs...</button></li>
-                <li class="wide"><b>Last.FM</b></li>
+<?php
+}
+?>
+                <li class="wide"><img src="images/lastfm.png" height="24px" style="vertical-align:middle;margin-right:8px"/><b>Last.FM</b></li>
 <?php
                 //print '<li class="wide">Information Panel History Depth</li>';
                 //print '<li class="wide"><input class="topform" name="historylength" type="text" size="3" value="'.$prefs['historylength'].'"/><button class="topformbutton" onclick="sethistorylength()">Set</button></li>';
@@ -133,7 +141,6 @@ if ($prefs['use_mopidy_tagcache'] == 0) {
                 print "</select></li>\n";
                 
 ?>
-
         </ul>
     </li>
 
@@ -150,6 +157,10 @@ if ($prefs['use_mopidy_tagcache'] == 0) {
         <a href="#" title="Load Saved Playlist"><img class="topimg" src="images/document-open-folder.png" height="24px"></a>
         <ul id="playlistslist" class="subnav wide"></ul>
     </li>
+<?php
+if ($prefs['use_mopidy_tagcache'] == 0 &&
+    $prefs['use_mopidy_http'] == 0) {
+?>
     <li>
         <a href="#" title="Save Playlist"><img class="topimg" src="images/document-save.png" height="24px"></a>
         <ul id="saveplst" class="subnav wide">
@@ -160,6 +171,9 @@ if ($prefs['use_mopidy_tagcache'] == 0) {
             </li>
         </ul>
     </li>
+<?php
+}
+?>
 </ul>
 </div>
 </div>

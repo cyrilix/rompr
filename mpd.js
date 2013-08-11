@@ -2,7 +2,7 @@ function mpdController() {
 	var self = this;
 	this.status = {};
 
-    // NOTE: THese functions all clear the playlists's progress timer.
+    // NOTE: These functions all clear the playlists's progress timer.
     // playlist.checkProgress restarts it if necessary. If a callback is supplied it MUST call
     // playlist.checkProgress at the end.
     

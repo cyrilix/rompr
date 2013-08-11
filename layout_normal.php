@@ -46,7 +46,7 @@
     <div style="padding-left:12px">
     <a title="Search Music" href="#" onclick="toggleSearch()"><img class="topimg clickicon" height="20px" src="images/system-search.png"></a>
     </div>
-    <div id="search" class="invisible searchbox"></div>
+    <div id="search" class="invisible noborder"></div>
     <div id="collection" class="noborder"></div>    
     </div>
 

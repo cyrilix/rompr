@@ -1,8 +1,6 @@
 <?php
 include ("vars.php");
 include ("functions.php");
-include ("connection.php");
-include ("collection.php");
 set_time_limit(240);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -374,69 +372,37 @@ function uploadComplete() {
 <?php
 
 // Do Local Albums
-$collection = doCollection("listallinfo");
-$artistlist = $collection->getSortedArtistList();
+
 $count = 0;
 $albums_without_cover = 0;
-if (array_search("various artists", $artistlist)) {
-    $key = array_search("various artists", $artistlist);
-    unset($artistlist[$key]);
-    do_albumcovers("various artists", false);
-}
-foreach($artistlist as $artistkey) {
-    do_albumcovers($artistkey, true);
-}
-
-close_mpd($connection);
-
-do_radio_stations();
-
-print "</div>\n";
-print "</div>\n";
-print '<script language="JavaScript">'."\n";
-print 'var numcovers = '.$count.";\n";
-print 'var albums_without_cover = '.$albums_without_cover.";\n";
-print "</script>\n";
-print "</body>\n";
-print "</html>\n";
-
-function do_albumcovers($artistkey, $comps) {
-
-    global $collection;
-    global $count;
-    global $albums_without_cover;
-
-    $albumlist = $collection->getAlbumList($artistkey, $comps);
-
-    if (count($albumlist) > 0) {
-        $artist = $collection->artistName($artistkey);
+if (file_exists($ALBUMSLIST)) {
+    $collection = simplexml_load_file($ALBUMSLIST);
+    foreach($collection->artists->artist as $artist) {
         print '<div class="albumsection">';
-        print '<div class="tleft"><h2>'.$artist.'</h2></div><div class="tright rightpad"><button class="topformbutton" onclick="getNewAlbumArt(\'#album'.$count.'\')">Get These Covers</button></div>';
+        print '<div class="tleft"><h2>'.$artist->name.'</h2></div><div class="tright rightpad"><button class="topformbutton" onclick="getNewAlbumArt(\'#album'.$count.'\')">Get These Covers</button></div>';
         print "</div>\n";
         print '<div id="album'.$count.'" class="fullwidth bigholder">';
-        
         print '<div class="containerbox covercontainer">';
         $colcount = 0;
-        foreach ($albumlist as $album) {
+        foreach ($artist->albums->album as $album) {
             print '<div class="expand containerbox vertical albumimg">';
             print '<div class="albumimg fixed">';
-            $artname = md5($album->artist . " " . $album->name);
-            $b = munge_album_name($album->name);
-            $class = "";
-            $src = 'albumart/original/'.$artname.'.jpg';
-            if (!file_exists($src)) {
-               $class = "notexist";
-               $src = "images/album-unknown.png";
-               $albums_without_cover++;
+
+            $class = "clickable clickicon clickalbumcover";
+            $src = "albumart/original/".$album->image->name.".jpg";
+            if ($album->image->exists == "no") {
+                $class = $class . " notexist";
+                $albums_without_cover++;
+                $src = "images/album-unknown.png";
             }
-            print '<img class="clickable clickicon clickalbumcover '.$class.'" romprartist="'.rawurlencode($album->artist).'" rompralbum="'.rawurlencode($b).'"';
-            if ($album->musicbrainz_albumid) {
-                print ' rompralbumid="'.$album->musicbrainz_albumid.'"';
+            print '<img class="'.$class.'" romprartist="'.$album->image->romprartist.'" rompralbum="'.$album->image->rompralbum.'"';
+            if ($album->mbid) {
+                print ' rompralbumid="'.$album->mbid.'"';
             }
-            if (!$album->is_spotify && $album->folder != null) {
-                print ' romprpath="'.rawurlencode($album->folder).'"';
+            if ($album->directory) {
+                print ' romprpath="'.$album->directory.'"';
             }
-            print ' name="'.$artname.'" height="82px" width="82px" src="'.$src.'">';
+            print ' name="'.$album->image->name.'" height="82px" width="82px" src="'.$src.'">';
             print '</div>';
             print '<div class="albumimg fixed">'.$album->name.'</div>';
             print '</div>';
@@ -449,9 +415,24 @@ function do_albumcovers($artistkey, $comps) {
             $count++;
         }
         print "</div></div>\n";
+
     }
-            
+
+} else {
+    print '<h3>Please create your music collection before trying to download covers<h3>';
 }
+
+do_radio_stations();
+
+print "</div>\n";
+print "</div>\n";
+print '<script language="JavaScript">'."\n";
+print 'var numcovers = '.$count.";\n";
+print 'var albums_without_cover = '.$albums_without_cover.";\n";
+print "</script>\n";
+print "</body>\n";
+print "</html>\n";
+
 
 function do_radio_stations() {
 

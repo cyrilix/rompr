@@ -386,10 +386,13 @@ function albumHeaders($artist) {
             print '<div class="clickable clickalbum draggable containerbox menuitem" name="'.$album['id'].'">';
             print '<img src="images/toggle-closed.png" class="menu fixed" name="'.$album['id'].'">';
         }
-        if ($album->image->romprartist) {
+        if ($album->image->exists == "no" && $album->image->searched == "no") {
             print '<img class="smallcover fixed notexist" romprartist="'.$album->image->romprartist.'" rompralbum="'.$album->image->rompralbum;
             if ($album->directory) {
                 print '" romprpath="'.$album->directory;
+            }
+            if ($album->mbid) {
+                print '" rompralbumid="'.$album->mbid;
             }
             print '" name="'.$album->image->name.'" src="'.$album->image->src.'" />'."\n";
         } else {

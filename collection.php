@@ -541,7 +541,7 @@ function getStuffFromXSPF($url) {
 
 }
 
-function doCollection($command) {
+function doCollection($command, $jsondata = null) {
 
     global $connection;
     global $is_connected;
@@ -554,7 +554,10 @@ function doCollection($command) {
     $files = array();
     $filecount = 0;
     if ($is_connected) {
-        if ($command == "listallinfo" && $prefs['use_mopidy_tagcache'] == 1) {
+        if ($command == null) {
+            debug_print("Parsing Mopidy JSON Data");
+            parse_mopidy_json_data($collection, $jsondata);
+        } elseif ($command == "listallinfo" && $prefs['use_mopidy_tagcache'] == 1) {
             debug_print("Doing Mopidy tag cache scan.");
             if (file_exists("mopidy-tags/tag_cache")) {
                 parse_mopidy_tagcache($collection);
@@ -661,6 +664,9 @@ function do_albums_xml($artistkey, $compilations, $showartist, $prefix, $output)
             }
             //$output->writeLine(xmlnode('id', $prefix.'album'.$count));
             $output->writeLine(xmlnode('name', $album->name));
+            if ($album->musicbrainz_albumid) {
+                $output->writeLine(xmlnode('mbid', $album->musicbrainz_albumid));
+            }
             if (!$album->is_spotify) {
                 $output->writeLine(xmlnode('directory', rawurlencode($album->folder)));
             }
@@ -668,15 +674,19 @@ function do_albums_xml($artistkey, $compilations, $showartist, $prefix, $output)
             $artname = md5($album->artist." ".$album->name);
             $output->writeLine(xmlnode('name', $artname));
             if (file_exists("albumart/original/".$artname.".jpg")) {
+                $output->writeLine(xmlnode('exists', 'yes'));
                 $output->writeLine(xmlnode('src', 'albumart/small/'.$artname.".jpg"));
             } else {
-                $b = munge_album_name($album->name);
-                $output->writeLine(xmlnode('romprartist', rawurlencode($album->artist)));
-                $output->writeLine(xmlnode('rompralbum', rawurlencode($b)));
+                $output->writeLine(xmlnode('exists', 'no'));
                 $output->writeLine(xmlnode('src', "images/album-unknown-small.png"));
             }
+            $b = munge_album_name($album->name);
+            $output->writeLine(xmlnode('romprartist', rawurlencode($album->artist)));
+            $output->writeLine(xmlnode('rompralbum', rawurlencode($b)));
+            $output->writeLine(xmlnode('searched', 'no'));
             $output->writeLine("</image>\n");
-            
+
+
             $numdiscs = $album->sortTracks();
             $output->writeLine(xmlnode('numdiscs', $numdiscs));
             $currdisc = -1;

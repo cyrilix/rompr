@@ -178,9 +178,7 @@ function Playlist() {
             $("#sortable").append(tracklist[i].getHTML());
         }
         
-        // Invisible empty div tacked on the end gives something to drop draggables onto
-        $("#sortable").append('<div name="waiter"><table width="100%" class="playlistitem"><tr><td align="left"><img src="images/transparent-32x32.png"></td></tr></table></div>');
-
+        makeFictionalCharacter();
         if (scrollto > -1) {
             $("#playlist").scrollTo('div[name="'+scrollto.toString()+'"]');
             scrollto = -1;
@@ -195,6 +193,11 @@ function Playlist() {
         
     }
 
+    function makeFictionalCharacter() {
+        // Invisible empty div tacked on the end gives something to drop draggables onto
+        $("#sortable").append('<div name="waiter" class="containerbox bar"></div>');
+    }
+
     this.load = function(name) {
         self.clearProgressTimer();
         self.cleanupCleanupTimer();        
@@ -203,9 +206,13 @@ function Playlist() {
         currentalbum = -1;
         tracklist = [];
         $("#sortable").empty();
-        $("#sortable").html('<div class="dirname"><h2 id="dan">Loading Playlist...</h2></div>');
-        $("#playlistslist").hide();
-        $("#dan").effect('pulsate', { times:200 }, 2000);
+        makeFictionalCharacter();
+        playlist.waiting();
+        if (mobile == "no") {
+            $("#playlistslist").hide();
+        } else {
+            sourcecontrol('playlistm');
+        }
         mpd.command('command=load&arg='+name, playlist.repopulate);
     }
     
@@ -298,11 +305,10 @@ function Playlist() {
     }
 
     this.waiting = function() {
-        var html = '<div class="item containerbox menuitem playlisttitle">';
-        html = html + '<img class="smallcover fixed" src="images/waiting2.gif"/>';
-        html = html + '<div class="expand">Incoming....</div></div>';
+        var html = '<div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div>';
+        html = html + html;
+        html = html + '<div class="label"><h2 align="center">Incoming...</h2></div>';
         $('div[name="waiter"]').html(html);
-        html = null;
     }
 
     // This is used for adding stream playlists ONLY
@@ -514,8 +520,6 @@ function Playlist() {
     this.stopafter = function() {
         if (currentTrack.type == "stream") {
             infobar.notify(infobar.ERROR, "Not supported for radio streams");
-        } else if (prefs.use_mopidy_tagcache == 1) { 
-            infobar.notify(infobar.ERROR, "Not supported with mopidy");            
         } else if (mpd.getStatus('state') == "play") {
             var cmds = [];
             if (prefs.repeat == 1) {
@@ -939,7 +943,8 @@ function Playlist() {
             debug.log("Checking Last.FM Playlist item");
             for(var i in tracks) {
                 debug.log("Track",i,"expires in", parseInt(tracks[i].expires) - unixtimestamp);
-                if (unixtimestamp > parseInt(tracks[i].expires) && currentsong != tracks[i].playlistpos) {
+                if (unixtimestamp > parseInt(tracks[i].expires) && 
+                    !(mpd.getStatus('state') == "play" && currentsong == tracks[i].playlistpos)) {
                     // Remove track if it has expired, but not if it's currently playing
                     debug.log("Track",i,"has expired",currentsong,tracks[i].playlistpos);
                     $('.booger[name="'+tracks[i].playlistpos+'"]').slideUp('fast');

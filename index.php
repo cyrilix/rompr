@@ -16,6 +16,11 @@ if (array_key_exists('mpd_host', $_POST)) {
     } else {
         $prefs['use_mopidy_tagcache'] = 0;
     }
+    if (array_key_exists('use_mopidy_http', $_POST)) {
+        $prefs['use_mopidy_http'] = 1;
+    } else {
+        $prefs['use_mopidy_http'] = 0;
+    }
 
     savePrefs();
 }
@@ -101,6 +106,8 @@ if ($mobile != "no") {
 <script type="text/javascript" src="playlist.js"></script>
 <script type="text/javascript" src="info.js"></script>
 <script type="text/javascript" src="coverscraper.js"></script>
+<script type="text/javascript" src="mopidy.js"></script>
+<script type="text/javascript" src="mopidyhttpfunctions.js"></script>
 
 <?php
 if (file_exists("prefs/prefs.js")) {
@@ -118,6 +125,7 @@ var emptytrack = {  creator: "",
                     album: "",
                     title: "",
                     duration: 0,
+                    location: "",
                     image: "images/album-unknown.png"
 };
 <?php
@@ -193,7 +201,8 @@ var prefs = function() {
                     }
                 });
             }    
-            if (prefs.use_mopidy_tagcache == 1) {
+            if (prefs.use_mopidy_tagcache == 1 ||
+                prefs.use_mopidy_http == 1) {
                 prefs.hide_filelist = true;
             }
         },
@@ -230,6 +239,7 @@ prefs.updateLocal();
 var lastfm = new LastFM(prefs.lastfm_user);
 var browser = new Info('infopane', prefs.infosource);
 var coverscraper = new coverScraper(0, false, false, prefs.downloadart);
+var player = new dualPlayerController();
 
 $(document).ready(function(){
     // Check to see if HTML5 local storage is supported - we use this for communication between the
@@ -237,6 +247,7 @@ $(document).ready(function(){
     if ("localStorage" in window && window["localStorage"] != null) {
         window.addEventListener("storage", onStorageChanged, false);
     }
+
     setClickHandlers();
     $("#sortable").click(onPlaylistClicked);
     
@@ -293,7 +304,7 @@ $(document).ready(function(){
             });
             $("#playlistresizer").bind("drag", prDrag);
             $("#playlistresizer").bind("dragstop", prDragStop);
-            reloadPlaylists();
+            player.reloadPlaylists();
             doThatFunkyThang();
             $("ul.topnav li a").click(function() {
                 $(this).parent().find("ul.subnav").slideToggle('fast');
@@ -328,7 +339,7 @@ $(document).ready(function(){
         if (prefs.hidebrowser) {
             $(".penbehindtheear").fadeOut('fast');
         }
-        reloadPlaylists();
+        player.reloadPlaylists();
         var s = ["albumlist", "filelist", "lastfmlist", "radiolist"];
         for (var i in s) {
             if (prefs["hide_"+s[i]]) {
@@ -385,6 +396,7 @@ $(document).ready(function(){
     $(window).bind('resize', function() {
         setBottomPaneSize();
     });
+
 });
 
 </script>
@@ -446,8 +458,14 @@ print $title;
         if ($prefs['use_mopidy_tagcache'] == 1) {
             print " checked";
         }
-        print '>Build Music Collection using mopidy tag cache</input>';
+        print '>Update collection using mopidy scan</input>';
         print '<p>Local Music Directory:<br><input type="text" class="winkle" name="music_directory" value="'.$prefs['music_directory'].'" /></p>'."\n";
+        print '<p><input type="checkbox" name="use_mopidy_http" value="1"';
+        if ($prefs['use_mopidy_http'] == 1) {
+            print " checked";
+        }
+        print '>Use Mopidy HTTP Frontend for additional features</input></p>';
+        print '<p>Mopidy HTTP port:<br><input type="text" class="winkle" name="mopidy_http_port" value="'.$prefs['mopidy_http_port'].'" /></p>'."\n";
 ?>
         <p><input type="submit" class="winkle" value="OK" /></p>
     </form>

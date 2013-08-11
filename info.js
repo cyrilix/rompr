@@ -26,6 +26,16 @@ function Info(target, source) {
                                 (currentnames.track != npinfo.track || currentnames.album != npinfo.album || currentnames.artist != npinfo.artist)
             );
         }
+        var l = npinfo.location;
+        if (l.substr(0,11) == "soundcloud:") {
+            $("#soundcloudbutton").fadeIn("fast");  
+        } else {
+            $("#soundcloudbutton").fadeOut("fast");
+            if (current_source == "soundcloud") {
+                current_source = lastsource;
+            }
+        }
+
     }
     
     function playTheWaitingGame(npinfo, doartist, doalbum, dotrack) {
@@ -61,6 +71,7 @@ function Info(target, source) {
                    so just go straight ahead and give us everything */
                 showMeTheMonkey(index, true, true, true, nowplaying.getnames(index));
                 break;
+
             case (displaypointer < (history.length)-1):
                 /* We are not displaying the most recent entry in our history, so we don't want to update
                    but we do want to put the entry into our history*/
@@ -72,7 +83,8 @@ function Info(target, source) {
                                 newnames
                                );
                 break;
-            case (current_source == "lastfm" || current_source == "soundcloud"):
+
+            case (current_source == "lastfm"):
                 /* When we're displaying LastFM stuff, we always care about changes */
                 var currentnames = nowplaying.getnames(history[displaypointer].nowplayingindex);
                 var newnames = nowplaying.getnames(index);
@@ -83,6 +95,16 @@ function Info(target, source) {
                                 newnames
                                );
                 break;
+
+            case (current_source == "soundcloud"):
+                showMeTheMonkey(index,
+                                true,
+                                false,
+                                false,
+                                nowplaying.getnames(index)
+                            );
+                break;
+
             case (current_source == "slideshow" || current_source == "wikipedia"):
                 var currentnames = nowplaying.getnames(history[displaypointer].nowplayingindex);
                 var newnames = nowplaying.getnames(index);
@@ -130,12 +152,6 @@ function Info(target, source) {
         return false;
     }
 
-    this.switchFromSoundCloud = function() {
-        if (current_source == "soundcloud") {
-            current_source = lastsource;
-        }
-    }
-    
     this.switchSource = function(source) {
         if (source === null) {
             source = current_source;
@@ -799,31 +815,21 @@ function Info(target, source) {
         html = html + '<a href="' + data.track.permalink_url + '" title="View In New Tab" target="_blank"><img height="32px" src="images/soundcloud-logo.png"></a>';
         html = html + '</td></tr></table>';
         html = html + '</div>';
+
+        html = html +   '<div id="similarartists" class="bordered" style="position:relative">'+
+                        '<div id="scprog" class="infowiki" style="position:absolute;width:2px;top:0px;opacity:0.6;z-index:100;left:0px"></div>'+
+                        '<canvas style="position:relative;left:64px" id="gosblin"></canvas>'+
+                        '</div>';
+
+
         html = html + '<div class="foldup"><div class="holdingcell">';
 
-        html = html + '<div class="standout stleft statsbox"><ul>';
-        html = html + '<li><h3>SoundCloud User:</h3></li>';
-        if (data.user.avatar_url) {
-            html = html + '<li><img src="'+data.user.avatar_url+'" /></li>';
-        }
-        html = html + '<li><b>Full Name:</b> '+formatSCMessyBits(data.user.full_name)+'</li>';
-        html = html + '<li><b>Country:</b> '+formatSCMessyBits(data.user.country)+'</li>';
-        html = html + '<li><b>City:</b> '+formatSCMessyBits(data.user.city)+'</li>';
-        if (data.user.website) {
-            html = html + '<li><b><a href="' + data.user.website + '" target="_blank">Visit Website</a></b></li>';
-        }
-
-        var f = formatSCMessyBits(data.user.description)
-        f = f.replace(/\n/g, "</p><p>");
-        html = html + '<li><p>'+ f +'</p></li>';
-        html = html + '</ul></div>';
-
-        html = html + '<div class="statsbox">';
+        html = html + '<div class="standout stleft statsbox">';
 
         if (data.track.artwork_url) {
-            html = html +  '<img class="stright" src="' + data.track.artwork_url + '" class="standout" />';
+            html = html +  '<img src="' + data.track.artwork_url + '" class="stright" />';
         }
-        html = html +  '<div id="artistbio"><ul>';
+        html = html +  '<div id="artistbio class="stleft"><ul>';
         html = html + '<li><h3>Track Info:</h3></li>';
         html = html + '<li><b>Plays:</b> '+formatSCMessyBits(data.track.playback_count)+'</li>';
         html = html + '<li><b>Downloads:</b> '+formatSCMessyBits(data.track.download_count)+'</li>';
@@ -841,13 +847,27 @@ function Info(target, source) {
         var d = formatSCMessyBits(data.track.description);
         d = d.replace(/\n/g, "</p><p>");
         html = html + '<p>'+d+'</p>';
-        html = html + '</div></div></div>';
+        html = html + '</div>';
+        html = html + '</div>';
+        html = html + '<div class="statsbox standout">';
 
-        html = html +   '<div id="similarartists" class="bordered" style="position:relative">'+
-                        '<div id="scprog" class="infowiki" style="position:absolute;width:2px;top:0px;opacity:0.6;z-index:100;left:0px"></div>'+
-                        '<canvas style="position:relative;left:64px" id="gosblin"></canvas>'+
-                        '</div>';
-                        
+        if (data.user.avatar_url) {
+            html = html + '<img class="stright" src="'+data.user.avatar_url+'" />';
+        }
+        html = html + '<ul style="list-style-type:none"><li><h3>SoundCloud User:</h3></li>';
+        html = html + '<li><b>Full Name:</b> '+formatSCMessyBits(data.user.full_name)+'</li>';
+        html = html + '<li><b>Country:</b> '+formatSCMessyBits(data.user.country)+'</li>';
+        html = html + '<li><b>City:</b> '+formatSCMessyBits(data.user.city)+'</li>';
+        if (data.user.website) {
+            html = html + '<li><b><a href="' + data.user.website + '" target="_blank">Visit Website</a></b></li>';
+        }
+
+        var f = formatSCMessyBits(data.user.description)
+        f = f.replace(/\n/g, "</p><p>");
+        html = html + '</ul><p>'+ f +'</p>';
+
+
+        html = html + '</div></div>';                        
         html = html + "</div>";
         $("#artistinformation").html(html);
         scImg.onload = browser.doSCImageStuff;
@@ -880,7 +900,6 @@ function Info(target, source) {
     }
 
     this.doSCImageStuff = function() {
-        debug.log("IMAGE LOADED");
         var bgColor = $(".infowiki").css('background-color');
         debug.log("Background color is ",bgColor);
         var rgbvals = /rgb\((.+),(.+),(.+)\)/i.exec(bgColor);
@@ -908,12 +927,11 @@ function Info(target, source) {
     }
 
     this.drawSCWaveform = function() {
-        debug.log("DRAWING IMAGE");
         if (current_source == "soundcloud") {
             var wi = $("#similarartists").width();
             w = Math.round(wi*0.95);
             var l = Math.round((wi-w)/2);
-            var h = Math.round((w/scImg.width)*scImg.height);
+            var h = Math.round((w/scImg.width)*(scImg.height*0.7));
             var c = document.getElementById("gosblin");
             if (c) {
                 c.style.left = l.toString()+"px";
@@ -923,8 +941,8 @@ function Info(target, source) {
                 ctx.clearRect(0,0,c.width,c.height);
                 var gradient = ctx.createLinearGradient(0,0,0,h);
                 gradient.addColorStop(0,'#ff6600');
-                gradient.addColorStop(0.5,'#551100');
-                gradient.addColorStop(1,'#ff6600');
+                gradient.addColorStop(0.5,'#882200');
+                gradient.addColorStop(1,'#222222');
                 ctx.fillStyle = gradient;
                 ctx.fillRect(0,0,w,h);
                 ctx.drawImage(scImg,0,0,w,h);

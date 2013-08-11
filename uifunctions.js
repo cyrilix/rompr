@@ -1,6 +1,3 @@
-function reloadPlaylists() {
-    $("#playlistslist").load("loadplaylists.php?mobile="+mobile);
-}
 
 function formatTimeString(duration) {
     if (duration > 0) {
@@ -966,8 +963,14 @@ function savePlaylist() {
     if (name.indexOf("/") >= 0 || name.indexOf("\\") >= 0) {
         alert("Playlist name cannot contain / or \\");
     } else {
-        mpd.fastcommand("command=save&arg="+encodeURIComponent(name), reloadPlaylists);
-        infobar.notify(infobar.NOTIFY, "Playlist saved as "+name);
+//        if (prefs.use_mopidy_http == 0) {
+            mpd.fastcommand("command=save&arg="+encodeURIComponent(name), function() {
+                player.reloadPlaylists();
+                infobar.notify(infobar.NOTIFY, "Playlist saved as "+name);
+            });
+        // } else {
+        //     mopidySavePlaylist(name);
+        // }
         $("#saveplst").slideToggle('fast');
     }
 }
@@ -1002,10 +1005,18 @@ function saveRadioOrder() {
 function prepareForLiftOff() {
     $("#collection").empty();
     $("#filecollection").empty();
-    $("#collection").html('<div class="dirname"><h2 id="loadinglabel">Updating Collection...</h2></div>');
-    $("#filecollection").html('<div class="dirname"><h2 id="loadinglabel2">Scanning Files...</h2></div>');
-    $("#loadinglabel").effect('pulsate', { times:200 }, 2000);
-    $("#loadinglabel2").effect('pulsate', { times:200 }, 2000);
+    var html =  '<div class="containerbox bar">'+
+                '<div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div>'+
+                '<div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div>'+
+                '<div class="label"><h2 id="loadinglabel" align="center">Updating Collection...</h2></div>'+
+                '</div>'
+    $("#collection").html(html);
+    html =  '<div class="containerbox bar">'+
+            '<div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div>'+
+            '<div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div>'+
+            '<div class="label"><h2 id="loadinglabel2" align="center">Scanning Files...</h2></div>'+
+            '</div>'
+    $("#filecollection").html(html);
 }
 
 function checkCollection() {
@@ -1024,7 +1035,7 @@ function checkCollection() {
         }
     }
     if (update) {
-        updateCollection('update');
+        player.updateCollection('update');
     } else {
         prepareForLiftOff();
         if (prefs.hide_filelist && !prefs.hide_albumlist) {
@@ -1040,31 +1051,12 @@ function checkCollection() {
     }
 }
 
-function updateCollection(cmd) {
-    debug.log("Updating collection with command", cmd);
-    prepareForLiftOff();
-    if (prefs.use_mopidy_tagcache == 1) {
-        $.ajax({
-            type: 'GET',
-            url: 'doMopidyScan.php',
-            cache: false,
-            timeout: 1200000,
-            success: function() { checkPoll({data: 'dummy' })},
-            error: function() { alert("Failed to create mopidy tag cache") }
-        });
-    } else {
-        $.getJSON("ajaxcommand.php", "command="+cmd, function() { 
-                    update_load_timer = setTimeout( pollAlbumList, 2000);
-                    update_load_timer_running = true;
-        });
-    }
-}
-
 function loadCollection(albums, files) {
     if (albums != null) {
         debug.log("Loading Albums List");
         $("#loadinglabel").html("Loading Collection");
-        $("#collection").load(albums);
+        player.reloadAlbumsList(albums);
+        //$("#collection").load(albums);
         $('#search').load("search.php");
     }
     if (files != null) {
@@ -1092,12 +1084,6 @@ function checkPoll(data) {
             loadCollection('albums.php', 'dirbrowser.php');
         }
     }
-}
-
-function mopidyUpdate() {
-    prepareForLiftOff();
-    $("#loadinglabel").html("Loading Collection");
-    checkPoll({data: 'dummy' });
 }
 
 function pollAlbumList() {
@@ -1301,8 +1287,13 @@ function swipeyswipe(dir) {
     }
 }
 
-function doSomethingUseful() {
-    $("#henrythegippo").html('Searching...');
+function doSomethingUseful(div) {
+    var html =  '<div class="containerbox bar">'+
+                '<div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div>'+
+                '<div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div>'+
+                '<div class="label"><h2 align="center">Searching...</h2></div>'+
+                '</div>'
+    $("#"+div).append(html);
 }
 
 function faffing() {

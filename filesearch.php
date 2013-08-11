@@ -9,7 +9,7 @@ include ("filelister.php");
 <ul class="sourcenav">
 <li><b>Search For Files Containing:</b></li>
 <li><input class="sourceform winkle" name="searchtitle" type="text" size="60" />
-<button type="submit">Search</button></li>
+<button onclick="doSomethingUseful('filesearch') type="submit">Search</button></li>
 </ul>
 </form>
 </div>

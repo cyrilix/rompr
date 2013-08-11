@@ -1,5 +1,5 @@
 <?php
-$LISTVERSION = "0.31";
+$LISTVERSION = "0.33";
 $ALBUMSLIST = 'prefs/albums_'.$LISTVERSION.'.xml';
 $ALBUMSEARCH = 'prefs/albumsearch_'.$LISTVERSION.'.xml';
 $FILESLIST = 'prefs/files_'.$LISTVERSION.'.xml';
@@ -63,7 +63,9 @@ $prefs = array( "mpd_host" => "localhost",
                 "twocolumnsinlandscape" => "false",
                 "use_mopidy_tagcache" => 0,
                 "music_directory" => "",
-                "music_directory_albumart" => ""
+                "music_directory_albumart" => "",
+                "use_mopidy_http" => 0,
+                "mopidy_http_port" => "6680"
                 );
 loadPrefs();
 

@@ -243,14 +243,11 @@ function update_cache($fname, $notfound) {
                     foreach($artist->albums->album as $j => $album) {
                         if ($album->image->name == $fname) {
                             debug_print("Found it");
-                            // we always want to remove the romprartist and rompralbum items - this will
-                            // prevent it being auto-searched again
-                            // If notfound is 0 we also update the image src tage
-                            unset($album->image->romprartist);
-                            unset($album->image->rompralbum);
                             if ($notfound == 0) {
                                 $album->image->src = "albumart/small/".$fname.".jpg";
+                                $album->image->exists = "yes";
                             }
+                            $album->image->searched = "yes";
                             ftruncate($fp, 0);
                             fwrite($fp, $x->asXML());
                             fflush($fp);

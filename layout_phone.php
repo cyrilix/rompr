@@ -119,12 +119,20 @@
     </div>
 
     <div id="playlistman" class="invisible noborder">
+<?php
+if ($prefs['use_mopidy_tagcache'] == 0 &&
+    $prefs['use_mopidy_http'] == 0) {
+?>
         <div class="pref">
             Save Playlist As
             <input class="winkle" style="width:195px" name="nigel" id="playlistname" type="text" size="200"/>
             <button onclick="savePlaylist()">Save</button>
         </div>
+<?php
+}
+?>
         <div class="pref">
+
             <div id="playlistslist"></div>
         </div>
     </div>
@@ -146,7 +154,8 @@
             <input type="checkbox" onclick="hidePanel('albumlist')" id="button_hide_albumlist">Hide Albums List</input>
         </div>
 <?php
-if ($prefs['use_mopidy_tagcache'] == 0) {
+if ($prefs['use_mopidy_tagcache'] == 0 &&
+    $prefs['use_mopidy_http'] == 0) {
 ?>
         <div class="pref">
             <input type="checkbox" onclick="hidePanel('filelist')" id="button_hide_filelist">Hide Files List</input>
@@ -194,23 +203,30 @@ if ($prefs['use_mopidy_tagcache'] == 0) {
             <input type="checkbox" onclick="togglePref('updateeverytime')" id="updateeverytime">Update Collection On Start</input>
         </div>
         <div class="pref">
-            <button onclick="updateCollection('update')">Update Collection Now</button>
+            <button onclick="player.updateCollection('update')">Update Collection Now</button>
         </div>
 <?php
 } else {
 ?>    
         <div class="pref">
-            <button onclick="mopidyUpdate()">Re-read Mopidy Tag Cache</button>
+            <button onclick="player.mopidyUpdate()">Rebuild Albums List</button>
         </div>
 <?php
 }
 ?>
         <div class="pref">
-            <button onclick="updateCollection('rescan')">Full Collection Rescan</button>
+            <button onclick="player.updateCollection('rescan')">Full Collection Rescan</button>
         </div>
+<?php
+if ($prefs['use_mopidy_tagcache'] == 0 &&
+    $prefs['use_mopidy_http'] == 0) {
+?>        
         <div class="pref">
             <button onclick="editmpdoutputs()">MPD Audio Outputs...</button>
         </div>
+<?php
+}
+?>
         <div class="pref">
             <b>Last.FM</b>
         </div>
