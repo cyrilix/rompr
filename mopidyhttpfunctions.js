@@ -10,7 +10,7 @@ function dualPlayerController() {
     var mopidy = null;
     self.mopidyReady = false;
 
-    //self.mp = null;;
+    self.mp = null;;
 
     this.doMopidyInit = function() {
         debug.log("Connected to Mopidy");
@@ -26,7 +26,7 @@ function dualPlayerController() {
             webSocketUrl: "ws://"+prefs.mpd_host+":"+prefs.mopidy_http_port+"/mopidy/ws/"
         });
         mopidy.on("state:online", self.doMopidyInit);
-        //self.mp = mopidy;
+        self.mp = mopidy;
     }
 
     function mopidyReloadPlaylists() {
@@ -135,7 +135,6 @@ function dualPlayerController() {
         if (uri.indexOf("?") < 0) {
             // This means we want to update the cache
             if (self.mopidyReady) {
-                // Mobile browsers can't handle the amoune of data this takes
                 // Get the list of files from mopidy using the HTTP connection
                 debug.log("Getting list of files using mopidy websocket search");
                 mopidy.library.search({}, ['file:']).then( function(data) {

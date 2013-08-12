@@ -158,7 +158,7 @@ var prefsbuttons = ["images/button-off.png", "images/button-on.png"];
 var prefsInLocalStorage = ["hidebrowser", "sourceshidden", "playlisthidden", "infosource", "playlistcontrolsvisible",
                             "sourceswidthpercent", "playlistwidthpercent", "downloadart", "clickmode", "chooser",
                             "hide_albumlist", "hide_filelist", "hide_lastfmlist", "hide_radiolist", "twocolumnsinlandscape",
-                            "shownupdatewindow"];
+                            "shownupdatewindow", "keep_search_open"];
 
 function aADownloadFinished() {
     /* We need one of these in global scope so coverscraper works here
@@ -310,12 +310,7 @@ $(document).ready(function(){
                 $(this).parent().find("ul.subnav").slideToggle('fast');
                 return false;
             });
-            var s = ["albumlist", "filelist", "lastfmlist", "radiolist"];
-            for (var i in s) {
-                if (prefs["hide_"+s[i]]) {
-                    $("#choose_"+s[i]).fadeOut('fast');
-                }
-            }
+            setChooserButtons();
         });
         loadKeyBindings();
     } else {
@@ -332,6 +327,7 @@ $(document).ready(function(){
         $("#themeselector").val(prefs.theme);
         $("#countryselector").val(prefs.lastfm_country_code);
         $("#button_hide_albumlist").attr("checked", prefs.hide_albumlist);
+        $("#button_keep_search_open").attr("checked", prefs.keep_search_open);
         $("#button_hide_filelist").attr("checked", prefs.hide_filelist);
         $("#button_hide_lastfmlist").attr("checked", prefs.hide_lastfmlist);
         $("#button_hide_radiolist").attr("checked", prefs.hide_radiolist);
@@ -339,15 +335,11 @@ $(document).ready(function(){
         if (prefs.hidebrowser) {
             $(".penbehindtheear").fadeOut('fast');
         }
+        setChooserButtons();
         player.reloadPlaylists();
-        var s = ["albumlist", "filelist", "lastfmlist", "radiolist"];
-        for (var i in s) {
-            if (prefs["hide_"+s[i]]) {
-                $("#choose_"+s[i]).fadeOut('fast');
-            }
-        }
     }
 
+    $('#search').load("search.php");
     if (!prefs.hide_lastfmlist) {
         $("#lastfmlist").load("lastfmchooser.php");
     }
@@ -359,7 +351,7 @@ $(document).ready(function(){
     }
     checkCollection();
     sourcecontrol(prefs.chooser);
-    if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < 0.30) {
+    if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < 0.33) {
         var fnarkle = popupWindow.create(500,600,"fnarkle",true,"Information About This Version");
         $("#popupcontents").append('<div id="fnarkler" class="mw-headline"></div>');
         if (mobile != "no") {
@@ -373,6 +365,7 @@ $(document).ready(function(){
         }
         $("#fnarkler").append('<p>The Basic RompR Manual is at: <a href="https://sourceforge.net/p/rompr/wiki/Basic%20Manual/" target="_blank">http://sourceforge.net/p/rompr/wiki/Basic%20Manual/</a></p>');
         $("#fnarkler").append('<p>The Discussion Forum is at: <a href="https://sourceforge.net/p/rompr/discussion/" target="_blank">http://sourceforge.net/p/rompr/discussion/</a></p>');
+        $("#fnarkler").append('<p>If you are running Mopidy, please <a href="https://sourceforge.net/p/rompr/wiki/Rompr%20and%20Mopidy/" target="_blank">read the section about Mopidy on the Wiki</a> to enable some extra features</p>');
         $("#fnarkler").append('<p><button style="width:8em" class="tright" onclick="popupWindow.close()">OK</button></p>');
         popupWindow.open();
         prefs.save({shownupdatewindow: 0.33});

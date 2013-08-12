@@ -650,9 +650,8 @@ function do_albums_xml($artistkey, $compilations, $showartist, $prefix, $output)
     //debug_print("Doing Artist: ".$artistkey);
     $artist = $collection->artistName($artistkey);
     $albumlist = $collection->getAlbumList($artistkey, $compilations, false);
-    if (count($albumlist) > 0) {    
+    if (count($albumlist) > 0 || $collection->spotilink($artistkey) != null) {    
         $output->writeLine('<artist id="'.$prefix.'artist'.$count.'">'."\n");
-        //$output->writeLine(xmlnode('id', $prefix.'artist'.$count));
         $output->WriteLine(xmlnode('name', $artist));
         if ($collection->spotilink($artistkey) != null) {
             $output->writeLine(xmlnode('spotilink', rawurlencode($collection->spotilink($artistkey))));
@@ -663,7 +662,6 @@ function do_albums_xml($artistkey, $compilations, $showartist, $prefix, $output)
             if ($album->spotilink != null) {
                 $output->writeLine(xmlnode('spotilink', rawurlencode($album->spotilink)));
             }
-            //$output->writeLine(xmlnode('id', $prefix.'album'.$count));
             $output->writeLine(xmlnode('name', $album->name));
             if ($album->musicbrainz_albumid) {
                 $output->writeLine(xmlnode('mbid', $album->musicbrainz_albumid));
@@ -686,7 +684,6 @@ function do_albums_xml($artistkey, $compilations, $showartist, $prefix, $output)
             $output->writeLine(xmlnode('rompralbum', rawurlencode($b)));
             $output->writeLine(xmlnode('searched', 'no'));
             $output->writeLine("</image>\n");
-
 
             $numdiscs = $album->sortTracks();
             $output->writeLine(xmlnode('numdiscs', $numdiscs));
@@ -753,7 +750,6 @@ function parse_mopidy_tagcache($collection) {
                     }
                     if ($parts[0] == 'file') {
                         $parts[1] = "file://".$prefs['music_directory'].$parts[1];
-                        //$parts[1] = str_replace(" ", "%20", $parts[1]);
                     }
                     $filedata[$parts[0]] = $parts[1];
                     if ($firstline == null) {

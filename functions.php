@@ -335,6 +335,9 @@ function dumpAlbums($which) {
     print $headers;
     $x = simplexml_load_file(getWhichXML($which));
     if ($which == 'aalbumroot' || $which == 'balbumroot') {
+        if ($which == 'aalbumroot') {
+            print '<div class="menuitem"><h3>Local Files:</h3></div>';
+        }
         print '<div><table width="100%" class="playlistitem"><tr><td align="left">';
         print $x->artists->numtracks . ' tracks</td><td align="right">Duration : ';
         print $x->artists->duration . '</td></tr></table></div>';
@@ -378,6 +381,7 @@ function artistHeader($artist) {
 }
 
 function albumHeaders($artist) {
+    $count = 0;
     foreach($artist->albums->album as $i => $album) {
         if ($album->spotilink) {
             print '<div class="clickable clicktrack draggable containerbox menuitem" name="'.$album->spotilink.'">';
@@ -410,7 +414,10 @@ function albumHeaders($artist) {
         
         // Create the drop-down div that will hold this album's tracks
         print '<div id="'.$album['id'].'" class="dropmenu notfilled"></div>';
-
+        $count ++;
+    }
+    if ($count == 0) {
+        print '<div class="playlistrow2" style="padding-left:64px">No Individual Albums Returned By Search</div>';
     }
 }
 

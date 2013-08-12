@@ -37,7 +37,7 @@ include ("functions.php");
 <a title="Artist Info from Wikipedia" href="#" onclick="browser.switchSource('wikipedia')"><img class="topimg" height="24px" src="images/Wikipedia-logo.png"></a>
 <a title="Artist, Album, and Song Info from Last.FM" href="#" onclick="browser.switchSource('lastfm')"><img class="topimg" height="24px" src="images/lastfm.png"></a>
 <a title="Artist Slideshow" href="#" onclick="browser.switchSource('slideshow')"><img class="topimg" height="24px" src="images/slideshow.png"></a>
-<a id="soundcloudbutton" title="Track Info from SoundCloud" href="#" onclick="browser.switchSource('soundcloud')"><img class="topimg" height="24px" src="images/soundcloud-logo.png"></a>
+<a id="soundcloudbutton" title="Track Info from SoundCloud" href="#" onclick="browser.switchSource('soundcloud')" style="display:none"><img class="topimg" height="24px" src="images/soundcloud-logo.png"></a>
 <a id="forwardbutton" title="Forward"><img class="topimg" height="24px" src="images/forwardbutton_disabled.png"></a>
 </div>
 </div>
@@ -69,6 +69,7 @@ include ("functions.php");
 ?>
                         </select></li>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="hidePanel('albumlist')" id="button_hide_albumlist">Hide Albums List</input></li>
+                        <li class="wide"><input type="checkbox" class="topcheck" onclick="keepsearchopen()" id="button_keep_search_open">...but Keep Search Box Visible</input></li>
 <?php
 if ($prefs['use_mopidy_tagcache'] == 0 &&
     $prefs['use_mopidy_http'] == 0) {
@@ -195,6 +196,7 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
     $("#autocorrect").attr("checked", prefs.lastfm_autocorrect);
     $("#hideinfobutton").attr("checked", prefs.hidebrowser);
     $("#button_hide_albumlist").attr("checked", prefs.hide_albumlist);
+    $("#button_keep_search_open").attr("checked", prefs.keep_search_open);
     $("#button_hide_filelist").attr("checked", prefs.hide_filelist);
     $("#button_hide_lastfmlist").attr("checked", prefs.hide_lastfmlist);
     $("#button_hide_radiolist").attr("checked", prefs.hide_radiolist);

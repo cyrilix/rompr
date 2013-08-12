@@ -1004,18 +1004,21 @@ function saveRadioOrder() {
 
 function prepareForLiftOff() {
     $("#collection").empty();
-    $("#filecollection").empty();
     var html =  '<div class="containerbox bar">'+
                 '<div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div>'+
                 '<div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div>'+
                 '<div class="label"><h2 id="loadinglabel" align="center">Updating Collection...</h2></div>'+
                 '</div>'
     $("#collection").html(html);
-    html =  '<div class="containerbox bar">'+
-            '<div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div>'+
-            '<div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div>'+
-            '<div class="label"><h2 id="loadinglabel2" align="center">Scanning Files...</h2></div>'+
-            '</div>'
+}
+
+function prepareForLiftOff2() {
+    $("#filecollection").empty();
+    var html =  '<div class="containerbox bar">'+
+                '<div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div>'+
+                '<div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div>'+
+                '<div class="label"><h2 id="loadinglabel2" align="center">Scanning Files...</h2></div>'+
+                '</div>'
     $("#filecollection").html(html);
 }
 
@@ -1037,14 +1040,17 @@ function checkCollection() {
     if (update) {
         player.updateCollection('update');
     } else {
-        prepareForLiftOff();
         if (prefs.hide_filelist && !prefs.hide_albumlist) {
+            prepareForLiftOff();
             debug.log("Loading albums cache only");
             loadCollection('albums.php?item=aalbumroot', null);
         } else if (prefs.hidealbumlist && !prefs.hide_filelist) {
+            prepareForLiftOff2();
             debug.log("Loading Files Cache Only");
             loadCollection(null, 'dirbrowser.php?item=adirroot');
         } else if (!prefs.hidealbumlist && !prefs.hide_filelist) {
+            prepareForLiftOff();
+            prepareForLiftOff2();
             debug.log("Loading Both Caches");
             loadCollection('albums.php?item=aalbumroot', 'dirbrowser.php?item=adirroot');
         }
@@ -1057,7 +1063,7 @@ function loadCollection(albums, files) {
         $("#loadinglabel").html("Loading Collection");
         player.reloadAlbumsList(albums);
         //$("#collection").load(albums);
-        $('#search').load("search.php");
+        // $('#search').load("search.php");
     }
     if (files != null) {
         debug.log("Loading Files List");
@@ -1147,6 +1153,9 @@ function switchsource(source) {
             }
         }
     }
+    if (prefs.keep_search_open) {
+        $("#search").show();
+    }
 
 }
 
@@ -1175,7 +1184,7 @@ function hidePanel(panel) {
         }
     }
     if (new_state) {
-        $("#choose_"+panel).fadeOut('fast');
+        //$("#choose_"+panel).fadeOut('fast');
         switch (panel) {
             case "lastfmlist":
                 $("#lastfmlist").empty();
@@ -1189,7 +1198,7 @@ function hidePanel(panel) {
             case "albumlist":
                 if (update_load_timer_running == false) {
                     $("#collection").empty();
-                    $("#search").empty();
+                    // $("#search").empty();
                 }
                 break;
             case "filelist":
@@ -1200,7 +1209,7 @@ function hidePanel(panel) {
                 break;
         }
     } else {
-        $("#choose_"+panel).fadeIn('fast');
+        //$("#choose_"+panel).fadeIn('fast');
         switch (panel) {
             case "lastfmlist":
                 $("#lastfmlist").load("lastfmchooser.php");
@@ -1223,7 +1232,8 @@ function hidePanel(panel) {
                 }
                 break;
         }
-    }    
+    }
+    setChooserButtons();
 }
 
 function setXfadeDur() {
@@ -1254,7 +1264,7 @@ function makeitbigger() {
 
 function swipeyswipe(dir) {
     var order = [];
-    if (!prefs.hide_albumlist) {
+    if (!prefs.hide_albumlist || (prefs.hide_albumlist && prefs.keep_search_open)) {
         order.push("albumlist")
     }
     if (!prefs.hide_filelist) {
@@ -1307,5 +1317,37 @@ function refreshMyDrink(path) {
     } else {
         debug.log("Fanoogling the hubstraff",path);
         $("#icecastlist").load("iceScraper.php?path="+path);
+    }
+}
+
+function setChooserButtons() {
+    var s = ["filelist", "lastfmlist", "radiolist"];
+    for (var i in s) {
+        if (prefs["hide_"+s[i]]) {
+            debug.log(s[i]," is hidden");
+            $("#choose_"+s[i]).fadeOut('fast');
+        } else {
+            $("#choose_"+s[i]).fadeIn('fast');
+        }
+    }
+    if (prefs.hide_albumlist && !prefs.keep_search_open) {
+        $("#choose_albumlist").fadeOut('fast');        
+    } else {
+        $("#choose_albumlist").fadeIn('fast');        
+    }
+}
+
+function keepsearchopen() {
+    prefs.keep_search_open = !prefs.keep_search_open;
+    prefs.save({keep_search_open: prefs.keep_search_open});
+    if (prefs.hide_albumlist) {
+        if (prefs.keep_search_open) {
+            $("#choose_albumlist").fadeIn('fast');
+        } else {
+            $("#choose_albumlist").fadeOut('fast');
+        }
+    }
+    if (prefs.keep_search_open) {
+        $("#search").show();
     }
 }
