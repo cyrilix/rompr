@@ -25,17 +25,7 @@ function Playlist() {
         debug.log("Repopulating Playlist");
         updatecounter++;
         self.cleanupCleanupTimer();
-        $.ajax({
-            type: "GET",
-            url: "getplaylist.php",
-            cache: false,
-            contentType: "text/xml; charset=utf-8",
-            dataType: "xml",
-            success: playlist.newXSPF,
-            error: function(data) { 
-                alert("Something went wrong retrieving the playlist!"); 
-            }
-        });
+        player.getPlaylist();
     }
 
     this.newXSPF = function(list) {
@@ -213,6 +203,7 @@ function Playlist() {
         } else {
             sourcecontrol('playlistm');
         }
+        debug.log("Loading Playlist",name);
         mpd.command('command=load&arg='+name, playlist.repopulate);
     }
     
@@ -619,7 +610,7 @@ function Playlist() {
                 html = html + '<div name="'+tracks[trackpointer].playlistpos+'" romprid="'+tracks[trackpointer].backendid+'" class="track clickable clickplaylist sortable containerbox playlistitem menuitem">';
                 var l = tracks[trackpointer].location;
                 if (l.substring(0,11) == "soundcloud:") {
-                    html = html + '<div class="playlisticon fixed"><img height="12px" src="images/soundcloud-logo.png" /></div>';
+                    html = html + '<div class="smallcover fixed"><img class="smallcover" src="'+tracks[trackpointer].image+'" /></div>';
                 } else {
                     html = html + '<div class="tracknumbr fixed">'+format_tracknum(tracks[trackpointer].tracknumber)+'</div>';
                 }
@@ -646,13 +637,38 @@ function Playlist() {
         this.header = function() {        
             var html = "";
             html = html + '<div name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="item clickable clickplaylist sortable containerbox menuitem playlisttitle">';
-            if (tracks[0].image) {
-                html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="'+tracks[0].image+'"/></div>';
+            var l = tracks[0].location;
+            if (l.substring(0,11) == "soundcloud:") {
+                html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="images/soundcloud-logo.png"/></div>';                
             } else {
-                html = html +   '<img class="smallcover updateable notexist fixed clickable clickicon clickrollup" romprname="'+self.index+'" name="'+hex_md5(self.artist+" "+self.album)+'" '
-                            +   ' romprartist="'+encodeURIComponent(self.artist)+'" rompralbum="'+encodeURIComponent(self.album)+'"'
-                            +   ' src="images/album-unknown-small.png"/>';
-                            coverscraper.GetNewAlbumArt(hex_md5(self.artist+" "+self.album));
+                if (tracks[0].image && tracks[0].image != "images/album-unknown.png") {
+                    // An image was supplied - either a local one or supplied by the backend
+                    html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="'+tracks[0].image+'"/></div>';
+                } else {
+                    // getPlaylist.php couldn't find an image for us
+                    // is there an image already in the window that matches this one?
+                    // (i.e. a spotify album in the search window that has had an image downloaded)?
+                    var imgname = hex_md5(self.artist+" "+self.album);
+                    var imgsrc = null;
+                    $.each($('img[name="'+imgname+'"]'), function() {
+                        if ($(this).attr("src") != "images/album-unknown.png" &&
+                            $(this).attr("src") != "images/album-unknown-small.png") {
+                            debug.log("Using image already in window");
+                            imgsrc = $(this).attr("src");
+                            self.updateImages(imgsrc);
+                        }
+                    });
+                    if (imgsrc) {
+                        html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="'+imgsrc+'"/></div>';
+                        // Archive the image, as we'll probably need it again
+                        coverscraper.archiveImage(imgname, imgsrc);
+                    } else {
+                        html = html +   '<img class="smallcover updateable notexist fixed clickable clickicon clickrollup" romprname="'+self.index+'" name="'+imgname+'" '
+                                    +   ' romprartist="'+encodeURIComponent(self.artist)+'" rompralbum="'+encodeURIComponent(self.album)+'"'
+                                    +   ' src="images/album-unknown-small.png"/>';
+                                    coverscraper.GetNewAlbumArt(hex_md5(self.artist+" "+self.album));
+                    }
+                }
             }
             html = html + '<div class="containerbox vertical expand">';
             html = html + '<div class="line">'+self.artist+'</div>';
@@ -675,6 +691,12 @@ function Playlist() {
                 playlist.rolledup[this.artist+this.album] = true;
             } else {
                 playlist.rolledup[this.artist+this.album] = undefined;
+            }
+        }
+
+        this.updateImages = function(src) {
+            for (var trackpointer in tracks) {
+                tracks[trackpointer].image = src;
             }
         }
 

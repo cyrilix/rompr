@@ -258,3 +258,7 @@ function onKeyUp(e) {
         $('[name="'+e.target.name+'"]').next("button").click();
     }
 }
+
+function weaselBurrow() {
+    $("#mopidysearchdomains").slideToggle('fast');
+}

@@ -12,6 +12,8 @@ $album = "";
 $mbid = "";
 $albumpath = "";
 $spotilink = "";
+$small_file = "";
+$main_file = "";
 $searchfunctions = array( 'tryLocal', 'trySpotify', 'tryLastFM', 'tryMusicBrainz');
 
 $fname = $_REQUEST['key'];
@@ -62,10 +64,14 @@ if ($file != "") {
         $fn = array_shift($searchfunctions);
         $src = $fn();
         if ($src != "") {
-            $download_file = download_file($src, $fname, $convert_path);
-            if ($error == 1) {
-                $error = 0;
-                $src = "";
+            // Don't store files locally if we know it's a spotify album
+            // - this'll just fill up the disk really quickly.
+            if ($spotilink == "") {
+                $download_file = download_file($src, $fname, $convert_path);
+                if ($error == 1) {
+                    $error = 0;
+                    $src = "";
+                }
             }
         }
     }
@@ -75,7 +81,7 @@ if ($file != "") {
     }
 }
 
-if ($error == 0) {
+if ($error == 0 && $spotilink == "") {
     $main_file = "albumart/original/".$fname.".jpg";
     $small_file = "albumart/small/".$fname.".jpg";
     $anglofile = "albumart/asdownloaded/".$fname.".jpg";
@@ -107,8 +113,11 @@ if ($download_file != "" && file_exists($download_file)) {
 // we need to edit the cached albums list so it doesn't get searched again
 // and edit the URL so it points to the correct image if one was found
 if (file_exists($ALBUMSLIST) && $stream == "" && $spotilink == "") {
-    debug_print("Classing ".$fname." as ".$error);
-    update_cache($fname, $error);
+    debug_print("Classing non-spotify ".$fname." as ".$error);
+    update_cache($fname, $error, $ALBUMSLIST, $small_file);
+} else if (file_exists($ALBUMSEARCH) && $spotilink != "") {
+    debug_print("Classing spotify ".$fname." as ".$error);
+    update_cache($fname, $error, $ALBUMSEARCH, $src);
 }
 
 if ($error == 0) {
@@ -126,7 +135,16 @@ if ($error == 0) {
             fclose($fp);
         }
     }
-    header('HTTP/1.1 204 No Content');
+    header('Content-Type: text/xml; charset=utf-8');
+    print  '<?xml version="1.0" encoding="utf-8"?>'."\n".
+            '<imageresults version="1">'."\n".
+            '<imageList>';
+    if ($spotilink == "") {
+        print xmlnode('url', $main_file);
+    } else {
+        print xmlnode('url', $src);
+    }
+    print "</imageList>\n</imageresults>\n";
 } else {
     // Didn't get a valid image, so return a server error to prevent the javascript
     // from trying to modify things - don't use 404 because we have a redirect in place
@@ -232,26 +250,24 @@ function check_file($file, $data) {
     }
 }
 
-function update_cache($fname, $notfound) {
+function update_cache($fname, $notfound, $cachefile, $imagefile) {
 
-    global $ALBUMSLIST;
-
-    if (file_exists($ALBUMSLIST)) {
+    if (file_exists($cachefile)) {
         // Get an exclusive lock on the file. We can't have two threads trying to update it at once.
         // That would be bad.
-        $fp = fopen($ALBUMSLIST, 'r+');
+        $fp = fopen($cachefile, 'r+');
         if ($fp) {
             $crap = true;
             if (flock($fp, LOCK_EX, $crap)) {
 
-                $x = simplexml_load_file($ALBUMSLIST);
+                $x = simplexml_load_file($cachefile);
                 debug_print("Updating cache for for ".$fname." ".$notfound);
                 foreach($x->artists->artist as $i => $artist) {
                     foreach($artist->albums->album as $j => $album) {
                         if ($album->image->name == $fname) {
                             debug_print("Found it");
                             if ($notfound == 0) {
-                                $album->image->src = "albumart/small/".$fname.".jpg";
+                                $album->image->src = $imagefile;
                                 $album->image->exists = "yes";
                             }
                             $album->image->searched = "yes";

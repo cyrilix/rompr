@@ -10,9 +10,13 @@ $divtype = "album1";
 $collection = null;
 
 $collection = doCollection(null, json_decode(file_get_contents('php://input')));
-$output = new collectionOutput($ALBUMSLIST);
-createXML($collection->getSortedArtistList(), "a", $output);
+$output = new collectionOutput($ALBUMSEARCH);
+createXML($collection->getSortedArtistList(), "b", $output);
 $output->closeFile();
-dumpAlbums('aalbumroot');
+print '<div class="menuitem">';
+print "<h3>Search Results:</h3>";
+print "</div>";
+dumpAlbums('balbumroot');
+print '<div class="separator"></div>';
 
 ?>

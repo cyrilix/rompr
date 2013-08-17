@@ -14,8 +14,9 @@ $covernames = array("cover", "albumart", "thumb", "albumartsmall", "front");
 
 // NOTE: sortbydate can be set to "true' to make the collection sort albums by date
 // - however mpd can only read the 'Date' ID3 tag, whereas the 'Original Release Date'
-//   tag is MUCH more useful. So I haven't added a GUI option to enable this option
-//   because it usually just results in a jumble
+//   tag is MUCH more useful. Beets is handy for setting the 'year' tag to the
+//   original release date. However as yet, the mopidy beets backend doesn't
+//   return a date. Duh.
 
 // Set unix_socket to a value to make rompr connect to mpd via a unix domain socket
 // (see mpd.conf). There's no real reason to do this, although it is marginally faster.
@@ -36,7 +37,7 @@ $prefs = array( "mpd_host" => "localhost",
                 "lastfm_user" => "",
                 "lastfm_scrobbling" => "false",
                 "lastfm_autocorrect" => "false",
-                "theme" => "BrushedAluminium.css",
+                "theme" => "Darkness.css",
                 "scrobblepercent" => 50,
                 "hidebrowser" => "false",
                 "sourceshidden" => "false",
@@ -66,9 +67,22 @@ $prefs = array( "mpd_host" => "localhost",
                 "music_directory" => "",
                 "music_directory_albumart" => "",
                 "use_mopidy_http" => 0,
-                "mopidy_http_port" => "6680"
+                "mopidy_http_port" => "6680",
+                "use_mopidy_file_backend" => "true",
+                "use_mopidy_beets_backend" => "false",
+                "search_limit_limitsearch" => 0,
+                "search_limit_file" => 0,
+                "search_limit_spotify" => 0,
+                "search_limit_soundcloud" => 0,
+                "search_limit_beets" => 0
                 );
 loadPrefs();
+
+$searchlimits = array(  "file" => "Local Files",
+                        "spotify" => "Spotify",
+                        "soundcloud" => "Soundcloud",
+                        "beets" => "Beets"
+                        );
 
 function debug_print($out) {
     global $DEBUG;

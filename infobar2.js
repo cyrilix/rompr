@@ -95,9 +95,6 @@ var infobar = function() {
                     contents=contents+'<span>by <b>'+info.artist+'</b></span><br>';
                     doctitle = doctitle + " - " + info.artist;
                 }
-                // if (info.album) {
-                //     contents=contents+'<span>on <b>'+info.album+'</b></span>';
-                // }
             }
             $("#nowplaying").empty().html(contents);
             contents = null;
@@ -111,7 +108,7 @@ var infobar = function() {
             }
             if (info.artist == "" && info.track == "" && info.album == "") {
                 $('#albumpicture').fadeOut(1000, function() {
-                    $('#albumpicture').attr("src", "images/album-unknown.png");
+                    $('#albumpicture').attr("src", "");
                 });
             } else {
                 if (info.image && $('#albumpicture').attr("src") != info.image) {
@@ -163,7 +160,8 @@ var infobar = function() {
         },
         
         setvolume: function(e, u) {
-            if (mpd.getStatus('state') != "stop") {
+            // Gold ol' mopidy can set the volume while idle :)
+            if (prefs.use_mopidy_tagcache || prefs.use_mopidy_http || mpd.getStatus('state') != "stop") {
                 var volume = u.value;
                 mpd.command("command=setvol&arg="+parseInt(volume.toString()));
                 prefs.save({volume: parseInt(volume.toString())});

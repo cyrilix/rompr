@@ -7,6 +7,10 @@ function Info(target, source) {
     var displaypointer = -1;
     var panelclosed = {artist: false, album: false, track: false};
     var lastsource = "lastfm";
+    if (current_source == "soundcloud:") {
+        // Can't initialise with soundcloud as the source
+        current_source = lastsource;
+    }
     var scImg = new Image();
 //     var gettingbiofor = -1;
 
@@ -27,12 +31,14 @@ function Info(target, source) {
             );
         }
         var l = npinfo.location;
+        debug.log("NEW TRACK COMING: Location is",l);
         if (l.substr(0,11) == "soundcloud:") {
             $("#soundcloudbutton").fadeIn("fast");  
         } else {
             $("#soundcloudbutton").fadeOut("fast");
             if (current_source == "soundcloud") {
                 current_source = lastsource;
+                prefs.save({infosource: current_source});                
             }
         }
 
@@ -927,7 +933,7 @@ function Info(target, source) {
     }
 
     this.drawSCWaveform = function() {
-        if (current_source == "soundcloud") {
+        if (displaypointer > 0 && history[displaypointer].source == "soundcloud") {
             var wi = $("#similarartists").width();
             w = Math.round(wi*0.95);
             var l = Math.round((wi-w)/2);

@@ -1298,7 +1298,7 @@ function swipeyswipe(dir) {
 }
 
 function doSomethingUseful(div) {
-    var html =  '<div class="containerbox bar">'+
+    var html =  '<div id="usefulbar" class="containerbox bar">'+
                 '<div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div>'+
                 '<div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div>'+
                 '<div class="label"><h2 align="center">Searching...</h2></div>'+

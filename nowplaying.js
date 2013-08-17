@@ -24,9 +24,9 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                     mpd_data.creator = data.user.username;
                     debug.log("setting artist name from soundcloud data to",mpd_data.creator);
                 }
-                if (data.artwork_url) {
-                    mpd_data.image = "";
-                }
+                // if (data.artwork_url) {
+                //     mpd_data.image = "";
+                // }
                 sc_track = data;
                 self.sndcld.getUserData();
             },
@@ -38,9 +38,9 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
 
             gotSoundCloudUser: function(data) {
                 debug.log("Got SoundCloud User Data",data);
-                if (data.avatar_url) {
-                    mpd_data.image="";
-                }
+                // if (data.avatar_url) {
+                //     mpd_data.image="";
+                // }
                 sc_user = data;
                 self.artist.populate();
             },
@@ -704,7 +704,8 @@ function playInfo() {
                             album: history[index].album.name(),
                             track: history[index].track.name()
             };
-            if (!history[index].mpd('image') || history[index].mpd('image') == "") {
+            if (!history[index].mpd('image') || history[index].mpd('image') == "" ||
+                history[index].mpd('image') == "images/album-unknown.png") {
                 debug.log("NO album image supplied");
                 var img = history[index].album.image('medium');
                 if (img != "") {

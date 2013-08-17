@@ -156,6 +156,21 @@ function emptysections2() {
     return empty;
 }
 
+function removeUnusedFiles() {
+    $("#unusedimages").empty();
+    doSomethingUseful("unusedimages");
+    $.ajax({
+        type: "GET",
+        url: "albumart.php?cleanup",
+        success: function(data) {
+            window.location="albumart.php";
+        },
+        error: function(data) {
+            alert("That didn't work!");
+        }
+    });
+}
+
 $(document).ready(function () {
 
     $("#totaltext").html(numcovers+" albums");
@@ -373,13 +388,16 @@ function uploadComplete() {
 
 // Do Local Albums
 
+$allfiles = glob("albumart/original/*.jpg");
+debug_print("There are ".count($allfiles)." Images");
+
 $count = 0;
 $albums_without_cover = 0;
 if (file_exists($ALBUMSLIST)) {
     $collection = simplexml_load_file($ALBUMSLIST);
     foreach($collection->artists->artist as $artist) {
         print '<div class="albumsection">';
-        print '<div class="tleft"><h2>'.$artist->name.'</h2></div><div class="tright rightpad"><button class="topformbutton" onclick="getNewAlbumArt(\'#album'.$count.'\')">Get These Covers</button></div>';
+        print '<div class="tleft"><h2 class="covercontainer">'.$artist->name.'</h2></div><div class="tright rightpad"><button class="topformbutton" style="margin-top:8px" onclick="getNewAlbumArt(\'#album'.$count.'\')">Get These Covers</button></div>';
         print "</div>\n";
         print '<div id="album'.$count.'" class="fullwidth bigholder">';
         print '<div class="containerbox covercontainer">';
@@ -389,7 +407,13 @@ if (file_exists($ALBUMSLIST)) {
             print '<div class="albumimg fixed">';
 
             $class = "clickable clickicon clickalbumcover";
-            $src = "albumart/original/".$album->image->name.".jpg";
+            $src = $album->image->src;
+            if (dirname($src) == "albumart/small") {
+                $src = "albumart/original/".basename($src);
+                if(($key = array_search($src, $allfiles)) !== false) {
+                    unset($allfiles[$key]);
+                }                
+            }
             if ($album->image->exists == "no") {
                 $class = $class . " notexist";
                 $albums_without_cover++;
@@ -424,6 +448,15 @@ if (file_exists($ALBUMSLIST)) {
 
 do_radio_stations();
 
+debug_print("There are ".count($allfiles)." unused images");
+if (count($allfiles) > 0) {
+    if (array_key_exists("cleanup", $_REQUEST)) {
+        remove_unused_images();
+    } else {
+        do_unused_images();
+    }
+}
+
 print "</div>\n";
 print "</div>\n";
 print '<script language="JavaScript">'."\n";
@@ -433,15 +466,15 @@ print "</script>\n";
 print "</body>\n";
 print "</html>\n";
 
-
 function do_radio_stations() {
 
     global $count;
     global $albums_without_cover;
+    global $allfiles;
     $playlists = glob("prefs/USERSTREAM*.xspf");
     if (count($playlists) > 0) {
         print '<div class="albumsection">';
-        print '<div class="tleft"><h2>Radio Stations</h2></div><div class="tright rightpad"><button class="topformbutton" onclick="getNewAlbumArt(\'#album'.$count.'\')">Get These Covers</button></div>';
+        print '<div class="tleft"><h2 class="covercontainer" >Radio Stations</h2></div><div class="tright rightpad"><button class="topformbutton" style="margin-top:8px" onclick="getNewAlbumArt(\'#album'.$count.'\')">Get These Covers</button></div>';
         print "</div>\n";
         print '<div id="album'.$count.'" class="fullwidth bigholder">';
         
@@ -458,8 +491,14 @@ function do_radio_stations() {
                     $src = "images/broadcast.png";
                     if ($track->image != "images/broadcast.png") {
                         $src = $track->image;
+                        if(($key = array_search($src, $allfiles)) !== false) {
+                            unset($allfiles[$key]);
+                        }                
                     } elseif (file_exists("albumart/original/".$artname.".jpg")) {
-                        $src = "albumart/original/'.$artname.'.jpg";
+                        $src = "albumart/original/".$artname.".jpg";
+                        if(($key = array_search($src, $allfiles)) !== false) {
+                            unset($allfiles[$key]);
+                        }                
                     } else {
                         $class = "notexist";
                         $albums_without_cover++;
@@ -484,4 +523,46 @@ function do_radio_stations() {
     }
             
 }
-    
+
+function do_unused_images() {
+    global $allfiles;
+    print '<div class="albumsection">';
+    print '<div class="tleft"><h2 class="covercontainer">'.count($allfiles).' Unused Images</h2></div><div class="tright rightpad"><button class="topformbutton" style="margin-top:8px" onclick="removeUnusedFiles()">Delete These Covers</button></div>';
+    print "</div>\n";
+    print '<div id="unusedimages" class="fullwidth bigholder">';
+    print '<div class="containerbox covercontainer">';
+    $colcount = 0;
+    foreach ($allfiles as $album) {
+        print '<div class="expand containerbox vertical albumimg">';
+        print '<div class="albumimg fixed">';
+        print '<img height="82px" width="82px" src="'.$album.'">';
+        print '</div>';
+        //print '<div class="albumimg fixed">'.basename($album).'</div>';
+        print '</div>';
+        
+        $colcount++;
+        if ($colcount == 7) {
+            print "</div>\n".'<div class="containerbox covercontainer">';
+            $colcount = 0;
+        }
+    }
+    print "</div></div>\n";
+
+}
+   
+function remove_unused_images() {
+    global $allfiles;
+    foreach($allfiles as $file) {
+        if (file_exists($file)) {
+            system('rm "'.$file.'"');
+        }
+        $file = "albumart/small/".basename($file);
+        if (file_exists($file)) {
+            system('rm "'.$file.'"');
+        }
+        $file = "albumart/asdownloaded/".basename($file);
+        if (file_exists($file)) {
+            system('rm "'.$file.'"');
+        }
+    }
+} 

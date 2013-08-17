@@ -21,6 +21,21 @@ if (array_key_exists('mpd_host', $_POST)) {
     } else {
         $prefs['use_mopidy_http'] = 0;
     }
+    if (array_key_exists('use_mopidy_file_backend', $_POST)) {
+        $prefs['use_mopidy_file_backend'] = $_POST['use_mopidy_file_backend'];
+    } else {
+        $prefs['use_mopidy_file_backend'] = "false";       
+    }
+    if (array_key_exists('use_mopidy_beets_backend', $_POST)) {
+        $prefs['use_mopidy_beets_backend'] = $_POST['use_mopidy_beets_backend'];
+    } else {
+        $prefs['use_mopidy_beets_backend'] = "false";       
+    }
+    if (array_key_exists('sortbydate', $_POST)) {
+        $prefs['sortbydate'] = $_POST['sortbydate'];
+    } else {
+        $prefs['sortbydate'] = "false";       
+    }
 
     savePrefs();
 }
@@ -69,7 +84,7 @@ close_mpd($connection);
 <title>RompR</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="shortcut icon" href="images/favicon.ico" />
-<meta name="viewport" content="width=100%, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <link rel="stylesheet" type="text/css" href="layout.css" />
 <link type="text/css" href="jqueryui1.8.16/css/start/jquery-ui-1.8.23.custom.css" rel="stylesheet" />
@@ -373,7 +388,11 @@ $(document).ready(function(){
     if (prefs.playlistcontrolsvisible) {
         $("#playlistbuttons").slideToggle('fast');
     }
-    mpd.command("",playlist.repopulate);
+    if (prefs.use_mopidy_http == 0) {
+        mpd.command("",playlist.repopulate);
+    } else {
+        mpd.command("");
+    }
     if (mobile == "no") {
         setBottomPaneSize();
     } else {
@@ -444,6 +463,17 @@ print $title;
         print '<input type="text" class="winkle" name="unix_socket" value="'.$prefs['unix_socket'].'" /></p>';
 ?>
         <hr class="dingleberry" />
+        <h3>Music Collection (Albums List) Settings</h3>
+<?php
+        print '<input type="checkbox" name="sortbydate" value="true"';
+        if ($prefs['sortbydate'] == "true") {
+            print " checked";
+        }
+        print '>Sort Albums By Date</input>';
+?>
+        <p>You will need to rebuild your Albums List after changing this option.</p>
+        <p>Note: Not all Mopidy backends return date information. Dates may not be what you expect, depending on your tags</p>
+        <hr class="dingleberry" />
         <h3>Mopidy-specific Settings</h3>
         <p>PLEASE <a href="https://sourceforge.net/p/rompr/wiki/Rompr%20and%20Mopidy/" target="_blank">read the section about Mopidy on the Wiki</a> before changing these settings</p>
 <?php
@@ -451,14 +481,30 @@ print $title;
         if ($prefs['use_mopidy_tagcache'] == 1) {
             print " checked";
         }
-        print '>Update collection using mopidy scan</input>';
+        print '>Update local file collection using mopidy-scan</input>';
         print '<p>Local Music Directory:<br><input type="text" class="winkle" name="music_directory" value="'.$prefs['music_directory'].'" /></p>'."\n";
+
+
         print '<p><input type="checkbox" name="use_mopidy_http" value="1"';
         if ($prefs['use_mopidy_http'] == 1) {
             print " checked";
         }
         print '>Use Mopidy HTTP Frontend for additional features</input></p>';
         print '<p>Mopidy HTTP port:<br><input type="text" class="winkle" name="mopidy_http_port" value="'.$prefs['mopidy_http_port'].'" /></p>'."\n";
+
+        print "<p><b>Use these mopidy backends for creating RompR's Albums List (only if HTTP Frontend is enabled) (choose one or both):</b></p>";
+        print '<p><input type="checkbox" name="use_mopidy_file_backend" value="true"';
+        if ($prefs['use_mopidy_file_backend'] == "true") {
+            print " checked";
+        }
+        print '>Local Files Backend</input></p>';
+        print '<p><input type="checkbox" name="use_mopidy_beets_backend" value="true"';
+        if ($prefs['use_mopidy_beets_backend'] == "true") {
+            print " checked";
+        }
+        print '>Beets Backend</input></p>';
+
+
 ?>
         <p><input type="submit" class="winkle" value="OK" /></p>
     </form>

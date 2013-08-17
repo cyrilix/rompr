@@ -381,6 +381,7 @@ function artistHeader($artist) {
 }
 
 function albumHeaders($artist) {
+    global $prefs;
     $count = 0;
     foreach($artist->albums->album as $i => $album) {
         if ($album->spotilink) {
@@ -409,8 +410,11 @@ function albumHeaders($artist) {
             print '<div class="playlisticon fixed"><img height="12px" src="images/spotify-logo.png" /></div>';
         }
         
-        print '<div class="expand">'.$album->name.'</div>';
-        print '</div>';
+        print '<div class="expand">'.$album->name;
+        if ($album->date && $album->date != "" && $prefs['sortbydate'] == "true") {
+            print ' <span class="notbold">('.$album->date.')</span>';
+        }
+        print '</div></div>';
         
         // Create the drop-down div that will hold this album's tracks
         print '<div id="'.$album['id'].'" class="dropmenu notfilled"></div>';
@@ -541,6 +545,176 @@ function munge_filepath($p) {
         $p = substr($p, strlen($f), strlen($p));
     }
     return "prefs/MusicFolders/".$p;
+}
+
+function parse_mopidy_json_data($collection, $jsondata) {
+
+    $plpos = 0;
+    foreach($jsondata as $searchresults) {
+
+        if ($searchresults->{'__model__'} == "SearchResult") {
+
+            if (property_exists($searchresults, 'artists')) {
+                foreach ($searchresults->artists as $track) {
+                    parseArtist($collection, $track);
+                }
+            }
+
+            if (property_exists($searchresults, 'albums')) {
+                foreach ($searchresults->albums as $track) {
+                    parseAlbum($collection, $track);
+                }
+            }
+
+            if (property_exists($searchresults, 'tracks')) {
+                foreach ($searchresults->tracks as $track) {
+                    parseTrack($collection, $track);
+                }
+            }
+        
+        } else if ($searchresults->{'__model__'} == "TlTrack") {
+            parseTrack($collection, $searchresults->track, $plpos, property_exists($searchresults, 'tlid') ? $searchresults->{'tlid'} : 0);
+        }
+        $plpos++;
+    }
+
+}
+
+function parseArtist($collection, $track) {
+    $trackdata = array();
+    if (property_exists($track, 'uri')) {
+        $trackdata['file'] = $track->{'uri'};
+    }
+    if (property_exists($track, 'name')) {
+        $trackdata['Artist'] = $track->{'name'};
+        $trackdata['Title'] = "Artist:".$track->{'name'};
+    }
+    process_file($collection, $trackdata);
+}
+
+function parseAlbum($collection, $track) {
+    $trackdata = array();
+    if (property_exists($track, 'uri')) {
+        $trackdata['file'] = $track->{'uri'};
+    }
+    if (property_exists($track, 'images')) {
+        $trackdata['Image'] = $track->{'images'}[0];
+    }
+    if (property_exists($track, 'date')) {
+        $trackdata['Date'] = $track->{'date'};
+    }
+    if (property_exists($track, 'name')) {
+        $trackdata['Album'] = $track->{'name'};
+        $trackdata['Title'] = "Album:".$track->{'name'};
+    }
+    if (property_exists($track, 'artists')) {
+        if (property_exists($track->{'artists'}[0], 'name')) {
+            $trackdata['Artist'] = $track->{'artists'}[0]->{'name'};
+        }
+    }
+    process_file($collection, $trackdata);
+}
+
+function parseTrack($collection, $track, $plpos = null, $plid = null) {
+
+    $trackdata = array();
+    $trackdata['Pos'] = $plpos;
+    $trackdata['Id'] = $plid;
+    if (property_exists($track, 'uri')) {
+        $trackdata['file'] = $track->{'uri'};
+    }
+    if (property_exists($track, 'name')) {
+        $trackdata['Title'] = $track->{'name'};
+    }
+    if (property_exists($track, 'length')) {
+        $trackdata['Time'] = $track->{'length'}/1000;
+    }
+    if (property_exists($track, 'track_no')) {
+        $trackdata['Track'] = $track->{'track_no'};
+    }
+    if (property_exists($track, 'disc_no')) {
+        $trackdata['Disc'] = $track->{'disc_no'};
+    }
+    if (property_exists($track, 'date')) {
+        $trackdata['Date'] = $track->{'date'};
+    }
+    if (property_exists($track, 'musicbrainz_id')) {
+        $trackdata['MUSICBRAINZ_TRACKID'] = $track->{'musicbrainz_id'};
+    }
+    if (property_exists($track, 'artists')) {
+        if (property_exists($track->{'artists'}[0], 'name')) {
+            $trackdata['Artist'] = $track->{'artists'}[0]->{'name'};
+        }
+        if (property_exists($track->{'artists'}[0], 'musicbrainz_id')) {
+            $trackdata['MUSICBRAINZ_ARTISTID'] = $track->{'artists'}[0]->{'musicbrainz_id'};
+        }
+    }
+    if (property_exists($track, 'album')) {
+        if (property_exists($track->{'album'}, 'musicbrainz_id')) {
+            $trackdata['MUSICBRAINZ_ALBUMID'] = $track->{'album'}->{'musicbrainz_id'};
+        }
+        // Album date overrides track date. I guess. Not sure. Probably a good idea.
+        if (property_exists($track->{'album'}, 'date')) {
+            $trackdata['Date'] = $track->{'album'}->{'date'};
+        }
+        if (property_exists($track->{'album'}, 'name')) {
+            $trackdata['Album'] = $track->{'album'}->{'name'};
+        }
+        if (property_exists($track->{'album'}, 'images')) {
+            $trackdata['Image'] = $track->{'album'}->{'images'}[0];
+        }
+        if (property_exists($track->{'album'}, 'artists')) {
+            if (property_exists($track->{'album'}->{'artists'}[0], 'name')) {
+                $trackdata['AlbumArtist'] = $track->{'album'}->{'artists'}[0]->{'name'};
+            }
+            if (property_exists($track->{'album'}->{'artists'}[0], 'musicbrainz_id')) {
+                $trackdata['MUSICBRAINZ_ALBUMARTISTID'] = $track->{'album'}->{'artists'}[0]->{'musicbrainz_id'};
+            }
+        }
+    }
+
+    process_file($collection, $trackdata);
+
+}
+
+function outputPlaylist() {
+    global $playlist;
+    print  '<?xml version="1.0" encoding="utf-8"?>'."\n".
+            '<playlist version="1">'."\n".
+            '<title>Current Playlist</title>'."\n".
+            '<creator>RompR</creator>'."\n".
+            '<trackList>'."\n";
+            
+    foreach ($playlist as $track) {
+        print '<track>'."\n";
+        if ($track->albumobject->isCompilation()) {
+            print xmlnode("compilation", "yes");
+        }
+        print xmlnode("title", $track->name)
+                .xmlnode("album", $track->album)
+                .xmlnode("creator", $track->artist)
+                .xmlnode("albumartist", $track->albumartist)
+                .xmlnode("duration", $track->duration)
+                .xmlnode("type", $track->type)
+                .xmlnode("tracknumber", $track->number)
+                .xmlnode("expires", $track->expires)
+                .xmlnode("stationurl", $track->stationurl)
+                .xmlnode("station", $track->station)
+                .xmlnode("location", $track->url)
+                .xmlnode("backendid", $track->backendid)
+                .xmlnode("image", $track->getImage('original'))
+                .xmlnode("origimage", $track->getImage('asdownloaded'))
+                .xmlnode("stream", $track->stream)
+                .xmlnode("playlistpos", $track->playlistpos)
+                .xmlnode("mbartistid", $track->musicbrainz_artistid)
+                .xmlnode("mbalbumid", $track->musicbrainz_albumid)
+                .xmlnode("mbalbumartistid", $track->musicbrainz_albumartistid)
+                .xmlnode("mbtrackid", $track->musicbrainz_trackid);                    
+        print '</track>'."\n";
+    }
+
+    print "</trackList>\n</playlist>\n";
+
 }
 
 ?>

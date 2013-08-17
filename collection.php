@@ -27,6 +27,7 @@ class album {
         $this->datestamp = null;
         $this->spotilink = null;
         $this->is_spotify = false;
+        $this->image = null;
     }
 
     public function newTrack($object) {
@@ -38,6 +39,12 @@ class album {
         if ($this->folder == null) {
             $this->folder = $object->folder;
         }
+        if ($this->image == null) {
+            $this->image = $object->image;
+        }
+        if ($this->datestamp == null) {
+            $this->datestamp = $object->datestamp;
+        }
         $object->setAlbumObject($this);
     }
 
@@ -46,9 +53,42 @@ class album {
     }
     
     public function setSpotilink($link) {
-        debug_print("Setting spotilink for album ".$this->name." to ".$link);
+        //debug_print("Setting spotilink for album ".$this->name." to ".$link);
         $this->spotilink = $link;
         $this->is_spotify = true;
+    }
+
+    public function setImage($image) {
+        $this->image = $image;
+    }
+
+    public function setDate($date) {
+        $this->date = $date;
+    }
+
+    public function getImage($size, $trackimage = null) {
+        // Return image for an album or track
+        $image = null;
+        // Default is no image
+        if ($size == "small") {
+            $image = "images/album-unknown-small.png";
+        } else {
+            $image = "images/album-unknown.png";
+        }
+        // If we have a backend-supplied album image
+        if ($this->image) {
+            $image = $this->image;
+        } 
+        // If the track supplied an image
+        if ($trackimage) {
+            $image = $trackimage;
+        }
+        // Finally, if there's a local image this overrides everything else
+        $artname = md5($this->artist." ".$this->name);
+        if (file_exists("albumart/".$size."/".$artname.".jpg")) {
+            $image = "albumart/".$size."/".$artname.".jpg";
+        }
+        return $image;
     }
 
     public function setAsCompilation() {
@@ -172,12 +212,13 @@ class track {
         $this->musicbrainz_trackid = $mbtrack;
     }
 
+    public function getImage($size) {
+        return ($this->albumobject->getImage($size, $this->image));
+    }
+
     public function setAlbumObject($object) {
         $this->albumobject = $object;
         $object->musicbrainz_albumid = $this->musicbrainz_albumid;
-        if ($object->datestamp == null) {
-            $object->datestamp = $this->datestamp;
-        }
     }
 }
 
@@ -237,12 +278,15 @@ class musicCollection {
         // If artist doesn't exist, create it - indexed by all lower case name for convenient sorting and grouping
         if (!array_key_exists($artistkey, $this->artists)) {
             $this->artists[$artistkey] = new artist($sortartist);
-            if (substr($file,0,14) == "spotify:artist") {
-                $this->artists[$artistkey]->spotilink = $file;
-                return true;
-            }
+        }
+
+        // IF this is a spotify artist result, then we need do nothing further
+        if (substr($file,0,14) == "spotify:artist") {
+            $this->artists[$artistkey]->spotilink = $file;
+            return true;
         }
         
+        // Keep Spotify albums separate from local albums
         if (substr($file,0,13) == "spotify:album") {
             $abm = $this->findAlbum($album, $artistkey, null, true);
             if ($abm == false) {
@@ -251,6 +295,12 @@ class musicCollection {
                 $this->artists[$artistkey]->newAlbum($abm);
             }
             $abm->setSpotilink($file);
+            if ($image) {
+                $abm->setImage($image);
+            }
+            if ($date) {
+                $abm->setDate($date);
+            }
             $current_artist = $sortartist;
             $current_album = $album;
             $curr_is_spotify = true;
@@ -333,22 +383,24 @@ class musicCollection {
             } else {
                 if ($prefs['sortbydate'] == "true") {
                     $d = $object->getDate();
-                    if ($d == null) {
-                        $albums[] = $object;
-                    } else {
-                        while (array_key_exists($d, $albums)) {
-                            $d = "0".$d;
-                        }
-                        $albums[$d] = $object;
+                    if ($d == null) { 
+                        $d = "99999";
                     }
+                    while (array_key_exists($d, $albums)) {
+                        $d = "0".$d;
+                    }
+                    $albums[$d] = $object;
                 } else {
                     $albums[$i] = $object;
                 }
             }
         }
-
-	   ksort($albums, SORT_STRING);
-	   return $albums;
+        if ($prefs['sortbydate'] == "true") {
+            ksort($albums, SORT_NUMERIC);
+        } else {
+            ksort($albums, SORT_STRING);
+        }
+        return $albums;
     }
     
     public function spotilink($artist) {
@@ -401,49 +453,39 @@ function process_file($collection, $filedata) {
                     "local", null, null, null, null, null, null, 
                     null, 0, null, null, null, null, null );
 
-    if (preg_match('/^http:\/\//', $file) || preg_match('/^mms:\/\//', $file)) {
+    $artist = (array_key_exists('Artist', $filedata)) ? $filedata['Artist'] : rawurldecode(basename(dirname(dirname($file))));
+    $album = (array_key_exists('Album', $filedata)) ? $filedata['Album'] : rawurldecode(basename(dirname($file)));
+    // $albumartist = (array_key_exists('AlbumArtistSort', $filedata)) ? $filedata['AlbumArtistSort'] : ((array_key_exists('AlbumArtist', $filedata)) ? $filedata['AlbumArtist'] : null);
+    $albumartist = (array_key_exists('AlbumArtist', $filedata)) ? $filedata['AlbumArtist'] : null; 
+    $name = (array_key_exists('Title', $filedata)) ? $filedata['Title'] : basename($file);
+    $duration = (array_key_exists('Time', $filedata)) ? $filedata['Time'] : null;
+    $number = (array_key_exists('Track', $filedata)) ? format_tracknum($filedata['Track']) : format_tracknum(basename($file));
+    $disc = (array_key_exists('Disc', $filedata)) ? format_tracknum($filedata['Disc']) : 0;
+    $date = (array_key_exists('Date',$filedata)) ? $filedata['Date'] : null;
+    $genre = (array_key_exists('Genre', $filedata)) ? $filedata['Genre'] : null;
+    $image = (array_key_exists('Image', $filedata)) ? $filedata['Image'] : null;
+    $mbartist = (array_key_exists('MUSICBRAINZ_ARTISTID', $filedata)) ? $filedata['MUSICBRAINZ_ARTISTID'] : null;
+    $mbalbum = (array_key_exists('MUSICBRAINZ_ALBUMID', $filedata)) ? $filedata['MUSICBRAINZ_ALBUMID'] : null;
+    $mbalbumartist = (array_key_exists('MUSICBRAINZ_ALBUMARTISTID', $filedata)) ? $filedata['MUSICBRAINZ_ALBUMARTISTID'] : null;
+    $mbtrack = (array_key_exists('MUSICBRAINZ_TRACKID', $filedata)) ? $filedata['MUSICBRAINZ_TRACKID'] : null;
+    $backendid = (array_key_exists('Id',$filedata)) ? $filedata['Id'] : null;
+    $playlistpos = (array_key_exists('Pos',$filedata)) ? $filedata['Pos'] : null;
+    $folder = dirname($file);
+    $stream = "";
+
+    if ((preg_match('/^http:\/\//', $file) || preg_match('/^mms:\/\//', $file)) &&
+        !array_key_exists('Artist', $filedata) && !array_key_exists('Album', $filedata)) {
 
         list (  $name, $duration, $number, $date, $genre, $artist, $album, $folder,
                 $type, $image, $expires, $stationurl, $station, $stream)
                 = getStuffFromXSPF($file);
-
-    } else {
-        $artist = (array_key_exists('Artist', $filedata)) ? $filedata['Artist'] : rawurldecode(basename(dirname(dirname($file))));
-        $album = (array_key_exists('Album', $filedata)) ? $filedata['Album'] : rawurldecode(basename(dirname($file)));
-        // $albumartist = (array_key_exists('AlbumArtistSort', $filedata)) ? $filedata['AlbumArtistSort'] : ((array_key_exists('AlbumArtist', $filedata)) ? $filedata['AlbumArtist'] : null);
-        $albumartist = (array_key_exists('AlbumArtist', $filedata)) ? $filedata['AlbumArtist'] : null; 
-        $name = (array_key_exists('Title', $filedata)) ? $filedata['Title'] : basename($file);
-        $duration = (array_key_exists('Time', $filedata)) ? $filedata['Time'] : null;
-        $number = (array_key_exists('Track', $filedata)) ? format_tracknum($filedata['Track']) : format_tracknum(basename($file));
-        $disc = (array_key_exists('Disc', $filedata)) ? format_tracknum($filedata['Disc']) : 0;
-        $date = (array_key_exists('Date',$filedata)) ? $filedata['Date'] : null;
-        $genre = (array_key_exists('Genre', $filedata)) ? $filedata['Genre'] : null;
-        $mbartist = (array_key_exists('MUSICBRAINZ_ARTISTID', $filedata)) ? $filedata['MUSICBRAINZ_ARTISTID'] : null;
-        $mbalbum = (array_key_exists('MUSICBRAINZ_ALBUMID', $filedata)) ? $filedata['MUSICBRAINZ_ALBUMID'] : null;
-        $mbalbumartist = (array_key_exists('MUSICBRAINZ_ALBUMARTISTID', $filedata)) ? $filedata['MUSICBRAINZ_ALBUMARTISTID'] : null;
-        $mbtrack = (array_key_exists('MUSICBRAINZ_TRACKID', $filedata)) ? $filedata['MUSICBRAINZ_TRACKID'] : null;
-        $folder = dirname($file);
-        $stream = "";
     }
 
-    if ($image == null) {
-        $artname = md5($artist." ".$album);
-        if ($albumartist) {
-            $artname = md5($albumartist." ".$album);
-        }
-        if (file_exists("albumart/original/".$artname.".jpg")) {
-            $image = "albumart/original/".$artname.".jpg";
-        }
-        if (file_exists("albumart/asdownloaded/".$artname.".jpg")) {
-            $origimage = "albumart/asdownloaded/".$artname.".jpg";
-        }
-        if (substr($file, 0, 11) == "soundcloud:") {
-            $image = "images/soundcloud-logo.png";
-        }
-    }
-
-    $backendid = (array_key_exists('Id',$filedata)) ? $filedata['Id'] : null;
-    $playlistpos = (array_key_exists('Pos',$filedata)) ? $filedata['Pos'] : null;
+    // if ($image == null) {
+    //     if (substr($file, 0, 11) == "soundcloud:") {
+    //         $image = "images/soundcloud-logo.png";
+    //     }
+    // }
 
     $collection->newTrack(  $name, $file, $duration, $number, $date, $genre, $artist, $album, $folder,
                             $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, 
@@ -669,15 +711,16 @@ function do_albums_xml($artistkey, $compilations, $showartist, $prefix, $output)
             if (!$album->is_spotify) {
                 $output->writeLine(xmlnode('directory', rawurlencode($album->folder)));
             }
+            $output->writeLine(xmlnode('date', $album->getDate()));
             $output->writeLine("<image>\n");
             $artname = md5($album->artist." ".$album->name);
             $output->writeLine(xmlnode('name', $artname));
-            if (file_exists("albumart/original/".$artname.".jpg")) {
-                $output->writeLine(xmlnode('exists', 'yes'));
-                $output->writeLine(xmlnode('src', 'albumart/small/'.$artname.".jpg"));
-            } else {
+            $image=$album->getImage('small');
+            $output->writeLine(xmlnode('src', $image));
+            if ($image == "images/album-unknown-small.png") {
                 $output->writeLine(xmlnode('exists', 'no'));
-                $output->writeLine(xmlnode('src', "images/album-unknown-small.png"));
+            } else {
+                $output->writeLine(xmlnode('exists', 'yes'));
             }
             $b = munge_album_name($album->name);
             $output->writeLine(xmlnode('romprartist', rawurlencode($album->artist)));

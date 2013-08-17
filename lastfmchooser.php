@@ -72,7 +72,7 @@ if ($prefs['lastfm_user'] != "") {
         <h3>Last.FM Global Tag Radio</h3>
     </div>
     <div class="indent containerbox padright">
-        <input class="enter sourceform expand" name="throatwobbler' id="lastfmglobaltag" type="text" size="60"/>        
+        <input class="enter sourceform expand" name="throatwobbler" id="lastfmglobaltag" type="text" size="60"/>        
         <button class="fixed" onclick="doLastFM('lastfmglobaltag')">Play</button>
     </div>
 
