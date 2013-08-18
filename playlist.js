@@ -26,6 +26,7 @@ function Playlist() {
         updatecounter++;
         self.cleanupCleanupTimer();
         player.getPlaylist();
+        coverscraper.clearCallbacks();
     }
 
     this.newXSPF = function(list) {
@@ -641,7 +642,7 @@ function Playlist() {
             if (l.substring(0,11) == "soundcloud:") {
                 html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="images/soundcloud-logo.png"/></div>';                
             } else {
-                if (tracks[0].image && tracks[0].image != "images/album-unknown.png") {
+                if (tracks[0].image && tracks[0].image != "") {
                     // An image was supplied - either a local one or supplied by the backend
                     html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="'+tracks[0].image+'"/></div>';
                 } else {
@@ -651,8 +652,7 @@ function Playlist() {
                     var imgname = hex_md5(self.artist+" "+self.album);
                     var imgsrc = null;
                     $.each($('img[name="'+imgname+'"]'), function() {
-                        if ($(this).attr("src") != "images/album-unknown.png" &&
-                            $(this).attr("src") != "images/album-unknown-small.png") {
+                        if ($(this).attr("src") != "") {
                             debug.log("Using image already in window");
                             imgsrc = $(this).attr("src");
                             self.updateImages(imgsrc);
@@ -665,8 +665,9 @@ function Playlist() {
                     } else {
                         html = html +   '<img class="smallcover updateable notexist fixed clickable clickicon clickrollup" romprname="'+self.index+'" name="'+imgname+'" '
                                     +   ' romprartist="'+encodeURIComponent(self.artist)+'" rompralbum="'+encodeURIComponent(self.album)+'"'
-                                    +   ' src="images/album-unknown-small.png"/>';
-                                    coverscraper.GetNewAlbumArt(hex_md5(self.artist+" "+self.album));
+                                    +   ' src=""/>';
+                                    coverscraper.setCallback(this.updateImages, imgname);
+                                    coverscraper.GetNewAlbumArt(imgname);
                     }
                 }
             }

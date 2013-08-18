@@ -423,7 +423,7 @@ if (file_exists($ALBUMSLIST)) {
             if ($album->mbid) {
                 print ' rompralbumid="'.$album->mbid.'"';
             }
-            if ($album->directory) {
+            if ($album->directory && $album->directory != ".") {
                 print ' romprpath="'.$album->directory.'"';
             }
             print ' name="'.$album->image->name.'" height="82px" width="82px" src="'.$src.'">';

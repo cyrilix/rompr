@@ -9,7 +9,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
     var infotext = $('#infotext');
     var progress = $('#progress');
     var statusobj = $('#status');
-    var waitingicon = ['images/album-unknown-small.png', 'images/image-update.gif'];
+    var waitingicon = ['', 'images/image-update.gif'];
     var blankicon = ['images/album-unknown-small.png', 'images/album-unknown.png'];
     var name = null;
     var artist = null;
@@ -19,6 +19,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
     var albumpath = null;
     var spotilink = null;
     var covertimer = null;
+    var callbacks = new Array();
 
     // I need to try and limit the number of lookups per second I do to last.fm
     // Otherwise they will set the lions on me - hence the use of setTimeout
@@ -105,7 +106,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
                 spotilink = imgobj[i].getAttribute("romprspotilink")
             }
         }
-        
+
         debug.log("Getting Cover for", artist, album, mbid);
          if (sendUpdates) {
              statusobj.empty().html("Getting "+decodeURIComponent(artist)+" - "+decodeURIComponent(album));
@@ -145,15 +146,19 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
    
     function gotImage(data) {
         debug.log("    Retrieved Image", data);
-        $src = $(data).find('url').text();
-        debug.log("       Source is",$src);
+        src = $(data).find('url').text();
+        debug.log("       Source is",src);
         $.each($('img[name="'+name+'"]'), function() {
-            $(this).attr("src", $src);
+            $(this).attr("src", src);
             $(this).removeClass("notexist");
         });
         self.updateInfo(1);
         if (useLocalStorage) {
             sendLocalStorageEvent(name);
+        }
+        if (callbacks[name] !== undefined) {
+            debug.log("Coverscraper calling back for",name,src);
+            callbacks[name](src);
         }
         doNextImage();
    }
@@ -171,6 +176,14 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
             sendLocalStorageEvent("!"+name);
         }
         doNextImage();
+    }
+
+    this.setCallback = function(callback, imgname) {
+        callbacks[imgname] = callback;
+    }
+
+    this.clearCallbacks = function() {
+        callbacks = new Array();
     }
     
 }

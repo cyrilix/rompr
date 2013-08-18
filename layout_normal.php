@@ -25,7 +25,7 @@
 
     <div id="patrickmoore" class="infobarlayout tleft bordered">
         <div id="albumcover">
-            <img id="albumpicture" src="images/album-unknown.png" />
+            <img id="albumpicture" src="" />
         </div>
         <div id="lastfm" class="invisible">
             <div><ul class="topnav"><a title="Love this track" id="love" href="#" onclick="infobar.love()"><img height="24px" src="images/lastfm-love.png"></a></ul></div>

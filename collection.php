@@ -68,13 +68,14 @@ class album {
 
     public function getImage($size, $trackimage = null) {
         // Return image for an album or track
-        $image = null;
-        // Default is no image
-        if ($size == "small") {
-            $image = "images/album-unknown-small.png";
-        } else {
-            $image = "images/album-unknown.png";
-        }
+        // $image = null;
+        // // Default is no image
+        // if ($size == "small") {
+        //     $image = "images/album-unknown-small.png";
+        // } else {
+        //     $image = "images/album-unknown.png";
+        // }
+        $image = "";
         // If we have a backend-supplied album image
         if ($this->image) {
             $image = $this->image;
@@ -249,7 +250,7 @@ class musicCollection {
                 }
             }
         }
-        if ($directory != null) {
+        if ($directory != null && $directory != ".") {
             foreach ($this->findAlbumByName(strtolower($album)) as $object) {
                 if ($directory == $object->folder && $object->is_spotify == $sptfy) {
                     return $object;
@@ -270,8 +271,12 @@ class musicCollection {
         global $playlist;
         
         $sortartist = ($albumartist == null) ? $artist : $albumartist;
-
         $artistkey = strtolower(preg_replace('/^The /i', '', $sortartist));
+        //Some discogs tags have 'Various' instead of 'Various Artists'
+        if ($artistkey == "various") {
+            $artistkey = "various artists";
+        }
+
         $t = new track($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
                         $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, 
                         $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack, $origimage);
@@ -381,7 +386,8 @@ class musicCollection {
             if ($object->isCompilation() && $ignore_compilations) {
 
             } else {
-                if ($prefs['sortbydate'] == "true") {
+                if ($prefs['sortbydate'] == "true" &&
+                    !($artist == "various artists" && $prefs['notvabydate'] == "true")) {
                     $d = $object->getDate();
                     if ($d == null) { 
                         $d = "99999";
@@ -391,11 +397,16 @@ class musicCollection {
                     }
                     $albums[$d] = $object;
                 } else {
-                    $albums[$i] = $object;
+                    $d = $object->name;
+                    while (array_key_exists($d, $albums)) {
+                        $d = $d."1";
+                    }
+                    $albums[$d] = $object;
                 }
             }
         }
-        if ($prefs['sortbydate'] == "true") {
+        if ($prefs['sortbydate'] == "true" &&
+            !($artist == "various artists" && $prefs['notvabydate'] == "true")) {
             ksort($albums, SORT_NUMERIC);
         } else {
             ksort($albums, SORT_STRING);
@@ -717,7 +728,7 @@ function do_albums_xml($artistkey, $compilations, $showartist, $prefix, $output)
             $output->writeLine(xmlnode('name', $artname));
             $image=$album->getImage('small');
             $output->writeLine(xmlnode('src', $image));
-            if ($image == "images/album-unknown-small.png") {
+            if ($image == "") {
                 $output->writeLine(xmlnode('exists', 'no'));
             } else {
                 $output->writeLine(xmlnode('exists', 'yes'));

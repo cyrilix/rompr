@@ -391,6 +391,9 @@ function albumHeaders($artist) {
             print '<div class="clickable clickalbum draggable containerbox menuitem" name="'.$album['id'].'">';
             print '<img src="images/toggle-closed.png" class="menu fixed" name="'.$album['id'].'">';
         }
+        // For BLOODY FIREFOX only we have to wrap the image in a div of the same size,
+        // because firefox won't squash the image horizontally if it's in a box-flex layout.
+        print '<div class="smallcover fixed">';
         if ($album->image->exists == "no" && $album->image->searched == "no") {
             print '<img class="smallcover fixed notexist" romprartist="'.$album->image->romprartist.'" rompralbum="'.$album->image->rompralbum;
             if ($album->directory) {
@@ -406,6 +409,7 @@ function albumHeaders($artist) {
         } else {
             print '<img class="smallcover fixed" name="'.$album->image->name.'" src="'.$album->image->src.'" />';
         }
+        print '</div>';
         if ($album->spotilink) {
             print '<div class="playlisticon fixed"><img height="12px" src="images/spotify-logo.png" /></div>';
         }

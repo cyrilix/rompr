@@ -20,7 +20,11 @@ function LastFM(user) {
     this.showloveban = function(flag) {
         if (logged_in && lovebanshown != flag) {
             lovebanshown = flag;
-            $("#lastfm").toggle(2000);
+            if (lovebanshown) {
+                $("#lastfm").fadeIn('fast');
+            } else {
+                $("#lastfm").fadeOut('fast');
+            }
         }
     }
     

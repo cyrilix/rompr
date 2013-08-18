@@ -36,6 +36,11 @@ if (array_key_exists('mpd_host', $_POST)) {
     } else {
         $prefs['sortbydate'] = "false";       
     }
+    if (array_key_exists('notvabydate', $_POST)) {
+        $prefs['notvabydate'] = $_POST['notvabydate'];
+    } else {
+        $prefs['notvabydate'] = "false";       
+    }
 
     savePrefs();
 }
@@ -141,7 +146,7 @@ var emptytrack = {  creator: "",
                     title: "",
                     duration: 0,
                     location: "",
-                    image: "images/album-unknown.png"
+                    image: ""
 };
 <?php
 if (file_exists($ALBUMSLIST)) {
@@ -262,6 +267,9 @@ $(document).ready(function(){
     if ("localStorage" in window && window["localStorage"] != null) {
         window.addEventListener("storage", onStorageChanged, false);
     }
+
+    var aimg = document.getElementById("albumpicture");
+    aimg.onload = function() { $("#albumpicture").fadeIn('fast') };
 
     setClickHandlers();
     $("#sortable").click(onPlaylistClicked);
@@ -465,11 +473,16 @@ print $title;
         <hr class="dingleberry" />
         <h3>Music Collection (Albums List) Settings</h3>
 <?php
-        print '<input type="checkbox" name="sortbydate" value="true"';
+        print '<p><input type="checkbox" name="sortbydate" value="true"';
         if ($prefs['sortbydate'] == "true") {
             print " checked";
         }
-        print '>Sort Albums By Date</input>';
+        print '>Sort Albums By Date</input></p>';
+        print '<p><input type="checkbox" name="notvabydate" value="true"';
+        if ($prefs['notvabydate'] == "true") {
+            print " checked";
+        }
+        print '>Don\'t Apply Date Sorting to \'Various Artists\'</input></p>';
 ?>
         <p>You will need to rebuild your Albums List after changing this option.</p>
         <p>Note: Not all Mopidy backends return date information. Dates may not be what you expect, depending on your tags</p>

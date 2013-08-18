@@ -13,7 +13,7 @@
             </div>
             <div id="playinginfo" class="tleft invisible">
             <div id="albumcover">
-                <img id="albumpicture" src="images/album-unknown.png" />
+                <img id="albumpicture" src="" />
             </div>
             </div>
             <div id="lastfm" class="invisible">

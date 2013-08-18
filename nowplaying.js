@@ -636,15 +636,24 @@ function playInfo() {
         
         /* Update the now playing info. This can be modified later when the last.fm data comes back */
         var npinfo = {  artist: mpdinfo.creator,
+                        albumartist: mpdinfo.albumartist,
                         album: mpdinfo.album,
                         track: mpdinfo.title,
-                        location: mpdinfo.location
+                        location: mpdinfo.location,
+                        image: mpdinfo.image
         };
-        if (mpdinfo.image && mpdinfo.image != "") {
-            npinfo.image = mpdinfo.image;
-        } else {
-            npinfo.image = "images/album-unknown.png";
+
+        if (npinfo.image == "") {
+            var imgname = hex_md5(npinfo.artist+" "+npinfo.album);
+            $.each($('img[name="'+imgname+'"]'), function() {
+                if ($(this).attr("src") != "") {
+                    debug.log("PlayInfo Using image already in window");
+                    npinfo.image = $(this).attr("src");
+                    npinfo.origimage = $(this).attr("src");
+                }
+            });
         }
+
         if (mpdinfo.origimage && mpdinfo.origimage != "") {
             npinfo.origimage = mpdinfo.origimage;
         }
@@ -704,15 +713,20 @@ function playInfo() {
                             album: history[index].album.name(),
                             track: history[index].track.name()
             };
-            if (!history[index].mpd('image') || history[index].mpd('image') == "" ||
-                history[index].mpd('image') == "images/album-unknown.png") {
-                debug.log("NO album image supplied");
-                var img = history[index].album.image('medium');
-                if (img != "") {
-                    debug.log("Using Album Cover from Last.FM");
-                    npinfo.image = img;
-                }
+            if ($("#albumpicture").attr("src") == "") {
+                debug.log("Displaying album image from last.fm");
+                npinfo.image = history[index].album.image('medium');
+                npinfo.origimage = history[index].album.image('large');
             }
+            // if (!history[index].mpd('image') || history[index].mpd('image') == "" ||
+            //     history[index].mpd('image') == "images/album-unknown.png") {
+            //     debug.log("NO album image supplied");
+            //     var img = history[index].album.image('medium');
+            //     if (img != "") {
+            //         debug.log("Using Album Cover from Last.FM");
+            //         npinfo.image = img;
+            //     }
+            // }
             infobar.setNowPlayingInfo(npinfo);
             browser.newTrack(index);
         }

@@ -4,7 +4,7 @@ var infobar = function() {
     var img = new Image();
     var mousepos;
     var sliderclamps = 0;
-    
+
     var volumeslider = function() {
         volume = 0;
         return {
@@ -106,24 +106,26 @@ var infobar = function() {
             } else {
                 $("#progress").css("cursor", "default");
             }
-            if (info.artist == "" && info.track == "" && info.album == "") {
-                $('#albumpicture').fadeOut(1000, function() {
-                    $('#albumpicture').attr("src", "");
-                });
-            } else {
-                if (info.image && $('#albumpicture').attr("src") != info.image) {
-                    $('#albumpicture').fadeOut(1000, function () {
-                        $('#albumpicture').attr("src", info.image);
-                        $('#albumpicture').fadeIn(1000, function() {
-                            $("#albumpicture").unbind('click');
-                            $("#albumpicture").removeClass('clickicon');
-                            if (info.origimage) {
-                                img.src = info.origimage;
-                                $("#albumpicture").bind('click', infobar.displayimage);
-                                $("#albumpicture").addClass('clickicon');
-                            }
-                        });
-                    });
+            if (info.location !== undefined) {
+                // Location is only set when we get the initial mpd data from
+                // nowplaying. It's not set when nowplaying calls us again with the corrected Last.FM
+                // data. The name for the image tag has to be set from the mpd data, hence we use
+                // location simply as a flag.
+                $("#albumpicture").attr("name", hex_md5(info.albumartist+" "+info.album));
+            }
+            if (info.image !== undefined) {
+                $('#albumpicture').attr("src", info.image);
+                if (info.image == "") {
+                    $('#albumpicture').fadeOut('fast');
+                } 
+                // Note - the albumpicture onload event takes care of fading it back in
+                if (info.origimage !== undefined) {
+                    img.src = info.origimage;
+                    $("#albumpicture").unbind('click').bind('click', infobar.displayimage);
+                    $("#albumpicture").removeClass('clickicon').addClass('clickicon');
+                } else {
+                    $("#albumpicture").unbind('click');
+                    $("#albumpicture").removeClass('clickicon');
                 }
             }
         },
