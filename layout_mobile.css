@@ -33,6 +33,13 @@ h2
     margin-bottom:12px;
 }
 
+#volumecontrol
+{
+    z-index:102;
+    position:absolute;
+    display: none;
+}
+
 #playlistm
 {
     height:100%;

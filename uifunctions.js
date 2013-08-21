@@ -160,7 +160,7 @@ function setBottomPaneSize() {
         } else {
             var newheight = ws.y - 116;
         }
-        var gibbon = ws.x-100;
+        var gibbon = ws.x-136;
         $("#nowplaying").css('width', gibbon.toString()+"px");
         var oldls = landscape;
         if (ws.x > ws.y) {
@@ -174,6 +174,8 @@ function setBottomPaneSize() {
             switchColumnMode(landscape);
             sourcecontrol(prefs.chooser);
         }
+        var v = newheight - 32;
+        $("#volume").css("height", v.toString()+"px");
     } else {
         var newheight = ws.y - 148;
         var notpos = ws.x - 340;
@@ -1351,4 +1353,8 @@ function keepsearchopen() {
     if (prefs.keep_search_open) {
         $("#search").show();
     }
+}
+
+function showVolumeControl() {
+    $("#volumecontrol").slideToggle('fast');
 }

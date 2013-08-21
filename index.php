@@ -302,19 +302,19 @@ $(document).ready(function(){
     
     $("#progress").progressbar();
     $("#progress").click( infobar.seek );
+    $("#volume").slider();
+    $("#volume").slider({
+        orientation: 'vertical',
+        value: prefs.volume,
+        stop: infobar.setvolume,
+        slide: infobar.volumemoved
+    });
 
     if (mobile == "no") {
         setDraggable('collection');
         setDraggable('filecollection');
         setDraggable('search');
         setDraggable('filesearch');
-        $("#volume").slider();
-        $("#volume").slider({
-            orientation: 'vertical',
-            value: prefs.volume,
-            stop: infobar.setvolume,
-            slide: infobar.volumemoved
-        });
         $("#headerbar").load('headerbar.php', function() {
             $("#sourcesresizer").draggable({
                 containment: '#headerbar',

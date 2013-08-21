@@ -29,8 +29,14 @@
 <div id="controls" class="noborder fullwidth">
 <div id="nowplaying" class="tleft">
 </div>
-<a href="#" onclick="sourcecontrol('chooser')"><img class="tright topimg" src="images/preferences.png" height="24px"></a>
+<a href="#" id="volbutton" onclick="sourcecontrol('chooser')"><img class="tright topimg" src="images/preferences.png" height="24px"></a>
 <a href="#" onclick="makeitbigger()"><img class="tright topimg" src="images/pushbutton.png" height="24px"></a>
+<div class="tright">
+<a href="#" onclick="showVolumeControl()"><img class="topimg" src="images/volume.png" height="24px"></a>
+<div id="volumecontrol">
+    <div id="volume">
+    </div>
+</div>
 </div>
 </div>
 
