@@ -1,6 +1,7 @@
 function mpdController() {
 	var self = this;
 	this.status = {};
+    var updatetimer = null;
 
     // NOTE: These functions all clear the playlists's progress timer.
     // playlist.checkProgress restarts it if necessary. If a callback is supplied it MUST call
@@ -83,6 +84,14 @@ function mpdController() {
 
     this.getStatus = function(key) {
         return self.status[key];
+    }
+
+    this.deferredupdate = function(time) {
+        // Use this to force us to re-check mpd's status after some commands
+        // eg sometimes when we seek it doesn't happen immediately.
+        // Calling mpd.command with no parameters is fine.
+        clearTimeout(updatetimer);
+        updatetimer = setTimeout(mpd.command, time);
     }
 
 }

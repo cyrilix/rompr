@@ -184,6 +184,7 @@ function aADownloadFinished() {
     /* We need one of these in global scope so coverscraper works here
     */
     debug.log("Album Art Download Has Finished");
+    $.get("checkRemoteImageCache.php", function() { debug.log("Finished Thinning Remote Cache")});
 }
 
  

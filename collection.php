@@ -217,6 +217,10 @@ class track {
         return ($this->albumobject->getImage($size, $this->image));
     }
 
+    public function getSpotiAlbum() {
+        return $this->albumobject->spotilink;
+    }
+
     public function setAlbumObject($object) {
         $this->albumobject = $object;
         $object->musicbrainz_albumid = $this->musicbrainz_albumid;
@@ -262,7 +266,8 @@ class musicCollection {
 
     public function newTrack($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
                                 $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, 
-                                $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack, $origimage) {
+                                $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack,
+                                $origimage, $spotialbum, $spotiartist) {
 
         global $current_album;
         global $current_artist;
@@ -289,6 +294,10 @@ class musicCollection {
         if (substr($file,0,14) == "spotify:artist") {
             $this->artists[$artistkey]->spotilink = $file;
             return true;
+        }
+
+        if ($this->artists[$artistkey]->spotilink == null && $spotiartist != null) {
+            $this->artists[$artistkey]->spotilink = $spotiartist;
         }
         
         // Keep Spotify albums separate from local albums
@@ -356,6 +365,9 @@ class musicCollection {
             $curr_is_spotify = $sptfy;
         }
         $abm->newTrack($t);
+        if ($abm->spotilink == null && $spotialbum != null) {
+            $abm->spotilink = $spotialbum;
+        }
         
         if ($playlistpos !== null) {
             $playlist[$playlistpos] = $t;
@@ -459,10 +471,11 @@ function process_file($collection, $filedata) {
 
     list (  $name, $duration, $number, $date, $genre, $artist, $album, $folder,
             $type, $image, $expires, $stationurl, $station, $backendid, $playlistpos, 
-            $albumartist, $disc, $mbartist, $mbalbum, $mbalbumartist, $mbtrack, $origimage)
+            $albumartist, $disc, $mbartist, $mbalbum, $mbalbumartist, $mbtrack,
+            $origimage, $spoitalbum, $spotiartist)
         = array (   null, 0, "", null, null, null, null, null,
                     "local", null, null, null, null, null, null, 
-                    null, 0, null, null, null, null, null );
+                    null, 0, null, null, null, null, null, null, null );
 
     $artist = (array_key_exists('Artist', $filedata)) ? $filedata['Artist'] : rawurldecode(basename(dirname(dirname($file))));
     $album = (array_key_exists('Album', $filedata)) ? $filedata['Album'] : rawurldecode(basename(dirname($file)));
@@ -481,7 +494,14 @@ function process_file($collection, $filedata) {
     $mbtrack = (array_key_exists('MUSICBRAINZ_TRACKID', $filedata)) ? $filedata['MUSICBRAINZ_TRACKID'] : null;
     $backendid = (array_key_exists('Id',$filedata)) ? $filedata['Id'] : null;
     $playlistpos = (array_key_exists('Pos',$filedata)) ? $filedata['Pos'] : null;
+    $spotialbum = (array_key_exists('SpotiAlbum',$filedata)) ? $filedata['SpotiAlbum'] : null;
+    $spotiartist = (array_key_exists('SpotiArtist',$filedata)) ? $filedata['SpotiArtist'] : null;
     $folder = dirname($file);
+    if (substr($file, 0, 11) == "soundcloud:") {
+        $folder = "soundcloud";
+    }
+
+
     $stream = "";
 
     if ((preg_match('/^http:\/\//', $file) || preg_match('/^mms:\/\//', $file)) &&
@@ -500,7 +520,8 @@ function process_file($collection, $filedata) {
 
     $collection->newTrack(  $name, $file, $duration, $number, $date, $genre, $artist, $album, $folder,
                             $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station, 
-                            $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack, $origimage);
+                            $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack,
+                            $origimage, $spotialbum, $spotiartist);
 
     $numtracks++;
     $totaltime += $duration;

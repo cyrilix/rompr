@@ -1,8 +1,10 @@
 <?php
 include("vars.php");
+include("functions.php");
 
 set_time_limit(1800);
-$o = exec( 'mopidy-scan > mopidy-tags/tag_cache' , $o, $result);
+$path = find_executable("mopidy_scan");
+$o = exec( $path."mopidy-scan > mopidy-tags/tag_cache" , $o, $result);
 debug_print("Result of mopidy_scan is ".$result);
 
 if ($result != 0) {

@@ -12,7 +12,7 @@ $playlists = glob("prefs/USERSTREAM*.xspf");
 foreach($playlists as $i => $file) {
       $x = simplexml_load_file($file);
       foreach($x->trackList->track as $i => $track) {
-            if($track->location == $url && $track->album == "Unknown Internet Stream") {
+            if($track->location == $url && preg_match('/Unknown Internet Stream/', $track->album)) {
                   // debug_print("Found Stream To Update! - ".$file);
                   $found = true;
                   break;
@@ -26,7 +26,7 @@ foreach($playlists as $i => $file) {
 if ($found) {
       // debug_print("Updating ".$file);
       foreach($x->trackList->track as $i => $track) {
-            if($track->album == "Unknown Internet Stream") {
+            if(preg_match('/Unknown Internet Stream/', $track->album)) {
                   $track->album = $name;
             }
       }

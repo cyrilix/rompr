@@ -4,6 +4,7 @@ var infobar = function() {
     var img = new Image();
     var mousepos;
     var sliderclamps = 0;
+    var imagekey = null;
 
     var volumeslider = function() {
         volume = 0;
@@ -111,12 +112,16 @@ var infobar = function() {
                 // nowplaying. It's not set when nowplaying calls us again with the corrected Last.FM
                 // data. The name for the image tag has to be set from the mpd data, hence we use
                 // location simply as a flag.
-                $("#albumpicture").attr("name", hex_md5(info.albumartist+" "+info.album));
+                imagekey = hex_md5(info.albumartist+" "+info.album);
+                $("#albumpicture").attr("name", imagekey);
             }
             if (info.image !== undefined) {
                 $('#albumpicture').attr("src", info.image);
                 if (info.image == "") {
                     $('#albumpicture').fadeOut('fast');
+                    if (imagekey && info.track != "") {
+                        coverscraper.GetNewAlbumArt(imagekey)
+                    }
                 } 
                 // Note - the albumpicture onload event takes care of fading it back in
                 if (info.origimage !== undefined) {
@@ -155,7 +160,8 @@ var infobar = function() {
                     var width = $('#progress').width();
                     var offset = $('#progress').offset();
                     var seekto = ((position.x - offset.left)/width)*parseFloat(d);
-                    mpd.command("command=seek&arg="+mpd.getStatus('song')+"&arg2="+parseInt(seekto.toString()));
+                    mpd.command("command=seek&arg="+mpd.getStatus('song')+"&arg2="+parseInt(seekto.toString()), 
+                                function() { mpd.deferredupdate(1000) });
                 }
             }
             return false;

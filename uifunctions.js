@@ -1298,6 +1298,7 @@ function swipeyswipe(dir) {
 }
 
 function doSomethingUseful(div) {
+    debug.log("Doing Something Useful to ",div);
     var html =  '<div id="usefulbar" class="containerbox bar">'+
                 '<div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div>'+
                 '<div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div>'+

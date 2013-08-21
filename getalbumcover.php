@@ -14,7 +14,8 @@ $albumpath = "";
 $spotilink = "";
 $small_file = "";
 $main_file = "";
-$searchfunctions = array( 'tryLocal', 'trySpotify', 'tryLastFM', 'tryMusicBrainz');
+$searchfunctions = array( 'tryLocal', 'tryRemoteCache', 'trySpotify', 'tryLastFM', 'tryMusicBrainz');
+$delaytime = 1;
 
 $fname = $_REQUEST['key'];
 if (array_key_exists("src", $_REQUEST)) {
@@ -52,7 +53,7 @@ if (array_key_exists("spotilink", $_REQUEST)) {
 
 // Attempt to download an image file
 
-$convert_path = find_convert_path();
+$convert_path = find_executable("convert");
 
 $download_file = "";
 if ($file != "") {
@@ -82,27 +83,7 @@ if ($file != "") {
 }
 
 if ($error == 0 && $spotilink == "") {
-    $main_file = "albumart/original/".$fname.".jpg";
-    $small_file = "albumart/small/".$fname.".jpg";
-    $anglofile = "albumart/asdownloaded/".$fname.".jpg";
-    if (file_exists($main_file)) {
-        unlink($main_file);
-    }
-    if (file_exists($small_file)) {
-        unlink($small_file);
-    }
-    if (file_exists($anglofile)) {
-        unlink($anglofile);
-    }
-    // Ohhhhhh imagemagick is just... wow.
-    // This resizes the images into a square box while adding padding to preserve the apsect ratio
-    $o = array();
-    $r = exec( $convert_path."convert \"".$download_file."\" -resize 82x82 -background none -gravity center -extent 82x82 \"".$main_file."\" 2>&1", $o);
-    $r = exec( $convert_path."convert \"".$download_file."\" -resize 32x32 -background none -gravity center -extent 32x32 \"".$small_file."\" 2>&1", $o);
-    if (is_dir("albumart/asdownloaded")) {
-        $r = exec( $convert_path."convert \"".$download_file."\" \"".$anglofile."\" 2>&1", $o);
-    }
-    
+    saveImage($fname);    
 }
 
 if ($download_file != "" && file_exists($download_file)) {
@@ -114,10 +95,14 @@ if ($download_file != "" && file_exists($download_file)) {
 // and edit the URL so it points to the correct image if one was found
 if (file_exists($ALBUMSLIST) && $stream == "" && $spotilink == "") {
     debug_print("Classing non-spotify ".$fname." as ".$error);
-    update_cache($fname, $error, $ALBUMSLIST, $small_file);
+    update_cache($fname, $error, $ALBUMSLIST, "albumart/small/".$fname.".jpg");
 } else if (file_exists($ALBUMSEARCH) && $spotilink != "") {
     debug_print("Classing spotify ".$fname." as ".$error);
     update_cache($fname, $error, $ALBUMSEARCH, $src);
+}
+
+if ($spotilink != "") {
+    updateRemoteCache($fname, $src);
 }
 
 if ($error == 0) {
@@ -126,7 +111,7 @@ if ($error == 0) {
             debug_print("Updating stream playlist ".$stream);
             $x = simplexml_load_file($stream);
             foreach($x->trackList->track as $i => $track) {
-                $track->image = $main_file;
+                $track->image = "albumart/original/".$fname.".jpg";
             }
             $fp = fopen($stream, 'w');
             if ($fp) {
@@ -135,41 +120,28 @@ if ($error == 0) {
             fclose($fp);
         }
     }
-    header('Content-Type: text/xml; charset=utf-8');
-    print  '<?xml version="1.0" encoding="utf-8"?>'."\n".
-            '<imageresults version="1">'."\n".
-            '<imageList>';
-    if ($spotilink == "") {
-        print xmlnode('url', $main_file);
-    } else {
-        print xmlnode('url', $src);
-    }
-    print "</imageList>\n</imageresults>\n";
-} else {
-    // Didn't get a valid image, so return a server error to prevent the javascript
-    // from trying to modify things - don't use 404 because we have a redirect in place
-    // for 404 errors and that wouldn't be good.
-    header('HTTP/1.1 400 Bad Request');
+
 }
+
+header('Content-Type: text/xml; charset=utf-8');
+print  '<?xml version="1.0" encoding="utf-8"?>'."\n".
+        '<imageresults version="1">'."\n".
+        '<imageList>';
+if ($spotilink == "") {
+    if ($error == 1) {
+        print xmlnode('url', "");
+    } else {
+        print xmlnode('url', "albumart/original/".$fname.".jpg");
+    }
+} else {
+    print xmlnode('url', $src);
+}
+print xmlnode('delaytime', $delaytime);
+print "</imageList>\n</imageresults>\n";
 
 debug_print("------------------------------------");
 
 ob_flush();
-
-function find_convert_path() {
-
-    // Test to see if convert is on the path and adjust if not - this makes
-    // it work on MacOSX when everything's installed from MacPorts
-    $c = "";
-    $a = 1;
-    $o = array();
-    $r = exec("convert 2>&1", $o, $a);
-    if ($a == 127) {
-        $c = "/opt/local/bin/";
-    }
-    return $c;
-
-}
 
 function get_user_file($src, $fname, $tmpname) {
     global $error;
@@ -214,6 +186,40 @@ function download_file($src, $fname, $convert_path) {
         $error = 1;
     }
     return $download_file;
+}
+
+function saveImage($fname) {
+    debug_print("Saving Image");
+    global $convert_path;
+    global $download_file;
+    $main_file = "albumart/original/".$fname.".jpg";
+    $small_file = "albumart/small/".$fname.".jpg";
+    $anglofile = "albumart/asdownloaded/".$fname.".jpg";
+    if (file_exists($main_file)) {
+        unlink($main_file);
+    }
+    if (file_exists($small_file)) {
+        unlink($small_file);
+    }
+    if (file_exists($anglofile)) {
+        unlink($anglofile);
+    }
+    // Ohhhhhh imagemagick is just... wow.
+    // This resizes the images into a square box while adding padding to preserve the apsect ratio
+    $o = array();
+    $r = exec( $convert_path."convert \"".$download_file."\" -resize 82x82 -background none -gravity center -extent 82x82 \"".$main_file."\" 2>&1", $o);
+    $r = exec( $convert_path."convert \"".$download_file."\" -resize 32x32 -background none -gravity center -extent 32x32 \"".$small_file."\" 2>&1", $o);
+    if (is_dir("albumart/asdownloaded")) {
+        $r = exec( $convert_path."convert \"".$download_file."\" \"".$anglofile."\" 2>&1", $o);
+    }
+}
+
+function archiveImage($fname, $src) {
+    debug_print("Archving Image ".$fname);
+    global $download_file;
+    global $convert_path;
+    $download_file = download_file($src, $fname, $convert_path);
+    saveImage($fname);
 }
 
 function check_file($file, $data) {
@@ -338,13 +344,14 @@ function tryLocal() {
 
 function trySpotify() {
     global $spotilink;
+    global $delaytime;
     if ($spotilink == "") {
         return "";
     }
     $image = "";
     debug_print("Trying Spotify for ".$spotilink);
     // php strict prevents me from doing end(explode()) because
-    // only variable can be passed by reference. Stupid php.
+    // only variables can be passed by reference. Stupid php.
     $spaffy = explode(":", $spotilink);
     $spiffy = end($spaffy);
     $url = "http://open.spotify.com/album/".$spiffy;
@@ -366,6 +373,7 @@ function trySpotify() {
     } else {
         debug_print("No Spotify Image Found");
     }
+    $delaytime = 500;
     return $image;
 }
 
@@ -374,6 +382,7 @@ function tryLastFM() {
     global $artist;
     global $album;
     global $mbid;
+    global $delaytime;
     $retval = "";
     $pic = "";
     
@@ -399,12 +408,15 @@ function tryLastFM() {
         }
     }
     debug_print("Last.FM gave us ".$retval);
+    $delaytime = 800;
     return $retval;
     
 }
 
 function tryMusicBrainz() {
     global $mbid;
+    global $delaytime;
+    $delaytime = 600;
     if ($mbid != "") {
         return "http://coverartarchive.org/release/".$mbid."/front";
     } else {
@@ -424,5 +436,58 @@ function loadXML($domain, $path) {
     
 } 
 
+function tryRemoteCache() {
+    global $fname;
+    global $delaytime;
+    debug_print("   Checking Remote Image Cache");
+    if (file_exists('prefs/remoteImageCache.xml')) {
+        $x = simplexml_load_file('prefs/remoteImageCache.xml');
+        $xp = $x->xpath("images/image[@id='".$fname."']");
+        if ($xp) {
+            debug_print("   .. Found Cached Remote Image");
+            $delaytime = 200;
+            return $xp[0]->src;
+        }
+    }
+    return "";
+
+}
+
+function updateRemoteCache($fname, $src) {
+
+    // Fuck me. SimpleXML sucks massive ass. With chocolate sauce.
+
+    $timestamp = time();
+    $x = null;
+    if (file_exists('prefs/remoteImageCache.xml')) {
+        $x = simplexml_load_file('prefs/remoteImageCache.xml');
+        $xp = $x->xpath("images/image[@id='".$fname."']");
+        if ($xp) {
+            debug_print("Updating Timestamp");
+            if ($timestamp - $xp[0]->stamp < 3600) {
+                // Image is being accessed regularly. We'd better archive it
+                // to avoid hammering spotify's servers;
+                archiveImage($fname, $src);
+            }
+            $xp[0]->stamp = $timestamp;
+        } else {
+            debug_print("Adding New Remote Image to Cache");
+            $e = $x->images->addChild('image');
+            $e->addAttribute('id', $fname);
+            $e->addChild('src', $src);
+            $e->addChild('stamp', $timestamp);
+        }
+    } else {
+        $x = new SimpleXMLElement('<imageCache></imageCache>');
+        $e = $x->addChild('images');
+        $f = $e->addChild('image');
+        $f->addAttribute('id', $fname);
+        $f->addChild('src', $src);
+        $f->addChild('stamp', $timestamp);
+    }
+    $fp = fopen('prefs/remoteImageCache.xml', 'w');
+    fwrite($fp, $x->asXML());
+    fclose($fp);
+}
 
 ?>

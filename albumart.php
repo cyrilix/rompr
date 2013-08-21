@@ -61,7 +61,15 @@ function getNewAlbumArt(div) {
 // I hope they do, because most of the comments in my code are entirely useless.
 
 function filterImages() {
-    return $(this).hasClass("notexist");
+    if ($(this).hasClass("notexist")) {
+        return true;
+    } else {
+        if ($(this).prop("naturalHeight") === 0 && $(this).prop("naturalWidth") === 0) {
+            $(this).attr("src", "");
+            return true;
+        }
+    }
+    return false;
 }
 
 function myMonkeyHasBigEars() {
@@ -141,7 +149,13 @@ function boogerbenson() {
 }
 
 function onlywithcovers() {
-    return !($(this).hasClass('notexist') || $(this).hasClass('notfound'));
+    if ($(this).hasClass('notexist') || $(this).hasClass('notfound')) {
+        return false;
+    }
+    if ($(this).prop("naturalHeight") === 0 && $(this).prop("naturalWidth") === 0) {
+        return false;
+    }
+    return true;
 }
 
 function emptysections() {
@@ -214,7 +228,7 @@ function createPopup() {
     b.html('Search');
     
     $("#popupcontents").append($('<div>', {id: 'branding'}));
-    searchcontent = $('<div>', {class: 'holdingcell'}).appendTo($("#popupcontents"));
+    searchcontent = $('<div>', {class: 'holdingcell', id: 'briansewell'}).appendTo($("#popupcontents"));
     localimages = $('<div>', {class: 'holdingcell'}).appendTo($("#popupcontents"));
     google.search.Search.getBranding('branding');
     uform.ajaxForm( uploadComplete );
@@ -248,11 +262,14 @@ function doGoogleSearch(artist, album, key, path) {
     if (path) {
         $.getJSON("findLocalImages.php?path="+path, gotLocalImages)
     }
+    searchcontent.empty();
+    doSomethingUseful('briansewell');
     popupWindow.open();
 }
 
 function research() {
     searchcontent.empty();
+    doSomethingUseful('briansewell');
     imageSearch.execute($("#searchphrase").attr("value"));
 }
 
@@ -287,6 +304,7 @@ function iveHadEnoughOfThis() {
 }
 
 function googleSearchComplete() {
+    searchcontent.empty();
     if (imageSearch.results && imageSearch.results.length > 0) {
         for (var i in imageSearch.results) {
             var result = imageSearch.results[i];
@@ -301,7 +319,7 @@ function googleSearchComplete() {
         }
         $(".gimage").css("height", "120px");
     } else {
-        searchcontent.html('<h3>No Images Found</h3>');
+        searchcontent.html('<h3 align="center">No Images Found. Maybe you have exclusive taste?</h3>');
     }
 }
 
@@ -329,7 +347,12 @@ function searchFail() {
     $('#img'+clickindex).attr('src', 'images/notfound.png');
 }
 
-function uploadComplete() {
+function uploadComplete(data) {
+    var src = $(data).find('url').text();
+    if (src == "") {
+        searchFail();
+        return;
+    }
     debug.log("Success for",imagekey);
     closeGooglePopup();
     
@@ -414,10 +437,10 @@ if (file_exists($ALBUMSLIST)) {
                     unset($allfiles[$key]);
                 }                
             }
-            if ($album->image->exists == "no") {
+            if ($album->image->exists == "no" || $album->image->src == "") {
                 $class = $class . " notexist";
                 $albums_without_cover++;
-                $src = "images/album-unknown.png";
+                $src = "";
             }
             print '<img class="'.$class.'" romprartist="'.$album->image->romprartist.'" rompralbum="'.$album->image->rompralbum.'"';
             if ($album->mbid) {
@@ -526,6 +549,10 @@ function do_radio_stations() {
 
 function do_unused_images() {
     global $allfiles;
+    // $x = null;
+    // if (file_exists('prefs/remoteImageCache.xml')) {
+    //     $x = simplexml_load_file('prefs/remoteImageCache.xml');
+    // }
     print '<div class="albumsection">';
     print '<div class="tleft"><h2 class="covercontainer">'.count($allfiles).' Unused Images</h2></div><div class="tright rightpad"><button class="topformbutton" style="margin-top:8px" onclick="removeUnusedFiles()">Delete These Covers</button></div>';
     print "</div>\n";
@@ -537,7 +564,14 @@ function do_unused_images() {
         print '<div class="albumimg fixed">';
         print '<img height="82px" width="82px" src="'.$album.'">';
         print '</div>';
-        //print '<div class="albumimg fixed">'.basename($album).'</div>';
+        // if ($x) {
+        //     $imgname = basename($album);
+        //     $imgname = preg_replace('/\.jpg$/', '', $imgname);
+        //     $xp = $x->xpath("images/image[@id='".$imgname."']");
+        //     if ($xp) {
+        //         print '<div class="albumimg fixed">Last used on '.date('d-m-Y', (int)$xp[0]->stamp).'</div>';
+        //     }
+        // }
         print '</div>';
         
         $colcount++;
@@ -566,3 +600,17 @@ function remove_unused_images() {
         }
     }
 } 
+
+?>
+
+<script language="JavaScript">
+    // To make images get re-scanned if their source fails to load (i.e. if Beets doesn't have one)
+    // Unfortunately this causes massive CPU usage
+    // var allImages = document.getElementsByTagName('img');
+    // for (var i = 0; i < allImages.length; i++) {
+    //     allImages[i].onerror = function() { 
+    //         this.className = this.className + " notexist";
+    //         this.src = "";
+    //     };
+    // }
+</script>

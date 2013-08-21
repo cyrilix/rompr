@@ -22,12 +22,28 @@ $creator = (array_key_exists('creator', $_REQUEST)) ? rawurldecode($_REQUEST['cr
 $image = (array_key_exists('image', $_REQUEST)) ? rawurldecode($_REQUEST['image']) : "images/broadcast.png";
 $usersupplied = (array_key_exists('usersupplied', $_REQUEST)) ? true : false;
 
-// debug_print("Getting Internet Stream:");
-// debug_print("  url : ".$url);
-// debug_print("  station : ".$station);
-// debug_print("  creator : ".$creator);
-// debug_print("  image : ".$image);
-// debug_print("  user : ".$usersupplied);
+debug_print("Getting Internet Stream:");
+debug_print("  url : ".$url);
+debug_print("  station : ".$station);
+debug_print("  creator : ".$creator);
+debug_print("  image : ".$image);
+debug_print("  user : ".$usersupplied);
+
+$existing_album_names = array();
+// Check which names we already have
+$all_playlists = glob("prefs/*STREAM*.xspf");
+foreach($all_playlists as $file) {
+    if (file_exists($file)) {
+        $x = simplexml_load_file($file);
+        $n = (string)$x->trackList->track[0]->album;
+        $n = preg_replace('/ \d+$/', '', $n);
+        if (array_key_exists($n, $existing_album_names)) {
+        	$existing_album_names[$n]++;
+        } else {
+        	$existing_album_names[$n] = 1;
+        }
+    }
+}
 
 if ($url) {
 
@@ -113,7 +129,7 @@ class plsFile {
 
 	public function __construct($data, $url, $station, $creator, $image) {
 		$this->url = $url;
-		$this->station = $station;
+		$this->station = checkStationName($station);
 		$this->creator = $creator;
 		$this->image = $image;
 
@@ -131,6 +147,7 @@ class plsFile {
 			}
 			if (preg_match('/Title/', $bits[0])) {
 				$tracks[$pointer]['title'] = $bits[1];
+				$this->station = checkStationAgain($this->station, $tracks[$pointer]['title']);
 			}
 		}
 		$this->tracks = $tracks;
@@ -178,7 +195,7 @@ class asxFile {
 	public function __construct($data, $url, $station, $creator, $image) {
 		$this->url = $url;
 		$this->xml = simplexml_load_string($data, 'SimpleXMLElement', LIBXML_NOCDATA);
-		$this->station = ($this->xml->TITLE != null) ? $this->xml->TITLE : $station;
+		$this->station = checkStationName(($this->xml->TITLE != null) ? $this->xml->TITLE : $station);
 		$this->creator = ($this->xml->AUTHOR != null) ? $this->xml->AUTHOR : $creator;
 		$this->image = $image;
 	}
@@ -223,7 +240,7 @@ class xspfFile {
 	public function __construct($data, $url, $station, $creator, $image) {
 		$this->url = $url;
 		$this->xml = simplexml_load_string($data, 'SimpleXMLElement', LIBXML_NOCDATA);
-		$this->station = ($this->xml->title != null) ? $this->xml->title : $station;
+		$this->station = checkStationName(($this->xml->title != null) ? $this->xml->title : $station);
 		$this->creator = ($this->xml->info != null) ? $this->xml->info : $creator;
 		$this->image = $image;
 	}
@@ -253,7 +270,7 @@ class m3uFile {
 
 	public function __construct($data, $url, $station, $creator, $image) {
 		$this->url = $url;
-		$this->station = $station;
+		$this->station = checkStationName($station);
 		$this->creator = $creator;
 		$this->image = $image;
 		$this->tracks = array();
@@ -291,7 +308,7 @@ class possibleStreamUrl {
 
 	public function __construct($url, $station, $creator, $image) {
 		$this->url = $url;
-		$this->station = $station;
+		$this->station = checkStationName($station);
 		$this->creator = $creator;
 		$this->image = $image;
 	}
@@ -306,6 +323,29 @@ class possibleStreamUrl {
                 xmlnode('location', $this->url).
                 "</track>\n";
 	}
+}
+
+function checkStationName($station) {
+	global $existing_album_names;
+	$station = (string)$station;
+	if (array_key_exists($station, $existing_album_names)) {
+		$existing_album_names[$station]++;
+		$station = $station. " ".$existing_album_names[$station];
+	} else {
+		$existing_album_names[$station] = 1;
+	}
+	return $station;
+}
+
+function checkStationAgain($currenttitle, $tracktitle) {
+	$currenttitle = (string)$currenttitle;
+	if (preg_match('/Unknown Internet Stream/', $currenttitle)) {
+		$a = preg_replace('/\(.*?\)/', '', $tracktitle);
+		if ($a != '') {
+			$currenttitle = $a;
+		}
+	}
+	return $currenttitle;
 }
 
 ?>

@@ -39,7 +39,7 @@ function dualPlayerController() {
 
     this.mopidyReloadPlaylists = function() {
         if (self.mopidyReady) {
-            debug.log("Retreiving Playlists from Mopidy");
+            debug.log("Retreiving Playlists from Mopidy Cock Weasel Badger");
             mopidy.playlists.getPlaylists().then(function (data) {
                         var html = "";
                         if (mobile == "no") {
@@ -55,17 +55,18 @@ function dualPlayerController() {
                             var protocol = uri.substr(0, uri.indexOf(":"));
                             switch (protocol) {
                                 case "soundcloud":
-                                    html = html + '<img src="images/soundcloud-logo.png" height="12px" style="vertical-align:middle">';
+                                    html = html + '<img src="images/soundcloud-logo.png" height="12px" style="vertical-align:middle"></td>';
+                                    html = html + '<td align="left"><a href="#" onclick="playlist.load(\''+this.uri+'\', true)">'+this.name+'</a></td>';
                                     break;
                                 case "spotify":
-                                    html = html + '<img src="images/spotify-logo.png" height="12px" style="vertical-align:middle">';
+                                    html = html + '<img src="images/spotify-logo.png" height="12px" style="vertical-align:middle"></td>';
+                                    html = html + '<td align="left"><a href="#" onclick="playlist.load(\''+this.uri+'\', true)">'+this.name+'</a></td>';
                                     break;
                                 default:
-                                    html = html + '<img src="images/folder.png" width="12px" style="vertical-align:middle">';
+                                    html = html + '<img src="images/folder.png" width="12px" style="vertical-align:middle"></td>';
+                                    html = html + '<td align="left"><a href="#" onclick="playlist.load(\''+escape(this.name)+'\', false)">'+this.name+'</a></td>';
                                     break;
                             }
-                            html = html + "</td>";
-                            html = html + '<td align="left"><a href="#" onclick="playlist.load(\''+escape(this.name)+'\')">'+this.name+'</a></td>';
                             switch (protocol) {
                                 case "spotify":
                                 case "soundcloud":
@@ -83,6 +84,17 @@ function dualPlayerController() {
                         }
                         $("#playlistslist").html(html);
                     }, consoleError);
+        }
+    }
+
+    this.loadPlaylist = function(uri) {
+        if (self.mopidyReady) {
+            mopidy.playlists.lookup(uri).then( function(list) {
+                debug.log("Playlist : ",list);
+                mopidy.tracklist.add(list.tracks).then( playlist.repopulate );
+            });
+        } else {
+            alert("Your HTTP connection to Mopidy has been lost!")
         }
     }
 
@@ -178,6 +190,7 @@ function dualPlayerController() {
                             contentType: "application/json",
                             success: function(data) {
                                 $("#collection").html(data);
+                                data = null;
                             }
                         });
                 }, consoleError);
@@ -231,8 +244,10 @@ function dualPlayerController() {
                             success: function(data) {
                                 $("#searchresultholder").html(data);
                                 $("#usefulbar").remove();
+                                data = null;
                             }
                         });
+                    data = null;
                 }, consoleError);
             }
         } else {
@@ -259,6 +274,7 @@ function dualPlayerController() {
         if (self.mopidyReady) {
             debug.log("Using Mopidy HTTP connection for playlist");
             mopidy.tracklist.getTlTracks().then( function (data) {
+                debug.log(data);
                 $.ajax({
                         type: "POST",
                         url: "parseMopidyPlaylist.php", 

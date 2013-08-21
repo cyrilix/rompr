@@ -1,7 +1,7 @@
 <?php
 
 include ("vars.php");
-include ("functions.php")
+include ("functions.php");
 
 $x = simplexml_load_file($ALBUMSLIST);
 foreach($x->artists->artist as $i => $artist) {

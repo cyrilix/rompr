@@ -333,29 +333,43 @@ function dumpAlbums($which) {
                 '</head>'.
                 '<body>';
     print $headers;
-    $x = simplexml_load_file(getWhichXML($which));
-    if ($which == 'aalbumroot' || $which == 'balbumroot') {
-        if ($which == 'aalbumroot') {
-            print '<div class="menuitem"><h3>Local Files:</h3></div>';
-        }
-        print '<div><table width="100%" class="playlistitem"><tr><td align="left">';
-        print $x->artists->numtracks . ' tracks</td><td align="right">Duration : ';
-        print $x->artists->duration . '</td></tr></table></div>';
-        foreach($x->artists->artist as $i => $artist) {
-            artistHeader($artist);
-            $divtype = ($divtype == "album1") ? "album2" : "album1";
+    $fname = getWhichXML($which);
+    $fp = fopen($fname, 'r+');
+    if ($fp) {
+        $crap = true;
+        // We need an exclusive lock on the file so we don't try to read it while
+        // the albumart thread is writing to it
+        if (flock($fp, LOCK_EX, $crap)) {
+            $x = simplexml_load_file(getWhichXML($which));
+            if ($which == 'aalbumroot' || $which == 'balbumroot') {
+                if ($which == 'aalbumroot') {
+                    print '<div class="menuitem"><h3>Local Files:</h3></div>';
+                }
+                print '<div><table width="100%" class="playlistitem"><tr><td align="left">';
+                print $x->artists->numtracks . ' tracks</td><td align="right">Duration : ';
+                print $x->artists->duration . '</td></tr></table></div>';
+                foreach($x->artists->artist as $i => $artist) {
+                    artistHeader($artist);
+                    $divtype = ($divtype == "album1") ? "album2" : "album1";
+                }
+            } else {
+                list ($type, $obj) = findItem($x, $which);
+                if ($type == $ARTIST) {
+                    albumHeaders($obj);
+                }
+                if ($type == $ALBUM) {
+                    albumTracks($obj);
+                }
+            }
+            flock($fp, LOCK_UN);
+
+        } else {
+            print '<h3>There was an error. Please refresh and try again</h3>';
         }
     } else {
-        list ($type, $obj) = findItem($x, $which);
-        if ($type == $ARTIST) {
-            albumHeaders($obj);
-        }
-        if ($type == $ALBUM) {
-            albumTracks($obj);
-        }
-        
+        print '<h3>There was an error. Please refresh and try again</h3>';
     }
-
+    fclose($fp);
     print '</body></html>';
 }
 
@@ -544,7 +558,7 @@ function get_images($dir_path) {
 function munge_filepath($p) {
     global $prefs;
     $p = rawurldecode(html_entity_decode($p));
-    $f = "file://".$prefs['music_directory'];
+    $f = "file://".$prefs['music_directory_albumart'];
     if (substr($p, 0, strlen($f)) == $f) {
         $p = substr($p, strlen($f), strlen($p));
     }
@@ -615,6 +629,10 @@ function parseAlbum($collection, $track) {
         if (property_exists($track->{'artists'}[0], 'name')) {
             $trackdata['Artist'] = $track->{'artists'}[0]->{'name'};
         }
+        if (property_exists($track->{'artists'}[0], 'uri') && substr($track->{'artists'}[0]->{'uri'},0,8) == "spotify:") {
+            $trackdata['SpotiArtist'] = $track->{'artists'}[0]->{'uri'};
+        }
+
     }
     process_file($collection, $trackdata);
 }
@@ -667,12 +685,18 @@ function parseTrack($collection, $track, $plpos = null, $plid = null) {
         if (property_exists($track->{'album'}, 'images')) {
             $trackdata['Image'] = $track->{'album'}->{'images'}[0];
         }
+        if (property_exists($track->{'album'}, 'uri') && substr($track->{'album'}->{'uri'},0,8) == "spotify:") {
+            $trackdata['SpotiAlbum'] = $track->{'album'}->{'uri'};
+        }
         if (property_exists($track->{'album'}, 'artists')) {
             if (property_exists($track->{'album'}->{'artists'}[0], 'name')) {
                 $trackdata['AlbumArtist'] = $track->{'album'}->{'artists'}[0]->{'name'};
             }
             if (property_exists($track->{'album'}->{'artists'}[0], 'musicbrainz_id')) {
                 $trackdata['MUSICBRAINZ_ALBUMARTISTID'] = $track->{'album'}->{'artists'}[0]->{'musicbrainz_id'};
+            }
+            if (property_exists($track->{'album'}->{'artists'}[0], 'uri') && substr($track->{'album'}->{'artists'}[0]->{'uri'},0,8) == "spotify:") {
+                $trackdata['SpotiArtist'] = $track->{'album'}->{'artists'}[0]->{'uri'};
             }
         }
     }
@@ -713,12 +737,37 @@ function outputPlaylist() {
                 .xmlnode("mbartistid", $track->musicbrainz_artistid)
                 .xmlnode("mbalbumid", $track->musicbrainz_albumid)
                 .xmlnode("mbalbumartistid", $track->musicbrainz_albumartistid)
-                .xmlnode("mbtrackid", $track->musicbrainz_trackid);                    
+                .xmlnode("mbtrackid", $track->musicbrainz_trackid)
+                .xmlnode("spotialbum", $track->getSpotiAlbum());                    
         print '</track>'."\n";
     }
 
     print "</trackList>\n</playlist>\n";
 
 }
+
+function find_executable($prog) {
+
+    // Test to see if convert is on the path and adjust if not - this makes
+    // it work on MacOSX when everything's installed from MacPorts
+    $c = "";
+    $a = 1;
+    $o = array();
+    $r = exec($prog." 2>&1", $o, $a);
+    if ($a == 127) {
+        $c = "/opt/local/bin/";
+        $a = 1;
+        $o = array();
+        $r = exec("/opt/local/bin/".$prog." 2>&1", $o, $a);
+        if ($a == 127) {
+            // Last resort, we'll assume it's a Homebrew installation
+            $c = "PATH=/usr/local/bin:\$PATH PYTHONPATH=/usr/local/lib/python2.7/site-packages /usr/local/bin/";
+        }
+    }
+    debug_print("Executable path is ".$c.$prog);
+    return $c;
+
+}
+
 
 ?>

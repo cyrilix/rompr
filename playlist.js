@@ -95,8 +95,9 @@ function Playlist() {
                 musicbrainz_albumid: $(this).find("mbalbumid").text(),
                 musicbrainz_albumartistid: $(this).find("mbalbumartistid").text(),
                 musicbrainz_trackid: $(this).find("mbtrackid").text(),
+                spotialbum: $(this).find("spotialbum").text(),
             };
-            
+
             totaltime += track.duration;
 
             var sortartist = track.creator;
@@ -189,7 +190,7 @@ function Playlist() {
         $("#sortable").append('<div name="waiter" class="containerbox bar"></div>');
     }
 
-    this.load = function(name) {
+    this.load = function(name, by_uri) {
         self.clearProgressTimer();
         self.cleanupCleanupTimer();        
         finaltrack = -1;
@@ -205,7 +206,11 @@ function Playlist() {
             sourcecontrol('playlistm');
         }
         debug.log("Loading Playlist",name);
-        mpd.command('command=load&arg='+name, playlist.repopulate);
+        if (by_uri) {
+            player.loadPlaylist(name);
+        } else {
+            mpd.command('command=load&arg='+name, playlist.repopulate);
+        }
     }
     
     this.lastfmcleanup = function() {
@@ -466,6 +471,16 @@ function Playlist() {
             if (mpd.getStatus('Name')) {
                 checkForUpdateToUnknownStream(mpd.getStatus('file'), mpd.getStatus('Name'));
                 temp.album = mpd.getStatus('Name');
+            } else if (mpd.getStatus('Name') === undefined) {
+                // No name. Either we have a station with no Metadata
+                // or a player that can't read it. Let's put SOMETHING in the album name
+                // so we don't get 'Unknown Internet Stream' all over the bloody place.
+                var a = currentTrack.stream;
+                a = a.replace(/\(.*?\)\s*/,'');
+                if (a != "") {
+                    checkForUpdateToUnknownStream(mpd.getStatus('file'), a);
+                    temp.album = a;
+                }
             }
             if (nowplaying.mpd(-1, 'title') != temp.title || 
                 nowplaying.mpd(-1, 'album') != temp.album || 
@@ -478,7 +493,8 @@ function Playlist() {
     }
 
     function checkForUpdateToUnknownStream(url, name) {
-        if (currentTrack.album == "Unknown Internet Stream") {
+        var m = currentTrack.album;
+        if (m.match(/^Unknown Internet Stream/)) {
             debug.log("Updating Stream",name);
             $.post("updateplaylist.php", { url: url, name: name })
             .done( function() { 
@@ -646,29 +662,14 @@ function Playlist() {
                     // An image was supplied - either a local one or supplied by the backend
                     html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="'+tracks[0].image+'"/></div>';
                 } else {
-                    // getPlaylist.php couldn't find an image for us
-                    // is there an image already in the window that matches this one?
-                    // (i.e. a spotify album in the search window that has had an image downloaded)?
-                    var imgname = hex_md5(self.artist+" "+self.album);
-                    var imgsrc = null;
-                    $.each($('img[name="'+imgname+'"]'), function() {
-                        if ($(this).attr("src") != "") {
-                            debug.log("Using image already in window");
-                            imgsrc = $(this).attr("src");
-                            self.updateImages(imgsrc);
-                        }
-                    });
-                    if (imgsrc) {
-                        html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="'+imgsrc+'"/></div>';
-                        // Archive the image, as we'll probably need it again
-                        coverscraper.archiveImage(imgname, imgsrc);
-                    } else {
-                        html = html +   '<img class="smallcover updateable notexist fixed clickable clickicon clickrollup" romprname="'+self.index+'" name="'+imgname+'" '
-                                    +   ' romprartist="'+encodeURIComponent(self.artist)+'" rompralbum="'+encodeURIComponent(self.album)+'"'
-                                    +   ' src=""/>';
-                                    coverscraper.setCallback(this.updateImages, imgname);
-                                    coverscraper.GetNewAlbumArt(imgname);
+                    html = html +   '<img class="smallcover updateable notexist fixed clickable clickicon clickrollup" romprname="'+self.index+'" name="'+hex_md5(self.artist+" "+self.album)+'" '
+                                +   ' romprartist="'+encodeURIComponent(self.artist)+'" rompralbum="'+encodeURIComponent(self.album)+'"';
+                    if (tracks[0].spotialbum && tracks[0].spotialbum != "") {
+                        html = html + ' romprspotilink="'+tracks[0].spotialbum+'"';
                     }
+                    html = html +  ' src=""/>';
+                    coverscraper.setCallback(this.updateImages, hex_md5(self.artist+" "+self.album));
+                    coverscraper.GetNewAlbumArt(hex_md5(self.artist+" "+self.album));
                 }
             }
             html = html + '<div class="containerbox vertical expand">';
