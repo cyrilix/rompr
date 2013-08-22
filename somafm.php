@@ -10,7 +10,7 @@ print '<div class="noselection fullwidth">';
 foreach($x->stations->station as $i => $station) {
     
     print '<div class="containerbox menuitem wibble">';
-    print '<img src="images/toggle-closed.png" class="menu fixed" name="somafm'.$count.'">';
+    print '<div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="somafm'.$count.'"></div>';
     print '<div class="smallcover fixed"><img height="32px" width="32px" src="'.$station->image.'" /></div>';
     print '<div class="expand"><span style="font-size:110%">'.utf8_encode($station->name).'</span><br><span class="whatdoicallthis">'.utf8_encode($station->description).'</span></div>';
     print '</div>';

@@ -133,6 +133,7 @@ function dualPlayerController() {
     this.updateCollection = function(cmd) {
         debug.log("Updating collection with command", cmd);
         prepareForLiftOff();
+        prepareForLiftOff2();
         if (prefs.use_mopidy_tagcache == 1) {
             if (cmd == "rescan") {
                 $.ajax({

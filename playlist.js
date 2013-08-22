@@ -660,14 +660,14 @@ function Playlist() {
             } else {
                 if (tracks[0].image && tracks[0].image != "") {
                     // An image was supplied - either a local one or supplied by the backend
-                    html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="'+tracks[0].image+'"/></div>';
+                    html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover fixed" src="'+tracks[0].image+'"/></div>';
                 } else {
-                    html = html +   '<img class="smallcover updateable notexist fixed clickable clickicon clickrollup" romprname="'+self.index+'" name="'+hex_md5(self.artist+" "+self.album)+'" '
+                    html = html +   '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover updateable notexist fixed clickable clickicon clickrollup" romprname="'+self.index+'" name="'+hex_md5(self.artist+" "+self.album)+'" '
                                 +   ' romprartist="'+encodeURIComponent(self.artist)+'" rompralbum="'+encodeURIComponent(self.album)+'"';
                     if (tracks[0].spotialbum && tracks[0].spotialbum != "") {
                         html = html + ' romprspotilink="'+tracks[0].spotialbum+'"';
                     }
-                    html = html +  ' src=""/>';
+                    html = html +  ' src=""/></div>';
                     coverscraper.setCallback(this.updateImages, hex_md5(self.artist+" "+self.album));
                     coverscraper.GetNewAlbumArt(hex_md5(self.artist+" "+self.album));
                 }

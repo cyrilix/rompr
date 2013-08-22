@@ -54,10 +54,17 @@ h2
 
 .menu
 {
-	width:28px;
-	height:1.8em;
+	width:1.5em;
+	height:1.5em;
 }
 
+.mh
+{
+    width:1.5em;
+    margin-right:1em;
+    margin-top:0.5em;
+    margin-bottom:0.5em;
+}
 .playlisticon
 {
     padding-left:4px;

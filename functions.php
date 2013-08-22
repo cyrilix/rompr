@@ -378,13 +378,13 @@ function artistHeader($artist) {
     print '<div class="noselection fullwidth '.$divtype.'">';
     if ($artist->spotilink) {
         print '<div class="clickable clicktrack draggable containerbox menuitem" name="'.$artist->spotilink.'">';
-        print '<img src="images/toggle-closed.png" class="menu fixed" name="'.$artist['id'].'">';
+        print '<div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="'.$artist['id'].'"></div>';
         print '<div class="playlisticon fixed"><img height="12px" src="images/spotify-logo.png" /></div>';
         print '<div class="expand">'.$artist->name.'</div>';
         print '</div>';
     } else {
         print '<div class="clickable clickalbum draggable containerbox menuitem" name="'.$artist['id'].'">';
-        print '<img src="images/toggle-closed.png" class="menu fixed" name="'.$artist['id'].'">';
+        print '<div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="'.$artist['id'].'"></div>';
         print '<div class="expand">'.$artist->name.'</div>';
         print '</div>';
     }
@@ -400,10 +400,10 @@ function albumHeaders($artist) {
     foreach($artist->albums->album as $i => $album) {
         if ($album->spotilink) {
             print '<div class="clickable clicktrack draggable containerbox menuitem" name="'.$album->spotilink.'">';
-            print '<img src="images/toggle-closed.png" class="menu fixed" name="'.$album['id'].'">';
+            print '<div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="'.$album['id'].'"></div>';
         } else {
             print '<div class="clickable clickalbum draggable containerbox menuitem" name="'.$album['id'].'">';
-            print '<img src="images/toggle-closed.png" class="menu fixed" name="'.$album['id'].'">';
+            print '<div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="'.$album['id'].'"></div>';
         }
         // For BLOODY FIREFOX only we have to wrap the image in a div of the same size,
         // because firefox won't squash the image horizontally if it's in a box-flex layout.

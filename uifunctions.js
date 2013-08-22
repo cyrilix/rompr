@@ -526,11 +526,11 @@ function getLfmPeople(data, prefix) {
     var count = 0;
     for(var i in userdata) {
         html = html + '<div class="containerbox menuitem">';
-        html = html + '<img src="images/toggle-closed.png" class="menu fixed" name="'+prefix+count.toString()+'" />';
+        html = html + '<div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="'+prefix+count.toString()+'" /></div>';
         if (userdata[i].image[0]['#text'] != "") {
-            html = html + '<img class="smallcover fixed clickable clickicon clicklfmuser" name="'+userdata[i].name+'" src="'+userdata[i].image[0]['#text']+'" />';
+            html = html + '<div class="smallcover fixed"><img class="smallcover fixed clickable clickicon clicklfmuser" name="'+userdata[i].name+'" src="'+userdata[i].image[0]['#text']+'" /></div>';
         } else {
-            html = html + '<img class="smallcover fixed clickable clickicon clicklfmuser" name="'+userdata[i].name+'" src="images/album-unknown-small.png" />';
+            html = html + '<div class="smallcover fixed"><img class="smallcover fixed clickable clickicon clicklfmuser" name="'+userdata[i].name+'" src="images/album-unknown-small.png" /></div>';
         }
         html = html + '<div class="expand">'+userdata[i].name+'</div>';
         html = html + '</div>';
@@ -1005,22 +1005,24 @@ function saveRadioOrder() {
 }
 
 function prepareForLiftOff() {
+    debug.log("Fingle 1");
     $("#collection").empty();
     var html =  '<div class="containerbox bar">'+
                 '<div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div>'+
                 '<div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div>'+
                 '<div class="label"><h2 id="loadinglabel" align="center">Updating Collection...</h2></div>'+
-                '</div>'
+                '</div>';
     $("#collection").html(html);
 }
 
 function prepareForLiftOff2() {
+    debug.log("Fingle 2");
     $("#filecollection").empty();
     var html =  '<div class="containerbox bar">'+
                 '<div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div>'+
                 '<div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div>'+
                 '<div class="label"><h2 id="loadinglabel2" align="center">Scanning Files...</h2></div>'+
-                '</div>'
+                '</div>';
     $("#filecollection").html(html);
 }
 

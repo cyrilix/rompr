@@ -67,7 +67,7 @@ class mpdlistthing {
 function doFileHTML($item) {
     if ($item->type == 'directory') {
         print '<div class="clickable clickalbum draggable containerbox menuitem" name="'.$item->id.'">';
-        print '<img src="images/toggle-closed.png" class="menu fixed" name="'.$item->id.'">';
+        print '<div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="'.$item->id.'"></div>';
         print '<div class="fixed playlisticon"><img width="16px" src="images/folder.png" /></div>';
         print '<div class="expand">'.$item->name.'</div>';
         print '</div>';

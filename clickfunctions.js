@@ -145,10 +145,10 @@ function doMenu(event, element) {
         event.stopImmediatePropagation();
     }
     var menutoopen = element.attr("name");
-    if (element.attr("src") == "images/toggle-closed.png") {
-        element.attr("src", "images/toggle-open.png");
-    } else if (element.attr("src") == "images/toggle-open.png"){
-        element.attr("src", "images/toggle-closed.png");
+    if (element.attr("src") == "images/toggle-closed-new.png") {
+        element.attr("src", "images/toggle-open-new.png");
+    } else if (element.attr("src") == "images/toggle-open-new.png"){
+        element.attr("src", "images/toggle-closed-new.png");
     }
     $('#'+menutoopen).slideToggle('fast');
     return false;
@@ -160,7 +160,7 @@ function doAlbumMenu(event, element) {
         event.stopImmediatePropagation();
     }
     var menutoopen = element.attr("name");
-    if (element.attr("src") == "images/toggle-closed.png") {
+    if (element.attr("src") == "images/toggle-closed-new.png") {
         if ($('#'+menutoopen).hasClass("notfilled")) {
             $('#'+menutoopen).load("albums.php?item="+menutoopen, function() {
                 $(this).removeClass("notfilled");
@@ -173,10 +173,10 @@ function doAlbumMenu(event, element) {
         } else {
             $('#'+menutoopen).slideToggle('fast');
         }
-        element.attr("src", "images/toggle-open.png");
+        element.attr("src", "images/toggle-open-new.png");
     } else {
         $('#'+menutoopen).slideToggle('fast');
-        element.attr("src", "images/toggle-closed.png");
+        element.attr("src", "images/toggle-closed-new.png");
     }
     return false;
 }
@@ -187,7 +187,7 @@ function doFileMenu(event, element) {
         event.stopImmediatePropagation();
     }
     var menutoopen = element.attr("name");
-    if (element.attr("src") == "images/toggle-closed.png") {
+    if (element.attr("src") == "images/toggle-closed-new.png") {
         if ($('#'+menutoopen).hasClass("notfilled")) {
             $('#'+menutoopen).load("dirbrowser.php?item="+menutoopen, function() {
                 $(this).removeClass("notfilled");
@@ -196,10 +196,10 @@ function doFileMenu(event, element) {
         } else {
             $('#'+menutoopen).slideToggle('fast');
         }
-        element.attr("src", "images/toggle-open.png");
+        element.attr("src", "images/toggle-open-new.png");
     } else {
         $('#'+menutoopen).slideToggle('fast');
-        element.attr("src", "images/toggle-closed.png");
+        element.attr("src", "images/toggle-closed-new.png");
     }
     return false;
 }

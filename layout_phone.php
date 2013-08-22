@@ -66,7 +66,7 @@
 
     <div id="radiolist" class="invisible">
     <div class="containerbox menuitem noselection">
-        <img src="images/toggle-closed.png" class="menu fixed" name="yourradiolist">
+        <div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="yourradiolist"></div>
         <div class="smallcover fixed"><img height="32px" width="32px" src="images/broadcast-32.png"></div>
         <div class="expand">Your Radio Stations</div>
     </div>
@@ -74,7 +74,7 @@
     </div>
     
     <div class="containerbox menuitem noselection">
-        <img src="images/toggle-closed.png" class="menu fixed" name="somafmlist">
+        <div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="somafmlist"></div>
         <div class="smallcover fixed"><img height="32px" width="32px" src="images/somafm.png"></div>
         <div class="expand">Soma FM</div>
     </div>
@@ -82,7 +82,7 @@
     </div>
     
     <div class="containerbox menuitem noselection">
-        <img src="images/toggle-closed.png" class="menu fixed" name="bbclist">
+        <div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="bbclist"></div>
         <div class="smallcover fixed"><img height="32px" width="32px" src="images/bbcr.png"></div>
         <div class="expand">Live BBC Radio</div>
     </div>
@@ -90,7 +90,7 @@
     </div>
 
     <div class="containerbox menuitem noselection">
-        <img src="images/toggle-closed.png" class="menu fixed" name="icecastlist">
+        <div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="icecastlist"></div>
         <div class="smallcover fixed"><img height="32px" width="32px" src="images/icecast.png"></div>
         <div class="expand">Icecast Radio</div>
     </div>
@@ -285,7 +285,7 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
 
 </div>
 
-<div id="playlistm" class="invisible fullwidth">
+<div id="playlistm" class="invisible fullwidth scroller">
     <div style="padding-left:12px">
     <a title="Playlist Controls" href="#" onclick="togglePlaylistButtons()"><img class="topimg clickicon" height="20px" src="images/pushbutton.png"></a>
     </div>

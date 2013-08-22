@@ -320,6 +320,12 @@ a
     -webkit-box-align:center;
 }
 
+.mh {
+    width:18px;
+    margin-right:6px;
+    display:block;
+}
+
 .menu
 {
     width:18px;

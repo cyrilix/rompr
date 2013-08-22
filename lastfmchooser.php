@@ -78,42 +78,50 @@ if ($prefs['lastfm_user'] != "") {
 
     <div class="noselection fullwidth">
     <div class="containerbox menuitem">
-        <img src="images/toggle-closed.png" class="menu fixed" onclick="getTopTags(event)" name="lfmtoptags">
+        <div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" onclick="getTopTags(event)" name="lfmtoptags"></div>
+        <div class="expand">
 <?php
             print $prefs['lastfm_user']."'s ";
             print "Top Tags";
 ?>        
         <img id="toptagswait" height="14px" width="14px" src="images/transparent-32x32.png" />
+        </div>
     </div>
     <div id="lfmtoptags" class="dropmenu"></div>
     </div>
 
     <div class="noselection fullwidth">
     <div class="containerbox menuitem">
-        <img src="images/toggle-closed.png" class="menu fixed" onclick="getTopArtists(event)" name="lfmtopartists">
+        <div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" onclick="getTopArtists(event)" name="lfmtopartists"></div>
+        <div class="expand">
 <?php
             print $prefs['lastfm_user']."'s ";
             print "Top Artists";
 ?>        
         <img id="topartistswait" height="14px" width="14px" src="images/transparent-32x32.png" />
+        </div>
     </div>
     <div id="lfmtopartists" class="dropmenu"></div>
     </div>
     
     <div class="noselection fullwidth">
     <div class="containerbox menuitem">
-        <img src="images/toggle-closed.png" class="menu fixed" onclick="getFriends(event)" name="lfmfriends">
+        <div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" onclick="getFriends(event)" name="lfmfriends"></div>
+        <div class="expand">
         Friends
         <img id="freindswait" height="14px" width="14px" src="images/transparent-32x32.png" />
+        </div>
     </div>
     <div id="lfmfriends" class="dropmenu"></div>
     </div>
     
     <div class="noselection fullwidth">
     <div class="containerbox menuitem">
-        <img src="images/toggle-closed.png" class="menu fixed" onclick="getNeighbours(event)" name="lfmneighbours">
+        <div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" onclick="getNeighbours(event)" name="lfmneighbours"></div>
+        <div class="expand">
         Neighbours
         <img id="neighbourwait" height="14px" width="14px" src="images/transparent-32x32.png" />
+        </div>
     </div>
     <div id="lfmneighbours" class="dropmenu"></div>
     </div>
