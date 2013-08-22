@@ -68,13 +68,6 @@ class album {
 
     public function getImage($size, $trackimage = null) {
         // Return image for an album or track
-        // $image = null;
-        // // Default is no image
-        // if ($size == "small") {
-        //     $image = "images/album-unknown-small.png";
-        // } else {
-        //     $image = "images/album-unknown.png";
-        // }
         $image = "";
         // If we have a backend-supplied album image
         if ($this->image) {
@@ -113,6 +106,7 @@ class album {
             }
             # Just in case we have a multiple disc album with no disc number tags
             # (or mpd 0.16 and earlier which doesn't read Disc tags from m4a files)
+            # (or indeed, mopidy)
             $discno = intval($ob->disc);
             if (!array_key_exists($discno, $temp)) {
             	$temp[$discno] = array();

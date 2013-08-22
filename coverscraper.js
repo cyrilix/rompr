@@ -9,7 +9,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
     var infotext = $('#infotext');
     var progress = $('#progress');
     var statusobj = $('#status');
-    var waitingicon = ['', 'images/image-update.gif'];
+    var waitingicon = ['', 'images/album-unknown.png'];
     var blankicon = ['images/album-unknown.png', 'images/album-unknown.png'];
     var name = null;
     var artist = null;
@@ -57,6 +57,8 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
             infotext.html(albums_without_cover+" albums without a cover");
         }
     }
+
+    // Is there something else I could be doing?
     
     function doNextImage(time) {
         debug.log("Next Image, delay time is",time);
@@ -123,6 +125,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
         for(var i = 0; i < imgobj.length; i++) {
             imgobj[i].setAttribute('src', waitingicon[size]);
         }
+        animateWaiting();
 
         var options = { key: name,
                         artist: decodeURIComponent(artist),
@@ -144,6 +147,20 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
         
     }
 
+    function animateWaiting() {
+        if (size == 1) {
+            $('img[name="'+name+'"]').removeClass('nospin').addClass('spinner');
+        }
+    }
+
+    function stopAnimation() {
+        if (size == 1) {
+            $('img[name="'+name+'"]').removeClass('spinner').addClass('nospin');
+        }
+    }
+
+    // Hello
+
     this.archiveImage = function(name, url) {
         $.post("getalbumcover.php", {key: name, src: url})
         .done( )
@@ -160,6 +177,8 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
         if (src == "") {
             revertCover(delaytime);
         } else {
+            angle = 0;
+            stopAnimation();
             $.each($('img[name="'+name+'"]'), function() {
                 $(this).attr("src", src);
                 $(this).removeClass("notexist");
@@ -180,11 +199,13 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
         if (!delaytime) {
             delaytime = 800;
         }
+        stopAnimation();
         debug.log("  Revert Cover");
-        for(var i = 0; i < imgobj.length; i++) {
-            imgobj[i].setAttribute('src', blankicon[size]);
-        }
+        // for(var i = 0; i < imgobj.length; i++) {
+        //     imgobj[i].setAttribute('src', blankicon[size]);
+        // }
         $.each($('img[name="'+name+'"]'), function() {
+            $(this).attr("src", blankicon[size]);
             $(this).removeClass("notexist");
             $(this).addClass("notfound");
         });

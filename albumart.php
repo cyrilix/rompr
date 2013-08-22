@@ -81,6 +81,8 @@ function reset() {
     covergetter.reset(-1);
 }
 
+// I like badgers
+
 function onresize() {
     wobbleMyBottom();
 }
@@ -158,6 +160,8 @@ function onlywithcovers() {
     return true;
 }
 
+// This comment is useless
+
 function emptysections() {
     var empty = true;
     $.each($(this).next().find('.albumimg'), function() { if (!$(this).is(':hidden')) { empty = false } });
@@ -187,6 +191,7 @@ function removeUnusedFiles() {
 
 $(document).ready(function () {
 
+    debug.log("Document is ready");
     $("#totaltext").html(numcovers+" albums");
     $("#progress").progressbar();
     $(window).bind('resize', onresize );
@@ -208,6 +213,14 @@ $(document).ready(function () {
     wobblebottom = $('#wobblebottom');
     wobblebottom.click(onWobblebottomClicked);
     wobbleMyBottom();
+});
+
+$(window).load(function () {
+    debug.log("Document has loaded");
+    var count = 0;
+    $.each($(document).find("img").filter(filterImages), function() { count++ } );
+    covergetter.updateInfo(albums_without_cover - count);
+    debug.log("Count is ",count);
 });
 
 function createPopup() {
@@ -250,10 +263,14 @@ function wobbleMyBottom() {
     wobblebottom.css("height", newheight.toString()+"px");
 }
 
+// Ceci n'est pas une commentaire
+
 function doGoogleSearch(artist, album, key, path) {
     wobblebottom.unbind("click");
     imagekey = key;
     imgobj = $('img[name="'+imagekey+'"]');
+    imgobj.attr("src", "images/album-unknown.png");
+    imgobj.removeClass('nospin').addClass('spinner');
     var monkeybrains = decodeURIComponent(artist)+" "+decodeURIComponent(album);
     $("#searchphrase").attr("value", monkeybrains);
     $("#imagekey").attr("value", imagekey);
@@ -325,7 +342,8 @@ function googleSearchComplete() {
 
 function updateImage(url, index) {
     clickindex = index;
-    $('#img'+clickindex).attr('src', 'images/image-update.gif');
+    $('#img'+clickindex).attr('src', 'images/album-unknown.png');
+    startAnimation();
     var options = { key: imagekey,
                     src: url
                     };
@@ -343,8 +361,17 @@ function updateImage(url, index) {
     });
 }
 
+function startAnimation() {
+    $('#img'+clickindex).removeClass('nospin').addClass('spinner');
+}
+
+function animationStop() {
+    $('#img'+clickindex).removeClass('spinner').addClass('nospin');
+}
+
 function searchFail() {
-    $('#img'+clickindex).attr('src', 'images/notfound.png');
+    $('#img'+clickindex).attr('src', 'images/imgnotfound.png');
+    animationStop();
 }
 
 function uploadComplete(data) {
@@ -353,6 +380,7 @@ function uploadComplete(data) {
         searchFail();
         return;
     }
+    animationStop();
     debug.log("Success for",imagekey);
     closeGooglePopup();
     
@@ -368,12 +396,14 @@ function uploadComplete(data) {
     // that the reason they've gone from being the exciting new kids on the block to being the
     // stodgy old unreliable mess they now are is one word - management. They need less of it.    
     
+    imgobj.removeClass('spinner').addClass('nospin');
     var p = imgobj.parent();
     var ra = imgobj.attr("romprartist");
     var rl = imgobj.attr("rompralbum");
     var n = imgobj.attr("name");
     var pth = imgobj.attr("romprpath");
-    if (imgobj.hasClass('notexist') || imgobj.hasClass('notfound')) {
+    if (imgobj.hasClass('notexist') || imgobj.hasClass('notfound') ||
+        imgobj.attr("src") == "") {
         covergetter.updateInfo(1);
     }
     imgobj.remove();
@@ -440,6 +470,9 @@ if (file_exists($ALBUMSLIST)) {
             if ($album->image->exists == "no" || $album->image->src == "") {
                 $class = $class . " notexist";
                 $albums_without_cover++;
+                // Image source must be empty or coverscraper will use
+                // the existing image in the window - which will be this one
+                // Album-Unknown should only be put in for images that HAVE BEEN SEARCHED FOR AND DO NOT EXIST
                 $src = "";
             }
             print '<img class="'.$class.'" romprartist="'.$album->image->romprartist.'" rompralbum="'.$album->image->rompralbum.'"';
@@ -549,10 +582,6 @@ function do_radio_stations() {
 
 function do_unused_images() {
     global $allfiles;
-    // $x = null;
-    // if (file_exists('prefs/remoteImageCache.xml')) {
-    //     $x = simplexml_load_file('prefs/remoteImageCache.xml');
-    // }
     print '<div class="albumsection">';
     print '<div class="tleft"><h2 class="covercontainer">'.count($allfiles).' Unused Images</h2></div><div class="tright rightpad"><button class="topformbutton" style="margin-top:8px" onclick="removeUnusedFiles()">Delete These Covers</button></div>';
     print "</div>\n";
@@ -564,14 +593,6 @@ function do_unused_images() {
         print '<div class="albumimg fixed">';
         print '<img height="82px" width="82px" src="'.$album.'">';
         print '</div>';
-        // if ($x) {
-        //     $imgname = basename($album);
-        //     $imgname = preg_replace('/\.jpg$/', '', $imgname);
-        //     $xp = $x->xpath("images/image[@id='".$imgname."']");
-        //     if ($xp) {
-        //         print '<div class="albumimg fixed">Last used on '.date('d-m-Y', (int)$xp[0]->stamp).'</div>';
-        //     }
-        // }
         print '</div>';
         
         $colcount++;
@@ -602,15 +623,3 @@ function remove_unused_images() {
 } 
 
 ?>
-
-<script language="JavaScript">
-    // To make images get re-scanned if their source fails to load (i.e. if Beets doesn't have one)
-    // Unfortunately this causes massive CPU usage
-    // var allImages = document.getElementsByTagName('img');
-    // for (var i = 0; i < allImages.length; i++) {
-    //     allImages[i].onerror = function() { 
-    //         this.className = this.className + " notexist";
-    //         this.src = "";
-    //     };
-    // }
-</script>
