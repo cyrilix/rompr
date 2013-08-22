@@ -495,7 +495,6 @@ function process_file($collection, $filedata) {
         $folder = "soundcloud";
     }
 
-
     $stream = "";
 
     if ((preg_match('/^http:\/\//', $file) || preg_match('/^mms:\/\//', $file)) &&

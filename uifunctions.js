@@ -947,13 +947,14 @@ function onStorageChanged(e) {
         debug.log("Updating album image for key",key,e);
         if (key.substring(0,1) == "!") {
             key = key.substring(1,key.length);
-            debug.log("Marking as notfound:",key);
+            debug.log("Marking as not found:",key);
             $('img[name="'+key+'"]').removeClass("notexist");
-            $('img[name="'+key+'"]').addClass("notfound");
+            //$('img[name="'+key+'"]').addClass("notfound");
+            $('img[name="'+key+'"]').attr("src", "images/album-unknown.png");
         } else {
             $('img[name="'+key+'"]').attr("src", "albumart/small/"+key+".jpg");
             $('img[name="'+key+'"]').removeClass("notexist");
-            $('img[name="'+key+'"]').removeClass("notfound");
+            //$('img[name="'+key+'"]').removeClass("notfound");
         }
     }
 }
@@ -965,14 +966,10 @@ function savePlaylist() {
     if (name.indexOf("/") >= 0 || name.indexOf("\\") >= 0) {
         alert("Playlist name cannot contain / or \\");
     } else {
-//        if (prefs.use_mopidy_http == 0) {
-            mpd.fastcommand("command=save&arg="+encodeURIComponent(name), function() {
-                player.reloadPlaylists();
-                infobar.notify(infobar.NOTIFY, "Playlist saved as "+name);
-            });
-        // } else {
-        //     mopidySavePlaylist(name);
-        // }
+        mpd.fastcommand("command=save&arg="+encodeURIComponent(name), function() {
+            player.reloadPlaylists();
+            infobar.notify(infobar.NOTIFY, "Playlist saved as "+name);
+        });
         $("#saveplst").slideToggle('fast');
     }
 }
@@ -1359,4 +1356,15 @@ function keepsearchopen() {
 
 function showVolumeControl() {
     $("#volumecontrol").slideToggle('fast');
+}
+
+function filterImages() {
+    if ($(this).hasClass("notexist")) {
+        return true;
+    } else {
+        if ($(this).prop("naturalHeight") === 0 && $(this).prop("naturalWidth") === 0) {
+            return true;
+        }
+    }
+    return false;
 }

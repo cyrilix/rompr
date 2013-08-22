@@ -1,5 +1,5 @@
 /*
-/ Functions here are things where we can use either the mpd command
+/ Functions here are mostly things where we can use either the mpd command
 / or the mopidy WebSocket. These functions will, if we are connected to mopidy,
 / use the mopidy command first with the mpd command as a fallback
 */
@@ -108,7 +108,7 @@ function dualPlayerController() {
         mopidy.on("state:online", self.doMopidyInit);
         mopidy.on("state:offline", self.doMopidyOffline);
         mopidy.on("event:playlistsLoaded", self.mopidyReloadPlaylists);
-        self.mp = mopidy;
+        //self.mp = mopidy;
     }
 
     this.reloadPlaylists = function() {
@@ -237,6 +237,7 @@ function dualPlayerController() {
                 doSomethingUseful('search');
                 debug.log("Doing Search:", terms, domains);
                 mopidy.library[searchtype](terms, domains).then( function(data) {
+                    debug.log("Search Results",data);
                     $.ajax({
                             type: "POST",
                             url: "parseMopidySearch.php", 

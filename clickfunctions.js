@@ -165,7 +165,7 @@ function doAlbumMenu(event, element) {
             $('#'+menutoopen).load("albums.php?item="+menutoopen, function() {
                 $(this).removeClass("notfilled");
                 $(this).slideToggle('fast', function() {
-                    $.each($(this).find('.notexist'), function() {
+                    $.each($(this).find("img").filter(filterImages), function() {
                         coverscraper.GetNewAlbumArt($(this).attr('name'));
                     });
                 })

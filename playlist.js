@@ -629,7 +629,11 @@ function Playlist() {
                 if (l.substring(0,11) == "soundcloud:") {
                     html = html + '<div class="smallcover fixed"><img class="smallcover" src="'+tracks[trackpointer].image+'" /></div>';
                 } else {
-                    html = html + '<div class="tracknumbr fixed">'+format_tracknum(tracks[trackpointer].tracknumber)+'</div>';
+                    html = html + '<div class="tracknumbr fixed"';
+                    if (tracks.length > 99) {
+                        html = html + ' style="width:3em"';
+                    }
+                    html = html + '>'+format_tracknum(tracks[trackpointer].tracknumber)+'</div>';
                 }
                 if (l.substring(0, 7) == "spotify") {
                     html = html + '<div class="playlisticon fixed"><img height="12px" src="images/spotify-logo.png" /></div>';

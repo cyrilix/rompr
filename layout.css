@@ -187,6 +187,7 @@ a
 #albumpicture
 {
     height:82px;
+    width:82px;
 }
 
 #nowplaying
@@ -449,7 +450,7 @@ a
 
 .indent
 {
-    margin-left:16px;
+    margin-left:24px;
 }
 
 .selected

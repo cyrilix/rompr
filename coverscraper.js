@@ -201,13 +201,11 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
         }
         stopAnimation();
         debug.log("  Revert Cover");
-        // for(var i = 0; i < imgobj.length; i++) {
-        //     imgobj[i].setAttribute('src', blankicon[size]);
-        // }
         $.each($('img[name="'+name+'"]'), function() {
             $(this).attr("src", blankicon[size]);
+            // Remove this class to prevent it being searched again
             $(this).removeClass("notexist");
-            $(this).addClass("notfound");
+            //$(this).addClass("notfound");
         });
         if (useLocalStorage) {
             sendLocalStorageEvent("!"+name);

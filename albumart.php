@@ -60,18 +60,6 @@ function getNewAlbumArt(div) {
 // Does anybody ever read the comments in code?
 // I hope they do, because most of the comments in my code are entirely useless.
 
-function filterImages() {
-    if ($(this).hasClass("notexist")) {
-        return true;
-    } else {
-        if ($(this).prop("naturalHeight") === 0 && $(this).prop("naturalWidth") === 0) {
-            $(this).attr("src", "");
-            return true;
-        }
-    }
-    return false;
-}
-
 function myMonkeyHasBigEars() {
     var a = this.getAttribute('name');
     covergetter.GetNewAlbumArt(a);
@@ -151,7 +139,8 @@ function boogerbenson() {
 }
 
 function onlywithcovers() {
-    if ($(this).hasClass('notexist') || $(this).hasClass('notfound')) {
+    // if ($(this).hasClass('notexist') || $(this).hasClass('notfound')) {
+    if ($(this).hasClass('notexist')) {
         return false;
     }
     if ($(this).prop("naturalHeight") === 0 && $(this).prop("naturalWidth") === 0) {
@@ -218,7 +207,11 @@ $(document).ready(function () {
 $(window).load(function () {
     debug.log("Document has loaded");
     var count = 0;
-    $.each($(document).find("img").filter(filterImages), function() { count++ } );
+    $.each($(document).find("img").filter(filterImages), function() { 
+        count++;
+        $(this).addClass("notexist");
+        $)this).attr("src", "")
+    });
     covergetter.updateInfo(albums_without_cover - count);
     debug.log("Count is ",count);
 });
@@ -402,8 +395,9 @@ function uploadComplete(data) {
     var rl = imgobj.attr("rompralbum");
     var n = imgobj.attr("name");
     var pth = imgobj.attr("romprpath");
-    if (imgobj.hasClass('notexist') || imgobj.hasClass('notfound') ||
-        imgobj.attr("src") == "") {
+    // if (imgobj.hasClass('notexist') || imgobj.hasClass('notfound') ||
+    //     imgobj.attr("src") == "") {
+    if (imgobj.hasClass('notexist')) {
         covergetter.updateInfo(1);
     }
     imgobj.remove();

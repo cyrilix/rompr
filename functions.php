@@ -459,7 +459,11 @@ function albumTracks($album) {
         } else {
             print '<div class="clickable clicktrack ninesix draggable indent containerbox padright line" name="'.$trackobj->url.'">';
         }
-        print '<div class="tracknumber fixed">'.$trackobj->number.'</div>';
+        print '<div class="tracknumber fixed"';
+        if (count($album->tracks->track) > 99) {
+            print ' style="width:3em"';
+        }
+        print '>'.$trackobj->number.'</div>';
         if (substr($trackobj->url,0,strlen('spotify')) == "spotify") {
             print '<div class="playlisticon fixed"><img height="12px" src="images/spotify-logo.png" /></div>';
         }
