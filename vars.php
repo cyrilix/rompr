@@ -4,6 +4,7 @@ $ALBUMSLIST = 'prefs/albums_'.$LISTVERSION.'.xml';
 $ALBUMSEARCH = 'prefs/albumsearch_'.$LISTVERSION.'.xml';
 $FILESLIST = 'prefs/files_'.$LISTVERSION.'.xml';
 $FILESEARCH = 'prefs/filesearch_'.$LISTVERSION.'.xml';
+$PLAYLISTFILE = 'prefs/playlist.xml';
 $connection = null;
 $is_connected = false;
 $DEBUG = 1;
@@ -15,8 +16,7 @@ $covernames = array("cover", "albumart", "thumb", "albumartsmall", "front");
 // NOTE: sortbydate can be set to "true' to make the collection sort albums by date
 // - however mpd can only read the 'Date' ID3 tag, whereas the 'Original Release Date'
 //   tag is MUCH more useful. Beets is handy for setting the 'year' tag to the
-//   original release date. However as yet, the mopidy beets backend doesn't
-//   return a date. Duh.
+//   original release date.
 
 // Set unix_socket to a value to make rompr connect to mpd via a unix domain socket
 // (see mpd.conf). There's no real reason to do this, although it is marginally faster.
@@ -42,6 +42,7 @@ $prefs = array( "mpd_host" => "localhost",
                 "hidebrowser" => "false",
                 "sourceshidden" => "false",
                 "playlisthidden" => "false",
+                "showfileinfo" => "true",
                 "infosource" => "lastfm",
                 "chooser" => "albumlist",
                 "historylength" => 25,
@@ -88,7 +89,7 @@ $searchlimits = array(  "file" => "Local Files",
 function debug_print($out) {
     global $DEBUG;
     if ($DEBUG) {
-        error_log($out);
+        error_log($out."\n",3,'/Library/Logs/RomprLog.log');
     }
 }
 
@@ -121,7 +122,7 @@ function loadPrefs() {
                     $prefs[$a[0]] = trim($a[1]);
                 }
             }
-            
+
             // Convert old pref types to new booleans
             foreach (array('dontscrobbleradio', 'lastfm_scrobbling', 'lastfm_autocorrect') as $i) {
                 if ($prefs[$i] != "false" && $prefs[$i] != "true") {

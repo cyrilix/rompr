@@ -6,7 +6,7 @@
         <div id="buttons">
             <img title="Previous Track" class="clickicon controlbutton" onclick="playlist.previous()" src="images/media-skip-backward.png">
             <img title="Play/Pause" class="shiftleft clickicon controlbutton" onclick="infobar.playbutton.clicked()" id="playbuttonimg" src="images/media-playback-pause.png">
-            <img title="Stop" class="shiftleft2 clickicon controlbutton" onclick="playlist.stop()" src="images/media-playback-stop.png">
+            <img title="Stop" class="shiftleft2 clickicon controlbutton" onclick="player.stop()" src="images/media-playback-stop.png">
             <img title="Stop After Current Track" class="shiftleft3 clickicon controlbutton" onclick="playlist.stopafter()" id="stopafterbutton" src="images/stopafter.png">
             <img title="Next Track" class="shiftleft4 clickicon controlbutton" onclick="playlist.next()" src="images/media-skip-forward.png">
         </div>
@@ -47,7 +47,7 @@
     <a title="Search Music" href="#" onclick="toggleSearch()"><img class="topimg clickicon" height="20px" src="images/system-search.png"></a>
     </div>
     <div id="search" class="invisible noborder"></div>
-    <div id="collection" class="noborder"></div>    
+    <div id="collection" class="noborder"></div>
     </div>
 
     <div id="filelist" class="invisible">
@@ -56,7 +56,7 @@
     </div>
     <div id="filesearch" class="invisible searchbox">
     </div>
-    <div id="filecollection" class="noborder"></div>   
+    <div id="filecollection" class="noborder"></div>
     </div>
 
     <div id="lastfmlist" class="invisible">
@@ -70,7 +70,7 @@
     </div>
     <div id="yourradiolist" class="dropmenu">
     </div>
-    
+
     <div class="containerbox menuitem noselection">
         <div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="somafmlist"></div>
         <div class="smallcover fixed"><img height="32px" width="32px" src="images/somafm.png"></div>
@@ -78,7 +78,7 @@
     </div>
     <div id="somafmlist" class="dropmenu">
     </div>
-    
+
     <div class="containerbox menuitem noselection">
         <div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="bbclist"></div>
         <div class="smallcover fixed"><img height="32px" width="32px" src="images/bbcr.png"></div>
@@ -86,7 +86,7 @@
     </div>
     <div id="bbclist" class="dropmenu">
     </div>
-    
+
     <div class="containerbox menuitem noselection">
         <div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="icecastlist"></div>
         <div class="smallcover fixed"><img height="32px" width="32px" src="images/icecast.png"></div>
@@ -94,11 +94,12 @@
     </div>
     <div id="icecastlist" class="dropmenu">
     </div>
-    
+
 </div>
 </div>
 
 <div id="infopane" class="tleft cmiddle noborder infowiki">
+<div id="fileinformation" class="infotext"></div>
 <div id="artistinformation" class="infotext"><h2 align="center">This is the information panel. Interesting stuff will appear here when you play some music</h2></div>
 <div id="albuminformation" class="infotext"></div>
 <div id="trackinformation" class="infotext"></div>

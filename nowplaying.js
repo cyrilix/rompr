@@ -1,7 +1,7 @@
 function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
-    
+
     var self = this;
-    var mpd_data = mpdinfo;  /* From playlist - the basic mpd tags read from status and playlistinfo */
+    var mpd_data = mpdinfo;  /* From playlist - the information read from the backend */
     var artist_data = art;
     var album_data = alb;
     var track_data = tra;
@@ -19,28 +19,22 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
             },
 
             gotSoundCloudTrack: function(data) {
-                debug.log("Got SoundCloud Track Data:",data);
+                debug.log("NOWPLAYING    : Got SoundCloud Track Data:",data);
                 if (mpd_data.creator == "." && data.user && data.user.username) {
                     mpd_data.creator = data.user.username;
-                    debug.log("setting artist name from soundcloud data to",mpd_data.creator);
+                    debug.log("NOWPLAYING    : setting artist name from soundcloud data to",mpd_data.creator);
                 }
-                // if (data.artwork_url) {
-                //     mpd_data.image = "";
-                // }
                 sc_track = data;
                 self.sndcld.getUserData();
             },
 
             getUserData: function() {
-                debug.log("Getting SoundCloud User Data",sc_track.user_id);
+                debug.log("NOWPLAYING    : Getting SoundCloud User Data",sc_track.user_id);
                 soundcloud.getUserInfo(sc_track.user_id, this.gotSoundCloudUser);
             },
 
             gotSoundCloudUser: function(data) {
-                debug.log("Got SoundCloud User Data",data);
-                // if (data.avatar_url) {
-                //     mpd_data.image="";
-                // }
+                debug.log("NOWPLAYING    : Got SoundCloud User Data",data);
                 sc_user = data;
                 self.artist.populate();
             },
@@ -50,7 +44,7 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
             }
         }
     }();
-    
+
     /* Populating the data is daisy-chained, artist, album, track */
     this.artist = function() {
         return {
@@ -58,17 +52,17 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                 if (artist_data == null) {
                     var options = {};
                     var options = { artist: mpd_data.creator };
-                    debug.log("Getting last.fm data for artist",mpd_data.creator,options);
-                    lastfm.artist.getInfo( options, 
-                                        this.lfmResponseHandler, 
+                    debug.log("NOWPLAYING    : Getting last.fm data for artist",mpd_data.creator,options);
+                    lastfm.artist.getInfo( options,
+                                        this.lfmResponseHandler,
                                         this.lfmResponseHandler );
                 } else {
                     self.album.populate();
                 }
             },
-            
+
             lfmResponseHandler: function(data) {
-                debug.log("Got Artist Info for", mpd_data.creator, data);
+                debug.log("NOWPLAYING    : Got Artist Info for", mpd_data.creator, data);
                 if (data) {
                     if (data.error) {
                         artist_data = {artist: data};
@@ -86,9 +80,9 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                     self.album.populate();
                 }
             },
-            
+
             getFullBio: function(callback, failcallback) {
-                debug.log("Getting Bio URL:", artist_data.artist.url);
+                debug.log("NOWPLAYING    : Getting Bio URL:", artist_data.artist.url);
                 $.get("getLfmBio.php?url="+encodeURIComponent(artist_data.artist.url))
                     .done( function(data) {
                         artist_data.artist.bio.content = data;
@@ -106,7 +100,7 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                         }
                     })
             },
-            
+
             name: function() {
                 try {
                     return artist_data.artist.name || mpd_data.creator;
@@ -114,7 +108,7 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                     return mpd_data.creator;
                 }
             },
-            
+
             lfmdata: function() {
                 try {
                     return artist_data.artist || {};
@@ -122,7 +116,7 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                     return {};
                 }
             },
-            
+
             url: function() {
                 try {
                     return artist_data.artist.url || null;
@@ -130,27 +124,24 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                     return null;
                 }
             },
-            
+
             getusertags: function() {
                 if (artist_data.artist.usertags) {
-                    debug.log("Sending stored usertag data for artist",this.name());
                     this.sendusertags(artist_data.artist.usertags);
                 } else {
                     var options = { artist: this.name() };
                     if (this.mbid() != "") {
                         options.mbid = this.mbid();
                     }
-                    debug.log("Getting usertag data for artist",this.name());
                     lastfm.artist.getTags(
-                        options, 
-                        this.sendusertags, 
+                        options,
+                        this.sendusertags,
                         this.sendusertags
                     );
                 }
             },
-            
+
             sendusertags: function(data) {
-                debug.log("Artist got tag info", data);
                 artist_data.artist.usertags = data;
                 var tags = [];
                 try {
@@ -160,44 +151,39 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                 }
                 browser.userTagsIncoming(tags, 'artist', index);
             },
-            
+
             addtags: function(tags) {
-                debug.log("Artist adding tags", tags);
                 lastfm.artist.addTags( {    artist: this.name(),
                                             tags: tags},
-                                        self.justaddedtags, 
+                                        self.justaddedtags,
                                         browser.tagAddFailed
                 );
             },
-            
+
             removetags: function(tags) {
-                debug.log("Artist removing tags", tags);
                 lastfm.artist.removeTag( {  artist: this.name(),
                                             tag: tags},
                                         self.justaddedtags,
                                         browser.tagRemoveFailed
                 );
             },
-            
+
             resettags: function() {
                 artist_data.artist.usertags = null;
             },
 
             mbid: function() {
                 if (mpd_data.musicbrainz_artistid) {
-                    debug.log("Using mbartistid from tags");
                     return mpd_data.musicbrainz_artistid;
                 } else {
                     try {
-                        debug.log("Using mbartistid from last.fm");
                         return artist_data.artist.mbid;
                     } catch(err) {
-                        debug.log("No, there isn't one");
                         return "";
                     }
                 }
             },
-            
+
             setBio: function(text) {
                 try {
                     artist_data.artist.bio.content = text;
@@ -206,7 +192,7 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
             }
         }
     }();
-    
+
     this.album = function() {
         return {
             populate: function() {
@@ -217,9 +203,9 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                     if (album_data == null) {
                         var searchartist = (mpd_data.albumartist && mpd_data.albumartist != "") ? mpd_data.albumartist : self.artist.name();
                         var options = { artist: searchartist, album: mpd_data.album };
-                        debug.log("Getting last.fm data for album",mpd_data.album,"by",searchartist,options);
+                        debug.log("NOWPLAYING    : Getting last.fm data for album",mpd_data.album,"by",searchartist,options);
                         lastfm.album.getInfo( options,
-                                                this.lfmResponseHandler, 
+                                                this.lfmResponseHandler,
                                                 this.lfmResponseHandler );
                     } else {
                         self.track.populate();
@@ -228,7 +214,7 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
             },
 
             lfmResponseHandler: function(data) {
-                debug.log("Got Album Info for",mpd_data.album, data);
+                debug.log("NOWPLAYING    : Got Album Info for",mpd_data.album, data);
                 if (data) {
                     if (data.error) {
                         album_data = {album: data};
@@ -242,7 +228,7 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                 }
                 self.track.populate();
             },
-            
+
             name: function() {
                 try {
                     return album_data.album.name || mpd_data.album;
@@ -250,10 +236,10 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                     return mpd_data.album;
                 }
             },
-            
+
             image: function(size) {
                 // Get image of the specified size.
-                // If no image of that size exists, return a different one - 
+                // If no image of that size exists, return a different one -
                 // just so we've got one.
                 /* This function is duplicated in lastmDataExtractor for reasons of
                 * expediency and laziness, with the latter much in the ascendancy
@@ -262,10 +248,10 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                     // This track has soundcloud data and is therefore a soundcloud track
                     // so use that image
                     if (sc_track.artwork_url) {
-                        debug.log("Using SoundCloud track image");
+                        debug.log("NOWPLAYING    : Using SoundCloud track image");
                         return sc_track.artwork_url;
                     } else if (sc_user.avatar_url) {
-                        debug.log("Using SoundCloud user avatar");
+                        debug.log("NOWPLAYING    : Using SoundCloud user avatar");
                         return sc_user.avatar_url;
                     } else {
                         return "";
@@ -288,7 +274,7 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                     }
                 }
             },
-            
+
             lfmdata: function() {
                 try {
                     return album_data.album;;
@@ -299,14 +285,11 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
 
             mbid: function() {
                 if (mpd_data.musicbrainz_albumid) {
-                    debug.log("Using mbalbumid from tags");
                     return mpd_data.musicbrainz_albumid;
                 } else {
                     try {
-                        debug.log("Using mbalbumid from last.fm");
                         return album_data.album.mbid;
                     } catch(err) {
-                        debug.log("No, there isn't one");
                         return "";
                     }
                 }
@@ -314,25 +297,22 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
 
             getusertags: function() {
                 if (album_data.album.usertags) {
-                    debug.log("Sending stored usertag data for album",this.name());
                     this.sendusertags(album_data.album.usertags);
                 } else {
-                    debug.log("Getting usertag data for album",this.name());
                     var searchartist = (mpd_data.albumartist && mpd_data.albumartist != "") ? mpd_data.albumartist : self.artist.name();
                     var options = { artist: searchartist, album: this.name() };
                     if (this.mbid() != "") {
                         options.mbid = this.mbid();
                     }
                     lastfm.album.getTags(
-                        options, 
-                        this.sendusertags, 
+                        options,
+                        this.sendusertags,
                         this.sendusertags
                     );
                 }
             },
-            
+
             sendusertags: function(data) {
-                debug.log("Album got tag info", data);
                 album_data.album.usertags = data;
                 var tags = [];
                 try {
@@ -342,20 +322,18 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                 }
                 browser.userTagsIncoming(tags, 'album', index);
             },
-            
+
             addtags: function(tags) {
                 var searchartist = (mpd_data.albumartist && mpd_data.albumartist != "") ? mpd_data.albumartist : self.artist.name();
-                debug.log("Album adding tags", searchartist, this.name(), tags);
                 lastfm.album.addTags( {    artist: searchartist,
                                             album: this.name(),
                                             tags: tags},
-                                        self.justaddedtags, 
+                                        self.justaddedtags,
                                         browser.tagAddFailed
                 );
             },
-            
+
             removetags: function(tags) {
-                debug.log("Album removing tags", tags);
                 var searchartist = (mpd_data.albumartist && mpd_data.albumartist != "") ? mpd_data.albumartist : self.artist.name();
                 lastfm.album.removeTag( {  album: this.name(),
                                             artist: searchartist,
@@ -364,11 +342,11 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                                         browser.tagRemoveFailed
                 );
             },
-            
+
             resettags: function() {
                 album_data.album.usertags = null;
             },
-            
+
             albumartist: function() {
                 return (mpd_data.albumartist && mpd_data.albumartist != "") ? mpd_data.albumartist : self.artist.name();
             }
@@ -383,9 +361,9 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
 //                     if (this.mbid() != "") {
 //                         options.mbid = this.mbid();
 //                     }
-                    debug.log("Getting last.fm data for track",mpd_data.title,"by",self.artist.name(),options);
+                    debug.log("NOWPLAYING    : Getting last.fm data for track",mpd_data.title,"by",self.artist.name(),options);
                     lastfm.track.getInfo( options,
-                                            this.lfmResponseHandler, 
+                                            this.lfmResponseHandler,
                                             this.lfmResponseHandler );
                 } else {
                     self.finished();
@@ -393,7 +371,7 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
             },
 
             lfmResponseHandler: function(data) {
-                debug.log("Got Track Info for",mpd_data.title, data);
+                debug.log("NOWPLAYING    : Got Track Info for",mpd_data.title, data);
                 if (data) {
                     if (data.error) {
                         track_data = {track: data};
@@ -407,7 +385,7 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                 }
                 self.finished();
             },
-            
+
             name: function() {
                 try {
                     return track_data.track.name || mpd_data.title;
@@ -415,11 +393,11 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                     return mpd_data.title;
                 }
             },
-            
+
             scrobble: function() {
                 if (!scrobbled) {
                     if (self.track.name() != "" && self.artist.name() != "") {
-                        var options = { 
+                        var options = {
                                         timestamp: parseInt(starttime.toString()),
                                         track: self.track.name(),
                                         artist: self.artist.name(),
@@ -436,18 +414,18 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
 //                         if (mpd_data.duration && mpd_data.duration > 0) {
 //                             options.duration = (Math.floor(mpd_data.duration)).toString();
 //                         }
-                        debug.log("Scrobbling", options);
+                        debug.log("NOWPLAYING    : Scrobbling", options);
                         lastfm.track.scrobble( options );
                         scrobbled = true;
                     }
                 }
             },
-            
+
             updatenowplaying: function() {
                 if (!nowplaying_updated) {
                     if (self.track.name() != "" && self.artist.name() != "") {
                         var opts = {
-                            track: self.track.name(), 
+                            track: self.track.name(),
                             artist: self.artist.name()
                         };
                         if (mpd_data.type != "stream") {
@@ -458,7 +436,7 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                     }
                 }
             },
-            
+
             duration: function() {
                 if (mpd_data.duration == 0 && mpd_data.type != "stream") {
                     /* use duration from last.fm track info if none available from mpd */
@@ -470,7 +448,7 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                 }
                 return mpd_data.duration || 0;
             },
-            
+
             love: function(callback) {
                 lastfm.track.love({ track: self.track.name(), artist: self.artist.name() }, self.donelove, callback);
             },
@@ -478,11 +456,11 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
             unlove: function(callback) {
                 lastfm.track.unlove({ track: self.track.name(), artist: self.artist.name() }, self.donelove, callback);
             },
-            
+
             ban: function() {
             lastfm.track.ban({ track: self.track.name(), artist: self.artist.name() });
             },
-            
+
             lfmdata: function() {
                 try {
                     return track_data.track;
@@ -493,24 +471,21 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
 
             getusertags: function() {
                 if (track_data.track.usertags) {
-                    debug.log("Sending stored usertag data for track",this.name());
                     this.sendusertags(track_data.track.usertags);
                 } else {
-                    debug.log("Getting usertag data for track",this.name());
                     var options = { artist: self.artist.name(), track: this.name() };
                     if (this.mbid() != "") {
                         options.mbid = this.mbid();
                     }
                     lastfm.track.getTags(
-                        options, 
-                        this.sendusertags, 
+                        options,
+                        this.sendusertags,
                         this.sendusertags
                     );
                 }
             },
-            
+
             sendusertags: function(data) {
-                debug.log("Track got tag info", data);
                 track_data.track.usertags = data;
                 var tags = [];
                 try {
@@ -520,19 +495,17 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                 }
                 browser.userTagsIncoming(tags, 'track', index);
             },
-            
+
             addtags: function(tags) {
-                debug.log("Track adding tags", this.name(), tags);
                 lastfm.track.addTags( {     artist: self.artist.name(),
                                             track: this.name(),
                                             tags: tags},
-                                        self.justaddedtags, 
+                                        self.justaddedtags,
                                         browser.tagAddFailed
                 );
             },
-            
+
             removetags: function(tags) {
-                debug.log("Track removing tags", tags);
                 lastfm.track.removeTag( {   track: this.name(),
                                             artist: self.artist.name(),
                                             tag: tags},
@@ -540,28 +513,25 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                                         browser.tagRemoveFailed
                 );
             },
-            
+
             resettags: function() {
                 track_data.track.usertags = null;
             },
-                    
+
             mbid: function() {
                 if (mpd_data.musicbrainz_trackid) {
-                    debug.log("Using mbtrackid from tags");
                     return mpd_data.musicbrainz_trackid;
                 } else {
                     try {
-                        debug.log("Using mdtrackid from last.fm");
                         return track_data.track.mbid;
                     } catch(err) {
-                        debug.log("No, there isn't one");
                         return "";
                     }
                 }
             }
         }
     }();
-    
+
     this.populate = function() {
         var a = mpd_data.location;
         if (a.substr(0,11) == "soundcloud:") {
@@ -573,28 +543,28 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
     }
 
     this.finished = function() {
-        debug.log("Got all data for",mpd_data.title);
+        debug.log("NOWPLAYING    : Got all data for",mpd_data.title);
         nowplaying.gotdata(index);
     }
-    
+
     this.mpd = function(key) {
         return mpd_data[key];
     }
-    
+
     this.progress = function() {
          return (mpd.getStatus('state') == "stop") ? 0 : (Date.now())/1000 - starttime;
     }
-    
+
     this.setstarttime = function(elapsed) {
         starttime = (Date.now())/1000 - parseFloat(elapsed);
     }
-    
+
     this.justaddedtags = function(type, tags) {
-        debug.log("Just added or removed tags",tags,"to",type);
+        debug.log("NOWPLAYING    : Just added or removed tags",tags,"to",type);
         self[type].resettags();
         self[type].getusertags();
     }
-    
+
     this.donelove = function(tr, ar, loved, callback) {
         if (callback) {
             callback();
@@ -619,129 +589,106 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
 }
 
 function playInfo() {
- 
+
     var self = this;
     var currenttrack = 0;
     var history = [];
-    
+
     /* Initialise ourself with a dummy track - prevents early callbacks during loading from
      * producing errors - otherwise we'd have to check if (currenttrack == 0) all over the place
      */
-    
+
     history[0] = new trackDataCollection(0, emptytrack, null, null, null);
-    
+
     this.newTrack = function(mpdinfo) {
 
-        debug.log("New Track:",mpdinfo);
-        
+        debug.log("NOWPLAYING    : New Track:",mpdinfo);
+
         /* Update the now playing info. This can be modified later when the last.fm data comes back */
         var npinfo = {  artist: mpdinfo.creator,
-                        albumartist: mpdinfo.albumartist,
+                        albumartist: mpdinfo.albumartist || mpdinfo.creator,
                         album: mpdinfo.album,
                         track: mpdinfo.title,
                         location: mpdinfo.location,
-                        image: mpdinfo.image
         };
 
-        if (npinfo.image == "") {
-            var imgname = hex_md5(npinfo.artist+" "+npinfo.album);
-            $.each($('img[name="'+imgname+'"]'), function() {
-                if ($(this).attr("src") != "") {
-                    debug.log("PlayInfo Using image already in window");
-                    npinfo.image = $(this).attr("src");
-                    npinfo.origimage = $(this).attr("src");
-                }
-            });
-        }
-
-        if (mpdinfo.origimage && mpdinfo.origimage != "") {
-            npinfo.origimage = mpdinfo.origimage;
-        }
         infobar.setNowPlayingInfo(npinfo);
+        infobar.albumImage.setSource({    image: mpdinfo.image,
+                                          origimage: mpdinfo.origimage
+                                    });
 
         if (mpdinfo.creator == "" && mpdinfo.title == "" && mpdinfo.album == "") {
             return 0;
         }
-        
+
         browser.trackHasChanged(npinfo);
 
         /* Need to check what's different between this one and the previous one so we can copy the data
          * - prevents us from repeatedly querying last.fm for the same data */
-        
+
         var newartistdata = null;
         var newalbumdata = null;
         var newtrackdata = null;
-        
+
         for (var i in history) {
             if (mpdinfo.creator == history[i].mpd('creator') && newartistdata == null) {
-                debug.log("Copying Artist data");
+                debug.log("NOWPLAYING    : Copying Artist data");
                 newartistdata = {artist: history[i].artist.lfmdata()};
                 if (mpdinfo.album == history[i].mpd('album') && newalbumdata == null) {
-                    debug.log("Copying Album data");
+                    debug.log("NOWPLAYING    : Copying Album data");
                     newalbumdata = {album: history[i].album.lfmdata()};
                 }
                 if (mpdinfo.title == history[i].mpd('title') && newtrackdata == null) {
-                    debug.log("Copying Track data");
+                    debug.log("NOWPLAYING    : Copying Track data");
                     newtrackdata = {track: history[i].track.lfmdata()};
                 }
             }
         }
-        
+
         if (history.length > prefs.historylength) {
             var t = history.shift();
             currenttrack--;
             browser.thePubsCloseTooEarly();
         }
-        
+
         currenttrack++;
         var t = new trackDataCollection(currenttrack, mpdinfo, mpd.getStatus('file'), newartistdata, newalbumdata, newtrackdata);
         history[currenttrack] = t;
         t.populate();
-        debug.log("Started the large badger for track",currenttrack);
+        debug.log("NOWPLAYING    : Started the large badger for track",currenttrack);
     }
-    
+
     this.gotdata = function(index) {
         /* We got a response from a data collector */
-        debug.log("Got response for badger",index);
+        debug.log("NOWPLAYING    : Got response for badger",index);
         if (index == currenttrack) {
             /* Only use it here if this is info about the current track
              * This is asynchronous and it's possible that the user could be clicking
              * very quickly through tracks. We can't control the order the responses come back in */
-            debug.log("...and it's data we need");
+            debug.log("NOWPLAYING    :    ...and it's data we need");
             /* Update now playing info with what we've got back - we might have autocorrections or album art */
             var npinfo = {  artist: history[index].artist.name(),
                             album: history[index].album.name(),
                             track: history[index].track.name()
             };
-            if ($("#albumpicture").attr("src") == "") {
-                debug.log("Displaying album image from last.fm");
-                npinfo.image = history[index].album.image('medium');
-                npinfo.origimage = history[index].album.image('large');
-            }
-            // if (!history[index].mpd('image') || history[index].mpd('image') == "" ||
-            //     history[index].mpd('image') == "images/album-unknown.png") {
-            //     debug.log("NO album image supplied");
-            //     var img = history[index].album.image('medium');
-            //     if (img != "") {
-            //         debug.log("Using Album Cover from Last.FM");
-            //         npinfo.image = img;
-            //     }
-            // }
             infobar.setNowPlayingInfo(npinfo);
+            infobar.albumImage.setSecondarySource({ image: history[index].album.image('medium'),
+                                                    origimage: history[index].album.image('large')
+            });
             browser.newTrack(index);
         }
     }
-        
+
     /* All these functions are for retrieving data from the trackDataCollection objects.
      * Don't access those objects directly.
      * Functions that take an index can accept -1 to mean 'current track'
      * Functions that don't accept an index are those that make no sense in any other context
      */
-    
+
     this.scrobble = function() {
         history[currenttrack].track.scrobble();
     }
-    
+
     this.updateNowPlaying = function() {
         history[currenttrack].track.updatenowplaying();
     }
@@ -763,12 +710,12 @@ function playInfo() {
         if (index == -1) { index = currenttrack };
         return history[index].mpd(key);
     }
-    
+
     this.duration = function(index) {
         if (index == -1) { index = currenttrack };
         return history[index].track.duration();
     }
-    
+
     this.love = function(index, callback) {
         /* optional callback to be used IN ADITION TO the standard one which calls into the browser */
         callback = typeof callback !== 'undefined' ? callback : null;
@@ -782,29 +729,29 @@ function playInfo() {
         if (index == -1) { index = currenttrack };
         history[index].track.unlove(callback);
     }
-    
+
     this.getnames = function(index) {
         return {    artist: history[index].artist.name(),
                     album: history[index].album.name(),
                     track: history[index].track.name()
         }
     }
-    
+
     this.getmpdnames = function(index) {
         return {    artist: history[index].mpd('creator'),
                     album: history[index].mpd('album'),
-                    track: history[index].mpd('title') 
+                    track: history[index].mpd('title')
         };
     }
-    
+
     this.getcurrentindex = function() {
         return currenttrack;
     }
-    
+
     this.getusertags = function(index, key) {
         history[index][key].getusertags();
     }
-    
+
     this.addtags = function(index, type, tags) {
         history[index][type].addtags(tags);
     }
@@ -812,7 +759,7 @@ function playInfo() {
     this.removetags = function(index, type, tags) {
         history[index][type].removetags(tags);
     }
-    
+
     this.albumartist = function(index) {
         if (index = -1) { index = currenttrack }
         return history[index].album.albumartist();
@@ -824,7 +771,7 @@ function playInfo() {
      * generic methods for accessing the data
      * DO NOT ACCESS THE DATA DIRECTLY. THIS IS DANGEROUS AND COULD DESTROY THE INTERNET
      */
-    
+
     this.getArtistData = function(index) {
         return history[index].artist.lfmdata();
     }
@@ -847,7 +794,7 @@ function playInfo() {
 }
 
 function lfmDataExtractor(data) {
-    
+
     this.error = function() {
         if (data && data.error) {
             return data.message;
@@ -872,7 +819,7 @@ function lfmDataExtractor(data) {
         return data.artist || "";
     }
 
-    
+
     this.listeners = function() {
         try {
             return data.stats.listeners || 0;
@@ -912,7 +859,7 @@ function lfmDataExtractor(data) {
             return "Unknown";
         }
     }
-    
+
     this.mbid = function() {
         try {
             return data.mbid || false;
@@ -920,7 +867,7 @@ function lfmDataExtractor(data) {
             return false;
         }
     }
-    
+
     this.userplaycount = function() {
         try {
             return data.stats.userplaycount || 0;
@@ -939,8 +886,8 @@ function lfmDataExtractor(data) {
 
     this.bio = function() {
         try {
-            if(data.wiki) { 
-                return data.wiki.content; 
+            if(data.wiki) {
+                return data.wiki.content;
             }
             else if (data.bio) {
                 return data.bio.content;
@@ -999,7 +946,7 @@ function lfmDataExtractor(data) {
             return "";
         }
     }
- 
+
     this.similar = function() {
         try {
             return getArray(data.similar.artist);
@@ -1019,8 +966,8 @@ function lfmDataExtractor(data) {
                     break;
                 }
             }
-            if (url == "") { 
-                url = temp_url; 
+            if (url == "") {
+                url = temp_url;
             }
             return url;
         } catch(err) {
@@ -1028,9 +975,9 @@ function lfmDataExtractor(data) {
         }
 
     }
-    
+
     this.url = function() {
         return data.url  || null;
     }
- 
+
 }

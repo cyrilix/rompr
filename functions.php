@@ -95,9 +95,9 @@ function do_mpd_command($conn, $command, $varname = null, $return_array = false)
     global $is_connected;
     $retarr = array();
     if ($is_connected) {
-    
+
         debug_print("MPD Command ".$command);
-    
+
         $success = fputs($conn, $command."\n");
         if ($success) {
             while(!feof($conn)) {
@@ -176,7 +176,7 @@ function url_get_contents($url,$useragent='RompR Media Player/0.1',$headers=fals
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
     curl_setopt($ch, CURLOPT_TIMEOUT, 45);
-    
+
     # return headers as requested
     if ($headers==true){
         curl_setopt($ch, CURLOPT_HEADER,1);
@@ -206,7 +206,7 @@ function url_get_contents($url,$useragent='RompR Media Player/0.1',$headers=fals
     return $result;
 }
 
-function format_time($t,$f=':') // t = seconds, f = separator 
+function format_time($t,$f=':') // t = seconds, f = separator
 {
     if (($t/86400) >= 1) {
         return sprintf("%d%s%2d%s%02d%s%02d", ($t/86400), " days ", ($t/3600)%24, $f, ($t/60)%60, $f, $t%60);
@@ -219,7 +219,7 @@ function format_time($t,$f=':') // t = seconds, f = separator
 }
 
 class collectionOutput {
-    
+
     public function __construct($file) {
         $this->fname = $file;
         $this->fhandle = null;
@@ -235,7 +235,7 @@ class collectionOutput {
             print $xmlheaders;
         }
     }
-    
+
     public function writeLine($line) {
         if ($this->fhandle != null) {
             fwrite($this->fhandle, $line);
@@ -243,7 +243,7 @@ class collectionOutput {
             print $line;
         }
     }
-    
+
     public function closeFile() {
         if ($this->fhandle != null) {
             fwrite($this->fhandle, "</artists>\n</collection>\n");
@@ -252,7 +252,7 @@ class collectionOutput {
             print '</body></html>';
         }
     }
-    
+
     public function dumpFile() {
         if ($this->fname != "") {
             // debug_print("Dumping Files List to ".$this->fname);
@@ -409,31 +409,23 @@ function albumHeaders($artist) {
         // because firefox won't squash the image horizontally if it's in a box-flex layout.
         print '<div class="smallcover fixed">';
         if ($album->image->exists == "no" && $album->image->searched == "no") {
-            print '<img class="smallcover fixed notexist" romprartist="'.$album->image->romprartist.'" rompralbum="'.$album->image->rompralbum;
-            if ($album->directory) {
-                print '" romprpath="'.$album->directory;
-            }
-            if ($album->mbid) {
-                print '" rompralbumid="'.$album->mbid;
-            }
-            if ($album->spotilink) {
-                print '" romprspotilink="'.$album->spotilink;
-            }
-            print '" name="'.$album->image->name.'" src="'.$album->image->src.'" />'."\n";
+            print '<img class="smallcover fixed notexist" name="'.$album->image->name.'" src="images/album-unknown-small.png" />'."\n";
+        } else  if ($album->image->exists == "no" && $album->image->searched == "yes") {
+            print '<img class="smallcover fixed notfound" name="'.$album->image->name.'" src="images/album-unknown-small.png" />'."\n";
         } else {
-            print '<img class="smallcover fixed" name="'.$album->image->name.'" src="'.$album->image->src.'" />';
+            print '<img class="smallcover fixed" name="'.$album->image->name.'" src="'.$album->image->src.'" />'."\n";
         }
         print '</div>';
         if ($album->spotilink) {
             print '<div class="playlisticon fixed"><img height="12px" src="images/spotify-logo.png" /></div>';
         }
-        
+
         print '<div class="expand">'.$album->name;
         if ($album->date && $album->date != "" && $prefs['sortbydate'] == "true") {
             print ' <span class="notbold">('.$album->date.')</span>';
         }
         print '</div></div>';
-        
+
         // Create the drop-down div that will hold this album's tracks
         print '<div id="'.$album['id'].'" class="dropmenu notfilled"></div>';
         $count ++;
@@ -549,7 +541,7 @@ function scan_for_images($albumpath) {
 function get_images($dir_path) {
 
     $funkychicken = array();
-    debug_print("Scanning : ".$dir_path);
+    debug_print("    Scanning : ".$dir_path);
     $globpath = preg_replace('/(\*|\?|\[)/', '[$1]', $dir_path);
     $files = glob($globpath."/*.{jpg,png,bmp,gif,jpeg,JPEG,JPG,BMP,GIF,PNG}", GLOB_BRACE);
     foreach($files as $i => $f) {
@@ -593,7 +585,7 @@ function parse_mopidy_json_data($collection, $jsondata) {
                     parseTrack($collection, $track);
                 }
             }
-        
+
         } else if ($searchresults->{'__model__'} == "TlTrack") {
             parseTrack($collection, $searchresults->track, $plpos, property_exists($searchresults, 'tlid') ? $searchresults->{'tlid'} : 0);
         }
@@ -711,42 +703,48 @@ function parseTrack($collection, $track, $plpos = null, $plid = null) {
 
 function outputPlaylist() {
     global $playlist;
-    print  '<?xml version="1.0" encoding="utf-8"?>'."\n".
+    global $PLAYLISTFILE;
+    $xml =  '<?xml version="1.0" encoding="utf-8"?>'."\n".
             '<playlist version="1">'."\n".
             '<title>Current Playlist</title>'."\n".
             '<creator>RompR</creator>'."\n".
             '<trackList>'."\n";
-            
+
     foreach ($playlist as $track) {
-        print '<track>'."\n";
-        if ($track->albumobject->isCompilation()) {
-            print xmlnode("compilation", "yes");
-        }
-        print xmlnode("title", $track->name)
-                .xmlnode("album", $track->album)
-                .xmlnode("creator", $track->artist)
-                .xmlnode("albumartist", $track->albumartist)
-                .xmlnode("duration", $track->duration)
-                .xmlnode("type", $track->type)
-                .xmlnode("tracknumber", $track->number)
-                .xmlnode("expires", $track->expires)
-                .xmlnode("stationurl", $track->stationurl)
-                .xmlnode("station", $track->station)
-                .xmlnode("location", $track->url)
-                .xmlnode("backendid", $track->backendid)
-                .xmlnode("image", $track->getImage('original'))
-                .xmlnode("origimage", $track->getImage('asdownloaded'))
-                .xmlnode("stream", $track->stream)
-                .xmlnode("playlistpos", $track->playlistpos)
-                .xmlnode("mbartistid", $track->musicbrainz_artistid)
-                .xmlnode("mbalbumid", $track->musicbrainz_albumid)
-                .xmlnode("mbalbumartistid", $track->musicbrainz_albumartistid)
-                .xmlnode("mbtrackid", $track->musicbrainz_trackid)
-                .xmlnode("spotialbum", $track->getSpotiAlbum());                    
-        print '</track>'."\n";
+        $xml = $xml.'<track>'."\n"
+            .xmlnode("title", $track->name)
+            .xmlnode("album", $track->album)
+            .xmlnode("creator", $track->artist)
+            .xmlnode("albumartist", $track->albumobject->artist)
+            .xmlnode("compilation", $track->albumobject->isCompilation() ? "yes" : "no")
+            .xmlnode("duration", $track->duration)
+            .xmlnode("type", $track->type)
+            .xmlnode("tracknumber", $track->number)
+            .xmlnode("expires", $track->expires)
+            .xmlnode("stationurl", $track->stationurl)
+            .xmlnode("station", $track->station)
+            .xmlnode("location", $track->url)
+            .xmlnode("backendid", $track->backendid)
+            .xmlnode("dir", rawurlencode($track->albumobject->folder))
+            .xmlnode("key", $track->albumobject->getKey())
+            .xmlnode("image", $track->getImage('original'))
+            .xmlnode("origimage", $track->getImage('asdownloaded'))
+            .xmlnode("stream", $track->stream)
+            .xmlnode("playlistpos", $track->playlistpos)
+            .xmlnode("mbartistid", $track->musicbrainz_artistid)
+            .xmlnode("mbalbumid", $track->musicbrainz_albumid)
+            .xmlnode("mbalbumartistid", $track->musicbrainz_albumartistid)
+            .xmlnode("mbtrackid", $track->musicbrainz_trackid)
+            .xmlnode("spotialbum", rawurlencode($track->getSpotiAlbum()))
+            .'</track>'."\n";
     }
 
-    print "</trackList>\n</playlist>\n";
+    $xml = $xml . "</trackList>\n</playlist>\n";
+
+    $fp = fopen($PLAYLISTFILE, "w");
+    fwrite($fp, $xml);
+    fclose($fp);
+    print $xml;
 
 }
 
@@ -768,10 +766,31 @@ function find_executable($prog) {
             $c = "PATH=/usr/local/bin:\$PATH PYTHONPATH=/usr/local/lib/python2.7/site-packages /usr/local/bin/";
         }
     }
-    debug_print("Executable path is ".$c.$prog);
+    //debug_print("  Executable path is ".$c.$prog);
     return $c;
 
 }
 
+function get_file_lock($filename) {
+    global $fp;
+    $fp = fopen($filename, 'r+');
+    if ($fp) {
+        $crap = true;
+        if (flock($fp, LOCK_EX, $crap)) {
+            return true;
+        } else {
+            debug_print("FAILED TO GET FILE LOCK ON ".$filename);
+        }
+    } else {
+        debug_print("FAILED TO OPEN ".$filename);
+    }
+    return false;
+}
+
+function release_file_lock() {
+    global $fp;
+    flock($fp, LOCK_UN);
+    fclose($fp);
+}
 
 ?>

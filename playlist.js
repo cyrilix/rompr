@@ -22,7 +22,7 @@ function Playlist() {
     var lastfmcleanuptimer = null;
 
     this.repopulate = function() {
-        debug.log("Repopulating Playlist");
+        debug.log("PLAYLIST      : Repopulating Playlist");
         updatecounter++;
         self.cleanupCleanupTimer();
         player.getPlaylist();
@@ -43,10 +43,10 @@ function Playlist() {
 
         // This is a mechanism to prevent multiple repeated updates of the playlist in the case
         // where, for example, the user is clicking rapidly on the delete button for lots of tracks
-        // and the playlist is slow to update from mpd 
+        // and the playlist is slow to update from mpd
         updatecounter--;
         if (updatecounter > 0) {
-            debug.log("Received playlist update but more are coming - ignoring");
+            debug.log("PLAYLIST      : Received playlist update but more are coming - ignoring");
             do_delayed_update = true;
             return 0;
         }
@@ -56,13 +56,13 @@ function Playlist() {
             // (because we can't be sure which order they will have come back in),
             // do one more of our own, and use that one
             do_delayed_update = false;
-            debug.log("Doing delayed playlist update");
+            debug.log("PLAYLIST      : Doing delayed playlist update");
             self.repopulate();
             return 0;
         }
         // ***********
 
-        debug.log("Got Playlist from MPD");
+        debug.log("PLAYLIST      : Got Playlist XML from Apache");
         self.clearProgressTimer();
         finaltrack = -1;
         currentsong = -1;
@@ -73,7 +73,7 @@ function Playlist() {
         var unixtimestamp = Math.round(new Date()/1000);
         $(list).find("track").each( function() {
 
-            track = { 
+            track = {
                 creator: $(this).find("creator").text(),
                 albumartist: $(this).find("albumartist").text(),
                 album: $(this).find("album").text(),
@@ -84,6 +84,7 @@ function Playlist() {
                 tracknumber: $(this).find("tracknumber").text(),
                 playlistpos: $(this).find("playlistpos").text(),
                 expires: $(this).find("expires").text(),
+                key: $(this).find("key").text(),
                 image: $(this).find("image").text(),
                 origimage: $(this).find("origimage").text(),
                 type: $(this).find("type").text(),
@@ -95,14 +96,13 @@ function Playlist() {
                 musicbrainz_albumid: $(this).find("mbalbumid").text(),
                 musicbrainz_albumartistid: $(this).find("mbalbumartistid").text(),
                 musicbrainz_trackid: $(this).find("mbtrackid").text(),
-                spotialbum: $(this).find("spotialbum").text(),
             };
 
             totaltime += track.duration;
 
             var sortartist = track.creator;
             if (track.albumartist != "") { sortartist = track.albumartist }
-            if ((track.compilation != "yes" && sortartist.toLowerCase() != current_artist.toLowerCase()) || 
+            if ((track.compilation != "yes" && sortartist.toLowerCase() != current_artist.toLowerCase()) ||
                 track.album.toLowerCase() != current_album.toLowerCase() ||
                 track.type != current_type)
             {
@@ -111,7 +111,7 @@ function Playlist() {
                 current_album = track.album;
                 switch (track.type) {
                     case "local":
-                        if (track.compilation) {
+                        if (track.compilation == "yes") {
                             var hidden = (self.rolledup["Various Artists"+track.album]) ? true : false;
                             item = new playlist.Album("Various Artists", track.album, count, hidden);
                         } else {
@@ -156,11 +156,11 @@ function Playlist() {
             item.newtrack(track);
 
         });
-        
+
         $("#sortable").empty();
         if (track) {
             finaltrack = parseInt(track.playlistpos);
-            //debug.log("Playlist: finaltrack is",finaltrack);
+            //debug.log("PLAYLIST      : Playlist: finaltrack is",finaltrack);
             $("#sortable").append('<div class="booger"><table width="100%" class="playlistitem"><tr><td align="left">'
                                     +(finaltrack+1).toString()
                                     +' tracks</td><td align="right">Duration : '+formatTimeString(totaltime)+'</td></tr></table></div>');
@@ -169,7 +169,7 @@ function Playlist() {
         for (var i in tracklist) {
             $("#sortable").append(tracklist[i].getHTML());
         }
-        
+
         makeFictionalCharacter();
         if (scrollto > -1) {
             $("#playlist").scrollTo('div[name="'+scrollto.toString()+'"]');
@@ -177,12 +177,12 @@ function Playlist() {
         }
 
         self.checkProgress();
-        
+
         if (expiresin != null) {
-            debug.log("Last.FM Items in this playlist expire in",expiresin);
+            debug.log("PLAYLIST      : Last.FM Items in this playlist expire in",expiresin);
             lastfmcleanuptimer = setTimeout(self.lastfmcleanup, (expiresin+1)*1000);
         }
-        
+
     }
 
     function makeFictionalCharacter() {
@@ -192,7 +192,7 @@ function Playlist() {
 
     this.load = function(name, by_uri) {
         self.clearProgressTimer();
-        self.cleanupCleanupTimer();        
+        self.cleanupCleanupTimer();
         finaltrack = -1;
         currentsong = -1;
         currentalbum = -1;
@@ -205,25 +205,25 @@ function Playlist() {
         } else {
             sourcecontrol('playlistm');
         }
-        debug.log("Loading Playlist",name);
+        debug.log("PLAYLIST      : Loading Playlist",name);
         if (by_uri) {
             player.loadPlaylist(name);
         } else {
             mpd.command('command=load&arg='+name, playlist.repopulate);
         }
     }
-    
+
     this.lastfmcleanup = function() {
-        debug.log("Running last.fm cleanup");
+        debug.log("PLAYLIST      : Running last.fm cleanup");
         for(var i in tracklist) {
             if (tracklist[i].invalidateOldTracks(mpd.getStatus('song'), -1)) { break; }
         }
     }
-    
+
     this.cleanupCleanupTimer = function() {
         clearTimeout(lastfmcleanuptimer);
     }
-    
+
     this.dragstopped = function(event, ui) {
         var itemstomove;
         var firstmoveitem;
@@ -231,16 +231,16 @@ function Playlist() {
         var moveto;
         var elementmoved = bodgeitup(ui.item);
         var nextelement = bodgeitup($(ui.item).next());
-        if (nextelement == "track") { 
-            moveto = $(ui.item).next().attr("name") 
+        if (nextelement == "track") {
+            moveto = $(ui.item).next().attr("name")
         }
-        if (nextelement == "item" ) { 
-            moveto = tracklist[parseInt($(ui.item).next().attr("name"))].getFirst() 
+        if (nextelement == "item" ) {
+            moveto = tracklist[parseInt($(ui.item).next().attr("name"))].getFirst()
         }
         if (typeof(moveto) == "undefined") {
             moveto = (parseInt(finaltrack))+1;
         }
-        debug.log(nextelement, moveto, finaltrack);
+        debug.log("PLAYLIST      : Drag Stopped", nextelement, moveto, finaltrack);
         if (ui.item.hasClass("draggable")) {
             var cmdlist = [];
             $.each($('.selected').filter(removeOpenItems), function (index, element) {
@@ -279,14 +279,14 @@ function Playlist() {
                 if (moveto < 0) { moveto = 0; }
             }
             mpd.command("command=move&arg="+itemstomove+"&arg2="+moveto, playlist.repopulate);
-        }        
+        }
     }
 
     function removeOpenItems(index) {
         if ($(this).hasClass('clicktrack')) {
             return true;
         }
-        // Filter out artist and album items whose dropdowns have been populated - 
+        // Filter out artist and album items whose dropdowns have been populated -
         // In these cases the individual tracks will exist and will be selected
         // (and might only have partial selections even if the header is selected)
         if ($("#"+$(this).attr('name')).hasClass('notfilled')) {
@@ -331,7 +331,7 @@ function Playlist() {
     }
 
     this.removelfm = function(tracks, u, w) {
-        debug.log("Playlist removing tracks from",u,tracks);
+        debug.log("PLAYLIST      : Playlist removing tracks from",u,tracks);
         lfmprovider.getTracks(u, tracks.length, w, false, tracks);
     }
 
@@ -347,7 +347,7 @@ function Playlist() {
         self.clearProgressTimer();
         if (finaltrack == -1) {
             // Playlist is empty
-            debug.log("Playlist is empty");
+            debug.log("PLAYLIST      : Playlist is empty");
             nowplaying.newTrack(emptytrack);
             $("#progress").progressbar("option", "value", 0);
             $("#playbackTime").empty();
@@ -356,7 +356,7 @@ function Playlist() {
             // A change in currentsong is not taken as a new track being played, because currentsong
             // is set to -1 every time we repopulate.
             if (mpd.getStatus('song') != currentsong || mpd.getStatus('songid') != previoussong) {
-                debug.log("Updating current song");
+                debug.log("PLAYLIST      : Updating current song");
                 currentsong = mpd.getStatus('song');
                 $(".playlistcurrentitem").removeClass('playlistcurrentitem').addClass('playlistitem');
                 $(".playlistcurrenttitle").removeClass('playlistcurrenttitle').addClass('playlisttitle');
@@ -381,9 +381,9 @@ function Playlist() {
                     self.repopulate();
                     return 0;
                 }
-                debug.log("Track has changed");
+                debug.log("PLAYLIST      : Track has changed");
                 if (currentTrack && currentTrack.type == "stream" && streamflag) {
-                    debug.log("Waiting for stream info......");
+                    debug.log("PLAYLIST      : Waiting for stream info......");
                     // If it's a new stream, don't update immediately, instead give it 5 seconds
                     // to let mpd extract any useful track info from the stream
                     // This avoids us displaying some random nonsense then switching to the track
@@ -396,7 +396,7 @@ function Playlist() {
                     return 0;
                 }
                 if (currentTrack && currentTrack.type != "stream") {
-                    debug.log("Creating new track");
+                    debug.log("PLAYLIST      : Creating new track",currentTrack);
                     nowplaying.newTrack(currentTrack);
                 }
                 for(var i in tracklist) {
@@ -416,19 +416,19 @@ function Playlist() {
              var html = formatTimeString(progress) + " of " + formatTimeString(duration);
              $("#playbackTime").empty().html(html);
              html = null;
-            
+
              if (mpd.getStatus('state') == "play") {
                 if (progress > 4) { nowplaying.updateNowPlaying() };
                 if (percent >= prefs.scrobblepercent) { nowplaying.scrobble(); }
                 if (duration > 0 && nowplaying.mpd(-1, "type") != "stream") {
                     if (progress >= duration) {
-                        debug.log("Starting safety timer");
+                        debug.log("PLAYLIST      : Starting safety timer");
                         setTheClock(playlist.checkchange, safetytimer);
                         if (safetytimer < 5000) { safetytimer += 500 }
                     } else {
                         setTheClock( playlist.checkProgress, 1000);
                     }
-             } else {
+                } else {
                     AlanPartridge++;
                     if (AlanPartridge < 7) {
                         setTheClock( playlist.checkProgress, 1000);
@@ -440,11 +440,11 @@ function Playlist() {
             }
         }
     }
-    
+
     this.checkchange = function() {
         mpd.command("", false);
     }
-    
+
     this.streamfunction = function() {
         mpd.command("", playlist.checkStream);
     }
@@ -482,8 +482,8 @@ function Playlist() {
                     temp.album = a;
                 }
             }
-            if (nowplaying.mpd(-1, 'title') != temp.title || 
-                nowplaying.mpd(-1, 'album') != temp.album || 
+            if (nowplaying.mpd(-1, 'title') != temp.title ||
+                nowplaying.mpd(-1, 'album') != temp.album ||
                 nowplaying.mpd(-1, 'creator') != temp.creator) {
                 nowplaying.newTrack(temp);
             } else {
@@ -495,9 +495,9 @@ function Playlist() {
     function checkForUpdateToUnknownStream(url, name) {
         var m = currentTrack.album;
         if (m.match(/^Unknown Internet Stream/)) {
-            debug.log("Updating Stream",name);
+            debug.log("PLAYLIST      : Updating Stream",name);
             $.post("updateplaylist.php", { url: url, name: name })
-            .done( function() { 
+            .done( function() {
                 playlist.repopulate();
                 if (!prefs.hide_radiolist) {
                     $("#yourradiolist").empty();
@@ -506,7 +506,7 @@ function Playlist() {
             });
         }
     }
-    
+
     function setTheClock(callback, timeout) {
         // ONLY set the progresstimer by using this function!
         // Otherwise it's possible that we get multiple timers running
@@ -517,14 +517,12 @@ function Playlist() {
 
     this.clearProgressTimer = function() {
         clearTimeout(progresstimer);
-    }        
+    }
 
     this.stop = function() {
-        mpd.command("command=stop", function() {
-            self.checkSongIdAfterStop(previoussong);
-        });
+        self.checkSongIdAfterStop(previoussong);
     }
-    
+
     this.stopafter = function() {
         if (currentTrack.type == "stream") {
             infobar.notify(infobar.ERROR, "Not supported for radio streams");
@@ -590,12 +588,12 @@ function Playlist() {
             var f = finaltrack+1;
             cmds.push('play "'+f.toString()+'"');
         }
-        mpd.do_command_list(cmds, playlist.repopulate);        
+        mpd.do_command_list(cmds, playlist.repopulate);
         scrollto = (finaltrack)+1;
-    }   
+    }
 
     this.addFavourite = function(index) {
-        debug.log("Adding Fave Station, index",index, tracklist[index].album);
+        debug.log("PLAYLIST      : Adding Fave Station, index",index, tracklist[index].album);
         $.post("addfave.php", { station: tracklist[index].album })
             .done( function() {
                 if (!prefs.hide_radiolist) {
@@ -603,7 +601,7 @@ function Playlist() {
                 }
             });
     }
-    
+
     this.Album = function(artist, album, index, rolledup) {
 
         var self = this;
@@ -611,7 +609,7 @@ function Playlist() {
         this.artist = artist;
         this.album = album;
         this.index = index;
-        
+
         this.newtrack = function (track) {
             tracks.push(track);
         }
@@ -620,7 +618,7 @@ function Playlist() {
             var html = self.header();
             for (var trackpointer in tracks) {
                 var showartist = false;
-                if (tracks[trackpointer].compilation || 
+                if (tracks[trackpointer].compilation == "yes" ||
                     (tracks[trackpointer].albumartist != "" && tracks[trackpointer].albumartist != tracks[trackpointer].creator)) {
                     showartist = true;
                 }
@@ -655,25 +653,29 @@ function Playlist() {
             return html;
         }
 
-        this.header = function() {        
+        this.header = function() {
             var html = "";
             html = html + '<div name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="item clickable clickplaylist sortable containerbox menuitem playlisttitle">';
             var l = tracks[0].location;
             if (l.substring(0,11) == "soundcloud:") {
-                html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="images/soundcloud-logo.png"/></div>';                
+                html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="images/soundcloud-logo.png"/></div>';
             } else {
                 if (tracks[0].image && tracks[0].image != "") {
                     // An image was supplied - either a local one or supplied by the backend
-                    html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover fixed" src="'+tracks[0].image+'"/></div>';
+                    html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover fixed" name="'+tracks[0].key+'" src="'+tracks[0].image+'"/></div>';
                 } else {
-                    html = html +   '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover updateable notexist fixed clickable clickicon clickrollup" romprname="'+self.index+'" name="'+hex_md5(self.artist+" "+self.album)+'" '
-                                +   ' romprartist="'+encodeURIComponent(self.artist)+'" rompralbum="'+encodeURIComponent(self.album)+'"';
-                    if (tracks[0].spotialbum && tracks[0].spotialbum != "") {
-                        html = html + ' romprspotilink="'+tracks[0].spotialbum+'"';
+                    var i = findImageInWindow(tracks[0].key);
+                    if (i !== false) {
+                        debug.log("PLAYLIST      : Playlist using image already in window");
+                        this.updateImages(i);
+                        html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover fixed" name="'+tracks[0].key+'" src="'+i+'"/></div>';
+                    } else {
+                        html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index
+                                    + '"><img class="smallcover updateable notexist fixed clickable clickicon clickrollup" romprname="'+self.index
+                                    +'" name="'+tracks[0].key+'" src=""/></div>';
+                        coverscraper.setCallback(this.updateImages, tracks[0].key);
+                        coverscraper.GetNewAlbumArt(tracks[0].key);
                     }
-                    html = html +  ' src=""/></div>';
-                    coverscraper.setCallback(this.updateImages, hex_md5(self.artist+" "+self.album));
-                    coverscraper.GetNewAlbumArt(hex_md5(self.artist+" "+self.album));
                 }
             }
             html = html + '<div class="containerbox vertical expand">';
@@ -703,7 +705,9 @@ function Playlist() {
         this.updateImages = function(src) {
             for (var trackpointer in tracks) {
                 tracks[trackpointer].image = src;
+                tracks[trackpointer].origimage = src;
             }
+            infobar.albumImage.setSecondarySource( {key: tracks[0].key, image:src, origimage: src});
         }
 
         this.getFirst = function() {
@@ -907,8 +911,8 @@ function Playlist() {
                 }
                 html = html + '<div class="containerbox vertical expand">';
                 html = html + '<div class="line">'+tracks[trackpointer].title+'</div>';
-                html = html + '<div class="line playlistrow2">'+tracks[trackpointer].creator+'</div>';            
-                html = html + '<div class="line playlistrow2">'+tracks[trackpointer].album+'</div>';            
+                html = html + '<div class="line playlistrow2">'+tracks[trackpointer].creator+'</div>';
+                html = html + '<div class="line playlistrow2">'+tracks[trackpointer].album+'</div>';
                 html = html + '</div>';
                 html = html + '<div class="tiny fixed">'+formatTimeString(tracks[trackpointer].duration)+'</div>';
                 html = html + '<div class="playlisticon fixed clickable clickicon clickremovelfmtrack" romprid="'+tracks[trackpointer].backendid+'"><img src="images/edit-delete.png" /></div>';
@@ -921,7 +925,7 @@ function Playlist() {
 
         this.header = function() {
             var html = "";
-            
+
             html = html + '<div name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="item clickable clickplaylist sortable containerbox menuitem playlisttitle">';
             html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="images/lastfm.png"/></div>';
             html = html + '<div class="containerbox vertical expand">';
@@ -968,23 +972,23 @@ function Playlist() {
             var index = -1;
             var startindex = -1;
             var result = false;
-            debug.log("Checking Last.FM Playlist item");
+            debug.log("PLAYLIST      : Checking Last.FM Playlist item");
             for(var i in tracks) {
-                debug.log("Track",i,"expires in", parseInt(tracks[i].expires) - unixtimestamp);
-                if (unixtimestamp > parseInt(tracks[i].expires) && 
+                debug.log("PLAYLIST      :   Track",i,"expires in", parseInt(tracks[i].expires) - unixtimestamp);
+                if (unixtimestamp > parseInt(tracks[i].expires) &&
                     !(mpd.getStatus('state') == "play" && currentsong == tracks[i].playlistpos)) {
                     // Remove track if it has expired, but not if it's currently playing
-                    debug.log("Track",i,"has expired",currentsong,tracks[i].playlistpos);
+                    debug.log("PLAYLIST      :   Track",i,"has expired",currentsong,tracks[i].playlistpos);
                     $('.booger[name="'+tracks[i].playlistpos+'"]').slideUp('fast');
                     index = i;
                     if (startindex == -1) { startindex = i }
                 } else if (previoussong == tracks[i].backendid && currentsong != tracks[i].playlistpos) {
-                    debug.log("Removing track which was playing but has been skipped")
+                    debug.log("PLAYLIST      :   Removing track which was playing but has been skipped")
                     $('.booger[name="'+tracks[i].playlistpos+'"]').slideUp('fast');
                     index = i;
                     startindex = 0;
                 } else if (tracks[i].playlistpos == currentsong && i>0) {
-                    debug.log("We're in the middle of a field!")
+                    debug.log("PLAYLIST      :   We're in the middle of a field!")
                     index = i-1;
                     startindex = 0;
                 }
@@ -1048,5 +1052,5 @@ function Playlist() {
         }
 
     }
-    
+
 }

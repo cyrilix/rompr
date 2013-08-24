@@ -7,7 +7,7 @@
             <div class="tleft">
             <img title="Previous Track" class="clickicon controlbutton" onclick="playlist.previous()" src="images/media-skip-backward.png">
             <img title="Play/Pause" class="shiftleft clickicon controlbutton" onclick="infobar.playbutton.clicked()" id="playbuttonimg" src="images/media-playback-pause.png">
-            <img title="Stop" class="shiftleft2 clickicon controlbutton" onclick="playlist.stop()" src="images/media-playback-stop.png">
+            <img title="Stop" class="shiftleft2 clickicon controlbutton" onclick="player.stop()" src="images/media-playback-stop.png">
             <img title="Stop After Current Track" class="shiftleft3 clickicon controlbutton" onclick="playlist.stopafter()" id="stopafterbutton" src="images/stopafter.png">
             <img title="Next Track" class="shiftleft4 clickicon controlbutton" onclick="playlist.next()" src="images/media-skip-forward.png">
             </div>
@@ -34,7 +34,7 @@
 <div class="tright">
 <a href="#" onclick="showVolumeControl()"><img class="topimg" src="images/volume.png" height="24px"></a>
 <div id="volumecontrol">
-    <div id="volume">
+    <div id="volumeslider">
     </div>
 </div>
 </div>
@@ -49,7 +49,7 @@
     <a title="Search Music" href="#" onclick="toggleSearch()"><img class="topimg clickicon" height="20px" src="images/system-search.png"></a>
     </div>
     <div id="search" class="invisible searchbox"></div>
-    <div id="collection" class="noborder"></div>    
+    <div id="collection" class="noborder"></div>
     </div>
 
     <div id="filelist" class="invisible noborder">
@@ -58,7 +58,7 @@
     </div>
     <div id="filesearch" class="invisible searchbox">
     </div>
-    <div id="filecollection" class="noborder"></div>   
+    <div id="filecollection" class="noborder"></div>
     </div>
 
     <div id="lastfmlist" class="invisible noborder">
@@ -72,7 +72,7 @@
     </div>
     <div id="yourradiolist" class="dropmenu">
     </div>
-    
+
     <div class="containerbox menuitem noselection">
         <div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="somafmlist"></div>
         <div class="smallcover fixed"><img height="32px" width="32px" src="images/somafm.png"></div>
@@ -80,7 +80,7 @@
     </div>
     <div id="somafmlist" class="dropmenu">
     </div>
-    
+
     <div class="containerbox menuitem noselection">
         <div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="bbclist"></div>
         <div class="smallcover fixed"><img height="32px" width="32px" src="images/bbcr.png"></div>
@@ -96,7 +96,7 @@
     </div>
     <div id="icecastlist" class="dropmenu">
     </div>
-    
+
     </div>
 
     <div id="infopane" class="invisible infowiki">
@@ -208,7 +208,7 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
 <?php
 if ($prefs['use_mopidy_tagcache'] == 0 &&
     $prefs['use_mopidy_http'] == 0) {
-?>        
+?>
         <div class="pref">
             <input type="checkbox" onclick="togglePref('updateeverytime')" id="updateeverytime">Update Collection On Start</input>
         </div>
@@ -217,7 +217,7 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
         </div>
 <?php
 } else {
-?>    
+?>
         <div class="pref">
             <button onclick="player.mopidyUpdate()">Rebuild Albums List</button>
         </div>
@@ -234,7 +234,7 @@ if (($prefs['use_mopidy_tagcache'] == 0 &&
 }
 if ($prefs['use_mopidy_tagcache'] == 0 &&
     $prefs['use_mopidy_http'] == 0) {
-?>        
+?>
         <div class="pref">
             <button onclick="editmpdoutputs()">MPD Audio Outputs...</button>
         </div>

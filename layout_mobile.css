@@ -38,6 +38,17 @@ h2
     z-index:102;
     position:absolute;
     display: none;
+    border:1px solid #ffffff;
+    width:2em;
+    overflow:hidden;
+}
+
+#volumeslider
+{
+    position:absolute;
+    background-color:#fecc00;
+    width:1.5em;
+    left:0.25em;
 }
 
 #playlistm
@@ -134,6 +145,7 @@ h2
 #albumpicture
 {
     height:48px;
+    width:48px;
 }
 
 #nowplaying

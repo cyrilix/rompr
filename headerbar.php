@@ -34,6 +34,7 @@ include ("functions.php");
         </ul>
     </li>
 </ul>
+<a title="File Information" href="#" onclick="browser.showFileInfo()"><img class="topimg" height="24px" src="images/sinewave.jpg"></a>
 <a title="Artist Info from Wikipedia" href="#" onclick="browser.switchSource('wikipedia')"><img class="topimg" height="24px" src="images/Wikipedia-logo.png"></a>
 <a title="Artist, Album, and Song Info from Last.FM" href="#" onclick="browser.switchSource('lastfm')"><img class="topimg" height="24px" src="images/lastfm.png"></a>
 <a title="Artist Slideshow" href="#" onclick="browser.switchSource('slideshow')"><img class="topimg" height="24px" src="images/slideshow.png"></a>

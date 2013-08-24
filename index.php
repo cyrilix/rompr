@@ -24,22 +24,22 @@ if (array_key_exists('mpd_host', $_POST)) {
     if (array_key_exists('use_mopidy_file_backend', $_POST)) {
         $prefs['use_mopidy_file_backend'] = $_POST['use_mopidy_file_backend'];
     } else {
-        $prefs['use_mopidy_file_backend'] = "false";       
+        $prefs['use_mopidy_file_backend'] = "false";
     }
     if (array_key_exists('use_mopidy_beets_backend', $_POST)) {
         $prefs['use_mopidy_beets_backend'] = $_POST['use_mopidy_beets_backend'];
     } else {
-        $prefs['use_mopidy_beets_backend'] = "false";       
+        $prefs['use_mopidy_beets_backend'] = "false";
     }
     if (array_key_exists('sortbydate', $_POST)) {
         $prefs['sortbydate'] = $_POST['sortbydate'];
     } else {
-        $prefs['sortbydate'] = "false";       
+        $prefs['sortbydate'] = "false";
     }
     if (array_key_exists('notvabydate', $_POST)) {
         $prefs['notvabydate'] = $_POST['notvabydate'];
     } else {
-        $prefs['notvabydate'] = "false";       
+        $prefs['notvabydate'] = "false";
     }
 
     savePrefs();
@@ -178,23 +178,23 @@ var prefsbuttons = ["images/button-off.png", "images/button-on.png"];
 var prefsInLocalStorage = ["hidebrowser", "sourceshidden", "playlisthidden", "infosource", "playlistcontrolsvisible",
                             "sourceswidthpercent", "playlistwidthpercent", "downloadart", "clickmode", "chooser",
                             "hide_albumlist", "hide_filelist", "hide_lastfmlist", "hide_radiolist", "twocolumnsinlandscape",
-                            "shownupdatewindow", "keep_search_open"];
+                            "shownupdatewindow", "keep_search_open", "showfileinfo"];
 
 function aADownloadFinished() {
     /* We need one of these in global scope so coverscraper works here
     */
-    debug.log("Album Art Download Has Finished");
-    $.get("checkRemoteImageCache.php", function() { debug.log("Finished Thinning Remote Cache")});
+    debug.log("INDEX         : Album Art Download Has Finished");
+    $.get("checkRemoteImageCache.php", function() { debug.log("INDEX         : Finished Thinning Remote Cache")});
 }
 
- 
+
 var prefs = function() {
 
     var useLocal = false;
     if ("localStorage" in window && window["localStorage"] != null) {
         useLocal = true;
     }
-    
+
     return {
 <?php
  foreach ($prefs as $index => $value) {
@@ -221,13 +221,13 @@ var prefs = function() {
                         }
                     }
                 });
-            }    
+            }
             if (prefs.use_mopidy_tagcache == 1 ||
                 prefs.use_mopidy_http == 1) {
                 prefs.hide_filelist = true;
             }
         },
-        
+
         save: function(options) {
             var prefsToSave = {};
             var postSave = false;
@@ -252,7 +252,7 @@ var prefs = function() {
                 $.post('saveprefs.php', prefsToSave);
             }
         }
-        
+
     }
 }();
 
@@ -269,27 +269,24 @@ $(document).ready(function(){
         window.addEventListener("storage", onStorageChanged, false);
     }
 
-    var aimg = document.getElementById("albumpicture");
-    aimg.onload = function() { $("#albumpicture").fadeIn('fast') };
-
     setClickHandlers();
     $("#sortable").click(onPlaylistClicked);
-    
+
     $("#sortable").disableSelection();
-    $("#sortable").sortable({ 
+    $("#sortable").sortable({
         items: ".sortable",
-        axis: 'y', 
-        containment: '#sortable', 
-        scroll: 'true', 
+        axis: 'y',
+        containment: '#sortable',
+        scroll: 'true',
         scrollSpeed: 10,
         tolerance: 'pointer',
-        start: function(event, ui) { 
-            ui.item.css("background", "#555555"); 
-            ui.item.css("opacity", "0.7") 
+        start: function(event, ui) {
+            ui.item.css("background", "#555555");
+            ui.item.css("opacity", "0.7")
         },
         stop: playlist.dragstopped
     });
-    
+
     $("#yourradiolist").sortable({
         items: ".clickradio",
         axis: "y",
@@ -299,16 +296,9 @@ $(document).ready(function(){
         tolerance: 'pointer',
         stop: saveRadioOrder
     });
-    
+
     $("#progress").progressbar();
     $("#progress").click( infobar.seek );
-    $("#volume").slider();
-    $("#volume").slider({
-        orientation: 'vertical',
-        value: prefs.volume,
-        stop: infobar.setvolume,
-        slide: infobar.volumemoved
-    });
 
     if (mobile == "no") {
         setDraggable('collection');
@@ -322,7 +312,7 @@ $(document).ready(function(){
             });
             $("#sourcesresizer").bind("drag", srDrag);
             $("#sourcesresizer").bind("dragstop", srDragStop);
-            $("#playlistresizer").draggable({   
+            $("#playlistresizer").draggable({
                 containment: 'headerbar',
                 axis: 'x'
             });
@@ -337,6 +327,14 @@ $(document).ready(function(){
             setChooserButtons();
         });
         loadKeyBindings();
+        $("#volume").slider();
+        $("#volume").slider({
+            orientation: 'vertical',
+            value: prefs.volume,
+            stop: infobar.setvolume,
+            slide: infobar.volumemoved
+        });
+
     } else {
         $("#scrobwrangler").progressbar();
         $("#scrobwrangler").progressbar("option", "value", parseInt(prefs.scrobblepercent.toString()));
@@ -361,6 +359,22 @@ $(document).ready(function(){
         }
         setChooserButtons();
         player.reloadPlaylists();
+        var obj = document.getElementById('volumecontrol');
+        obj.addEventListener('touchstart', function(event) {
+            if (event.targetTouches.length == 1) {
+                infobar.volumeTouch(event.targetTouches[0]);
+
+            }
+        }, false);
+        obj.addEventListener('touchmove', function(event) {
+            event.preventDefault();
+            if (event.targetTouches.length == 1) {
+                infobar.volumeTouch(event.targetTouches[0]);
+            }
+        }, false);
+        obj.addEventListener('touchend', function(event) {
+            infobar.volumeTouchEnd();
+        }, false);
     }
 
     $('#search').load("search.php");
@@ -385,7 +399,7 @@ $(document).ready(function(){
         if (mobile != "no") {
             $("#fnarkler").append('<p>You are viewing the mobile version of RompR. To view the standard version go to <a href="/rompr/?mobile=no">/rompr/?mobile=no</a></p>');
         } else {
-            $("#fnarkler").append('<p>To view the mobile version go to <a href="/rompr/?mobile=phone">/rompr/?mobile=phone</a></p>');            
+            $("#fnarkler").append('<p>To view the mobile version go to <a href="/rompr/?mobile=phone">/rompr/?mobile=phone</a></p>');
         }
         $("#fnarkler").append('<p>The Basic RompR Manual is at: <a href="https://sourceforge.net/p/rompr/wiki/Basic%20Manual/" target="_blank">http://sourceforge.net/p/rompr/wiki/Basic%20Manual/</a></p>');
         $("#fnarkler").append('<p>The Discussion Forum is at: <a href="https://sourceforge.net/p/rompr/discussion/" target="_blank">http://sourceforge.net/p/rompr/discussion/</a></p>');
@@ -417,6 +431,9 @@ $(document).ready(function(){
     $(window).bind('resize', function() {
         setBottomPaneSize();
     });
+    if (!prefs.showfileinfo) {
+        $("#fileinformation").hide();
+    }
 
 });
 

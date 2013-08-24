@@ -29,9 +29,9 @@ function changeClickPolicy() {
 }
 
 function setClickHandlers() {
-    
+
     // Set up all our click event listeners
-    
+
     $("#collection").unbind('click');
     $("#collection").unbind('dblclick');
     $("#filecollection").unbind('click');
@@ -44,7 +44,7 @@ function setClickHandlers() {
     $("#lastfmlist").unbind('dblclick');
     $("#radiolist").unbind('click');
     $("#radiolist").unbind('dblclick');
-    
+
     $("#collection").click(onCollectionClicked);
     $("#filecollection").click(onFileCollectionClicked);
     $("#search").click(onCollectionClicked);
@@ -53,12 +53,12 @@ function setClickHandlers() {
     $("#radiolist").click(onRadioClicked);
 
     if (prefs.clickmode == "double") {
-        $("#collection").dblclick(onCollectionDoubleClicked);    
+        $("#collection").dblclick(onCollectionDoubleClicked);
         $("#filecollection").dblclick(onFileCollectionDoubleClicked);
-        $("#search").dblclick(onCollectionDoubleClicked);    
+        $("#search").dblclick(onCollectionDoubleClicked);
         $("#filesearch").dblclick(onCollectionDoubleClicked);
         $("#lastfmlist").dblclick(onLastFMDoubleClicked);
-        $("#radiolist").dblclick(onRadioDoubleClicked);    
+        $("#radiolist").dblclick(onRadioDoubleClicked);
     }
 }
 
@@ -175,7 +175,9 @@ function setBottomPaneSize() {
             sourcecontrol(prefs.chooser);
         }
         var v = newheight - 32;
-        $("#volume").css("height", v.toString()+"px");
+        $("#volumecontrol").css("height", v.toString()+"px");
+        $("#volumeslider").css("height", v.toString()+"px");
+        infobar.setVolumeState(prefs.volume);
     } else {
         var newheight = ws.y - 148;
         var notpos = ws.x - 340;
@@ -183,7 +185,7 @@ function setBottomPaneSize() {
         var dd = lp -156;
         $('#patrickmoore').css("width", lp.toString()+"px");
         $('#nowplaying').css("width", dd.toString()+"px");
-        $("#notifications").css("left", notpos.toString()+"px");        
+        $("#notifications").css("left", notpos.toString()+"px");
     }
     $("#bottompage").css("height", newheight.toString()+"px");
     browser.drawSCWaveform();
@@ -207,10 +209,10 @@ function switchColumnMode(flag) {
             $("#sources").hide();
         } else {
             $("#playlistm").hide();
-            $("#sources").show();            
+            $("#sources").show();
         }
         $("#chooseplaylist").show();
-    }    
+    }
 }
 
 function lastfmlogin() {
@@ -222,12 +224,12 @@ function lastfmlogin() {
 // function sethistorylength() {
 //     var length = parseInt($("#configpanel").find('input[name|="historylength"]').attr("value"));
 //     $("#configpanel").fadeOut(1000);
-//     prefs.save({historylength: length});    
+//     prefs.save({historylength: length});
 // }
 
 function setAutoTag() {
     $("#configpanel").fadeOut(1000);
-    prefs.save({autotagname: $("#configpanel").find('input[name|="taglovedwith"]').attr("value")});    
+    prefs.save({autotagname: $("#configpanel").find('input[name|="taglovedwith"]').attr("value")});
 }
 
 function getArray(data) {
@@ -258,7 +260,7 @@ function doInternetRadio(input) {
 }
 
 function getInternetPlaylist(url, image, station, creator, usersupplied) {
-    debug.log("Funky:",url, image, station, creator, usersupplied);
+    debug.log("GENERAL       : Getting Internet Playlist",url, image, station, creator, usersupplied);
     playlist.waiting();
     data = {url: encodeURIComponent(url)};
     if (image) { data.image = encodeURIComponent(image) }
@@ -279,9 +281,9 @@ function getInternetPlaylist(url, image, station, creator, usersupplied) {
                 $("#yourradiolist").load("yourradio.php");
             }
         },
-        error: function(data, status) { 
+        error: function(data, status) {
             playlist.repopulate();
-            alert("Failed To Tune Radio Station"); 
+            alert("Failed To Tune Radio Station");
         }
     } );
 }
@@ -296,9 +298,9 @@ function playUserStream(xspf) {
         data: {name: xspf},
         dataType: "xml",
         success: playlist.newInternetRadioStation,
-        error: function(data, status) { 
+        error: function(data, status) {
             playlist.repopulate();
-            alert("Failed To Tune Radio Station"); 
+            alert("Failed To Tune Radio Station");
         }
     } );
 }
@@ -316,11 +318,11 @@ function removeUserStream(xspf) {
                     function() { saveRadioOrder() });
             }
         },
-        error: function(data, status) { 
+        error: function(data, status) {
             playlist.repopulate();
-            alert("Failed To Remove Station"); 
+            alert("Failed To Remove Station");
         }
-    } );    
+    } );
 }
 
 function utf8_encode(s) {
@@ -382,11 +384,11 @@ function gotTrackInfoForStream(data) {
 function togglePref(pref) {
     var prefobj = new Object;
     prefobj[pref] = ($("#"+pref).is(":checked"));
-    prefs.save( prefobj );    
+    prefs.save( prefobj );
     if (pref == 'downloadart') {
         coverscraper.toggle($("#"+pref).is(":checked"));
     } else if (pref == 'twocolumnsinlandscape') {
-        setBottomPaneSize(); 
+        setBottomPaneSize();
     }
 }
 
@@ -629,7 +631,7 @@ function loadKeyBindings() {
         .done(function(data) {
             shortcut.add(getHotKey(data['nextrack']),   function(){ playlist.next() }, {'disable_in_input':true});
             shortcut.add(getHotKey(data['prevtrack']),  function(){ playlist.previous() }, {'disable_in_input':true});
-            shortcut.add(getHotKey(data['stop']),       function(){ playlist.stop() }, {'disable_in_input':true});
+            shortcut.add(getHotKey(data['stop']),       function(){ player.stop() }, {'disable_in_input':true});
             shortcut.add(getHotKey(data['play']),       function(){ infobar.playbutton.clicked() }, {'disable_in_input':true} );
             shortcut.add(getHotKey(data['volumeup']),   function(){ infobar.volumeKey(5) }, {'disable_in_input':true} );
             shortcut.add(getHotKey(data['volumedown']), function(){ infobar.volumeKey(-5) }, {'disable_in_input':true} );
@@ -678,7 +680,6 @@ function editmpdoutputs() {
 
     $.getJSON("getaudiooutputs.php")
         .done(function(data) {
-            debug.log(data);
             var audiopu = popupWindow.create(500,300,"audiopu",true,"Audio Outputs");
             $("#popupcontents").append('<table align="center" cellpadding="4" id="outputtable" width="80%"></table>');
             for (var i in data) {
@@ -705,7 +706,7 @@ function format_outputswitch(enabled, id) {
 }
 
 function outputswitch(id) {
-    debug.log("Output Switch for output",id);
+    debug.log("GENERAL       : Output Switch for output",id);
     if ($('#outputbutton'+id).attr("src") == "images/button-off.png") {
         $('#outputbutton'+id).attr("src", "images/button-on.png");
         mpd.command("command=enableoutput&arg="+id);
@@ -713,7 +714,7 @@ function outputswitch(id) {
         $('#outputbutton'+id).attr("src", "images/button-off.png");
         mpd.command("command=disableoutput&arg="+id);
     }
-}    
+}
 
 function changeHotKey(ev) {
 
@@ -778,7 +779,7 @@ function saveKeyBindings() {
     var bindings = new Object;
     $.getJSON("getkeybindings.php")
         .done(function(data) {
-            debug.log("Clearing Key Bindings");
+            debug.log("GENERAL       : Clearing Key Bindings");
             $.each(data, function(i, v) { shortcut.remove(v)});
             $(".buttonchange").each( function(i) {
                 bindings[$(this).attr("id")] = $(this).attr("value");
@@ -886,10 +887,10 @@ var popupWindow = function() {
 }();
 
 function albumSelect(event, element) {
-    
+
     // Is the clicked element currently selected?
     var is_currently_selected = element.hasClass("selected") ? true : false;
-    
+
     // Unselect all selected items if Ctrl or Meta is not pressed
     if (!event.metaKey && !event.ctrlKey) {
         $(".selected").removeClass("selected");
@@ -899,9 +900,9 @@ function albumSelect(event, element) {
             return 0;
         }
     }
-    
+
     var div_to_select = element.attr("name");
-    debug.log("Looking for div",div_to_select);
+    debug.log("GENERAL       : Looking for div",div_to_select);
     if (is_currently_selected) {
         element.removeClass("selected");
         $("#"+div_to_select).find(".clickable").removeClass("selected");
@@ -909,14 +910,14 @@ function albumSelect(event, element) {
         element.addClass("selected");
         $("#"+div_to_select).find(".clickable").addClass("selected");
     }
-    
+
 }
 
 function trackSelect(event, element) {
-    
+
     // Is the clicked element currently selected?
     var is_currently_selected = element.hasClass("selected") ? true : false;
-    
+
     // Unselect all selected items if Ctrl or Meta is not pressed
     if (!event.metaKey && !event.ctrlKey) {
         $(".selected").removeClass("selected");
@@ -926,13 +927,13 @@ function trackSelect(event, element) {
             return 0;
         }
     }
-    
+
    if (is_currently_selected) {
         element.removeClass("selected");
     } else {
         element.addClass("selected");
     }
-    
+
 }
 
 function clearPlaylist() {
@@ -941,28 +942,28 @@ function clearPlaylist() {
 }
 
 function onStorageChanged(e) {
-    
+
     if (e.key == "key") {
         var key = e.newValue;
-        debug.log("Updating album image for key",key,e);
+        debug.log("GENERAL       : Updating album image for key",key,e);
         if (key.substring(0,1) == "!") {
             key = key.substring(1,key.length);
-            debug.log("Marking as not found:",key);
+            debug.log("GENERAL       :   Marking as not found:",key);
             $('img[name="'+key+'"]').removeClass("notexist");
-            //$('img[name="'+key+'"]').addClass("notfound");
+            $('img[name="'+key+'"]').addClass("notfound");
             $('img[name="'+key+'"]').attr("src", "images/album-unknown.png");
         } else {
-            $('img[name="'+key+'"]').attr("src", "albumart/small/"+key+".jpg");
+            $('img[name="'+key+'"]').attr("src", "albumart/original/"+key+".jpg");
             $('img[name="'+key+'"]').removeClass("notexist");
-            //$('img[name="'+key+'"]').removeClass("notfound");
+            $('img[name="'+key+'"]').removeClass("notfound");
         }
     }
 }
 
 function savePlaylist() {
-   
+
     var name = $("#playlistname").val();
-    debug.log("Name is",name);
+    debug.log("GENERAL       : Save Playlist",name);
     if (name.indexOf("/") >= 0 || name.indexOf("\\") >= 0) {
         alert("Playlist name cannot contain / or \\");
     } else {
@@ -987,10 +988,10 @@ function bodgeitup(ui) {
 
 function saveRadioOrder() {
 
-    debug.log("Saving Radio Order");
+    debug.log("GENERAL       : Saving Radio Order");
     var radioOrder = Array();
     $("#yourradiolist").find(".clickradio").each( function() {
-        debug.log($(this).attr("name"));
+        debug.log("GENERAL       :   Station",$(this).attr("name"));
         radioOrder.push($(this).attr("name"));
     });
     $.ajax({
@@ -998,11 +999,10 @@ function saveRadioOrder() {
             url: 'saveRadioOrder.php',
             data: {'order[]': radioOrder}
     });
-    
+
 }
 
 function prepareForLiftOff() {
-    debug.log("Fingle 1");
     $("#collection").empty();
     var html =  '<div class="containerbox bar">'+
                 '<div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div>'+
@@ -1013,7 +1013,6 @@ function prepareForLiftOff() {
 }
 
 function prepareForLiftOff2() {
-    debug.log("Fingle 2");
     $("#filecollection").empty();
     var html =  '<div class="containerbox bar">'+
                 '<div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div>'+
@@ -1026,15 +1025,15 @@ function prepareForLiftOff2() {
 function checkCollection() {
     var update = false;
     if (prefs.updateeverytime) {
-        debug.log("Updating Collection due to preference");
+        debug.log("GENERAL       : Updating Collection due to preference");
         update = true;
     } else {
         if (!albumslistexists && !prefs.hide_albumlist) {
-            debug.log("Updating because albums list doesn't exist and it's not hidden");
+            debug.log("GENERAL       : Updating because albums list doesn't exist and it's not hidden");
             update = true;
         }
         if (!fileslistexists && !prefs.hide_filelist) {
-            debug.log("Updating because files list doesn't exist and it's not hidden");
+            debug.log("GENERAL       : Updating because files list doesn't exist and it's not hidden");
             update = true;
         }
     }
@@ -1043,16 +1042,16 @@ function checkCollection() {
     } else {
         if (prefs.hide_filelist && !prefs.hide_albumlist) {
             prepareForLiftOff();
-            debug.log("Loading albums cache only");
+            debug.log("GENERAL       : Loading albums cache only");
             loadCollection('albums.php?item=aalbumroot', null);
         } else if (prefs.hidealbumlist && !prefs.hide_filelist) {
             prepareForLiftOff2();
-            debug.log("Loading Files Cache Only");
+            debug.log("GENERAL       : Loading Files Cache Only");
             loadCollection(null, 'dirbrowser.php?item=adirroot');
         } else if (!prefs.hidealbumlist && !prefs.hide_filelist) {
             prepareForLiftOff();
             prepareForLiftOff2();
-            debug.log("Loading Both Caches");
+            debug.log("GENERAL       : Loading Both Caches");
             loadCollection('albums.php?item=aalbumroot', 'dirbrowser.php?item=adirroot');
         }
     }
@@ -1060,14 +1059,12 @@ function checkCollection() {
 
 function loadCollection(albums, files) {
     if (albums != null) {
-        debug.log("Loading Albums List");
+        debug.log("GENERAL       : Loading Albums List");
         $("#loadinglabel").html("Loading Collection");
         player.reloadAlbumsList(albums);
-        //$("#collection").load(albums);
-        // $('#search').load("search.php");
     }
     if (files != null) {
-        debug.log("Loading Files List");
+        debug.log("GENERAL       : Loading Files List");
         $("#loadinglabel2").html("Loading Files");
         $("#filecollection").load(files);
         $('#filesearch').load("filesearch.php");
@@ -1076,18 +1073,17 @@ function loadCollection(albums, files) {
 
 function checkPoll(data) {
     if (data.updating_db) {
-        debug.log("Updating DB");
         update_load_timer = setTimeout( pollAlbumList, 1000);
         update_load_timer_running = true;
     } else {
         if (prefs.hide_filelist && !prefs.hide_albumlist) {
-            debug.log("Building albums cache only");
+            debug.log("GENERAL       : Building albums cache only");
             loadCollection('albums.php', null);
         } else if (prefs.hidealbumlist && !prefs.hide_filelist) {
-            debug.log("Building Files Cache Only");
+            debug.log("GENERAL       : Building Files Cache Only");
             loadCollection(null, 'dirbrowser.php');
         } else if (!prefs.hidealbumlist && !prefs.hide_filelist) {
-            debug.log("Building Both Caches");
+            debug.log("GENERAL       : Building Both Caches");
             loadCollection('albums.php', 'dirbrowser.php');
         }
     }
@@ -1103,7 +1099,6 @@ function pollAlbumList() {
 
 function sourcecontrol(source) {
 
-    debug.log("Mobile mode is",mobile);
     if (mobile == "no") {
         sources = ["lastfmlist", "albumlist", "filelist", "radiolist"];
     } else if (mobile == "phone") {
@@ -1163,7 +1158,7 @@ function switchsource(source) {
 function hidePanel(panel) {
     var is_hidden = $("#"+panel).is(':hidden');
     var new_state = !prefs["hide_"+panel];
-    debug.log("Panel",panel,is_hidden,new_state);
+    debug.log("GENERAL       : Hide Panel",panel,is_hidden,new_state);
     var newprefs = {};
     newprefs["hide_"+panel] = new_state;
     prefs.save(newprefs);
@@ -1239,7 +1234,7 @@ function hidePanel(panel) {
 
 function setXfadeDur() {
     $("#configpanel").fadeOut(1000);
-    prefs.save({crossfade_duration: $("#configpanel").find('input[name|="michaelbarrymore"]').attr("value")});    
+    prefs.save({crossfade_duration: $("#configpanel").find('input[name|="michaelbarrymore"]').attr("value")});
     if (prefs.crossfade > 0) {
         mpd.command("command=crossfade&arg="+prefs.crossfade_duration);
     }
@@ -1247,7 +1242,7 @@ function setXfadeDur() {
 
 function setMusicDirectory() {
     $("#configpanel").fadeOut(1000);
-    prefs.save({music_directory_albumart: $("#configpanel").find('input[name|="music_directory_albumart"]').attr("value")});    
+    prefs.save({music_directory_albumart: $("#configpanel").find('input[name|="music_directory_albumart"]').attr("value")});
     $.post("setFinklestein.php", {dir: $("#configpanel").find('input[name|="music_directory_albumart"]').attr("value")});
 }
 
@@ -1257,7 +1252,7 @@ function makeitbigger() {
         if (itisbigger) {
             $("#bottompage").css('top', "36px");
         } else {
-            $("#bottompage").css('top', "116px");            
+            $("#bottompage").css('top', "116px");
         }
     });
     setBottomPaneSize();
@@ -1299,7 +1294,7 @@ function swipeyswipe(dir) {
 }
 
 function doSomethingUseful(div) {
-    debug.log("Doing Something Useful to ",div);
+    debug.log("GENERAL       : Doing Something Useful to",div);
     var html =  '<div id="usefulbar" class="containerbox bar">'+
                 '<div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div>'+
                 '<div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div>'+
@@ -1317,7 +1312,7 @@ function refreshMyDrink(path) {
     if (path === false) {
         $("#icecastlist").load("iceScraper.php");
     } else {
-        debug.log("Fanoogling the hubstraff",path);
+        debug.log("GENERAL       : Fanoogling the hubstraff",path);
         $("#icecastlist").load("iceScraper.php?path="+path);
     }
 }
@@ -1326,16 +1321,16 @@ function setChooserButtons() {
     var s = ["filelist", "lastfmlist", "radiolist"];
     for (var i in s) {
         if (prefs["hide_"+s[i]]) {
-            debug.log(s[i]," is hidden");
+            debug.log("GENERAL       : ",s[i],"is hidden");
             $("#choose_"+s[i]).fadeOut('fast');
         } else {
             $("#choose_"+s[i]).fadeIn('fast');
         }
     }
     if (prefs.hide_albumlist && !prefs.keep_search_open) {
-        $("#choose_albumlist").fadeOut('fast');        
+        $("#choose_albumlist").fadeOut('fast');
     } else {
-        $("#choose_albumlist").fadeIn('fast');        
+        $("#choose_albumlist").fadeIn('fast');
     }
 }
 
@@ -1358,13 +1353,12 @@ function showVolumeControl() {
     $("#volumecontrol").slideToggle('fast');
 }
 
-function filterImages() {
-    if ($(this).hasClass("notexist")) {
-        return true;
-    } else {
-        if ($(this).prop("naturalHeight") === 0 && $(this).prop("naturalWidth") === 0) {
-            return true;
+function findImageInWindow(key) {
+    var result = false;
+    $.each($('img[name="'+key+'"]'), function() {
+        if (!$(this).hasClass('notexist') && !$(this).hasClass('notfound') && result === false) {
+            result = $(this).attr("src");
         }
-    }
-    return false;
+    });
+    return result;
 }

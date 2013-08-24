@@ -6,43 +6,45 @@ function mpdController() {
     // NOTE: These functions all clear the playlists's progress timer.
     // playlist.checkProgress restarts it if necessary. If a callback is supplied it MUST call
     // playlist.checkProgress at the end.
-    
+
     this.command = function(cmd, callback) {
+        debug.log("MPD           : ",cmd);
         playlist.clearProgressTimer();
         $.getJSON("ajaxcommand.php", cmd)
         .done(function(data) {
+            debug.log("MPD           : Result for",cmd,data);
             if (cmd == "command=clearerror" && data.error) {
                 // Ignore errors on clearerror - we get into an endless loop
                 // (mopidy doesn't support clearerror)
                 data.error = null;
             }
             self.status = data;
-            nowplaying.setStartTime(self.status.elapsed); 
-            if (callback) { 
+            nowplaying.setStartTime(self.status.elapsed);
+            if (callback) {
                 callback();
-                infobar.updateWindowValues(); 
+                infobar.updateWindowValues();
             } else {
-               playlist.checkProgress(); 
+               playlist.checkProgress();
                infobar.updateWindowValues();
-            }            
+            }
             if ((data.state == "pause" || data.state=="stop") && data.single == 1) {
                 mpd.fastcommand("command=single&arg=0");
             }
         })
-        .fail( function() { 
+        .fail( function() {
             alert("Failed to send command '"+cmd+"' to MPD");
-            playlist.checkProgress();   
+            playlist.checkProgress();
         });
     }
-    
+
     this.fastcommand = function(cmd, callback) {
         $.getJSON("ajaxcommand.php?fast", cmd)
         .done(function() { if (callback) { callback(); } })
         .fail(function() { if (callback) { callback(); } })
     }
-    
+
     this.do_command_list = function(list, callback) {
-        
+        debug.log("MPD           : Command List",list);
         playlist.clearProgressTimer();
         if (typeof list == "string") {
             data = list;
@@ -54,16 +56,17 @@ function mpdController() {
             url: 'postcommand.php',
             data: data,
             success: function(data) {
+                debug.log("MPD           : result for",list,data);
                 self.status = data;
-                nowplaying.setStartTime(self.status.elapsed); 
-                if (callback) { 
+                nowplaying.setStartTime(self.status.elapsed);
+                if (callback) {
                     callback();
-                    infobar.updateWindowValues(); 
+                    infobar.updateWindowValues();
                 } else {
-                    playlist.checkProgress(); 
+                    playlist.checkProgress();
                     infobar.updateWindowValues();
                 }
-            
+
             },
             error: function() {
                 alert("Failed sending command list to mpd");
@@ -71,7 +74,7 @@ function mpdController() {
             },
             dataType: 'json'
         });
-        
+
     }
 
     this.deleteTracksByID = function(tracks, callback) {

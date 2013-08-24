@@ -9,7 +9,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
     var infotext = $('#infotext');
     var progress = $('#progress');
     var statusobj = $('#status');
-    var waitingicon = ['', 'images/album-unknown.png'];
+    var waitingicon = ['images/transparent-32x32.png', 'images/album-unknown.png'];
     var blankicon = ['images/album-unknown.png', 'images/album-unknown.png'];
     var name = null;
     var artist = null;
@@ -23,11 +23,11 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
 
     // I need to try and limit the number of lookups per second I do to last.fm
     // Otherwise they will set the lions on me - hence the use of setTimeout
-    
+
     // Pass the img name to this function
     this.GetNewAlbumArt = function(name) {
-        debug.log("getNewAlbumArt",name);
-        if (enabled) {
+        debug.log("COVERSCRAPER  : getNewAlbumArt",name);
+        if (enabled && name !== undefined) {
             formObjects.push(name);
             numAlbums = (formObjects.length)-1;
             if (timer_running == false) {
@@ -39,7 +39,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
     this.toggle = function(o) {
         enabled = o;
     }
-    
+
     this.reset = function(awc) {
         numAlbums = 0;
         if (awc > -1) {
@@ -50,7 +50,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
         self.updateInfo(0);
         aADownloadFinished();
     }
-    
+
     this.updateInfo = function(n) {
         if (sendUpdates) {
             albums_without_cover = albums_without_cover - n;
@@ -59,9 +59,9 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
     }
 
     // Is there something else I could be doing?
-    
+
     function doNextImage(time) {
-        debug.log("Next Image, delay time is",time);
+        debug.log("COVERSCRAPER  : Next Image, delay time is",time);
         clearTimeout(covertimer);
         if (formObjects.length > 0) {
             timer_running = true;
@@ -77,74 +77,45 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
 
         name = formObjects.shift();
 
-        artist = null;
-        album = null;
-        stream = null;
-        mbid = null;
-        albumpath = null;
-        spotilink = null;
-        
         imgobj = document.getElementsByName(name);
         if (!imgobj) {
             doNextImage(1);
             return 0;
         }
-        for(var i = 0; i < imgobj.length; i++) {
-            if (imgobj[i].getAttribute("src") != "") {
-                debug.log("Using image already in window");
-                finaliseImage(imgobj[i].getAttribute("src"),1);
-                return 0;
-            }
-            if (!artist) {
-                artist = imgobj[i].getAttribute("romprartist");
-            }
-            if (!album) {
-                album = imgobj[i].getAttribute("rompralbum");
-            }
-            if (!stream) {
-                stream = imgobj[i].getAttribute("romprstream");
-            }
-            if (!mbid) {
-                mbid = imgobj[i].getAttribute("rompralbumid");
-            }
-            if (!albumpath) {
-                albumpath = imgobj[i].getAttribute("romprpath");
-            }
-            if (!spotilink) {
-                spotilink = imgobj[i].getAttribute("romprspotilink")
-            }
+
+        debug.log("COVERSCRAPER  : Getting Cover for", name);
+
+        var i = findImageInWindow(name);
+        if (i !== false) {
+            debug.log("COVERSCRAPER  : Using image already in window");
+            finaliseImage(i,1);
+            return 0;
         }
 
-        debug.log("Getting Cover for", artist, album, mbid);
-         if (sendUpdates) {
-             statusobj.empty().html("Getting "+decodeURIComponent(artist)+" - "+decodeURIComponent(album));
-             var percent = ((numAlbums - formObjects.length)/numAlbums)*100;
-             progress.progressbar("option", "value", parseInt(percent.toString()));
+        if (sendUpdates) {
+            var x = $('img[name="'+name+'"]').prev('input').val();
+            statusobj.empty().html("Getting "+decodeURIComponent(x));
+            var percent = ((numAlbums - formObjects.length)/numAlbums)*100;
+            progress.progressbar("option", "value", parseInt(percent.toString()));
          }
-         
+
+        var stream = "";
         for(var i = 0; i < imgobj.length; i++) {
+            if (stream == "") {
+                stream = imgobj[i].getAttribute('romprstream') || "";
+            }
             imgobj[i].setAttribute('src', waitingicon[size]);
         }
+        debug.log("COVERSCRAPER  : Stream is", stream);
         animateWaiting();
 
         var options = { key: name,
-                        artist: decodeURIComponent(artist),
-                        album: decodeURIComponent(album),
-                        mbid: mbid
-        };
-        if (stream) {
-            options.stream = stream;
-        }
-        if (albumpath) {
-            options.albumpath = decodeURIComponent(albumpath);
-        }
-        if (spotilink) {
-            options.spotilink = decodeURIComponent(spotilink);
-        }
+                        stream: stream };
+
         $.post("getalbumcover.php", options)
         .done( gotImage )
         .fail( revertCover );
-        
+
     }
 
     function animateWaiting() {
@@ -166,14 +137,14 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
         .done( )
         .fail( );
     }
-   
+
     function gotImage(data) {
-        debug.log("    Retrieved Image", data);
+        debug.log("COVERSCRAPER  : Retrieved Image", data);
         finaliseImage($(data).find('url').text(), $(data).find('delaytime').text());
    }
 
    function finaliseImage(src, delaytime) {
-        debug.log("       Source is",src);
+        debug.log("COVERSCRAPER  :  Source is",src);
         if (src == "") {
             revertCover(delaytime);
         } else {
@@ -182,30 +153,31 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
             $.each($('img[name="'+name+'"]'), function() {
                 $(this).attr("src", src);
                 $(this).removeClass("notexist");
+                $(this).removeClass("notfound");
             });
             self.updateInfo(1);
             if (useLocalStorage) {
                 sendLocalStorageEvent(name);
             }
             if (callbacks[name] !== undefined) {
-                debug.log("Coverscraper calling back for",name,src);
+                debug.log("COVERSCRAPER  : calling back for",name,src);
                 callbacks[name](src);
             }
             doNextImage(delaytime);
         }
     }
-    
+
     function revertCover(delaytime) {
         if (!delaytime) {
             delaytime = 800;
         }
         stopAnimation();
-        debug.log("  Revert Cover");
+        debug.log("COVERSCRAPER  :  No Cover Found. Reverting to the blank icon");
         $.each($('img[name="'+name+'"]'), function() {
             $(this).attr("src", blankicon[size]);
             // Remove this class to prevent it being searched again
             $(this).removeClass("notexist");
-            //$(this).addClass("notfound");
+            $(this).removeClass("notfound").addClass("notfound");
         });
         if (useLocalStorage) {
             sendLocalStorageEvent("!"+name);
@@ -220,12 +192,11 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
     this.clearCallbacks = function() {
         callbacks = new Array();
     }
-    
+
 }
 
 function sendLocalStorageEvent(key) {
-    debug.log("    Setting Local Storage key to",key);
     localStorage.setItem("key", key);
 }
-        
+
 

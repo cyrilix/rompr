@@ -131,12 +131,12 @@ function findClickableElement(event) {
 
     var clickedElement = $(event.target);
     // Search upwards through the parent elements to find the clickable object
-    while (!clickedElement.hasClass("clickable") && !clickedElement.hasClass("menu") && 
+    while (!clickedElement.hasClass("clickable") && !clickedElement.hasClass("menu") &&
             clickedElement.prop("id") != "sources" && clickedElement.prop("id") != "sortable") {
         clickedElement = clickedElement.parent();
     }
     return clickedElement;
-    
+
 }
 
 function doMenu(event, element) {
@@ -165,7 +165,9 @@ function doAlbumMenu(event, element) {
             $('#'+menutoopen).load("albums.php?item="+menutoopen, function() {
                 $(this).removeClass("notfilled");
                 $(this).slideToggle('fast', function() {
-                    $.each($(this).find("img").filter(filterImages), function() {
+                    $.each($(this).find("img").filter(function() {
+                        return $(this).hasClass('notexist');
+                    }), function() {
                         coverscraper.GetNewAlbumArt($(this).attr('name'));
                     });
                 })
@@ -206,12 +208,12 @@ function doFileMenu(event, element) {
 
 function setDraggable(divname) {
 
-    $("#"+divname).draggable({  
+    $("#"+divname).draggable({
         connectToSortable: "#sortable",
         addClasses: false,
         helperPos: true,
         helper: function(event) {
-            var clickedElement = findClickableElement(event);                                
+            var clickedElement = findClickableElement(event);
             var dragger = document.createElement('div');
             dragger.setAttribute("id", "dragger");
             $(dragger).addClass("draggable dragsort containerbox vertical");
@@ -225,7 +227,7 @@ function setDraggable(divname) {
             $(".selected").clone().removeClass("selected").appendTo(dragger);
             return dragger;
         }
-    });    
+    });
 }
 
 function srDrag(event, ui) {
@@ -238,7 +240,7 @@ function srDrag(event, ui) {
 
 function srDragStop(event, ui) {
     prefs.save({sourceswidthpercent: prefs.sourceswidthpercent});
-}    
+}
 
 function prDrag(event, ui) {
     var size = getWindowSize();
@@ -254,7 +256,7 @@ function prDragStop(event, ui) {
 
 function onKeyUp(e) {
     if (e.keyCode == 13) {
-        debug.log("Key Up",e.target.name);
+        debug.log("CLICKFUNCTIONS: Key Up",e.target.name);
         $('[name="'+e.target.name+'"]').next("button").click();
     }
 }

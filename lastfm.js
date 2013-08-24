@@ -16,7 +16,7 @@ function LastFM(user) {
     this.getScrobbling = function() {
         return prefs.lastfm_scrobbling ? 1 : 0;
     }
-    
+
     this.showloveban = function(flag) {
         if (logged_in && lovebanshown != flag) {
             lovebanshown = flag;
@@ -27,13 +27,13 @@ function LastFM(user) {
             }
         }
     }
-    
+
     this.isLoggedIn = function() {
         return logged_in;
     }
 
     this.setscrobblestate = function() {
-        prefs.save({ lastfm_scrobbling: $("#scrobbling").is(":checked"), 
+        prefs.save({ lastfm_scrobbling: $("#scrobbling").is(":checked"),
                     lastfm_autocorrect: $("#autocorrect").is(":checked"),
                     dontscrobbleradio: $("#radioscrobbling").is(":checked")}
         );
@@ -79,16 +79,16 @@ function LastFM(user) {
     }
 
     this.finishlogin = function() {
-        LastFMSignedRequest( 
+        LastFMSignedRequest(
             {
-                token: token, 
-                api_key: lastfm_api_key, 
+                token: token,
+                api_key: lastfm_api_key,
                 method: "auth.getSession"
             },
-            function(data) {   
+            function(data) {
                 lastfm_session_key = $(data).find("key").text();
                 logged_in = true;
-                prefs.save({ 
+                prefs.save({
                     lastfm_session_key: lastfm_session_key,
                     lastfm_user: username
                 });
@@ -166,11 +166,11 @@ function LastFM(user) {
                 addSetOptions(options, "track.love");
                 LastFMSignedRequest(
                     options,
-                    function() { 
+                    function() {
                         callback(options.track,options.artist,true,callback2);
                     },
-                    function() { 
-                        infobar.notify(infobar.ERROR, "Failed To Make Love"); 
+                    function() {
+                        infobar.notify(infobar.ERROR, "Failed To Make Love");
                     }
                 );
             }
@@ -181,11 +181,11 @@ function LastFM(user) {
                 addSetOptions(options, "track.unlove");
                 LastFMSignedRequest(
                     options,
-                    function() { 
-                        callback(options.track,options.artist,false,callback2); 
+                    function() {
+                        callback(options.track,options.artist,false,callback2);
                     },
-                    function() { 
-                        infobar.notify(infobar.ERROR, "Failed To Remove Love"); 
+                    function() {
+                        infobar.notify(infobar.ERROR, "Failed To Remove Love");
                     }
                 );
             }
@@ -196,15 +196,15 @@ function LastFM(user) {
                 addSetOptions(options, "track.ban");
                 LastFMSignedRequest(
                     options,
-                    function() { 
+                    function() {
                         $("#ban").effect('pulsate', {times: 1}, 2000);
                         if (nowplaying.mpd(-1, 'type') != "stream") {
                             playlist.next();
                         }
                         infobar.notify(infobar.NOTIFY, "Banned "+options.track);
                     },
-                    function() { 
-                        infobar.notify(infobar.ERROR, "Failed to ban"+options.track); 
+                    function() {
+                        infobar.notify(infobar.ERROR, "Failed to ban"+options.track);
                     }
                 );
             }
@@ -233,7 +233,7 @@ function LastFM(user) {
         addTags : function(options, callback, failcallback) {
             if (logged_in) {
                 addSetOptions(options, "track.addTags");
-                LastFMSignedRequest(    
+                LastFMSignedRequest(
                     options,
                     function() { callback("track", options.tags) },
                     function() { failcallback("track", options.tags) }
@@ -255,10 +255,10 @@ function LastFM(user) {
         updateNowPlaying : function(options) {
             if (logged_in && prefs.lastfm_scrobbling) {
                 addSetOptions(options, "track.updateNowPlaying");
-                LastFMSignedRequest(    
+                LastFMSignedRequest(
                     options,
                     function() {  },
-                    function() { debug.log("Failed to update Now Playing",options) }
+                    function() { debug.log("LAST FM       : Failed to update Now Playing",options) }
                 );
             }
         },
@@ -266,12 +266,12 @@ function LastFM(user) {
         scrobble : function(options) {
             if (logged_in && prefs.lastfm_scrobbling) {
                 if (prefs.dontscrobbleradio && nowplaying.mpd(-1, 'type') != "local") {
-                    debug.log("Not Scrobbling because track is not local");
+                    debug.log("LAST FM       : Not Scrobbling because track is not local");
                     return 0;
                 }
-                debug.log("Last.FM is scrobbling");
+                debug.log("LAST FM       : Last.FM is scrobbling");
                 addSetOptions(options, "track.scrobble");
-                LastFMSignedRequest(    
+                LastFMSignedRequest(
                     options,
                     function() { infobar.notify(infobar.NOTIFY, "Scrobbled "+options.track) },
                     function() { infobar.notify(infobar.ERROR, "Failed to scrobble "+options.track) }
@@ -281,9 +281,9 @@ function LastFM(user) {
 
         getPlaylist: function(options, callback, failcallback) {
             $.get("getlfmtrack.php?url="+options.url+"&sk="+lastfm_session_key)
-            .done( callback ) 
-            .complete( function(data) { 
-                playlist.saveTrackPlaylist(data.responseText) 
+            .done( callback )
+            .complete( function(data) {
+                playlist.saveTrackPlaylist(data.responseText)
             })
             .fail( failcallback )
         },
@@ -326,7 +326,7 @@ function LastFM(user) {
         addTags : function(options, callback, failcallback) {
             if (logged_in) {
                 addSetOptions(options, "album.addTags");
-                LastFMSignedRequest(    
+                LastFMSignedRequest(
                     options,
                     function() { callback("album", options.tags) },
                     function() { failcallback("album", options.tags) }
@@ -382,7 +382,7 @@ function LastFM(user) {
         addTags : function(options, callback, failcallback) {
             if (logged_in) {
                 addSetOptions(options, "artist.addTags");
-                LastFMSignedRequest(    
+                LastFMSignedRequest(
                     options,
                     function() { callback("artist", options.tags) },
                     function() { failcallback("artist", options.tags) }
@@ -419,12 +419,12 @@ function LastFM(user) {
         tune: function(options, callback, failcallback) {
             if (logged_in) {
                 if (options.station != self.tunedto) {
-                    debug.log("Last.FM: Tuning to", options.station);
+                    debug.log("LAST FM       : Last.FM: Tuning to", options.station);
                     self.tunedto = "";
                     addSetOptions(options, "radio.tune");
                     LastFMSignedRequest(
                         options,
-                        function(data) { 
+                        function(data) {
                             self.tunedto = options.station;
                             callback(data);
                         },

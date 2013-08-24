@@ -747,6 +747,11 @@ a
     margin:8px;
 }
 
+td.fil
+{
+    font-weight:bold;
+}
+
 /*-- For Album Cover Art and sundry popups --*/
 
 #wobblebottom

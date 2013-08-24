@@ -22,7 +22,7 @@ if (file_exists('prefs/remoteImageCache.xml')) {
     $x = simplexml_load_file('prefs/remoteImageCache.xml');
     foreach($x->images->image as $i => $elem) {
     	$t = $elem->stamp;
-    	if ($timestamp - $t > 2678400) {
+    	if ($timestamp - $t > 2592000) {
     		// Image has not been accessed for a long time (30 days). Get rid of it.
     		$id = $elem['id'];
     		debug_print("Removing element ".$id);

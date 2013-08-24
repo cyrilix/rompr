@@ -16,40 +16,82 @@ $small_file = "";
 $main_file = "";
 $searchfunctions = array( 'tryLocal', 'tryRemoteCache', 'trySpotify', 'tryLastFM', 'tryMusicBrainz');
 $delaytime = 1;
+$fp = null;
+
+debug_print("------- Searching For Album Art --------");
 
 $fname = $_REQUEST['key'];
+if (array_Key_exists('stream', $_REQUEST)) {
+    $stream = $_REQUEST["stream"];
+}
+
 if (array_key_exists("src", $_REQUEST)) {
-    $src = $_REQUEST['src'];
-    debug_print("Get Album Cover from ".$src);
-}
-if (array_key_exists("stream", $_REQUEST)) {
-    $stream = $_REQUEST['stream'];
-    debug_print("Stream is ".$stream);
-}
-if (array_key_exists("ufile", $_FILES)) {
+    $src = rawurldecode($_REQUEST['src']);
+} else if (array_key_exists("ufile", $_FILES)) {
     $file = $_FILES['ufile']['name'];
-    debug_print("Uploading User File ".$file);
+} else {
+    if ($stream != "") {
+        if (file_exists($stream)) {
+            $ax = simplexml_load_file($stream);
+            $artist = "Internet Radio";
+            $album = $ax->trackList->track[0]->album;
+        } else {
+            debug_print(" Supplied stream file not found!");
+        }
+    } else {
+        $axp = array();
+        // Look for this album in our caches
+        if (file_exists($ALBUMSLIST)) {
+            if (get_file_lock($ALBUMSLIST, $fp)) {
+                $ax = simplexml_load_file($ALBUMSLIST);
+                $axp = $ax->xpath('//image/name[.="'.$fname.'"]/parent::*/parent::*');
+            }
+            release_file_lock($fp);
+        }
+        if (!$axp && file_exists($ALBUMSEARCH)) {
+            if (get_file_lock($ALBUMSEARCH, $fp)) {
+                $ax = simplexml_load_file($ALBUMSEARCH);
+                $axp = $ax->xpath('//image/name[.="'.$fname.'"]/parent::*/parent::*');
+            }
+            release_file_lock($fp);
+        }
+        if (!$axp) {
+            if (file_exists($PLAYLISTFILE)) {
+                if (get_file_lock($PLAYLISTFILE, $fp)) {
+                    $ax = simplexml_load_file($PLAYLISTFILE);
+                    $axp = $ax->xpath('//key[.="'.$fname.'"]/parent::*');
+                    if ($axp) {
+                        $artist    = $axp[0]->{'albumartist'};
+                        $album     = $axp[0]->{'album'};
+                        $mbid      = $axp[0]->{'mbalbumid'};
+                        $albumpath = rawurldecode($axp[0]->{'dir'});
+                        $spotilink = rawurldecode($axp[0]->{'spotialbum'});
+                    } else {
+                        debug_print(" Image not found in any cache");
+                    }
+                }
+                release_file_lock($fp);
+            }
+        } else {
+            $aar       = $ax->xpath('//image/name[.="'.$fname.'"]/parent::*/parent::*/parent::*/parent::*');
+            $artist    = $aar[0]->{'name'};
+            $album     = $axp[0]->{'name'};
+            $mbid      = $axp[0]->{'mbid'};
+            $albumpath = rawurldecode($axp[0]->{'directory'});
+            $spotilink = rawurldecode($axp[0]->{'spotilink'});
+        }
+    }
 }
-if (array_key_exists("artist", $_REQUEST)) {
-    $artist = $_REQUEST['artist'];
-    debug_print("ARTIST : ".$artist);
-}
-if (array_key_exists("album", $_REQUEST)) {
-    $album = $_REQUEST['album'];
-    debug_print("ALBUM : ".$album);
-}
-if (array_key_exists("mbid", $_REQUEST)) {
-    $mbid = $_REQUEST['mbid'];
-    debug_print("MBID : ".$mbid);
-}
-if (array_key_exists("albumpath", $_REQUEST)) {
-    $albumpath = $_REQUEST['albumpath'];
-    debug_print("PATH : ".$albumpath);
-}
-if (array_key_exists("spotilink", $_REQUEST)) {
-    $spotilink = $_REQUEST['spotilink'];
-    debug_print("SPOTIFY : ".$spotilink);
-}
+
+debug_print("  KEY     : ".$fname);
+debug_print("  SOURCE  : ".$src);
+debug_print("  UPLOAD  : ".$file);
+debug_print("  STREAM  : ".$stream);
+debug_print("  ARTIST  : ".$artist);
+debug_print("  ALBUM   : ".$album);
+debug_print("  MBID    : ".$mbid);
+debug_print("  PATH    : ".$albumpath);
+debug_print("  SPOTIFY : ".$spotilink);
 
 // Attempt to download an image file
 
@@ -78,27 +120,19 @@ if ($file != "") {
     }
     if ($src == "") {
         $error = 1;
-        debug_print("No valid files found");
+        debug_print("  NO VALID FILES FOUND");
     }
 }
 
 if ($error == 0 && $spotilink == "") {
-    saveImage($fname);    
-}
-
-if ($download_file != "" && file_exists($download_file)) {
-    unlink($download_file);
+    saveImage($fname);
 }
 
 // Now that we've attempted to retrieve an image, even if it failed,
 // we need to edit the cached albums list so it doesn't get searched again
 // and edit the URL so it points to the correct image if one was found
 if (file_exists($ALBUMSLIST) && $stream == "" && $spotilink == "") {
-    debug_print("Classing non-spotify ".$fname." as ".$error);
     update_cache($fname, $error, $ALBUMSLIST, "albumart/small/".$fname.".jpg");
-} else if (file_exists($ALBUMSEARCH) && $spotilink != "") {
-    debug_print("Classing spotify ".$fname." as ".$error);
-    update_cache($fname, $error, $ALBUMSEARCH, $src);
 }
 
 if ($spotilink != "") {
@@ -108,7 +142,7 @@ if ($spotilink != "") {
 if ($error == 0) {
     if ($stream != "") {
         if (file_exists($stream)) {
-            debug_print("Updating stream playlist ".$stream);
+            debug_print("    Updating stream playlist ".$stream);
             $x = simplexml_load_file($stream);
             foreach($x->trackList->track as $i => $track) {
                 $track->image = "albumart/original/".$fname.".jpg";
@@ -139,18 +173,22 @@ if ($spotilink == "") {
 print xmlnode('delaytime', $delaytime);
 print "</imageList>\n</imageresults>\n";
 
-debug_print("------------------------------------");
+if ($download_file != "" && file_exists($download_file)) {
+    unlink($download_file);
+}
+
+debug_print("--------------------------------------------");
 
 ob_flush();
 
 function get_user_file($src, $fname, $tmpname) {
     global $error;
-    debug_print("Uploading ".$src." ".$fname." ".$tmpname);
+    debug_print("  Uploading ".$src." ".$fname." ".$tmpname);
     $download_file = "prefs/".$fname;
     if (move_uploaded_file($tmpname, $download_file)) {
-        debug_print("File ".$src." is valid, and was successfully uploaded.");
+        debug_print("    File ".$src." is valid, and was successfully uploaded.");
     } else {
-        debug_print("Possible file upload attack!");
+        debug_print("    Possible file upload attack!");
         $error = 1;
     }
     return $download_file;
@@ -160,7 +198,7 @@ function download_file($src, $fname, $convert_path) {
     global $error;
 
     $download_file = "albumart/".$fname;
-    debug_print("Getting Album Art: ".$src." ".$fname." ".$download_file);
+    debug_print("   Downloading Image ".$src);
 
     if (file_exists($download_file)) {
         unlink ($download_file);
@@ -173,23 +211,23 @@ function download_file($src, $fname, $convert_path) {
         check_file($download_file, $aagh['contents']);
         $o = array();
         $r = exec( $convert_path."identify \"".$download_file."\" 2>&1", $o);
-        debug_print("Return value from identify was ".$r);
-        if ($r == '' || 
+        debug_print("    Return value from identify was ".$r);
+        if ($r == '' ||
             preg_match('/GIF 1x1/', $r) ||
             preg_match('/unable to open/', $r) ||
             preg_match('/no decode delegate/', $r)) {
-            debug_print("Broken/Invalid file returned");
+            debug_print("      Broken/Invalid file returned");
             $error = 1;
         }
     } else {
-        debug_print("File open failed!");
+        debug_print("    File open failed!");
         $error = 1;
     }
     return $download_file;
 }
 
 function saveImage($fname) {
-    debug_print("Saving Image");
+    debug_print("  Saving Image");
     global $convert_path;
     global $download_file;
     $main_file = "albumart/original/".$fname.".jpg";
@@ -215,7 +253,7 @@ function saveImage($fname) {
 }
 
 function archiveImage($fname, $src) {
-    debug_print("Archving Image ".$fname);
+    debug_print("  Archving Image ".$fname);
     global $download_file;
     global $convert_path;
     $download_file = download_file($src, $fname, $convert_path);
@@ -226,33 +264,33 @@ function check_file($file, $data) {
     // NOTE. WE've configured curl to follow redirects, so in truth this code should never do anything
     $matches = array();
     if (preg_match('/See: (.*)/', $data, $matches)) {
-        debug_print("check_file has found an silly musicbrainz diversion ".$data);
+        debug_print("    Check_file has found a silly musicbrainz diversion ".$data);
         $new_url = $matches[1];
         system('rm "'.$file.'"');
         $aagh = url_get_contents($new_url);
-        debug_print("check_file is getting ".$new_url);
+        debug_print("    check_file is getting ".$new_url);
         $fp = fopen($file, "x");
         if ($fp) {
             fwrite($fp, $aagh['contents']);
             fclose($fp);
         }
-    } else {
-        $o = array();
-        $r = exec("file \"".$file."\" 2>&1", $o);
-        if (preg_match('/HTML/', $r)) {
-            debug_print("check_file thinks it has found a diversion");
-            if (preg_match('/<a href="(.*?)"/', $data, $matches)) {
-                $new_url = $matches[1];
-                system('rm "'.$file.'"');
-                $aagh = url_get_contents($new_url);
-                debug_print("check_file is getting ".$new_url);
-                $fp = fopen($file, "x");
-                if ($fp) {
-                    fwrite($fp, $aagh['contents']);
-                    fclose($fp);
-                }
-            }
-        }
+    // } else {
+    //     $o = array();
+    //     $r = exec("file \"".$file."\" 2>&1", $o);
+    //     if (preg_match('/HTML/', $r)) {
+    //         debug_print("  check_file thinks it has found a diversion");
+    //         if (preg_match('/<a href="(.*?)"/', $data, $matches)) {
+    //             $new_url = $matches[1];
+    //             system('rm "'.$file.'"');
+    //             $aagh = url_get_contents($new_url);
+    //             debug_print("    check_file is getting ".$new_url);
+    //             $fp = fopen($file, "x");
+    //             if ($fp) {
+    //                 fwrite($fp, $aagh['contents']);
+    //                 fclose($fp);
+    //             }
+    //         }
+    //     }
     }
 }
 
@@ -267,14 +305,17 @@ function update_cache($fname, $notfound, $cachefile, $imagefile) {
             if (flock($fp, LOCK_EX, $crap)) {
 
                 $x = simplexml_load_file($cachefile);
-                debug_print("Updating cache for for ".$fname." ".$notfound);
+                debug_print("  Updating cache for for ".$fname.", error is ".$notfound);
                 foreach($x->artists->artist as $i => $artist) {
                     foreach($artist->albums->album as $j => $album) {
                         if ($album->image->name == $fname) {
-                            debug_print("Found it");
+                            debug_print("    Found XML Entry");
                             if ($notfound == 0) {
                                 $album->image->src = $imagefile;
                                 $album->image->exists = "yes";
+                            } else {
+                                $album->image->src = "";
+                                $album->image->exists = "no";
                             }
                             $album->image->searched = "yes";
                             ftruncate($fp, 0);
@@ -286,10 +327,10 @@ function update_cache($fname, $notfound, $cachefile, $imagefile) {
                     }
                 }
             } else {
-                debug_print("FAILED TO GET FILE LOCK");
+                debug_print("    FAILED TO GET FILE LOCK");
             }
         } else {
-            debug_print("FAILED TO OPEN CACHE FILE!");
+            debug_print("    FAILED TO OPEN CACHE FILE!");
         }
         fclose($fp);
     }
@@ -302,16 +343,15 @@ function tryLocal() {
     global $album;
     global $artist;
     global $fname;
-    if ($albumpath == "") {
+    if ($albumpath == "" || $albumpath == ".") {
         return "";
     }
-    debug_print("SEARCHING:".strtolower($artist." - ".$album));
     $files = scan_for_images($albumpath);
     foreach ($files as $i => $file) {
         $info = pathinfo($file);
         $file_name = strtolower(rawurldecode(html_entity_decode(basename($file,'.'.$info['extension']))));
         if ($file_name == $fname) {
-            debug_print("Returning archived image");
+            debug_print("    Returning archived image");
             return $file;
         }
     }
@@ -320,23 +360,23 @@ function tryLocal() {
         $file_name = strtolower(rawurldecode(html_entity_decode(basename($file,'.'.$info['extension']))));
         if ($file_name == strtolower($artist." - ".$album) ||
             $file_name == strtolower($album)) {
-            debug_print("Returning file matching album name");
+            debug_print("    Returning file matching album name");
             return $file;
         }
     }
     foreach ($covernames as $j => $name) {
         foreach ($files as $i => $file) {
             $info = pathinfo($file);
-            $file_name = strtolower(rawurldecode(html_entity_decode(basename($file,'.'.$info['extension']))));        
+            $file_name = strtolower(rawurldecode(html_entity_decode(basename($file,'.'.$info['extension']))));
             if ($file_name == $name) {
-                debug_print("  Returning ".$file);
+                debug_print("    Returning ".$file);
                 return $file;
             }
         }
     }
     // If we haven't found one but there's only one, then return that
     if (count($files) == 1) {
-        debug_print("  Returning ".$files[0]);
+        debug_print("    Returning ".$files[0]);
         return $files[0];
     }
     return "";
@@ -349,13 +389,13 @@ function trySpotify() {
         return "";
     }
     $image = "";
-    debug_print("Trying Spotify for ".$spotilink);
+    debug_print("  Trying Spotify for ".$spotilink);
     // php strict prevents me from doing end(explode()) because
     // only variables can be passed by reference. Stupid php.
     $spaffy = explode(":", $spotilink);
     $spiffy = end($spaffy);
     $url = "http://open.spotify.com/album/".$spiffy;
-    debug_print("   Getting ".$url);
+    debug_print("      Getting ".$url);
     $content = url_get_contents($url);
     $DOM = new DOMDocument;
     // stop libmxl from spaffing error reports into the log
@@ -365,13 +405,13 @@ function trySpotify() {
     if ($stuff) {
         $image = $stuff->getAttribute('src');
         if ($image) {
-            debug_print("Returning result from Spotify : ".$image);
+            debug_print("    Returning result from Spotify : ".$image);
         } else {
-            debug_print("No valid image link found");
+            debug_print("    No valid image link found");
             $image = "";
         }
     } else {
-        debug_print("No Spotify Image Found");
+        debug_print("    No Spotify Image Found");
     }
     $delaytime = 500;
     return $image;
@@ -385,11 +425,11 @@ function tryLastFM() {
     global $delaytime;
     $retval = "";
     $pic = "";
-    
-    debug_print("Trying last.FM for ".$artist." ".$album);
+
+    debug_print("  Trying last.FM for ".$artist." ".$album);
     $xml = loadXML("http://ws.audioscrobbler.com", "/2.0/?method=album.getinfo&api_key=15f7532dff0b8d84635c757f9f18aaa3&album=".rawurlencode($album)."&artist=".rawurlencode($artist)."&autocorrect=1");
     if ($xml === false) {
-        debug_print("Received error response from Last.FM");
+        debug_print("    Received error response from Last.FM");
         return "";
     } else {
         foreach ($xml->album->image as $i => $image) {
@@ -404,13 +444,13 @@ function tryLastFM() {
         }
         if ($mbid == "") {
             $mbid = $xml->album->mbid;
-            debug_print("    Last.FM gave us the MBID of ".$mbid);
+            debug_print("      Last.FM gave us the MBID of ".$mbid);
         }
     }
-    debug_print("Last.FM gave us ".$retval);
+    debug_print("    Last.FM gave us ".$retval);
     $delaytime = 800;
     return $retval;
-    
+
 }
 
 function tryMusicBrainz() {
@@ -418,35 +458,51 @@ function tryMusicBrainz() {
     global $delaytime;
     $delaytime = 600;
     if ($mbid != "") {
+        debug_print("  Trying MusicBrainz for ".$mbid);
         return "http://coverartarchive.org/release/".$mbid."/front";
     } else {
         return "";
     }
 }
 
-function loadXML($domain, $path) { 
+function loadXML($domain, $path) {
 
     $t = url_get_contents($domain.$path);
- 
+
     if ($t['status'] == "200") {
-        return simplexml_load_string($t['contents']);                        
+        return simplexml_load_string($t['contents']);
     }
- 
-    return false; 
-    
-} 
+
+    return false;
+
+}
 
 function tryRemoteCache() {
     global $fname;
     global $delaytime;
-    debug_print("   Checking Remote Image Cache");
+    global $download_file;
+    global $convert_path;
+    global $error;
+    global $spotilink;
+    $timestamp = time();
+    debug_print("  Checking Remote Image Cache");
     if (file_exists('prefs/remoteImageCache.xml')) {
         $x = simplexml_load_file('prefs/remoteImageCache.xml');
         $xp = $x->xpath("images/image[@id='".$fname."']");
         if ($xp) {
-            debug_print("   .. Found Cached Remote Image");
-            $delaytime = 200;
-            return $xp[0]->src;
+            debug_print("    Found Cached Remote Image");
+            if ($timestamp - $xp[0]->stamp < 600) {
+                debug_print("      Archiving Frequently-accessed remote image");
+                $download_file = download_file($xp[0]->src, $fname, $convert_path);
+                if ($error == 0) {
+                    saveImage($fname);
+                    $delaytime = 200;
+                    return "albumart/original/".$fname.".jpg";
+                }
+            } else {
+                $delaytime = 200;
+                return $xp[0]->src;
+            }
         }
     }
     return "";
@@ -463,21 +519,22 @@ function updateRemoteCache($fname, $src) {
         $x = simplexml_load_file('prefs/remoteImageCache.xml');
         $xp = $x->xpath("images/image[@id='".$fname."']");
         if ($xp) {
-            debug_print("Updating Timestamp");
-            if ($timestamp - $xp[0]->stamp < 3600) {
-                // Image is being accessed regularly. We'd better archive it
-                // to avoid hammering spotify's servers;
-                archiveImage($fname, $src);
-            }
+            debug_print("  Remote Cache - Updating Timestamp");
+            // if ($timestamp - $xp[0]->stamp < 3600) {
+            //     // Image is being accessed regularly. We'd better archive it
+            //     // to avoid hammering spotify's servers;
+            //     archiveImage($fname, $src);
+            // }
             $xp[0]->stamp = $timestamp;
         } else {
-            debug_print("Adding New Remote Image to Cache");
+            debug_print("  Adding New Remote Image to Cache");
             $e = $x->images->addChild('image');
             $e->addAttribute('id', $fname);
             $e->addChild('src', $src);
             $e->addChild('stamp', $timestamp);
         }
     } else {
+        debug_print("  Creating Remote Image Cache");
         $x = new SimpleXMLElement('<imageCache></imageCache>');
         $e = $x->addChild('images');
         $f = $e->addChild('image');
