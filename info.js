@@ -43,9 +43,13 @@ function Info(target, source) {
         }
         $("#fileinformation").html(fbheader("Waiting for file information...",""));
         clearTimeout(titimer);
-        titimer = setTimeout(function() {
-            mpd.command("", browser.updateFileInformation)
-        }, 3000);
+        if (prefs.use_mopidy_http == 0) {
+            titimer = setTimeout(function() {
+                mpd.command("", browser.updateFileInformation)
+            }, 3000);
+        } else {
+            titimer = setTimeout(self.updateFileInformation, 3000);
+        }
     }
 
     function playTheWaitingGame(npinfo, doartist, doalbum, dotrack) {

@@ -38,7 +38,11 @@ h2
     z-index:102;
     position:absolute;
     display: none;
-    border:1px solid #ffffff;
+    border-top:none;
+    border-bottom:1px solid #ffffff;
+    border-left:1px solid #ffffff;
+    border-right:1px solid #ffffff;
+    border-radius:0 0 0.5em 0.5em;
     width:2em;
     overflow:hidden;
 }

@@ -107,7 +107,8 @@ function onPlaylistClicked(event) {
     var clickedElement = findClickableElement(event);
     if (clickedElement.hasClass("clickplaylist")) {
         event.stopImmediatePropagation();
-        mpd.command("command=playid&arg="+clickedElement.attr("romprid"));
+        player.playId(clickedElement.attr("romprid"));
+        //mpd.command("command=playid&arg="+clickedElement.attr("romprid"));
     } else if (clickedElement.hasClass("clickremovetrack")) {
         event.stopImmediatePropagation();
         playlist.delete(clickedElement.attr("romprid"));

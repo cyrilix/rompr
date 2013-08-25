@@ -30,6 +30,7 @@ function mpdController() {
             if ((data.state == "pause" || data.state=="stop") && data.single == 1) {
                 mpd.fastcommand("command=single&arg=0");
             }
+            debug.log("MPD           : Status",self.status);
         })
         .fail( function() {
             alert("Failed to send command '"+cmd+"' to MPD");
@@ -78,11 +79,17 @@ function mpdController() {
     }
 
     this.deleteTracksByID = function(tracks, callback) {
+        // Disable event listeners, cos we keep getting 'new track' events
+        // if we delete the current album while it's playing.
+        player.setMopidyEvents(false);
         var list = [];
         for(var i in tracks) {
             list.push('deleteid "'+tracks[i]+'"');
         }
-        self.do_command_list(list, callback);
+        self.do_command_list(list, function() {
+            player.setMopidyEvents(true);
+            callback();
+        });
     }
 
     this.getStatus = function(key) {
@@ -96,5 +103,43 @@ function mpdController() {
         clearTimeout(updatetimer);
         updatetimer = setTimeout(mpd.command, time);
     }
+
+    // NEED an event handler for volume changes
+    //      and also Name , Title and stuff
+
+    this.setState = function(data) {
+        switch(data.new_state) {
+            case "playing":
+                self.status.state = "play";
+                break;
+            case "stopped":
+                self.status.state = "stop";
+                break;
+            case "paused":
+                self.status.state = "pause";
+                break;
+        }
+        //playlist.checkProgress();
+        infobar.updateWindowValues();
+    }
+
+    this.setTrackState = function(data) {
+        debug.log("MPD           : New Track Started",data);
+        self.status.songid = data.tl_track.tlid || 0;
+        self.status.file = data.tl_track.track.uri;
+        self.status.Date = data.tl_track.track.date;
+        self.status.elapsed = 0;
+        nowplaying.setStartTime(0);
+        playlist.checkProgress();
+        infobar.updateWindowValues();
+    }
+
+    this.trackSeeked = function(data) {
+        self.status.elapsed = data.time_position/1000;
+        nowplaying.setStartTime(self.status.elapsed);
+        playlist.checkProgress();
+        infobar.updateWindowValues();
+    }
+
 
 }

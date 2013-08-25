@@ -225,15 +225,14 @@ var infobar = function() {
 
         seek: function(e) {
             // Streams and last.fm tracks can't be seeked, and seeking while stopped soesn't work
-            if (nowplaying.mpd(-1,'type') == "local" && mpd.getStatus('state') != 'stop') {
+            if (nowplaying.mpd(-1,'type') == "local") {
                 var d = nowplaying.duration(-1);
                 if (d > 0) {
                     var position = getPosition(e);
                     var width = $('#progress').width();
                     var offset = $('#progress').offset();
                     var seekto = ((position.x - offset.left)/width)*parseFloat(d);
-                    mpd.command("command=seek&arg="+mpd.getStatus('song')+"&arg2="+parseInt(seekto.toString()),
-                                function() { mpd.deferredupdate(1000) });
+                    player.seek(seekto);
                 }
             }
             return false;

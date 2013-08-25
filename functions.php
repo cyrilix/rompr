@@ -452,7 +452,8 @@ function albumTracks($album) {
             print '<div class="clickable clicktrack ninesix draggable indent containerbox padright line" name="'.$trackobj->url.'">';
         }
         print '<div class="tracknumber fixed"';
-        if (count($album->tracks->track) > 99) {
+        if ($album->tracks->track->count() > 99 ||
+            $trackobj->number > 99) {
             print ' style="width:3em"';
         }
         print '>'.$trackobj->number.'</div>';

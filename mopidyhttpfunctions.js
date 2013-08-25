@@ -9,6 +9,7 @@ function dualPlayerController() {
     var self = this;
     var mopidy = null;
     var urischemes = {};
+    var tracklist = null;
     self.mopidyReady = false;
 
     self.mp = null;;
@@ -16,6 +17,7 @@ function dualPlayerController() {
     this.doMopidyInit = function() {
         debug.log("PLAYER        : Connected to Mopidy");
         self.mopidyReady = true;
+        self.setMopidyEvents(true);
         self.mopidyReloadPlaylists();
         playlist.repopulate();
         mopidy.getUriSchemes().then( function(data) {
@@ -34,6 +36,7 @@ function dualPlayerController() {
     this.doMopidyOffline = function() {
         debug.log("PLAYER        : Mopidy Has Gone Offline");
         self.mopidyReady = false;
+        self.setMopidyEvents(false);
     }
 
     this.mopidyReloadPlaylists = function() {
@@ -97,6 +100,33 @@ function dualPlayerController() {
         }
     }
 
+    this.setMopidyEvents = function(state) {
+        if (self.mopidyReady) {
+            if (state) {
+                mopidy.on("event:playbackStateChanged", function(data) {
+                    debug.log("PLAYER        : Mopidy State Change",data);
+                    mpd.setState(data);
+                });
+                mopidy.on("event:trackPlaybackStarted", function(data) {
+                    debug.log("PLAYER        : Track Playback Started",data);
+                    mpd.setTrackState(data);
+                });
+                mopidy.on("event:seeked", function(data) {
+                    debug.log("PLAYER        : Track Seeked",data);
+                    mpd.trackSeeked(data);
+                });
+                mopidy.on("event:trackPlaybackEnded", function(data) {
+                    debug.log("PLAYER        : Track Playback Ended",data);
+                });
+            } else {
+                mopidy.off("event:playbackStateChanged");
+                mopidy.off("event:trackPlaybackStarted");
+                mopidy.off("event:seeked");
+                mopidy.off("event:trackPlaybackEnded");
+            }
+        }
+    }
+
     var consoleError = console.error.bind(console);
 
     if (prefs.use_mopidy_http == 1) {
@@ -107,10 +137,6 @@ function dualPlayerController() {
         mopidy.on("state:online", self.doMopidyInit);
         mopidy.on("state:offline", self.doMopidyOffline);
         mopidy.on("event:playlistsLoaded", self.mopidyReloadPlaylists);
-        // mopidy.on("event:playbackStateChanged", function(data) {
-        //     debug.log("PLAYER        : Mopidy State Change",data);
-        //     mpd.command("");
-        // });
         self.mp = mopidy;
     }
 
@@ -280,6 +306,7 @@ function dualPlayerController() {
             debug.log("PLAYER        : Using Mopidy HTTP connection for playlist");
             mopidy.tracklist.getTlTracks().then( function (data) {
                 debug.log("PLAYER        : Got Playlist from Mopidy:", data);
+                tracklist = data;
                 $.ajax({
                         type: "POST",
                         url: "parseMopidyPlaylist.php",
@@ -309,30 +336,75 @@ function dualPlayerController() {
     }
 
     this.gogogo = function() {
-        // if (self.mopidyReady) {
-        //     mopidy.playback.play();
-        // } else {
+        if (self.mopidyReady) {
+            mopidy.playback.play();
+        } else {
             mpd.command('command=play');
-        // }
+        }
     }
 
     this.procrastinate = function() {
-        // if (self.mopidyReady) {
-        //     mopidy.playback.pause();
-        // } else {
+        if (self.mopidyReady) {
+            mopidy.playback.pause();
+        } else {
             mpd.command('command=pause');
-        // }
+        }
     }
 
     this.stop = function() {
-        // if (self.mopidyReady) {
-        //     mopidy.playback.stop().then( playlist.stop );
-        // } else {
+        if (self.mopidyReady) {
+            mopidy.playback.stop().then( playlist.stop );
+        } else {
             mpd.command("command=stop", playlist.stop )
-        // }
+        }
     }
 
-    this.test = console.error.bind(console);
+    this.seek = function(seekto) {
+        if (self.mopidyReady) {
+            mopidy.playback.seek(seekto*1000).then(function(data){debug.log("SEEK RESULT   : ",data)}, consoleError);
+        } else {
+            mpd.command("command=seek&arg="+mpd.getStatus('song')+"&arg2="+parseInt(seekto.toString()),
+                function() { mpd.deferredupdate(1000) });
+        }
+    }
+
+    this.playId = function(id) {
+        debug.log("PLAYER        : Playing ID",id);
+        if (self.mopidyReady) {
+            for(var i = 0; i < tracklist.length; i++) {
+                if (tracklist[i].tlid == id ||
+                    (id == 0 && !tracklist[i].tlid)) {
+                    debug.log("PLAYER        : Playing Track",tracklist[i]);
+                    mopidy.playback.play(tracklist[i],1).then( function(data){ }, function(){
+                        // Fallback in case the above fails due to some known but
+                        // as yet not understood mopidy problem
+                        debug.log("PLAYER       : Mopidy error, using fallback");
+                        mpd.command("command=playid&arg="+id);
+                    });
+                    break;
+                }
+            }
+        } else {
+            mpd.command("command=playid&arg="+id);
+        }
+
+    }
+
+    // this.getSongData = function(data) {
+    //     var s = new Object();
+    //     mopidy.playback.getTimePosition().then(function(time) {
+    //         s.elapsed = time/1000;
+    //         mpd.gotTrackState(s);
+    //     })
+    // }
+
+    this.test = function() {
+        mopidy.playback.getCurrentTlTrack().then(function(tltrack) {
+            mopidy.tracklist.index(tltrack).then(function(index) {
+                debug.log(index);
+            }, consoleError);
+        }, consoleError);
+    }
 
 }
 

@@ -552,10 +552,13 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
     }
 
     this.progress = function() {
-         return (mpd.getStatus('state') == "stop") ? 0 : (Date.now())/1000 - starttime;
+        // debug.log("NOWPLAYING    : State is",mpd.getStatus('state'));
+        // debug.log("NOWPLAYING    : Progress is",(Date.now())/1000 - starttime);
+        return (mpd.getStatus('state') == "stop") ? 0 : (Date.now())/1000 - starttime;
     }
 
     this.setstarttime = function(elapsed) {
+        debug.log("NOWPLAYING      : Setting start time to",elapsed);
         starttime = (Date.now())/1000 - parseFloat(elapsed);
     }
 

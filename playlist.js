@@ -175,6 +175,7 @@ function Playlist() {
             $("#playlist").scrollTo('div[name="'+scrollto.toString()+'"]');
             scrollto = -1;
         }
+        findCurrentTrack();
 
         self.checkProgress();
 
@@ -343,6 +344,18 @@ function Playlist() {
         $.post("newplaylist.php", { type: "track", xml: xml});
     }
 
+    function findCurrentTrack() {
+        for(var i in tracklist) {
+            debug.log("PLAYLIST      : Looking For Track");
+            currentTrack = tracklist[i].findcurrent(mpd.getStatus('songid'));
+            if (currentTrack) {
+                currentalbum = i;
+                currentsong = currentTrack.playlistpos;
+                break;
+            }
+        }
+    }
+
     this.checkProgress = function() {
         self.clearProgressTimer();
         if (finaltrack == -1) {
@@ -352,30 +365,28 @@ function Playlist() {
             $("#progress").progressbar("option", "value", 0);
             $("#playbackTime").empty();
         } else {
-            // currentsong is used mainly so we can update the playlist to highlight the currently playing song
-            // A change in currentsong is not taken as a new track being played, because currentsong
-            // is set to -1 every time we repopulate.
-            if (mpd.getStatus('song') != currentsong || mpd.getStatus('songid') != previoussong) {
-                debug.log("PLAYLIST      : Updating current song");
-                currentsong = mpd.getStatus('song');
-                $(".playlistcurrentitem").removeClass('playlistcurrentitem').addClass('playlistitem');
-                $(".playlistcurrenttitle").removeClass('playlistcurrenttitle').addClass('playlisttitle');
-                if (typeof(currentsong) == "undefined") {
-                    currentTrack = emptytrack;
-                } else {
-                    for(var i in tracklist) {
-                        currentTrack = tracklist[i].findcurrent(currentsong);
-                        if (currentTrack) {
-                            currentalbum = i;
-                            break;
-                        }
-                    }
-                }
-            }
-
             // Track changes are detected based on the playlist id. This prevents us from repopulating
             // the browser every time the playlist gets repopulated.
             if (mpd.getStatus('songid') != previoussong) {
+                debug.log("PLAYLIST      : Updating current song");
+                $(".playlistcurrentitem").removeClass('playlistcurrentitem').addClass('playlistitem');
+                $(".playlistcurrenttitle").removeClass('playlistcurrenttitle').addClass('playlisttitle');
+                if (mpd.getStatus('songid') === undefined) {
+                    currentTrack = emptytrack;
+                } else {
+                    findCurrentTrack();
+                    if (!currentTrack) {
+                        // That can happen if a mopidy state change event comes in before we've
+                        // updated the playlist - as often happens when we add new tracks and start
+                        // playback immediately.
+                        // We must return, otherwise previoussong will get updated this time and
+                        // no info will update when the playlist repopulates.
+                        debug.log("PLAYLIST      : Could not find current track!");
+                        return 0;
+                    }
+
+                }
+
                 if (mpd.getStatus('consume') == 1 && consumeflag) {
                     consumeflag = false;
                     self.repopulate();
@@ -421,10 +432,16 @@ function Playlist() {
                 if (progress > 4) { nowplaying.updateNowPlaying() };
                 if (percent >= prefs.scrobblepercent) { nowplaying.scrobble(); }
                 if (duration > 0 && nowplaying.mpd(-1, "type") != "stream") {
-                    if (progress >= duration) {
-                        debug.log("PLAYLIST      : Starting safety timer");
-                        setTheClock(playlist.checkchange, safetytimer);
-                        if (safetytimer < 5000) { safetytimer += 500 }
+                    if (prefs.use_mopidy_http == 0) {
+                        // When using mopidy HTTP, we get state change events when tracks change,
+                        // so there's no need to poll like this.
+                        if (progress >= duration) {
+                            debug.log("PLAYLIST      : Starting safety timer");
+                            setTheClock(playlist.checkchange, safetytimer);
+                            if (safetytimer < 5000) { safetytimer += 500 }
+                        } else {
+                            setTheClock( playlist.checkProgress, 1000);
+                        }
                     } else {
                         setTheClock( playlist.checkProgress, 1000);
                     }
@@ -628,7 +645,8 @@ function Playlist() {
                     html = html + '<div class="smallcover fixed"><img class="smallcover" src="'+tracks[trackpointer].image+'" /></div>';
                 } else {
                     html = html + '<div class="tracknumbr fixed"';
-                    if (tracks.length > 99) {
+                    if (tracks.length > 99 ||
+                        tracks[trackpointer].tracknumber > 99) {
                         html = html + ' style="width:3em"';
                     }
                     html = html + '>'+format_tracknum(tracks[trackpointer].tracknumber)+'</div>';
@@ -731,9 +749,9 @@ function Playlist() {
         this.findcurrent = function(which) {
             var result = null;
             for(var i in tracks) {
-                if (tracks[i].playlistpos == which) {
+                if (tracks[i].backendid == which) {
                     $('.item[name="'+self.index+'"]').removeClass('playlisttitle').addClass('playlistcurrenttitle');
-                    $('.track[name="'+which+'"]').removeClass('playlistitem').addClass('playlistcurrentitem');
+                    $('.track[romprid="'+which+'"]').removeClass('playlistitem').addClass('playlistcurrentitem');
                     result = tracks[i];
                     break;
                 }
@@ -852,9 +870,9 @@ function Playlist() {
         this.findcurrent = function(which) {
             var result = null;
             for(var i in tracks) {
-                if (tracks[i].playlistpos == which) {
+                if (tracks[i].backendid == which) {
                     $('.item[name="'+self.index+'"]').removeClass('playlisttitle').addClass('playlistcurrenttitle');
-                    $('.booger[name="'+which+'"]').removeClass('playlistitem').addClass('playlistcurrentitem');
+                    $('.booger[romprid="'+which+'"]').removeClass('playlistitem').addClass('playlistcurrentitem');
                     result = tracks[i];
                     break;
                 }
@@ -1009,9 +1027,9 @@ function Playlist() {
         this.findcurrent = function(which) {
             var result = null;
             for(var i in tracks) {
-                if (tracks[i].playlistpos == which) {
+                if (tracks[i].backendid == which) {
                     $('.item[name="'+self.index+'"]').removeClass('playlisttitle').addClass('playlistcurrenttitle');
-                    $('.booger[name="'+which+'"]').removeClass('playlistitem').addClass('playlistcurrentitem');
+                    $('.booger[romprid="'+which+'"]').removeClass('playlistitem').addClass('playlistcurrentitem');
                     result = tracks[i];
                     break;
                 }
