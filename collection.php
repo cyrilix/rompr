@@ -3,6 +3,8 @@
 set_time_limit(240);
 $COMPILATION_THRESHOLD = 6;
 $numtracks = 0;
+$numalbums = 0;
+$numartists = 0;
 $totaltime = 0;
 
 $xspf_loaded = false;
@@ -18,6 +20,7 @@ $playlist = array();
 
 class album {
     public function __construct($name, $artist, $domain) {
+        global $numalbums;
         $this->artist = $artist;
         $this->name = $name;
         $this->tracks = array();
@@ -29,6 +32,7 @@ class album {
         $this->domain = $domain;
         $this->image = null;
         $this->artistobject = null;
+        $numalbums++;
     }
 
     public function newTrack($object) {
@@ -182,10 +186,10 @@ class artist {
             }
         }
         if ($ak) {
-            debug_print("Removing album ".$object->name." from artist ".$this->name);
+            debug_print("Removing album ".$object->name." from artist ".$this->name, "COLLECTION");
             unset($this->albums[$key]);
         } else {
-            debug_print("AWOOGA! Removing album ".$object->name." from artist ".$this->name." FAILED!");
+            debug_print("AWOOGA! Removing album ".$object->name." from artist ".$this->name." FAILED!", "COLLECTION");
         }
     }
 
@@ -525,7 +529,7 @@ function process_file($collection, $filedata) {
         !array_key_exists('Artist', $filedata) && !array_key_exists('Album', $filedata)) {
         // $domain will be http for anything being played through mopidy-beets. Hence the check for
         // Artist and Album too, since they will be set in that case but not for a stream.
-        debug_print("We think it's a stream!");
+        debug_print("We think it's a stream!", "COLLECTION");
         list (  $name, $duration, $number, $date, $genre, $artist, $album, $folder,
                 $type, $image, $expires, $stationurl, $station, $stream)
                 = getStuffFromXSPF($file);
@@ -649,16 +653,16 @@ function doCollection($command, $jsondata = null) {
     global $prefs;
     $collection = new musicCollection($connection);
 
-    debug_print("Starting Collection Scan ".$command);
+    debug_print("Starting Collection Scan ".$command, "COLLECTION");
 
     $files = array();
     $filecount = 0;
     if ($is_connected) {
         if ($command == null) {
-            debug_print("Parsing Mopidy JSON Data");
+            debug_print("Parsing Mopidy JSON Data","COLLECTION");
             parse_mopidy_json_data($collection, $jsondata);
         } elseif ($command == "listallinfo" && $prefs['use_mopidy_tagcache'] == 1) {
-            debug_print("Doing Mopidy tag cache scan.");
+            debug_print("Doing Mopidy tag cache scan.","COLLECTION");
             if (file_exists("mopidy-tags/tag_cache")) {
                 parse_mopidy_tagcache($collection);
             }
@@ -726,9 +730,12 @@ function doCollection($command, $jsondata = null) {
 
 function createXML($artistlist, $prefix, $output) {
     global $numtracks;
+    global $numalbums;
+    global $numartists;
     global $totaltime;
 
     $output->writeLine(xmlnode("numtracks", $numtracks));
+    $output->writeLine(xmlnode("numalbums", $numalbums));
     $output->writeLine(xmlnode("duration", format_time($totaltime)));
 
     if (array_search("various artists", $artistlist)) {
@@ -741,6 +748,7 @@ function createXML($artistlist, $prefix, $output) {
     foreach($artistlist as $artistkey) {
         do_albums_xml($artistkey, true, false, $prefix, $output);
     }
+    $output->writeLine(xmlnode("numartists", $numartists));
 
 }
 
@@ -749,11 +757,13 @@ function do_albums_xml($artistkey, $compilations, $showartist, $prefix, $output)
     global $count;
     global $collection;
     global $divtype;
+    global $numartists;
 
     //debug_print("Doing Artist: ".$artistkey);
     $artist = $collection->artistName($artistkey);
     $albumlist = $collection->getAlbumList($artistkey, $compilations, false);
     if (count($albumlist) > 0 || $collection->spotilink($artistkey) != null) {
+        $numartists++;
         $output->writeLine('<artist id="'.$prefix.'artist'.$count.'">'."\n");
         $output->WriteLine(xmlnode('name', $artist));
         if ($collection->spotilink($artistkey) != null) {
@@ -829,7 +839,7 @@ function do_albums_xml($artistkey, $compilations, $showartist, $prefix, $output)
 function parse_mopidy_tagcache($collection) {
 
     global $prefs;
-    debug_print("Starting Mopidy Tag Cache Scan ");
+    debug_print("Starting Mopidy Tag Cache Scan","COLLECTION");
 
     $firstline = null;
     $filedata = array();

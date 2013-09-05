@@ -31,7 +31,7 @@ function Info(target, source) {
             );
         }
         var l = npinfo.location;
-        debug.log("INFO PANEL    : New Track Coming, Location is",l);
+        debug.log("INFO PANEL","New Track Coming, Location is",l);
         if (l.substr(0,11) == "soundcloud:") {
             $("#soundcloudbutton").fadeIn("fast");
         } else {
@@ -41,11 +41,12 @@ function Info(target, source) {
                 prefs.save({infosource: current_source});
             }
         }
+
         $("#fileinformation").html(fbheader("Waiting for file information...",""));
         clearTimeout(titimer);
         if (prefs.use_mopidy_http == 0) {
             titimer = setTimeout(function() {
-                mpd.command("", browser.updateFileInformation)
+                player.mpd.command("", browser.updateFileInformation)
             }, 3000);
         } else {
             titimer = setTimeout(self.updateFileInformation, 3000);
@@ -127,7 +128,7 @@ function Info(target, source) {
                 }
                 break;
             default:
-                debug.log("INFO PANEL    : AWOOOOGA! Something I hadn't anticipated has just happened");
+                debug.error("INFO PANEL","AWOOOOGA! Something I hadn't anticipated has just happened");
                 break;
         }
     }
@@ -157,6 +158,7 @@ function Info(target, source) {
     this.doHistory = function(index) {
         displaypointer = index;
         updateHistory();
+        self.slideshow.killTimer();
         clearSelection();
         if (!prefs.hidebrowser) {
             updateArtistBrowser();
@@ -196,7 +198,7 @@ function Info(target, source) {
     }
 
     this.getWiki = function(link) {
-        debug.log("INFO PANEL    : Getting Wiki:",link);
+        debug.log("INFO PANEL","Getting Wiki:",link);
         var currentdisplay = {
             artist: history[displaypointer].artist,
             album: history[displaypointer].album,
@@ -387,7 +389,8 @@ function Info(target, source) {
     }
 
     this.updateFileInformation = function() {
-        var file = unescape(mpd.getStatus('file'));
+        var file = unescape(player.status.file);
+        if (!file) { return }
         file = file.replace(/^file:\/\//, '');
         var filetype = "";
         if (file) {
@@ -400,11 +403,15 @@ function Info(target, source) {
             return;
         }
         var html = fbheader("File Information:", filetype);
-        html = html + '<div class="indent"><table><tr><td class="fil">File:</td><td>'+file+'</td></tr>';
-        if (mpd.getStatus('bitrate') && mpd.getStatus('bitrate') != 'None') {
-            html = html + '<tr><td class="fil">Bitrate:</td><td>'+mpd.getStatus('bitrate')+'</td></tr>';
+        html = html + '<div class="indent"><table><tr><td class="fil">File:</td><td>'+file;
+        if (file.match(/item\/\d+\/file/)) {
+            html = html + ' (from beets server)';
         }
-        var ai = mpd.getStatus('audio');
+        html = html +'</td></tr>';
+        if (player.status.bitrate && player.status.bitrate != 'None') {
+            html = html + '<tr><td class="fil">Bitrate:</td><td>'+player.status.bitrate+'</td></tr>';
+        }
+        var ai = player.status.audio;
         if (ai) {
             var p = ai.split(":");
             html = html + '<tr><td class="fil">Sample Rate:</td><td>'+p[0]+' Hz, '+p[1]+' Bit, ';
@@ -417,11 +424,11 @@ function Info(target, source) {
             }
             '</td></tr>';
         }
-        if (mpd.getStatus('Date')) {
-            html = html + '<tr><td class="fil">Date:</td><td>'+mpd.getStatus('Date')+'</td></tr>';
+        if (player.status.Date) {
+            html = html + '<tr><td class="fil">Date:</td><td>'+player.status.Date+'</td></tr>';
         }
-        if (mpd.getStatus('Genre')) {
-            html = html + '<tr><td class="fil">Genre:</td><td>'+mpd.getStatus('Genre')+'</td></tr>';
+        if (player.status.Genre) {
+            html = html + '<tr><td class="fil">Genre:</td><td>'+player.status.Genre+'</td></tr>';
         }
         html = html + '</table></div>';
         $("#fileinformation").html(html);
@@ -598,6 +605,7 @@ function Info(target, source) {
     }
 
     function doTrackUpdate() {
+        debug.debug("INFO","Doing track update");
         var lfmdata = new lfmDataExtractor(nowplaying.getTrackData(history[displaypointer].nowplayingindex));
         var html = lastFmBanner(lfmdata, "Track", panelclosed.track, history[displaypointer].track);
         if (lfmdata.error()) {
@@ -718,7 +726,7 @@ function Info(target, source) {
     this.scrapeArtistBio = function() {
         // So, for some unfathomable reason Last.FM has changed the API so artist biographies are
         // truncated at 300 characters. So this attempts to scrape the full bio from the website,
-        // thereby increasing their traffic, which is probably what they want, the bastards.
+        // thereby increasing their traffic, which is probably not what they want.
         nowplaying.getFullBio('artist', history[displaypointer].nowplayingindex, browser.gotFullArtistBio, browser.myFeetHurt);
     }
 
@@ -787,7 +795,7 @@ function Info(target, source) {
     }
 
     this.gotFailure = function(data) {
-        debug.log("INFO PANEL    : FAILED with something:",data);
+        debug.warn("INFO PANEL","FAILED with something:",data);
         infobar.notify(infobar.ERROR, "Unspecified, non-serious error. Carry on as if nothing had happened");
     }
 
@@ -840,7 +848,7 @@ function Info(target, source) {
 
     this.showAlbumBuyLinks = function(data) {
 
-        debug.log("INFO PANEL    : Got Album Buy Links",data);
+        debug.log("INFO PANEL","Got Album Buy Links",data);
 
         $("#buyalbum").slideUp('fast', function() {
             $("#buyalbum").css("display", "none");
@@ -985,7 +993,7 @@ function Info(target, source) {
 
     this.doSCImageStuff = function() {
         var bgColor = $(".infowiki").css('background-color');
-        debug.log("INFO PANEL    : Background color is ",bgColor);
+        debug.debug("INFO PANEL","Background color is ",bgColor);
         var rgbvals = /rgb\((.+),(.+),(.+)\)/i.exec(bgColor);
         tempcanvas.width = scImg.width;
         tempcanvas.height = scImg.height;
@@ -1046,7 +1054,7 @@ function Info(target, source) {
          * This means that all of our stored indices are now out by one
          * so we must adjust them
          */
-        debug.log("INFO PANEL    : Reducing the badger episodes becasue of too many carrots");
+        debug.log("INFO PANEL","Reducing the badger episodes becasue of too many carrots");
         for (var i in history) {
             var sidePocketForAToad = history[i].nowplayingindex;
             history[i].nowplayingindex = sidePocketForAToad-1;
@@ -1175,9 +1183,9 @@ function Info(target, source) {
 
     this.justloved = function(index, flag) {
         if (index == history[displaypointer].nowplayingindex) {
-            debug.log("    INFO PANEL: The track we are viewing has just been loved. Aaaaahhhhhhh");
+            debug.log("INFO PANEL","The track we are viewing has just been loved. Aaaaahhhhhhh");
             if (history[displaypointer].source == "lastfm") {
-                debug.log("INFO PANEL    : We shall reflect that change");
+                debug.log("INFO PANEL","We shall reflect that change");
                 doUserLoved(flag);
             }
         }
@@ -1227,26 +1235,25 @@ function Info(target, source) {
         var direction = 0;
         var img = new Image();
         img.onload = function() {
-            debug.log("INFO PANEL    : Next Image Loaded",img.src);
+            debug.log("INFO PANEL","Next Image Loaded",img.src);
             browser.slideshow.displayimage(paused);
         }
 
         img.onerror = function() {
-            debug.log("INFO PANEL    : Next Image Failed To Load",img.src);
+            debug.log("INFO PANEL","Next Image Failed To Load",img.src);
             browser.slideshow.displayimage(paused);
         }
 
         return {
 
             slideshowGo: function(data) {
-                debug.log("INFO PANEL    : Slideshow Initialising");
+                debug.log("INFO PANEL","Slideshow Initialising");
                 images = [];
-                if (timer_running) {
-                    clearTimeout(timer);
-                    timer_running = false;
-                }
+                clearTimeout(timer);
+                timer_running = false;
                 if (data.images.image) {
                     var imagedata = getArray(data.images.image);
+                    debug.debug("SLIDESHOW","Image Array",imagedata);
                     for(var i in imagedata) {
                         var u = imagedata[i].sizes.size[0]["#text"];
                         images.push({url: u});
@@ -1270,15 +1277,13 @@ function Info(target, source) {
                     counter+=direction;
                     self.slideshow.cacheImage();
                 }
-                if (timer_running) {
-                    clearTimeout(timer);
-                    timer_running = false;
-                }
+                clearTimeout(timer);
+                timer_running = false;
                 self.slideshow.displayimage(false);
             },
 
             timerExpiry: function() {
-                debug.log("INFO PANEL    : Slideshow Timer Expired");
+                debug.log("INFO PANEL","Slideshow Timer Expired");
                 timer_running = false;
                 if (!prefs.hidebrowser) {
                     self.slideshow.displayimage(paused);
@@ -1286,10 +1291,8 @@ function Info(target, source) {
             },
 
             killTimer: function() {
-                if (timer_running) {
-                    clearTimeout(timer);
-                    timer_running = false;
-                }
+                clearTimeout(timer);
+                timer_running = false;
             },
 
             toggle: function() {
@@ -1300,10 +1303,8 @@ function Info(target, source) {
                 } else {
                     $('#lastfmimagecontrol').attr("src", "images/play.png");
                     paused = true;
-                    if (timer_running) {
-                        clearTimeout(timer);
-                        timer_running = false;
-                    }
+                    clearTimeout(timer);
+                    timer_running = false;
                 }
             },
 
@@ -1312,12 +1313,12 @@ function Info(target, source) {
                 if (counter >= images.length) { counter = 0; }
                 if (counter < 0) { counter = images.length-1; }
                 img.src = images[counter].url;
-                debug.log("INFO PANEL    : Image Caching Started", img.src);
+                debug.log("INFO PANEL","Image Caching Started", img.src);
             },
 
             displayimage: function(p) {
                 if (!timer_running && img.complete && !p) {
-                    debug.log("INFO PANEL    : Displaying Image",img.src);
+                    debug.log("INFO PANEL","Displaying Image",img.src);
                     var windowheight = $("#"+target_frame).height();
                     var windowwidth = $("#"+target_frame).width();
                     var imageheight = img.height;
@@ -1358,5 +1359,196 @@ function Info(target, source) {
         }
 
     }();
+
+}
+
+/* Function for retrieving information from last.fm data */
+
+function lfmDataExtractor(data) {
+
+    this.error = function() {
+        if (data && data.error) {
+            return data.message;
+        } else {
+            return false;
+        }
+    }
+
+    this.errorno = function() {
+        if (data && data.error) {
+            return data.error;
+        } else {
+            return 0;
+        }
+    }
+
+    this.id = function() {
+        return data.id || "";
+    }
+
+    this.artist = function() {
+        return data.artist || "";
+    }
+
+
+    this.listeners = function() {
+        try {
+            return data.stats.listeners || 0;
+        } catch(err) {
+            try {
+                return  data.listeners || 0;
+            } catch (err) {
+                return 0;
+            }
+        }
+    }
+
+    this.playcount = function() {
+        try {
+            return data.stats.playcount || 0;
+        } catch(err) {
+            try {
+                return  data.playcount || 0;
+            } catch(err) {
+                return 0;
+            }
+        }
+    }
+
+    this.duration = function() {
+        try {
+            return data.duration || 0;
+        } catch(err) {
+            return 0;
+        }
+    }
+
+    this.releasedate = function() {
+        try {
+            return  data.releasedate || "Unknown";
+        } catch(err) {
+            return "Unknown";
+        }
+    }
+
+    this.mbid = function() {
+        try {
+            return data.mbid || false;
+        } catch(err) {
+            return false;
+        }
+    }
+
+    this.userplaycount = function() {
+        try {
+            return data.stats.userplaycount || 0;
+        } catch(err) {
+            return  data.userplaycount || 0;
+        }
+    }
+
+    this.url = function() {
+        try {
+            return  data.url || "";
+        } catch(err) {
+            return "";
+        }
+    }
+
+    this.bio = function() {
+        try {
+            if(data.wiki) {
+                return data.wiki.content;
+            }
+            else if (data.bio) {
+                return data.bio.content;
+            } else {
+                return false;
+            }
+        } catch(err) {
+            return false;
+        }
+    }
+
+    this.userloved = function() {
+        var loved =  data.userloved || 0;
+        return (loved == 1) ? true : false;
+    }
+
+    this.tags = function() {
+        if (data.tags) {
+            try {
+                return getArray(data.tags.tag);
+            } catch(err) {
+                return [];
+            }
+        } else {
+            try {
+                return getArray(data.toptags.tag);
+            } catch(err) {
+                return [];
+            }
+        }
+    }
+
+    this.tracklisting = function() {
+        try {
+            return getArray(data.tracks.track);
+        } catch(err) {
+            return [];
+        }
+    }
+
+    this.image = function(size) {
+        // Get image of the specified size.
+        // If no image of that size exists, return a different one - just so we've got one.
+        try {
+            var url = "";
+            var temp_url = "";
+            for(var i in data.image) {
+                temp_url = data.image[i]['#text'];
+                if (data.image[i].size == size) {
+                    url = temp_url;
+                }
+            }
+            if (url == "") { url = temp_url; }
+            return url;
+        } catch(err) {
+            return "";
+        }
+    }
+
+    this.similar = function() {
+        try {
+            return getArray(data.similar.artist);
+        } catch(err) {
+            return [];
+        }
+    }
+
+    this.similarimage = function(index, size) {
+        try {
+            var url = "";
+            var temp_url = "";
+            for(var i in data.similar.artist[index].image) {
+                temp_url = data.similar.artist[index].image[i]['#text'];
+                if (data.similar.artist[index].image[i].size == size) {
+                    url = temp_url;
+                    break;
+                }
+            }
+            if (url == "") {
+                url = temp_url;
+            }
+            return url;
+        } catch(err) {
+            return "";
+        }
+
+    }
+
+    this.url = function() {
+        return data.url  || null;
+    }
 
 }

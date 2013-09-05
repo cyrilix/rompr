@@ -10,7 +10,7 @@ if($is_connected) {
     if(array_key_exists("command", $_REQUEST)) {
         $command = $_REQUEST["command"];
         if(array_key_exists("arg", $_REQUEST) && strlen($_REQUEST["arg"])>0) {
-            debug_print("Arg is ".$_REQUEST['arg']);
+            debug_print("Arg is ".$_REQUEST['arg'],"CONNECTION");
             $command.=" \"".format_for_mpd($_REQUEST["arg"])."\"";
         }
         if(array_key_exists("arg2", $_REQUEST) && strlen($_REQUEST["arg2"])>0) {
@@ -22,10 +22,10 @@ if($is_connected) {
     if (!array_key_exists('fast', $_REQUEST)) {
         $mpd_status = do_mpd_command ($connection, "status", null, true);
         if (array_key_exists('state', $mpd_status)) {
-            while ($mpd_status['state'] == 'play' && 
+            while ($mpd_status['state'] == 'play' &&
                     !array_key_exists('elapsed', $mpd_status))
             {
-                debug_print("Playing but no elapsed time yet.. waiting");
+                debug_print("Playing but no elapsed time yet.. waiting","CONNECTION");
                 sleep(1);
                 $mpd_status = do_mpd_command ($connection, "status", null, true);
             }
@@ -33,7 +33,7 @@ if($is_connected) {
         if (is_array($cmd_status) && !array_key_exists('error', $mpd_status)) {
             $mpd_status = array_merge($mpd_status, $cmd_status);
         }
-    }        
+    }
 
 } else {
     if ($prefs['unix_socket'] != "") {

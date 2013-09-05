@@ -17,11 +17,16 @@ foreach($x->artists->artist as $i => $artist) {
 		if (file_exists("albumart/asdownloaded/".$img)) {
 			print "      Downloaded Image Exists\n";
 			$newfile = $dir."/";
+
 			if (file_exists($newfile.$img)) {
-				print "       Overwriting ".$newfile.$img."\n";
+				print "       Archived image exists ".$newfile.$img."\n";
 				system('rm "'.$newfile.$img.'"');
 			}
-			system('cp albumart/asdownloaded/'.$img.' "'.$newfile.'"');
+			if (file_exists($newfile.'cover.jpg')) {
+				print "       Cover image exists ".$newfile."cover.jpg\n";
+				system('rm "'.$newfile.'cover.jpg"');
+			}
+			system('cp albumart/asdownloaded/'.$img.' "'.$newfile.'cover.jpg"');
 		}
 	}
 }

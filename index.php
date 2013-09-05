@@ -1,5 +1,7 @@
 <?php
 include("vars.php");
+debug_print("");
+debug_print("=================****==================","STARTING UP");
 if (array_key_exists('mpd_host', $_POST)) {
     $prefs['mpd_host'] = $_POST['mpd_host'];
     $prefs['mpd_port'] = $_POST['mpd_port'];
@@ -48,14 +50,14 @@ if (array_key_exists('mpd_host', $_POST)) {
 include 'Mobile_Detect.php';
 if (array_key_exists('mobile', $_REQUEST)) {
     $mobile = $_REQUEST['mobile'];
-    debug_print("Request asked for mobile mode: ".$mobile);
+    debug_print("Request asked for mobile mode: ".$mobile,"INDEX");
 } else {
     $detect = new Mobile_Detect();
     if ($detect->isMobile() && !$detect->isTablet()) {
-        debug_print("Mobile Browser Detected!");
+        debug_print("Mobile Browser Detected!","INDEX");
         $mobile = "phone";
     } else {
-        debug_print("Not a mobile browser");
+        debug_print("Not a mobile browser","INDEX");
         $mobile = "no";
     }
 }
@@ -63,12 +65,12 @@ if (array_key_exists('mobile', $_REQUEST)) {
 include("functions.php");
 include("connection.php");
 if (!$is_connected) {
-    debug_print("MPD Connection Failed");
+    debug_print("MPD Connection Failed","INDEX");
     close_mpd($connection);
     askForMpdValues("Rompr could not connect to an mpd server");
     exit();
 } else if (array_key_exists('error', $mpd_status)) {
-    debug_print("MPD Password Failed or other status failure");
+    debug_print("MPD Password Failed or other status failure","INDEX");
     close_mpd($connection);
     askForMpdValues('There was an error when communicating with your mpd server : '.$mpd_status['error']);
     exit();
@@ -78,7 +80,7 @@ if (!$is_connected) {
     exit();
 }
 
-setswitches();
+// setswitches();
 close_mpd($connection);
 
 ?>
@@ -112,13 +114,12 @@ if ($mobile != "no") {
     print '<script type="text/javascript" src="keycode.js"></script>'."\n";
 }
 ?>
+<script type="text/javascript" src="debug.js"></script>
 <script type="text/javascript" src="functions.js"></script>
 <script type="text/javascript" src="uifunctions.js"></script>
 <script type="text/javascript" src="clickfunctions.js"></script>
 <script type="text/javascript" src="lastfmstation.js"></script>
 <script type="text/javascript" src="jshash-2.2/md5-min.js"></script>
-<script type="text/javascript" src="ba-debug.js"></script>
-<script type="text/javascript" src="mpd.js"></script>
 <script type="text/javascript" src="nowplaying.js"></script>
 <script type="text/javascript" src="infobar2.js"></script>
 <script type="text/javascript" src="lastfm.js"></script>
@@ -127,7 +128,7 @@ if ($mobile != "no") {
 <script type="text/javascript" src="info.js"></script>
 <script type="text/javascript" src="coverscraper.js"></script>
 <script type="text/javascript" src="mopidy.js"></script>
-<script type="text/javascript" src="mopidyhttpfunctions.js"></script>
+<script type="text/javascript" src="player.js"></script>
 
 <?php
 if (file_exists("prefs/prefs.js")) {
@@ -135,7 +136,14 @@ if (file_exists("prefs/prefs.js")) {
 }
 ?>
 <script language="javascript">
+// The world's smallest jQuery plugin :)
+jQuery.fn.reverse = [].reverse;
+// http://www.mail-archive.com/discuss@jquery.com/msg04261.html
+
+debug.setLevel(9);
 // debug.setLevel(0);
+debug.highlight("PLAYER");
+debug.highlight("MPD");
 var lastfm_api_key = "15f7532dff0b8d84635c757f9f18aaa3";
 var lastfm_session_key;
 var sources = new Array();
@@ -164,16 +172,12 @@ print "var mobile = '".$mobile."';\n";
 var tempcanvas = document.createElement('canvas');
 var landscape = false;
 var itisbigger = false;
-var mpd = new mpdController();
-var playlist = new Playlist();
-var nowplaying = new playInfo();
-var lfmprovider = new lastFMprovider();
-var soundcloud = new SoundCloud();
 var gotNeighbours = false;
 var gotFriends = false;
 var gotTopTags = false;
 var gotTopArtists = false;
 var progresstimer = null;
+var scrobwrangler = null;
 var prefsbuttons = ["images/button-off.png", "images/button-on.png"];
 var prefsInLocalStorage = ["hidebrowser", "sourceshidden", "playlisthidden", "infosource", "playlistcontrolsvisible",
                             "sourceswidthpercent", "playlistwidthpercent", "downloadart", "clickmode", "chooser",
@@ -181,10 +185,8 @@ var prefsInLocalStorage = ["hidebrowser", "sourceshidden", "playlisthidden", "in
                             "shownupdatewindow", "keep_search_open", "showfileinfo"];
 
 function aADownloadFinished() {
-    /* We need one of these in global scope so coverscraper works here
-    */
-    debug.log("INDEX         : Album Art Download Has Finished");
-    $.get("checkRemoteImageCache.php", function() { debug.log("INDEX         : Finished Thinning Remote Cache")});
+    debug.log("INDEX","Album Art Download Has Finished");
+    $.get("checkRemoteImageCache.php", function() { debug.debug("INDEX","Finished Thinning Remote Cache")});
 }
 
 
@@ -257,10 +259,14 @@ var prefs = function() {
 }();
 
 prefs.updateLocal();
+var playlist = new Playlist();
+var player = new multiProtocolController();
+var nowplaying = new playInfo();
+var lfmprovider = new lastFMprovider();
+var soundcloud = new SoundCloud();
 var lastfm = new LastFM(prefs.lastfm_user);
 var browser = new Info('infopane', prefs.infosource);
 var coverscraper = new coverScraper(0, false, false, prefs.downloadart);
-var player = new dualPlayerController();
 
 $(document).ready(function(){
     // Check to see if HTML5 local storage is supported - we use this for communication between the
@@ -297,7 +303,7 @@ $(document).ready(function(){
         stop: saveRadioOrder
     });
 
-    $("#progress").progressbar();
+    infobar.createProgressBar();
     $("#progress").click( infobar.seek );
 
     if (mobile == "no") {
@@ -305,6 +311,27 @@ $(document).ready(function(){
         setDraggable('filecollection');
         setDraggable('search');
         setDraggable('filesearch');
+
+        // Make the entire playlist area accept drops from the collection
+        $("#pscroller").droppable({
+            //accept: ".draggable",
+            addClasses: false,
+            greedy: true,
+            drop: playlist.draggedToEmpty,
+            hoverClass: "highlighted"
+        });
+
+        // We have to set the sortable as droppable, even though the draggables
+        // are connected to it. This means we can set the 'greedy' option.
+        // Otherwise the drop event bubbles up when we drop over the sortable
+        // and the pscroller event captures it first.
+        $("#sortable").droppable({
+            //accept: ".draggable",
+            addClasses: false,
+            greedy: true,
+            drop: function() {},
+        });
+
         $("#headerbar").load('headerbar.php', function() {
             $("#sourcesresizer").draggable({
                 containment: '#headerbar',
@@ -318,27 +345,37 @@ $(document).ready(function(){
             });
             $("#playlistresizer").bind("drag", prDrag);
             $("#playlistresizer").bind("dragstop", prDragStop);
-            player.reloadPlaylists();
+            player.controller.reloadPlaylists();
             doThatFunkyThang();
             $("ul.topnav li a").click(function() {
                 $(this).parent().find("ul.subnav").slideToggle('fast');
                 return false;
             });
             setChooserButtons();
+            scrobwrangler = new progressBar('scrobwrangler', 'horizontal');
+            scrobwrangler.setProgress(parseInt(prefs.scrobblepercent.toString()));
+            $("#scrobwrangler").click( setscrob );
+
         });
         loadKeyBindings();
-        $("#volume").slider();
-        $("#volume").slider({
-            orientation: 'vertical',
-            value: prefs.volume,
-            stop: infobar.setvolume,
-            slide: infobar.volumemoved
-        });
-
+        infobar.setVolumeState(prefs.volume);
+        var obj = document.getElementById('volumecontrol');
+        obj.addEventListener('mousedown', function(event) {
+            event.preventDefault();
+            infobar.volumeTouch(event);
+        }, false);
+        obj.addEventListener('mousemove', function(event) {
+            event.preventDefault();
+            infobar.volumeMouseMove(event);
+        }, false);
+        obj.addEventListener('mouseup', function(event) {
+            infobar.volumeDragEnd(event);
+        }, false);
     } else {
-        $("#scrobwrangler").progressbar();
-        $("#scrobwrangler").progressbar("option", "value", parseInt(prefs.scrobblepercent.toString()));
+        scrobwrangler = new progressBar('scrobwrangler', 'horizontal');
+        scrobwrangler.setProgress(parseInt(prefs.scrobblepercent.toString()));
         $("#scrobwrangler").click( setscrob );
+
         $("#scrobbling").attr("checked", prefs.lastfm_scrobbling);
         $("#radioscrobbling").attr("checked", prefs.dontscrobbleradio);
         $("#autocorrect").attr("checked", prefs.lastfm_autocorrect);
@@ -358,7 +395,7 @@ $(document).ready(function(){
             $(".penbehindtheear").fadeOut('fast');
         }
         setChooserButtons();
-        player.reloadPlaylists();
+        player.controller.reloadPlaylists();
         var obj = document.getElementById('volumecontrol');
         obj.addEventListener('touchstart', function(event) {
             if (event.targetTouches.length == 1) {
@@ -387,7 +424,9 @@ $(document).ready(function(){
         $("#yourradiolist").load("yourradio.php");
         refreshMyDrink(false);
     }
-    checkCollection();
+
+    player.loadCollection();
+
     sourcecontrol(prefs.chooser);
     if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < 0.33) {
         var fnarkle = popupWindow.create(500,600,"fnarkle",true,"Information About This Version");
@@ -408,22 +447,27 @@ $(document).ready(function(){
         popupWindow.open();
         prefs.save({shownupdatewindow: 0.33});
     }
-    if (prefs.playlistcontrolsvisible) {
-        $("#playlistbuttons").slideToggle('fast');
-    }
+    // Initialise the player's status
     if (prefs.use_mopidy_http == 0) {
-        mpd.command("",playlist.repopulate);
+        player.mpd.command("",playlist.repopulate);
     } else {
-        mpd.command("");
+        player.mpd.command("");
     }
     if (mobile == "no") {
-        setBottomPaneSize();
+        if (prefs.playlistcontrolsvisible) {
+            $("#playlistbuttons").slideToggle('fast', setBottomPaneSize);
+        } else {
+            setBottomPaneSize();
+        }
     } else {
+        if (prefs.playlistcontrolsvisible) {
+            $("#playlistbuttons").slideToggle('fast', setBottomPaneSize);
+        }
         setTimeout(setBottomPaneSize, 2000);
         $(window).touchwipe({
             wipeLeft: function() { swipeyswipe(1); },
             wipeRight: function() { swipeyswipe(-1) },
-            min_move_x: 240,
+            min_move_x: 200,
             min_move_y: 1000,
             preventDefaultEvents: false
         });

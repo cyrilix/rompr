@@ -4,7 +4,7 @@ include ("functions.php");
 
 $url = $_REQUEST['url'];
 $url = str_replace("https://", "http://", $url);
-debug_print("Getting Remote Image ".$url);
+debug_print("Getting Remote Image ".$url,"TOMATO");
 
 $ext = explode('.',$url);
 

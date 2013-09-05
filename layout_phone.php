@@ -7,7 +7,7 @@
             <div class="tleft">
             <img title="Previous Track" class="clickicon controlbutton" onclick="playlist.previous()" src="images/media-skip-backward.png">
             <img title="Play/Pause" class="shiftleft clickicon controlbutton" onclick="infobar.playbutton.clicked()" id="playbuttonimg" src="images/media-playback-pause.png">
-            <img title="Stop" class="shiftleft2 clickicon controlbutton" onclick="player.stop()" src="images/media-playback-stop.png">
+            <img title="Stop" class="shiftleft2 clickicon controlbutton" onclick="player.controller.stop()" src="images/media-playback-stop.png">
             <img title="Stop After Current Track" class="shiftleft3 clickicon controlbutton" onclick="playlist.stopafter()" id="stopafterbutton" src="images/stopafter.png">
             <img title="Next Track" class="shiftleft4 clickicon controlbutton" onclick="playlist.next()" src="images/media-skip-forward.png">
             </div>
@@ -33,10 +33,7 @@
 <a href="#" onclick="makeitbigger()"><img class="tright topimg" src="images/pushbutton.png" height="24px"></a>
 <div class="tright">
 <a href="#" onclick="showVolumeControl()"><img class="topimg" src="images/volume.png" height="24px"></a>
-<div id="volumecontrol">
-    <div id="volumeslider">
-    </div>
-</div>
+<div id="volumecontrol"><div id="volume"></div></div>
 </div>
 </div>
 
@@ -213,13 +210,13 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
             <input type="checkbox" onclick="togglePref('updateeverytime')" id="updateeverytime">Update Collection On Start</input>
         </div>
         <div class="pref">
-            <button onclick="player.updateCollection('update')">Update Collection Now</button>
+            <button onclick="player.controller.updateCollection('update')">Update Collection Now</button>
         </div>
 <?php
 } else {
 ?>
         <div class="pref">
-            <button onclick="player.mopidyUpdate()">Rebuild Albums List</button>
+            <button onclick="player.controller.updateCollection('update')">Rebuild Albums List</button>
         </div>
 <?php
 }
@@ -228,7 +225,7 @@ if (($prefs['use_mopidy_tagcache'] == 0 &&
     $prefs['use_mopidy_tagcache'] == 1) {
 ?>
         <div class="pref">
-            <button onclick="player.updateCollection('rescan')">Full Collection Rescan</button>
+            <button onclick="player.controller.updateCollection('rescan')">Full Collection Rescan</button>
         </div>
 <?php
 }
@@ -247,7 +244,7 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
         <div class="pref">
             Last.FM Username
 <?php
-            print '<input class="winkle" name="user" type="text" size="45" value="'.$prefs['lastfm_user'].'"/><button onclick="lastfmlogin()">Login</button>';
+            print '<input class="winkle" name="user" type="text" size="30" value="'.$prefs['lastfm_user'].'"/><button onclick="lastfmlogin()">Login</button>';
 ?>
         </div>
         <div class="pref">
@@ -286,7 +283,7 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
 </div>
 
 <div id="playlistm" class="invisible fullwidth scroller">
-    <div style="padding-left:12px">
+    <div id="horse" style="padding-left:12px">
     <a title="Playlist Controls" href="#" onclick="togglePlaylistButtons()"><img class="topimg clickicon" height="20px" src="images/pushbutton.png"></a>
     </div>
     <div id="playlistbuttons" class="invisible searchbox">
@@ -295,13 +292,13 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
         <td align="right">SHUFFLE</td>
         <td class="togglebutton">
 <?php
-        print '<img src="'.$prefsbuttons[$prefs['random']].'" id="random" onclick="toggleoption(\'random\')" class="togglebutton clickicon" />';
+        print '<img src="'.$prefsbuttons[$mpd_status['random']].'" id="random" onclick="player.controller.toggleRandom()" class="togglebutton clickicon" />';
 ?>
         </td>
         <td class="togglebutton">
 <?php
-        $c = ($prefs['crossfade'] == 0) ? 0 : 1;
-        print '<img src="'.$prefsbuttons[$c].'" id="crossfade" onclick="toggleoption(\'crossfade\')" class="togglebutton clickicon" />';
+        $c = ($mpd_status['xfade'] == 0) ? 0 : 1;
+        print '<img src="'.$prefsbuttons[$c].'" id="crossfade" onclick="player.controller.toggleCrossfade()" class="togglebutton clickicon" />';
 ?>
         </td>
         <td align="left">CROSSFADE</td>
@@ -310,19 +307,19 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
         <td align="right">REPEAT</td>
         <td class="togglebutton">
 <?php
-        print '<img src="'.$prefsbuttons[$prefs['repeat']].'" id="repeat" onclick="toggleoption(\'repeat\')" class="togglebutton clickicon" />';
+        print '<img src="'.$prefsbuttons[$mpd_status['repeat']].'" id="repeat" onclick="player.controller.toggleRepeat()" class="togglebutton clickicon" />';
 ?>
         </td>
         <td class="togglebutton">
 <?php
-        print '<img src="'.$prefsbuttons[$prefs['consume']].'" id="consume" onclick="toggleoption(\'consume\')" class="togglebutton clickicon" />';
+        print '<img src="'.$prefsbuttons[$mpd_status['consume']].'" id="consume" onclick="player.controller.toggleConsume()" class="togglebutton clickicon" />';
 ?>
         </td><td align="left">CONSUME</td>
         </tr>
         </table>
     </div>
 
-    <div id="sortable" class="noselection fullwidth"></div>
+    <div id="pscroller"><div id="sortable" class="noselection fullwidth"></div></div>
 </div>
 
 

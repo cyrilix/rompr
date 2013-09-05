@@ -117,7 +117,13 @@ function LastFM(user) {
         $.jsonp({
             url: url,
             timeout: 30000,
-            success: success,
+            success: function(data) {
+                if (data.error) {
+                    fail(data);
+                } else {
+                    success(data);
+                }
+            },
             error: fail
         });
     }
@@ -133,9 +139,16 @@ function LastFM(user) {
         it = it+lastfm_secret;
         options.api_sig = hex_md5(it);
         $.post("http://ws.audioscrobbler.com/2.0/", options)
-            .done(success)
+            .done( function(data) {
+                var s = $(data).find('lfm').attr("status");
+                if (s == "ok") {
+                    success(data);
+                } else {
+                    debug.warn("LASTFM","Last FM signed request failed with status",$(data).find('error').text());
+                    fail(data);
+                }
+            })
             .fail(fail);
-
     }
 
     var getKeys = function(obj) {
@@ -216,7 +229,8 @@ function LastFM(user) {
             LastFMGetRequest(
                 options,
                 callback,
-                function(data) { failcallback({error: "Could not find information about this track"}) }
+                function(data) { failcallback({ error: 1,
+                                                message: "Could not find information about this track"}) }
             );
         },
 
@@ -258,7 +272,7 @@ function LastFM(user) {
                 LastFMSignedRequest(
                     options,
                     function() {  },
-                    function() { debug.log("LAST FM       : Failed to update Now Playing",options) }
+                    function() { debug.warn("LAST FM","Failed to update Now Playing",options) }
                 );
             }
         },
@@ -266,10 +280,10 @@ function LastFM(user) {
         scrobble : function(options) {
             if (logged_in && prefs.lastfm_scrobbling) {
                 if (prefs.dontscrobbleradio && nowplaying.mpd(-1, 'type') != "local") {
-                    debug.log("LAST FM       : Not Scrobbling because track is not local");
+                    debug.log("LAST FM","Not Scrobbling because track is not local");
                     return 0;
                 }
-                debug.log("LAST FM       : Last.FM is scrobbling");
+                debug.log("LAST FM","Last.FM is scrobbling");
                 addSetOptions(options, "track.scrobble");
                 LastFMSignedRequest(
                     options,
@@ -309,7 +323,8 @@ function LastFM(user) {
             LastFMGetRequest(
                 options,
                 callback,
-                function() { failcallback({error: "Could not find information about this album"}); }
+                function() { failcallback({ error: 1,
+                                            message: "Could not find information about this album"}); }
             );
         },
 
@@ -365,7 +380,8 @@ function LastFM(user) {
             LastFMGetRequest(
                 options,
                 callback,
-                function() { failcallback({error: "Could not find information about this artist"}); }
+                function() { failcallback({error: 1,
+                                            message: "Could not find information about this artist"}); }
             );
         },
 
@@ -419,7 +435,7 @@ function LastFM(user) {
         tune: function(options, callback, failcallback) {
             if (logged_in) {
                 if (options.station != self.tunedto) {
-                    debug.log("LAST FM       : Last.FM: Tuning to", options.station);
+                    debug.log("LAST FM","Last.FM: Tuning to", options.station);
                     self.tunedto = "";
                     addSetOptions(options, "radio.tune");
                     LastFMSignedRequest(

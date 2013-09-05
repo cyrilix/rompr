@@ -38,21 +38,7 @@ h2
     z-index:102;
     position:absolute;
     display: none;
-    border-top:none;
-    border-bottom:1px solid #ffffff;
-    border-left:1px solid #ffffff;
-    border-right:1px solid #ffffff;
-    border-radius:0 0 0.5em 0.5em;
-    width:2em;
-    overflow:hidden;
-}
-
-#volumeslider
-{
-    position:absolute;
-    background-color:#fecc00;
-    width:1.5em;
-    left:0.25em;
+    width:3em;
 }
 
 #playlistm
@@ -98,7 +84,7 @@ h2
 
 #scrobwrangler
 {
-    font-size:4pt;
+    font-size:8pt;
     width:90%;
 }
 
@@ -230,3 +216,13 @@ h2
 {
     -webkit-overflow-scrolling:touch;
 }
+
+.progressbar_v
+{
+    height:100%;
+    border:1px solid #414141;
+    width:2em;
+    margin-right:auto;
+    margin-left:auto;
+}
+

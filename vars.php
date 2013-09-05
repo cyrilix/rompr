@@ -1,5 +1,5 @@
 <?php
-$LISTVERSION = "0.33";
+$LISTVERSION = "0.34";
 $ALBUMSLIST = 'prefs/albums_'.$LISTVERSION.'.xml';
 $ALBUMSEARCH = 'prefs/albumsearch_'.$LISTVERSION.'.xml';
 $FILESLIST = 'prefs/files_'.$LISTVERSION.'.xml';
@@ -28,10 +28,12 @@ $prefs = array( "mpd_host" => "localhost",
                 "mpd_port" => 6600,
                 "mpd_password" => "",
                 "unix_socket" => '',
-                "consume" => 0,
-                "repeat" => 0,
-                "random" => 0,
-                "crossfade" => 0,
+                // These are no longer used - we simply set the switches to match
+                // whatever they're set to when we start up.
+                // "consume" => 0,
+                // "repeat" => 0,
+                // "random" => 0,
+                // "crossfade" => 0,
                 'crossfade_duration' => 5,
                 "volume" => 100,
                 "lastfm_user" => "",
@@ -86,10 +88,16 @@ $searchlimits = array(  "file" => "Local Files",
                         "beets" => "Beets"
                         );
 
-function debug_print($out) {
+function debug_print($out, $module = "") {
     global $DEBUG;
     if ($DEBUG) {
-        error_log($out."\n",3,'/Library/Logs/RomprLog.log');
+        $indent = 20 - strlen($module);
+        $in = "";
+        while ($indent > 0) {
+            $in .= " ";
+            $indent--;
+        }
+        error_log($module.$in.": ".$out."\n",3,'/Library/Logs/RomprLog.log');
     }
 }
 
@@ -106,7 +114,7 @@ function savePrefs() {
             }
         }
         if(!fclose($fp)) {
-            echo "Error! Couldn't close the prefs file.";
+            debug_print("Error! Couldn't close the prefs file.", "VARS");
         }
     }
 }
@@ -132,21 +140,6 @@ function loadPrefs() {
                         $prefs[$i] = "true";
                     }
                 }
-            }
-        }
-    }
-}
-
-function setswitches() {
-    global $prefs;
-    global $connection;
-    global $is_connected;
-    if ($is_connected) {
-        foreach(array("consume", "repeat", "crossfade", "random") as $key => $option) {
-            if ($option == "crossfade" && $prefs[$option] > 0) {
-                do_mpd_command($connection, $option." ".$prefs['crossfade_duration'], null, false);
-            } else {
-                do_mpd_command($connection, $option." ".$prefs[$option], null, false);
             }
         }
     }

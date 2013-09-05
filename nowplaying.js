@@ -10,7 +10,7 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
     var nowplaying_updated = false;
     var sc_track = null;
     var sc_user = null;
-    var starttime = (Date.now())/1000 - parseFloat(mpd.getStatus('elapsed'));
+    var starttime = (Date.now())/1000 - parseFloat(player.status.elapsed);
 
     this.sndcld = function() {
         return {
@@ -19,22 +19,22 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
             },
 
             gotSoundCloudTrack: function(data) {
-                debug.log("NOWPLAYING    : Got SoundCloud Track Data:",data);
+                debug.log("NOWPLAYING","Got SoundCloud Track Data:",data);
                 if (mpd_data.creator == "." && data.user && data.user.username) {
                     mpd_data.creator = data.user.username;
-                    debug.log("NOWPLAYING    : setting artist name from soundcloud data to",mpd_data.creator);
+                    debug.log("NOWPLAYING","setting artist name from soundcloud data to",mpd_data.creator);
                 }
                 sc_track = data;
                 self.sndcld.getUserData();
             },
 
             getUserData: function() {
-                debug.log("NOWPLAYING    : Getting SoundCloud User Data",sc_track.user_id);
+                debug.log("NOWPLAYING","Getting SoundCloud User Data",sc_track.user_id);
                 soundcloud.getUserInfo(sc_track.user_id, this.gotSoundCloudUser);
             },
 
             gotSoundCloudUser: function(data) {
-                debug.log("NOWPLAYING    : Got SoundCloud User Data",data);
+                debug.log("NOWPLAYING","Got SoundCloud User Data",data);
                 sc_user = data;
                 self.artist.populate();
             },
@@ -52,7 +52,7 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                 if (artist_data == null) {
                     var options = {};
                     var options = { artist: mpd_data.creator };
-                    debug.log("NOWPLAYING    : Getting last.fm data for artist",mpd_data.creator,options);
+                    debug.log("NOWPLAYING","Getting last.fm data for artist",mpd_data.creator,options);
                     lastfm.artist.getInfo( options,
                                         this.lfmResponseHandler,
                                         this.lfmResponseHandler );
@@ -62,7 +62,7 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
             },
 
             lfmResponseHandler: function(data) {
-                debug.log("NOWPLAYING    : Got Artist Info for", mpd_data.creator, data);
+                debug.log("NOWPLAYING","Got Artist Info for", mpd_data.creator, data);
                 if (data) {
                     if (data.error) {
                         artist_data = {artist: data};
@@ -82,7 +82,7 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
             },
 
             getFullBio: function(callback, failcallback) {
-                debug.log("NOWPLAYING    : Getting Bio URL:", artist_data.artist.url);
+                debug.log("NOWPLAYING","Getting Bio URL:", artist_data.artist.url);
                 $.get("getLfmBio.php?url="+encodeURIComponent(artist_data.artist.url))
                     .done( function(data) {
                         artist_data.artist.bio.content = data;
@@ -203,7 +203,7 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                     if (album_data == null) {
                         var searchartist = (mpd_data.albumartist && mpd_data.albumartist != "") ? mpd_data.albumartist : self.artist.name();
                         var options = { artist: searchartist, album: mpd_data.album };
-                        debug.log("NOWPLAYING    : Getting last.fm data for album",mpd_data.album,"by",searchartist,options);
+                        debug.log("NOWPLAYING","Getting last.fm data for album",mpd_data.album,"by",searchartist,options);
                         lastfm.album.getInfo( options,
                                                 this.lfmResponseHandler,
                                                 this.lfmResponseHandler );
@@ -214,7 +214,7 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
             },
 
             lfmResponseHandler: function(data) {
-                debug.log("NOWPLAYING    : Got Album Info for",mpd_data.album, data);
+                debug.log("NOWPLAYING","Got Album Info for",mpd_data.album, data);
                 if (data) {
                     if (data.error) {
                         album_data = {album: data};
@@ -248,10 +248,10 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
                     // This track has soundcloud data and is therefore a soundcloud track
                     // so use that image
                     if (sc_track.artwork_url) {
-                        debug.log("NOWPLAYING    : Using SoundCloud track image");
+                        debug.log("NOWPLAYING","Using SoundCloud track image");
                         return sc_track.artwork_url;
                     } else if (sc_user.avatar_url) {
-                        debug.log("NOWPLAYING    : Using SoundCloud user avatar");
+                        debug.log("NOWPLAYING","Using SoundCloud user avatar");
                         return sc_user.avatar_url;
                     } else {
                         return "";
@@ -361,7 +361,7 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
 //                     if (this.mbid() != "") {
 //                         options.mbid = this.mbid();
 //                     }
-                    debug.log("NOWPLAYING    : Getting last.fm data for track",mpd_data.title,"by",self.artist.name(),options);
+                    debug.log("NOWPLAYING","Getting last.fm data for track",mpd_data.title,"by",self.artist.name(),options);
                     lastfm.track.getInfo( options,
                                             this.lfmResponseHandler,
                                             this.lfmResponseHandler );
@@ -371,7 +371,7 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
             },
 
             lfmResponseHandler: function(data) {
-                debug.log("NOWPLAYING    : Got Track Info for",mpd_data.title, data);
+                debug.log("NOWPLAYING","Got Track Info for",mpd_data.title, data);
                 if (data) {
                     if (data.error) {
                         track_data = {track: data};
@@ -414,7 +414,7 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
 //                         if (mpd_data.duration && mpd_data.duration > 0) {
 //                             options.duration = (Math.floor(mpd_data.duration)).toString();
 //                         }
-                        debug.log("NOWPLAYING    : Scrobbling", options);
+                        debug.log("NOWPLAYING","Scrobbling", options);
                         lastfm.track.scrobble( options );
                         scrobbled = true;
                     }
@@ -543,7 +543,7 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
     }
 
     this.finished = function() {
-        debug.log("NOWPLAYING    : Got all data for",mpd_data.title);
+        debug.log("NOWPLAYING","Got all data for",mpd_data.title);
         nowplaying.gotdata(index);
     }
 
@@ -552,18 +552,15 @@ function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
     }
 
     this.progress = function() {
-        // debug.log("NOWPLAYING    : State is",mpd.getStatus('state'));
-        // debug.log("NOWPLAYING    : Progress is",(Date.now())/1000 - starttime);
-        return (mpd.getStatus('state') == "stop") ? 0 : (Date.now())/1000 - starttime;
+        return (player.status.state == "stop") ? 0 : (Date.now())/1000 - starttime;
     }
 
     this.setstarttime = function(elapsed) {
-        debug.log("NOWPLAYING      : Setting start time to",elapsed);
         starttime = (Date.now())/1000 - parseFloat(elapsed);
     }
 
     this.justaddedtags = function(type, tags) {
-        debug.log("NOWPLAYING    : Just added or removed tags",tags,"to",type);
+        debug.log("NOWPLAYING","Just added or removed tags",tags,"to",type);
         self[type].resettags();
         self[type].getusertags();
     }
@@ -605,7 +602,7 @@ function playInfo() {
 
     this.newTrack = function(mpdinfo) {
 
-        debug.log("NOWPLAYING    : New Track:",mpdinfo);
+        debug.log("NOWPLAYING","New Track:",mpdinfo);
 
         /* Update the now playing info. This can be modified later when the last.fm data comes back */
         var npinfo = {  artist: mpdinfo.creator,
@@ -613,14 +610,27 @@ function playInfo() {
                         album: mpdinfo.album,
                         track: mpdinfo.title,
                         location: mpdinfo.location,
+                        type: mpdinfo.type
         };
 
         infobar.setNowPlayingInfo(npinfo);
         infobar.albumImage.setSource({    image: mpdinfo.image,
-                                          origimage: mpdinfo.origimage
+                                          origimage: mpdinfo.origimage == "" ? mpdinfo.image : mpdinfo.origimage
                                     });
 
+        var newartistdata = null;
+        var newalbumdata = null;
+        var newtrackdata = null;
+
+        if (history.length > prefs.historylength) {
+            var t = history.shift();
+            currenttrack--;
+            browser.thePubsCloseTooEarly();
+        }
+
         if (mpdinfo.creator == "" && mpdinfo.title == "" && mpdinfo.album == "") {
+            currenttrack++;
+            history[currenttrack] = new trackDataCollection(currenttrack, mpdinfo, player.status.file, newartistdata, newalbumdata, newtrackdata);
             return 0;
         }
 
@@ -629,46 +639,38 @@ function playInfo() {
         /* Need to check what's different between this one and the previous one so we can copy the data
          * - prevents us from repeatedly querying last.fm for the same data */
 
-        var newartistdata = null;
-        var newalbumdata = null;
-        var newtrackdata = null;
+        debug.group("NOWPLAYING","Started data collection for track",currenttrack);
 
         for (var i in history) {
-            if (mpdinfo.creator == history[i].mpd('creator') && newartistdata == null) {
-                debug.log("NOWPLAYING    : Copying Artist data");
-                newartistdata = {artist: history[i].artist.lfmdata()};
+            if (mpdinfo.creator == history[i].mpd('creator')) {
+                if (newartistdata === null) {
+                    debug.debug("NOWPLAYING","Copying Artist data");
+                    newartistdata = {artist: history[i].artist.lfmdata()};
+                }
                 if (mpdinfo.album == history[i].mpd('album') && newalbumdata == null) {
-                    debug.log("NOWPLAYING    : Copying Album data");
+                    debug.debug("NOWPLAYING","Copying Album data");
                     newalbumdata = {album: history[i].album.lfmdata()};
                 }
                 if (mpdinfo.title == history[i].mpd('title') && newtrackdata == null) {
-                    debug.log("NOWPLAYING    : Copying Track data");
+                    debug.debug("NOWPLAYING","Copying Track data");
                     newtrackdata = {track: history[i].track.lfmdata()};
                 }
             }
         }
 
-        if (history.length > prefs.historylength) {
-            var t = history.shift();
-            currenttrack--;
-            browser.thePubsCloseTooEarly();
-        }
-
         currenttrack++;
-        var t = new trackDataCollection(currenttrack, mpdinfo, mpd.getStatus('file'), newartistdata, newalbumdata, newtrackdata);
-        history[currenttrack] = t;
-        t.populate();
-        debug.log("NOWPLAYING    : Started the large badger for track",currenttrack);
+        history[currenttrack] = new trackDataCollection(currenttrack, mpdinfo, player.status.file, newartistdata, newalbumdata, newtrackdata);
+        history[currenttrack].populate();
     }
 
     this.gotdata = function(index) {
         /* We got a response from a data collector */
-        debug.log("NOWPLAYING    : Got response for badger",index);
+        debug.log("NOWPLAYING","Got data collection response for index",index);
         if (index == currenttrack) {
             /* Only use it here if this is info about the current track
              * This is asynchronous and it's possible that the user could be clicking
              * very quickly through tracks. We can't control the order the responses come back in */
-            debug.log("NOWPLAYING    :    ...and it's data we need");
+            debug.log("NOWPLAYING","...and it's data we need");
             /* Update now playing info with what we've got back - we might have autocorrections or album art */
             var npinfo = {  artist: history[index].artist.name(),
                             album: history[index].album.name(),
@@ -680,6 +682,7 @@ function playInfo() {
             });
             browser.newTrack(index);
         }
+        debug.groupend();
     }
 
     /* All these functions are for retrieving data from the trackDataCollection objects.
@@ -796,191 +799,3 @@ function playInfo() {
     }
 }
 
-function lfmDataExtractor(data) {
-
-    this.error = function() {
-        if (data && data.error) {
-            return data.message;
-        } else {
-            return false;
-        }
-    }
-
-    this.errorno = function() {
-        if (data && data.error) {
-            return data.error;
-        } else {
-            return 0;
-        }
-    }
-
-    this.id = function() {
-        return data.id || "";
-    }
-
-    this.artist = function() {
-        return data.artist || "";
-    }
-
-
-    this.listeners = function() {
-        try {
-            return data.stats.listeners || 0;
-        } catch(err) {
-            try {
-                return  data.listeners || 0;
-            } catch (err) {
-                return 0;
-            }
-        }
-    }
-
-    this.playcount = function() {
-        try {
-            return data.stats.playcount || 0;
-        } catch(err) {
-            try {
-                return  data.playcount || 0;
-            } catch(err) {
-                return 0;
-            }
-        }
-    }
-
-    this.duration = function() {
-        try {
-            return data.duration || 0;
-        } catch(err) {
-            return 0;
-        }
-    }
-
-    this.releasedate = function() {
-        try {
-            return  data.releasedate || "Unknown";
-        } catch(err) {
-            return "Unknown";
-        }
-    }
-
-    this.mbid = function() {
-        try {
-            return data.mbid || false;
-        } catch(err) {
-            return false;
-        }
-    }
-
-    this.userplaycount = function() {
-        try {
-            return data.stats.userplaycount || 0;
-        } catch(err) {
-            return  data.userplaycount || 0;
-        }
-    }
-
-    this.url = function() {
-        try {
-            return  data.url || "";
-        } catch(err) {
-            return "";
-        }
-    }
-
-    this.bio = function() {
-        try {
-            if(data.wiki) {
-                return data.wiki.content;
-            }
-            else if (data.bio) {
-                return data.bio.content;
-            } else {
-                return false;
-            }
-        } catch(err) {
-            return false;
-        }
-    }
-
-    this.userloved = function() {
-        var loved =  data.userloved || 0;
-        return (loved == 1) ? true : false;
-    }
-
-    this.tags = function() {
-        if (data.tags) {
-            try {
-                return getArray(data.tags.tag);
-            } catch(err) {
-                return [];
-            }
-        } else {
-            try {
-                return getArray(data.toptags.tag);
-            } catch(err) {
-                return [];
-            }
-        }
-    }
-
-    this.tracklisting = function() {
-        try {
-            return getArray(data.tracks.track);
-        } catch(err) {
-            return [];
-        }
-    }
-
-    this.image = function(size) {
-        // Get image of the specified size.
-        // If no image of that size exists, return a different one - just so we've got one.
-        try {
-            var url = "";
-            var temp_url = "";
-            for(var i in data.image) {
-                temp_url = data.image[i]['#text'];
-                if (data.image[i].size == size) {
-                    url = temp_url;
-                }
-            }
-            if (url == "") { url = temp_url; }
-            return url;
-        } catch(err) {
-            return "";
-        }
-    }
-
-    this.similar = function() {
-        try {
-            return getArray(data.similar.artist);
-        } catch(err) {
-            return [];
-        }
-    }
-
-    this.similarimage = function(index, size) {
-        try {
-            var url = "";
-            var temp_url = "";
-            for(var i in data.similar.artist[index].image) {
-                temp_url = data.similar.artist[index].image[i]['#text'];
-                if (data.similar.artist[index].image[i].size == size) {
-                    url = temp_url;
-                    break;
-                }
-            }
-            if (url == "") {
-                url = temp_url;
-            }
-            return url;
-        } catch(err) {
-            return "";
-        }
-
-    }
-
-    this.url = function() {
-        return data.url  || null;
-    }
-
-}

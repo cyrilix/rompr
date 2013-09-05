@@ -9,7 +9,7 @@ include ("filelister.php");
 <ul class="sourcenav">
 <li><b>Search For Files Containing:</b></li>
 <li><input class="sourceform winkle" name="searchtitle" type="text" size="60" />
-<button onclick="doSomethingUseful('filesearch') type="submit">Search</button></li>
+<button onclick="doSomethingUseful('filesearch', 'Searching...')" type="submit">Search</button></li>
 </ul>
 </form>
 </div>
@@ -22,7 +22,7 @@ if(array_key_exists("searchtitle", $_REQUEST)) {
 }
 
 if ($cmd != "") {
-    
+
     $count = 1;
     doFileSearch($cmd);
 
@@ -45,10 +45,10 @@ function doFileSearch($cmd) {
 
 ?>
 
-<script type="text/javascript"> 
+<script type="text/javascript">
 
-$('form[name="filesearch"]').ajaxForm(function(data) { 
+$('form[name="filesearch"]').ajaxForm(function(data) {
     $('#filesearch').html(data);
-}); 
+});
 
 </script>

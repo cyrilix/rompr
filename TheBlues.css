@@ -78,12 +78,12 @@ a.album:hover,a.album:active
 div.clickable:hover
 {
     color:#ff4800;
-}    
+}
 
 div.clickable.selected:hover
 {
     color:#dddddd;
-}    
+}
 
 /*-- divs and classes used in the playlist --*/
 
@@ -111,12 +111,12 @@ div.clickable.selected:hover
 
 #wikipopup
 {
-    background:#000000;
+    background-color:#000000;
 }
 
 #imagecontainer
 {
-    background:#ffffff;
+    background-color:#ffffff;
 }
 
 .infosection
@@ -147,19 +147,19 @@ div.clickable.selected:hover
 
 /*-- For Album Cover Art --*/
 
-#wobblebottom
+.crackbaby
 {
-    background:#181850;
+    background-color:#181850;
 }
 
 #albumcovers
 {
-    background:#171760;
+    background-color:#171760;
 }
 
 .popupwindow
 {
-    background:#121230;
+    background-color:#121230;
     border-left:2px solid #888888;
     border-bottom:2px solid #888888;
     border-right:2px solid #888888;
@@ -198,7 +198,7 @@ ul.subnav
 
 ul.topnav li ul.subnav
 {
-    background:#000055;
+    background-color:#000055;
     color:#ffffff;
 }
 
@@ -211,7 +211,7 @@ ul.topnav li ul.subnav input.topform
 
 ul.topnav li ul.subnav input.topcheck
 {
-    background:000000;
+    background-color:000000;
     color:#ffffff;
 }
 

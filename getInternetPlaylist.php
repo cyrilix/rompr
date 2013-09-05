@@ -10,7 +10,7 @@ include ("vars.php");
 //					creator :	The name of the broadcaster (Soma FM)
 //					image   :	The image to use in the playlist
 
-// The generated playlists can be updated later if no information is known - 
+// The generated playlists can be updated later if no information is known -
 // the playlist will handle that when it gets stream info from mpd
 
 include("functions.php");
@@ -22,18 +22,30 @@ $creator = (array_key_exists('creator', $_REQUEST)) ? rawurldecode($_REQUEST['cr
 $image = (array_key_exists('image', $_REQUEST)) ? rawurldecode($_REQUEST['image']) : "images/broadcast.png";
 $usersupplied = (array_key_exists('usersupplied', $_REQUEST)) ? true : false;
 
-debug_print("Getting Internet Stream:");
-debug_print("  url : ".$url);
-debug_print("  station : ".$station);
-debug_print("  creator : ".$creator);
-debug_print("  image : ".$image);
-debug_print("  user : ".$usersupplied);
+debug_print("Getting Internet Stream:","RADIO_PLAYLIST");
+debug_print("  url : ".$url,"RADIO_PLAYLIST");
+debug_print("  station : ".$station,"RADIO_PLAYLIST");
+debug_print("  creator : ".$creator,"RADIO_PLAYLIST");
+debug_print("  image : ".$image,"RADIO_PLAYLIST");
+debug_print("  user : ".$usersupplied,"RADIO_PLAYLIST");
 
 $existing_album_names = array();
 // Check which names we already have
 $all_playlists = glob("prefs/*STREAM*.xspf");
 foreach($all_playlists as $file) {
     if (file_exists($file)) {
+    	if ($url) {
+    		if (preg_match("/".md5($url)."/", $file)) {
+    			debug_print("We already have a playlist for URL ".$url,"RADIO_PLAYLIST");
+    			print file_get_contents($file);
+    			if ($usersupplied && preg_match("/^STREAM/", $file)) {
+    				// Make this a USERSTREAM
+			        $newname = "prefs/USER".basename($file);
+			        system('mv "'.$file.'" "'.$newname.'"');
+    			}
+    			exit(0);
+    		}
+    	}
         $x = simplexml_load_file($file);
         $n = (string)$x->trackList->track[0]->album;
         $n = preg_replace('/ \d+$/', '', $n);
@@ -51,7 +63,7 @@ if ($url) {
 	$type = pathinfo($path, PATHINFO_EXTENSION);
 	$qpos = strpos($type, "?");
   	if ($qpos != false) $type = substr($type, 0, $qpos);
-	// debug_print("Playlist Type Is ".$type);
+	debug_print("Playlist Type Is ".$type,"RADIO_PLAYLIST");
 	if ($type != "" && $type != null) {
 
 		$playlist = null;
@@ -59,21 +71,25 @@ if ($url) {
 			case "pls":
 			case "PLS":
 				$content = url_get_contents($url, 'RompR Media Player/0.1', false, true);
+				debug_print("Playlist Is ".$content['contents'],"RADIO_PLAYLIST");
 				$playlist = new plsFile($content['contents'], $url, $station, $creator, $image);
 				break;
 			case "asx";
 			case "ASX";
 				$content = url_get_contents($url, 'RompR Media Player/0.1', false, true);
+				debug_print("Playlist Is ".$content['contents'],"RADIO_PLAYLIST");
 				$playlist = new asxFile($content['contents'], $url, $station, $creator, $image);
 				break;
 			case "xspf";
 			case "XSPF";
 				$content = url_get_contents($url, 'RompR Media Player/0.1', false, true);
+				debug_print("Playlist Is ".$content['contents'],"RADIO_PLAYLIST");
 				$playlist = new xspfFile($content['contents'], $url, $station, $creator, $image);
 				break;
 			case "m3u";
 			case "M3U";
 				$content = url_get_contents($url, 'RompR Media Player/0.1', false, true);
+				debug_print("Playlist Is ".$content['contents'],"RADIO_PLAYLIST");
 				$playlist = new m3uFile($content['contents'], $url, $station, $creator, $image);
 				break;
 			default;
@@ -88,7 +104,7 @@ if ($url) {
 					  '<trackList>'."\n";
 			$output = $output . $playlist->getTracks();
 			$output = $output . "</trackList>\n</playlist>\n";
-		
+
 			$fp = null;
 			if ($usersupplied) {
 				$fp = fopen('prefs/USERSTREAM_'.md5($url).'.xspf', 'w');
@@ -104,7 +120,7 @@ if ($url) {
 
 		}
 	} else {
-		// debug_print("Could not determine playlist type");
+		debug_print("Could not determine playlist type","RADIO_PLAYLIST");
 	}
 }
 
@@ -277,7 +293,7 @@ class m3uFile {
 
 		$parts = explode(PHP_EOL, $data);
 		foreach ($parts as $line) {
-			if (preg_match('/^\#/', $line) || 
+			if (preg_match('/^\#/', $line) ||
 				preg_match('/^\s*$/', $line)) {
 
 			} else {
@@ -338,11 +354,12 @@ function checkStationName($station) {
 }
 
 function checkStationAgain($currenttitle, $tracktitle) {
+	global $existing_album_names;
 	$currenttitle = (string)$currenttitle;
 	if (preg_match('/Unknown Internet Stream/', $currenttitle)) {
 		$a = preg_replace('/\(.*?\)/', '', $tracktitle);
 		if ($a != '') {
-			$currenttitle = $a;
+			$currenttitle = checkStationName($a);
 		}
 	}
 	return $currenttitle;

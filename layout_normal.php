@@ -1,3 +1,4 @@
+
 <body>
 <div id="notifications"></div>
 
@@ -6,26 +7,22 @@
         <div id="buttons">
             <img title="Previous Track" class="clickicon controlbutton" onclick="playlist.previous()" src="images/media-skip-backward.png">
             <img title="Play/Pause" class="shiftleft clickicon controlbutton" onclick="infobar.playbutton.clicked()" id="playbuttonimg" src="images/media-playback-pause.png">
-            <img title="Stop" class="shiftleft2 clickicon controlbutton" onclick="player.stop()" src="images/media-playback-stop.png">
+            <img title="Stop" class="shiftleft2 clickicon controlbutton" onclick="player.controller.stop()" src="images/media-playback-stop.png">
             <img title="Stop After Current Track" class="shiftleft3 clickicon controlbutton" onclick="playlist.stopafter()" id="stopafterbutton" src="images/stopafter.png">
             <img title="Next Track" class="shiftleft4 clickicon controlbutton" onclick="playlist.next()" src="images/media-skip-forward.png">
         </div>
         <div id="progress"></div>
         <div id="playbackTime">
-            0:00 of 0:00
         </div>
     </div>
 
     <div class="infobarlayout tleft bordered">
-        <div id="volumecontrol">
-            <div id="volume">
-            </div>
-        </div>
+        <div id="volumecontrol"><div id="volume"></div></div>
     </div>
 
     <div id="patrickmoore" class="infobarlayout tleft bordered">
         <div id="albumcover">
-            <img id="albumpicture" src="" />
+            <img id="albumpicture" class="notexist" src="" />
         </div>
         <div id="lastfm" class="invisible">
             <div><ul class="topnav"><a title="Love this track" id="love" href="#" onclick="infobar.love()"><img height="24px" src="images/lastfm-love.png"></a></ul></div>
@@ -106,7 +103,7 @@
 </div>
 
 <div id="playlist" class="tright column noborder">
-    <div style="padding-left:12px">
+    <div id="horse" style="padding-left:12px">
     <a title="Playlist Controls" href="#" onclick="togglePlaylistButtons()"><img class="topimg clickicon" height="20px" src="images/pushbutton.png"></a>
     </div>
         <div id="playlistbuttons" class="invisible searchbox">
@@ -115,13 +112,13 @@
         <td align="right">SHUFFLE</td>
         <td class="togglebutton">
 <?php
-        print '<img src="'.$prefsbuttons[$prefs['random']].'" id="random" onclick="toggleoption(\'random\')" class="togglebutton clickicon" />';
+        print '<img src="'.$prefsbuttons[$mpd_status['random']].'" id="random" onclick="player.controller.toggleRandom()" class="togglebutton clickicon" />';
 ?>
         </td>
         <td class="togglebutton">
 <?php
-        $c = ($prefs['crossfade'] == 0) ? 0 : 1;
-        print '<img src="'.$prefsbuttons[$c].'" id="crossfade" onclick="toggleoption(\'crossfade\')" class="togglebutton clickicon" />';
+        $c = ($mpd_status['xfade'] == 0) ? 0 : 1;
+        print '<img src="'.$prefsbuttons[$c].'" id="crossfade" onclick="player.controller.toggleCrossfade()" class="togglebutton clickicon" />';
 ?>
         </td>
         <td align="left">CROSSFADE</td>
@@ -130,19 +127,19 @@
         <td align="right">REPEAT</td>
         <td class="togglebutton">
 <?php
-        print '<img src="'.$prefsbuttons[$prefs['repeat']].'" id="repeat" onclick="toggleoption(\'repeat\')" class="togglebutton clickicon" />';
+        print '<img src="'.$prefsbuttons[$mpd_status['repeat']].'" id="repeat" onclick="player.controller.toggleRepeat()" class="togglebutton clickicon" />';
 ?>
         </td>
         <td class="togglebutton">
 <?php
-        print '<img src="'.$prefsbuttons[$prefs['consume']].'" id="consume" onclick="toggleoption(\'consume\')" class="togglebutton clickicon" />';
+        print '<img src="'.$prefsbuttons[$mpd_status['consume']].'" id="consume" onclick="player.controller.toggleConsume()" class="togglebutton clickicon" />';
 ?>
         </td><td align="left">CONSUME</td>
         </tr>
         </table>
     </div>
 
-<div id="sortable" class="noselection fullwidth"></div>
+<div id="pscroller"><div id="sortable" class="noselection fullwidth"></div></div>
 </div>
 
 </div>

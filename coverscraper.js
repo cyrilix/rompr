@@ -7,9 +7,9 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
     var albums_without_cover = 0;
     var imgobj = null;
     var infotext = $('#infotext');
-    var progress = $('#progress');
+    // var progress = $('#progress');
     var statusobj = $('#status');
-    var waitingicon = ['images/transparent-32x32.png', 'images/album-unknown.png'];
+    var waitingicon = ['', 'images/album-unknown.png'];
     var blankicon = ['images/album-unknown.png', 'images/album-unknown.png'];
     var name = null;
     var artist = null;
@@ -26,7 +26,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
 
     // Pass the img name to this function
     this.GetNewAlbumArt = function(name) {
-        debug.log("COVERSCRAPER  : getNewAlbumArt",name);
+        debug.log("COVERSCRAPER","getNewAlbumArt",name);
         if (enabled && name !== undefined) {
             formObjects.push(name);
             numAlbums = (formObjects.length)-1;
@@ -61,9 +61,10 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
     // Is there something else I could be doing?
 
     function doNextImage(time) {
-        debug.log("COVERSCRAPER  : Next Image, delay time is",time);
+        debug.groupend();
         clearTimeout(covertimer);
         if (formObjects.length > 0) {
+            debug.group("COVERSCRAPER","Next Image, delay time is",time);
             timer_running = true;
             covertimer = setTimeout(processForm, time);
         } else {
@@ -77,17 +78,16 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
 
         name = formObjects.shift();
 
-        imgobj = document.getElementsByName(name);
-        if (!imgobj) {
+        if ($('[name="'+name+'"]').length == 0) {
             doNextImage(1);
             return 0;
         }
 
-        debug.log("COVERSCRAPER  : Getting Cover for", name);
+        debug.log("COVERSCRAPER","Getting Cover for", name);
 
         var i = findImageInWindow(name);
         if (i !== false) {
-            debug.log("COVERSCRAPER  : Using image already in window");
+            debug.log("COVERSCRAPER","Using image already in window");
             finaliseImage(i,1);
             return 0;
         }
@@ -96,17 +96,17 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
             var x = $('img[name="'+name+'"]').prev('input').val();
             statusobj.empty().html("Getting "+decodeURIComponent(x));
             var percent = ((numAlbums - formObjects.length)/numAlbums)*100;
-            progress.progressbar("option", "value", parseInt(percent.toString()));
+            progress.setProgress(Math.round(percent));
          }
 
         var stream = "";
-        for(var i = 0; i < imgobj.length; i++) {
+        $.each($('[name="'+name+'"]'), function() {
             if (stream == "") {
-                stream = imgobj[i].getAttribute('romprstream') || "";
+                stream = $(this).attr('romprstream') || "";
             }
-            imgobj[i].setAttribute('src', waitingicon[size]);
-        }
-        debug.log("COVERSCRAPER  : Stream is", stream);
+            $(this).attr('src', waitingicon[size]);
+        });
+        debug.log("COVERSCRAPER","Stream is", stream);
         animateWaiting();
 
         var options = { key: name,
@@ -139,12 +139,12 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
     }
 
     function gotImage(data) {
-        debug.log("COVERSCRAPER  : Retrieved Image", data);
+        debug.log("COVERSCRAPER","Retrieved Image", data);
         finaliseImage($(data).find('url').text(), $(data).find('delaytime').text());
    }
 
    function finaliseImage(src, delaytime) {
-        debug.log("COVERSCRAPER  :  Source is",src);
+        debug.log("COVERSCRAPER","Source is",src);
         if (src == "") {
             revertCover(delaytime);
         } else {
@@ -160,7 +160,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
                 sendLocalStorageEvent(name);
             }
             if (callbacks[name] !== undefined) {
-                debug.log("COVERSCRAPER  : calling back for",name,src);
+                debug.log("COVERSCRAPER","calling back for",name,src);
                 callbacks[name](src);
             }
             doNextImage(delaytime);
@@ -172,7 +172,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
             delaytime = 800;
         }
         stopAnimation();
-        debug.log("COVERSCRAPER  :  No Cover Found. Reverting to the blank icon");
+        debug.log("COVERSCRAPER","No Cover Found. Reverting to the blank icon");
         $.each($('img[name="'+name+'"]'), function() {
             $(this).attr("src", blankicon[size]);
             // Remove this class to prevent it being searched again
@@ -196,6 +196,9 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
 }
 
 function sendLocalStorageEvent(key) {
+    debug.log("COVERSCRAPER","Sending local storage event",key);
+    // Event only fires when the key value actually CHANGES
+    localStorage.setItem("key", "Blerugh");
     localStorage.setItem("key", key);
 }
 

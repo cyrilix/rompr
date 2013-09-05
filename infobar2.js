@@ -3,38 +3,29 @@ var infobar = function() {
     var notifytimer = null;
     var mousepos;
     var sliderclamps = 0;
+    var progressbar = null;
+    var volumecontrol = null;
 
     var volumeslider = function() {
         volume = 0;
         return {
             setState: function(v) {
-                debug.log("INFOBAR       : Setting Volume Slider to",v);
-                if (mobile == "no") {
-                    if (v != volume && v > 0) {
-                        volume = v;
-                        $("#volume").slider("option", "value", parseInt(volume));
-                    }
-                } else {
-                    if (v > 0) {
-                        volume = v;
-                        var h = $("#volumecontrol").height();
-                        var p = h-((h/100)*volume);
-                        $("#volumeslider").css("top", p.toString()+"px");
-                    }
+                // debug.log("INFOBAR","Setting Volume Slider to",v);
+                if (v > 0) {
+                    volume = v;
+                    volumecontrol.setProgress(parseInt(volume));
                 }
             },
+
             restoreState: function() {
-                if (mobile == "no") {
-                    $("#volume").slider("option", "value", parseInt(self.volume));
-                } else {
-                    var h = $("#volumecontrol").height();
-                    var p = h-((h/100)*self.volume);
-                    $("#volumeslider").css("top", p.toString()+"px");
-                }
+                volumecontrol.setProgress(parseInt(self.volume));
             },
+
             getVolume: function() {
                 return volume;
-            }
+            },
+
+            dragging: false
         }
     }();
 
@@ -49,21 +40,21 @@ var infobar = function() {
             aImg.className = "notfound";
 
             aImg.onload = function() {
-                debug.log("ALBUMPICTURE  : Image Loaded",$(this).attr("src"));
+                debug.log("ALBUMPICTURE","Image Loaded",$(this).attr("src"));
                 aImg.className = "";
                 $("#albumpicture").attr("src", $(this).attr("src")).fadeIn('fast');
             }
             aImg.onerror = function() {
-                debug.log("ALBUMPICTURE  : Image Failed To Load",$(this).attr("src"));
+                debug.log("ALBUMPICTURE","Image Failed To Load",$(this).attr("src"));
                 $('img[name="'+$(this).attr('name')+'"]').addClass("notfound");
-                aImg.className = "notfound";
+                aImg.className = "notexist";
                 $("#albumpicture").fadeOut('fast');
                 // Don't call coverscraper here - the playlist will do it for us and
                 // its callback will call setSecondarySource
             }
 
             oImg.onload = function() {
-                debug.log("ALBUMPICTURE  : Original Image Loaded",$(this).attr("src"));
+                debug.log("ALBUMPICTURE","Original Image Loaded",$(this).attr("src"));
                 $("#albumpicture").unbind('click').bind('click', infobar.albumImage.displayOriginalImage);
                 $("#albumpicture").removeClass('clickicon').addClass('clickicon');
             }
@@ -74,7 +65,7 @@ var infobar = function() {
 
             return {
                 setSource: function(data) {
-                    debug.log("ALBUMPICTURE  : Source is being set to ",data.image,aImg);
+                    debug.log("ALBUMPICTURE","Source is being set to ",data,aImg);
                     if (aImg.src != data.image) {
                         aImg.src = data.image;
                     }
@@ -86,9 +77,9 @@ var infobar = function() {
 
                 setSecondarySource: function(data) {
                     if (data.key === undefined || data.key == aImg.getAttribute('name')) {
-                        debug.log("ALBUMPICTURE  : Secondary Source is being set to ",data.image,aImg);
-                        if (data.image != "" && (aImg.src == "" || aImg.className == "notfound")) {
-                            debug.log("ALBUMPICTURE  :   OK, the criteria have been met");
+                        debug.log("ALBUMPICTURE","Secondary Source is being set to ",data,aImg);
+                        if (data.image != "" && (aImg.src == "" || aImg.className == "notexist")) {
+                            debug.debug("ALBUMPICTURE","  OK, the criteria have been met");
                             aImg.src = data.image;
                             oImg.src = data.origimage;
                         }
@@ -96,8 +87,9 @@ var infobar = function() {
                 },
 
                 setKey: function(key) {
-                    debug.log("ALBUMPICTURE  : Setting Image Key to ",key);
-                    aImg.setAttribute("name", key);
+                    debug.log("ALBUMPICTURE","Setting Image Key to ",key);
+                    aImg.name = key;
+                    $("#albumpicture").attr("name", key);
                     aImg.className = "notfound";
                 },
 
@@ -117,13 +109,13 @@ var infobar = function() {
 
             return {
                 clicked: function() {
-                    switch (mpd.getStatus('state')) {
+                    switch (player.status.state) {
                         case "play":
-                            player.procrastinate();
+                            player.controller.pause();
                             break;
                         case "pause":
                         case "stop":
-                            player.gogogo();
+                            player.controller.play();
                             break;
                     }
                 },
@@ -146,25 +138,25 @@ var infobar = function() {
         }(),
 
         updateWindowValues: function() {
-            volumeslider.setState(mpd.getStatus('volume'));
-            infobar.playbutton.setState(mpd.getStatus('state'));
-            if (mpd.getStatus('error') && mpd.getStatus('error') != null) {
-                alert("MPD Error: "+mpd.getStatus('error'));
-                mpd.command('command=clearerror');
+            volumeslider.setState(player.status.volume);
+            infobar.playbutton.setState(player.status.state);
+            if (player.status.error && player.status.error != null) {
+                alert("Player Error: "+player.status.error);
+                player.controller.clearerror();
             }
         },
 
         setVolumeState: function(v) {
-            // For initialising the volume slider when we're
-            // running the mobile client
+            // For initialising the volume slider
             volumeslider.setState(v);
         },
 
         setNowPlayingInfo: function(info) {
             //Now playing info
-            debug.log("INFOBAR       : Setting now playing info",info);
+            debug.log("INFOBAR","Setting now playing info",info);
             var doctitle = "RompR";
             if (mobile == "no") {
+                debug.debug("INFOBAR","Not Mobile");
                 var contents = '<span class="larger"><b>';
                 contents=contents+info.track;
                 if (info.track != "") {
@@ -179,7 +171,8 @@ var infobar = function() {
                     contents=contents+'<p>on <b>'+info.album+'</b></p>';
                 }
             } else {
-                var contents = '<span class="larger"><b>';
+                debug.debug("INFOBAR","Is Mobile");
+                var contents = '<span><b>';
                 contents=contents+info.track;
                 if (info.track != "") {
                     doctitle = info.track;
@@ -201,7 +194,7 @@ var infobar = function() {
                 $("#progress").css("cursor", "default");
             }
             if (info.track =="" && info.album == "" && info.artist == "") {
-                debug.log("INFOBAR       : Fading out Album Picture")
+                debug.log("INFOBAR","Fading out Album Picture")
                 $("#albumpicture").fadeOut('fast');
                 return 0;
             }
@@ -210,7 +203,11 @@ var infobar = function() {
                 // nowplaying. It's not set when nowplaying calls us again with the corrected Last.FM
                 // data. The name for the image tag has to be set from the mpd data, hence we use
                 // location simply as a flag.
-                infobar.albumImage.setKey(hex_md5(info.albumartist+" "+info.album));
+                if (info.type == "stream") {
+                    infobar.albumImage.setKey(hex_md5(info.album));
+                } else {
+                    infobar.albumImage.setKey(hex_md5(info.albumartist+" "+info.album));
+                }
             }
         },
 
@@ -232,45 +229,51 @@ var infobar = function() {
                     var width = $('#progress').width();
                     var offset = $('#progress').offset();
                     var seekto = ((position.x - offset.left)/width)*parseFloat(d);
-                    player.seek(seekto);
+                    player.controller.seek(seekto);
                 }
             }
             return false;
         },
 
         setvolume: function(e, u) {
-            // Gold ol' mopidy can set the volume while idle :)
-            if (prefs.use_mopidy_tagcache || prefs.use_mopidy_http || mpd.getStatus('state') != "stop") {
-                var volume = u.value;
-                debug.log("INFOBAR       : Saving volume",volume);
-                mpd.command("command=setvol&arg="+parseInt(volume.toString()));
-                prefs.save({volume: parseInt(volume.toString())});
-            } else {
-                infobar.notify(infobar.ERROR, "MPD cannot adjust volume while playback is stopped");
-                volumeslider.restoreState();
-            }
+            var volume = u.value;
+            debug.log("INFOBAR","Saving volume",volume);
+            player.controller.volume(volume);
+            prefs.save({volume: parseInt(volume.toString())});
         },
 
         volumemoved: function(e, u) {
-            if (mpd.getStatus('state') != "stop") {
-                if (sliderclamps == 0) {
-                    // Double interlock to prevent hammering mpd:
-                    // We don't send another volume request until two things happen:
-                    // 1. The previous volume command returns
-                    // 2. The timer expires
-                    sliderclamps = 2;
-                    mpd.fastcommand("command=setvol&arg="+parseInt(u.value.toString()), infobar.releaseTheClamps);
-                    setTimeout(infobar.releaseTheClamps, 250);
-                }
+            if (sliderclamps == 0 && volumeslider.dragging) {
+                // Double interlock to prevent hammering mpd:
+                // We don't send another volume request until two things happen:
+                // 1. The previous volume command returns
+                // 2. The timer expires
+                sliderclamps = 2;
+                debug.log("INFOBAR","Setting volume",u.value);
+                player.controller.volume(u.value, infobar.releaseTheClamps);
+                setTimeout(infobar.releaseTheClamps, 250);
             }
         },
 
         volumeTouch: function(e) {
+            volumeslider.dragging = true;
             infobar.volumemoved(null, infobar.vCalc(e));
         },
 
         volumeTouchEnd: function() {
+            volumeslider.dragging = false;
             infobar.setvolume(null, { value: volumeslider.getVolume() });
+        },
+
+        volumeMouseMove: function(e) {
+            if (volumeslider.dragging) {
+                infobar.volumemoved(null, infobar.vCalc(e));
+            }
+        },
+
+        volumeDragEnd: function(e) {
+            volumeslider.dragging = false;
+            infobar.setvolume(null, infobar.vCalc(e));
         },
 
         vCalc: function(e) {
@@ -291,16 +294,14 @@ var infobar = function() {
         },
 
         volumeKey: function(inc) {
-            if (mpd.getStatus('state') == "play") {
-                var volume = parseInt(mpd.getStatus('volume'));
-                volume = volume + inc;
-                if (volume > 100) { volume = 100 };
-                if (volume < 0) { volume = 0 };
-                mpd.command("command=setvol&arg="+parseInt(volume.toString()));
-                prefs.save({volume: parseInt(volume.toString())});
-            } else {
-                infobar.notify(infobar.ERROR, "MPD can only set the volume while playing.");
-            }
+            var volume = parseInt(player.status.volume);
+            debug.debug("INFOBAR","Volume key with volume on",volume);
+            volume = volume + inc;
+            if (volume > 100) { volume = 100 };
+            if (volume < 0) { volume = 0 };
+            player.controller.volume(volume);
+            volumeslider.setState(volume);
+            prefs.save({volume: parseInt(volume.toString())});
         },
 
         notify: function(type, message) {
@@ -313,18 +314,34 @@ var infobar = function() {
             html = html + '<div class="expand indent">'+message+'</div></div>';
             $('#notifications').empty().html(html);
             html = null;
-            if (notifytimer != null) {
-                clearTimeout(notifytimer);
-                notifytimer = null;
-            } else {
-                $('#notifications').slideDown('slow');
-                notifytimer = setTimeout(this.removenotify, 5000);
-            }
+            clearTimeout(notifytimer);
+            $('#notifications').slideDown('slow');
+            notifytimer = setTimeout(this.removenotify, 5000);
         },
 
         removenotify: function() {
-            notifytimer = null;
             $('#notifications').slideUp('slow');
+        },
+
+        createProgressBar: function() {
+            progressbar = new progressBar('progress', 'horizontal');
+            volumecontrol = new progressBar('volume', 'vertical');
+        },
+
+        setProgress: function(percent, progress, duration) {
+            progressbar.setProgress(percent);
+            var progressString = formatTimeString(progress);
+            var durationString = formatTimeString(duration);
+            if (progressString != "" && durationString != "") {
+                $("#playbackTime").html(progressString + " of " + durationString);
+            } else if (progressString != "" && durationString == "") {
+                $("#playbackTime").html(progressString);
+            } else if (progressString == "" && durationString != "") {
+                $("#playbackTime").html("");
+            } else if (progressString == "" && durationString == "") {
+                $("#playbackTime").html("");
+            }
+
         }
     }
 }();

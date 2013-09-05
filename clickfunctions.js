@@ -107,8 +107,7 @@ function onPlaylistClicked(event) {
     var clickedElement = findClickableElement(event);
     if (clickedElement.hasClass("clickplaylist")) {
         event.stopImmediatePropagation();
-        player.playId(clickedElement.attr("romprid"));
-        //mpd.command("command=playid&arg="+clickedElement.attr("romprid"));
+        player.controller.playId(clickedElement.attr("romprid"));
     } else if (clickedElement.hasClass("clickremovetrack")) {
         event.stopImmediatePropagation();
         playlist.delete(clickedElement.attr("romprid"));
@@ -257,7 +256,7 @@ function prDragStop(event, ui) {
 
 function onKeyUp(e) {
     if (e.keyCode == 13) {
-        debug.log("CLICKFUNCTIONS: Key Up",e.target.name);
+        debug.debug("CLICKFUNCTIONS","Key Up",e.target.name);
         $('[name="'+e.target.name+'"]').next("button").click();
     }
 }

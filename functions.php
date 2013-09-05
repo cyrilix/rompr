@@ -82,7 +82,7 @@ function parse_mpd_var($in_str) {
     if(strncmp("OK", $got,strlen("OK"))==0)
         return true;
     if(strncmp("ACK", $got,strlen("ACK"))==0) {
-        debug_print("MPD command error : ".$got);
+        debug_print("MPD command error : ".$got,"FUNCTIONS");
         return array(0 => false, 1 => $got);
     }
     $key = trim(strtok($got, ":"));
@@ -96,7 +96,7 @@ function do_mpd_command($conn, $command, $varname = null, $return_array = false)
     $retarr = array();
     if ($is_connected) {
 
-        debug_print("MPD Command ".$command);
+        debug_print("MPD Command ".$command,"FUNCTIONS");
 
         $success = fputs($conn, $command."\n");
         if ($success) {
@@ -113,7 +113,7 @@ function do_mpd_command($conn, $command, $varname = null, $return_array = false)
                     if ($var[0] == false) {
                         if ($return_array == true) {
                             $retarr['error'] = $var[1];
-                            debug_print("Setting Error Flag");
+                            debug_print("Setting Error Flag","FUNCTIONS");
                         }
                         break;
                     }
@@ -157,7 +157,7 @@ function format_tracknum($tracknum) {
 }
 
 # url_get_contents function by Andy Langton: http://andylangton.co.uk/
-function url_get_contents($url,$useragent='RompR Media Player/0.1',$headers=false,$follow_redirects=true,$debug=true) {
+function url_get_contents($url,$useragent='RompR Music Player/0.40',$headers=false,$follow_redirects=true,$debug=true) {
 
     // debug_print("Getting ".$url);
     # initialise the CURL library
@@ -268,16 +268,91 @@ class collectionOutput {
 }
 
 function munge_album_name($name) {
-    $b = preg_replace('/\[.*?\]/', "", $name);              // Anything inside [  ]
-    $b = preg_replace('/\(disc\s*\d+.*?\)/i', "", $b);      // (disc 1) or (disc 1 of 2) or (disc 1-2) etc
-    $b = preg_replace('/\(*cd\s*\d+.*?\)*/i', "", $b);      // (cd 1) or (cd 1 of 2) etc
-    $b = preg_replace('/\sdisc\s*\d+.*?$/i', "", $b);       //  disc 1 or disc 1 of 2 etc
-    $b = preg_replace('/\scd\s*\d+.*?$/i', "", $b);         //  cd 1 or cd 1 of 2 etc
-    $b = preg_replace('/\(\d+\s*of\s*\d+\)/i', "", $b);     // (1 of 2) or (1of2)
-    $b = preg_replace('/\(\d+\s*-\s*\d+\)/i', "", $b);      // (1 - 2) or (1-2)
-    $b = preg_replace('/\(Remastered\)/i', "", $b);         // (Remastered)
-    $b = preg_replace('/\s+-\s*$/', "", $b);                // Chops any stray - off the end that could have been left by the previous
+    $b = preg_replace('/(\(|\[)disc\s*\d+.*?(\)|\])/i', "", $name);     // (disc 1) or (disc 1 of 2) or (disc 1-2) etc (or with [ ])
+    $b = preg_replace('/(\(|\[)*cd\s*\d+.*?(\)|\])*/i', "", $b);        // (cd 1) or (cd 1 of 2) etc (or with [ ])
+    $b = preg_replace('/\sdisc\s*\d+.*?$/i', "", $b);                   //  disc 1 or disc 1 of 2 etc
+    $b = preg_replace('/\scd\s*\d+.*?$/i', "", $b);                     //  cd 1 or cd 1 of 2 etc
+    $b = preg_replace('/(\(|\[)\d+\s*of\s*\d+(\)|\])/i', "", $b);       // (1 of 2) or (1of2) (or with [ ])
+    $b = preg_replace('/(\(|\[)\d+\s*-\s*\d+(\)|\])/i', "", $b);        // (1 - 2) or (1-2) (or with [ ])
+    $b = preg_replace('/(\(|\[)Remastered(\)|\])/i', "", $b);           // (Remastered) (or with [ ])
+    $b = preg_replace('/(\(|\[).*?bonus tracks(\)|\])/i', "", $b);      // (With Bonus Tracks) (or with [ ])
+    $b = preg_replace('/\s+-\s*$/', "", $b);                            // Chops any stray - off the end that could have been left by the previous
+    $b = preg_replace('#\s+$#', '', $b);
+    $b = preg_replace('#^\s+#', '', $b);
     return $b;
+}
+
+function really_munge_album_name($name) {
+    $b = preg_replace('/\[.*?\]/', "", $name);                  // Anything inside [  ]
+    $b = preg_replace('/\(.*?\)/', "", $b);                     // Anything inside (  )
+    $b = preg_replace('/\d\d\d\d(-|–)\d\d-\d\d/', "", $b);          // A date, US format
+    $b = preg_replace('/\d\d-\d\d(-|–)\d\d\d\d/', "", $b);          // A date, UK format
+    $b = preg_replace('/\d\d\d\d\s*(-|–)\s*\d\d\d\d/', "", $b);               // A year range
+    $b = preg_replace('/\d\d\d\d\s*(-|–)\s*\d\d/', "", $b);               // A year range
+    $b = preg_replace('/\d\d\s*(-|–)\s*\d\d\d\d/', "", $b);               // A year range
+    $b = preg_replace('/\d\d\s*(-|–)\s*\d\d/', "", $b);               // A year range
+    $b = preg_replace('/\d\d\d\d/', "", $b);                    // A year
+    $b = preg_replace('/\s+-\s*$/', "", $b);                    // Chops any stray - off the end that could have been left by the previous
+    $b = preg_replace('#^\s+#', '', $b);
+    return $b;
+}
+
+function remove_punctuation($name) {
+    $b = preg_replace('# / #', '/', $name);
+    $b = preg_replace('#\!|\$|\%|\*|-|_|=|\+|\;|:|\'|"|,|\.+|<|>|\?|\\\|/|•|&|’|\)|\(| and|…|‐|\#|“|”|–#i', '', $b);
+    $b = preg_replace('#\s+#', ' ', $b);
+    $b = preg_replace('#\s+$#', '', $b);
+    $b = preg_replace('#^\s+#', '', $b);
+    return $b;
+}
+
+function remove_some_stuff($name) {
+    $b = preg_replace('# \w+? Edition$#i', '', $name);
+    $b = preg_replace('#\s+$#', '', $b);
+    $b = preg_replace('#^\s+#', '', $b);
+    return $b;
+}
+
+function noDefiniteArticles($name) {
+    $b = preg_replace('/the |, the/i', '', $name);
+    $b = preg_replace('#\s+#', ' ', $b);
+    $b = preg_replace('#\s+$#', '', $b);
+    $b = preg_replace('#^\s+#', '', $b);
+    return $b;
+}
+
+function sanitsizeDiscogsResult($name) {
+    $b = preg_replace('/\* /',' ', $name);
+    return $b;
+}
+
+function deJazzify($name) {
+    $b = preg_replace('/ quintet| quartet| trio| sextet/i', '', $name);
+    return $b;
+}
+
+function normalizeChars($s) {
+    $replace = array(
+        'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'Ae', 'Å'=>'A', 'Æ'=>'A', 'Ă'=>'A',
+        'à'=>'a', 'á'=>'a', 'â'=>'a', 'ã'=>'a', 'ä'=>'ae', 'å'=>'a', 'ă'=>'a', 'æ'=>'ae',
+        'þ'=>'b', 'Þ'=>'B',
+        'Ç'=>'C', 'ç'=>'c',
+        'È'=>'E', 'É'=>'E', 'Ê'=>'E', 'Ë'=>'E',
+        'è'=>'e', 'é'=>'e', 'ê'=>'e', 'ë'=>'e',
+        'Ğ'=>'G', 'ğ'=>'g',
+        'Ì'=>'I', 'Í'=>'I', 'Î'=>'I', 'Ï'=>'I', 'İ'=>'I', 'ı'=>'i', 'ì'=>'i', 'í'=>'i', 'î'=>'i', 'ï'=>'i',
+        'Ñ'=>'N', 'ń'=>'n',
+        'Ò'=>'O', 'Ó'=>'O', 'Ô'=>'O', 'Õ'=>'O', 'Ö'=>'Oe', 'Ø'=>'O', 'ö'=>'oe', 'ø'=>'o',
+        'ð'=>'o', 'ñ'=>'n', 'ò'=>'o', 'ó'=>'o', 'ô'=>'o', 'õ'=>'o',
+        'Š'=>'S', 'š'=>'s', 'Ş'=>'S', 'ș'=>'s', 'Ș'=>'S', 'ş'=>'s', 'ß'=>'ss',
+        'ț'=>'t', 'Ț'=>'T',
+        'Ù'=>'U', 'Ú'=>'U', 'Û'=>'U', 'Ü'=>'Ue',
+        'ù'=>'u', 'ú'=>'u', 'û'=>'u', 'ü'=>'ue',
+        'Ý'=>'Y',
+        'ý'=>'y', 'ý'=>'y', 'ÿ'=>'y',
+        'Ž'=>'Z', 'ž'=>'z'
+    );
+    return strtr($s, $replace);
 }
 
 function getWhichXML($which) {
@@ -294,7 +369,7 @@ function getWhichXML($which) {
     } else if (substr($which,0,2) == "bd") {
         return $FILESEARCH;
     } else {
-        debug_print("ATTEMPTING TO LOOK FOR SOMETHING WE SHOULDN't BE!");
+        debug_print("ATTEMPTING TO LOOK FOR SOMETHING WE SHOULDN'T BE!","FUNCTIONS");
         return "";
     }
 
@@ -345,9 +420,13 @@ function dumpAlbums($which) {
                 if ($which == 'aalbumroot') {
                     print '<div class="menuitem"><h3>Local Files:</h3></div>';
                 }
-                print '<div><table width="100%" class="playlistitem"><tr><td align="left">';
-                print $x->artists->numtracks . ' tracks</td><td align="right">Duration : ';
-                print $x->artists->duration . '</td></tr></table></div>';
+                print '<div style="margin-bottom:4px">';
+                print '<table width="100%" class="playlistitem">';
+                print '<tr><td align="left">'.$x->artists->numartists.' artists</td><td align="right">'.$x->artists->numalbums.' albums</td></tr>';
+                print '<tr><td align="left">'.$x->artists->numtracks.' tracks</td><td align="right">'.$x->artists->duration.'</td></tr>';
+                print '</table>';
+                print '</div>';
+
                 foreach($x->artists->artist as $i => $artist) {
                     artistHeader($artist);
                     $divtype = ($divtype == "album1") ? "album2" : "album1";
@@ -380,7 +459,14 @@ function artistHeader($artist) {
         print '<div class="clickable clicktrack draggable containerbox menuitem" name="'.$artist->spotilink.'">';
         print '<div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="'.$artist['id'].'"></div>';
         print '<div class="playlisticon fixed"><img height="12px" src="images/spotify-logo.png" /></div>';
-        print '<div class="expand">'.$artist->name.'</div>';
+
+
+        debug_print("Artist ".$artist->name." has ".count($artist->albums->album)." albums", "DEBUGGING");
+
+        if (count($artist->albums->album) == 0) {
+            print '<input type="hidden" value="needsfiltering" />';
+        }
+        print '<div class="expand saname">'.$artist->name.'</div>';
         print '</div>';
     } else {
         print '<div class="clickable clickalbum draggable containerbox menuitem" name="'.$artist['id'].'">';
@@ -542,7 +628,7 @@ function scan_for_images($albumpath) {
 function get_images($dir_path) {
 
     $funkychicken = array();
-    debug_print("    Scanning : ".$dir_path);
+    debug_print("    Scanning : ".$dir_path,"GET_IMAGES");
     $globpath = preg_replace('/(\*|\?|\[)/', '[$1]', $dir_path);
     $files = glob($globpath."/*.{jpg,png,bmp,gif,jpeg,JPEG,JPG,BMP,GIF,PNG}", GLOB_BRACE);
     foreach($files as $i => $f) {
@@ -767,7 +853,7 @@ function find_executable($prog) {
             $c = "PATH=/usr/local/bin:\$PATH PYTHONPATH=/usr/local/lib/python2.7/site-packages /usr/local/bin/";
         }
     }
-    //debug_print("  Executable path is ".$c.$prog);
+    debug_print("  Executable path is ".$c);
     return $c;
 
 }
@@ -780,10 +866,10 @@ function get_file_lock($filename) {
         if (flock($fp, LOCK_EX, $crap)) {
             return true;
         } else {
-            debug_print("FAILED TO GET FILE LOCK ON ".$filename);
+            debug_print("FAILED TO GET FILE LOCK ON ".$filename,"FUNCTIONS");
         }
     } else {
-        debug_print("FAILED TO OPEN ".$filename);
+        debug_print("FAILED TO OPEN ".$filename,"FUNCTIONS");
     }
     return false;
 }
@@ -792,6 +878,51 @@ function release_file_lock() {
     global $fp;
     flock($fp, LOCK_UN);
     fclose($fp);
+}
+
+function getItemsToAdd($which) {
+    global $ARTIST;
+    global $ALBUM;
+    $x = simplexml_load_file(getWhichXML($which));
+    if (substr($which, 0, 4) == "adir" || substr($which, 0, 4) == "bdir") {
+        return getTracksForDir(findFileItem($x, $which));
+    } else {
+        list ($type, $obj) = findItem($x, $which);
+        if ($type == $ARTIST) {
+            return getTracksForArtist($obj);
+        }
+        if ($type == $ALBUM) {
+            return getTracksForAlbum($obj);
+        }
+    }
+}
+
+function getTracksForArtist($artist) {
+    $retarr = array();
+    foreach($artist->albums->album as $i => $album) {
+        $retarr = array_merge($retarr, getTracksForAlbum($album));
+    }
+    return $retarr;
+}
+
+function getTracksForAlbum($album) {
+    $retarr = array();
+    foreach($album->tracks->track as $j => $track) {
+        array_push($retarr, "add ".rawurldecode($track->url));
+    }
+    return $retarr;
+}
+
+function getTracksForDir($dir) {
+    $retarr = array();
+    foreach($dir->artists->item as $i => $d) {
+        if ($d->type == "file") {
+            array_push($retarr, "add ".rawurldecode($d->url));
+        } else {
+            $retarr = array_merge($retarr, getTracksForDir($d));
+        }
+    }
+    return $retarr;
 }
 
 ?>

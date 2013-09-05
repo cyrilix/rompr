@@ -91,7 +91,7 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
                         <li class="wide">Crossfade Duration (seconds)</li>
 <?php
                         print '<li class="wide"><input class="enter topform" name="michaelbarrymore" type="text" size="3" value="'.$prefs['crossfade_duration'].'"/><button class="topformbutton" onclick="setXfadeDur()">Set</button></li>';
-?>                        
+?>
 
                         <li class="wide"><b>Music Selection Click Behaviour</b></li>
                         <li class="wide"><input type="radio" class="topcheck" onclick="changeClickPolicy()" name="clickselect" value="double">Double-click to add, Click to select</input></li>
@@ -102,18 +102,18 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
     $prefs['use_mopidy_http'] == 0) {
 ?>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="togglePref('updateeverytime')" id="updateeverytime">Update Collection On Start</input></li>
-                        <li class="wide"><button class="topformbutton" onclick="player.updateCollection('update')">Update Collection Now</button></li>
+                        <li class="wide"><button class="topformbutton" onclick="player.controller.updateCollection('update')">Update Collection Now</button></li>
 <?php
 } else {
 ?>
-                        <li class="wide"><button class="topformbutton" onclick="player.mopidyUpdate()">Rebuild Albums List</button></li>
+                        <li class="wide"><button class="topformbutton" onclick="player.controller.updateCollection('update')">Rebuild Albums List</button></li>
 <?php
 }
 if (($prefs['use_mopidy_tagcache'] == 0 &&
     $prefs['use_mopidy_http'] == 0) ||
     $prefs['use_mopidy_tagcache'] == 1) {
 ?>
-                        <li class="wide"><button class="topformbutton" onclick="player.updateCollection('rescan')">Full Collection Rescan</button></li>
+                        <li class="wide"><button class="topformbutton" onclick="player.controller.updateCollection('rescan')">Full Collection Rescan</button></li>
 <?php
 }
 ?>
@@ -121,7 +121,7 @@ if (($prefs['use_mopidy_tagcache'] == 0 &&
 <?php
 if ($prefs['use_mopidy_tagcache'] == 0 &&
     $prefs['use_mopidy_http'] == 0) {
-?>                        
+?>
                         <li class="wide"><button class="topformbutton" onclick="editmpdoutputs()">MPD Audio Outputs...</button></li>
 <?php
 }
@@ -148,7 +148,7 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
                     print '<option value="'.$c->CountryCode.'">'.mb_convert_case($c->CountryName, MB_CASE_TITLE, "UTF-8")."</option>\n";
                 }
                 print "</select></li>\n";
-                
+
 ?>
         </ul>
     </li>
@@ -189,9 +189,6 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
 </div>
 
 <script language="javascript">
-    $("#scrobwrangler").progressbar();
-    $("#scrobwrangler").progressbar("option", "value", parseInt(prefs.scrobblepercent.toString()));
-    $("#scrobwrangler").click( setscrob );
     $("#scrobbling").attr("checked", prefs.lastfm_scrobbling);
     $("#radioscrobbling").attr("checked", prefs.dontscrobbleradio);
     $("#autocorrect").attr("checked", prefs.lastfm_autocorrect);
@@ -206,6 +203,6 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
     $("#fullbiobydefault").attr("checked", prefs.fullbiobydefault);
     $("#themeselector").val(prefs.theme);
     $("#countryselector").val(prefs.lastfm_country_code);
-    $("[name=clickselect][value="+prefs.clickmode+"]").attr("checked", true);     
+    $("[name=clickselect][value="+prefs.clickmode+"]").attr("checked", true);
     $("#playlistcontrols .enter").keyup( onKeyUp );
 </script>

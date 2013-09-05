@@ -17,19 +17,14 @@ set_time_limit(240);
 <?php
 print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme'].'" />'."\n";
 ?>
-<link type="text/css" href="jqueryui1.8.16/css/start/jquery-ui-1.8.23.custom.css" rel="stylesheet" />
 <script type="text/javascript" src="jquery-1.8.3-min.js"></script>
-<script type="text/javascript" src="jquery.form.js"></script>
-<script type="text/javascript" src="jqueryui1.8.16/js/jquery-ui-1.8.23.custom.js"></script>
 <script type="text/javascript" src="functions.js"></script>
 <script type="text/javascript" src="uifunctions.js"></script>
-<script type="text/javascript" src="ba-debug.js"></script>
+<script type="text/javascript" src="debug.js"></script>
 <script type="text/javascript" src="coverscraper.js"></script>
-<script src="https://www.google.com/jsapi?key=ABQIAAAAD8fM_RJ2TaPVvDsHb-8MdxS61EkEqhmzf3WQQFI0-v4LA4gElhRtzkt_mX1FPwUDz9DchkRCsKg3SA"></script>
 <script language="JavaScript">
 // debug.setLevel(0);
 
-var imageSearch;
 var mobile = "no";
 var imagekey = '';
 var imgobj = null;
@@ -42,13 +37,20 @@ var localimages;
 var allshown = true;
 var firefoxcrapnesshack = 0;
 var origsauce = "";
+var origbigsauce = "";
 var stream = "";
-google.load('search', 1);
+var theCatSatOnTheMat = null;
+var progress = null;
+var googleSearchURL = "https://www.googleapis.com/customsearch/v1?key=AIzaSyDAErKEr1g1J3yqHA0x6Ckr5jubNIF2YX4&cx=013407992060439718401:d3vpz2xaljs&searchType=image&alt=json";
 
 function getNewAlbumArt(div) {
 
-    debug.log("ALBUMART      : Getting art in",div);
-    $.each($(div).find("img").filter(filterImages), myMonkeyHasBigEars );
+    debug.group("ALBUMART","Getting art in",div);
+    $.each($(div).find("img").filter(filterImages), function () {
+            var a = this.getAttribute('name');
+            covergetter.GetNewAlbumArt(a);
+        }
+    );
     if (running == false) {
         running = true;
         $("#progress").fadeIn('slow');
@@ -62,20 +64,12 @@ function getNewAlbumArt(div) {
 // Does anybody ever read the comments in code?
 // I hope they do, because most of the comments in my code are entirely useless.
 
-function myMonkeyHasBigEars() {
-    var a = this.getAttribute('name');
-    covergetter.GetNewAlbumArt(a);
-}
-
 function reset() {
     covergetter.reset(-1);
+    debug.groupend();
 }
 
 // I like badgers
-
-function onresize() {
-    wobbleMyBottom();
-}
 
 function start() {
     getNewAlbumArt('#wobblebottom');
@@ -90,7 +84,8 @@ function aADownloadFinished() {
     }
     $("#status").html("");
     $("#progress").fadeOut('slow');
-    $("#progress").progressbar("option", "value", 0);
+    progress.setProgress(0);
+    debug.groupend();
 }
 
 function onWobblebottomClicked(event) {
@@ -98,20 +93,24 @@ function onWobblebottomClicked(event) {
     var clickedElement = findClickableElement(event);
     if (clickedElement.hasClass("clickalbumcover")) {
         event.stopImmediatePropagation();
-
-        doGoogleSearch( clickedElement.attr('name'),
-                        clickedElement.prev('input').val(),
-                        clickedElement.prev('input').prev('input').val(),
-                        clickedElement.attr('romprstream'));
+        imageEditor.show(clickedElement);
     }
-}
-
-function onGoogleSearchClicked(event) {
-    var clickedElement = findClickableElement(event);
-    if (clickedElement.hasClass("clickgimage")) {
-        debug.log("ALBUMART      : Search Result clicked :",clickedElement.attr('romprsrc'), clickedElement.attr('romprindex'));
+    if (clickedElement.hasClass('clickselectartist')) {
         event.stopImmediatePropagation();
-        updateImage(clickedElement.attr('romprsrc'), clickedElement.attr('romprindex'));
+        var a = clickedElement.attr("id");
+        $(".clickselectartist").filter('.selected').removeClass('selected');
+        clickedElement.addClass('selected');
+        if (a == "allartists") {
+            $(".cheesegrater").show();
+            if (!allshown) {
+                boogerbenson();
+                boogerbenson();
+            }
+        } else {
+            $(".cheesegrater").filter('[name!="'+a+'"]').hide();
+            $('[name="'+a+'"]').show();
+        }
+        joinEmTogether(allshown);
     }
 }
 
@@ -128,24 +127,27 @@ function findClickableElement(event) {
 
 }
 
+// It's not raining
+
 function boogerbenson() {
     if (allshown) {
         $("img", "#wobblebottom").filter( onlywithcovers ).parent().parent().hide();
         $("#finklestein").html("Show All Covers");
         $(".albumsection").filter( emptysections ).hide();
         $(".bigholder").filter( emptysections2 ).hide();
+        joinEmTogether(false);
     } else {
-        $(".bigholder").filter( emptysections2 ).show();
-        $(".albumsection").filter( emptysections ).show();
-        $("img", "#wobblebottom").filter( onlywithcovers ).parent().parent().show();
+        $(".bigholder").show();
+        $(".albumsection").show();
+        $("img", "#wobblebottom").parent().parent().show();
         $("#finklestein").html("Show Only Albums Without Covers");
+        joinEmTogether(true);
     }
     allshown = !allshown;
 }
 
 function onlywithcovers() {
     if ($(this).hasClass('notexist') || $(this).hasClass('notfound')) {
-    //if ($(this).hasClass('notexist')) {
         return false;
     }
     if ($(this).prop("naturalHeight") === 0 && $(this).prop("naturalWidth") === 0) {
@@ -168,9 +170,39 @@ function emptysections2() {
     return empty;
 }
 
+function joinEmTogether(flag) {
+    var maxinarow = Math.round($("#coverslist").width() / 136);
+    imageEditor.save();
+    var container = 0;
+    $(".covercontainer").addClass("getridofit");
+    $(".bigholder").each(function() {
+        var holder = this;
+        var count = maxinarow;
+        $(this).find(".closet").each( function() {
+            if (count == maxinarow) {
+                count = 0;
+                h = $('<div>', {class: "containerbox covercontainer", id: "covers"+container}).appendTo($(holder));
+            }
+            container++;
+            $(this).appendTo(h);
+            if (flag || !$(this).is(':hidden')) {
+                count++;
+            }
+        });
+
+    });
+
+    $(".getridofit").remove();
+    $('.droppable').on('dragenter', dragEnter);
+    $('.droppable').on('dragover', dragOver);
+    $('.droppable').on('dragleave', dragLeave);
+    $('.droppable').on('drop', handleDrop);
+    imageEditor.putback();
+}
+
 function removeUnusedFiles() {
     $("#unusedimages").empty();
-    doSomethingUseful("unusedimages");
+    doSomethingUseful("unusedimages", "Deleting...");
     $.ajax({
         type: "GET",
         url: "albumart.php?cleanup",
@@ -196,10 +228,11 @@ function filterImages() {
 
 $(document).ready(function () {
 
-    debug.log("ALBUMART      : Document is ready");
+    debug.log("ALBUMART","Document is ready");
+    doSomethingUseful('thisismyid', 'Please Wait, Loading Images...');
     $("#totaltext").html(numcovers+" albums");
-    $("#progress").progressbar();
-    $(window).bind('resize', onresize );
+    progress = new progressBar('progress', 'horizontal');
+    $(window).bind('resize', wobbleMyBottom );
     if ("localStorage" in window && window["localStorage"] != null) {
         useLocalStorage = true;
     }
@@ -207,21 +240,12 @@ $(document).ready(function () {
     covergetter.reset(albums_without_cover);
     $("#harold").click( start );
     $("#finklestein").click( boogerbenson );
-    imageSearch = new google.search.ImageSearch();
-    imageSearch.setSearchCompleteCallback(this, googleSearchComplete, null);
-    imageSearch.setRestriction(
-        google.search.Search.RESTRICT_SAFESEARCH,
-        google.search.Search.SAFESEARCH_OFF
-    );
-    imageSearch.setResultSetSize(8);
-    createPopup();
     wobblebottom = $('#wobblebottom');
-    wobblebottom.click(onWobblebottomClicked);
     wobbleMyBottom();
 });
 
 $(window).load(function () {
-    debug.log("ALBUMART      : Document has loaded");
+    debug.log("ALBUMART","Document has loaded");
     var count = 0;
     $.each($(document).find("img").filter(filterImages), function() {
         count++;
@@ -229,137 +253,461 @@ $(window).load(function () {
         $(this).attr("src", "images/album-unknown.png");
     });
     covergetter.updateInfo(albums_without_cover - count);
+    document.body.addEventListener('drop', function(e) {
+        e.preventDefault();
+    }, false);
+    $("#thisismyid").remove();
+    wobblebottom.click(onWobblebottomClicked);
 });
 
-function createPopup() {
-
-    popupWindow.create(700, 540, "googlepopup", false, "Choose Album Picture");
-
-    var googleinput = $('<div>', { id: 'googleinput' }).appendTo($("#popupcontents"));
-    var g1 = $('<div>', { class: 'holdingcell' }).append('<h3>Upload A File</h3>').appendTo(googleinput);
-    var uform = $('<form>', { id: 'uform', action: 'getalbumcover.php', method: 'post', enctype: 'multipart/form-data' }).appendTo(g1);
-
-    uform.append($('<input>', { id: 'imagekey', type: 'hidden', name: 'key', value: '' }));
-    uform.append($('<input>', { name: 'ufile', type: 'file', size: '80', class: 'tleft sourceform', style: 'color:#ffffff' }));
-    uform.append($('<input>', { type: 'submit', class: 'tright topformbutton', value: 'Upload', style: 'width:8em' }));
-
-    var g2 = $('<div>', { class: 'holdingcell underlined' }).append('<h3>Or Search Google Images</h3>').appendTo(googleinput);
-    g2.append($('<input>', { type: 'text', id: 'searchphrase', class: 'tleft sourceform', size: '80' }));
-    var b = $('<button>', { class: 'tright topformbutton', onclick: 'research()', style: 'width:8em' }).appendTo(g2);
-    b.html('Search');
-
-    $("#popupcontents").append($('<div>', {id: 'branding'}));
-    searchcontent = $('<div>', {class: 'holdingcell', id: 'briansewell'}).appendTo($("#popupcontents"));
-    localimages = $('<div>', {class: 'holdingcell'}).appendTo($("#popupcontents"));
-    google.search.Search.getBranding('branding');
-    uform.ajaxForm( uploadComplete );
-    searchcontent.click(onGoogleSearchClicked);
-    localimages.click(onGoogleSearchClicked);
-    $('#searchphrase').keyup(bumblefuck);
-
+function dragEnter(ev) {
+    evt = ev.originalEvent;
+    evt.stopPropagation();
+    evt.preventDefault();
+    $(ev.target).parent().addClass("highlighted");
+    return false;
 }
 
-function bumblefuck(e) {
-    if (e.keyCode == 13) {
-        research();
+function dragOver(ev) {
+    evt = ev.originalEvent;
+    evt.stopPropagation();
+    evt.preventDefault();
+    return false;
+}
+
+function dragLeave(ev) {
+    evt = ev.originalEvent;
+    evt.stopPropagation();
+    evt.preventDefault();
+    $(ev.target).parent().removeClass("highlighted");
+    return false;
+}
+
+function handleDrop(ev) {
+    debug.group("ALBUMART","Dropped",ev);
+    evt = ev.originalEvent;
+    evt.stopPropagation();
+    evt.preventDefault();
+    $(ev.target).parent().removeClass("highlighted");
+    imageEditor.update($(ev.target));
+    imgobj = $(ev.target);
+    imagekey = imgobj.attr("name");
+    stream = imgobj.attr("stream");
+    clickindex = null;
+
+    if (evt.dataTransfer.types) {
+        for (var i in evt.dataTransfer.types) {
+            type = evt.dataTransfer.types[i];
+            debug.log("ALBUMART","Checking...",type);
+            var data = evt.dataTransfer.getData(type);
+            switch (type) {
+
+                case "text/html":       // Image dragged from another browser window (Chrome and Firefox)
+                    var srces = data.match(/src\s*=\s*"(.*?)"/);
+                    if (srces && srces[1]) {
+                        src = srces[1];
+                        debug.log("ALBUMART","Image Source",src);
+                        imgobj.attr("src", "images/album-unknown.png");
+                        imgobj.removeClass('nospin').addClass('spinner');
+                        if (src.match(/image\/.*;base64/)) {
+                            debug.log("ALBUMART","Looks like Base64");
+                            // For some reason I no longer care about, doing this with jQuery.post doesn't work
+                            var formData = new FormData();
+                            formData.append('base64data', src);
+                            formData.append('key', imagekey);
+                            var xhr = new XMLHttpRequest();
+                            xhr.open('POST', 'getalbumcover.php');
+                            xhr.onload = function () {
+                                if (xhr.status === 200) {
+                                    uploadComplete(xhr.responseText);
+                                } else {
+                                    searchFail();
+                                }
+                            };
+                            xhr.send(formData);
+                        } else {
+                            $.ajax({
+                                url: "getalbumcover.php",
+                                type: "POST",
+                                data: { key: imagekey,
+                                        src: src
+                                },
+                                cache:false,
+                                success: uploadComplete,
+                                error: searchFail,
+                            });
+                        }
+                        return false;
+                    }
+                    break;
+
+                case "Files":       // Local file upload
+                    debug.log("ALBUMART","Found Files");
+                    var files = evt.dataTransfer.files;
+                    if (files[0]) {
+                        imgobj.attr("src", "images/album-unknown.png");
+                        imgobj.removeClass('nospin').addClass('spinner');
+                        // For some reason I no longer care about, doing this with jQuery.post doesn't work
+                        var formData = new FormData();
+                        formData.append('ufile', files[0]);
+                        formData.append('key', imagekey);
+                        var xhr = new XMLHttpRequest();
+                        xhr.open('POST', 'getalbumcover.php');
+                        xhr.onload = function () {
+                            if (xhr.status === 200) {
+                                uploadComplete(xhr.responseText);
+                            } else {
+                                searchFail();
+                            }
+                        };
+                        xhr.send(formData);
+                        return false;
+                    }
+                    break;
+            }
+
+        }
     }
+    // IF we get here, we didn't find anything. Let's try the basic text,
+    // which might give us something if we're lucky.
+    // Safari returns a plethora of MIME types, but none seem to be useful.
+    var data = evt.dataTransfer.getData('Text');
+    var src = data;
+    debug.log("ALBUMART","Trying last resort methods",src);
+    if (src.match(/^http:\/\//)) {
+        debug.log("ALBUMART","Appears to be a URL");
+        var u = src.match(/images.google.com.*imgurl=(.*?)&/)
+        if (u && u[1]) {
+            src = u[1];
+            debug.log("ALBUMART","Found possible Google Image Result",src);
+        }
+        $.ajax({
+            url: "getalbumcover.php",
+            type: "POST",
+            data: { key: imagekey,
+                    src: src
+            },
+            cache:false,
+            success: uploadComplete,
+            error: searchFail,
+        });
+    }
+    return false;
 }
+
+var imageEditor = function() {
+
+    var start = 1;
+    var position = null;
+    var bigdiv = null;
+    var bigimg = new Image();
+    var savedstate = ({pos: null, window: null});
+    var current = "g";
+    bigimg.onload = function() {
+        imageEditor.displayBigImage();
+    }
+
+    return {
+
+        show: function(where) {
+            newpos = where.parent().parent().parent();
+            if (position === null || newpos.attr("id") != position.attr("id")) {
+                debug.log("IMAGEEDITOR","Parent position has moved");
+                imageEditor.close();
+                position = newpos;
+                bigdiv = $('<div>', {id: "imageeditor", class: "containerbox covercontainer"}).insertAfter(position);
+                bigdiv.bind('click', imageEditor.onGoogleSearchClicked);
+                start = 1;
+            }
+            if (savedstate.pos === null || where.attr("name") != savedstate.pos.attr("name")) {
+                start = 1;
+                debug.log("IMAGEEDITOR","Rebuilding due to changed image");
+                if (savedstate.pos) {
+                    savedstate.pos.parent().parent().removeClass('highlighted');
+                    $("#fiddler").remove();
+                }
+                savedstate.pos = where;
+                where.parent().parent().addClass('highlighted');
+                where.parent().parent().append($('<div>', {id: 'fiddler'}));
+                imageEditor.fiddlerOnTheRoof(where);
+
+                bigimg.src = "";
+                bigdiv.empty();
+                imgobj = where;
+                imagekey = imgobj.attr('name');
+                stream = imgobj.attr('romprstream');
+                origsauce = imgobj.attr("src");
+                var phrase =  decodeURIComponent(where.prev('input').val());
+                var path =  where.prev('input').prev('input').val();
+
+                bigdiv.append($('<div>', { id: "searchcontent", style: "padding:8px"}));
+                bigdiv.append($('<div>', { id: "origimage"}));
+
+                $("#searchcontent").append( $('<div>', {id: "editcontrols", class: "fullwidth holdingcell"}),
+                                            $('<div>', {id: "gsearch", class: "noddy fullwidth holdingcell invisible"}),
+                                            $('<div>', {id: "fsearch", class: "noddy fullwidth holdingcell invisible"}),
+                                            $('<div>', {id: "usearch", class: "noddy fullwidth holdingcell invisible"}));
+
+                $("#"+current+"search").removeClass("invisible");
+
+                $("#gsearch").append(       $('<div>', {id: "brian", class: "fullwidth holdingcell"}),
+                                            $('<div>', {id: "searchresultsholder", class: "fullwidth holdingcell"}));
+
+                $("#searchresultsholder").append($('<div>', {id: "searchresults", class: "fullwidth holdingcell"}));
+
+                var uform =                 $('<form>', { id: 'uform', action: 'getalbumcover.php', method: 'post', enctype: 'multipart/form-data' }).appendTo($("#usearch"));
+                uform.append(               $('<input>', { id: 'imagekey', type: 'hidden', name: 'key', value: '' }),
+                                            $('<input>', { name: 'ufile', type: 'file', size: '80', class: 'tleft sourceform', style: 'color:#ffffff' }),
+                                            $('<input>', { type: 'button', class: 'tright topformbutton', value: 'Upload', style: 'width:8em', onclick: "imageEditor.uploadFile()" }),
+                                            '<div class="holdingcell"><p>You can drag-and-drop images from your hard drive or another browser window directly onto the image (in most browsers)</p></div>');
+
+                $("#editcontrols").append(  '<div id="g" class="tleft bleft clickable bmenu">Google Search</div>'+
+                                            '<div id="f" class="tleft bleft bmid clickable bmenu">Local Images</div>'+
+                                            '<div id="u" class="tleft bleft bmid clickable bmenu">File Upload</div>'+
+                                            '<div class="tleft bleft bmid clickable"><a href="http://www.google.com/search?q='+phrase+'&hl=en&site=imghp&tbm=isch" target="_blank">Google Search in new Tab</a></div>');
+
+                $("#editcontrols").append(  $('<img>', { class: "tright clickicon", onclick: "imageEditor.close()", src: "images/edit-delete.png", style: "height:16px"}));
+
+                $("#"+current).addClass("bsel");
+
+                $("#brian").append(         $('<input>', { type: 'text', id: 'searchphrase', class: 'tleft sourceform', size: '80' }),
+                                            $('<button>', { class: 'tright topformbutton', onclick: 'imageEditor.research()', style: 'width:8em' }));
+
+                $("#brian button").html('Search');
+
+                $("#searchphrase").attr("value", phrase);
+
+                var bigsauce = origsauce;
+                var m = origsauce.match(/albumart\/original\/(.*)/);
+                if (m && m[1]) {
+                    bigsauce = 'albumart/asdownloaded/'+m[1];
+                }
+                bigimg.src = bigsauce;
+                origbigsauce = bigsauce;
+
+                imageEditor.search();
+                if (path) {
+                    $.getJSON("findLocalImages.php?path="+path, imageEditor.gotLocalImages)
+                }
+
+                $("#imagekey").attr("value", imagekey);
+                $('#searchphrase').keyup(imageEditor.bumblefuck);
+            }
+        },
+
+        update: function(where) {
+            if (bigdiv) {
+                imageEditor.show(where);
+            }
+        },
+
+        close: function() {
+            if (bigdiv) {
+                bigdiv.remove();
+                bigdiv = null;
+            }
+            if (savedstate.pos) {
+                savedstate.pos.parent().parent().removeClass('highlighted');
+                $("#fiddler").remove();
+            }
+            position = null;
+            savedstate.pos = null;
+            origsauce = null;
+            origbigsauce = null;
+        },
+
+        save: function() {
+            if (bigdiv) {
+                savedstate.window = bigdiv.detach();
+            }
+        },
+
+        putback: function() {
+            if (savedstate.pos) {
+                position = savedstate.pos.parent().parent().parent();
+                bigdiv = savedstate.window;
+                bigdiv.insertAfter(position);
+                imageEditor.fiddlerOnTheRoof(savedstate.pos);
+            }
+        },
+
+        fiddlerOnTheRoof: function(here) {
+            var to = here.parent().next().offset();
+            var bo = bigdiv.offset();
+            var fiddleheight = bo.top - (to.top + here.parent().next().height()) + 4;
+            $("#fiddler").css("height", fiddleheight+"px");
+            if ($("body").css('background-image') != "none") {
+                $("#fiddler").css("background-image", $("body").css('background-image'));
+            } else {
+                $("#fiddler").css("background-color", $("body").css('background-color'));
+            }
+        },
+
+        displayBigImage: function() {
+            if (bigdiv) {
+                var h = bigimg.height;
+                if (h > 468) {
+                    h = 468;
+                }
+                w = Math.round(bigimg.width * (h/bigimg.height));
+                if (w > $("#coverslist").width() - 320) {
+                    w = $("#coverslist").width() - 340;
+                    h = Math.round(bigimg.height * (w/bigimg.width));
+                }
+                $("#origimage").empty().append($("<div>", { id: 'firefoxsucksballs', height: h, width: w }));
+                $("#firefoxsucksballs").append($("<img>", { src: bigimg.src, height: h, width: w }));
+            }
+        },
+
+        research: function() {
+            $("#searchresults").empty();
+            start = 1;
+            imageEditor.search();
+        },
+
+        search: function() {
+            var searchfor = $("#searchphrase").attr("value");
+            debug.log("IMAGEEDITOR","Searching Google for", searchfor);
+            $.ajax({
+                dataType: "json",
+                url: googleSearchURL+"&q="+encodeURIComponent(searchfor)+"&start="+start,
+                success: imageEditor.googleSearchComplete,
+                error: function(data) {
+                    debug.log("IMAGEEDITOR","FUCKING RAT'S COCKS",data);
+                    imageEditor.showError($.parseJSON(data.responseText).error.message);
+                }
+            });
+
+        },
+
+        googleSearchComplete: function(data) {
+            debug.log("IMAGEEDITOR","Google Search Results", data);
+            $("#morebutton").remove();
+            start = data.queries.nextPage[0].startIndex;
+            $.each(data.items, function(i,v){
+                var index = start+i;
+                $("#searchresults").append($('<img>', {
+                    id: 'img'+index,
+                    // romprsrc: v.link,
+                    // romprindex: index,
+                    class: "gimage clickable clickicon clickgimage",
+                    src: v.image.thumbnailLink
+                }));
+                $("#searchresults").append($('<input>', {
+                    type: 'hidden',
+                    value: v.link,
+                }));
+                $("#searchresults").append($('<input>', {
+                    type: 'hidden',
+                    value: index,
+                }));
+
+            });
+            $(".gimage").css("height", "120px");
+            $("#searchresultsholder").append('<div id="morebutton" style="width:80%;display:table" class="gradbutton" onclick="imageEditor.search()"><b>Show More Results</b></div>')
+
+        },
+
+        onGoogleSearchClicked: function(event) {
+            var clickedElement = findClickableElement(event);
+            if (clickedElement.hasClass("clickgimage")) {
+                debug.group("ALBUMART","Search Result clicked :",clickedElement.attr('romprsrc'), clickedElement.attr('romprindex'));
+                event.stopImmediatePropagation();
+                // updateImage(clickedElement.attr('romprsrc'), clickedElement.attr('romprindex'));
+                updateImage(clickedElement.next().val(), clickedElement.next().next().val());
+            } else if (clickedElement.hasClass("bmenu")) {
+                var menu = clickedElement.attr("id");
+                $(".noddy").filter(':visible').fadeOut('fast', function() {
+                    $("#"+menu+"search").fadeIn('fast');
+                });
+                $(".bleft").removeClass('bsel');
+                clickedElement.addClass('bsel');
+                current = menu;
+            }
+        },
+
+        updateBigImg: function(url) {
+            bigimg.src = "";
+            bigimg.src = url;
+        },
+
+        showError: function(message) {
+            $("#morebutton").remove();
+            $("#searchresults").append('<div id="morebutton" style="width:80%;display:table" class="gradbutton"><b>There was a problem. Google said "'+message+'"</b></div>');
+        },
+
+        gotLocalImages: function(data) {
+            debug.log("ALBUMART","Retreived Local Images: ",data);
+            if (data && data.length > 0) {
+                $.each(data, function(i,v) {
+                    debug.log("ALBUMART","Local Image ",i, v);
+                    $("#fsearch").append($("<img>", {
+                                                        id: "img"+(i+100000).toString(),
+                                                        //romprsrc: encodeURIComponent(v),
+                                                        //romprindex: i+100000,
+                                                        class: "gimage clickable clickicon clickgimage" ,
+                                                        src: v
+                                                    })
+                                        );
+                    $("#fsearch").append($('<input>', {
+                        type: 'hidden',
+                        value: v,
+                    }));
+                    $("#fsearch").append($('<input>', {
+                        type: 'hidden',
+                        value: i+100000,
+                    }));
+                });
+                $(".gimage").css("height", "120px");
+            }
+        },
+
+        bumblefuck: function(e) {
+            if (e.keyCode == 13) {
+                imageEditor.research();
+            }
+        },
+
+        uploadFile: function() {
+            imgobj.attr('src', 'images/album-unknown.png');
+            imageEditor.updateBigImg('images/album-unknown.png');
+            startAnimation();
+            var formElement = document.getElementById("uform");
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "getalbumcover.php");
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    uploadComplete(xhr.responseText);
+                } else {
+                    searchFail();
+                }
+            };
+            xhr.send(new FormData(formElement));
+        }
+
+    }
+
+}();
 
 function wobbleMyBottom() {
+    clearTimeout(theCatSatOnTheMat);
     var ws = getWindowSize();
     var newheight = ws.y - wobblebottom.offset().top;
     wobblebottom.css("height", newheight.toString()+"px");
+    theCatSatOnTheMat = setTimeout( function() {
+        joinEmTogether(allshown);
+    }, 500);
 }
 
 // Ceci n'est pas une commentaire
 
-function doGoogleSearch(key, phrase, path, str) {
-    wobblebottom.unbind("click");
-    imagekey = key;
-    imgobj = $('img[name="'+imagekey+'"]');
-    stream = str;
-    origsauce = imgobj.attr("src");
-    imgobj.attr("src", "images/album-unknown.png");
-    imgobj.removeClass('nospin').addClass('spinner');
-    // var monkeybrains = decodeURIComponent(artist)+" "+decodeURIComponent(album);
-    var monkeybrains = decodeURIComponent(phrase);
-    $("#searchphrase").attr("value", monkeybrains);
-    $("#imagekey").attr("value", imagekey);
-    popupWindow.setsize();
-    imageSearch.execute(monkeybrains);
-    if (path) {
-        $.getJSON("findLocalImages.php?path="+path, gotLocalImages)
-    }
-    searchcontent.empty();
-    doSomethingUseful('briansewell');
-    popupWindow.open();
-}
-
-function research() {
-    searchcontent.empty();
-    doSomethingUseful('briansewell');
-    imageSearch.execute($("#searchphrase").attr("value"));
-}
-
-function gotLocalImages(data) {
-    debug.log("ALBUMART      : Retreived Local Images: ",data);
-    if (data && data.length > 0) {
-        localimages.append("<h3>&nbsp;&nbsp;Or Choose An Image From The Album Folder</h3>")
-        for (var i in data) {
-            var result = data[i];
-            debug.log("ALBUMART      : Local Image ",i, result);
-            localimages.append($("<img>", {
-                                                id: "img"+(i+100).toString(),
-                                                romprsrc: result,
-                                                romprindex: i+100,
-                                                class: "gimage clickable clickicon clickgimage" ,
-                                                src: result
-                                            })
-                                );
-        }
-        $(".gimage").css("height", "120px");
-    }
-}
-
-function closeGooglePopup() {
-    popupWindow.close();
-}
-
-function iveHadEnoughOfThis() {
-    searchcontent.empty();
-    localimages.empty();
-    wobblebottom.click(onWobblebottomClicked);
-    imgobj.removeClass('spinner').addClass('nospin');
-    imgobj.attr("src", origsauce);
-}
-
-function googleSearchComplete() {
-    searchcontent.empty();
-    if (imageSearch.results && imageSearch.results.length > 0) {
-        for (var i in imageSearch.results) {
-            var result = imageSearch.results[i];
-             searchcontent.append($("<img>", {
-                                                id: "img"+i,
-                                                romprsrc: result.url,
-                                                romprindex: i,
-                                                class: "gimage clickable clickicon clickgimage" ,
-                                                src: result.tbUrl
-                                            })
-                                );
-        }
-        $(".gimage").css("height", "120px");
-    } else {
-        searchcontent.html('<h3 align="center">No Images Found. Maybe you have exclusive taste?</h3>');
-    }
-}
-
 function updateImage(url, index) {
     clickindex = index;
-    $('#img'+clickindex).attr('src', 'images/album-unknown.png');
+    imgobj.attr('src', 'images/album-unknown.png');
+    imageEditor.updateBigImg('images/album-unknown.png');
     startAnimation();
     var options = { key: imagekey,
                     src: url,
-                    stream: stream
                     };
     var stream = imgobj.attr("romprstream");
     if (typeof(stream) != "undefined") {
@@ -376,97 +724,119 @@ function updateImage(url, index) {
 }
 
 function startAnimation() {
-    $('#img'+clickindex).removeClass('nospin').addClass('spinner');
+    imgobj.removeClass('nospin').addClass('spinner');
+    $('#img'+clickindex).removeClass('noflash').addClass('flasher');
 }
 
 function animationStop() {
-    $('#img'+clickindex).removeClass('spinner').addClass('nospin');
+    imgobj.removeClass('spinner').addClass('nospin');
+    $('#img'+clickindex).removeClass('flasher').addClass('noflash');
 }
 
 function searchFail() {
+    debug.log("ALBUMART","No Source Found");
     $('#img'+clickindex).attr('src', 'images/imgnotfound.png');
+    imgobj.attr('src', origsauce);
+    imageEditor.updateBigImg(origbigsauce);
     animationStop();
+    debug.groupend();
 }
 
 function uploadComplete(data) {
+    debug.log("ALBUMART","Upload Complete");
     var src = $(data).find('url').text();
-    if (src == "") {
+    if (!src || src == "") {
         searchFail();
         return;
     }
     animationStop();
-    debug.log("ALBUMART      : Success for",imagekey);
-    closeGooglePopup();
-
-    // In nearly every browser we can just update the src attribute of the image and even
-    // though the URL hasn't changed the browser will check with the server and update the image.
-    // But not firefox, oh no. Not firefox. Just for Mozilla, because these days they can't be
-    // trusted to do ANYTHING properly, we have to delete the image and create a new one.
-    // And EVEN THAT isn't enough because the new image has the same URL as the old one and firefox
-    // STILL won't just check with the server EVEN THOUGH we have used every cache-control setting
-    // known to mankind. So we concoct a made-up URL that has to be different EVERY TIME and let our 404
-    // redirect it to the actual image.
-    // Although I don't know what the hell's going on at Mozilla these days, I'd hazard a guess
-    // that the reason they've gone from being the exciting new kids on the block to being the
-    // stodgy old unreliable mess they now are is one word - management. They need less of it.
-
-    imgobj.removeClass('spinner').addClass('nospin');
-    var p = imgobj.parent();
-    var n = imgobj.attr("name");
+    debug.log("ALBUMART","Success for",imagekey);
     if (imgobj.hasClass('notexist') || imgobj.hasClass('notfound')) {
         covergetter.updateInfo(1);
+        imgobj.removeClass("notexist");
+        imgobj.removeClass("notfound");
     }
-    imgobj.remove();
-    var newimg = $('<img>', {   class: 'clickable clickicon clickalbumcover',
-                                name: n,
-                                height: '82px',
-                                width: '82px',
-                                src: "albumart/firefoxiscrap/"+imagekey+"---"+firefoxcrapnesshack.toString()
-                            }
-                    );
     firefoxcrapnesshack++;
-    p.append(newimg);
+
+    imgobj.attr('src', "");
+    imgobj.attr('src', "albumart/original/firefoxiscrap/"+imagekey+"---"+firefoxcrapnesshack.toString());
+
+    var os = $(data).find('origurl').text();
+    debug.log("ALBUMART","Returned big sauce ",os);
+    if (os) {
+        imageEditor.updateBigImg("albumart/asdownloaded/firefoxiscrap/"+imagekey+"---"+firefoxcrapnesshack.toString());
+    }
+
     if (useLocalStorage) {
         sendLocalStorageEvent(imagekey);
     }
+    debug.groupend();
 }
+
 
 </script>
 </head>
 <body>
-<div id="albumcovers">
+
+<div class="albumcovers">
+<div id="thisismyid" style="width:100%;position:absolute;top:24px;left0px"></div>
 <div class="infosection">
 <table width="100%">
 <tr><td colspan="3"><h2>Album Art</h2></td></tr>
-<tr><td class="outer" id="totaltext"></td><td class="inner"><div class="inner invisible" id="progress"></div></td><td class="outer" align="right"><button id="harold" class="topformbutton">Get Missing Covers</button></td></tr>
-<tr><td class="outer" id="infotext"></td><td class="inner" align="center"><div class="inner" id="status"></div></td><td class="outer" align="right"><button id="finklestein" class="topformbutton">Show Only Albums Without Covers</button></td></tr>
+<tr><td class="outer" id="totaltext"></td><td><div class="invisible" id="progress" style="font-size:12pt"></div></td><td class="outer" align="right"><button id="harold" class="topformbutton">Get Missing Covers</button></td></tr>
+<tr><td class="outer" id="infotext"></td><td align="center"><div class="inner" id="status">Click a cover to change it, or drag an image from your hard drive or another browser window</div></td><td class="outer" align="right"><button id="finklestein" class="topformbutton">Show Only Albums Without Covers</button></td></tr>
 </table>
 </div>
 </div>
 <div id="wobblebottom">
+
+<div id="artistcoverslist" class="tleft noborder" style="width:20%">
+    <div class="noselection fullwidth">
+<?php
+$acount = 0;
+if (file_exists($ALBUMSLIST)) {
+    $collection = simplexml_load_file($ALBUMSLIST);
+    print '<div class="containerbox menuitem clickable clickselectartist selected" id="allartists"><div class="expand" style="padding-top:2px;padding-bottom:2px">All Artists</div></div>';
+    print '<div class="containerbox menuitem clickable clickselectartist" id="radio"><div class="expand" style="padding-top:2px;padding-bottom:2px">Favourite Radio Stations</div></div>';
+    print '<div class="containerbox menuitem clickable clickselectartist" id="unused"><div class="expand" style="padding-top:2px;padding-bottom:2px">Unused Images</div></div>';
+    foreach($collection->artists->artist as $artist) {
+        print '<div class="containerbox menuitem clickable clickselectartist';
+        print '" id="artistname'.$acount.'">';
+        print '<div class="expand" style="padding-top:2px;padding-bottom:2px">'.$artist->name.'</div>';
+        print '</div>';
+        $acount++;
+    }
+}
+?>
+    </div>
+</div>
+<div id="coverslist" class="tleft noborder" style="width:80%">
+
 <?php
 
 // Do Local Albums
 
 $allfiles = glob("albumart/original/*.jpg");
-debug_print("There are ".count($allfiles)." Images");
+debug_print("There are ".count($allfiles)." Images", "ALBUMART");
 
 $count = 0;
 $albums_without_cover = 0;
 if (file_exists($ALBUMSLIST)) {
     $collection = simplexml_load_file($ALBUMSLIST);
+    $acount = 0;
     foreach($collection->artists->artist as $artist) {
-        print '<div class="albumsection">';
-        print '<div class="tleft"><h2 class="covercontainer">'.$artist->name.'</h2></div><div class="tright rightpad"><button class="topformbutton" style="margin-top:8px" onclick="getNewAlbumArt(\'#album'.$count.'\')">Get These Covers</button></div>';
+        print '<div class="cheesegrater" name="artistname'.$acount.'">';
+        print '<div class="albumsection crackbaby">';
+        print '<div class="tleft"><h2 style="margin:8px">'.$artist->name.'</h2></div><div class="tright rightpad"><button class="topformbutton" style="margin-top:8px" onclick="getNewAlbumArt(\'#album'.$count.'\')">Get These Covers</button></div>';
         print "</div>\n";
         print '<div id="album'.$count.'" class="fullwidth bigholder">';
-        print '<div class="containerbox covercontainer">';
+        print '<div class="containerbox covercontainer" id="covers'.$count.'">';
         $colcount = 0;
         foreach ($artist->albums->album as $album) {
-            print '<div class="expand containerbox vertical albumimg">';
+            print '<div class="expand containerbox vertical albumimg closet">';
             print '<div class="albumimg fixed">';
 
-            $class = "clickable clickicon clickalbumcover";
+            $class = "clickable clickicon clickalbumcover droppable";
             $src = "";
             if ($album->image->exists == "no") {
                 $class = $class . " notexist";
@@ -486,18 +856,18 @@ if (file_exists($ALBUMSLIST)) {
             print '<img class="'.$class.'" name="'.$album->image->name.'" height="82px" width="82px" src="'.$src.'" />';
 
             print '</div>';
-            print '<div class="albumimg fixed">'.$album->name.'</div>';
+            print '<div class="albumimg fixed"><table><tr><td align="center">'.$album->name.'</td></tr></table></div>';
             print '</div>';
 
             $colcount++;
-            if ($colcount == 7) {
+            if ($colcount == 8) {
                 print "</div>\n".'<div class="containerbox covercontainer">';
                 $colcount = 0;
             }
             $count++;
         }
-        print "</div></div>\n";
-
+        print "</div></div></div>\n";
+        $acount++;
     }
 
 } else {
@@ -506,7 +876,7 @@ if (file_exists($ALBUMSLIST)) {
 
 do_radio_stations();
 
-debug_print("There are ".count($allfiles)." unused images");
+debug_print("There are ".count($allfiles)." unused images", "ALBUMART");
 if (count($allfiles) > 0) {
     if (array_key_exists("cleanup", $_REQUEST)) {
         remove_unused_images();
@@ -514,6 +884,8 @@ if (count($allfiles) > 0) {
         do_unused_images();
     }
 }
+
+print '</div>';
 
 print "</div>\n";
 print "</div>\n";
@@ -531,15 +903,16 @@ function do_radio_stations() {
     global $allfiles;
     $playlists = glob("prefs/USERSTREAM*.xspf");
     if (count($playlists) > 0) {
-        print '<div class="albumsection">';
-        print '<div class="tleft"><h2 class="covercontainer" >Radio Stations</h2></div><div class="tright rightpad"><button class="topformbutton" style="margin-top:8px" onclick="getNewAlbumArt(\'#album'.$count.'\')">Get These Covers</button></div>';
+        print '<div class="cheesegrater" name="radio">';
+        print '<div class="albumsection crackbaby">';
+        print '<div class="tleft"><h2 style="margin:8px">Radio Stations</h2></div><div class="tright rightpad"><button class="topformbutton" style="margin-top:8px" onclick="getNewAlbumArt(\'#album'.$count.'\')">Get These Covers</button></div>';
         print "</div>\n";
         print '<div id="album'.$count.'" class="fullwidth bigholder">';
 
-        print '<div class="containerbox covercontainer">';
+        print '<div class="containerbox covercontainer" id="radios">';
         $colcount = 0;
         foreach ($playlists as $i => $file) {
-            print '<div class="expand containerbox vertical albumimg">';
+            print '<div class="expand containerbox vertical albumimg closet">';
             print '<div class="albumimg fixed">';
             $x = simplexml_load_file($file);
             foreach($x->trackList->track as $i => $track) {
@@ -563,13 +936,13 @@ function do_radio_stations() {
                     }
 
                     print '<input type="hidden" value="'.$track->album.'" />';
-                    print '<img class="clickable clickicon clickalbumcover"'.$class.'" romprstream="'.$file.'" name="'.$artname.'" height="82px" width="82px" src="'.$src.'" />';
+                    print '<img class="clickable clickicon clickalbumcover droppable"'.$class.'" romprstream="'.$file.'" name="'.$artname.'" height="82px" width="82px" src="'.$src.'" />';
                     print '</div>';
-                    print '<div class="albumimg fixed">'.$track->album.'</div>';
+                    print '<div class="albumimg fixed"><table><tr><td align="center">'.$track->album.'</td></tr></table></div>';
                     print '</div>';
 
                     $colcount++;
-                    if ($colcount == 7) {
+                    if ($colcount == 8) {
                         print "</div>\n".'<div class="containerbox covercontainer">';
                         $colcount = 0;
                     }
@@ -578,21 +951,22 @@ function do_radio_stations() {
                 }
             }
         }
-        print "</div></div>\n";
+        print "</div></div></div>\n";
     }
 
 }
 
 function do_unused_images() {
     global $allfiles;
-    print '<div class="albumsection">';
-    print '<div class="tleft"><h2 class="covercontainer">'.count($allfiles).' Unused Images</h2></div><div class="tright rightpad"><button class="topformbutton" style="margin-top:8px" onclick="removeUnusedFiles()">Delete These Covers</button></div>';
+    print '<div class="cheesegrater" name="unused">';
+    print '<div class="albumsection crackbaby">';
+    print '<div class="tleft"><h2 style="margin:8px">'.count($allfiles).' Unused Images</h2></div><div class="tright rightpad"><button class="topformbutton" style="margin-top:8px" onclick="removeUnusedFiles()">Delete These Covers</button></div>';
     print "</div>\n";
     print '<div id="unusedimages" class="fullwidth bigholder">';
     print '<div class="containerbox covercontainer">';
     $colcount = 0;
     foreach ($allfiles as $album) {
-        print '<div class="expand containerbox vertical albumimg">';
+        print '<div class="expand containerbox vertical albumimg closet">';
         print '<div class="albumimg fixed">';
         print '<img height="82px" width="82px" src="'.$album.'">';
         print '</div>';
@@ -604,7 +978,7 @@ function do_unused_images() {
             $colcount = 0;
         }
     }
-    print "</div></div>\n";
+    print "</div></div></div>\n";
 
 }
 
