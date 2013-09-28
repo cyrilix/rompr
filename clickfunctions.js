@@ -84,6 +84,20 @@ function onRadioClicked(event) {
     } else if (clickedElement.hasClass("clickradioremove")) {
         event.stopImmediatePropagation();
         removeUserStream(clickedElement.attr("name"));
+    } else if (clickedElement.hasClass("podconf")) {
+        event.stopImmediatePropagation();
+        $("#"+clickedElement.attr('name')).slideToggle('fast');
+    } else if (clickedElement.hasClass("podrefresh")) {
+        event.stopImmediatePropagation();
+        clickedElement.addClass('spinner');
+        var n = clickedElement.attr('name');
+        n = n.replace(/podrefresh_/, '');
+        refreshPodcast(n);
+    } else if (clickedElement.hasClass("podremove")) {
+        event.stopImmediatePropagation();
+        var n = clickedElement.attr('name');
+        n = n.replace(/podremove_/, '');
+        removePodcast(n);
     } else if (prefs.clickmode == "single") {
         onRadioDoubleClicked(event);
     }
@@ -100,6 +114,9 @@ function onRadioDoubleClicked(event) {
     } else if (clickedElement.hasClass("clickradio")) {
         event.stopImmediatePropagation();
         playUserStream(clickedElement.attr("name"));
+    } else if (clickedElement.hasClass("clicktrack")) {
+        event.stopImmediatePropagation();
+        playlist.addtrack(clickedElement);
     }
 }
 
@@ -145,10 +162,10 @@ function doMenu(event, element) {
         event.stopImmediatePropagation();
     }
     var menutoopen = element.attr("name");
-    if (element.attr("src") == "images/toggle-closed-new.png") {
-        element.attr("src", "images/toggle-open-new.png");
-    } else if (element.attr("src") == "images/toggle-open-new.png"){
-        element.attr("src", "images/toggle-closed-new.png");
+    if (element.isClosed()) {
+        element.toggleOpen();
+    } else {
+        element.toggleClosed();
     }
     $('#'+menutoopen).slideToggle('fast');
     return false;
@@ -160,7 +177,7 @@ function doAlbumMenu(event, element) {
         event.stopImmediatePropagation();
     }
     var menutoopen = element.attr("name");
-    if (element.attr("src") == "images/toggle-closed-new.png") {
+    if (element.isClosed()) {
         if ($('#'+menutoopen).hasClass("notfilled")) {
             $('#'+menutoopen).load("albums.php?item="+menutoopen, function() {
                 $(this).removeClass("notfilled");
@@ -175,10 +192,10 @@ function doAlbumMenu(event, element) {
         } else {
             $('#'+menutoopen).slideToggle('fast');
         }
-        element.attr("src", "images/toggle-open-new.png");
+        element.toggleOpen();
     } else {
         $('#'+menutoopen).slideToggle('fast');
-        element.attr("src", "images/toggle-closed-new.png");
+        element.toggleClosed();
     }
     return false;
 }
@@ -189,7 +206,7 @@ function doFileMenu(event, element) {
         event.stopImmediatePropagation();
     }
     var menutoopen = element.attr("name");
-    if (element.attr("src") == "images/toggle-closed-new.png") {
+    if (element.isClosed()) {
         if ($('#'+menutoopen).hasClass("notfilled")) {
             $('#'+menutoopen).load("dirbrowser.php?item="+menutoopen, function() {
                 $(this).removeClass("notfilled");
@@ -198,10 +215,10 @@ function doFileMenu(event, element) {
         } else {
             $('#'+menutoopen).slideToggle('fast');
         }
-        element.attr("src", "images/toggle-open-new.png");
+        element.toggleOpen();
     } else {
         $('#'+menutoopen).slideToggle('fast');
-        element.attr("src", "images/toggle-closed-new.png");
+        element.toggleClosed();
     }
     return false;
 }
@@ -257,7 +274,7 @@ function prDragStop(event, ui) {
 function onKeyUp(e) {
     if (e.keyCode == 13) {
         debug.debug("CLICKFUNCTIONS","Key Up",e.target.name);
-        $('[name="'+e.target.name+'"]').next("button").click();
+        $(e.target).next("button").click();
     }
 }
 

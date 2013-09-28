@@ -64,16 +64,17 @@ if (array_key_exists("src", $_REQUEST)) {
         if (!$axp) {
             if (file_exists($PLAYLISTFILE)) {
                 if (get_file_lock($PLAYLISTFILE, $fp)) {
-                    $ax = simplexml_load_file($PLAYLISTFILE);
-                    $axp = $ax->xpath('//key[.="'.$fname.'"]/parent::*');
-                    if ($axp) {
-                        $artist    = $axp[0]->{'albumartist'};
-                        $album     = $axp[0]->{'album'};
-                        $mbid      = $axp[0]->{'mbalbumid'};
-                        $albumpath = rawurldecode($axp[0]->{'dir'});
-                        $spotilink = rawurldecode($axp[0]->{'spotialbum'});
-                    } else {
-                        debug_print(" Image not found in any cache","GETALBUMCOVER");
+                    $ax = json_decode(file_get_contents($PLAYLISTFILE), true);
+                    foreach ($ax as $track) {
+                        if ($track['key'] == $fname) {
+                            $artist    = $track['albumartist'];
+                            $album     = $track['album'];
+                            $mbid      = $track['musicbrainz']['albumid'];
+                            $albumpath = rawurldecode($track['dir']);
+                            $spotilink = rawurldecode($track['spotify']['album']);
+                            debug_print("Found album ".$album." in playlist","DEBUGGING");
+                            break;
+                        }
                     }
                 }
                 release_file_lock($fp);
@@ -584,7 +585,7 @@ function tryDiscogs() {
     global $delaytime;
     $delaytime = 1000;
 
-    // We search several time, each time spreading the search a little wider
+    // We search several times, each time spreading the search a little wider
 
     // Firstly - try discogs with a sanitised artist and album name
     $a = discogify_artist($artist);

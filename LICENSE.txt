@@ -1,5 +1,5 @@
 
-# Fat German Productions 2012
+# Fat German Productions 2013
 
 # This program is SpongWare.
 # The use of SpongWare is entirely according to the following conditions:
@@ -17,6 +17,8 @@
 #    it deletes all your data or perhaps it wipes the entire internet overnight and
 #    leaves the world a dead place, nobody is responsible. Deal with it.
 #    Sometimes, shit happens
+# 10) Use of any part of this software in any commercial context by any for-profit
+#     organisation is forbidden without the epxress permission of the author.
 
 # fatgerman@gmail.com
 
@@ -35,10 +37,6 @@ very clear on that point.
 
 The md5 hashing algorithm code was taken from http://pajhome.org.uk/crypt/md5
 and is released under a BSD license
-
-There's also Ben Alman's pretty damn good javascript debugging library
-http://benalman.com/projects/javascript-debug-console-log/
-which has two licenses. Presumably this means it can drive a lorry?
 
 The jquery form plugin comes from http://malsup.com/jquery/form/
 and also has two licenses.

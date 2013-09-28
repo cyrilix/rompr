@@ -10,6 +10,7 @@ $totaltime = 0;
 $xspf_loaded = false;
 $lfm_xspfs = array();
 $stream_xspfs = array();
+$podcasts = array();
 
 $current_artist = "";
 $current_album = "";
@@ -497,16 +498,16 @@ function process_file($collection, $filedata) {
     // $albumartist = (array_key_exists('AlbumArtistSort', $filedata)) ? $filedata['AlbumArtistSort'] : ((array_key_exists('AlbumArtist', $filedata)) ? $filedata['AlbumArtist'] : null);
     $albumartist = (array_key_exists('AlbumArtist', $filedata)) ? $filedata['AlbumArtist'] : null;
     $name = (array_key_exists('Title', $filedata)) ? $filedata['Title'] : basename($file);
-    $duration = (array_key_exists('Time', $filedata)) ? $filedata['Time'] : null;
+    $duration = (array_key_exists('Time', $filedata)) ? $filedata['Time'] : 0;
     $number = (array_key_exists('Track', $filedata)) ? format_tracknum($filedata['Track']) : format_tracknum(basename($file));
     $disc = (array_key_exists('Disc', $filedata)) ? format_tracknum($filedata['Disc']) : 0;
     $date = (array_key_exists('Date',$filedata)) ? $filedata['Date'] : null;
     $genre = (array_key_exists('Genre', $filedata)) ? $filedata['Genre'] : null;
     $image = (array_key_exists('Image', $filedata)) ? $filedata['Image'] : null;
-    $mbartist = (array_key_exists('MUSICBRAINZ_ARTISTID', $filedata)) ? $filedata['MUSICBRAINZ_ARTISTID'] : null;
-    $mbalbum = (array_key_exists('MUSICBRAINZ_ALBUMID', $filedata)) ? $filedata['MUSICBRAINZ_ALBUMID'] : null;
-    $mbalbumartist = (array_key_exists('MUSICBRAINZ_ALBUMARTISTID', $filedata)) ? $filedata['MUSICBRAINZ_ALBUMARTISTID'] : null;
-    $mbtrack = (array_key_exists('MUSICBRAINZ_TRACKID', $filedata)) ? $filedata['MUSICBRAINZ_TRACKID'] : null;
+    $mbartist = (array_key_exists('MUSICBRAINZ_ARTISTID', $filedata)) ? $filedata['MUSICBRAINZ_ARTISTID'] : "";
+    $mbalbum = (array_key_exists('MUSICBRAINZ_ALBUMID', $filedata)) ? $filedata['MUSICBRAINZ_ALBUMID'] : "";
+    $mbalbumartist = (array_key_exists('MUSICBRAINZ_ALBUMARTISTID', $filedata)) ? $filedata['MUSICBRAINZ_ALBUMARTISTID'] : "";
+    $mbtrack = (array_key_exists('MUSICBRAINZ_TRACKID', $filedata)) ? $filedata['MUSICBRAINZ_TRACKID'] : "";
     $backendid = (array_key_exists('Id',$filedata)) ? $filedata['Id'] : null;
     $playlistpos = (array_key_exists('Pos',$filedata)) ? $filedata['Pos'] : null;
     $spotialbum = (array_key_exists('SpotiAlbum',$filedata)) ? $filedata['SpotiAlbum'] : null;
@@ -531,7 +532,7 @@ function process_file($collection, $filedata) {
         // Artist and Album too, since they will be set in that case but not for a stream.
         debug_print("We think it's a stream!", "COLLECTION");
         list (  $name, $duration, $number, $date, $genre, $artist, $album, $folder,
-                $type, $image, $expires, $stationurl, $station, $stream)
+                $type, $image, $expires, $stationurl, $station, $stream, $albumartist)
                 = getStuffFromXSPF($file);
         $domain = $type;
     }
@@ -562,6 +563,7 @@ function getStuffFromXSPF($url) {
     global $xspf_loaded;
     global $lfm_xspfs;
     global $stream_xspfs;
+    global $podcasts;
 
     // Preload all the stream and lastfm playlists (on the first time we need them)
     // - saves time later as we don't have to read them in every time.
@@ -577,24 +579,32 @@ function getStuffFromXSPF($url) {
             $x = simplexml_load_file($file);
             array_push($stream_xspfs, $x);
         }
+        $playlists = glob("prefs/podcasts/*");
+        foreach($playlists as $pod) {
+            if (is_dir($pod)) {
+                $x = simplexml_load_file($pod.'/info.xml');
+                array_push($podcasts, $x);
+            }
+        }
         $xspf_loaded = true;
     }
 
     foreach($lfm_xspfs as $i => $x) {
         foreach($x->playlist->trackList->track as $i => $track) {
             if($track->location == $url) {
-                return array (  $track->title,
+                return array (  (string) $track->title,
                                 ($track->duration)/1000,
                                 null, null, null,
-                                $track->creator,
-                                $track->album,
+                                (string) $track->creator,
+                                (string) $track->album,
                                 null,
                                 "lastfmradio",
-                                $track->image,
-                                $track->expires,
-                                $x->playlist->stationurl,
-                                $x->playlist->title,
-                                null );
+                                (string) $track->image,
+                                (string) $track->expires,
+                                (string) $x->playlist->stationurl,
+                                (string) $x->playlist->title,
+                                null,
+                                (string) $track->creator);
             }
 
         }
@@ -603,31 +613,57 @@ function getStuffFromXSPF($url) {
     foreach($stream_xspfs as $i => $x) {
         foreach($x->trackList->track as $i => $track) {
             if($track->location == $url) {
-                return array (  $track->title,
+                return array (  (string) $track->stream,
                                 0,
                                 null, null, null,
-                                $track->creator,
-                                $track->album,
+                                (string) $track->creator,
+                                (string) $track->album,
                                 null,
                                 "stream",
-                                $track->image,
+                                (string) $track->image,
                                 null, null, null,
-                                $track->stream);
+                                (string) $track->stream,
+                                (string) $track->creator);
+            }
+        }
+    }
+
+    foreach ($podcasts as $x) {
+        foreach($x->trackList->track as $track) {
+            if ($track->link == $url) {
+                return array (
+                    (string) $track->title,
+                    (string) $track->duration,
+                    null,
+                    null,
+                    null,
+                    (string) $track->artist,
+                    (string) $x->album,
+                    md5((string) $x->album),
+                    "local",
+                    (string) $x->image,
+                    null,
+                    null,
+                    null,
+                    "",
+                    (string) $x->albumartist
+                );
             }
         }
     }
 
     if (file_exists('prefs/'.md5($url).'.xspf')) {
         $x = simplexml_load_file('prefs/'.md5($url).'.xspf');
-        return array (  $x->trackList->track->title,
+        return array (  (string) $x->trackList->track->title,
                         ($x->trackList->track->duration)/1000,
                         null, null, null,
-                        $x->trackList->track->creator,
-                        $x->trackList->track->album,
+                        (string) $x->trackList->track->creator,
+                        (string) $x->trackList->track->album,
                         null,
                         "local",
-                        $x->trackList->track->image,
-                        null, null, null, null);
+                        (string) $x->trackList->track->image,
+                        null, null, null, null,
+                        (string) $x->trackList->track->creator);
     }
 
     return array(   "",
@@ -640,7 +676,8 @@ function getStuffFromXSPF($url) {
                     "stream",
                     "images/broadcast.png",
                     null, null, null,
-                    ""
+                    "",
+                    htmlspecialchars($url)
                 );
 
 }

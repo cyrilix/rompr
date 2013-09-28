@@ -193,6 +193,12 @@ function joinEmTogether(flag) {
     });
 
     $(".getridofit").remove();
+    // Annoylingly, javascript permits you to bind the same event multiple times,
+    // so we have to unbind it before we rebind it. Duh.
+    $('.droppable').unbind('dragenter');
+    $('.droppable').unbind('dragover');
+    $('.droppable').unbind('dragleave');
+    $('.droppable').unbind('drop');
     $('.droppable').on('dragenter', dragEnter);
     $('.droppable').on('dragover', dragOver);
     $('.droppable').on('dragleave', dragLeave);
@@ -202,7 +208,7 @@ function joinEmTogether(flag) {
 
 function removeUnusedFiles() {
     $("#unusedimages").empty();
-    doSomethingUseful("unusedimages", "Deleting...");
+    doSomethingUseful($("#unusedimages"), "Deleting...");
     $.ajax({
         type: "GET",
         url: "albumart.php?cleanup",
@@ -229,7 +235,6 @@ function filterImages() {
 $(document).ready(function () {
 
     debug.log("ALBUMART","Document is ready");
-    doSomethingUseful('thisismyid', 'Please Wait, Loading Images...');
     $("#totaltext").html(numcovers+" albums");
     progress = new progressBar('progress', 'horizontal');
     $(window).bind('resize', wobbleMyBottom );
@@ -242,6 +247,10 @@ $(document).ready(function () {
     $("#finklestein").click( boogerbenson );
     wobblebottom = $('#wobblebottom');
     wobbleMyBottom();
+    document.body.addEventListener('drop', function(e) {
+        e.preventDefault();
+    }, false);
+    wobblebottom.click(onWobblebottomClicked);
 });
 
 $(window).load(function () {
@@ -253,11 +262,6 @@ $(window).load(function () {
         $(this).attr("src", "images/album-unknown.png");
     });
     covergetter.updateInfo(albums_without_cover - count);
-    document.body.addEventListener('drop', function(e) {
-        e.preventDefault();
-    }, false);
-    $("#thisismyid").remove();
-    wobblebottom.click(onWobblebottomClicked);
 });
 
 function dragEnter(ev) {
@@ -604,7 +608,7 @@ var imageEditor = function() {
 
             });
             $(".gimage").css("height", "120px");
-            $("#searchresultsholder").append('<div id="morebutton" style="width:80%;display:table" class="gradbutton" onclick="imageEditor.search()"><b>Show More Results</b></div>')
+            $("#searchresultsholder").append('<div id="morebutton" style="width:80%;display:table" class="gradbutton bigbutton" onclick="imageEditor.search()"><b>Show More Results</b></div>')
 
         },
 
@@ -779,7 +783,6 @@ function uploadComplete(data) {
 <body>
 
 <div class="albumcovers">
-<div id="thisismyid" style="width:100%;position:absolute;top:24px;left0px"></div>
 <div class="infosection">
 <table width="100%">
 <tr><td colspan="3"><h2>Album Art</h2></td></tr>

@@ -1,706 +1,62 @@
-function Info(target, source) {
+String.prototype.capitalize = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+}
 
-    var target_frame = target;
-    var self = this;
-    var current_source = source;
+var browser = function() {
+
+    var current_source = prefs.infosource;
     var history = [];
     var displaypointer = -1;
     var panelclosed = {artist: false, album: false, track: false};
-    var lastsource = "lastfm";
-    if (current_source == "soundcloud:") {
-        // Can't initialise with soundcloud as the source
-        current_source = lastsource;
-    }
-    var scImg = new Image();
-    var titimer = null;
+    var waitingon = {artist: false, album: false, track: false, index: -1, source: null};
 
-    /*
-    /
-    /     Various Functions to do with receiving and storing our history
-    /
-    */
+    var sources = nowplaying.getAllPlugins();
 
-    this.trackHasChanged = function(npinfo) {
-        /* nowplaying is telling us that something has changed but it doesn't yet have data to display */
-        if (displaypointer > -1 && displaypointer >= (history.length)-1) {
-            var currentnames = nowplaying.getmpdnames(history[displaypointer].nowplayingindex);
-            playTheWaitingGame( npinfo,
-                                (currentnames.artist != npinfo.artist),
-                                (currentnames.album != npinfo.album || currentnames.artist != npinfo.artist),
-                                (currentnames.track != npinfo.track || currentnames.album != npinfo.album || currentnames.artist != npinfo.artist)
-            );
-        }
-        var l = npinfo.location;
-        debug.log("INFO PANEL","New Track Coming, Location is",l);
-        if (l.substr(0,11) == "soundcloud:") {
-            $("#soundcloudbutton").fadeIn("fast");
-        } else {
-            $("#soundcloudbutton").fadeOut("fast");
-            if (current_source == "soundcloud") {
-                current_source = lastsource;
-                prefs.save({infosource: current_source});
-            }
-        }
-
-        $("#fileinformation").html(fbheader("Waiting for file information...",""));
-        clearTimeout(titimer);
-        if (prefs.use_mopidy_http == 0) {
-            titimer = setTimeout(function() {
-                player.mpd.command("", browser.updateFileInformation)
-            }, 3000);
-        } else {
-            titimer = setTimeout(self.updateFileInformation, 3000);
-        }
-    }
-
-    function playTheWaitingGame(npinfo, doartist, doalbum, dotrack) {
-
-        clearSelection();
-        if (!prefs.hidebrowser) {
-            if (doartist) {
-                $("#artistinformation").html(waitingBanner('Artist', npinfo.artist));
-            }
-            if (doalbum) {
-                $("#albuminformation").html(waitingBanner('Album', npinfo.album));
-            }
-            if (dotrack) {
-                $("#trackinformation").html(waitingBanner('Track', npinfo.track));
-            }
-        }
-    }
-
-    function waitingBanner(title, name) {
-        var html = '<div class="infosection">';
-        html = html + '<h3>'+title+' : ' + name + '  (Getting Info....)</h3>';
-        html = html + '</div>';
-        return html;
-    }
-
-
-    this.newTrack = function(index) {
-
-        /* nowplaying is giving us some new data */
-        switch (true) {
-            case (displaypointer == -1):
-                /* This is the first one, so yes we care, and we've nothing to compare with
-                   so just go straight ahead and give us everything */
-                showMeTheMonkey(index, true, true, true, nowplaying.getnames(index));
-                break;
-
-            case (displaypointer < (history.length)-1):
-                /* We are not displaying the most recent entry in our history, so we don't want to update
-                   but we do want to put the entry into our history*/
-                var newnames = nowplaying.getnames(index);
-                showMeTheMonkey(index,
-                                false,
-                                false,
-                                false,
-                                newnames
-                               );
-                break;
-
-            case (current_source == "lastfm"):
-                /* When we're displaying LastFM stuff, we always care about changes */
-                var currentnames = nowplaying.getnames(history[displaypointer].nowplayingindex);
-                var newnames = nowplaying.getnames(index);
-                showMeTheMonkey(index,
-                                (currentnames.artist != newnames.artist),
-                                (currentnames.album != newnames.album || currentnames.artist != newnames.artist),
-                                (currentnames.track != newnames.track || currentnames.album != newnames.album || currentnames.artist != newnames.artist),
-                                newnames
-                               );
-                break;
-
-            case (current_source == "soundcloud"):
-                showMeTheMonkey(index,
-                                true,
-                                false,
-                                false,
-                                nowplaying.getnames(index)
-                            );
-                break;
-
-            case (current_source == "slideshow" || current_source == "wikipedia"):
-                var currentnames = nowplaying.getnames(history[displaypointer].nowplayingindex);
-                var newnames = nowplaying.getnames(index);
-                if (currentnames.artist != newnames.artist) {
-                    showMeTheMonkey(index, true, false, false, newnames);
-                }
-                break;
-            default:
-                debug.error("INFO PANEL","AWOOOOGA! Something I hadn't anticipated has just happened");
-                break;
-        }
-    }
-
-    function showMeTheMonkey(npi, showartist, showalbum, showtrack, names) {
-        var thisone = history.length;
-        history[thisone] = { nowplayingindex: npi,
-                             source: current_source,
-                             artist: names.artist,
-                             album: names.album,
-                             track: names.track };
-        if (showartist || showalbum || showtrack) {
-            displaypointer = thisone;
-        }
-        updateHistory();
-        clearSelection();
-        $('#artistinformation').stop();
-        $('#albuminformation').stop();
-        $('#trackinformation').stop();
-        if (!prefs.hidebrowser) {
-            if (showartist) { updateArtistBrowser() };
-            if (showalbum)  { updateAlbumBrowser() };
-            if (showtrack)  { updateTrackBrowser() };
-        }
-    }
-
-    this.doHistory = function(index) {
-        displaypointer = index;
-        updateHistory();
-        self.slideshow.killTimer();
-        clearSelection();
-        if (!prefs.hidebrowser) {
-            updateArtistBrowser();
-            updateAlbumBrowser();
-            updateTrackBrowser();
-        }
-        return false;
-    }
-
-    this.switchSource = function(source) {
-        if (source === null) {
-            source = current_source;
-        } else {
-            if (source == "soundcloud") {
-                lastsource = current_source;
-            }
-            current_source = source;
-            prefs.save({infosource: source});
-        }
-        self.slideshow.killTimer();
-        showMeTheMonkey(nowplaying.getcurrentindex(),
-                        true,
-                        (source == "lastfm" ? true : false),
-                        (source == "lastfm" ? true : false),
-                        nowplaying.getnames(nowplaying.getcurrentindex()));
-        return false;
-    }
-
-    this.back = function() {
-        self.doHistory(displaypointer-1);
-        return false;
-    }
-
-    this.forward = function() {
-        self.doHistory(displaypointer+1);
-        return false;
-    }
-
-    this.getWiki = function(link) {
-        debug.log("INFO PANEL","Getting Wiki:",link);
-        var currentdisplay = {
-            artist: history[displaypointer].artist,
-            album: history[displaypointer].album,
-            track: history[displaypointer].track,
-            nowplayingindex: history[displaypointer].nowplayingindex,
-            source: "wikipedia",
-            wiki: link
+    function displayTheData(ptr, showartist, showalbum, showtrack) {
+        var a = waitingon.artist;
+        var b = waitingon.album;
+        var c = waitingon.track;
+        waitingon = {   artist: a || showartist,
+                        album:  b || showalbum,
+                        track:  c || showtrack,
+                        index: history[ptr].nowplayingindex,
+                        source: history[ptr].source
         };
-        history.splice(displaypointer+1,(history.length)-displaypointer,currentdisplay);
-        displaypointer++;
-        updateHistory();
-        updateArtistBrowser();
-        return false;
-    }
-
-    /*
-    /
-    /    Updating the three panels to show the current information
-    /
-    */
-
-    function prepareArtistPane() {
-        $("#infopane").removeClass("infoslideshow");
-        $("#infopane").removeClass("infowiki");
-        $("#infopane").addClass("infowiki");
-    }
-
-    updateArtistBrowser = function() {
-        switch(history[displaypointer].source) {
-            case "wikipedia":
-                $("#albuminformation").fadeOut('fast');
-                $("#trackinformation").fadeOut('fast');
-                prepareArtistPane();
-                $('#artistinformation').fadeOut('fast', function() {
-                    if (history[displaypointer].artist != "") {
-                        $('#artistinformation').empty();
-                        setWikiWaiting('#artistinformation', "images/Wikipedia-logo.png");
-                        if (history[displaypointer].wiki) {
-                            $('#artistinformation').load("info_wikipedia.php?wiki="+history[displaypointer].wiki, function () {
-                                $('#'+target_frame).animate({ scrollTop: 0}, { duration: 'fast', easing: 'swing'});
-                            });
-                        } else {
-                            $('#artistinformation').load("info_wikipedia.php?artist="+encodeURIComponent(history[displaypointer].artist), function () {
-                                $('#'+target_frame).animate({ scrollTop: 0}, { duration: 'fast', easing: 'swing'});
-                            });
-                        }
-                    }
-                });
-                break;
-
-            case "soundcloud":
-                $("#albuminformation").fadeOut('fast');
-                $("#trackinformation").fadeOut('fast');
-                prepareArtistPane();
-                $('#artistinformation').fadeOut('fast', function() {
-                    $('#artistinformation').empty();
-                    if (history[displaypointer].artist != "") {
-                        doSoundCloudShit();
-                        $('#artistinformation').fadeIn(1000);
-                    }
-                });
-                break;
-
-
-            case "lastfm":
-                prepareArtistPane();
-                $('#artistinformation').fadeOut('fast', function() {
-                    if (history[displaypointer].artist != "") {
-                        //$('#artistinformation').empty();
-                        doArtistUpdate();
-                        $('#artistinformation').fadeIn(1000);
-                    }
-                });
-                break;
-
-            case "slideshow":
-                $("#albuminformation").fadeOut('fast');
-                $("#trackinformation").fadeOut('fast');
-                $("#infopane").removeClass("infoslideshow");
-                $("#infopane").removeClass("infowiki");
-                $("#infopane").addClass("infoslideshow");
-                $('#artistinformation').fadeOut('fast', function() {
-                    if (history[displaypointer].artist != "") {
-                        //$('#artistinformation').empty();
-                        getSlideShow(history[displaypointer].artist);
-                    }
-                });
-                break;
-
-        }
-    }
-
-    updateAlbumBrowser = function(lfmdata) {
-        switch(history[displaypointer].source) {
-            case "wikipedia":
-            case "slideshow":
-            case "soundcloud":
-                break;
-
-            case "lastfm":
-                $('#albuminformation').fadeOut('fast', function() {
-                    if (history[displaypointer].album != "") {
-                        //$('#albuminformation').empty();
-                        doAlbumUpdate();
-                        $('#albuminformation').fadeIn(1000);
-                    }
-                });
-                break;
-        }
-    }
-
-    updateTrackBrowser = function(lfmdata) {
-        switch(history[displaypointer].source) {
-            case "wikipedia":
-            case "slideshow":
-            case "soundcloud":
-                break;
-
-            case "lastfm":
-                $('#trackinformation').fadeOut('fast', function() {
-                    if (history[displaypointer].track != "") {
-                        doTrackUpdate();
-                        $('#trackinformation').fadeIn(1000);
-                    }
-                });
-                break;
-        }
-    }
-
-    function setWikiWaiting(frame,image) {
-        var html = '<div class="infosection">'+
-                    '<table width="100%"><tr><td width="80%">'+
-                    '<h2 id="flashthis">Loading...</h2>'+
-                    '</td><td align="right">'+
-                    '<img src="'+image+'">'+
-                    '</td></tr></table>'+
-                    '</div>';
-        $(frame).html(html);
-        html = null;
-        $('#flashthis').effect('pulsate', { times:100 }, 2000);
-        $(frame).fadeIn('fast');
-    }
-
-    this.hide = function() {
-        if (prefs.hidebrowser) {
-            prefs.save({sourceswidthpercent: 25,
-                       playlistwidthpercent: 25});
-            self.switchSource(current_source);
-            if (mobile != "no") {
-                $(".penbehindtheear").fadeIn('fast');
-            }
-        } else {
-            if (mobile != "no") {
-                $(".penbehindtheear").fadeOut('fast');
+        for (var i in waitingon) {
+            if (waitingon[i] === true) {
+                $("#"+i+"information").html(waitingBanner(i));
             }
         }
-        prefs.save({hidebrowser: !prefs.hidebrowser});
-        self.slideshow.killTimer();
-        doThatFunkyThang();
-
+        nowplaying.giveUsTheData(waitingon);
+        debug.log("BROWSER", "Waiting on source",waitingon.source,"for index", waitingon.index);
     }
 
-    /*
-    /
-    /    Generating the HTML for each of the panels
-    /
-    */
-
-    function fbheader(text, filetype) {
-        var html = '<div class="infosection"><table width="100%"><tr><td><h2>'+text+'</h2></td>';
-        switch(filetype) {
-            case "mp3":
-                html = html + '<td align="right"><img src="images/mp3-audio.jpg" /></td>';
-                break;
-
-            case "mp4":
-            case "m4a":
-            case "aac":
-                html = html + '<td align="right"><img src="images/aac-audio.jpg" /></td>';
-                break;
-
-            case "flac":
-                html = html + '<td align="right"><img src="images/flac-audio.jpg" /></td>';
-                break;
-        }
-        html = html + '</tr></table></div>';
+    function waitingBanner(which) {
+        var html = '<div class="containerbox infosection menuitem bordered">';
+        html = html + '<h3 class="expand ucfirst">'+which+' : (Getting Info....)</h3>';
+        html = html + '<div class="fixed" style="vertical-align:middle"><img height="32px" src="images/waiter.png" class="spinner"></div>';
+        html = html + '</div>';
         return html;
     }
 
-    this.updateFileInformation = function() {
-        var file = unescape(player.status.file);
-        if (!file) { return }
-        file = file.replace(/^file:\/\//, '');
-        var filetype = "";
-        if (file) {
-            var n = file.match(/.*\.(.*?)$/);
-            if (n) {
-                filetype = n[n.length-1];
-                filetype = filetype.toLowerCase();
-            }
-        } else {
-            return;
-        }
-        var html = fbheader("File Information:", filetype);
-        html = html + '<div class="indent"><table><tr><td class="fil">File:</td><td>'+file;
-        if (file.match(/item\/\d+\/file/)) {
-            html = html + ' (from beets server)';
-        }
-        html = html +'</td></tr>';
-        if (player.status.bitrate && player.status.bitrate != 'None') {
-            html = html + '<tr><td class="fil">Bitrate:</td><td>'+player.status.bitrate+'</td></tr>';
-        }
-        var ai = player.status.audio;
-        if (ai) {
-            var p = ai.split(":");
-            html = html + '<tr><td class="fil">Sample Rate:</td><td>'+p[0]+' Hz, '+p[1]+' Bit, ';
-            if (p[2] == 1) {
-                html = html + 'Mono';
-            } else if (p[2] == 2) {
-                html = html + 'Stereo';
-            } else {
-                html = html + p[2]+' Channels';
-            }
-            '</td></tr>';
-        }
-        if (player.status.Date) {
-            html = html + '<tr><td class="fil">Date:</td><td>'+player.status.Date+'</td></tr>';
-        }
-        if (player.status.Genre) {
-            html = html + '<tr><td class="fil">Genre:</td><td>'+player.status.Genre+'</td></tr>';
-        }
-        html = html + '</table></div>';
-        $("#fileinformation").html(html);
-        html = null;
-        playlist.checkProgress();
-    }
-
-    this.showFileInfo = function() {
-        var a = $("#fileinformation").is(':hidden');
-        $("#fileinformation").slideToggle('fast');
-        prefs.save({showfileinfo: a});
-    }
-
-
-    function doArtistUpdate() {
-
-        var lfmdata = new lfmDataExtractor(nowplaying.getArtistData(history[displaypointer].nowplayingindex));
-        var html = lastFmBanner(lfmdata, "Artist", panelclosed.artist, history[displaypointer].artist);
-        if (lfmdata.error()) {
-            html = html + formatLastFmError(lfmdata);
-        } else {
-            html = html + sectionHeader(lfmdata);
-            if (mobile == "no") {
-                var imageurl = lfmdata.image("extralarge");
-            } else {
-                var imageurl = lfmdata.image("large");
-                if (imageurl != '') {
-                    html = html + '<img src="' + imageurl + '" class="clrbth" />';
-                }
-            }
-            html = html + '<br><li class="tiny">Hear artists similar to '+history[displaypointer].artist+'&nbsp;&nbsp;<a href="#" onclick="doLastFM(\'lastfmartist\', \''+history[displaypointer].artist+'\')"><img style="vertical-align:middle" src="images/start.png" height="12px"></a></li>';
-            html = html + '<br><li class="tiny">Play what fans of '+history[displaypointer].artist+' are listening to&nbsp;&nbsp;<a href="#" onclick="doLastFM(\'lastfmfan\', \''+history[displaypointer].artist+'\')"><img style="vertical-align:middle" src="images/start.png" height="12px"></a></li>';
-            html = html + '</ul><br>';
-
-            html = html + doTags(lfmdata.tags());
-            if (lastfm.isLoggedIn()) {
-                html = html + tagsInput("artist");
-                html = html + doUserTags("artist");
-            }
-
-            html = html + '</div><div class="statsbox">';
-
-            if (mobile == "no" && imageurl != '') {
-                html = html +  '<img class="stright" src="' + imageurl + '" class="standout" />';
-            }
-            html = html +  '<div id="artistbio">';
-            html = html + formatBio(lfmdata.bio(), lfmdata.url());
-            html = html + '</div></div>';
-            if (lfmdata.mbid()) {
-                html = html + '<p class="tiny"><img style="vertical-align:middle" src="images/musicbrainz_logo.png" width="24px"><a href="http://musicbrainz.org/artist/'+lfmdata.mbid()+'" target="_blank">View '+history[displaypointer].artist+' on Musicbrainz.org</a></p>';
-            }
-            html = html + '</div>';
-
-            var similies = lfmdata.similar();
-            html = html + '<div id="similarartists" class="bordered"><h3 align="center">Similar Artists</h3>';
-            html = html + '<table width="100%" cellspacing="0" cellpadding="0"><tr><td align="center"><div class="smlrtst">';
-            for(var i in similies) {
-                html = html + '<div class="simar">';
-                html = html + '<table><tr><td align="center"><a href="'+similies[i].url+'" target="_blank"><img src="'+lfmdata.similarimage(i, "medium")+'"></a></td></tr>';
-                html = html + '<tr><td align="center">'+similies[i].name+'</td></tr>';
-                html = html + '<tr><td align="center"><a href="#" title="Play Artist Radio Station" onclick="doLastFM(\'lastfmartist\', \''+similies[i].name+'\')"><img src="images/start.png" height="12px"></a></td></tr></table>';
-                html = html + '</div>';
-            }
-            html = html + '</div></td></tr></table></div>';
-
-        }
-        html = html + '</div>';
-
-        $("#artistinformation").html(html);
-        html = null;
-        $("#artistinformation .frog").click( toggleArtistInfo );
-        lfmdata = null;
-
-        if (lastfm.isLoggedIn()) {
-            nowplaying.getusertags(history[displaypointer].nowplayingindex, 'artist');
-        }
-        $("#artistinformation .enter").keyup( onKeyUp );
-    }
-
-    function toggleArtistInfo() {
-        $("#artistinformation .foldup").slideToggle('slow');
-        panelclosed.artist = !panelclosed.artist;
-        if (panelclosed.artist) {
-            $("#artistinformation .frog").text("CLICK TO SHOW");
-        } else {
-            $("#artistinformation .frog").text("CLICK TO HIDE");
-        }
-        return false;
-    }
-
-    function doAlbumUpdate() {
-
-        var lfmdata = new lfmDataExtractor(nowplaying.getAlbumData(history[displaypointer].nowplayingindex));
-
-        var html;
-        if (lfmdata.error()) {
-            if (lfmdata.errorno() == 99) {
-                html = lastFmBanner(lfmdata, "Internet Radio", panelclosed.album, "");
-                html = html + '<p><b>'+history[displaypointer].album+'</b></p>';
-            } else {
-                html = lastFmBanner(lfmdata, "Album", panelclosed.album, history[displaypointer].album);
-                html = html + formatLastFmError(lfmdata);
-            }
-        } else {
-            html = lastFmBanner(lfmdata, "Album", panelclosed.album, history[displaypointer].album);
-            html = html + sectionHeader(lfmdata);
-            html = html + '<br><ul id="buyalbum"><li><b>BUY THIS ALBUM&nbsp;</b><a href="#" onclick="browser.buyAlbum()"><img height="20px" id"buyalbumbutton" style="vertical-align:middle" src="images/cart.png"></a></li></ul>';
-            html = html + '</ul><br>';
-
-            html = html + doTags(lfmdata.tags());
-            if (lastfm.isLoggedIn()) {
-                html = html + tagsInput("album");
-                html = html + doUserTags("album");
-            }
-
-            html = html + '</div><div class="statsbox">';
-            var imageurl;
-            if (mobile == "no") {
-                imageurl = lfmdata.image("large");
-            } else {
-                imageurl = lfmdata.image("medium");
-            }
-            if (imageurl != '') {
-                html = html +  '<img class="stright" src="' + imageurl + '" class="standout" />';
-            }
-            html = html +  '<p>';
-            html = html + '<b>Release Date : </b>'+lfmdata.releasedate();
-            html = html +  '</p><p><b>Track Listing:</b></p><table>';
-            var tracks = lfmdata.tracklisting();
-            for(var i in tracks) {
-                html = html + '<tr><td>';
-                if (tracks[i]['@attr']) { html = html + tracks[i]['@attr'].rank+':'; }
-                html = html + '</td><td>'+tracks[i].name+'</td><td>'+formatTimeString(tracks[i].duration)+'</td>';
-                html = html + '<td align="right"><a target="_blank" title="View Track On Last.FM" href="'+tracks[i].url+'"><img src="images/lastfm.png" height="12px"></a></td><td align="right">';
-                if (tracks[i].streamable) {
-                    if (tracks[i].streamable['#text'] == "1") {
-                        var tit = "Play Sample";
-                        if (tracks[i].streamable.fulltrack == "1") { tit = "Play Track"; }
-                        html = html + '<a href="#" title="'+tit+'" onclick="addLastFMTrack(\''+encodeURIComponent(lfmdata.artist())+'\', \''+
-                        encodeURIComponent(tracks[i].name)+'\')"><img src="images/start.png" height="12px"></a>';
-                    }
-                }
-                html = html + '</td></tr>';
-            }
-            html = html + '</table>';
-            html = html + '<p>'+formatBio(lfmdata.bio())+'</p>';
-            html = html + '</div>'
-            if (lfmdata.mbid()) {
-                html = html + '<p class="tiny"><img style="vertical-align:middle" src="images/musicbrainz_logo.png" width="24px"><a href="http://musicbrainz.org/release/'+lfmdata.mbid()+'" target="_blank">View '+history[displaypointer].album+' on Musicbrainz.org</a></p>';
-            }
-            html = html + '</div>';
-        }
-        html = html + '</div>';
-        $("#albuminformation").html(html);
-        html = null;
-        $("#albuminformation .frog").click( toggleAlbumInfo );
-        lfmdata = null;
-        if (lastfm.isLoggedIn()) {
-            nowplaying.getusertags(history[displaypointer].nowplayingindex, 'album');
-        }
-        $("#albuminformation .enter").keyup( onKeyUp );
-
-    }
-
-     function toggleAlbumInfo() {
-        $("#albuminformation .foldup").slideToggle('slow');
-        panelclosed.album = !panelclosed.album;
-        if (panelclosed.album) {
-            $("#albuminformation .frog").text("CLICK TO SHOW");
-        } else {
-            $("#albuminformation .frog").text("CLICK TO HIDE");
-        }
-        return false;
-    }
-
-    function doTrackUpdate() {
-        debug.debug("INFO","Doing track update");
-        var lfmdata = new lfmDataExtractor(nowplaying.getTrackData(history[displaypointer].nowplayingindex));
-        var html = lastFmBanner(lfmdata, "Track", panelclosed.track, history[displaypointer].track);
-        if (lfmdata.error()) {
-            html = html + formatLastFmError(lfmdata);
-        } else {
-            html = html + sectionHeader(lfmdata);
-            html = html + '<li name="userloved">';
-            html = html +'</li>';
-
-            html = html + '<br><ul id="buytrack"><li><b>BUY THIS TRACK&nbsp;</b><img class="clickicon" onclick="browser.buyTrack()" height="20px" id="buytrackbutton" style="vertical-align:middle" src="images/cart.png"></li></ul>';
-            html = html + '</ul><br>';
-
-            html = html + doTags(lfmdata.tags());
-            if (lastfm.isLoggedIn()) {
-                html = html + tagsInput("track");
-                html = html + doUserTags("track");
-            }
-            html = html + '</div>';
-            html = html + '<p>'+formatBio(lfmdata.bio())+'</p>';
-            if (lfmdata.mbid()) {
-                html = html + '<p class="tiny"><img style="vertical-align:middle" src="images/musicbrainz_logo.png" width="24px"><a href="http://musicbrainz.org/recording/'+lfmdata.mbid()+'" target="_blank">View '+history[displaypointer].track+' on Musicbrainz.org</a></p>';
-            }
-            html = html + '</div>';
-        }
-        html = html + '</div>';
-        $("#trackinformation").html(html);
-        html = null;
-        if (lastfm.isLoggedIn()) {
-            if (lfmdata.userloved()) {
-                doUserLoved(true)
-            } else {
-                doUserLoved(false);
-            }
-        }
-        $("#trackinformation .frog").click( toggleTrackInfo )
-        lfmdata = null;
-        if (lastfm.isLoggedIn()) {
-            nowplaying.getusertags(history[displaypointer].nowplayingindex, 'track');
-        }
-        $("#trackinformation .enter").keyup( onKeyUp );
-
-    }
-
-    function toggleTrackInfo() {
-        $("#trackinformation .foldup").slideToggle('slow');
-        panelclosed.track = !panelclosed.track;
-        if (panelclosed.track) {
-            $("#trackinformation .frog").text("CLICK TO SHOW");
-        } else {
-            $("#trackinformation .frog").text("CLICK TO HIDE");
-        }
-        return false;
-    }
-
-    function doUserLoved(flag) {
-        var html = "";
-        if (flag) {
-            html = html + '<b>Loved:</b> Yes';
-            html = html+'&nbsp;&nbsp;&nbsp;<a title="Unlove This Track" href="#" onclick="browser.unlove()"><img src="images/lastfm-unlove.png" height="12px"></a>';
-        } else {
-            html = html + '<li><b>Loved:</b> No';
-            html = html+'&nbsp;&nbsp;&nbsp;<a title="Love This Track" href="#" onclick="browser.love()"><img src="images/lastfm-love.png" height="12px"></a>';
-        }
-        $('li[name="userloved"]').html(html);
-        html = null;
-    }
-
-    function formatLastFmError(lfmdata) {
-        return '<h3 align="center">'+lfmdata.error()+'</h3>';
-    }
-
-    function sectionHeader(data) {
-        var html = '<div class="holdingcell">';
-        html = html + '<div class="standout stleft statsbox"><ul>';
-        html = html + '<li><b>Listeners:</b> '+data.listeners()+'</li>';
-        html = html + '<li><b>Plays:</b> '+data.playcount()+'</li>';
-        html = html + '<li><b>Your Plays:</b> '+data.userplaycount()+'</li>';
-        return html;
-    }
-
-    function lastFmBanner(data, title, hidden, name) {
-        var html = '<div class="infosection">';
-        html = html + '<table width="100%"><tr><td width="80%">';
-        html = html + '<h2>'+title+' : ' + name + '</h2>';
-        html = html + '</td><td align="left"><a href="#" class="frog">';
+    function banner(data, title, hidden, source) {
+        var html = '<div class="containerbox infosection menuitem bordered">';
+        html = html + '<h2 class="expand"><span class="ucfirst">'+title+'</span> : ' + data.name + '</h2>';
+        html = html + '<div class="fixed" style="vertical-align:middle;padding:12px"><a href="#" class="infoclick frog">';
         if (hidden) {
             html = html + "CLICK TO SHOW";
         } else {
             html = html + "CLICK TO HIDE";
         }
-        html = html + '</a></td><td align="right">';
-        html = html + '<a href="' + data.url() + '" title="View In New Tab" target="_blank"><img src="images/lastfm.png"></a>';
-        html = html + '</td></tr></table>';
+        html = html + '</a></div>';
+        if (data.link === null) {
+            html = html + '<div class="fixed" style="vertical-align:middle"><img height="32px" src="'+sources[source].icon+'"></div>';
+        } else {
+            html = html + '<div class="fixed" style="vertical-align:middle"><a href="'+
+                        data.link + '" title="View In New Tab" target="_blank"><img height="32px" src="'+sources[source].icon+'"></a></div>';
+        }
         html = html + '</div>';
-        html = html + '<div class="foldup"';
+        html = html + '<div class="foldup" id="artistfoldup"';
         if (hidden) {
             html = html + ' style="display:none"';
         }
@@ -708,386 +64,33 @@ function Info(target, source) {
         return html;
     }
 
-    function formatBio(bio, link) {
-        if (bio) {
-            bio = bio.replace(/\n/g, "</p><p>");
-            bio = bio.replace(/(<a .*?href="http:\/\/.*?")/g, '$1 target="_blank"');
-            if (link) {
-                link = link.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
-                var re = new RegExp("<a href=\""+link+"\" target=\"_blank\">Read more about.*?</a>");
-                bio = bio.replace(re, '<a id="artistbiolink" href="#" onclick="browser.scrapeArtistBio()">Read Full Biography</a>');
-            }
-            return bio;
+    function toggleSection(section) {
+        $("#"+section+"information .foldup").slideToggle('slow');
+        panelclosed[section] = !panelclosed[section];
+        if (panelclosed[section]) {
+            $("#"+section+"information .frog").text("CLICK TO SHOW");
         } else {
-            return "";
-        }
-    }
-
-    this.scrapeArtistBio = function() {
-        // So, for some unfathomable reason Last.FM has changed the API so artist biographies are
-        // truncated at 300 characters. So this attempts to scrape the full bio from the website,
-        // thereby increasing their traffic, which is probably not what they want.
-        nowplaying.getFullBio('artist', history[displaypointer].nowplayingindex, browser.gotFullArtistBio, browser.myFeetHurt);
-    }
-
-    this.gotFullArtistBio = function(index,data) {
-        if (index == history[displaypointer].nowplayingindex) {
-            $("#artistbio").html(formatBio(data, null));
-        }
-    }
-
-    this.myFeetHurt = function() {
-        infobar.notify(infobar.NOTIFY, "No full biography available");
-    }
-
-    /*
-    /    Generating HTML for the various Last.FM tag sections
-    */
-
-    function doTags(taglist) {
-        var html = '<ul><li><b>TOP TAGS:</b></li><li><table width="100%">';
-        for(var i in taglist) {
-            html = html + '<tr><td><a href="'+taglist[i].url+'" target="_blank">'+taglist[i].name+'</a></td>';
-            html = html + '<td align="right"><a href="#" title="Play Tag Radio Station" onclick="doLastFM(\'lastfmglobaltag\', \''+taglist[i].name+'\')"><img style="vertical-align:middle" src="images/start.png" height="12px"></a></td></tr>';
-        }
-        html = html + '</table></li></ul>';
-        return html;
-    }
-
-    function tagsInput(type) {
-        var html = '<ul class="holdingcell"><li><b>ADD TAGS</b></li>';
-        html = html + '<li class="tiny">Add tags, comma-separated</li>';
-        html = html + '<li><input class="enter tiny inbrowser" name="phil'+type+'tags" id="add'+type+'tags" type="text"></input>';
-        html = html + '<button class="tiny" onclick="browser.addTags(\''+type+'\')">ADD</button>'+
-                        '<img class="tright waiting" id="tagadd'+type+'" height="20px" src="images/transparent-32x32.png"></li></ul>';
-        return html;
-    }
-
-    function doUserTags(name) {
-        var html = '<ul><li><b>YOUR TAGS:</b></li><li><table name="'+name+'tagtable" width="100%">';
-        html = html + '</table></li></ul>';
-        return html;
-    }
-
-    this.userTagsIncoming = function(taglist, name, index) {
-        if (index == history[displaypointer].nowplayingindex && history[displaypointer].source == "lastfm") {
-            stopWaitingIcon("tagadd"+name);
-            $('table[name="'+name+'tagtable"]').find("tr").remove();
-            for(var i in taglist) {
-                appendTag(name, taglist[i].name, taglist[i].url);
-            }
-        }
-    }
-
-    this.addTags = function (type) {
-        makeWaitingIcon("tagadd"+type);
-        nowplaying.addtags(history[displaypointer].nowplayingindex, type, $("#add"+type+"tags").attr("value"));
-    }
-
-    this.tagAddFailed = function(type,tags) {
-        stopWaitingIcon("tagadd"+type);
-        infobar.notify(infobar.ERROR, "Failed to add "+tags+" to "+type);
-    }
-
-    this.tagRemoveFailed = function(type,tags) {
-        stopWaitingIcon("tagadd"+type);
-        infobar.notify(infobar.ERROR, "Failed to remove tag "+tags);
-    }
-
-    this.gotFailure = function(data) {
-        debug.warn("INFO PANEL","FAILED with something:",data);
-        infobar.notify(infobar.ERROR, "Unspecified, non-serious error. Carry on as if nothing had happened");
-    }
-
-    function appendTag(table, name, url) {
-        var html = '<tr class="newtag" name="'+table+name+'"><td><a href="'+url+'" target="_blank">'+name+'</a></td>';
-        html = html + '<td><a href="#" id="'+table+'tag" name="'+name+'"><img style="vertical-align:middle" src="images/edit-delete.png" height="12px"></a></td>';
-        html = html + '<td align="right"><a href="#" onclick="doLastFM(\'lastfmglobaltag\', \''+name+'\')"><img style="vertical-align:middle" src="images/start.png" height="12px"></a></td></tr>';
-        $('table[name="'+table+'tagtable"]').append(html);
-        html = null;
-        $(".newtag").toggle(1000);
-        $(".newtag").each( function(index, element) {
-            $(element).removeClass("newtag");
-            $(element).find("#"+table+"tag").click( function() {
-                var tag = $(element).find("#"+table+"tag").attr("name");
-                nowplaying.removetags(history[displaypointer].nowplayingindex, table, tag);
-            });
-            return true;
-        });
-
-    }
-
-    /*
-    /    Generating the HTML for the Buy Album and Buy Track sections
-    */
-
-    this.buyAlbum = function() {
-        makeWaitingIcon("buyalbumbutton");
-        lastfm.album.getBuylinks({album: history[displaypointer].album, artist: nowplaying.albumartist(history[displaypointer].nowplayingindex)}, browser.showAlbumBuyLinks, browser.noAlbumBuyLinks);
-    }
-
-    this.noAlbumBuyLinks = function() {
-        stopWaitingIcon("buyalbumbutton");
-        infobar.notify(infobar.NOTIFY, "Could not find any information on buying this album");
-    }
-
-    function getBuyHtml(data) {
-        var html = "";
-        if (data.affiliations) {
-            if (data.affiliations.physicals) {
-                html = html + '<li><b>BUY ON CD:</b></li>';
-                html = html + doBuyTable(getArray(data.affiliations.physicals.affiliation));
-            }
-            if (data.affiliations.downloads) {
-                html = html + '<li><b>DOWNLOAD:</b></li>';
-                html = html + doBuyTable(getArray(data.affiliations.downloads.affiliation));
-            }
-        }
-        return html;
-    }
-
-    this.showAlbumBuyLinks = function(data) {
-
-        debug.log("INFO PANEL","Got Album Buy Links",data);
-
-        $("#buyalbum").slideUp('fast', function() {
-            $("#buyalbum").css("display", "none");
-            $("#buyalbum").html(getBuyHtml(data));
-            $("#buyalbum").slideDown("fast").show();
-        });
-    }
-
-    function doBuyTable(values) {
-        var html = "";
-        for(var i in values) {
-            html = html + '<li><img width="12px" src="'+values[i].supplierIcon+'">&nbsp;<a href="'+values[i].buyLink+'" target="_blank">'+
-                            values[i].supplierName+'</a>';
-            if (values[i].price) {
-                if (values[i].price.formatted) {
-                    html = html + '    '+values[i].price.formatted;
-                } else {
-                    html = html + '    '+values[i].price.amount;
-                }
-            }
-            html = html +'</li>';
-        }
-        return html;
-    }
-
-    this.buyTrack = function() {
-        makeWaitingIcon("buytrackbutton");
-        lastfm.track.getBuylinks({track: history[displaypointer].track, artist: history[displaypointer].artist}, browser.showTrackBuyLinks, browser.noTrackBuyLinks);
-        return false;
-    }
-
-    this.noTrackBuyLinks = function() {
-        stopWaitingIcon("buytrackbutton");
-        infobar.notify(infobar.NOTIFY, "Could not find any information on buying this track");
-    }
-
-
-    this.showTrackBuyLinks = function(data) {
-        $("#buytrack").slideUp('fast', function() {
-            $("#buytrack").css("display", "none");
-            $("#buytrack").html(getBuyHtml(data));
-            $("#buytrack").slideDown("fast").show();
-        });
-    }
-
-    /*
-    /   SoundCloud Data
-    */
-
-    function doSoundCloudShit() {
-        var data = nowplaying.getSoundCloudData(history[displaypointer].nowplayingindex);
-        var html = '<div class="infosection">';
-        html = html + '<table width="100%"><tr><td width="80%">';
-        html = html + '<h2>SoundCloud : ' + history[displaypointer].track + ' by ' + history[displaypointer].artist + '</h2>';
-        html = html + '</td><td align="right">';
-        html = html + '<a href="' + data.track.permalink_url + '" title="View In New Tab" target="_blank"><img height="32px" src="images/soundcloud-logo.png"></a>';
-        html = html + '</td></tr></table>';
-        html = html + '</div>';
-
-        html = html +   '<div id="similarartists" class="bordered" style="position:relative">'+
-                        '<div id="scprog" class="infowiki" style="position:absolute;width:2px;top:0px;opacity:0.6;z-index:100;left:0px"></div>'+
-                        '<canvas style="position:relative;left:64px" id="gosblin"></canvas>'+
-                        '</div>';
-
-
-        html = html + '<div class="foldup"><div class="holdingcell">';
-
-        html = html + '<div class="standout stleft statsbox">';
-
-        if (data.track.artwork_url) {
-            html = html +  '<img src="' + data.track.artwork_url + '" class="stright" />';
-        }
-        html = html +  '<div id="artistbio class="stleft"><ul>';
-        html = html + '<li><h3>Track Info:</h3></li>';
-        html = html + '<li><b>Plays:</b> '+formatSCMessyBits(data.track.playback_count)+'</li>';
-        html = html + '<li><b>Downloads:</b> '+formatSCMessyBits(data.track.download_count)+'</li>';
-        html = html + '<li><b>Faves:</b> '+formatSCMessyBits(data.track.favoritings_count)+'</li>';
-        html = html + '<li><b>State:</b> '+formatSCMessyBits(data.track.state)+'</li>';
-        html = html + '<li><b>Genre:</b> '+formatSCMessyBits(data.track.genre)+'</li>';
-        html = html + '<li><b>Label:</b> '+formatSCMessyBits(data.track.label_name)+'</li>';
-        html = html + '<li><b>License:</b> '+formatSCMessyBits(data.track.license)+'</li>';
-        if (data.track.purchase_url) {
-            html = html + '<li><b><a href="' + data.track.purchase_url + '" target="_blank">Buy Track</a></b></li>';
-        }
-        html = html + '<li><a href="' + data.track.permalink_url + '" title="View In New Tab" target="_blank"><b>View on SoundCloud</b></a></li>';
-
-        html = html + '</ul>';
-        var d = formatSCMessyBits(data.track.description);
-        d = d.replace(/\n/g, "</p><p>");
-        html = html + '<p>'+d+'</p>';
-        html = html + '</div>';
-        html = html + '</div>';
-        html = html + '<div class="statsbox standout">';
-
-        if (data.user.avatar_url) {
-            html = html + '<img class="stright" src="'+data.user.avatar_url+'" />';
-        }
-        html = html + '<ul style="list-style-type:none"><li><h3>SoundCloud User:</h3></li>';
-        html = html + '<li><b>Full Name:</b> '+formatSCMessyBits(data.user.full_name)+'</li>';
-        html = html + '<li><b>Country:</b> '+formatSCMessyBits(data.user.country)+'</li>';
-        html = html + '<li><b>City:</b> '+formatSCMessyBits(data.user.city)+'</li>';
-        if (data.user.website) {
-            html = html + '<li><b><a href="' + data.user.website + '" target="_blank">Visit Website</a></b></li>';
-        }
-
-        var f = formatSCMessyBits(data.user.description)
-        f = f.replace(/\n/g, "</p><p>");
-        html = html + '</ul><p>'+ f +'</p>';
-
-
-        html = html + '</div></div>';
-        html = html + "</div>";
-        $("#artistinformation").html(html);
-        scImg.onload = browser.doSCImageStuff;
-        scImg.src = "getRemoteImage.php?url="+formatSCMessyBits(data.track.waveform_url);
-        html = null;
-
-    }
-
-    function formatSCMessyBits(bits) {
-        try {
-            if (bits) {
-                return bits;
-            } else {
-                return "";
-            }
-        } catch(err) {
-            return "";
-        }
-    }
-
-    this.soundcloudProgress = function(percent) {
-        if (current_source == "soundcloud" &&
-            displaypointer == (history.length) - 1) {
-            var p = $("#gosblin").position();
-            if (p) {
-                var w = Math.round($("#gosblin").width()*percent/100)+p.left;
-                $("#scprog").stop().animate({left: w.toString()+"px"}, 1000, "linear");
-            }
-        }
-    }
-
-    this.doSCImageStuff = function() {
-        var bgColor = $(".infowiki").css('background-color');
-        debug.debug("INFO PANEL","Background color is ",bgColor);
-        var rgbvals = /rgb\((.+),(.+),(.+)\)/i.exec(bgColor);
-        tempcanvas.width = scImg.width;
-        tempcanvas.height = scImg.height;
-        var ctx = tempcanvas.getContext("2d");
-        ctx.drawImage(scImg,0,0,tempcanvas.width,tempcanvas.height);
-        var pixels = ctx.getImageData(0,0,tempcanvas.width,tempcanvas.height);
-        var data = pixels.data;
-        for (var i = 0; i<data.length; i += 4) {
-            data[i] = parseInt(rgbvals[1]);
-            data[i+1] = parseInt(rgbvals[2]);
-            data[i+2] = parseInt(rgbvals[3]);
-        }
-        ctx.clearRect(0,0,tempcanvas.width,tempcanvas.height);
-        ctx.putImageData(pixels,0,0);
-        // We can't jump directly to the drawing of the image - we have to return from the
-        // onload routine first, otherwise the image width and height get messed up
-        setTimeout(browser.secondRoutine, 250);
-    }
-
-    this.secondRoutine = function() {
-        scImg.onload = browser.drawSCWaveform;
-        scImg.src = tempcanvas.toDataURL();
-    }
-
-    this.drawSCWaveform = function() {
-        if (displaypointer > 0 && history[displaypointer].source == "soundcloud") {
-            var wi = $("#similarartists").width();
-            w = Math.round(wi*0.95);
-            var l = Math.round((wi-w)/2);
-            var h = Math.round((w/scImg.width)*(scImg.height*0.7));
-            var c = document.getElementById("gosblin");
-            if (c) {
-                c.style.left = l.toString()+"px";
-                c.width = w;
-                c.height = h;
-                var ctx = c.getContext("2d");
-                ctx.clearRect(0,0,c.width,c.height);
-                var gradient = ctx.createLinearGradient(0,0,0,h);
-                gradient.addColorStop(0,'#ff6600');
-                gradient.addColorStop(0.5,'#882200');
-                gradient.addColorStop(1,'#222222');
-                ctx.fillStyle = gradient;
-                ctx.fillRect(0,0,w,h);
-                ctx.drawImage(scImg,0,0,w,h);
-                $("#scprog").css({height: h.toString()+"px"});
-            }
-        }
-    }
-
-    /*
-    /
-    /    History Buttons and Menu
-    /
-    */
-
-    this.thePubsCloseTooEarly = function() {
-        /* nowplaying has truncated its history by removing the first one in its list.
-         * This means that all of our stored indices are now out by one
-         * so we must adjust them
-         */
-        debug.log("INFO PANEL","Reducing the badger episodes becasue of too many carrots");
-        for (var i in history) {
-            var sidePocketForAToad = history[i].nowplayingindex;
-            history[i].nowplayingindex = sidePocketForAToad-1;
+            $("#"+section+"information .frog").text("CLICK TO HIDE");
         }
     }
 
     function updateHistory() {
-        if (displaypointer > 0) {
-            if (history.length > prefs.historylength) {
-                var t = history.shift();
-                displaypointer--;
-            }
-        }
 
         if (displaypointer == 0) {
             $("#backbutton").unbind('click');
-            $("#backbutton").removeAttr("href");
-            $("#backbutton img").attr("src", "images/backbutton_disabled.png");
+            $("#backbutton").attr("src", "images/backbutton_disabled.png");
         }
-        if (displaypointer > 0 && $("#backbutton").attr("href")==undefined) {
-            $("#backbutton").attr("href", "#");
-            $("#backbutton").click(function () {browser.back()});
-            $("#backbutton img").attr("src", "images/backbutton.png");
+        if (displaypointer > 0 && $("#backbutton").attr("src")=="images/backbutton_disabled.png") {
+            $("#backbutton").click( browser.back );
+            $("#backbutton").attr("src", "images/backbutton.png");
         }
         if (displaypointer == (history.length)-1) {
             $("#forwardbutton").unbind('click');
-            $("#forwardbutton").removeAttr("href");
-            $("#forwardbutton img").attr("src", "images/forwardbutton_disabled.png");
+            $("#forwardbutton").attr("src", "images/forwardbutton_disabled.png");
         }
-        if (displaypointer < (history.length)-1 && $("#forwardbutton").attr("href")==undefined) {
-            $("#forwardbutton").attr("href", "#");
-            $("#forwardbutton").click(function () {browser.forward()});
-            $("#forwardbutton img").attr("src", "images/forwardbutton.png");
+        if (displaypointer < (history.length)-1 && $("#forwardbutton").attr("src")=="images/forwardbutton_disabled.png") {
+            $("#forwardbutton").click( browser.forward );
+            $("#forwardbutton").attr("src", "images/forwardbutton.png");
         }
 
         var html;
@@ -1096,459 +99,455 @@ function Info(target, source) {
         } else {
             html = '<h3>HISTORY</h3>';
         }
-        html = html + '<table width="100%">';
-        var count = 0;
-        $.each(history, function() {
-            if (count == displaypointer) {
-                html = html + '<tr><td width="20px"><img height="16px" src="';
-            } else {
-                html = html + '<tr><td width="16px"><img height="12px" src="';
-            }
-            switch (this.source) {
-                case "wikipedia":
-                    html = html +  'images/Wikipedia-logo.png';
-                    break;
-                case "soundcloud":
-                    html = html +  'images/soundcloud-logo.png';
-                    break;
-                case "lastfm":
-                    html = html + 'images/lastfm.png';
-                    break;
-                case "slideshow":
-                    html = html + 'images/slideshow.png';
-                    break;
+        html = html + '<table class="histable" width="100%">';
+        for (var i in history) {
+            var clas="top";
+            if (i == displaypointer) {
+                clas = clas + " current";
             }
             if (mobile == "no") {
-                html = html + '"></td><td><a href="#" onclick="browser.doHistory('+count.toString()+')">';
+                html = html + '<tr class="'+clas+'" onclick="browser.doHistory('+i+')">';
             } else {
-                html = html + '"></td><td><a href="#" onclick="browser.doHistory('+count.toString()+');sourcecontrol(\'infopane\')">';
+                html = html + '<tr class="'+clas+'" onclick="browser.doHistory('+i+');sourcecontrol(\'infopane\')">';
             }
-            if (count == displaypointer) {
-                html = html + '<b>';
+            html = html + '<td><img height="24px" src="'+sources[history[i].source].icon+'" /></td>';
+            html = html + '<td>';
+            if (history[i].specials.artist) {
+                html = html + history[i].specials.artist.name+'<br>';
+            } else {
+                html = html + 'Artist : '+history[i].playlistinfo.creator+'<br>';
             }
-            switch (this.source) {
-                case "wikipedia":
-                case "slideshow":
-                    var s;
-                    if (this.wiki) {
-                        s = this.wiki;
-                    } else {
-                        s = this.artist;
-                    }
-                    html = html + s.replace(/_/g, " ");
-                    break;
-                case "lastfm":
-                case "soundcloud":
-                    html = html + this.track;
-                    if (this.track != "" && this.artist != "") {
-                        html = html + " <small><i>by</i></small> "
-                    }
-                    html = html + this.artist;
-                    if ((this.track != "" || this.artist != "") && this.album != "") {
-                        html = html + " <small><i>on</i></small> "
-                    }
-                    html = html + this.album;
-                    break;
+            if (history[i].specials.album) {
+                html = html + history[i].specials.album.name+'<br>';
+            } else {
+                html = html + 'Album : '+history[i].playlistinfo.album+'<br>';
             }
-            if (count == displaypointer) {
-                html = html + '</b>';
+            if (history[i].specials.track) {
+                html = html + history[i].specials.track.name;
+            } else {
+                html = html + 'Track : '+history[i].playlistinfo.title;
             }
-            html = html + '</a></td></tr>'
-            count++;
-        });
+            html = html + '</td></tr>';
+        }
         html = html + '</table>';
         if (mobile == "no") {
             html = html + '</li>';
         }
-        $("#historypanel").empty();
         $("#historypanel").html(html);
         html = null;
     }
 
-    /*
-    /
-    /    Love and Ban
-    /
-    */
+    return {
 
-    this.love = function() {
-        nowplaying.love(history[displaypointer].nowplayingindex);
-        return false;
-    }
-
-    this.unlove = function() {
-        nowplaying.unlove(history[displaypointer].nowplayingindex);
-        return false;
-    }
-
-    this.justloved = function(index, flag) {
-        if (index == history[displaypointer].nowplayingindex) {
-            debug.log("INFO PANEL","The track we are viewing has just been loved. Aaaaahhhhhhh");
-            if (history[displaypointer].source == "lastfm") {
-                debug.log("INFO PANEL","We shall reflect that change");
-                doUserLoved(flag);
+        createButtons: function() {
+            for (var i in sources) {
+                debug.log("BROWSER", "Found plugin", i,sources[i].icon);
+                $("#chooserbuttons").append($('<img>', {
+                    src: sources[i].icon,
+                    onclick: "browser.switchsource('"+i+"')",
+                    class: 'topimg sep',
+                    id: "button_source"+i
+                }));
             }
-        }
-    }
+            $("#button_source"+current_source).addClass("currentbun");
+        },
 
-    /*
-    /
-    /    Slideshow
-    /
-    */
+        trackHasChanged: function(npindex, pinfo) {
+            // Nowplaying is telling us the track has changed. Do we, or do we not, want to display it?
+            debug.mark("BROWSER", "A new track has arrived",npindex);
+            history.push({
+                nowplayingindex: npindex,
+                playlistinfo: pinfo,
+                source: current_source,
+                specials: {}
+            });
+            switch (true) {
+                case (displaypointer < 0):
+                    displaypointer = history.length - 1;
+                    $("#button_source"+current_source).removeClass("currentbun");
+                    current_source = history[displaypointer].source;
+                    $("#button_source"+current_source).addClass("currentbun");
+                    displayTheData(displaypointer, true, true, true);
+                    break;
 
-    function getSlideShow(artist) {
-        lastfm.artist.getImages({artist: artist}, self.prepareSlideshow, self.noImages);
-    }
+                case (displaypointer == history.length-2):
+                    // We are showing the most recent entry, so accept the update
+                    var compareartist1 = (pinfo.albumartist == "") ? pinfo.creator : pinfo.albumartist;
+                    var compareartist2 = (history[displaypointer].playlistinfo.albumartist == "") ? history[displaypointer].playlistinfo.creator : history[displaypointer].playlistinfo.albumartist;
+                    var showalbum = pinfo.album != history[displaypointer].playlistinfo.album || compareartist1 != compareartist2;
+                    displaypointer = history.length-1;
+                    displayTheData( displaypointer,
+                                    (pinfo.creator != history[displaypointer-1].playlistinfo.creator),
+                                    showalbum,
+                                    (pinfo.title != history[displaypointer-1].playlistinfo.title || showalbum)
+                    );
+                    break;
+            }
+            updateHistory();
+        },
 
-    this.noImages = function() {
-        infobar.notify(infobar.NOTIFY, "No images found for "+artist);
-    }
-
-    this.prepareSlideshow = function(data) {
-        if (mobile == "no") {
-            var html = '<div class="controlholder"><table id="slidecon" class="invisible" border="0" cellpadding="0" cellspacing ="0" width="100%">';
-            html = html + '<tr height="62px"><td align="center" class="infoslideshow">';
-            html = html + '<img class="clickicon" onclick="browser.slideshow.nextimage(-1)" src="images/backward.png">';
-            html = html + '<img class="clickicon" onclick="browser.slideshow.toggle()" id="lastfmimagecontrol" src="images/pause.png">';
-            html = html + '<img class="clickicon" onclick="browser.slideshow.nextimage(1)" src="images/forward.png"></td></tr></table></div>';
-            html = html + '<table border="0" cellpadding="0" cellspacing ="0" width="100%"><tr><td align="center" class="infoslideshow"><img id="lastfmimage"></td></tr></table>';
-            $("#artistinformation").html(html);
-            html = null;
-            $("#artistinformation").hover(function() { $("#slidecon").fadeIn(500); }, function() { $("#slidecon").fadeOut(500); });
-        } else {
-            var html = '<table border="0" cellpadding="0" cellspacing ="0" width="100%"><tr><td align="center" class="infoslideshow"><img id="lastfmimage"></td></tr></table>';
-            $("#artistinformation").html(html);
-        }
-        $("#artistinformation").fadeIn(1000);
-        self.slideshow.slideshowGo(data);
-    }
-
-    this.slideshow = function() {
-
-        // var running = false;
-        var paused = false;
-        var images = [];
-        var counter = 0;
-        var timer_running = false;
-        var timer = 0;
-        var direction = 0;
-        var img = new Image();
-        img.onload = function() {
-            debug.log("INFO PANEL","Next Image Loaded",img.src);
-            browser.slideshow.displayimage(paused);
-        }
-
-        img.onerror = function() {
-            debug.log("INFO PANEL","Next Image Failed To Load",img.src);
-            browser.slideshow.displayimage(paused);
-        }
-
-        return {
-
-            slideshowGo: function(data) {
-                debug.log("INFO PANEL","Slideshow Initialising");
-                images = [];
-                clearTimeout(timer);
-                timer_running = false;
-                if (data.images.image) {
-                    var imagedata = getArray(data.images.image);
-                    debug.debug("SLIDESHOW","Image Array",imagedata);
-                    for(var i in imagedata) {
-                        var u = imagedata[i].sizes.size[0]["#text"];
-                        images.push({url: u});
-                    }
-                    counter = -1;
-                    running = true;
-                    direction = 1;
-                    paused = false;
-                    this.cacheImage();
+        Update: function(type, source, nowplayingindex, data) {
+            debug.mark("BROWSER", "Got",type,"info from",source,"for index",nowplayingindex);
+            if (source == waitingon.source && nowplayingindex == waitingon.index && waitingon[type]) {
+                debug.log("BROWSER", "  .. and we are going to display it");
+                if (data.data !== null) {
+                    $("#"+type+"information").html(banner(data, type, panelclosed.artist, source)+data.data);
                 } else {
-                    // running = false;
-                    $("#artistinformation").html('<h3 align="center">No artist images could be found</h3>');
+                    $("#"+type+"information").html("");
                 }
-
-            },
-
-            // Used by the back/forward buttons
-            nextimage: function(dir) {
-                if (direction != dir) {
-                    direction = dir;
-                    counter+=direction;
-                    self.slideshow.cacheImage();
-                }
-                clearTimeout(timer);
-                timer_running = false;
-                self.slideshow.displayimage(false);
-            },
-
-            timerExpiry: function() {
-                debug.log("INFO PANEL","Slideshow Timer Expired");
-                timer_running = false;
-                if (!prefs.hidebrowser) {
-                    self.slideshow.displayimage(paused);
-                }
-            },
-
-            killTimer: function() {
-                clearTimeout(timer);
-                timer_running = false;
-            },
-
-            toggle: function() {
-                if (paused) {
-                    $('#lastfmimagecontrol').attr("src", "images/pause.png");
-                    paused = false;
-                    self.slideshow.displayimage(paused);
-                } else {
-                    $('#lastfmimagecontrol').attr("src", "images/play.png");
-                    paused = true;
-                    clearTimeout(timer);
-                    timer_running = false;
-                }
-            },
-
-            cacheImage: function() {
-                counter += direction;
-                if (counter >= images.length) { counter = 0; }
-                if (counter < 0) { counter = images.length-1; }
-                img.src = images[counter].url;
-                debug.log("INFO PANEL","Image Caching Started", img.src);
-            },
-
-            displayimage: function(p) {
-                if (!timer_running && img.complete && !p) {
-                    debug.log("INFO PANEL","Displaying Image",img.src);
-                    var windowheight = $("#"+target_frame).height();
-                    var windowwidth = $("#"+target_frame).width();
-                    var imageheight = img.height;
-                    var imagewidth = img.width;
-                    var displaywidth = imagewidth;
-                    var displayheight = imageheight;
-                    if (mobile == "no") {
-                        var ha = 96;
-                        var wa = 36;
-                    } else {
-                        var ha = 20;
-                        var wa = 20;
-                    }
-                    if (imageheight+ha > windowheight) {
-                        displayheight = windowheight-ha;
-                        displaywidth = imagewidth * (displayheight/imageheight);
-                    }
-                    if (displaywidth+wa > windowwidth) {
-                        displaywidth = windowwidth-wa;
-                        displayheight = imageheight * (displaywidth/imagewidth);
-                    }
-
-                    $("#lastfmimage").fadeOut(500, function() {
-
-                            $("#lastfmimage").attr( {   src:    img.src,
-                                                        width:  parseInt(displaywidth),
-                                                        height: parseInt(displayheight) });
-
-                            $("#lastfmimage").fadeIn(500, function() {browser.slideshow.cacheImage()});
-                    });
-
-                    if (!paused && images.length > 1) {
-                        timer = setTimeout( browser.slideshow.timerExpiry, 10000);
-                        timer_running = true;
-                    }
-                }
-            }
-        }
-
-    }();
-
-}
-
-/* Function for retrieving information from last.fm data */
-
-function lfmDataExtractor(data) {
-
-    this.error = function() {
-        if (data && data.error) {
-            return data.message;
-        } else {
-            return false;
-        }
-    }
-
-    this.errorno = function() {
-        if (data && data.error) {
-            return data.error;
-        } else {
-            return 0;
-        }
-    }
-
-    this.id = function() {
-        return data.id || "";
-    }
-
-    this.artist = function() {
-        return data.artist || "";
-    }
-
-
-    this.listeners = function() {
-        try {
-            return data.stats.listeners || 0;
-        } catch(err) {
-            try {
-                return  data.listeners || 0;
-            } catch (err) {
-                return 0;
-            }
-        }
-    }
-
-    this.playcount = function() {
-        try {
-            return data.stats.playcount || 0;
-        } catch(err) {
-            try {
-                return  data.playcount || 0;
-            } catch(err) {
-                return 0;
-            }
-        }
-    }
-
-    this.duration = function() {
-        try {
-            return data.duration || 0;
-        } catch(err) {
-            return 0;
-        }
-    }
-
-    this.releasedate = function() {
-        try {
-            return  data.releasedate || "Unknown";
-        } catch(err) {
-            return "Unknown";
-        }
-    }
-
-    this.mbid = function() {
-        try {
-            return data.mbid || false;
-        } catch(err) {
-            return false;
-        }
-    }
-
-    this.userplaycount = function() {
-        try {
-            return data.stats.userplaycount || 0;
-        } catch(err) {
-            return  data.userplaycount || 0;
-        }
-    }
-
-    this.url = function() {
-        try {
-            return  data.url || "";
-        } catch(err) {
-            return "";
-        }
-    }
-
-    this.bio = function() {
-        try {
-            if(data.wiki) {
-                return data.wiki.content;
-            }
-            else if (data.bio) {
-                return data.bio.content;
+                waitingon[type] = false;
+                return true;
             } else {
                 return false;
             }
-        } catch(err) {
-            return false;
-        }
-    }
+        },
 
-    this.userloved = function() {
-        var loved =  data.userloved || 0;
-        return (loved == 1) ? true : false;
-    }
-
-    this.tags = function() {
-        if (data.tags) {
-            try {
-                return getArray(data.tags.tag);
-            } catch(err) {
-                return [];
+        switchsource: function(src) {
+            debug.log("BROWSER", "Source switched to",src);
+            $("#button_source"+current_source).removeClass("currentbun");
+            current_source = src;
+            $("#button_source"+current_source).addClass("currentbun");
+            prefs.save({infosource: current_source});
+            if (displaypointer >= 0) {
+                var p = history.length - 1;
+                history.push({
+                    nowplayingindex: history[p].nowplayingindex,
+                    playlistinfo: history[p].playlistinfo,
+                    source: current_source,
+                    specials: {}
+                });
+                displaypointer = history.length-1;
+                updateHistory();
+                displayTheData(displaypointer, true, true, true);
             }
-        } else {
-            try {
-                return getArray(data.toptags.tag);
-            } catch(err) {
-                return [];
+        },
+
+        handleClick: function(source, element, event) {
+            if (element.hasClass('frog')) {
+                toggleSection(source);
+            } else {
+                nowplaying.clickPassThrough(
+                    history[displaypointer].nowplayingindex,
+                    history[displaypointer].source,
+                    source,
+                    element,
+                    event
+                );
             }
-        }
-    }
+        },
 
-    this.tracklisting = function() {
-        try {
-            return getArray(data.tracks.track);
-        } catch(err) {
-            return [];
-        }
-    }
+        setPluginIcon: function(source, icon) {
+            sources[source].icon = icon;
+        },
 
-    this.image = function(size) {
-        // Get image of the specified size.
-        // If no image of that size exists, return a different one - just so we've got one.
-        try {
-            var url = "";
-            var temp_url = "";
-            for(var i in data.image) {
-                temp_url = data.image[i]['#text'];
-                if (data.image[i].size == size) {
-                    url = temp_url;
-                }
-            }
-            if (url == "") { url = temp_url; }
-            return url;
-        } catch(err) {
-            return "";
-        }
-    }
-
-    this.similar = function() {
-        try {
-            return getArray(data.similar.artist);
-        } catch(err) {
-            return [];
-        }
-    }
-
-    this.similarimage = function(index, size) {
-        try {
-            var url = "";
-            var temp_url = "";
-            for(var i in data.similar.artist[index].image) {
-                temp_url = data.similar.artist[index].image[i]['#text'];
-                if (data.similar.artist[index].image[i].size == size) {
-                    url = temp_url;
+        // This function is for links which are followed internally by one of the panels
+        // eg wikipedia
+        speciaUpdate: function(source, panel, data) {
+            debug.mark("BROWSER","Special Update from",source,"for",panel);
+            // We CLONE the HISTORY object but this DOES NOT clone the playlistinfo object
+            // The reason for cloning the history objects is that we need a UNIQUE reference
+            // to which special items this history element is displaying
+            var p = cloneObject(history[displaypointer]);
+            p.specials[panel] = data;
+            history.splice(displaypointer+1,0,p);
+            displaypointer++;
+            updateHistory();
+            switch (panel) {
+                case "artist":
+                    $("#artistinformation").html(banner(data, source, panelclosed.artist, source)+data.data);
                     break;
+
+                case "album":
+                    $("#albuminformation").html(banner(data, source, panelclosed.album, source)+data.data);
+                    break;
+
+                case "track":
+                    $("#trackinformation").html(banner(data, source, panelclosed.track, source)+data.data);
+                    break;
+            }
+            $("#infopane").scrollTo("#"+panel+"information");
+
+        },
+
+        doHistory: function(index) {
+            debug.log("BROWSER", "Doing history, index is",index);
+            var showartist = false;
+            var showalbum = false;
+            var showtrack = false;
+            var compareartist1 = (history[index].playlistinfo.albumartist == "") ? history[index].playlistinfo.creator : history[index].playlistinfo.albumartist;
+            var compareartist2 = (history[displaypointer].playlistinfo.albumartist == "") ? history[displaypointer].playlistinfo.creator : history[displaypointer].playlistinfo.albumartist;
+            if (history[index].specials.artist) {
+                $("#artistinformation").html(
+                    banner(
+                        history[index].specials.artist,
+                        history[index].source,
+                        panelclosed.artist,
+                        history[index].source
+                    )+history[index].specials.artist.data);
+            } else {
+                if (history[index].playlistinfo.creator != history[displaypointer].playlistinfo.creator ||
+                    history[index].source != history[displaypointer].source ||
+                    history[displaypointer].specials.artist)
+                {
+                    showartist = true;
                 }
             }
-            if (url == "") {
-                url = temp_url;
+            if (history[index].specials.album) {
+                $("#albuminformation").html(
+                    banner(
+                        history[index].specials.album,
+                        history[index].source,
+                        panelclosed.album,
+                        history[index].source
+                    )+history[index].specials.album.data);
+            } else {
+                if (history[index].playlistinfo.album != history[displaypointer].playlistinfo.album ||
+                    compareartist1 != compareartist2 ||
+                    history[index].source != history[displaypointer].source ||
+                    history[displaypointer].specials.album)
+                {
+                    showalbum = true;
+                }
             }
-            return url;
-        } catch(err) {
-            return "";
+            if (history[index].specials.track) {
+                $("#trackinformation").html(
+                    banner(
+                        history[index].specials.track,
+                        history[index].source,
+                        panelclosed.track,
+                        history[index].source
+                    )+history[index].specials.track.data);
+            } else {
+                if (history[index].playlistinfo.title != history[displaypointer].playlistinfo.title ||
+                    history[index].playlistinfo.album != history[displaypointer].playlistinfo.album ||
+                    compareartist1 != compareartist2 ||
+                    history[index].source != history[displaypointer].source ||
+                    history[displaypointer].specials.track)
+                {
+                    showtrack = true;
+                }
+            }
+            $("#button_source"+history[displaypointer].source).removeClass("currentbun");
+            displaypointer = index;
+            $("#button_source"+history[displaypointer].source).addClass("currentbun");
+            debug.log("BROWSER","History flags are",showartist,showalbum,showtrack);
+            displayTheData(displaypointer, showartist, showalbum, showtrack);
+            updateHistory();
+            $("#infopane").scrollTo("#artistinformation");
+        },
+
+        forward: function() {
+            browser.doHistory(displaypointer+1);
+            return false;
+        },
+
+        back: function() {
+            browser.doHistory(displaypointer-1);
+            return false;
+        },
+
+        thePubsCloseTooEarly: function() {
+            /* nowplaying has truncated its history by removing the first one in its list.
+             * This means that all of our stored indices are now out. We must remove any history
+             * entries that have a nowplaying index of 1 */
+            debug.log("INFO PANEL","Reducing the badger episodes becasue of too many carrots");
+            var temp = history[displaypointer].source;
+            var chop = 0;
+            for (var i in history) {
+                if (history[i].nowplayingindex == 1) {
+                    chop++;
+                }
+            }
+            if (chop > 0) {
+                debug.debug("INFO PANEL","Removing",chop,"entries");
+                history.splice(0,chop);
+                displaypointer -= chop;
+                // NOTE: This could make displaypointer negative... however this function gets called
+                // just before nowplaying sends us a new track. trackHasChanged handles this situation
+                // by making sure we display the new data. We CANNOT leave the user viewing data
+                // that nowplaying has deleted, because the trackDataCollection objects no longer exist
+                if (displaypointer < 0) {
+                    $("#button_source"+temp).removeClass("currentbun");
+                }
+                for (var i in history) {
+                    history[i].nowplayingindex = history[i].nowplayingindex - 1;
+                }
+                updateHistory();
+            }
+        },
+
+        dumpHistory: function() {
+            for (var i in history) {
+                debug.log("HISTORY", history[i]);
+            }
+        }
+    }
+}();
+
+function slideshow(images,target_frame,displaycontrols) {
+
+    var self = this;
+    var paused = false;
+    var counter = -1;
+    var timer_running = false;
+    var timer = 0;
+    var direction = 1;
+    var running = true;
+    var img = new Image();
+    var elephant = null;
+    var controls = null;
+    var controlheight = 2;
+
+    function setPauseButton() {
+        if (paused) {
+            $('#slidespause').attr("src", "images/play.png");
+        } else {
+            $('#slidespause').attr("src", "images/pause.png");
+        }
+    }
+
+    this.Go = function() {
+        debug.debug("SLIDESHOW","Starting Up",target_frame);
+        if (displaycontrols && mobile == "no") {
+            if (controls) {
+                controls.remove();
+            }
+            controls = $('<table>', {class: "controlholder invisible", border: '0', cellpadding: '0', cellspacing: '0'}).appendTo($("#"+target_frame));
+            controls.append('<tr><td align="center">'+
+                            '<img class="clickicon" id="slidesback" src="images/backward.png">'+
+                            '<img class="clickicon" id="slidespause" src="images/pause.png">'+
+                            '<img class="clickicon" id="slidesforward" src="images/forward.png"></td></tr>');
+            $("#"+target_frame).hover(function() { controls.fadeIn(500); }, function() { controls.fadeOut(500); });
+            $('.clickicon').click(self.clickHandler);
+            controlheight = 62;
+        }
+        if (elephant) {
+            elephant.remove();
+        }
+        elephant = $('<img>', { style: "position:absolute" }).appendTo($("#"+target_frame));
+        img.src="";
+        img.onload = function() {
+            debug.debug("SLIDESHOW","Next Image Loaded",target_frame);
+            self.displayimage(paused);
         }
 
+        img.onerror = function() {
+            debug.debug("SLIDESHOW","Next Image Failed To Load",target_frame);
+            self.cacheImage();
+        }
+        self.cacheImage();
+        paused = false;
     }
 
-    this.url = function() {
-        return data.url  || null;
+    this.clickHandler = function(event) {
+        var clickedelement = $(event.target);
+        switch (clickedelement.attr('id')) {
+            case 'slidesback':
+                self.nextimage(-1);
+                break;
+            case 'slidesforward':
+                self.nextimage(1);
+                break;
+            case 'slidespause':
+                if (paused) {
+                    self.unpause();
+                } else {
+                    self.pause();
+                }
+                setPauseButton();
+                break;
+        }
     }
 
+    this.nextimage = function(dir) {
+        if (direction != dir) {
+            direction = dir;
+            counter+=direction;
+            self.cacheImage();
+        }
+        clearTimeout(timer);
+        timer_running = false;
+        self.displayimage(false);
+    }
+
+    this.timerExpiry = function() {
+        timer_running = false;
+        self.displayimage(paused);
+    }
+
+    this.killTimer = function() {
+        clearTimeout(timer);
+        timer_running = false;
+    }
+
+    this.pause = function() {
+        debug.debug("SLIDESHOW","Pausing",target_frame);
+        paused = true;
+        self.killTimer();
+    }
+
+    this.unpause = function() {
+        debug.debug("SLIDESHOW","UnPausing",target_frame);
+        paused = false;
+        self.displayimage(paused);
+    }
+
+    this.teardown = function() {
+        self.killTimer();
+        elephant.remove();
+        if (controls !== null) { controls.remove() }
+    }
+
+    this.cacheImage = function() {
+        counter += direction;
+        if (counter >= images.length) { counter = 0; }
+        if (counter < 0) { counter = images.length-1; }
+        if (images[counter] != img.src) {
+            img.src = images[counter];
+            debug.debug("SLIDESHOW","Image Caching Started", img.src);
+        }
+    }
+
+    this.displayimage = function(p) {
+        if (!timer_running && img.complete && !p) {
+            var windowheight = $("#"+target_frame).height();
+            var windowwidth = $("#"+target_frame).width();
+            var imageheight = img.height;
+            var imagewidth = img.width;
+            var displaywidth = imagewidth;
+            var displayheight = imageheight;
+            var ha = controlheight+8;
+            var wa = 16;
+            if (imageheight+ha > windowheight) {
+                displayheight = windowheight-ha;
+                displaywidth = imagewidth * (displayheight/imageheight);
+            }
+            if (displaywidth+wa > windowwidth) {
+                displaywidth = windowwidth-wa;
+                displayheight = imageheight * (displaywidth/imagewidth);
+            }
+            var left = Math.round((windowwidth-displaywidth)/2);
+            var top = Math.round((windowheight-displayheight)/2);
+            if (top < controlheight+4) {
+                top = controlheight+4;
+            }
+
+            elephant.fadeOut(500, function() {
+
+                    elephant.attr({ src: img.src,
+                                    width:  parseInt(displaywidth),
+                                    height: parseInt(displayheight) });
+                    elephant.css("top", top+"px");
+                    elephant.css("left", left+"px");
+
+                    elephant.fadeIn(500, function() {self.cacheImage()});
+            });
+
+            if (!paused && images.length > 1) {
+                timer = setTimeout( self.timerExpiry, 10000);
+            }
+            timer_running = true;
+        }
+    }
 }
+

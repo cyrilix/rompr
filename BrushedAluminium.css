@@ -122,7 +122,7 @@ div.clickable.selected:hover
 .infosection
 {
     background-color:#efefef;
-    border-bottom:1px solid #000000;
+    /*border-bottom:1px solid #000000;*/
 }
 
 .albumsection
@@ -213,11 +213,6 @@ ul.topnav li ul.subnav input.topcheck
 {
     background-color:000000;
     color:#ffffff;
-}
-
-.topformbutton:hover
-{
-    color:#ff4800;
 }
 
 .separator

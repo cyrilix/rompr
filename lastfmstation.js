@@ -6,12 +6,20 @@ function lastfmstation(tuneurl) {
 	this.numtrackswanted = 0;
 	this.trackinsertpos = -1;
 	this.playafterinsert = false;
+    this.notworking = false;
     this.toremove = null;
     debug.log("LASTFM RADIO","Creating new last.fm station for",tuneurl);
 
 	this.repopulate = function() {
-        lastfm.radio.tune({station: self.url}, self.weAreTuned, lastFMTuneFailed);
+        if (!self.notworking) {
+            lastfm.radio.tune({station: self.url}, self.weAreTuned, self.isBroken);
+        }
 	}
+
+    this.isBroken = function(data) {
+        self.notworking = true;
+        lastFMTuneFailed(data);
+    }
 
 	this.weAreTuned = function(data) {
         debug.log("LASTFM RADIO","Station is tuned",data);

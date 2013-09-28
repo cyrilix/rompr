@@ -90,7 +90,7 @@ $outdoc->appendChild($stuff);
 <ul class="sourcenav">
 <li><b>Search For:</b></li>
 <li><input class="sourceform winkle" name="searchfor" type="text" size="60" />
-<button type="submit" onclick="faffing()">Search</button></li>
+<button type="submit">Search</button></li>
 </ul>
 </form>
 </div>
@@ -101,11 +101,11 @@ print $outdoc->saveHTML();
 ?>
 </div>
 </div>
-<script type="text/javascript"> 
+<script type="text/javascript">
 
-$('form[name="searchice"]').ajaxForm(function(data) { 
+$('form[name="searchice"]').ajaxForm(function(data) {
     $('#icecastlist').html(data);
-}); 
+});
 
 <?php
 if (array_key_exists("searchfor", $_REQUEST)) {

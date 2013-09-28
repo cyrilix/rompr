@@ -4,8 +4,8 @@ body
 {
     font-size:8pt;
     margin:0px;
-    height:100%;
-    overflow-y:hidden;
+    /*height:100%;*/
+    /*overflow-y:hidden;*/
 }
 
 body,p,h1,h2,h3,h4,table,td,th,ul,ol,textarea,input
@@ -84,13 +84,18 @@ a
 
 .topimg
 {
-    padding-right:8px;
+    padding-right:4px;
+    padding-left:4px;
+    height: 22px;
+    padding-bottom:2px;
+    cursor: pointer;
 }
 
 #infopane
 {
     height:100%;
     overflow:auto;
+    position:relative;
 }
 
 #playlist
@@ -624,9 +629,9 @@ a
 {
     float:right;
     margin-left:12px;
-    margin-right:0px;
+    margin-right:6px;
     padding-right:0px;
-    padding-top:8px;
+    /*padding-top:8px;*/
 }
 
 .standout ul
@@ -701,12 +706,9 @@ a
 #imagecontainer
 {
     position:absolute;
-    top:24px;
-    left:24px;
-    display:none;
     opacity:1;
     z-index:1002;
-    overflow:hidden;
+    display:none;
 }
 
 .infobox
@@ -716,6 +718,10 @@ a
     margin-bottom:12px;
     margin-left:12px;
     margin-top:12px;
+    border: 1px solid #454545;
+    font-size: 92%;
+    line-height: 1.5em;
+    clear: right;
 }
 
 .thumb
@@ -728,10 +734,17 @@ a
 
 .infosection
 {
-    padding-top:4px;
+/*    padding-top:4px;
     padding-bottom:4px;
+*/
     padding-left:12px;
     padding-right:12px;
+    margin-bottom:4px;
+}
+
+.infoslideshow
+{
+    position:relative;
 }
 
 .albumsection
@@ -760,6 +773,12 @@ a
 td.fil
 {
     font-weight:bold;
+}
+
+table.motherfucker tr td
+{
+    vertical-align:middle;
+    padding:4px;
 }
 
 /*-- For Album Cover Art and sundry popups --*/
@@ -805,9 +824,12 @@ td.fil
 
 .controlholder
 {
+    width:100%;
+}
+
+.controlholder tr
+{
     height:62px;
-    padding:0px;
-    margin:0px;
 }
 
 .gimage
@@ -1061,18 +1083,21 @@ ul.buyalbum li
     border-collapse:collapse;
 }
 
-/*-- Styles to make the Wikipedia nav boxes look prettier --*/
+/*-- Styles to make the Wikipedia nav boxes look prettier
+    Poached from Wikipedia's CSS directly. If they ever
+    change their layout, I'm fucked :-D
+--*/
+
+table.navbox
+{
+    width: 100%;
+    margin: auto;
+    clear: both;
+}
 
 .navbox-title
 {
     padding-bottom:4px;
-}
-
-.navbar ul li
-{
-    list-style:none;
-    float:left;
-    padding-left:1em;
 }
 
 .navbox-abovebelow ul li
@@ -1085,6 +1110,13 @@ ul.buyalbum li
 .navbox-list
 {
     padding-bottom:4px;
+    border-color:#454545;
+}
+
+.navbox-list div ul
+{
+    display:inline-block;
+    margin: 0.125em;
 }
 
 .navbox-list div ul li
@@ -1101,46 +1133,10 @@ ul.buyalbum li
     width:100%;
 }
 
-.metadata
-{
-    display:table;
-    margin:8px;
-    width:360px;
-}
-
 .rightpad
 {
     padding-right:16px;
     margin-right:16px;
-}
-
-.rating
-{
-    width:116px;
-    height:22px;
-    position:relative;
-    top:0px;
-    left:0px;
-    overflow:hidden;
-}
-
-.ratebar
-{
-    width:116px;
-    height:22px;
-    position:absolute;
-    top:0px;
-    left:-100px;
-    background-color:#ff4800;
-    z-index:99;
-}
-
-.stars
-{
-    z-index:100;
-    position:absolute;
-    top:0px;
-    left:0px;
 }
 
 .arsecheese
@@ -1170,6 +1166,156 @@ ul.buyalbum li
 
 .mw-editsection {
     display:none;
+}
+
+th.mbox-text
+{
+    padding-top: 0.25em;
+    padding-right: 0.9em;
+}
+
+.infowiki h2
+{
+    margin-top: 10px;
+    margin-bottom:8px;
+    border-bottom:1px solid #454545;
+    padding-bottom:0.5em;
+    overflow:hidden;
+}
+
+.infowiki h3
+{
+    margin-top: 6px;
+    margin-bottom:4px;
+    padding-top:0.5em;
+}
+
+.ucfirst {
+    text-transform:capitalize;
+}
+
+#toc ul, .toc ul {
+    list-style-type: none;
+    list-style-image: none;
+    text-align: left;
+    line-height: 1.5em;
+    margin-left: -20px;
+}
+
+#toc, .toc {
+    display: -moz-inline-block;
+    display: inline-block;
+    zoom: 1;
+    padding: 7px;
+    border: 1px solid #454545;
+    font-size:90%;
+}
+
+#toc #toctitle, .toc #toctitle, #toc .toctitle, .toc .toctitle {
+    text-align: center;
+}
+
+.infobox td, .infobox th {
+    vertical-align: top;
+}
+
+span.item {
+    border:none;
+}
+
+table.wikitable {
+    margin: 1em 0;
+    border: 1px solid #454545;
+    border-collapse: collapse;
+}
+
+table.padded {
+    border-collapse: collapse;
+}
+
+table.padded tr
+{
+    border-bottom:1px solid #454545;
+}
+
+table.padded tr td {
+    line-height:1.6em;
+    padding-left:8px;
+    padding-right:8px;
+}
+
+table.padded tr th {
+    line-height:1.8em;
+    padding-left:8px;
+    padding-right:8px;
+    /*text-align:center;*/
+    font-weight:bold;
+}
+
+table.histable
+{
+    border-collapse: collapse;
+    cursor: pointer;
+}
+
+table.histable tr.top
+{
+    border-top:1px solid #454545;
+}
+
+table.histable tr td {
+    line-height:1.6em;
+    padding-left:8px;
+    padding-right:8px;
+}
+
+table.histable tr:hover {
+    background-color:#454545;
+}
+
+table.histable tr.current
+{
+    font-weight:bold;
+}
+
+table.wikitable tr td
+{
+    border: 1px solid #454545;
+    padding:0.2em;
+}
+
+table.wikitable tr th
+{
+    border: 1px solid #454545;
+    padding:0.2em;
+}
+
+.navbox-group {
+    padding-right:1em;
+    padding-left:1em;
+    border-color:#454545;
+}
+
+th.navbox-group {
+    white-space: nowrap;
+    text-align: right;
+}
+
+.navbox-inner, .navbox-subgroup {
+    width: 100%;
+}
+
+.infowiki div.tright {
+    clear:right;
+    float:right;
+}
+
+table.ambox-content {
+    border-left: 10px solid #f28500;
+}
+
+table.ambox {
+    margin: 1em 10%;
 }
 
 /*-- For IceCast Scraper --*/
@@ -1266,6 +1412,31 @@ a.previewbutton {
     display:none;
 }
 
+table.mbox-small
+{
+    clear: right;
+    float: right;
+    margin: 4px 0 4px 1em;
+    width: 238px;
+    font-size: 88%;
+    line-height: 1.25em;
+}
+
+div.fn {
+    display:table;
+    width:100%;
+}
+
+.mediaContainer
+{
+    margin-top:6px;
+}
+
+div .thumb
+{
+    clear: right;
+}
+
 /*-- Sundries --*/
 
 .notbold
@@ -1273,128 +1444,12 @@ a.previewbutton {
     font-weight:normal;
 }
 
-.bar {
-    width: 100%;
-    height: 48px;
-    position:relative;
-}
-
-.bar div.label {
-    width:100%;
-    height:48px;
-    position:absolute;
-    top:0px;
-    left:0px;
-    z-index:102;
-    padding-top:8px;
+.bar h3.label {
+    padding-left:12px;
+    padding-bottom:4px;
      -webkit-animation: pulseit 4s ease infinite;
      -moz-animation: pulseit 4s ease infinite;
      animation: pulseit 4s ease infinite;
-}
-
-.bar div.expand {
-     background-color: #ff6600;
-     height: 48px;
-     opacity:0.05;
-     -webkit-animation: fadeit 1.65s ease infinite;
-     -moz-animation: fadeit 1.65s ease infinite;
-     animation: fadeit 1.65s ease infinite;
-}
-
-.bar div.expand:nth-child(1){
-     -webkit-animation-delay:0.1s;
-     -moz-animation-delay:0.1s;
-     animation-delay:0.1s;
-}
-
-.bar div.expand:nth-child(2){
-     -webkit-animation-delay:0.2s;
-     -moz-animation-delay:0.2s;
-     animation-delay:0.2s;
-}
-
-.bar div.expand:nth-child(3){
-     -webkit-animation-delay:0.3s;
-     -moz-animation-delay:0.3s;
-     animation-delay:0.3s;
-}
-
-.bar div.expand:nth-child(4){
-     -webkit-animation-delay:0.4s;
-     -moz-animation-delay:0.4s;
-     animation-delay:0.4s;
-}
-
-.bar div.expand:nth-child(5){
-     -webkit-animation-delay:0.5s;
-     -moz-animation-delay:0.5s;
-     animation-delay:0.5s;
-}
-
-.bar div.expand:nth-child(6){
-     -webkit-animation-delay:0.6s;
-     -moz-animation-delay:0.6s;
-     animation-delay:0.6s;
-}
-
-.bar div.expand:nth-child(7){
-     -webkit-animation-delay:0.7s;
-     -moz-animation-delay:0.7s;
-     animation-delay:0.7s;
-}
-
-.bar div.expand:nth-child(8){
-     -webkit-animation-delay:0.8s;
-     -moz-animation-delay:0.8s;
-     animation-delay:0.8s;
-}
-
-.bar div.expand:nth-child(9){
-     -webkit-animation-delay:0.9s;
-     -moz-animation-delay:0.9s;
-     animation-delay:0.9s;
-}
-
-.bar div.expand:nth-child(10){
-     -webkit-animation-delay:1s;
-     -moz-animation-delay:1s;
-     animation-delay:1s;
-}
-
-.bar div.expand:nth-child(11){
-     -webkit-animation-delay:1.1s;
-     -moz-animation-delay:1.1s;
-     animation-delay:1.1s;
-}
-
-.bar div.expand:nth-child(12){
-     -webkit-animation-delay:1.2s;
-     -moz-animation-delay:1.2s;
-     animation-delay:1.2s;
-}
-
-.bar div.expand:nth-child(13){
-     -webkit-animation-delay:1.3s;
-     -moz-animation-delay:1.3s;
-     animation-delay:1.3s;
-}
-
-.bar div.expand:nth-child(14){
-     -webkit-animation-delay:1.4s;
-     -moz-animation-delay:1.4s;
-     animation-delay:1.4s;
-}
-
-.bar div.expand:nth-child(15){
-     -webkit-animation-delay:1.5s;
-     -moz-animation-delay:1.5s;
-     animation-delay:1.5s;
-}
-
-.bar div.expand:nth-child(16){
-     -webkit-animation-delay:1.6s;
-     -moz-animation-delay:1.6s;
-     animation-delay:1.6s;
 }
 
 @-webkit-keyframes fadeit{
@@ -1548,22 +1603,56 @@ a.previewbutton {
     border-radius:2px;
 }
 
-.gradbutton {
+.bigbutton {
     padding:8px;
     margin-top:8px;
     margin-bottom:4px;
-    background-color: #de5200;
-    text-align: center;
-    opacity:0.7;
-    cursor:pointer;
     border-radius: 4px;
     margin-left:auto;
     margin-right:auto;
 }
 
-.gradbutton:hover {
-    background-color: #fe7400;
+.gradbutton {
+    text-align: center;
+    opacity:0.7;
+    cursor:pointer;
+    background-image: linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
+    background-image: -o-linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
+    background-image: -moz-linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
+    background-image: -webkit-linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
+    background-image: -ms-linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
+    color:#111177;
+    border-top:1px solid #F6BD12;
+    border-left:1px solid #DBA40B;
+    border-right:1px solid #DBA40B;
+    border-bottom:1px solid #9D5D04;
+}
+
+button{
+    background-image: linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
+    background-image: -o-linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
+    background-image: -moz-linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
+    background-image: -webkit-linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
+    background-image: -ms-linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
+    color:#111177;
+    border-top:1px solid #F6BD12;
+    border-left:1px solid #DBA40B;
+    border-right:1px solid #DBA40B;
+    border-bottom:1px solid #9D5D04;
+    border-radius:4px;
+    padding-top:1px;
+    padding-bottom:1px;
+    opacity:0.8;
+}
+
+button:hover {
     opacity: 1;
+    color:#881111;
+}
+
+.gradbutton:hover {
+    opacity: 1;
+    color:#881111;
 }
 
 #imageeditor {
@@ -1674,4 +1763,96 @@ a.previewbutton {
     width:1em;
     margin-right:auto;
     margin-left:auto;
+}
+
+.mbtag
+{
+    margin-left:4px;
+    margin-right:4px;
+    white-space:nowrap;
+}
+
+.infoclick
+{
+    cursor:pointer;
+}
+
+.bright ul
+{
+    list-style:none;
+    margin:2px;
+    padding:0px;
+}
+
+.bright ul li
+{
+    line-height:1.5em;
+}
+
+.bright {
+    border-right: 1px solid #454545;
+    padding-right:1em;
+    max-width:240px;
+}
+
+.cleft {
+    border-left: 1px solid #454545;
+    padding-left:1em;
+    margin-left:1em;
+}
+
+.stumpy
+{
+    padding-left: 1em;
+}
+
+.underline
+{
+    border-bottom: 1px solid #454545;
+    margin-top:2em;
+    margin-bottom:0.75em;
+}
+
+.mbbox
+{
+    margin-left:0px;
+    margin-right:6px;
+    padding:4px;
+}
+
+.video
+{
+    margin-left:auto;
+    margin-right:auto;
+    margin-top:3em;
+}
+
+.thumbslideshow
+{
+    width:180px;
+    height:180px;
+}
+
+.thumbcontroller
+{
+    width:180px;
+}
+
+div.lyrics p
+{
+    text-align:center;
+    font-size:110%;
+}
+
+.currentbun
+{
+    border-bottom:1px solid #fe6500;
+}
+
+.clearfix:after
+{
+   content: " ";
+   display: block;
+   height: 0;
+   clear: both;
 }

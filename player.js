@@ -23,7 +23,6 @@ function multiProtocolController() {
     	Date: null,
     	Genre: null,
     	Title: null,
-    	Name: null,
     }
 
 
@@ -31,6 +30,7 @@ function multiProtocolController() {
             song - need to try and remove dependence on this completely. We have it but it's asynchronous
 
             Name - does this even have a meaning with mopidy?
+            	 - currently this needs to be undefined
 
             Currently, these DO get filled in because we're sending mpd commands
 			- especially, we send "" right at page load.
@@ -116,7 +116,7 @@ function multiProtocolController() {
 		        self.status.bitrate = data.tl_track.bitrate;
 		        self.status.Title = data.tl_track.name;
 		        self.status.elapsed = 0;
-		        nowplaying.setStartTime(0);
+		        infobar.setStartTime(0);
 		        playlist.checkProgress();
 		        infobar.updateWindowValues();
             });
@@ -124,7 +124,7 @@ function multiProtocolController() {
             mopidy.on("event:seeked", function(data) {
                 debug.log("PLAYER","Track Seeked",data);
 		        self.status.elapsed = data.time_position/1000;
-		        nowplaying.setStartTime(self.status.elapsed);
+		        infobar.setStartTime(self.status.elapsed);
 		        playlist.checkProgress();
 		        infobar.updateWindowValues();
             });
@@ -201,7 +201,7 @@ function multiProtocolController() {
 	    			debug.log("PLAYER","Playback position is",parseInt(pos));
 	    			if (self.status.state == "play") {
 	    				self.status.elapsed = parseInt(pos)/1000;
-	    				nowplaying.setStartTime(self.status.elapsed);
+	    				infobar.setStartTime(self.status.elapsed);
 			        	playlist.checkProgress();
 	    				if (self.status.elapsed == 0) {
 	    					timerTimer = setTimeout(self.http.checkPlaybackTime, 1000);
@@ -263,10 +263,14 @@ function multiProtocolController() {
 	                            success: function(data) {
 	                                $("#collection").html(data);
 	                                data = null;
+	                            },
+	                            error: function(data) {
+	                            	debug.error("PLAYER","failed to generate albums list",data);
 	                            }
 	                        });
 	                }, consoleError);
 	            } else {
+	                debug.log("PLAYER","Loding",uri);
 			        $("#collection").load(uri);
 	            }
 	    	},
@@ -311,7 +315,7 @@ function multiProtocolController() {
 	                        url: "parseMopidyPlaylist.php",
 	                        data: JSON.stringify(data),
 	                        contentType: "application/json",
-	                        dataType: "xml",
+	                        dataType: "json",
 	                        success: playlist.newXSPF,
 	                        error: function(data) {
 	                            alert("Something went wrong retrieving the playlist!");
@@ -346,7 +350,7 @@ function multiProtocolController() {
 	            prefs.save(prefssave);
 	            if (cunt > 0 && (!($("#limitsearch").is(':checked')) || fanny > 0)) {
 	                $("#searchresultholder").empty();
-	                doSomethingUseful('search', 'Searching...');
+	                doSomethingUseful('searchresultholder', 'Searching...');
 	                debug.log("PLAYER","Doing Search:", terms, domains);
 	                mopidy.library[searchtype](terms, domains).then( function(data) {
 	                    debug.log("PLAYER","Search Results",data);
@@ -357,7 +361,7 @@ function multiProtocolController() {
 	                            contentType: "application/json",
 	                            success: function(data) {
 	                                $("#searchresultholder").html(data);
-	                                $("#usefulbar").remove();
+	                                // $("#usefulbar").remove();
 	                                data = null;
 	                            }
 	                        });
@@ -426,13 +430,16 @@ function multiProtocolController() {
 	    	removeId: function(ids) {
 	    		debug.log("PLAYER","Removing Tracks",ids);
 	    		playlist.ignoreupdates(ids.length-1);
-	    		(function riterator() {
-	    			var id = ids.shift();
-	    			if (id) {
-			    		debug.log("PLAYER","Removing ID",id);
-		    			mopidy.tracklist.remove({tlid: parseInt(id)}).then( riterator );
-	    			}
-	    		})();
+	    		for (var i in ids) {
+	    			mopidy.tracklist.remove({tlid: parseInt(ids[i])});
+	    		}
+	    		// (function riterator() {
+	    		// 	var id = ids.shift();
+	    		// 	if (id !== undefined) {
+			    // 		debug.log("PLAYER","Removing ID",id);
+		    	// 		mopidy.tracklist.remove({tlid: parseInt(id)}).then( riterator );
+	    		// 	}
+	    		// })();
 	    	},
 
 	    	toggleRandom: function() {
@@ -582,7 +589,7 @@ function multiProtocolController() {
 		                data.error = null;
 		            }
 		            self.status = data;
-		            nowplaying.setStartTime(self.status.elapsed);
+		            infobar.setStartTime(self.status.elapsed);
 		            if (callback) {
 		                callback();
 		                infobar.updateWindowValues();
@@ -622,7 +629,7 @@ function multiProtocolController() {
 		            success: function(data) {
 		                debug.log("MPD           : result for",list,data);
 		                self.status = data;
-		                nowplaying.setStartTime(self.status.elapsed);
+		                infobar.setStartTime(self.status.elapsed);
 		                if (callback) {
 		                    callback();
 		                    infobar.updateWindowValues();
@@ -683,8 +690,8 @@ function multiProtocolController() {
 	                type: "GET",
 	                url: "getplaylist.php",
 	                cache: false,
-	                contentType: "text/xml; charset=utf-8",
-	                dataType: "xml",
+	                //contentType: "text/xml; charset=utf-8",
+	                dataType: "json",
 	                success: playlist.newXSPF,
 	                error: function(data) {
 	                    alert("Something went wrong retrieving the playlist!");

@@ -24,8 +24,8 @@ include ("functions.php");
 <a title="Toggle Sources Panel" href="#" onclick="expandInfo('left')"><img id="expandleft" height="24px" src="images/arrow-left-double.png" style="padding-left:4px"></a>
 </div>
 <div class="expand containerbox center topbox">
-<div class="noborder fixed">
-<a id="backbutton" title="Back"><img class="topimg" height="24px" src="images/backbutton_disabled.png"></a>
+<div id="chooserbuttons" class="noborder fixed">
+<img id="backbutton" class="topimg" height="24px" src="images/backbutton_disabled.png"></a>
 <ul class="topnav">
     <li>
         <a href="#" title="History"><img src="images/history_icon.png" class="topimg" height="24px"></a>
@@ -34,12 +34,7 @@ include ("functions.php");
         </ul>
     </li>
 </ul>
-<a title="File Information" href="#" onclick="browser.showFileInfo()"><img class="topimg" height="24px" src="images/sinewave.jpg"></a>
-<a title="Artist Info from Wikipedia" href="#" onclick="browser.switchSource('wikipedia')"><img class="topimg" height="24px" src="images/Wikipedia-logo.png"></a>
-<a title="Artist, Album, and Song Info from Last.FM" href="#" onclick="browser.switchSource('lastfm')"><img class="topimg" height="24px" src="images/lastfm.png"></a>
-<a title="Artist Slideshow" href="#" onclick="browser.switchSource('slideshow')"><img class="topimg" height="24px" src="images/slideshow.png"></a>
-<a id="soundcloudbutton" title="Track Info from SoundCloud" href="#" onclick="browser.switchSource('soundcloud')" style="display:none"><img class="topimg" height="24px" src="images/soundcloud-logo.png"></a>
-<a id="forwardbutton" title="Forward"><img class="topimg" height="24px" src="images/forwardbutton_disabled.png"></a>
+<img id="forwardbutton" class="topimg" height="24px" src="images/forwardbutton_disabled.png"></a>
 </div>
 </div>
 <div class="fixed topbox">

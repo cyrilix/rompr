@@ -25,8 +25,8 @@
             <img id="albumpicture" class="notexist" src="" />
         </div>
         <div id="lastfm" class="invisible">
-            <div><ul class="topnav"><a title="Love this track" id="love" href="#" onclick="infobar.love()"><img height="24px" src="images/lastfm-love.png"></a></ul></div>
-            <div><ul class="topnav"><a title="Ban this track" id="ban" href="#" onclick="nowplaying.ban()"><img height="24px" src="images/lastfm-ban.png"></a></ul></div>
+            <div><ul class="topnav"><a title="Love this track" id="love" href="#" onclick="nowplaying.love()"><img height="24px" src="images/lastfm-love.png"></a></ul></div>
+            <div><ul class="topnav"><a title="Ban this track" id="ban" href="#" onclick="infobar.ban()"><img height="24px" src="images/lastfm-ban.png"></a></ul></div>
         </div>
         <div id="nowplaying"></div>
     </div>
@@ -69,6 +69,14 @@
     </div>
 
     <div class="containerbox menuitem noselection">
+        <div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="podcastslist"></div>
+        <div class="smallcover fixed"><img height="32px" width="32px" src="images/Apple_Podcast_logo.png"></div>
+        <div class="expand">Podcasts</div>
+    </div>
+    <div id="podcastslist" class="dropmenu">
+    </div>
+
+    <div class="containerbox menuitem noselection">
         <div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="somafmlist"></div>
         <div class="smallcover fixed"><img height="32px" width="32px" src="images/somafm.png"></div>
         <div class="expand">Soma FM</div>
@@ -96,7 +104,6 @@
 </div>
 
 <div id="infopane" class="tleft cmiddle noborder infowiki">
-<div id="fileinformation" class="infotext"></div>
 <div id="artistinformation" class="infotext"><h2 align="center">This is the information panel. Interesting stuff will appear here when you play some music</h2></div>
 <div id="albuminformation" class="infotext"></div>
 <div id="trackinformation" class="infotext"></div>
@@ -143,4 +150,3 @@
 </div>
 
 </div>
-</body>

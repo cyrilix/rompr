@@ -120,17 +120,28 @@ if ($mobile != "no") {
 <script type="text/javascript" src="clickfunctions.js"></script>
 <script type="text/javascript" src="lastfmstation.js"></script>
 <script type="text/javascript" src="jshash-2.2/md5-min.js"></script>
-<script type="text/javascript" src="nowplaying.js"></script>
-<script type="text/javascript" src="infobar2.js"></script>
 <script type="text/javascript" src="lastfm.js"></script>
+<script type="text/javascript" src="musicbrainz.js"></script>
+<script type="text/javascript" src="discogs.js"></script>
+<script type="text/javascript" src="wikipedia.js"></script>
 <script type="text/javascript" src="soundcloud.js"></script>
+<script type="text/javascript" src="nowplaying.js"></script>
+<script type="text/javascript" src="info_file.js"></script>
+<script type="text/javascript" src="info_lastfm.js"></script>
+<script type="text/javascript" src="info_wikipedia.js"></script>
+<script type="text/javascript" src="info_musicbrainz.js"></script>
+<script type="text/javascript" src="info_discogs.js"></script>
+<script type="text/javascript" src="info_slideshow.js"></script>
+<script type="text/javascript" src="info_lyrics.js"></script>
+<script type="text/javascript" src="info_soundcloud.js"></script>
+<script type="text/javascript" src="infobar2.js"></script>
 <script type="text/javascript" src="playlist.js"></script>
-<script type="text/javascript" src="info.js"></script>
 <script type="text/javascript" src="coverscraper.js"></script>
 <script type="text/javascript" src="mopidy.js"></script>
 <script type="text/javascript" src="player.js"></script>
 
 <?php
+include('globals.php');
 if (file_exists("prefs/prefs.js")) {
     print '<script type="text/javascript" src="prefs/prefs.js"></script>'."\n";
 }
@@ -140,133 +151,40 @@ if (file_exists("prefs/prefs.js")) {
 jQuery.fn.reverse = [].reverse;
 // http://www.mail-archive.com/discuss@jquery.com/msg04261.html
 
+jQuery.fn.isOpen = function() {
+    return this.attr('src') == 'images/toggle-open-new.png';
+}
+
+jQuery.fn.isClosed = function() {
+    return this.attr('src') == 'images/toggle-closed-new.png';
+}
+
+jQuery.fn.toggleOpen = function() {
+    this.attr('src', 'images/toggle-open-new.png');
+}
+
+jQuery.fn.toggleClosed = function() {
+    this.attr('src', 'images/toggle-closed-new.png');
+}
+
 debug.setLevel(9);
 // debug.setLevel(0);
-debug.highlight("PLAYER");
-debug.highlight("MPD");
-var lastfm_api_key = "15f7532dff0b8d84635c757f9f18aaa3";
-var lastfm_session_key;
-var sources = new Array();
-var update_load_timer = 0;
-var update_load_timer_running = false;
-var emptytrack = {  creator: "",
-                    album: "",
-                    title: "",
-                    duration: 0,
-                    location: "",
-                    image: ""
-};
+
 <?php
-if (file_exists($ALBUMSLIST)) {
-    print "var albumslistexists = true\n";
-} else {
-    print "var albumslistexists = false\n";
-}
-if (file_exists($FILESLIST)) {
-    print "var fileslistexists = true\n";
-} else {
-    print "var fileslistexists = false\n";
-}
 print "var mobile = '".$mobile."';\n";
 ?>
-var tempcanvas = document.createElement('canvas');
-var landscape = false;
-var itisbigger = false;
-var gotNeighbours = false;
-var gotFriends = false;
-var gotTopTags = false;
-var gotTopArtists = false;
-var progresstimer = null;
-var scrobwrangler = null;
-var prefsbuttons = ["images/button-off.png", "images/button-on.png"];
-var prefsInLocalStorage = ["hidebrowser", "sourceshidden", "playlisthidden", "infosource", "playlistcontrolsvisible",
-                            "sourceswidthpercent", "playlistwidthpercent", "downloadart", "clickmode", "chooser",
-                            "hide_albumlist", "hide_filelist", "hide_lastfmlist", "hide_radiolist", "twocolumnsinlandscape",
-                            "shownupdatewindow", "keep_search_open", "showfileinfo"];
 
 function aADownloadFinished() {
     debug.log("INDEX","Album Art Download Has Finished");
     $.get("checkRemoteImageCache.php", function() { debug.debug("INDEX","Finished Thinning Remote Cache")});
 }
 
-
-var prefs = function() {
-
-    var useLocal = false;
-    if ("localStorage" in window && window["localStorage"] != null) {
-        useLocal = true;
-    }
-
-    return {
-<?php
- foreach ($prefs as $index => $value) {
-    if ($index == 'clickmode' && $mobile != "no") {
-        $value = 'single';
-    }
-    if ($value == "true" || $value == "false" || is_numeric($value)) {
-        print "        ".$index.": ".$value.",\n";
-    } else {
-        print "        ".$index.": '".$value."',\n";
-    }
-}
-?>
-        updateLocal: function() {
-            if (useLocal) {
-                prefsInLocalStorage.forEach(function(p) {
-                    if (localStorage.getItem("prefs."+p) != null && localStorage.getItem("prefs."+p) != "") {
-                        prefs[p] = localStorage.getItem("prefs."+p);
-                        if (prefs[p] == "false") {
-                            prefs[p] = false;
-                        }
-                        if (prefs[p] == "true") {
-                            prefs[p] = true;
-                        }
-                    }
-                });
-            }
-            if (prefs.use_mopidy_tagcache == 1 ||
-                prefs.use_mopidy_http == 1) {
-                prefs.hide_filelist = true;
-            }
-        },
-
-        save: function(options) {
-            var prefsToSave = {};
-            var postSave = false;
-            for (var i in options) {
-                prefs[i] = options[i];
-                if (options[i] === true || options[i] === false) {
-                    options[i] = options[i].toString();
-                }
-                if (useLocal) {
-                    if (prefsInLocalStorage.indexOf(i) > -1) {
-                        localStorage.setItem("prefs."+i, options[i]);
-                    } else {
-                        prefsToSave[i] = options[i];
-                        postSave = true;
-                    }
-                } else {
-                    prefsToSave[i] = options[i];
-                    postSave = true;
-                }
-            }
-            if (postSave) {
-                $.post('saveprefs.php', prefsToSave);
-            }
-        }
-
-    }
-}();
-
-prefs.updateLocal();
 var playlist = new Playlist();
 var player = new multiProtocolController();
-var nowplaying = new playInfo();
 var lfmprovider = new lastFMprovider();
-var soundcloud = new SoundCloud();
 var lastfm = new LastFM(prefs.lastfm_user);
-var browser = new Info('infopane', prefs.infosource);
 var coverscraper = new coverScraper(0, false, false, prefs.downloadart);
+var sbWidth;
 
 $(document).ready(function(){
     // Check to see if HTML5 local storage is supported - we use this for communication between the
@@ -348,9 +266,13 @@ $(document).ready(function(){
             player.controller.reloadPlaylists();
             doThatFunkyThang();
             $("ul.topnav li a").click(function() {
-                $(this).parent().find("ul.subnav").slideToggle('fast');
+                $(this).parent().find("ul.subnav").slideToggle('fast', function() {
+                    // hackety hack
+                    $("#historypanel").scrollTo('.current');
+                });
                 return false;
             });
+            browser.createButtons();
             setChooserButtons();
             scrobwrangler = new progressBar('scrobwrangler', 'horizontal');
             scrobwrangler.setProgress(parseInt(prefs.scrobblepercent.toString()));
@@ -422,19 +344,20 @@ $(document).ready(function(){
         $("#bbclist").load("bbcradio.php");
         $("#somafmlist").load("somafm.php");
         $("#yourradiolist").load("yourradio.php");
+        $("#podcastslist").load("podcasts.php");
         refreshMyDrink(false);
     }
 
     player.loadCollection();
 
     sourcecontrol(prefs.chooser);
-    if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < 0.33) {
+    if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < 0.34) {
         var fnarkle = popupWindow.create(500,600,"fnarkle",true,"Information About This Version");
         $("#popupcontents").append('<div id="fnarkler" class="mw-headline"></div>');
         if (mobile != "no") {
             $("#fnarkler").addClass('tiny');
         }
-        $("#fnarkler").append('<p>Welcome to RompR version 0.33</p>');
+        $("#fnarkler").append('<p>Welcome to RompR version 0.40</p>');
         if (mobile != "no") {
             $("#fnarkler").append('<p>You are viewing the mobile version of RompR. To view the standard version go to <a href="/rompr/?mobile=no">/rompr/?mobile=no</a></p>');
         } else {
@@ -445,7 +368,8 @@ $(document).ready(function(){
         $("#fnarkler").append('<p>If you are running Mopidy, please <a href="https://sourceforge.net/p/rompr/wiki/Rompr%20and%20Mopidy/" target="_blank">read the section about Mopidy on the Wiki</a> to enable some extra features</p>');
         $("#fnarkler").append('<p><button style="width:8em" class="tright" onclick="popupWindow.close()">OK</button></p>');
         popupWindow.open();
-        prefs.save({shownupdatewindow: 0.33});
+        prefs.save({shownupdatewindow: 0.34});
+        $.get('firstrun.php');
     }
     // Initialise the player's status
     if (prefs.use_mopidy_http == 0) {
@@ -479,9 +403,12 @@ $(document).ready(function(){
         $("#fileinformation").hide();
     }
 
+    sbWidth = scrollbarWidth();
+
 });
 
 </script>
+<script type="text/javascript" src="info.js"></script>
 </head>
 
 <?php
@@ -491,6 +418,7 @@ if ($mobile == "no") {
     include('layout_phone.php');
 }
 ?>
+</body>
 </html>
 
 <?php

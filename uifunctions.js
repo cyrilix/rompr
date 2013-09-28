@@ -60,6 +60,29 @@ function setClickHandlers() {
         $("#lastfmlist").dblclick(onLastFMDoubleClicked);
         $("#radiolist").dblclick(onRadioDoubleClicked);
     }
+
+    $('.infotext').unbind('click');
+    $('.infotext').click( function(event) {
+
+        var clickedElement = $(event.target);
+        // Search upwards through the parent elements to find the clickable object
+        while (!clickedElement.hasClass("infoclick") && !clickedElement.hasClass("infotext")) {
+            clickedElement = clickedElement.parent();
+        }
+        var parentElement = $(event.currentTarget.id).selector;
+        var source = parentElement.replace('information', '');
+        debug.debug("BROWSER","A click has occurred in",parentElement,source);
+        if (clickedElement.hasClass("infoclick")) {
+            debug.debug("BROWSER", "  .. and we need to handle it");
+            event.preventDefault();
+            browser.handleClick(source, clickedElement, event);
+            return false;
+        } else {
+            return true;
+        }
+
+    });
+
 }
 
 function setscrob(e) {
@@ -74,11 +97,15 @@ function setscrob(e) {
 }
 
 function makeWaitingIcon(selector) {
-    $("#"+selector).attr("src", "images/waiting2.gif");
+    $("#"+selector).attr("src", "images/waiter.png");
+    $("#"+selector).removeClass("nospin");
+    $("#"+selector).addClass("spinner");
 }
 
 function stopWaitingIcon(selector) {
     $("#"+selector).attr("src", "images/transparent-32x32.png");
+    $("#"+selector).removeClass("spinner");
+    $("#"+selector).addClass("nospin");
 }
 
 function expandInfo(side) {
@@ -178,8 +205,6 @@ function setBottomPaneSize() {
         newheight -= $("#playlistbuttons").height();
     }
     $("#pscroller").css("height", newheight.toString()+"px");
-
-    browser.drawSCWaveform();
 }
 
 function togglePlaylistButtons() {
@@ -281,6 +306,59 @@ function getInternetPlaylist(url, image, station, creator, usersupplied) {
         error: function(data, status) {
             playlist.repopulate();
             alert("Failed To Tune Radio Station");
+        }
+    } );
+}
+
+function doPodcast(input) {
+    var url = $("#"+input).attr("value");
+    debug.log("PODCAST","Getting podcast",url);
+    doSomethingUseful('cocksausage', 'Downloading...');
+    $.ajax( {
+        type: "GET",
+        url: "podcasts.php",
+        cache: false,
+        contentType: "text/html; charset=utf-8",
+        data: {url: encodeURIComponent(url) },
+        success: function(data) {
+            $("#podcastslist").html(data);
+        },
+        error: function(data, status) {
+            alert("Failed To Retreive RSS feed");
+        }
+    } );
+}
+
+function refreshPodcast(name) {
+    debug.log("PODCAST","Refreshing podcast",name);
+    $.ajax( {
+        type: "GET",
+        url: "podcasts.php",
+        cache: false,
+        contentType: "text/html; charset=utf-8",
+        data: {refresh: name },
+        success: function(data) {
+            $("#podcastslist").html(data);
+        },
+        error: function(data, status) {
+            alert("Failed To Retreive RSS feed");
+        }
+    } );
+}
+
+function removePodcast(name) {
+    debug.log("PODCAST","Removing podcast",name);
+    $.ajax( {
+        type: "GET",
+        url: "podcasts.php",
+        cache: false,
+        contentType: "text/html; charset=utf-8",
+        data: {remove: name },
+        success: function(data) {
+            $("#podcastslist").html(data);
+        },
+        error: function(data, status) {
+            alert("Failed To Remove Podcast");
         }
     } );
 }
@@ -394,21 +472,6 @@ function togglePref(pref) {
     } else if (pref == 'twocolumnsinlandscape') {
         setBottomPaneSize();
     }
-}
-
-function getWikimedia(event) {
-    event.stopImmediatePropagation();
-    var mousepos = getPosition(event);
-    var url = "http://en.wikipedia.org/w/api.php?action=query&iiprop=url|size&prop=imageinfo&titles=" + event.currentTarget.getAttribute('name') + "&format=json&callback=?";
-    $.getJSON(url, function(data) {
-        $.each(data.query.pages, function(index, value) {
-            var dimensions = imagePopup.create(value.imageinfo[0].width, value.imageinfo[0].height, mousepos.x, mousepos.y);
-            imagePopup.contents('<img src="'+value.imageinfo[0].url+'" height="'+parseInt(dimensions.height)+'" width="'+parseInt(dimensions.width)+'">');
-            imagePopup.show();
-            return false;
-        });
-    });
-    return false;
 }
 
 function getNeighbours(event) {
@@ -553,74 +616,116 @@ function getLfmPeople(data, prefix) {
 }
 
 var imagePopup=function(){
-    var wikipopup;
-    var imagecontainer;
-    var ie = document.all ? true : false;
-    return {
-        create:function(w,h,x,y){
-            if(wikipopup == null){
-                wikipopup = document.createElement('div');
-                wikipopup.setAttribute('id',"wikipopup");
-                wikipopup.setAttribute('onclick','imagePopup.close()');
-                document.body.appendChild(wikipopup);
+    var wikipopup = null;
+    var imagecontainer = null;
+    var mousepos = null;
+    var clickedelement = null;
+    var image = new Image();
+    image.onload = function() {
+        debug.log("IMAGEPOPUP", "Image has loaded");
+        imagePopup.show();
+    }
+    image.onerror = function() {
+        debug.log("IMAGEPOPUP", "Image has NOT loaded");
+        imagePopup.close();
+    }
 
-                imagecontainer = document.createElement('div');
-                imagecontainer.setAttribute('onclick','imagePopup.close()');
-                imagecontainer.setAttribute('id', "imagecontainer");
-                document.body.appendChild(imagecontainer);
+    return {
+        create:function(element, event, source){
+            debug.log("IMAGEPOPUP", "Creating new popup",source);
+            if(wikipopup == null){
+                wikipopup = $('<div>', { id: 'wikipopup', onclick: 'imagePopup.close()'}).appendTo($('body'));
+                imagecontainer = $('<img>', { id: 'imagecontainer', onclick: 'imagePopup.close()', src: ''}).appendTo($('body'));
+            } else {
+                wikipopup.empty();
             }
+            mousepos = getPosition(event);
+            clickedelement = element;
+            var scrollPos=getScrollXY();
+            var top = (mousepos.y - 24);
+            var left = (mousepos.x - 24);
+            wikipopup.css({       width: '48px',
+                                  height: '48px',
+                                  top: top+'px',
+                                  left: left+'px'});
+            wikipopup.append($('<img>', {class: 'spinner', height: '32px', src: 'images/waiter.png', style: 'position:relative;top:8px;left:8px'}));
+            wikipopup.fadeIn('fast');
+            if (source !== undefined) {
+                if (source == image.src) {
+                    imagePopup.show();
+                } else {
+                    image.src = source;
+                }
+            }
+        },
+
+        show:function() {
             // Calculate popup size and position
-            var width = w;
-            var height = h;
+            var imgwidth = image.width;
+            var imgheight = image.height;
+
             // Make sure it's not bigger than the window
             var winsize=getWindowSize();
-            // Hack to allow for scrollbars
+            // hack to allow for vertical scrollbar
             winsize.x = winsize.x - 32;
+            // Allow for popup border
+            var w = winsize.x - 63;
+            var h = winsize.y - 36;
+            if (imgwidth > w) {
+                imgwidth = w;
+                imgheight = Math.round(imgheight * (imgwidth/image.width));
+            }
+            if (imgheight > h) {
+                imgheight = h;
+                imgwidth = Math.round(imgwidth * (imgheight/image.height));
+            }
+            var popupwidth = imgwidth+36;
+            var popupheight = imgheight+36;
+
             var scrollPos=getScrollXY();
-            if (width+36 > winsize.x) {
-                width = winsize.x-36;
-                height = h * (width/w);
+            var top = (mousepos.y - (popupheight/2));
+            var left = (mousepos.x - (popupwidth/2));
+            if ((left-scrollPos.x+popupwidth) > winsize.x) {
+                left = winsize.x - popupwidth + scrollPos.x;
             }
-            if (height+36 > winsize.y) {
-                height = winsize.y-36;
-                width = w * (height/h);
+            if ((top-scrollPos.y+popupheight) > winsize.y) {
+                top = winsize.y - popupheight + scrollPos.y;
             }
-            var top = (y - (height/2));
-            var left = (x - (width/2));
-            if ((left-scrollPos.x+width+18) > winsize.x) {
-                left = winsize.x - width + scrollPos.x - 18;
+            if (top< scrollPos.y) {
+                top = scrollPos.y;
             }
-            if ((top-scrollPos.y+height+18) > winsize.y) {
-                top = winsize.y - height + scrollPos.y - 18;
+            if (left < scrollPos.x) {
+                left = scrollPos.x;
             }
-            if (top-18 < scrollPos.y) {
-                top = scrollPos.y+18;
-            }
-            if (left-18 < scrollPos.x) {
-                left = scrollPos.x+18;
-            }
-            wikipopup.style.width = parseInt(width+36) + 'px';
-            wikipopup.style.height = parseInt(height+36) + 'px';
-            wikipopup.style.top = parseInt(top-18) + 'px';
-            wikipopup.style.left = parseInt(left-18) + 'px';
-            imagecontainer.style.top = parseInt(top) + 'px';
-            imagecontainer.style.left = parseInt(left) + 'px';
-            imagecontainer.style.width = parseInt(width) + 'px';
-            imagecontainer.style.height = parseInt(height) + 'px';
-            return({width: width, height: height});
+            wikipopup.empty();
+            wikipopup.animate(
+                {
+                    width: popupwidth+'px',
+                    height: popupheight+'px',
+                    top: top+'px',
+                    left: left+'px'
+                },
+                'fast',
+                'swing',
+                function() {
+                    imagecontainer.css({  top: (top+18)+'px',
+                                          left: (left+18)+'px'});
+
+                    imagecontainer.attr({ width: imgwidth+'px',
+                                          height: imgheight+'px',
+                                          src: image.src });
+
+                    imagecontainer.fadeIn('slow');
+                    wikipopup.append($('<img>', {src: 'images/edit-delete.png', height: "12px", class: 'tright', style: 'margin-top:4px;margin-right:4px'}));
+                }
+            );
         },
-        contents:function(html) {
-            $('#imagecontainer').html(html);
-        },
-        show:function() {
-            $('#wikipopup').fadeIn('slow');
-            $('#imagecontainer').fadeIn('slow');
-        },
+
         close:function() {
-            $('#wikipopup').fadeOut('slow');
-            $('#imagecontainer').fadeOut('slow');
+            wikipopup.fadeOut('slow');
+            imagecontainer.fadeOut('slow');
         }
-    };
+    }
 }();
 
 function loadKeyBindings() {
@@ -1306,21 +1411,18 @@ function swipeyswipe(dir) {
 }
 
 function doSomethingUseful(div,text) {
-    debug.log("GENERAL","Doing Something Useful to",div);
-    var html =  '<div id="usefulbar" class="containerbox bar">'+
-                '<div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div>'+
-                '<div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div><div class="expand"></div>'+
-                '<div class="label"><h2 align="center">'+text+'</h2></div>'+
-                '</div>'
-    $("#"+div).append(html);
-}
-
-function faffing() {
-    //$("#content").html("<h2>Searching....</h2>");
+    var html = '<div class="containerbox bar">';
+    html = html + '<div class="fixed" style="vertical-align:middle;padding-left:8px"><img height="32px" src="images/waiter.png" class="spinner"></div>';
+    html = html + '<h3 class="expand ucfirst label">'+text+'</h3>';
+    html = html + '</div>';
+    if (typeof div == "object") {
+        div.append(html);
+    } else if (typeof div == "string") {
+        $("#"+div).append(html);
+    }
 }
 
 function refreshMyDrink(path) {
-    faffing();
     if (path === false) {
         $("#icecastlist").load("iceScraper.php");
     } else {
@@ -1483,4 +1585,36 @@ function preventDefault(ev) {
     evt.stopPropagation();
     evt.preventDefault();
     return false;
+}
+
+function munge_album_name(album) {
+    album = album.replace(/(\(|\[)disc\s*\d+.*?(\)|\])/i, "");        // (disc 1) or (disc 1 of 2) or (disc 1-2) etc (or with [ ])
+    album = album.replace(/(\(|\[)*cd\s*\d+.*?(\)|\])*/i, "");        // (cd 1) or (cd 1 of 2) etc (or with [ ])
+    album = album.replace(/\sdisc\s*\d+.*?$/i, "");                   //  disc 1 or disc 1 of 2 etc
+    album = album.replace(/\scd\s*\d+.*?$/i, "");                     //  cd 1 or cd 1 of 2 etc
+    album = album.replace(/(\(|\[)\d+\s*of\s*\d+(\)|\])/i, "");       // (1 of 2) or (1of2) (or with [ ])
+    album = album.replace(/(\(|\[)\d+\s*-\s*\d+(\)|\])/i, "");        // (1 - 2) or (1-2) (or with [ ])
+    album = album.replace(/(\(|\[)Remastered(\)|\])/i, "");           // (Remastered) (or with [ ])
+    album = album.replace(/(\(|\[).*?bonus .*(\)|\])/i, "");          // (With Bonus Tracks) (or with [ ])
+    album = album.replace(/\s+-\s*$/, "");                            // Chops any stray - off the end that could have been left by the previous
+    album = album.replace(/\s+$/, '');
+    album = album.replace(/^\s+/, '');
+    return album.toLowerCase();
+
+}
+
+
+function scrollbarWidth() {
+    var $inner = jQuery('<div style="width: 100%; height:200px;">test</div>'),
+        $outer = jQuery('<div style="width:200px;height:150px; position: absolute; top: 0; left: 0; visibility: hidden; overflow:hidden;"></div>').append($inner),
+        inner = $inner[0],
+        outer = $outer[0];
+
+    jQuery('body').append(outer);
+    var width1 = inner.offsetWidth;
+    $outer.css('overflow', 'scroll');
+    var width2 = outer.clientWidth;
+    $outer.remove();
+
+    return (width1 - width2);
 }

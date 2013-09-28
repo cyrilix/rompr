@@ -17,8 +17,8 @@
             </div>
             </div>
             <div id="lastfm" class="invisible">
-            <div><ul class="topnav"><a title="Love this track" id="love" href="#" onclick="infobar.love()"><img height="20px" src="images/lastfm-love.png"></a></ul></div>
-            <div><ul class="topnav"><a title="Ban this track" id="ban" href="#" onclick="nowplaying.ban()"><img height="20px" src="images/lastfm-ban.png"></a></ul></div>
+            <div><ul class="topnav"><a title="Love this track" id="love" href="#" onclick="nowplaying.love()"><img height="20px" src="images/lastfm-love.png"></a></ul></div>
+            <div><ul class="topnav"><a title="Ban this track" id="ban" href="#" onclick="infobar.ban()"><img height="20px" src="images/lastfm-ban.png"></a></ul></div>
             </div>
         </div>
         <div id="progress"></div>
@@ -325,4 +325,3 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
 
 
 </div>
-</body>

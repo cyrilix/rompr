@@ -157,26 +157,20 @@ function format_tracknum($tracknum) {
 }
 
 # url_get_contents function by Andy Langton: http://andylangton.co.uk/
-function url_get_contents($url,$useragent='RompR Music Player/0.40',$headers=false,$follow_redirects=true,$debug=true) {
+function url_get_contents($url,$useragent='RompR Music Player/0.40',$headers=false,$follow_redirects=true,$debug=false) {
 
     // debug_print("Getting ".$url);
     # initialise the CURL library
     $ch = curl_init();
-
     # specify the URL to be retrieved
     curl_setopt($ch, CURLOPT_URL,$url);
-
     # we want to get the contents of the URL and store it in a variable
     curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
-
     # specify the useragent: this is a required courtesy to site owners
     curl_setopt($ch, CURLOPT_USERAGENT, $useragent);
-
     # ignore SSL errors
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-
     curl_setopt($ch, CURLOPT_TIMEOUT, 45);
-
     # return headers as requested
     if ($headers==true){
         curl_setopt($ch, CURLOPT_HEADER,1);
@@ -205,6 +199,8 @@ function url_get_contents($url,$useragent='RompR Music Player/0.40',$headers=fal
     # send back the data
     return $result;
 }
+
+
 
 function format_time($t,$f=':') // t = seconds, f = separator
 {
@@ -275,7 +271,7 @@ function munge_album_name($name) {
     $b = preg_replace('/(\(|\[)\d+\s*of\s*\d+(\)|\])/i', "", $b);       // (1 of 2) or (1of2) (or with [ ])
     $b = preg_replace('/(\(|\[)\d+\s*-\s*\d+(\)|\])/i', "", $b);        // (1 - 2) or (1-2) (or with [ ])
     $b = preg_replace('/(\(|\[)Remastered(\)|\])/i', "", $b);           // (Remastered) (or with [ ])
-    $b = preg_replace('/(\(|\[).*?bonus tracks(\)|\])/i', "", $b);      // (With Bonus Tracks) (or with [ ])
+    $b = preg_replace('/(\(|\[).*?bonus .*(\)|\])/i', "", $b);      // (With Bonus Tracks) (or with [ ])
     $b = preg_replace('/\s+-\s*$/', "", $b);                            // Chops any stray - off the end that could have been left by the previous
     $b = preg_replace('#\s+$#', '', $b);
     $b = preg_replace('#^\s+#', '', $b);
@@ -394,6 +390,7 @@ function findFileItem($x, $which) {
 }
 
 function dumpAlbums($which) {
+
     global $divtype;
     global $ARTIST;
     global $ALBUM;
@@ -416,6 +413,7 @@ function dumpAlbums($which) {
         // the albumart thread is writing to it
         if (flock($fp, LOCK_EX, $crap)) {
             $x = simplexml_load_file(getWhichXML($which));
+            flock($fp, LOCK_UN);
             if ($which == 'aalbumroot' || $which == 'balbumroot') {
                 if ($which == 'aalbumroot') {
                     print '<div class="menuitem"><h3>Local Files:</h3></div>';
@@ -440,12 +438,13 @@ function dumpAlbums($which) {
                     albumTracks($obj);
                 }
             }
-            flock($fp, LOCK_UN);
 
         } else {
+            debug_print("File Lock Failed!","DUMPALBUMS");
             print '<h3>There was an error. Please refresh and try again</h3>';
         }
     } else {
+        debug_print("File Open Failed!","DUMPALBUMS");
         print '<h3>There was an error. Please refresh and try again</h3>';
     }
     fclose($fp);
@@ -459,10 +458,6 @@ function artistHeader($artist) {
         print '<div class="clickable clicktrack draggable containerbox menuitem" name="'.$artist->spotilink.'">';
         print '<div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="'.$artist['id'].'"></div>';
         print '<div class="playlisticon fixed"><img height="12px" src="images/spotify-logo.png" /></div>';
-
-
-        debug_print("Artist ".$artist->name." has ".count($artist->albums->album)." albums", "DEBUGGING");
-
         if (count($artist->albums->album) == 0) {
             print '<input type="hidden" value="needsfiltering" />';
         }
@@ -791,48 +786,49 @@ function parseTrack($collection, $track, $plpos = null, $plid = null) {
 function outputPlaylist() {
     global $playlist;
     global $PLAYLISTFILE;
-    $xml =  '<?xml version="1.0" encoding="utf-8"?>'."\n".
-            '<playlist version="1">'."\n".
-            '<title>Current Playlist</title>'."\n".
-            '<creator>RompR</creator>'."\n".
-            '<trackList>'."\n";
 
+    $output = array();
     foreach ($playlist as $track) {
-        $xml = $xml.'<track>'."\n"
-            .xmlnode("title", $track->name)
-            .xmlnode("album", $track->album)
-            .xmlnode("creator", $track->artist)
-            .xmlnode("albumartist", $track->albumobject->artist)
-            .xmlnode("compilation", $track->albumobject->isCompilation() ? "yes" : "no")
-            .xmlnode("duration", $track->duration)
-            .xmlnode("type", $track->type)
-            .xmlnode("tracknumber", $track->number)
-            .xmlnode("expires", $track->expires)
-            .xmlnode("stationurl", $track->stationurl)
-            .xmlnode("station", $track->station)
-            .xmlnode("location", $track->url)
-            .xmlnode("backendid", $track->backendid)
-            .xmlnode("dir", rawurlencode($track->albumobject->folder))
-            .xmlnode("key", $track->albumobject->getKey())
-            .xmlnode("image", $track->getImage('original'))
-            .xmlnode("origimage", $track->getImage('asdownloaded'))
-            .xmlnode("stream", $track->stream)
-            .xmlnode("playlistpos", $track->playlistpos)
-            .xmlnode("mbartistid", $track->musicbrainz_artistid)
-            .xmlnode("mbalbumid", $track->musicbrainz_albumid)
-            .xmlnode("mbalbumartistid", $track->musicbrainz_albumartistid)
-            .xmlnode("mbtrackid", $track->musicbrainz_trackid)
-            .xmlnode("spotialbum", rawurlencode($track->getSpotiAlbum()))
-            .'</track>'."\n";
+        $t = array(
+                    "title" => $track->name,
+                    "album" => $track->album,
+                    "creator" => $track->artist,
+                    "albumartist" => $track->albumobject->artist,
+                    "compilation" => $track->albumobject->isCompilation() ? "yes" : "no",
+                    "duration" => $track->duration,
+                    "type" => $track->type,
+                    "tracknumber" => $track->number,
+                    "expires" => $track->expires,
+                    "stationurl" => $track->stationurl,
+                    "station" => $track->station,
+                    "location" => $track->url,
+                    "backendid" => $track->backendid,
+                    "dir" => rawurlencode($track->albumobject->folder),
+                    "key" => $track->albumobject->getKey(),
+                    "image" => $track->getImage('original'),
+                    "origimage" => $track->getImage('asdownloaded'),
+                    "stream" => $track->stream,
+                    "playlistpos" => $track->playlistpos,
+                    "spotify" => array (
+                                        "album" => rawurlencode($track->getSpotiAlbum())
+                    ),
+                    // Sending null in any of these values is very, very bad as it prevents plugins
+                    // waiting on lastfm to find an ID
+                    "musicbrainz" => array (
+                                            "artistid" => $track->musicbrainz_artistid,
+                                            "albumid" => $track->musicbrainz_albumid,
+                                            "albumartistid" => $track->musicbrainz_albumartistid,
+                                            "trackid" => $track->musicbrainz_trackid
+                    )
+        );
+        array_push($output, $t);
     }
-
-    $xml = $xml . "</trackList>\n</playlist>\n";
-
+    $o = json_encode($output);
+    print $o;
+    ob_flush();
     $fp = fopen($PLAYLISTFILE, "w");
-    fwrite($fp, $xml);
+    fwrite($fp, $o);
     fclose($fp);
-    print $xml;
-
 }
 
 function find_executable($prog) {

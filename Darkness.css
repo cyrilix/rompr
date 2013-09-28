@@ -126,8 +126,8 @@ div.clickable.selected:hover
 
 .infosection
 {
-    background-color:#000000;
-    border-bottom:1px solid #000000;
+    /*background-color:#000000;*/
+    border-top:1px solid #000000;
 }
 
 .albumsection
@@ -220,11 +220,6 @@ ul.topnav li ul.subnav input.topcheck
     color:#ffffff;
 }
 
-.topformbutton:hover
-{
-    color:#ff4800;
-}
-
 .separator
 {
      border-bottom:12px solid #888888;
@@ -243,19 +238,13 @@ input.topformbutton
 
 /*-- Styles to make the Wikipedia nav boxes look prettier --*/
 
-.navbox-title
+th.navbox-title
 {
-    color:#000000;
-}
-
-.navbox-group
-{
-    color:#000000;
+    background-color:#343434;
 }
 
 .navbox-abovebelow
 {
-    color:#000000;
     padding-bottom:4px;
 }
 
@@ -263,7 +252,6 @@ input.topformbutton
 .navbox-abovebelow a:link,
 .navbox-group a:link
 {
-    color:#990000;
     text-decoration:none;
 }
 
@@ -271,7 +259,6 @@ input.topformbutton
 .navbox-abovebelow a:visited,
 .navbox-group a:visited
 {
-    color:#990000;
     text-decoration:none;
 }
 
@@ -279,57 +266,34 @@ input.topformbutton
 .navbox-abovebelow a:hover,a:active,
 .navbox-group a:hover,a:active
 {
-    color:#ff4800;
     text-decoration:none;
 }
 
-.mbox-text
-{
-    color:#000000;
-}
-
-.mbox-text a
-{
-    color:#992200;
-}
-
-.mbox-text a:hover
-{
-    color:#ff2200;
-}
-
-.plainlinks
-{
-    background-color:#cccccc;
-}
-
-.tracklist tbody tr td
-{
-    color:#000000;
-}
-
-.tracklist tbody tr td ul li
-{
-    color:#000000;
+table.tracklist {
+    line-height:1.5em;
 }
 
 .tracklist tbody tr th
 {
-    color:#000000;
     font-weight:bold;
 }
 
-.quotebox
+th.tlheader
 {
-    color:#000000;
-}
-
-.quotebox p
-{
-    color:#000000;
+    background-color:#232323;
 }
 
 .description
 {
     margin-top:4px;
+}
+
+.underline
+{
+    border-bottom: 1px solid #999999;
+}
+
+.infosection h2
+{
+    border-bottom:2px solid #eeeeee;
 }

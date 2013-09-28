@@ -5,6 +5,11 @@ var infobar = function() {
     var sliderclamps = 0;
     var progressbar = null;
     var volumecontrol = null;
+    var trackinfo = {};
+    var lfminfo = {};
+    var starttime = 0;
+    var scrobbled = false;
+    var nowplaying_updated = false;
 
     var volumeslider = function() {
         volume = 0;
@@ -28,6 +33,41 @@ var infobar = function() {
             dragging: false
         }
     }();
+
+    function setTheText(info) {
+        // debug.log("INFOBAR","Setting now playing info",info);
+        var doctitle = "RompR";
+        if (mobile == "no") {
+            var contents = '<span class="larger"><b>';
+            contents=contents+info.title;
+            if (info.title != "") {
+                doctitle = info.title;
+            }
+            contents=contents+'</b></span>';
+            if (info.creator) {
+                contents=contents+'<p>by <b>'+info.creator+'</b></p>';
+                doctitle = doctitle + " - " + info.creator;
+            }
+            if (info.album) {
+                contents=contents+'<p>on <b>'+info.album+'</b></p>';
+            }
+        } else {
+            var contents = '<span><b>';
+            contents=contents+info.title;
+            if (info.title != "") {
+                doctitle = info.title;
+            }
+            contents=contents+'</b></span><br>';
+            if (info.creator) {
+                contents=contents+'<span>by <b>'+info.creator+'</b></span><br>';
+                doctitle = doctitle + " - " + info.creator;
+            }
+        }
+        $("#nowplaying").empty().html(contents);
+        contents = null;
+        document.title = doctitle;
+        doctitle = null;
+    }
 
     return {
         NOTIFY: 0,
@@ -65,7 +105,7 @@ var infobar = function() {
 
             return {
                 setSource: function(data) {
-                    debug.log("ALBUMPICTURE","Source is being set to ",data,aImg);
+                    debug.log("ALBUMPICTURE","Source is being set to ",data.image,aImg);
                     if (aImg.src != data.image) {
                         aImg.src = data.image;
                     }
@@ -77,7 +117,7 @@ var infobar = function() {
 
                 setSecondarySource: function(data) {
                     if (data.key === undefined || data.key == aImg.getAttribute('name')) {
-                        debug.log("ALBUMPICTURE","Secondary Source is being set to ",data,aImg);
+                        debug.log("ALBUMPICTURE","Secondary Source is being set to ",data.image,aImg);
                         if (data.image != "" && (aImg.src == "" || aImg.className == "notexist")) {
                             debug.debug("ALBUMPICTURE","  OK, the criteria have been met");
                             aImg.src = data.image;
@@ -94,10 +134,7 @@ var infobar = function() {
                 },
 
                 displayOriginalImage: function(event) {
-                    var mousepos = getPosition(event);
-                    var dimensions = imagePopup.create(oImg.width, oImg.height, mousepos.x, mousepos.y);
-                    imagePopup.contents('<img src="'+oImg.src+'" height="'+parseInt(dimensions.height)+'" width="'+parseInt(dimensions.width)+'">');
-                    imagePopup.show();
+                    imagePopup.create($(event.target), event, oImg.src);
                 },
 
             }
@@ -153,77 +190,94 @@ var infobar = function() {
 
         setNowPlayingInfo: function(info) {
             //Now playing info
-            debug.log("INFOBAR","Setting now playing info",info);
-            var doctitle = "RompR";
-            if (mobile == "no") {
-                debug.debug("INFOBAR","Not Mobile");
-                var contents = '<span class="larger"><b>';
-                contents=contents+info.track;
-                if (info.track != "") {
-                    doctitle = info.track;
-                }
-                contents=contents+'</b></span>';
-                if (info.artist) {
-                    contents=contents+'<p>by <b>'+info.artist+'</b></p>';
-                    doctitle = doctitle + " - " + info.artist;
-                }
-                if (info.album) {
-                    contents=contents+'<p>on <b>'+info.album+'</b></p>';
-                }
-            } else {
-                debug.debug("INFOBAR","Is Mobile");
-                var contents = '<span><b>';
-                contents=contents+info.track;
-                if (info.track != "") {
-                    doctitle = info.track;
-                }
-                contents=contents+'</b></span><br>';
-                if (info.artist) {
-                    contents=contents+'<span>by <b>'+info.artist+'</b></span><br>';
-                    doctitle = doctitle + " - " + info.artist;
-                }
-            }
-            $("#nowplaying").empty().html(contents);
-            contents = null;
-            document.title = doctitle;
-            doctitle = null;
-            lastfm.showloveban((info.track != ""));
-            if (nowplaying.mpd(-1,'type') == "local") {
+            trackinfo = info;
+            lfminfo = {};
+            scrobbled = false;
+            nowplaying_updated = false;
+            setTheText(info);
+            lastfm.showloveban((info.title != ""));
+            if (info.type == "local") {
                 $("#progress").css("cursor", "pointer");
             } else {
                 $("#progress").css("cursor", "default");
             }
-            if (info.track =="" && info.album == "" && info.artist == "") {
+            if (info == playlist.emptytrack) {
                 debug.log("INFOBAR","Fading out Album Picture")
                 $("#albumpicture").fadeOut('fast');
                 return 0;
             }
-            if (info.location !== undefined) {
-                // Location is only set when we get the initial mpd data from
-                // nowplaying. It's not set when nowplaying calls us again with the corrected Last.FM
-                // data. The name for the image tag has to be set from the mpd data, hence we use
-                // location simply as a flag.
-                if (info.type == "stream") {
-                    infobar.albumImage.setKey(hex_md5(info.album));
-                } else {
-                    infobar.albumImage.setKey(hex_md5(info.albumartist+" "+info.album));
+            if (info.type == "stream") {
+                infobar.albumImage.setKey(hex_md5(info.album));
+            } else {
+                infobar.albumImage.setKey(hex_md5(info.albumartist+" "+info.album));
+            }
+            infobar.albumImage.setSource({    image: info.image,
+                                              origimage: info.origimage == "" ? info.image : info.origimage
+                                        });
+        },
+
+        setLastFMCorrections: function(info) {
+            lfminfo = info;
+            setTheText(info);
+            infobar.albumImage.setSecondarySource(info);
+        },
+
+        setStartTime: function(elapsed) {
+            starttime = (Date.now())/1000 - parseFloat(elapsed);
+        },
+
+        progress: function() {
+            return (player.status.state == "stop") ? 0 : (Date.now())/1000 - starttime;
+        },
+
+        scrobble: function() {
+            if (!scrobbled && lastfm.isLoggedIn()) {
+                if (trackinfo.title != "" && trackinfo.name != "") {
+                    var options = {
+                                    timestamp: parseInt(starttime.toString()),
+                                    track: (lfminfo.title === undefined) ? trackinfo.title : lfminfo.title,
+                                    artist: (lfminfo.creator === undefined) ? trackinfo.creator : lfminfo.creator,
+                                    album: (lfminfo.album === undefined) ? trackinfo.album : lfminfo.album
+                    };
+                    options.chosenByUser = (trackinfo.type == 'local') ? 1 : 0;
+                     if (trackinfo.albumartist && trackinfo.albumartist != "" && trackinfo.albumartist.toLowerCase() != trackinfo.creator.toLowerCase()) {
+                         options.albumArtist = trackinfo.albumartist;
+                     }
+                    debug.log("INFOBAR","Scrobbling", options);
+                    lastfm.track.scrobble( options );
+                    scrobbled = true;
                 }
             }
         },
 
-        love: function() {
-            nowplaying.love(-1, infobar.donelove);
-            return false;
+        updateNowPlaying: function() {
+            if (!nowplaying_updated && lastfm.isLoggedIn()) {
+                if (trackinfo.title != "" && trackinfo.type && trackinfo.type != "stream") {
+                    var opts = {
+                        track: (lfminfo.title === undefined) ? trackinfo.title : lfminfo.title,
+                        artist: (lfminfo.creator === undefined) ? trackinfo.creator : lfminfo.creator,
+                        album: (lfminfo.album === undefined) ? trackinfo.album : lfminfo.album
+                    };
+                    debug.log("INFOBAR","is updating nowplaying",opts);
+                    lastfm.track.updateNowPlaying(opts);
+                    nowplaying_updated = true;
+                }
+            }
         },
 
-        donelove: function(track,artist) {
-            $("#love").effect('pulsate', {times: 1}, 2000);
+        ban: function() {
+            if (lastfm.isLoggedIn()) {
+                lastfm.track.ban({
+                    track: (lfminfo.title === undefined) ? trackinfo.title : lfminfo.title,
+                    artist: (lfminfo.creator === undefined) ? trackinfo.creator : lfminfo.creator
+                });
+            }
         },
 
         seek: function(e) {
-            // Streams and last.fm tracks can't be seeked, and seeking while stopped soesn't work
-            if (nowplaying.mpd(-1,'type') == "local") {
-                var d = nowplaying.duration(-1);
+            // Streams and last.fm tracks can't be seeked
+            if (trackinfo.type == "local") {
+                var d = trackinfo.duration;
                 if (d > 0) {
                     var position = getPosition(e);
                     var width = $('#progress').width();
@@ -341,7 +395,7 @@ var infobar = function() {
             } else if (progressString == "" && durationString == "") {
                 $("#playbackTime").html("");
             }
-
+            nowplaying.progressUpdate(percent);
         }
     }
 }();

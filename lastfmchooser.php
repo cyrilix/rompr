@@ -56,7 +56,7 @@ if ($prefs['lastfm_user'] != "") {
         <h3>Last.FM Artist Radio</h3>
     </div>
     <div class="indent containerbox padright">
-        <input class="enter sourceform expand" name="albert" id="lastfmartist" type="text" size="60"/>        
+        <input class="enter sourceform" name="albert" id="lastfmartist" type="text" size="60"/>
         <button class="fixed" onclick="doLastFM('lastfmartist')">Play</button>
     </div>
 
@@ -64,7 +64,7 @@ if ($prefs['lastfm_user'] != "") {
         <h3>Last.FM Artist Fan Radio</h3>
     </div>
     <div class="indent containerbox padright">
-        <input class="enter sourceform expand" name="gary" id="lastfmfan" type="text" size="60"/>        
+        <input class="enter sourceform expand" name="gary" id="lastfmfan" type="text" size="60"/>
         <button class="fixed" onclick="doLastFM('lastfmfan')">Play</button>
     </div>
 
@@ -72,7 +72,7 @@ if ($prefs['lastfm_user'] != "") {
         <h3>Last.FM Global Tag Radio</h3>
     </div>
     <div class="indent containerbox padright">
-        <input class="enter sourceform expand" name="throatwobbler" id="lastfmglobaltag" type="text" size="60"/>        
+        <input class="enter sourceform expand" name="throatwobbler" id="lastfmglobaltag" type="text" size="60"/>
         <button class="fixed" onclick="doLastFM('lastfmglobaltag')">Play</button>
     </div>
 
@@ -83,7 +83,7 @@ if ($prefs['lastfm_user'] != "") {
 <?php
             print $prefs['lastfm_user']."'s ";
             print "Top Tags";
-?>        
+?>
         <img id="toptagswait" height="14px" width="14px" src="images/transparent-32x32.png" />
         </div>
     </div>
@@ -97,13 +97,13 @@ if ($prefs['lastfm_user'] != "") {
 <?php
             print $prefs['lastfm_user']."'s ";
             print "Top Artists";
-?>        
+?>
         <img id="topartistswait" height="14px" width="14px" src="images/transparent-32x32.png" />
         </div>
     </div>
     <div id="lfmtopartists" class="dropmenu"></div>
     </div>
-    
+
     <div class="noselection fullwidth">
     <div class="containerbox menuitem">
         <div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" onclick="getFriends(event)" name="lfmfriends"></div>
@@ -114,7 +114,7 @@ if ($prefs['lastfm_user'] != "") {
     </div>
     <div id="lfmfriends" class="dropmenu"></div>
     </div>
-    
+
     <div class="noselection fullwidth">
     <div class="containerbox menuitem">
         <div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" onclick="getNeighbours(event)" name="lfmneighbours"></div>
@@ -126,7 +126,7 @@ if ($prefs['lastfm_user'] != "") {
     <div id="lfmneighbours" class="dropmenu"></div>
     </div>
 
-    
+
 </div>
 
 <?php

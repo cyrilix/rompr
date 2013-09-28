@@ -21,8 +21,38 @@ function Playlist() {
     var percent = null;
     var lastfmcleanuptimer = null;
     var ignorecounter = 0;
-    var getplaylisttimer = null;
-    var putr = false;
+    var progresstimer = null;
+
+    this.emptytrack = {
+        album: "",
+        albumartist: "",
+        backendid: "",
+        compilation: "",
+        creator: "",
+        dir: "",
+        duration: "",
+        expires: "",
+        image: "",
+        key: "",
+        location: "",
+        musicbrainz: {
+            albumartistid: "",
+            albumid: "",
+            artistid: "",
+            trackid: ""
+        },
+        origimage: "",
+        playlistpos: "",
+        spotify: {
+            album: ""
+        },
+        station: "",
+        stationurl: "",
+        stream: "",
+        title: "",
+        tracknumber: "",
+        type: ""
+    };
 
     /*
         There are three mechanisms for preventing multiple repeated updates of the playlist
@@ -45,18 +75,10 @@ function Playlist() {
             ignorecounter--;
             return;
         }
-        putr = true;
-        debug.log("PLAYLIST","Setting Repopulate Timer");
-        clearTimeout(getplaylisttimer);
-        getplaylisttimer = setTimeout(playlist.getPlaylistFromPlayer, 250);
-    }
-
-    this.getPlaylistFromPlayer = function() {
-        debug.log("PLAYLIST","Repopulate timer has fired");
-        self.cleanupCleanupTimer();
+        debug.log("PLAYLIST","Repopulating....");
         updatecounter++;
-        putr = false;
         player.controller.getPlaylist();
+        self.cleanupCleanupTimer();
         coverscraper.clearCallbacks();
     }
 
@@ -66,8 +88,6 @@ function Playlist() {
         // Functions that know how many items they're going to modify in the playlist
         // can tell the playlist to ignore some of them (probably n-1 of them)
         ignorecounter += num;
-        clearTimeout(getplaylisttimer);
-        putr = true;
         debug.log("PLAYLIST","Will ignore the next",ignorecounter,"updates");
     }
 
@@ -78,7 +98,7 @@ function Playlist() {
         var current_artist = "";
         var current_station = "";
         var current_type = "";
-        var track;
+        // var track;
         var expiresin = null;
 
         self.cleanupCleanupTimer();
@@ -87,14 +107,11 @@ function Playlist() {
         // where, for example, the user is clicking rapidly on the delete button for lots of tracks
         // and the playlist is slow to update from mpd
         updatecounter--;
-        if (updatecounter > 0) {
-            debug.log("PLAYLIST","Received playlist update but more are coming - ignoring");
-            do_delayed_update = true;
-            return 0;
-        }
-
-        if (putr) {
-            debug.log("PLAYLIST","Received playlist update but timer is already running again - ignoring");
+        if (updatecounter > 0 || ignorecounter > 0) {
+            debug.log("PLAYLIST","Received playlist update but ",updatecounter," more are coming and ",ignorecounter," are expected - ignoring");
+            if (ignorecounter == 0) {
+                do_delayed_update = true;
+            }
             return 0;
         }
 
@@ -109,7 +126,7 @@ function Playlist() {
         }
         // ***********
 
-        debug.log("PLAYLIST","Got Playlist XML from Apache");
+        debug.log("PLAYLIST","Got Playlist from Apache",list);
         self.clearProgressTimer();
         finaltrack = -1;
         currentsong = -1;
@@ -118,37 +135,11 @@ function Playlist() {
         var totaltime = 0;
 
         var unixtimestamp = Math.round(new Date()/1000);
-        $(list).find("track").each( function() {
-
-            track = {
-                creator: $(this).find("creator").text(),
-                albumartist: $(this).find("albumartist").text(),
-                album: $(this).find("album").text(),
-                title: $(this).find("title").text(),
-                location: $(this).find("location").text(),
-                duration: parseFloat($(this).find("duration").text()),
-                backendid: $(this).find("backendid").text(),
-                tracknumber: $(this).find("tracknumber").text(),
-                playlistpos: $(this).find("playlistpos").text(),
-                expires: $(this).find("expires").text(),
-                key: $(this).find("key").text(),
-                image: $(this).find("image").text(),
-                origimage: $(this).find("origimage").text(),
-                type: $(this).find("type").text(),
-                station: $(this).find("station").text(),
-                stationurl: $(this).find("stationurl").text(),
-                stream: $(this).find("stream").text(),
-                compilation: $(this).find("compilation").text(),
-                musicbrainz_artistid: $(this).find("mbartistid").text(),
-                musicbrainz_albumid: $(this).find("mbalbumid").text(),
-                musicbrainz_albumartistid: $(this).find("mbalbumartistid").text(),
-                musicbrainz_trackid: $(this).find("mbtrackid").text(),
-            };
-
+        for (var i in list) {
+            track = list[i];
+            track.duration = parseFloat(track.duration);
             totaltime += track.duration;
-
-            var sortartist = track.creator;
-            if (track.albumartist != "") { sortartist = track.albumartist }
+            var sortartist = (track.albumartist == "") ? track.creator : track.albumartist;
             if ((track.compilation != "yes" && sortartist.toLowerCase() != current_artist.toLowerCase()) ||
                 track.album.toLowerCase() != current_album.toLowerCase() ||
                 track.type != current_type)
@@ -201,17 +192,22 @@ function Playlist() {
 
             }
             item.newtrack(track);
+            finaltrack = parseInt(track.playlistpos);
 
-        });
+        }
 
-        if (putr) {
-            debug.log("PLAYLIST","Aborting update because update timer is running");
+        // After all that, which will have taken a finite time - which could be a long time on
+        // a slow device or with a large playlist, let's check that no more updates are pending
+        // before we put all this stuff into the window. (More might have come in while we were organising this one)
+        // This might all seem like a faff, but you do not want stuff you've just removed
+        // suddenly re-appearing in front of your eyes and then vanishing again. It looks crap.
+        if (updatecounter > 0 || ignorecounter > 0) {
+            debug.log("PLAYLIST","Aborting update because counter is non-zero");
             return;
         }
 
         $("#sortable").empty();
-        if (track) {
-            finaltrack = parseInt(track.playlistpos);
+        if (finaltrack > -1) {
             $("#sortable").append('<div class="booger"><table width="100%" class="playlistitem"><tr><td align="left">'
                                     +(finaltrack+1).toString()
                                     +' tracks</td><td align="right">Duration : '+formatTimeString(totaltime)+'</td></tr></table></div>');
@@ -413,7 +409,7 @@ function Playlist() {
         if (finaltrack == -1) {
             // Playlist is empty
             debug.log("PLAYLIST","Playlist is empty");
-            nowplaying.newTrack(emptytrack);
+            nowplaying.newTrack(self.emptytrack);
             infobar.setProgress(0,-1,-1);
         } else {
             // Track changes are detected based on the playlist id. This prevents us from repopulating
@@ -423,7 +419,8 @@ function Playlist() {
                 $(".playlistcurrentitem").removeClass('playlistcurrentitem').addClass('playlistitem');
                 $(".playlistcurrenttitle").removeClass('playlistcurrenttitle').addClass('playlisttitle');
                 if (player.status.songid === undefined) {
-                    currentTrack = emptytrack;
+                    debug.warn("PLAYLIST","Nanoo Nanoo");
+                    currentTrack = self.emptytrack;
                 } else {
                     findCurrentTrack();
                     if (!currentTrack) {
@@ -444,20 +441,22 @@ function Playlist() {
                     return 0;
                 }
                 debug.log("PLAYLIST","Track has changed");
-                // if (currentTrack && currentTrack.type == "stream" && streamflag) {
-                //     debug.log("PLAYLIST","Waiting for stream info......");
-                //     // If it's a new stream, don't update immediately, instead give it 5 seconds
-                //     // to let mpd extract any useful track info from the stream
-                //     // This avoids us displaying some random nonsense then switching to the track
-                //     // data 5 seconds later
-                //     streamflag = false;
-                //     infobar.setNowPlayingInfo({ track: 'Waiting for station info...'});
-                //     infobar.albumImage.setSource({image: currentTrack.image});
-                //     setTheClock(playlist.streamfunction, 5000);
-                //     return 0;
-                // }
-                // if (currentTrack && currentTrack.type != "stream") {
-                if (currentTrack) {
+                if (prefs.use_mopidy_http == 0) {
+                    if (currentTrack && currentTrack.type == "stream" && streamflag) {
+                        debug.log("PLAYLIST","Waiting for stream info......");
+                        // If it's a new stream, don't update immediately, instead give it 5 seconds
+                        // to let mpd extract any useful track info from the stream
+                        // This avoids us displaying some random nonsense then switching to the track
+                        // data 5 seconds later
+                        streamflag = false;
+                        infobar.setNowPlayingInfo({ title: 'Waiting for station info...'});
+                        infobar.albumImage.setSource({image: currentTrack.image});
+                        setTheClock(playlist.streamfunction, 5000);
+                        return 0;
+                    }
+                }
+                if ((prefs.use_mopidy_http == 0 && currentTrack && currentTrack.type != "stream") ||
+                    (prefs.use_mopidy_http == 1 && currentTrack)) {
                     debug.log("PLAYLIST","Creating new track",currentTrack);
                     nowplaying.newTrack(currentTrack);
                 }
@@ -470,17 +469,20 @@ function Playlist() {
                 safetytimer = 500;
             }
 
-             progress = nowplaying.progress();
-             duration = nowplaying.duration(-1);
+            if (currentTrack === null) {
+                return;
+            }
+
+             progress = infobar.progress();
+             duration = currentTrack.duration || 0;
              percent = (duration == 0) ? 0 : (progress/duration) * 100;
              infobar.setProgress(Math.round(percent),progress,duration);
-             browser.soundcloudProgress(percent);
              html = null;
 
              if (player.status.state == "play") {
-                if (progress > 4) { nowplaying.updateNowPlaying() };
-                if (percent >= prefs.scrobblepercent) { nowplaying.scrobble(); }
-                if (duration > 0 && nowplaying.mpd(-1, "type") != "stream") {
+                if (progress > 4) { infobar.updateNowPlaying() };
+                if (percent >= prefs.scrobblepercent) { infobar.scrobble(); }
+                if (duration > 0 && currentTrack.type != "stream") {
                     if (prefs.use_mopidy_http == 0) {
                         // When using mopidy HTTP, we get state change events when tracks change,
                         // so there's no need to poll like this.
@@ -495,7 +497,7 @@ function Playlist() {
                         setTheClock( playlist.checkProgress, 1000);
                     }
                 } else {
-                    // if (prefs.use_mopidy_http == 0) {
+                   if (prefs.use_mopidy_http == 0) {
                         AlanPartridge++;
                         if (AlanPartridge < 7) {
                             setTheClock( playlist.checkProgress, 1000);
@@ -503,9 +505,9 @@ function Playlist() {
                             AlanPartridge = 0;
                             setTheClock( playlist.streamfunction, 1000);
                         }
-                    // } else {
-                    //     setTheClock( playlist.checkProgress, 1000);
-                    // }
+                    } else {
+                        setTheClock( playlist.checkProgress, 1000);
+                    }
                 }
             }
         }
@@ -526,9 +528,11 @@ function Playlist() {
     }
 
     function updateStreamInfo() {
+        // This function is entirely unsuitable when using Mopidy's HTTP
+        // interface, since player.status.Name has no meaning in that context
         if (currentTrack && currentTrack.type == "stream") {
             var temp = cloneObject(currentTrack);
-            temp.title = currentTrack.stream || player.status.Title || currentTrack.title;
+            temp.title = player.status.Title || currentTrack.title;
             temp.album = currentTrack.creator + " - " + currentTrack.album;
             if (player.status.Title) {
                 var tit = player.status.Title;
@@ -539,6 +543,8 @@ function Playlist() {
                 }
             }
             if (player.status.Name) {
+                // NOTE: 'Name' is returned by MPD - it's the station name
+                // as read from the station's stream metadata
                 checkForUpdateToUnknownStream(player.status.file, player.status.Name);
                 temp.album = player.status.Name;
             } else if (player.status.Name === undefined) {
@@ -552,9 +558,11 @@ function Playlist() {
                     temp.album = a;
                 }
             }
-            if (nowplaying.mpd(-1, 'title') != temp.title ||
-                nowplaying.mpd(-1, 'album') != temp.album ||
-                nowplaying.mpd(-1, 'creator') != temp.creator) {
+            if (currentTrack.title != temp.title ||
+                currentTrack.album != temp.album ||
+                currentTrack.creator != temp.creator ||
+                !streamflag) {
+                currentTrack = temp;
                 nowplaying.newTrack(temp);
             } else {
                 temp = null;
@@ -595,7 +603,7 @@ function Playlist() {
             infobar.notify(infobar.ERROR, "Not supported for radio streams");
         } else if (player.status.state == "play") {
             player.controller.stopafter();
-            var timeleft = nowplaying.duration(-1) - nowplaying.progress();
+            var timeleft = currentTrack.duration - infobar.progress();
             if (timeleft < 0) { timeleft = 300 };
             var repeats = Math.round(timeleft / 4);
             $("#stopafterbutton").effect('pulsate', {times: repeats}, 4000);
@@ -669,6 +677,10 @@ function Playlist() {
             });
     }
 
+    this.getCurrent = function(thing) {
+        return currentTrack[thing];
+    }
+
     this.Album = function(artist, album, index, rolledup) {
 
         var self = this;
@@ -732,6 +744,8 @@ function Playlist() {
                     // An image was supplied - either a local one or supplied by the backend
                     html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover fixed" name="'+tracks[0].key+'" src="'+tracks[0].image+'"/></div>';
                 } else {
+                    // This is so we can get albumart when we're playing spotify
+                    // Once mopidy starts supplying us with images, we can dump this code
                     var i = findImageInWindow(tracks[0].key);
                     if (i !== false) {
                         debug.log("PLAYLIST","Playlist using image already in window");

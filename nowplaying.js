@@ -1,801 +1,248 @@
-function trackDataCollection(ind, mpdinfo, file, art, alb, tra) {
+function trackDataCollection(i, d) {
 
-    var self = this;
-    var mpd_data = mpdinfo;  /* From playlist - the information read from the backend */
-    var artist_data = art;
-    var album_data = alb;
-    var track_data = tra;
-    var index = ind;
-    var scrobbled = false;
-    var nowplaying_updated = false;
-    var sc_track = null;
-    var sc_user = null;
-    var starttime = (Date.now())/1000 - parseFloat(player.status.elapsed);
+	var self = this;
+	var collections = new Array();
+	this.playlistinfo = d;
+	this.index = i;
 
-    this.sndcld = function() {
-        return {
-            populate: function() {
-                soundcloud.getTrackInfo(mpd_data.location, this.gotSoundCloudTrack);
-            },
+	// Last.FM needs to be running as it's used for love, ban, and autocorrect
+	if (prefs.lastfm_autocorrect || lastfm.isLoggedIn()) {
+		collections['lastfm'] = new (nowplaying.getPlugin('lastfm')).collection(this);
+	}
 
-            gotSoundCloudTrack: function(data) {
-                debug.log("NOWPLAYING","Got SoundCloud Track Data:",data);
-                if (mpd_data.creator == "." && data.user && data.user.username) {
-                    mpd_data.creator = data.user.username;
-                    debug.log("NOWPLAYING","setting artist name from soundcloud data to",mpd_data.creator);
-                }
-                sc_track = data;
-                self.sndcld.getUserData();
-            },
+	// For SoundCloud tracks, we use the plugin to get albumart and artist names,
+	// because sometimes mopidy_soundcloud fails to get them
+	var t = d.location;
+	if (t.substring(0,11) == 'soundcloud:') {
+		collections['soundcloud'] = new (nowplaying.getPlugin('soundcloud')).collection(this);
+	}
 
-            getUserData: function() {
-                debug.log("NOWPLAYING","Getting SoundCloud User Data",sc_track.user_id);
-                soundcloud.getUserInfo(sc_track.user_id, this.gotSoundCloudUser);
-            },
+	function startSource(source) {
+		var requirements = (nowplaying.getPlugin(source)).getRequirements(self);
+		for (var i in requirements) {
+			if (collections[requirements[i]] === undefined) {
+				debug.mark("TRACKDATA",self.index,"Starting collection",source,"requirement",requirements[i]);
+				startSource(requirements[i]);
+			}
+		}
+		debug.mark("TRACKDATA",self.index,"Starting collection",source);
+		collections[source] = new (nowplaying.getPlugin(source)).collection(self);
+	}
 
-            gotSoundCloudUser: function(data) {
-                debug.log("NOWPLAYING","Got SoundCloud User Data",data);
-                sc_user = data;
-                self.artist.populate();
-            },
+	this.sendDataToBrowser = function(waitingon) {
+		if (collections[waitingon.source] === undefined) {
+			startSource(waitingon.source);
+		}
+		debug.log("TRACKDATA",self.index,"Telling",waitingon.source,"to start displaying");
+		collections[waitingon.source].displayData();
+	}
 
-            getData: function() {
-                return {user: sc_user, track: sc_track};
-            }
-        }
-    }();
+	this.stopDisplaying = function(waitingon) {
+		for (var coll in collections) {
+			debug.debug("TRACKDATA",self.index,"Telling",coll,"to stop displaying");
+			collections[coll].stopDisplaying(waitingon);
+		}
+	}
 
-    /* Populating the data is daisy-chained, artist, album, track */
-    this.artist = function() {
-        return {
-            populate: function() {
-                if (artist_data == null) {
-                    var options = {};
-                    var options = { artist: mpd_data.creator };
-                    debug.log("NOWPLAYING","Getting last.fm data for artist",mpd_data.creator,options);
-                    lastfm.artist.getInfo( options,
-                                        this.lfmResponseHandler,
-                                        this.lfmResponseHandler );
-                } else {
-                    self.album.populate();
-                }
-            },
+	this.updateData = function(data, start) {
+		if (start === undefined || start === null) {
+			start = self.playlistinfo;
+		}
+		for (var i in data) {
+			if (typeof data[i] == "object" && data[i] !== null) {
+				if (start[i] === undefined) {
+					start[i] = {};
+				}
+				self.updateData(data[i], start[i]);
+			} else {
+				if (start[i] === undefined || start[i] == "" || start[i] == null) {
+					start[i] = data[i];
+				}
+			}
+		}
+	}
 
-            lfmResponseHandler: function(data) {
-                debug.log("NOWPLAYING","Got Artist Info for", mpd_data.creator, data);
-                if (data) {
-                    if (data.error) {
-                        artist_data = {artist: data};
-                    } else {
-                        artist_data = data;
-                    }
-                } else {
-                    artist_data = {artist: {error: 1,
-                                            message: "Artist Not Found"}
-                    };
-                }
-                if (prefs.fullbiobydefault && artist_data.artist.url) {
-                    self.artist.getFullBio(null, null);
-                } else {
-                    self.album.populate();
-                }
-            },
+	this.youWereClicked = function(plugin, source, element, event) {
+		collections[plugin].handleClick(source, element, event);
+	}
 
-            getFullBio: function(callback, failcallback) {
-                debug.log("NOWPLAYING","Getting Bio URL:", artist_data.artist.url);
-                $.get("getLfmBio.php?url="+encodeURIComponent(artist_data.artist.url))
-                    .done( function(data) {
-                        artist_data.artist.bio.content = data;
-                        if (callback) {
-                            callback(index, data);
-                        } else {
-                            self.album.populate();
-                        }
-                    })
-                    .fail( function(data) {
-                        if (failcallback) {
-                            failcallback();
-                        } else {
-                            self.album.populate();
-                        }
-                    })
-            },
+	this.love = function() {
+		if (collections['lastfm'] === undefined) {
+			debug.error("TRACKDATA","Asked to Love but there is no lastfm collection!");
+		} else {
+			collections['lastfm'].track.love();
+		}
+	}
 
-            name: function() {
-                try {
-                    return artist_data.artist.name || mpd_data.creator;
-                } catch(err) {
-                    return mpd_data.creator;
-                }
-            },
+	this.reduceYourIndexPlease = function() {
+		self.index--;
+	}
 
-            lfmdata: function() {
-                try {
-                    return artist_data.artist || {};
-                } catch(err) {
-                    return {};
-                }
-            },
-
-            url: function() {
-                try {
-                    return artist_data.artist.url || null;
-                } catch(err) {
-                    return null;
-                }
-            },
-
-            getusertags: function() {
-                if (artist_data.artist.usertags) {
-                    this.sendusertags(artist_data.artist.usertags);
-                } else {
-                    var options = { artist: this.name() };
-                    if (this.mbid() != "") {
-                        options.mbid = this.mbid();
-                    }
-                    lastfm.artist.getTags(
-                        options,
-                        this.sendusertags,
-                        this.sendusertags
-                    );
-                }
-            },
-
-            sendusertags: function(data) {
-                artist_data.artist.usertags = data;
-                var tags = [];
-                try {
-                    tags = getArray(artist_data.artist.usertags.tags.tag);
-                } catch(err) {
-                    tags = [];
-                }
-                browser.userTagsIncoming(tags, 'artist', index);
-            },
-
-            addtags: function(tags) {
-                lastfm.artist.addTags( {    artist: this.name(),
-                                            tags: tags},
-                                        self.justaddedtags,
-                                        browser.tagAddFailed
-                );
-            },
-
-            removetags: function(tags) {
-                lastfm.artist.removeTag( {  artist: this.name(),
-                                            tag: tags},
-                                        self.justaddedtags,
-                                        browser.tagRemoveFailed
-                );
-            },
-
-            resettags: function() {
-                artist_data.artist.usertags = null;
-            },
-
-            mbid: function() {
-                if (mpd_data.musicbrainz_artistid) {
-                    return mpd_data.musicbrainz_artistid;
-                } else {
-                    try {
-                        return artist_data.artist.mbid;
-                    } catch(err) {
-                        return "";
-                    }
-                }
-            },
-
-            setBio: function(text) {
-                try {
-                    artist_data.artist.bio.content = text;
-                } catch(err) {
-                }
-            }
-        }
-    }();
-
-    this.album = function() {
-        return {
-            populate: function() {
-                if (mpd_data.type == "stream") {
-                    album_data = {album: {error: 99, message: "(Internet Radio Station)"}};
-                    self.track.populate();
-                } else {
-                    if (album_data == null) {
-                        var searchartist = (mpd_data.albumartist && mpd_data.albumartist != "") ? mpd_data.albumartist : self.artist.name();
-                        var options = { artist: searchartist, album: mpd_data.album };
-                        debug.log("NOWPLAYING","Getting last.fm data for album",mpd_data.album,"by",searchartist,options);
-                        lastfm.album.getInfo( options,
-                                                this.lfmResponseHandler,
-                                                this.lfmResponseHandler );
-                    } else {
-                        self.track.populate();
-                    }
-                }
-            },
-
-            lfmResponseHandler: function(data) {
-                debug.log("NOWPLAYING","Got Album Info for",mpd_data.album, data);
-                if (data) {
-                    if (data.error) {
-                        album_data = {album: data};
-                    } else {
-                        album_data = data;
-                    }
-                } else {
-                    album_data = {album: {error: 1,
-                                          message: "Album Not Found"}
-                    };
-                }
-                self.track.populate();
-            },
-
-            name: function() {
-                try {
-                    return album_data.album.name || mpd_data.album;
-                } catch(err) {
-                    return mpd_data.album;
-                }
-            },
-
-            image: function(size) {
-                // Get image of the specified size.
-                // If no image of that size exists, return a different one -
-                // just so we've got one.
-                /* This function is duplicated in lastmDataExtractor for reasons of
-                * expediency and laziness, with the latter much in the ascendancy
-                */
-                if (sc_track) {
-                    // This track has soundcloud data and is therefore a soundcloud track
-                    // so use that image
-                    if (sc_track.artwork_url) {
-                        debug.log("NOWPLAYING","Using SoundCloud track image");
-                        return sc_track.artwork_url;
-                    } else if (sc_user.avatar_url) {
-                        debug.log("NOWPLAYING","Using SoundCloud user avatar");
-                        return sc_user.avatar_url;
-                    } else {
-                        return "";
-                    }
-                } else {
-                    try {
-                        var url = "";
-                        var temp_url = "";
-                        for(var i in album_data.album.image) {
-                            temp_url = album_data.album.image[i]['#text'];
-                            if (album_data.album.image[i].size == size) {
-                                url = temp_url;
-                                break;
-                            }
-                        }
-                        if (url == "") { url = temp_url; }
-                        return url;
-                    } catch(err) {
-                        return "";
-                    }
-                }
-            },
-
-            lfmdata: function() {
-                try {
-                    return album_data.album;;
-                } catch(err) {
-                    return {};
-                }
-            },
-
-            mbid: function() {
-                if (mpd_data.musicbrainz_albumid) {
-                    return mpd_data.musicbrainz_albumid;
-                } else {
-                    try {
-                        return album_data.album.mbid;
-                    } catch(err) {
-                        return "";
-                    }
-                }
-            },
-
-            getusertags: function() {
-                if (album_data.album.usertags) {
-                    this.sendusertags(album_data.album.usertags);
-                } else {
-                    var searchartist = (mpd_data.albumartist && mpd_data.albumartist != "") ? mpd_data.albumartist : self.artist.name();
-                    var options = { artist: searchartist, album: this.name() };
-                    if (this.mbid() != "") {
-                        options.mbid = this.mbid();
-                    }
-                    lastfm.album.getTags(
-                        options,
-                        this.sendusertags,
-                        this.sendusertags
-                    );
-                }
-            },
-
-            sendusertags: function(data) {
-                album_data.album.usertags = data;
-                var tags = [];
-                try {
-                    tags = getArray(album_data.album.usertags.tags.tag);
-                } catch(err) {
-                    tags = [];
-                }
-                browser.userTagsIncoming(tags, 'album', index);
-            },
-
-            addtags: function(tags) {
-                var searchartist = (mpd_data.albumartist && mpd_data.albumartist != "") ? mpd_data.albumartist : self.artist.name();
-                lastfm.album.addTags( {    artist: searchartist,
-                                            album: this.name(),
-                                            tags: tags},
-                                        self.justaddedtags,
-                                        browser.tagAddFailed
-                );
-            },
-
-            removetags: function(tags) {
-                var searchartist = (mpd_data.albumartist && mpd_data.albumartist != "") ? mpd_data.albumartist : self.artist.name();
-                lastfm.album.removeTag( {  album: this.name(),
-                                            artist: searchartist,
-                                            tag: tags},
-                                        self.justaddedtags,
-                                        browser.tagRemoveFailed
-                );
-            },
-
-            resettags: function() {
-                album_data.album.usertags = null;
-            },
-
-            albumartist: function() {
-                return (mpd_data.albumartist && mpd_data.albumartist != "") ? mpd_data.albumartist : self.artist.name();
-            }
-        }
-    }();
-
-    this.track = function() {
-        return {
-            populate: function() {
-                if (track_data == null) {
-                    var options = { artist: self.artist.name(), track: mpd_data.title };
-//                     if (this.mbid() != "") {
-//                         options.mbid = this.mbid();
-//                     }
-                    debug.log("NOWPLAYING","Getting last.fm data for track",mpd_data.title,"by",self.artist.name(),options);
-                    lastfm.track.getInfo( options,
-                                            this.lfmResponseHandler,
-                                            this.lfmResponseHandler );
-                } else {
-                    self.finished();
-                }
-            },
-
-            lfmResponseHandler: function(data) {
-                debug.log("NOWPLAYING","Got Track Info for",mpd_data.title, data);
-                if (data) {
-                    if (data.error) {
-                        track_data = {track: data};
-                    } else {
-                        track_data = data;
-                    }
-                } else {
-                    track_data = {track: {error: 1,
-                                          message: "Track Not Found"}
-                    };
-                }
-                self.finished();
-            },
-
-            name: function() {
-                try {
-                    return track_data.track.name || mpd_data.title;
-                } catch(err) {
-                    return mpd_data.title;
-                }
-            },
-
-            scrobble: function() {
-                if (!scrobbled) {
-                    if (self.track.name() != "" && self.artist.name() != "") {
-                        var options = {
-                                        timestamp: parseInt(starttime.toString()),
-                                        track: self.track.name(),
-                                        artist: self.artist.name(),
-                                        album: self.album.name()
-                        };
-                        options.chosenByUser = (mpd_data.type == 'local') ? 1 : 0;
-                        // One of these is probably making it fail
-//                         if (this.mbid()) {
-//                             options.mbid = this.mbid();
-//                         }
-                         if (mpd_data.albumartist && mpd_data.albumartist != "" && (mpd_data.albumartist).toLowerCase() != (self.artist.name()).toLowerCase()) {
-                             options.albumArtist = mpd_data.albumartist;
-                         }
-//                         if (mpd_data.duration && mpd_data.duration > 0) {
-//                             options.duration = (Math.floor(mpd_data.duration)).toString();
-//                         }
-                        debug.log("NOWPLAYING","Scrobbling", options);
-                        lastfm.track.scrobble( options );
-                        scrobbled = true;
-                    }
-                }
-            },
-
-            updatenowplaying: function() {
-                if (!nowplaying_updated) {
-                    if (self.track.name() != "" && self.artist.name() != "") {
-                        var opts = {
-                            track: self.track.name(),
-                            artist: self.artist.name()
-                        };
-                        if (mpd_data.type != "stream") {
-                            opts.album = self.album.name();
-                        }
-                        lastfm.track.updateNowPlaying(opts);
-                        nowplaying_updated = true;
-                    }
-                }
-            },
-
-            duration: function() {
-                if (mpd_data.duration == 0 && mpd_data.type != "stream") {
-                    /* use duration from last.fm track info if none available from mpd */
-                    try {
-                        return track_data.track.duration || 0;
-                    } catch(err) {
-                        return 0;
-                    }
-                }
-                return mpd_data.duration || 0;
-            },
-
-            love: function(callback) {
-                lastfm.track.love({ track: self.track.name(), artist: self.artist.name() }, self.donelove, callback);
-            },
-
-            unlove: function(callback) {
-                lastfm.track.unlove({ track: self.track.name(), artist: self.artist.name() }, self.donelove, callback);
-            },
-
-            ban: function() {
-            lastfm.track.ban({ track: self.track.name(), artist: self.artist.name() });
-            },
-
-            lfmdata: function() {
-                try {
-                    return track_data.track;
-                } catch(err) {
-                    return {};
-                }
-            },
-
-            getusertags: function() {
-                if (track_data.track.usertags) {
-                    this.sendusertags(track_data.track.usertags);
-                } else {
-                    var options = { artist: self.artist.name(), track: this.name() };
-                    if (this.mbid() != "") {
-                        options.mbid = this.mbid();
-                    }
-                    lastfm.track.getTags(
-                        options,
-                        this.sendusertags,
-                        this.sendusertags
-                    );
-                }
-            },
-
-            sendusertags: function(data) {
-                track_data.track.usertags = data;
-                var tags = [];
-                try {
-                    tags = getArray(track_data.track.usertags.tags.tag);
-                } catch(err) {
-                    tags = [];
-                }
-                browser.userTagsIncoming(tags, 'track', index);
-            },
-
-            addtags: function(tags) {
-                lastfm.track.addTags( {     artist: self.artist.name(),
-                                            track: this.name(),
-                                            tags: tags},
-                                        self.justaddedtags,
-                                        browser.tagAddFailed
-                );
-            },
-
-            removetags: function(tags) {
-                lastfm.track.removeTag( {   track: this.name(),
-                                            artist: self.artist.name(),
-                                            tag: tags},
-                                        self.justaddedtags,
-                                        browser.tagRemoveFailed
-                );
-            },
-
-            resettags: function() {
-                track_data.track.usertags = null;
-            },
-
-            mbid: function() {
-                if (mpd_data.musicbrainz_trackid) {
-                    return mpd_data.musicbrainz_trackid;
-                } else {
-                    try {
-                        return track_data.track.mbid;
-                    } catch(err) {
-                        return "";
-                    }
-                }
-            }
-        }
-    }();
-
-    this.populate = function() {
-        var a = mpd_data.location;
-        if (a.substr(0,11) == "soundcloud:") {
-            artist_data = null;
-            self.sndcld.populate();
-        } else {
-            self.artist.populate();
-        }
-    }
-
-    this.finished = function() {
-        debug.log("NOWPLAYING","Got all data for",mpd_data.title);
-        nowplaying.gotdata(index);
-    }
-
-    this.mpd = function(key) {
-        return mpd_data[key];
-    }
-
-    this.progress = function() {
-        return (player.status.state == "stop") ? 0 : (Date.now())/1000 - starttime;
-    }
-
-    this.setstarttime = function(elapsed) {
-        starttime = (Date.now())/1000 - parseFloat(elapsed);
-    }
-
-    this.justaddedtags = function(type, tags) {
-        debug.log("NOWPLAYING","Just added or removed tags",tags,"to",type);
-        self[type].resettags();
-        self[type].getusertags();
-    }
-
-    this.donelove = function(tr, ar, loved, callback) {
-        if (callback) {
-            callback();
-        }
-        browser.justloved(index, loved);
-        if (loved) {
-            infobar.notify(infobar.NOTIFY, "Loved "+tr);
-            // Rather than re-get all the details, we can just edit the track data directly.
-            track_data.track.userloved = 1;
-            if (prefs.autotagname != '') {
-                self.track.addtags(prefs.autotagname);
-            }
-        } else {
-            infobar.notify(infobar.NOTIFY, "UnLoved "+tr);
-            track_data.track.userloved = 0;
-            if (prefs.autotagname != '') {
-                self.track.removetags(prefs.autotagname);
-            }
-        }
-    }
+	this.updateProgress = function(percent) {
+		if (collections['soundcloud'] !== undefined) {
+			collections['soundcloud'].progressUpdate(percent);
+		}
+	}
 
 }
 
-function playInfo() {
+var nowplaying = function() {
 
-    var self = this;
+	var history = new Array();
+	var plugins = new Array();
     var currenttrack = 0;
-    var history = [];
 
-    /* Initialise ourself with a dummy track - prevents early callbacks during loading from
-     * producing errors - otherwise we'd have to check if (currenttrack == 0) all over the place
-     */
+	return {
 
-    history[0] = new trackDataCollection(0, emptytrack, null, null, null);
+		registerPlugin: function(name, fn, icon, text) {
+			debug.log("NOWPLAYING", "Plugin is regsistering - ",name);
+			plugins[name] = { 	createfunction: fn,
+								icon: icon,
+								text: text
+							};
+		},
 
-    this.newTrack = function(mpdinfo) {
+		getPlugin: function(name) {
+			return plugins[name].createfunction;
+		},
 
-        debug.log("NOWPLAYING","New Track:",mpdinfo);
+		getAllPlugins: function() {
+			return plugins;
+		},
 
-        /* Update the now playing info. This can be modified later when the last.fm data comes back */
-        var npinfo = {  artist: mpdinfo.creator,
-                        albumartist: mpdinfo.albumartist || mpdinfo.creator,
-                        album: mpdinfo.album,
-                        track: mpdinfo.title,
-                        location: mpdinfo.location,
-                        type: mpdinfo.type
-        };
+		newTrack: function(playlistinfo) {
 
-        infobar.setNowPlayingInfo(npinfo);
-        infobar.albumImage.setSource({    image: mpdinfo.image,
-                                          origimage: mpdinfo.origimage == "" ? mpdinfo.image : mpdinfo.origimage
-                                    });
+	        debug.groupend();
+			infobar.setNowPlayingInfo(playlistinfo);
+			if (playlistinfo == playlist.emptytrack) {
+				return;
+			}
+	        debug.group("NOWPLAYING","New Track:",playlistinfo);
 
-        var newartistdata = null;
-        var newalbumdata = null;
-        var newtrackdata = null;
+	        // Repeatedly querying online databases for the same data is a bad idea -
+	        // it's slow, it means we have to store the same data multiple times,
+	        // and some databases (musicbrainz) will start to severely rate-limit you
+	        // if you do it. Hence we see if we've got stuff we can copy.
+	        // (Note Javascript is a by-reference language, so all we're copying is
+	       	// references to one pot of data).
+			var metadata = {artist: null, album: null, track: null };
 
-        if (history.length > prefs.historylength) {
-            var t = history.shift();
-            currenttrack--;
-            browser.thePubsCloseTooEarly();
-        }
+	        for (var i = currenttrack; i > 0; i--) {
+	            if (playlistinfo.creator == history[i].playlistinfo.creator) {
+	                if (metadata.artist === null) {
+	                    debug.log("NOWPLAYING","Copying Artist data from index",i);
+	                    metadata.artist = history[i].playlistinfo.metadata.artist;
+	                }
+	                if (playlistinfo.musicbrainz.artistid == "") {
+	                	playlistinfo.musicbrainz.artistid = history[i].playlistinfo.musicbrainz.artistid;
+	                }
+	                if (playlistinfo.title == history[i].playlistinfo.title && metadata.track === null) {
+	                    debug.log("NOWPLAYING","Copying Track data from index",i);
+	                    metadata.track = history[i].playlistinfo.metadata.track;
+		                if (playlistinfo.musicbrainz.trackid == "") {
+		                	playlistinfo.musicbrainz.trackid = history[i].playlistinfo.musicbrainz.trackid;
+		                }
+	                }
+	            }
 
-        if (mpdinfo.creator == "" && mpdinfo.title == "" && mpdinfo.album == "") {
-            currenttrack++;
-            history[currenttrack] = new trackDataCollection(currenttrack, mpdinfo, player.status.file, newartistdata, newalbumdata, newtrackdata);
-            return 0;
-        }
+	            var newalbumartist = (playlistinfo.albumartist == "") ? playlistinfo.creator : playlistinfo.albumartist;
+	            var albumartist = (history[i].playlistinfo.albumartist == "") ? history[i].playlistinfo.creator : history[i].playlistinfo.albumartist;
+	            if (albumartist == newalbumartist) {
+	                if (playlistinfo.album == history[i].playlistinfo.album && metadata.album === null) {
+	                    debug.log("NOWPLAYING","Copying Album data from index",i);
+	                    metadata.album = history[i].playlistinfo.metadata.album;
+		                if (playlistinfo.musicbrainz.albumid == "") {
+		                	playlistinfo.musicbrainz.albumid = history[i].playlistinfo.musicbrainz.albumid;
+		                }
+	                }
+	            }
+	        }
+	        if (metadata.artist == null) {
+	        	metadata.artist = {};
+	        }
+	        if (metadata.album == null) {
+	        	metadata.album = {};
+	        }
+	        if (metadata.track == null) {
+	        	metadata.track = {};
+	        }
+	        playlistinfo.metadata = metadata;
 
-        browser.trackHasChanged(npinfo);
+	        // Truncate our history if we've gone over the limit
+	        // the limit is configurable as prefs.historylength, but it's not in the UI
+	        // NOTE: history[0] is not used.
+	        if (currenttrack == prefs.historylength) {
+	        	debug.log("NOWPLAYING","History is too long - truncating by one");
+	        	history.splice(1,1);
+	        	currenttrack--;
+	        	for(var i in history) {
+	        		history[i].reduceYourIndexPlease();
+	        	}
+	        	browser.thePubsCloseTooEarly();
+	        }
 
-        /* Need to check what's different between this one and the previous one so we can copy the data
-         * - prevents us from repeatedly querying last.fm for the same data */
+	        currenttrack++;
+			history[currenttrack] = new trackDataCollection(currenttrack, playlistinfo);
+			browser.trackHasChanged(currenttrack, playlistinfo);
 
-        debug.group("NOWPLAYING","Started data collection for track",currenttrack);
+		},
 
-        for (var i in history) {
-            if (mpdinfo.creator == history[i].mpd('creator')) {
-                if (newartistdata === null) {
-                    debug.debug("NOWPLAYING","Copying Artist data");
-                    newartistdata = {artist: history[i].artist.lfmdata()};
-                }
-                if (mpdinfo.album == history[i].mpd('album') && newalbumdata == null) {
-                    debug.debug("NOWPLAYING","Copying Album data");
-                    newalbumdata = {album: history[i].album.lfmdata()};
-                }
-                if (mpdinfo.title == history[i].mpd('title') && newtrackdata == null) {
-                    debug.debug("NOWPLAYING","Copying Track data");
-                    newtrackdata = {track: history[i].track.lfmdata()};
-                }
+		giveUsTheData: function(waitingon) {
+			if (waitingon.index > 0) {
+				for (var i in history) {
+					history[i].stopDisplaying(waitingon);
+				}
+				history[waitingon.index].sendDataToBrowser(waitingon);
+			}
+		},
+
+		clickPassThrough: function(index, plugin, source, element, event) {
+			history[index].youWereClicked(plugin, source, element, event);
+		},
+
+
+		setLastFMCorrections: function(index, updates) {
+			debug.log("NOWPLAYING","Recieved last.fm corrections for index",index);
+			if (index == currenttrack) {
+		    	var t = history[index].playlistinfo.location;
+            	if (t.substring(0,11) == 'soundcloud:') {
+            		debug.log("NOWPLAYING","Not sending LastFM Updates because this track is from soundcloud");
+            	} else {
+					infobar.setLastFMCorrections(updates);
+				}
+			}
+		},
+
+		setSoundCloudCorrections: function(index, updates) {
+			if (index == currenttrack) {
+		    	var t = history[index].playlistinfo.location;
+            	if (t.substring(0,11) == 'soundcloud:') {
+            		debug.log("NOWPLAYING", "Sending SoundCloud Updates");
+            		infobar.setLastFMCorrections(updates);
+            	}
             }
-        }
+        },
 
-        currenttrack++;
-        history[currenttrack] = new trackDataCollection(currenttrack, mpdinfo, player.status.file, newartistdata, newalbumdata, newtrackdata);
-        history[currenttrack].populate();
-    }
+		progressUpdate: function(percent) {
+			if (currenttrack > 0) {
+				history[currenttrack].updateProgress(percent);
+			}
+		},
 
-    this.gotdata = function(index) {
-        /* We got a response from a data collector */
-        debug.log("NOWPLAYING","Got data collection response for index",index);
-        if (index == currenttrack) {
-            /* Only use it here if this is info about the current track
-             * This is asynchronous and it's possible that the user could be clicking
-             * very quickly through tracks. We can't control the order the responses come back in */
-            debug.log("NOWPLAYING","...and it's data we need");
-            /* Update now playing info with what we've got back - we might have autocorrections or album art */
-            var npinfo = {  artist: history[index].artist.name(),
-                            album: history[index].album.name(),
-                            track: history[index].track.name()
-            };
-            infobar.setNowPlayingInfo(npinfo);
-            infobar.albumImage.setSecondarySource({ image: history[index].album.image('medium'),
-                                                    origimage: history[index].album.image('large')
-            });
-            browser.newTrack(index);
-        }
-        debug.groupend();
-    }
+		love: function() {
+			if (lastfm.isLoggedIn()) {
+				history[currenttrack].love();
+			}
+            $("#love").effect('pulsate', {times: 1}, 2000);
+		},
 
-    /* All these functions are for retrieving data from the trackDataCollection objects.
-     * Don't access those objects directly.
-     * Functions that take an index can accept -1 to mean 'current track'
-     * Functions that don't accept an index are those that make no sense in any other context
-     */
+		dumpHistory: function() {
+			for (var i in history) {
+				debug.log("NOWPLAYING", "History index",i,history[i]);
+			}
+		}
 
-    this.scrobble = function() {
-        history[currenttrack].track.scrobble();
-    }
+	}
 
-    this.updateNowPlaying = function() {
-        history[currenttrack].track.updatenowplaying();
-    }
-
-    this.progress = function(index) {
-        return history[currenttrack].progress();
-    }
-
-    this.setStartTime = function(time) {
-        history[currenttrack].setstarttime(time);
-    }
-
-    this.ban = function() {
-        history[currenttrack].track.ban();
-        return false;
-    }
-
-    this.mpd = function(index, key) {
-        if (index == -1) { index = currenttrack };
-        return history[index].mpd(key);
-    }
-
-    this.duration = function(index) {
-        if (index == -1) { index = currenttrack };
-        return history[index].track.duration();
-    }
-
-    this.love = function(index, callback) {
-        /* optional callback to be used IN ADITION TO the standard one which calls into the browser */
-        callback = typeof callback !== 'undefined' ? callback : null;
-        if (index == -1) { index = currenttrack };
-        history[index].track.love(callback);
-    }
-
-    this.unlove = function(index, callback) {
-        /* optional callback to be used IN ADITION TO the standard one which calls into the browser */
-        callback = typeof callback !== 'undefined' ? callback : null;
-        if (index == -1) { index = currenttrack };
-        history[index].track.unlove(callback);
-    }
-
-    this.getnames = function(index) {
-        return {    artist: history[index].artist.name(),
-                    album: history[index].album.name(),
-                    track: history[index].track.name()
-        }
-    }
-
-    this.getmpdnames = function(index) {
-        return {    artist: history[index].mpd('creator'),
-                    album: history[index].mpd('album'),
-                    track: history[index].mpd('title')
-        };
-    }
-
-    this.getcurrentindex = function() {
-        return currenttrack;
-    }
-
-    this.getusertags = function(index, key) {
-        history[index][key].getusertags();
-    }
-
-    this.addtags = function(index, type, tags) {
-        history[index][type].addtags(tags);
-    }
-
-    this.removetags = function(index, type, tags) {
-        history[index][type].removetags(tags);
-    }
-
-    this.albumartist = function(index) {
-        if (index = -1) { index = currenttrack }
-        return history[index].album.albumartist();
-    }
-
-    /* These three functions return the actual last.fm data from the three objects.
-     * The info browser uses these so it can do clever stuff.
-     * The returned data can be used with lfmDataExtractor, which provides
-     * generic methods for accessing the data
-     * DO NOT ACCESS THE DATA DIRECTLY. THIS IS DANGEROUS AND COULD DESTROY THE INTERNET
-     */
-
-    this.getArtistData = function(index) {
-        return history[index].artist.lfmdata();
-    }
-
-    this.getAlbumData = function(index) {
-        return history[index].album.lfmdata();
-    }
-
-    this.getTrackData = function(index) {
-        return history[index].track.lfmdata();
-    }
-
-    this.getFullBio = function(type, index, callback, failcallback) {
-        history[index][type].getFullBio(callback, failcallback);
-    }
-
-    this.getSoundCloudData = function(index) {
-        return history[index].sndcld.getData();
-    }
-}
+}();
 
