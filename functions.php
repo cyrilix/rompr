@@ -456,8 +456,8 @@ function artistHeader($artist) {
     print '<div class="noselection fullwidth '.$divtype.'">';
     if ($artist->spotilink) {
         print '<div class="clickable clicktrack draggable containerbox menuitem" name="'.$artist->spotilink.'">';
-        print '<div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="'.$artist['id'].'"></div>';
-        print '<div class="playlisticon fixed"><img height="12px" src="images/spotify-logo.png" /></div>';
+        print '<div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="'.$artist['id'].'"></div>';
+        print '<div class="playlisticon fixed"><img height="12px" src="newimages/spotify-logo.png" /></div>';
         if (count($artist->albums->album) == 0) {
             print '<input type="hidden" value="needsfiltering" />';
         }
@@ -465,7 +465,7 @@ function artistHeader($artist) {
         print '</div>';
     } else {
         print '<div class="clickable clickalbum draggable containerbox menuitem" name="'.$artist['id'].'">';
-        print '<div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="'.$artist['id'].'"></div>';
+        print '<div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="'.$artist['id'].'"></div>';
         print '<div class="expand">'.$artist->name.'</div>';
         print '</div>';
     }
@@ -481,24 +481,24 @@ function albumHeaders($artist) {
     foreach($artist->albums->album as $i => $album) {
         if ($album->spotilink) {
             print '<div class="clickable clicktrack draggable containerbox menuitem" name="'.$album->spotilink.'">';
-            print '<div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="'.$album['id'].'"></div>';
+            print '<div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="'.$album['id'].'"></div>';
         } else {
             print '<div class="clickable clickalbum draggable containerbox menuitem" name="'.$album['id'].'">';
-            print '<div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="'.$album['id'].'"></div>';
+            print '<div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="'.$album['id'].'"></div>';
         }
         // For BLOODY FIREFOX only we have to wrap the image in a div of the same size,
         // because firefox won't squash the image horizontally if it's in a box-flex layout.
         print '<div class="smallcover fixed">';
         if ($album->image->exists == "no" && $album->image->searched == "no") {
-            print '<img class="smallcover fixed notexist" name="'.$album->image->name.'" src="images/album-unknown-small.png" />'."\n";
+            print '<img class="smallcover fixed notexist" name="'.$album->image->name.'" src="newimages/album-unknown-small.png" />'."\n";
         } else  if ($album->image->exists == "no" && $album->image->searched == "yes") {
-            print '<img class="smallcover fixed notfound" name="'.$album->image->name.'" src="images/album-unknown-small.png" />'."\n";
+            print '<img class="smallcover fixed notfound" name="'.$album->image->name.'" src="newimages/album-unknown-small.png" />'."\n";
         } else {
             print '<img class="smallcover fixed" name="'.$album->image->name.'" src="'.$album->image->src.'" />'."\n";
         }
         print '</div>';
         if ($album->spotilink) {
-            print '<div class="playlisticon fixed"><img height="12px" src="images/spotify-logo.png" /></div>';
+            print '<div class="playlisticon fixed"><img height="12px" src="newimages/spotify-logo.png" /></div>';
         }
 
         print '<div class="expand">'.$album->name;
@@ -539,7 +539,7 @@ function albumTracks($album) {
         }
         print '>'.$trackobj->number.'</div>';
         if (substr($trackobj->url,0,strlen('spotify')) == "spotify") {
-            print '<div class="playlisticon fixed"><img height="12px" src="images/spotify-logo.png" /></div>';
+            print '<div class="playlisticon fixed"><img height="12px" src="newimages/spotify-logo.png" /></div>';
         }
         print '<div class="expand">'.$trackobj->name.'</div>';
         print '<div class="fixed playlistrow2">'.$trackobj->duration.'</div>';

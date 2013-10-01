@@ -6,14 +6,14 @@ include ("functions.php");
 <div id="albumcontrols" class="column noborder tleft">
 <div class="containerbox fullwidth">
 <div class="expand topbox leftbox">
-<a title="Local Music" href="#" onclick="sourcecontrol('albumlist')" id="choose_albumlist"><img class="topimg" height="24px" src="images/audio-x-generic.png"></a>
-<a title="File Browser" href="#" onclick="sourcecontrol('filelist')" id="choose_filelist"><img class="topimg" height="24px" src="images/folder.png"></a>
-<a title="Last.FM Radio" href="#" onclick="sourcecontrol('lastfmlist')" id="choose_lastfmlist"><img class="topimg" height="24px" src="images/lastfm.png"></a>
-<a title="Internet Radio Stations" href="#" onclick="sourcecontrol('radiolist')" id="choose_radiolist"><img class="topimg" height="24px" src="images/broadcast-24.png"></a>
-<a href="albumart.php" title="Album Art Manager" target="_blank"><img class="topimg" src="images/cd_jewel_case.jpg" height="24px"></a>
+<img title="Local Music" onclick="sourcecontrol('albumlist')" id="choose_albumlist" class="tooltip topimg" height="24px" src="newimages/audio-x-generic.png">
+<img title="File Browser" onclick="sourcecontrol('filelist')" id="choose_filelist" class="tooltip topimg" height="24px" src="newimages/folder.png">
+<img title="Last.FM Radio" onclick="sourcecontrol('lastfmlist')" id="choose_lastfmlist" class="tooltip topimg" height="24px" src="newimages/lastfm.png">
+<img title="Internet Radio Stations and Podcasts" onclick="sourcecontrol('radiolist')" id="choose_radiolist" class="tooltip topimg" height="24px" src="newimages/broadcast-24.png">
+<a href="albumart.php" title="Album Art Manager" target="_blank" class="tooltip"><img class="topimg" src="newimages/cd_jewel_case.jpg" height="24px"></a>
 </div>
 <div class="fixed topbox">
-<img id="sourcesresizer" height="24px" src="images/resize2.png" style="cursor:move">
+<img id="sourcesresizer" height="24px" src="newimages/resize2.png" style="cursor:move">
 </div>
 </div>
 </div>
@@ -21,24 +21,24 @@ include ("functions.php");
 <div id="infocontrols" class="cmiddle noborder tleft">
 <div class="containerbox fullwidth">
 <div class="fixed topbox">
-<a title="Toggle Sources Panel" href="#" onclick="expandInfo('left')"><img id="expandleft" height="24px" src="images/arrow-left-double.png" style="padding-left:4px"></a>
+<img title="Toggle Sources Panel" class="tooltip clickicon" onclick="expandInfo('left')" id="expandleft" height="24px" src="newimages/arrow-left-double.png" style="padding-left:4px">
 </div>
 <div class="expand containerbox center topbox">
 <div id="chooserbuttons" class="noborder fixed">
-<img id="backbutton" class="topimg" height="24px" src="images/backbutton_disabled.png"></a>
+<img title="Back" id="backbutton" class="topimg tooltip" height="24px" src="newimages/backbutton_disabled.png">
 <ul class="topnav">
     <li>
-        <a href="#" title="History"><img src="images/history_icon.png" class="topimg" height="24px"></a>
+        <a href="#" title="History" class="tooltip"><img src="newimages/history_icon.png" class="topimg" height="24px"></a>
         <ul id="historypanel" class="subnav widel">
             <li class="wider"><b>HISTORY</b></li>
         </ul>
     </li>
 </ul>
-<img id="forwardbutton" class="topimg" height="24px" src="images/forwardbutton_disabled.png"></a>
+<img title="Forward" id="forwardbutton" class="tooltip topimg" height="24px" src="newimages/forwardbutton_disabled.png">
 </div>
 </div>
 <div class="fixed topbox">
-<a title="Toggle Playlist" href="#" onclick="expandInfo('right')"><img height="24px" id="expandright" src="images/arrow-right-double.png" style="padding-right:4px"></a>
+<img height="24px" class="tooltip clickicon" title="Toggle Playlist" onclick="expandInfo('right')" id="expandright" src="newimages/arrow-right-double.png" style="padding-right:4px">
 </div>
 </div>
 </div>
@@ -46,12 +46,12 @@ include ("functions.php");
 <div id="playlistcontrols" class="column noborder tleft">
 <div class="containerbox fullwidth">
 <div class="expand topbox">
-<img id="playlistresizer" src="images/resize2.png" height="24px" style="cursor:move">
+<img id="playlistresizer" src="newimages/resize2.png" height="24px" style="cursor:move">
 </div>
 <div class="fixed topbox">
 <ul class="topnav">
     <li>
-        <a href="#" title="RompR/mpd Preferences"><img class="topimg" src="images/preferences.png" height="24px"></a>
+        <a href="#" title="RompR Preferences" class="tooltip"><img class="topimg" src="newimages/preferences.png" height="24px"></a>
         <ul id="configpanel" class="subnav wide">
             <li class="wide"><b>CONFIGURATION</b></li>
                         <li class="wide">THEME <select id="themeselector" class="topformbutton" onchange="changetheme()">
@@ -121,7 +121,7 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
 <?php
 }
 ?>
-                <li class="wide"><img src="images/lastfm.png" height="24px" style="vertical-align:middle;margin-right:8px"/><b>Last.FM</b></li>
+                <li class="wide"><img src="newimages/lastfm.png" height="24px" style="vertical-align:middle;margin-right:8px"/><b>Last.FM</b></li>
 <?php
                 //print '<li class="wide">Information Panel History Depth</li>';
                 //print '<li class="wide"><input class="topform" name="historylength" type="text" size="3" value="'.$prefs['historylength'].'"/><button class="topformbutton" onclick="sethistorylength()">Set</button></li>';
@@ -149,7 +149,7 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
     </li>
 
     <li>
-        <a href="#" title="Clear Playlist"><img class="topimg" src="images/edit-clear-list.png" height="24px"></a>
+        <a href="#" title="Clear Playlist" class="tooltip"><img class="topimg" src="newimages/edit-clear-list.png" height="24px"></a>
         <ul id="clrplst" class="subnav">
             <li><b>Clear Playlist</b></li>
             <li>
@@ -158,7 +158,7 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
         </ul>
     </li>
     <li>
-        <a href="#" title="Load Saved Playlist"><img class="topimg" src="images/document-open-folder.png" height="24px"></a>
+        <a href="#" title="Load Saved Playlist" class="tooltip"><img class="topimg" src="newimages/document-open-folder.png" height="24px"></a>
         <ul id="playlistslist" class="subnav wide"></ul>
     </li>
 <?php
@@ -166,7 +166,7 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
     $prefs['use_mopidy_http'] == 0) {
 ?>
     <li>
-        <a href="#" title="Save Playlist"><img class="topimg" src="images/document-save.png" height="24px"></a>
+        <a href="#" title="Save Playlist" class="tooltip"><img class="topimg" src="newimages/document-save.png" height="24px"></a>
         <ul id="saveplst" class="subnav wide">
             <li class="wide"><b>Save Playlist As</b></li>
             <li class="wide">
@@ -200,4 +200,5 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
     $("#countryselector").val(prefs.lastfm_country_code);
     $("[name=clickselect][value="+prefs.clickmode+"]").attr("checked", true);
     $("#playlistcontrols .enter").keyup( onKeyUp );
+    $(".tooltip").tipTip({delay: 1000});
 </script>

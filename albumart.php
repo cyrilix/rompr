@@ -259,7 +259,7 @@ $(window).load(function () {
     $.each($(document).find("img").filter(filterImages), function() {
         count++;
         $(this).addClass("notexist");
-        $(this).attr("src", "images/album-unknown.png");
+        $(this).attr("src", "newimages/album-unknown.png");
     });
     covergetter.updateInfo(albums_without_cover - count);
 });
@@ -311,7 +311,7 @@ function handleDrop(ev) {
                     if (srces && srces[1]) {
                         src = srces[1];
                         debug.log("ALBUMART","Image Source",src);
-                        imgobj.attr("src", "images/album-unknown.png");
+                        imgobj.attr("src", "newimages/album-unknown.png");
                         imgobj.removeClass('nospin').addClass('spinner');
                         if (src.match(/image\/.*;base64/)) {
                             debug.log("ALBUMART","Looks like Base64");
@@ -349,7 +349,7 @@ function handleDrop(ev) {
                     debug.log("ALBUMART","Found Files");
                     var files = evt.dataTransfer.files;
                     if (files[0]) {
-                        imgobj.attr("src", "images/album-unknown.png");
+                        imgobj.attr("src", "newimages/album-unknown.png");
                         imgobj.removeClass('nospin').addClass('spinner');
                         // For some reason I no longer care about, doing this with jQuery.post doesn't work
                         var formData = new FormData();
@@ -470,7 +470,7 @@ var imageEditor = function() {
                                             '<div id="u" class="tleft bleft bmid clickable bmenu">File Upload</div>'+
                                             '<div class="tleft bleft bmid clickable"><a href="http://www.google.com/search?q='+phrase+'&hl=en&site=imghp&tbm=isch" target="_blank">Google Search in new Tab</a></div>');
 
-                $("#editcontrols").append(  $('<img>', { class: "tright clickicon", onclick: "imageEditor.close()", src: "images/edit-delete.png", style: "height:16px"}));
+                $("#editcontrols").append(  $('<img>', { class: "tright clickicon", onclick: "imageEditor.close()", src: "newimages/edit-delete.png", style: "height:16px"}));
 
                 $("#"+current).addClass("bsel");
 
@@ -673,8 +673,8 @@ var imageEditor = function() {
         },
 
         uploadFile: function() {
-            imgobj.attr('src', 'images/album-unknown.png');
-            imageEditor.updateBigImg('images/album-unknown.png');
+            imgobj.attr('src', 'newimages/album-unknown.png');
+            imageEditor.updateBigImg('newimages/album-unknown.png');
             startAnimation();
             var formElement = document.getElementById("uform");
             var xhr = new XMLHttpRequest();
@@ -707,8 +707,8 @@ function wobbleMyBottom() {
 
 function updateImage(url, index) {
     clickindex = index;
-    imgobj.attr('src', 'images/album-unknown.png');
-    imageEditor.updateBigImg('images/album-unknown.png');
+    imgobj.attr('src', 'newimages/album-unknown.png');
+    imageEditor.updateBigImg('newimages/album-unknown.png');
     startAnimation();
     var options = { key: imagekey,
                     src: url,
@@ -739,7 +739,7 @@ function animationStop() {
 
 function searchFail() {
     debug.log("ALBUMART","No Source Found");
-    $('#img'+clickindex).attr('src', 'images/imgnotfound.png');
+    $('#img'+clickindex).attr('src', 'newimages/imgnotfound.png');
     imgobj.attr('src', origsauce);
     imageEditor.updateBigImg(origbigsauce);
     animationStop();
@@ -844,7 +844,7 @@ if (file_exists($ALBUMSLIST)) {
             if ($album->image->exists == "no") {
                 $class = $class . " notexist";
                 $albums_without_cover++;
-                $src = "images/album-unknown.png";
+                $src = "newimages/album-unknown.png";
             } else {
                 $src = $album->image->src;
                 if (dirname($src) == "albumart/small") {
@@ -922,8 +922,8 @@ function do_radio_stations() {
                 if ($track->album) {
                     $artname = md5($track->album);
                     $class = "";
-                    $src = "images/broadcast.png";
-                    if ($track->image != "images/broadcast.png") {
+                    $src = "newimages/broadcast.png";
+                    if ($track->image != "newimages/broadcast.png") {
                         $src = $track->image;
                         if(($key = array_search($src, $allfiles)) !== false) {
                             unset($allfiles[$key]);

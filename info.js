@@ -34,7 +34,7 @@ var browser = function() {
     function waitingBanner(which) {
         var html = '<div class="containerbox infosection menuitem bordered">';
         html = html + '<h3 class="expand ucfirst">'+which+' : (Getting Info....)</h3>';
-        html = html + '<div class="fixed" style="vertical-align:middle"><img height="32px" src="images/waiter.png" class="spinner"></div>';
+        html = html + '<div class="fixed" style="vertical-align:middle"><img height="32px" src="newimages/waiter.png" class="spinner"></div>';
         html = html + '</div>';
         return html;
     }
@@ -78,19 +78,19 @@ var browser = function() {
 
         if (displaypointer == 0) {
             $("#backbutton").unbind('click');
-            $("#backbutton").attr("src", "images/backbutton_disabled.png");
+            $("#backbutton").attr("src", "newimages/backbutton_disabled.png");
         }
-        if (displaypointer > 0 && $("#backbutton").attr("src")=="images/backbutton_disabled.png") {
+        if (displaypointer > 0 && $("#backbutton").attr("src")=="newimages/backbutton_disabled.png") {
             $("#backbutton").click( browser.back );
-            $("#backbutton").attr("src", "images/backbutton.png");
+            $("#backbutton").attr("src", "newimages/backbutton.png");
         }
         if (displaypointer == (history.length)-1) {
             $("#forwardbutton").unbind('click');
-            $("#forwardbutton").attr("src", "images/forwardbutton_disabled.png");
+            $("#forwardbutton").attr("src", "newimages/forwardbutton_disabled.png");
         }
-        if (displaypointer < (history.length)-1 && $("#forwardbutton").attr("src")=="images/forwardbutton_disabled.png") {
+        if (displaypointer < (history.length)-1 && $("#forwardbutton").attr("src")=="newimages/forwardbutton_disabled.png") {
             $("#forwardbutton").click( browser.forward );
-            $("#forwardbutton").attr("src", "images/forwardbutton.png");
+            $("#forwardbutton").attr("src", "newimages/forwardbutton.png");
         }
 
         var html;
@@ -145,11 +145,13 @@ var browser = function() {
                 $("#chooserbuttons").append($('<img>', {
                     src: sources[i].icon,
                     onclick: "browser.switchsource('"+i+"')",
-                    class: 'topimg sep',
+                    title: sources[i].text,
+                    class: 'topimg sep dildo',
                     id: "button_source"+i
                 }));
             }
             $("#button_source"+current_source).addClass("currentbun");
+            $(".dildo").tipTip({delay: 1000});
         },
 
         trackHasChanged: function(npindex, pinfo) {
@@ -400,9 +402,9 @@ function slideshow(images,target_frame,displaycontrols) {
 
     function setPauseButton() {
         if (paused) {
-            $('#slidespause').attr("src", "images/play.png");
+            $('#slidespause').attr("src", "newimages/play.png");
         } else {
-            $('#slidespause').attr("src", "images/pause.png");
+            $('#slidespause').attr("src", "newimages/pause.png");
         }
     }
 
@@ -414,9 +416,9 @@ function slideshow(images,target_frame,displaycontrols) {
             }
             controls = $('<table>', {class: "controlholder invisible", border: '0', cellpadding: '0', cellspacing: '0'}).appendTo($("#"+target_frame));
             controls.append('<tr><td align="center">'+
-                            '<img class="clickicon" id="slidesback" src="images/backward.png">'+
-                            '<img class="clickicon" id="slidespause" src="images/pause.png">'+
-                            '<img class="clickicon" id="slidesforward" src="images/forward.png"></td></tr>');
+                            '<img class="clickicon" id="slidesback" src="newimages/backward.png">'+
+                            '<img class="clickicon" id="slidespause" src="newimages/pause.png">'+
+                            '<img class="clickicon" id="slidesforward" src="newimages/forward.png"></td></tr>');
             $("#"+target_frame).hover(function() { controls.fadeIn(500); }, function() { controls.fadeOut(500); });
             $('.clickicon').click(self.clickHandler);
             controlheight = 62;

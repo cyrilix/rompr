@@ -9,8 +9,8 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
     var infotext = $('#infotext');
     // var progress = $('#progress');
     var statusobj = $('#status');
-    var waitingicon = ['', 'images/album-unknown.png'];
-    var blankicon = ['images/album-unknown.png', 'images/album-unknown.png'];
+    var waitingicon = ['', 'newimages/album-unknown.png'];
+    var blankicon = ['newimages/album-unknown.png', 'newimages/album-unknown.png'];
     var name = null;
     var artist = null;
     var album = null;

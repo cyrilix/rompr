@@ -162,11 +162,11 @@ var infobar = function() {
                         state = s;
                         switch (state) {
                             case "play":
-                                $("#playbuttonimg").attr("src", "images/media-playback-pause.png");
+                                $("#playbuttonimg").attr("src", "newimages/media-playback-pause.png");
                                 break;
                             case "pause":
                             case "stop":
-                                $("#playbuttonimg").attr("src", "images/media-playback-start.png");
+                                $("#playbuttonimg").attr("src", "newimages/media-playback-start.png");
                                 break;
                         }
                     }
@@ -245,9 +245,12 @@ var infobar = function() {
                      }
                     debug.log("INFOBAR","Scrobbling", options);
                     lastfm.track.scrobble( options );
-                    scrobbled = true;
                 }
             }
+            if (!scrobbled) {
+                podcasts.checkMarkPodcastAsListened(trackinfo.location);
+            }
+            scrobbled = true;
         },
 
         updateNowPlaying: function() {
@@ -361,9 +364,9 @@ var infobar = function() {
         notify: function(type, message) {
             var html = '<div class="containerbox menuitem">';
             if (type == infobar.NOTIFY) {
-                html = html + '<img class="fixed" src="images/dialog-information.png" />';
+                html = html + '<img class="fixed" src="newimages/dialog-information.png" />';
             } else if (type == infobar.ERROR) {
-                html = html + '<img class="fixed" src="images/dialog-error.png" />';
+                html = html + '<img class="fixed" src="newimages/dialog-error.png" />';
             }
             html = html + '<div class="expand indent">'+message+'</div></div>';
             $('#notifications').empty().html(html);

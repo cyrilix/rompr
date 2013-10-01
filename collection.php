@@ -674,7 +674,7 @@ function getStuffFromXSPF($url) {
                     "Unknown Internet Stream",
                     null,
                     "stream",
-                    "images/broadcast.png",
+                    "newimages/broadcast.png",
                     null, null, null,
                     "",
                     htmlspecialchars($url)

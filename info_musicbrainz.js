@@ -109,7 +109,7 @@ var info_musicbrainz = function() {
     	}
 
 		html = html + '<div class="mbbox underline">';
-	    html = html + '<img src="images/toggle-closed-new.png" class="menu infoclick clickdodiscography" name="'+data.id+'">';
+	    html = html + '<img src="newimages/toggle-closed-new.png" class="menu infoclick clickdodiscography" name="'+data.id+'">';
 	    html = html + '<b>DISCOGRAPHY</b></div>';
 	    html = html + '<div id="discography_'+data.id+'">';
         html = html + '</div>';
@@ -137,7 +137,7 @@ var info_musicbrainz = function() {
 
     			if (data[i].artist.id !== parent.playlistinfo.musicbrainz.artistid &&
     				$('#'+data[i].artist.id).length == 0) {
-    				html = html + '<img src="images/toggle-closed-new.png" class="menu infoclick clickdoartist" name="'+data[i].artist.id+'">';
+    				html = html + '<img src="newimages/toggle-closed-new.png" class="menu infoclick clickdoartist" name="'+data[i].artist.id+'">';
     			}
 
     			html = html + '<b>'+data[i].artist.name+'  </b>'+"AYEARS_"+data[i].artist.id;
@@ -178,92 +178,92 @@ var info_musicbrainz = function() {
 			}
 			switch (relations[i].type) {
 				case "wikipedia":
-					html = html + '<li><img src="images/Wikipedia-logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Wikipedia ('+d[1]+')</a></li>';
+					html = html + '<li><img src="newimages/Wikipedia-logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Wikipedia ('+d[1]+')</a></li>';
 					break;
 
 				case "wikidata":
-					html = html + '<li><img src="images/Wikipedia-logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Wikidata</a></li>';
+					html = html + '<li><img src="newimages/Wikipedia-logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Wikidata</a></li>';
 					break;
 
 				case "discography":
-					html = html + '<li><img src="images/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Discography ('+d[1]+')</a></li>';
+					html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Discography ('+d[1]+')</a></li>';
 					break;
 
 				case "musicmoz":
-					html = html + '<li><img src="images/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Musicmoz</a></li>';
+					html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Musicmoz</a></li>';
 					break;
 
 				case "allmusic":
-					html = html + '<li><img src="images/allmusic_logo.gif" class="menu padright wibble"><a href="'+u+'" target="_blank">Allmusic</a></li>';
+					html = html + '<li><img src="newimages/allmusic_logo.gif" class="menu padright wibble"><a href="'+u+'" target="_blank">Allmusic</a></li>';
 					break;
 
 				case "BBC Music page":
-					html = html + '<li><img src="images/BBC%20logo.jpg" class="menu padright wibble"><a href="'+u+'" target="_blank">BBC Music Page</a></li>';
+					html = html + '<li><img src="newimages/BBC%20logo.jpg" class="menu padright wibble"><a href="'+u+'" target="_blank">BBC Music Page</a></li>';
 					break;
 
 				case "discogs":
-					html = html + '<li><img src="images/discogs-white-2.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Discogs</a></li>';
+					html = html + '<li><img src="newimages/discogs-white-2.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Discogs</a></li>';
 					break;
 
 				case "official homepage":
-					html = html + '<li><img src="images/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Official Homepage ('+d[1]+')</a></li>';
+					html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Official Homepage ('+d[1]+')</a></li>';
 					break;
 
 				case "fanpage":
-					html = html + '<li><img src="images/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Fan Site ('+d[1]+')</a></li>';
+					html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Fan Site ('+d[1]+')</a></li>';
 					break;
 
 				case "lyrics":
-					html = html + '<li><img src="images/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Lyrics ('+d[1]+')</a></li>';
+					html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Lyrics ('+d[1]+')</a></li>';
 					break;
 
 				case "secondhandsongs":
-					html = html + '<li><img src="images/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Secondhand Songs</a></li>';
+					html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Secondhand Songs</a></li>';
 					break;
 
 				case "IMDb":
-					html = html + '<li><img src="images/imdb-logo.jpg" class="menu padright wibble"><a href="'+u+'" target="_blank">IMDb</a></li>';
+					html = html + '<li><img src="newimages/imdb-logo.jpg" class="menu padright wibble"><a href="'+u+'" target="_blank">IMDb</a></li>';
 					break;
 
 				case "social network":
 					if (u.match(/last\.fm/i)) {
-						html = html + '<li><img src="images/lastfm.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Last.FM</a></li>';
+						html = html + '<li><img src="newimages/lastfm.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Last.FM</a></li>';
 					} else if (u.match(/facebook\.com/i)) {
-						html = html + '<li><img src="images/facebook-logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Facebook</a></li>';
+						html = html + '<li><img src="newimages/facebook-logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Facebook</a></li>';
 					} else {
-						html = html + '<li><img src="images/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Social Network ('+d[1]+')</a></li>';
+						html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Social Network ('+d[1]+')</a></li>';
 					}
 					break;
 
 				case "youtube":
-					html = html + '<li><img src="images/youtube-logo.gif" class="menu padright wibble"><a href="'+u+'" target="_blank">YouTube</a></li>';
+					html = html + '<li><img src="newimages/youtube-logo.gif" class="menu padright wibble"><a href="'+u+'" target="_blank">YouTube</a></li>';
 					break;
 
 				case "myspace":
-					html = html + '<li><img src="images/myspace_logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Myspace</a></li>';
+					html = html + '<li><img src="newimages/myspace_logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Myspace</a></li>';
 					break;
 
 				case "microblog":
 					if (u.match(/twitter\.com/i)) {
-						html = html + '<li><img src="images/Twitter-Logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Twitter</a></li>';
+						html = html + '<li><img src="newimages/Twitter-Logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Twitter</a></li>';
 					} else {
-						html = html + '<li><img src="images/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Microblog ('+d[1]+')</a></li>';
+						html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Microblog ('+d[1]+')</a></li>';
 					}
 					break;
 
 				case "other databases":
 					if (u.match(/rateyourmusic\.com/i)) {
-						html = html + '<li><img src="images/rate-your-music.jpg" class="menu padright wibble"><a href="'+u+'" target="_blank">Rate Your Music</a></li>';
+						html = html + '<li><img src="newimages/rate-your-music.jpg" class="menu padright wibble"><a href="'+u+'" target="_blank">Rate Your Music</a></li>';
 					} else {
-						html = html + '<li><img src="images/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">'+d[1]+'</a></li>';
+						html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">'+d[1]+'</a></li>';
 					}
 					break;
 
 				case "review":
 					if (u.match(/bbc\.co\.uk/i)) {
-						html = html + '<li><img src="images/BBC logo.jpg" class="menu padright wibble"><a href="'+u+'" target="_blank">BBC Music Review</a></li>';
+						html = html + '<li><img src="newimages/BBC logo.jpg" class="menu padright wibble"><a href="'+u+'" target="_blank">BBC Music Review</a></li>';
 					} else {
-						html = html + '<li><img src="images/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Review ('+d[1]+')</a></li>';
+						html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Review ('+d[1]+')</a></li>';
 					}
 					break;
 
@@ -272,7 +272,7 @@ var info_musicbrainz = function() {
 
 				default:
 					if (relations[i].url) {
-						html = html + '<li><img src="images/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">'+d[1]+'</a></li>';
+						html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">'+d[1]+'</a></li>';
 						break;
 					}
 			}
@@ -492,15 +492,15 @@ var info_musicbrainz = function() {
 					if (!element.hasClass('full')) {
 						doSomethingUseful(element.attr('name'), 'Getting Data');
 	        			getArtistData(element.attr('name'));
-	        			element.attr('src', 'images/toggle-open-new.png');
+	        			element.attr('src', 'newimages/toggle-open-new.png');
 	        			element.addClass('full');
 	        			element.parent().next().addClass('underline');
 		        	} else {
-		        		if (element.attr('src') == 'images/toggle-open-new.png') {
-		        			element.attr('src', 'images/toggle-closed-new.png');
+		        		if (element.attr('src') == 'newimages/toggle-open-new.png') {
+		        			element.attr('src', 'newimages/toggle-closed-new.png');
 		        			element.parent().next().removeClass('underline');
 		        		} else {
-		        			element.attr('src', 'images/toggle-open-new.png');
+		        			element.attr('src', 'newimages/toggle-open-new.png');
 		        			element.parent().next().addClass('underline');
 		        		}
 		        		$("#"+element.attr('name')).slideToggle('fast');
@@ -509,15 +509,15 @@ var info_musicbrainz = function() {
 					if (!element.hasClass('full')) {
 						doSomethingUseful('discography_'+element.attr('name'), 'Getting Data');
 	        			getArtistReleases(element.attr('name'), 'discography_'+element.attr('name'));
-	        			element.attr('src', 'images/toggle-open-new.png');
+	        			element.attr('src', 'newimages/toggle-open-new.png');
 	        			element.addClass('full');
 	        			element.parent().next().addClass('underline');
 		        	} else {
-		        		if (element.attr('src') == 'images/toggle-open-new.png') {
-		        			element.attr('src', 'images/toggle-closed-new.png');
+		        		if (element.attr('src') == 'newimages/toggle-open-new.png') {
+		        			element.attr('src', 'newimages/toggle-closed-new.png');
 		        			element.parent().next().removeClass('underline');
 		        		} else {
-		        			element.attr('src', 'images/toggle-open-new.png');
+		        			element.attr('src', 'newimages/toggle-open-new.png');
 		        			element.parent().next().addClass('underline');
 		        		}
 		        		$("#discography_"+element.attr('name')).slideToggle('fast');
@@ -1060,4 +1060,4 @@ var info_musicbrainz = function() {
 
 }();
 
-nowplaying.registerPlugin("musicbrainz", info_musicbrainz, "images/musicbrainz_logo.png", "Info Panel (MusicBrainz)");
+nowplaying.registerPlugin("musicbrainz", info_musicbrainz, "newimages/musicbrainz_logo.png", "Info Panel (MusicBrainz)");

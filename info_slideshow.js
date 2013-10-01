@@ -142,4 +142,4 @@ var info_slideshow = function() {
 
 }();
 
-nowplaying.registerPlugin("slideshow", info_slideshow, "images/slideshow.png", "Info Panel (Slideshow)");
+nowplaying.registerPlugin("slideshow", info_slideshow, "newimages/slideshow.png", "Info Panel (Slideshow)");

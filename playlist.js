@@ -514,7 +514,7 @@ function Playlist() {
     }
 
     this.checkchange = function() {
-        player.mpd.command("", false);
+        player.mpd.command("");
     }
 
     this.streamfunction = function() {
@@ -714,7 +714,7 @@ function Playlist() {
                     html = html + '>'+format_tracknum(tracks[trackpointer].tracknumber)+'</div>';
                 }
                 if (l.substring(0, 7) == "spotify") {
-                    html = html + '<div class="playlisticon fixed"><img height="12px" src="images/spotify-logo.png" /></div>';
+                    html = html + '<div class="playlisticon fixed"><img height="12px" src="newimages/spotify-logo.png" /></div>';
                 }
                 if (showartist) {
                     html = html + '<div class="containerbox vertical expand">';
@@ -725,7 +725,7 @@ function Playlist() {
                     html = html + '<div class="expand line">'+tracks[trackpointer].title+'</div>';
                 }
                 html = html + '<div class="tiny fixed">'+formatTimeString(tracks[trackpointer].duration)+'</div>';
-                html = html + '<div class="playlisticon fixed clickable clickicon clickremovetrack" romprid="'+tracks[trackpointer].backendid+'"><img src="images/edit-delete.png" /></div>';
+                html = html + '<div class="playlisticon fixed clickable clickicon clickremovetrack" romprid="'+tracks[trackpointer].backendid+'"><img src="newimages/edit-delete.png" /></div>';
                 html = html + '</div>';
             }
             // Close the rollup div we added in the header
@@ -738,7 +738,7 @@ function Playlist() {
             html = html + '<div name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="item clickable clickplaylist sortable containerbox menuitem playlisttitle">';
             var l = tracks[0].location;
             if (l.substring(0,11) == "soundcloud:") {
-                html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="images/soundcloud-logo.png"/></div>';
+                html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="newimages/soundcloud-logo.png"/></div>';
             } else {
                 if (tracks[0].image && tracks[0].image != "") {
                     // An image was supplied - either a local one or supplied by the backend
@@ -764,7 +764,7 @@ function Playlist() {
             html = html + '<div class="line">'+self.artist+'</div>';
             html = html + '<div class="line">'+self.album+'</div>';
             html = html + '</div>';
-            html = html + '<div class="playlisticon fixed clickable clickicon clickremovealbum" name="'+self.index+'"><img src="images/edit-delete.png" /></div>';
+            html = html + '<div class="playlisticon fixed clickable clickicon clickremovealbum" name="'+self.index+'"><img src="newimages/edit-delete.png" /></div>';
             html = html + '</div>';
             html = html + '<div class="trackgroup';
             if (rolledup) {
@@ -870,7 +870,7 @@ function Playlist() {
             var html = self.header();
             for (var trackpointer in tracks) {
                 html = html + '<div name="'+tracks[trackpointer].playlistpos+'" romprid="'+tracks[trackpointer].backendid+'" class="booger clickable clickplaylist containerbox playlistitem menuitem">';
-                html = html + '<div class="playlisticon fixed"><img height="12px" src="images/broadcast.png" /></div>';
+                html = html + '<div class="playlisticon fixed"><img height="12px" src="newimages/broadcast.png" /></div>';
                 html = html + '<div class="containerbox vertical expand">';
                 html = html + '<div class="playlistrow2 line">'+tracks[trackpointer].stream+'</div>';
                 html = html + '<div class="tiny line">'+tracks[trackpointer].location+'</div>';
@@ -885,15 +885,15 @@ function Playlist() {
         this.header = function() {
             var html = "";
             html = html + '<div name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="item clickable clickplaylist sortable containerbox menuitem playlisttitle">';
-            var image = (tracks[0].image) ? tracks[0].image : "images/broadcast.png";
+            var image = (tracks[0].image) ? tracks[0].image : "newimages/broadcast.png";
             html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" name="'+hex_md5(tracks[0].album)+'"" src="'+image+'"/></div>';
             html = html + '<div class="containerbox vertical expand">';
             html = html + '<div class="line">'+tracks[0].creator+'</div>';
             html = html + '<div class="line">'+tracks[0].album+'</div>';
             html = html + '</div>';
             html = html + '<div class="containerbox vertical fixed">';
-            html = html + '<div class="playlisticon clickable clickicon clickaddfave" name="'+self.index+'"><img height="12px" width="12px" src="images/broadcast-12.png"></div>';
-            html = html + '<div class="playlisticon clickable clickicon clickremovealbum" name="'+self.index+'"><img src="images/edit-delete.png"></div>';
+            html = html + '<div class="playlisticon clickable clickicon clickaddfave" name="'+self.index+'"><img height="12px" width="12px" src="newimages/broadcast-12.png"></div>';
+            html = html + '<div class="playlisticon clickable clickicon clickremovealbum" name="'+self.index+'"><img src="newimages/edit-delete.png"></div>';
             html = html + '</div>';
             html = html + '</div>';
             html = html + '<div class="trackgroup';
@@ -991,7 +991,7 @@ function Playlist() {
                 if (tracks[trackpointer].image) {
                     html = html + '<div class="smallcover fixed"><img class="smallcover" src="'+tracks[trackpointer].image+'"/></div>';
                 } else {
-                    html = html + '<div class="smallcover fixed"><img class="smallcover" src="images/album-unknown-small.png"/></div>';
+                    html = html + '<div class="smallcover fixed"><img class="smallcover" src="newimages/album-unknown-small.png"/></div>';
                 }
                 html = html + '<div class="containerbox vertical expand">';
                 html = html + '<div class="line">'+tracks[trackpointer].title+'</div>';
@@ -999,7 +999,7 @@ function Playlist() {
                 html = html + '<div class="line playlistrow2">'+tracks[trackpointer].album+'</div>';
                 html = html + '</div>';
                 html = html + '<div class="tiny fixed">'+formatTimeString(tracks[trackpointer].duration)+'</div>';
-                html = html + '<div class="playlisticon fixed clickable clickicon clickremovelfmtrack" romprid="'+tracks[trackpointer].backendid+'"><img src="images/edit-delete.png" /></div>';
+                html = html + '<div class="playlisticon fixed clickable clickicon clickremovelfmtrack" romprid="'+tracks[trackpointer].backendid+'"><img src="newimages/edit-delete.png" /></div>';
                 html = html + '</div>';
                 opacity -= 0.15;
             }
@@ -1011,12 +1011,12 @@ function Playlist() {
             var html = "";
 
             html = html + '<div name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="item clickable clickplaylist sortable containerbox menuitem playlisttitle">';
-            html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="images/lastfm.png"/></div>';
+            html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="newimages/lastfm.png"/></div>';
             html = html + '<div class="containerbox vertical expand">';
             html = html + '<div class="line">Last.FM</div>';
             html = html + '<div class="line">'+self.station+'</div>';
             html = html + '</div>';
-            html = html + '<div class="playlisticon fixed clickable clickicon clickremovealbum" name="'+self.index+'"><img src="images/edit-delete.png" /></div>';
+            html = html + '<div class="playlisticon fixed clickable clickicon clickremovealbum" name="'+self.index+'"><img src="newimages/edit-delete.png" /></div>';
             html = html + '</div>';
             html = html + '<div class="trackgroup';
             if (rolledup) {

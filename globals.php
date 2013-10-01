@@ -105,6 +105,7 @@ var gotFriends = false;
 var gotTopTags = false;
 var gotTopArtists = false;
 var scrobwrangler = null;
-var prefsbuttons = ["images/button-off.png", "images/button-on.png"];
+var serverTimeOffset = 0;
+var prefsbuttons = ["newimages/button-off.png", "newimages/button-on.png"];
 
 </script>

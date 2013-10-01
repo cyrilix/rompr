@@ -21,7 +21,7 @@ var info_lastfm = function() {
         var html = '<ul><li><b>TOP TAGS:</b></li><li><table width="100%">';
         for(var i in taglist) {
             html = html + '<tr><td><a href="'+taglist[i].url+'" target="_blank">'+taglist[i].name+'</a></td>';
-            html = html + '<td align="right"><a href="#" title="Play Tag Radio Station" onclick="doLastFM(\'lastfmglobaltag\', \''+taglist[i].name+'\')"><img style="vertical-align:middle" src="images/start.png" height="12px"></a></td></tr>';
+            html = html + '<td align="right"><a href="#" title="Play Tag Radio Station" onclick="doLastFM(\'lastfmglobaltag\', \''+taglist[i].name+'\')"><img style="vertical-align:middle" src="newimages/start.png" height="12px"></a></td></tr>';
         }
         html = html + '</table></li></ul>';
         return html;
@@ -48,7 +48,7 @@ var info_lastfm = function() {
         html = html + '<li class="tiny">Add tags, comma-separated</li>';
         html = html + '<li><input class="enter tiny inbrowser" type="text"></input>';
         html = html + '<button class="infoclick clickaddtags tiny">ADD</button>'+
-                        '<img class="tright waiting" id="tagadd'+type+'" height="20px" src="images/transparent-32x32.png"></li></ul>';
+                        '<img class="tright waiting" id="tagadd'+type+'" height="20px" src="newimages/transparent-32x32.png"></li></ul>';
         return html;
     }
 
@@ -81,8 +81,8 @@ var info_lastfm = function() {
 
     function appendTag(table, name, url) {
         var html = '<tr class="newtag"><td><a href="'+url+'" target="_blank">'+name+'</a></td>';
-        html = html + '<td><img class="infoclick clickremovetag" style="vertical-align:middle" src="images/edit-delete.png" height="12px"></td>';
-        html = html + '<td align="right"><img class="clickicon" style="vertical-align:middle" onclick="doLastFM(\'lastfmglobaltag\', \''+name+'\')" src="images/start.png" height="12px"></td></tr>';
+        html = html + '<td><img class="infoclick clickremovetag" style="vertical-align:middle" src="newimages/edit-delete.png" height="12px"></td>';
+        html = html + '<td align="right"><img class="clickicon" style="vertical-align:middle" onclick="doLastFM(\'lastfmglobaltag\', \''+name+'\')" src="newimages/start.png" height="12px"></td></tr>';
         $('table[name="'+table+'tagtable"]').append(html);
         $(".newtag").fadeIn('fast', function(){ $(this).removeClass('newtag')});
     }
@@ -130,8 +130,8 @@ var info_lastfm = function() {
                 html = html + '<img src="' + imageurl + '" class="clrbth" />';
             }
         }
-        html = html + '<br><li class="tiny">Hear artists similar to '+lfmdata.name()+'&nbsp;&nbsp;<a href="#" onclick="doLastFM(\'lastfmartist\', \''+lfmdata.name()+'\')"><img style="vertical-align:middle" src="images/start.png" height="12px"></a></li>';
-        html = html + '<br><li class="tiny">Play what fans of '+lfmdata.name()+' are listening to&nbsp;&nbsp;<a href="#" onclick="doLastFM(\'lastfmfan\', \''+lfmdata.name()+'\')"><img style="vertical-align:middle" src="images/start.png" height="12px"></a></li>';
+        html = html + '<br><li class="tiny">Hear artists similar to '+lfmdata.name()+'&nbsp;&nbsp;<a href="#" onclick="doLastFM(\'lastfmartist\', \''+lfmdata.name()+'\')"><img style="vertical-align:middle" src="newimages/start.png" height="12px"></a></li>';
+        html = html + '<br><li class="tiny">Play what fans of '+lfmdata.name()+' are listening to&nbsp;&nbsp;<a href="#" onclick="doLastFM(\'lastfmfan\', \''+lfmdata.name()+'\')"><img style="vertical-align:middle" src="newimages/start.png" height="12px"></a></li>';
         html = html + '</ul><br>';
 
         html = html + doTags(lfmdata.tags());
@@ -169,7 +169,7 @@ var info_lastfm = function() {
             html = html + '<div class="simar">';
             html = html + '<table><tr><td align="center"><img class="infoclick clickzoomimage" src="'+lfmdata.similarimage(i, "medium")+'"><input type="hidden" value="'+lfmdata.similarimage(i, "mega")+'" /></td></tr>';
             html = html + '<tr><td align="center"><a href="'+similies[i].url+'" target="_blank">'+similies[i].name+'</a></td></tr>';
-            html = html + '<tr><td align="center"><a href="#" title="Play Artist Radio Station" onclick="doLastFM(\'lastfmartist\', \''+similies[i].name+'\')"><img src="images/start.png" height="12px"></a></td></tr></table>';
+            html = html + '<tr><td align="center"><a href="#" title="Play Artist Radio Station" onclick="doLastFM(\'lastfmartist\', \''+similies[i].name+'\')"><img src="newimages/start.png" height="12px"></a></td></tr></table>';
             html = html + '</div>';
         }
         html = html + '</div></td></tr></table></div>';
@@ -178,7 +178,7 @@ var info_lastfm = function() {
 
     function getAlbumHTML(lfmdata) {
         var html = sectionHeader(lfmdata);
-        html = html + '<br><ul id="buyalbum"><li><b>BUY THIS ALBUM&nbsp;</b><img class="infoclick clickbuy" height="20px" id="buyalbumbutton" style="vertical-align:middle" src="images/cart.png"></li></ul>';
+        html = html + '<br><ul id="buyalbum"><li><b>BUY THIS ALBUM&nbsp;</b><img class="infoclick clickbuy" height="20px" id="buyalbumbutton" style="vertical-align:middle" src="newimages/cart.png"></li></ul>';
         html = html + '</ul><br>';
 
         html = html + doTags(lfmdata.tags());
@@ -214,13 +214,13 @@ var info_lastfm = function() {
             html = html + '<tr><td>';
             if (tracks[i]['@attr']) { html = html + tracks[i]['@attr'].rank+':'; }
             html = html + '</td><td>'+tracks[i].name+'</td><td>'+formatTimeString(tracks[i].duration)+'</td>';
-            html = html + '<td align="right"><a target="_blank" title="View Track On Last.FM" href="'+tracks[i].url+'"><img src="images/lastfm.png" height="12px"></a></td><td align="right">';
+            html = html + '<td align="right"><a target="_blank" title="View Track On Last.FM" href="'+tracks[i].url+'"><img src="newimages/lastfm.png" height="12px"></a></td><td align="right">';
             if (tracks[i].streamable) {
                 if (tracks[i].streamable['#text'] == "1") {
                     var tit = "Play Sample";
                     if (tracks[i].streamable.fulltrack == "1") { tit = "Play Track"; }
                     html = html + '<a href="#" title="'+tit+'" onclick="addLastFMTrack(\''+encodeURIComponent(lfmdata.artist())+'\', \''+
-                    encodeURIComponent(tracks[i].name)+'\')"><img src="images/start.png" height="12px"></a>';
+                    encodeURIComponent(tracks[i].name)+'\')"><img src="newimages/start.png" height="12px"></a>';
                 }
             }
             html = html + '</td></tr>';
@@ -236,7 +236,7 @@ var info_lastfm = function() {
         html = html + '<li name="userloved">';
         html = html +'</li>';
 
-        html = html + '<br><ul id="buytrack"><li><b>BUY THIS TRACK&nbsp;</b><img class="infoclick clickbuy" height="20px" id="buytrackbutton" style="vertical-align:middle" src="images/cart.png"></li></ul>';
+        html = html + '<br><ul id="buytrack"><li><b>BUY THIS TRACK&nbsp;</b><img class="infoclick clickbuy" height="20px" id="buytrackbutton" style="vertical-align:middle" src="newimages/cart.png"></li></ul>';
         html = html + '</ul><br>';
 
         html = html + doTags(lfmdata.tags());
@@ -343,10 +343,10 @@ var info_lastfm = function() {
                 var html = "";
                 if (flag) {
                     html = html + '<b>Loved:</b> Yes';
-                    html = html+'&nbsp;&nbsp;&nbsp;<a title="Unlove This Track" href="#" class="infoclick clickunlove"><img src="images/lastfm-unlove.png" height="12px"></a>';
+                    html = html+'&nbsp;&nbsp;&nbsp;<a title="Unlove This Track" href="#" class="infoclick clickunlove"><img src="newimages/lastfm-unlove.png" height="12px"></a>';
                 } else {
                     html = html + '<li><b>Loved:</b> No';
-                    html = html+'&nbsp;&nbsp;&nbsp;<a title="Love This Track" href="#" class="infoclick clicklove"><img src="images/lastfm-love.png" height="12px"></a>';
+                    html = html+'&nbsp;&nbsp;&nbsp;<a title="Love This Track" href="#" class="infoclick clicklove"><img src="newimages/lastfm-love.png" height="12px"></a>';
                 }
                 $('li[name="userloved"]').html(html);
                 html = null;
@@ -1104,4 +1104,4 @@ function lfmDataExtractor(data) {
 
 }
 
-nowplaying.registerPlugin("lastfm", info_lastfm, "images/lastfm.png", "Info Panel (Last.FM)");
+nowplaying.registerPlugin("lastfm", info_lastfm, "newimages/lastfm.png", "Info Panel (Last.FM)");

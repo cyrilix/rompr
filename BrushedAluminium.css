@@ -1,7 +1,7 @@
 body
 {
     color:#000000;
-    background-image:url('images/silver1.jpg');
+    background-image:url('newimages/silver1.jpg');
 }
 
 
@@ -34,7 +34,7 @@ a:hover,a:active
 
 #notifications
 {
-    background-image:url('images/silver2.jpg');;
+    background-image:url('newimages/silver2.jpg');;
 }
 
 
@@ -52,12 +52,12 @@ a:hover,a:active
 
 .album1
 {
-    background-image:url('images/silver2.jpg');
+    background-image:url('newimages/silver2.jpg');
 }
 
 .album2
 {
-    background-image:url('images/silver1.jpg');
+    background-image:url('newimages/silver1.jpg');
 }
 
 a.album:visited

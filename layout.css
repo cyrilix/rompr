@@ -922,7 +922,9 @@ ul.subnav
     max-height:500px;
     overflow-y:auto;
     overflow-x:hidden;
-}
+    -webkit-box-shadow: -7px 7px 5px rgba(50, 50, 50, 0.75);
+    -moz-box-shadow:    -7px 7px 5px rgba(50, 50, 50, 0.75);
+    box-shadow:         -7px 7px 5px rgba(50, 50, 50, 0.75);}
 
 ul.subnav li
 {
@@ -1855,4 +1857,59 @@ div.lyrics p
    display: block;
    height: 0;
    clear: both;
+}
+
+.newpod
+{
+    border-radius:1em;
+    font-weight:bold;
+    margin-left:1em;
+    padding-left:6px;
+    padding-right:6px;
+    padding-bottom:2px;
+    padding-top:1px;
+    background: -moz-radial-gradient(center, ellipse cover, rgba(255,40,25,0.81) 0%, rgba(232,22,18,0.81) 49%, rgba(212,7,12,0) 91%, rgba(208,4,11,0) 100%); /* FF3.6+ */
+    background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(255,40,25,0.81)), color-stop(49%,rgba(232,22,18,0.81)), color-stop(91%,rgba(212,7,12,0)), color-stop(100%,rgba(208,4,11,0))); /* Chrome,Safari4+ */
+    background: -webkit-radial-gradient(center, ellipse cover, rgba(255,40,25,0.81) 0%,rgba(232,22,18,0.81) 49%,rgba(212,7,12,0) 91%,rgba(208,4,11,0) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-radial-gradient(center, ellipse cover, rgba(255,40,25,0.81) 0%,rgba(232,22,18,0.81) 49%,rgba(212,7,12,0) 91%,rgba(208,4,11,0) 100%); /* Opera 12+ */
+    background: -ms-radial-gradient(center, ellipse cover, rgba(255,40,25,0.81) 0%,rgba(232,22,18,0.81) 49%,rgba(212,7,12,0) 91%,rgba(208,4,11,0) 100%); /* IE10+ */
+    background: radial-gradient(ellipse at center, rgba(255,40,25,0.81) 0%,rgba(232,22,18,0.81) 49%,rgba(212,7,12,0) 91%,rgba(208,4,11,0) 100%); /* W3C */
+}
+
+.unlistenedpod
+{
+    border-radius:1em;
+    font-weight:bold;
+    margin-left:1em;
+    padding-left:6px;
+    padding-right:6px;
+    padding-bottom:2px;
+    padding-top:1px;
+    background: -moz-radial-gradient(center, ellipse cover, rgba(255,103,15,1) 0%, rgba(255,103,15,1) 43%, rgba(255,103,15,0.27) 66%, rgba(255,103,15,0.27) 100%); /* FF3.6+ */
+    background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(255,103,15,1)), color-stop(43%,rgba(255,103,15,1)), color-stop(66%,rgba(255,103,15,0.27)), color-stop(100%,rgba(255,103,15,0.27))); /* Chrome,Safari4+ */
+    background: -webkit-radial-gradient(center, ellipse cover, rgba(255,103,15,1) 0%,rgba(255,103,15,1) 43%,rgba(255,103,15,0.27) 66%,rgba(255,103,15,0.27) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-radial-gradient(center, ellipse cover, rgba(255,103,15,1) 0%,rgba(255,103,15,1) 43%,rgba(255,103,15,0.27) 66%,rgba(255,103,15,0.27) 100%); /* Opera 12+ */
+    background: -ms-radial-gradient(center, ellipse cover, rgba(255,103,15,1) 0%,rgba(255,103,15,1) 43%,rgba(255,103,15,0.27) 66%,rgba(255,103,15,0.27) 100%); /* IE10+ */
+    background: radial-gradient(ellipse at center, rgba(255,103,15,1) 0%,rgba(255,103,15,1) 43%,rgba(255,103,15,0.27) 66%,rgba(255,103,15,0.27) 100%); /* W3C */
+}
+
+.podtitle
+{
+    font-weight:bold;
+    padding:2px;
+    margin:2px;
+}
+
+.newpodicon
+{
+    height:24px;
+    width:24px;
+    margin-top:2px;
+}
+
+.oldpodicon
+{
+    height:20px;
+    width:20px;
+    margin-top:2px;
 }

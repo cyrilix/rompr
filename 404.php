@@ -9,7 +9,7 @@ if (preg_match('/albumart\/small\//', $request)) {
     header("HTTP/1.1 301 Moved Permanently");
 	header("Cache-Control: no-cache, must-revalidate");
 	header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
-	header("Location: ".get_base_url()."/images/album-unknown-small.png");
+	header("Location: ".get_base_url()."/newimages/album-unknown-small.png");
 } elseif (preg_match('/albumart\/original\/firefoxiscrap\/(.*?)---.*/', $request, $matches)) {
     header("HTTP/1.1 301 Moved Permanently");
     header("Cache-Control: no-cache, must-revalidate");

@@ -90,10 +90,11 @@ close_mpd($connection);
 <head>
 <title>RompR</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="shortcut icon" href="images/favicon.ico" />
+<link rel="shortcut icon" href="newimages/favicon.ico" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <link rel="stylesheet" type="text/css" href="layout.css" />
+<link rel="stylesheet" type="text/css" href="tiptip/tipTip.css" />
 <link type="text/css" href="jqueryui1.8.16/css/start/jquery-ui-1.8.23.custom.css" rel="stylesheet" />
 <?php
 if ($mobile != "no") {
@@ -106,6 +107,9 @@ print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme']
 <script type="text/javascript" src="jqueryui1.8.16/js/jquery-ui-1.8.23.custom.js"></script>
 <script type="text/javascript" src="jquery.jsonp-2.3.1.min.js"></script>
 <script type="text/javascript" src="jquery.scrollTo-1.4.3.1-min.js"></script>
+<!-- TipTip jQuery tooltip plugin -->
+<!-- http://code.drewwilson.com/entry/tiptip-jquery-plugin -->
+<script type="text/javascript" src="tiptip/jquery.tipTip.js"></script>
 <?php
 if ($mobile != "no") {
     print '<script type="text/javascript" src="jquery.touchwipe.min.js"></script>'."\n";
@@ -119,6 +123,7 @@ if ($mobile != "no") {
 <script type="text/javascript" src="uifunctions.js"></script>
 <script type="text/javascript" src="clickfunctions.js"></script>
 <script type="text/javascript" src="lastfmstation.js"></script>
+<script type="text/javascript" src="podcasts.js"></script>
 <script type="text/javascript" src="jshash-2.2/md5-min.js"></script>
 <script type="text/javascript" src="lastfm.js"></script>
 <script type="text/javascript" src="musicbrainz.js"></script>
@@ -152,19 +157,19 @@ jQuery.fn.reverse = [].reverse;
 // http://www.mail-archive.com/discuss@jquery.com/msg04261.html
 
 jQuery.fn.isOpen = function() {
-    return this.attr('src') == 'images/toggle-open-new.png';
+    return this.attr('src') == 'newimages/toggle-open-new.png';
 }
 
 jQuery.fn.isClosed = function() {
-    return this.attr('src') == 'images/toggle-closed-new.png';
+    return this.attr('src') == 'newimages/toggle-closed-new.png';
 }
 
 jQuery.fn.toggleOpen = function() {
-    this.attr('src', 'images/toggle-open-new.png');
+    this.attr('src', 'newimages/toggle-open-new.png');
 }
 
 jQuery.fn.toggleClosed = function() {
-    this.attr('src', 'images/toggle-closed-new.png');
+    this.attr('src', 'newimages/toggle-closed-new.png');
 }
 
 debug.setLevel(9);
@@ -193,6 +198,7 @@ $(document).ready(function(){
         window.addEventListener("storage", onStorageChanged, false);
     }
 
+    checkServerTimeOffset();
     setClickHandlers();
     $("#sortable").click(onPlaylistClicked);
 
@@ -344,7 +350,10 @@ $(document).ready(function(){
         $("#bbclist").load("bbcradio.php");
         $("#somafmlist").load("somafm.php");
         $("#yourradiolist").load("yourradio.php");
-        $("#podcastslist").load("podcasts.php");
+        $("#podcastslist").load("podcasts.php", function() {
+            $(".fridge").tipTip({delay: 1000});
+            podcasts.doNewCount();
+        });
         refreshMyDrink(false);
     }
 
@@ -399,11 +408,9 @@ $(document).ready(function(){
     $(window).bind('resize', function() {
         setBottomPaneSize();
     });
-    if (!prefs.showfileinfo) {
-        $("#fileinformation").hide();
-    }
 
     sbWidth = scrollbarWidth();
+    $(".lettuce").tipTip({delay: 1000});
 
 });
 
@@ -433,10 +440,10 @@ function askForMpdValues($title) {
 <meta name="viewport" content="width=100%, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <link rel="stylesheet" type="text/css" href="layout.css" />
-<link rel="shortcut icon" href="images/favicon.ico" />
+<link rel="shortcut icon" href="newimages/favicon.ico" />
 <link rel="stylesheet" type="text/css" href="Darkness.css" />
 </head>
-<body style="padding:8px">
+<body style="padding:8px;overflow-y:auto">
     <div class="bordered simar dingleberry" style="max-width:40em">
     <h3>
 <?php

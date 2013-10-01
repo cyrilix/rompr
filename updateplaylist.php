@@ -43,7 +43,7 @@ if ($found) {
             "<trackList>".
             "<track>".
             "<album>".$name."</album>".
-            "<image>images/broadcast.png</image>".
+            "<image>newimages/broadcast.png</image>".
             "<creator>".$url."</creator>".
             "<location>".$url."</location>".
             "</track>".

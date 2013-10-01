@@ -8,7 +8,7 @@ foreach($x->stations->station as $i => $station) {
     if ($station->image) {
         print $station->image;
     } else {
-        print "images/broadcast-24.png";
+        print "newimages/broadcast-24.png";
     }
     print '" /></div>';
     print '<div class="expand indent amid">'.$station->name.'</div>';

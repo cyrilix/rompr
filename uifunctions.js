@@ -97,13 +97,13 @@ function setscrob(e) {
 }
 
 function makeWaitingIcon(selector) {
-    $("#"+selector).attr("src", "images/waiter.png");
+    $("#"+selector).attr("src", "newimages/waiter.png");
     $("#"+selector).removeClass("nospin");
     $("#"+selector).addClass("spinner");
 }
 
 function stopWaitingIcon(selector) {
-    $("#"+selector).attr("src", "images/transparent-32x32.png");
+    $("#"+selector).attr("src", "newimages/transparent-32x32.png");
     $("#"+selector).removeClass("spinner");
     $("#"+selector).addClass("nospin");
 }
@@ -158,9 +158,9 @@ function doThatFunkyThang() {
             $("#infocontrols").toggle("fast");
         }
 
-        var i = (prefs.sourceshidden) ? "images/arrow-right-double.png" : "images/arrow-left-double.png";
+        var i = (prefs.sourceshidden) ? "newimages/arrow-right-double.png" : "newimages/arrow-left-double.png";
         $("#expandleft").attr("src", i);
-        i = (prefs.playlisthidden) ? "images/arrow-left-double.png" : "images/arrow-right-double.png";
+        i = (prefs.playlisthidden) ? "newimages/arrow-left-double.png" : "newimages/arrow-right-double.png";
         $("#expandright").attr("src", i);
     }
 }
@@ -306,59 +306,6 @@ function getInternetPlaylist(url, image, station, creator, usersupplied) {
         error: function(data, status) {
             playlist.repopulate();
             alert("Failed To Tune Radio Station");
-        }
-    } );
-}
-
-function doPodcast(input) {
-    var url = $("#"+input).attr("value");
-    debug.log("PODCAST","Getting podcast",url);
-    doSomethingUseful('cocksausage', 'Downloading...');
-    $.ajax( {
-        type: "GET",
-        url: "podcasts.php",
-        cache: false,
-        contentType: "text/html; charset=utf-8",
-        data: {url: encodeURIComponent(url) },
-        success: function(data) {
-            $("#podcastslist").html(data);
-        },
-        error: function(data, status) {
-            alert("Failed To Retreive RSS feed");
-        }
-    } );
-}
-
-function refreshPodcast(name) {
-    debug.log("PODCAST","Refreshing podcast",name);
-    $.ajax( {
-        type: "GET",
-        url: "podcasts.php",
-        cache: false,
-        contentType: "text/html; charset=utf-8",
-        data: {refresh: name },
-        success: function(data) {
-            $("#podcastslist").html(data);
-        },
-        error: function(data, status) {
-            alert("Failed To Retreive RSS feed");
-        }
-    } );
-}
-
-function removePodcast(name) {
-    debug.log("PODCAST","Removing podcast",name);
-    $.ajax( {
-        type: "GET",
-        url: "podcasts.php",
-        cache: false,
-        contentType: "text/html; charset=utf-8",
-        data: {remove: name },
-        success: function(data) {
-            $("#podcastslist").html(data);
-        },
-        error: function(data, status) {
-            alert("Failed To Remove Podcast");
         }
     } );
 }
@@ -539,7 +486,7 @@ function gotTopTagsData(data) {
     var html = "";
     for (var i in tagdata) {
         html = html + '<div class="clickable clicklfm2 indent containerbox padright menuitem" name="lastfmglobaltag" username="'+tagdata[i].name+'">';
-        html = html + '<div class="playlisticon fixed"><img width="16px" src="images/lastfm.png" /></div>';
+        html = html + '<div class="playlisticon fixed"><img width="16px" src="newimages/lastfm.png" /></div>';
         html = html + '<div class="expand indent">'+tagdata[i].name+'&nbsp;('+tagdata[i].count+')</div>';
         html = html + '</div>';
     }
@@ -554,7 +501,7 @@ function gotTopArtistsData(data) {
     var html = "";
     for (var i in artistdata) {
         html = html + '<div class="clickable clicklfm2 indent containerbox padright menuitem" name="lastfmartist" username="'+artistdata[i].name+'">';
-        html = html + '<div class="playlisticon fixed"><img width="16px" src="images/lastfm.png" /></div>';
+        html = html + '<div class="playlisticon fixed"><img width="16px" src="newimages/lastfm.png" /></div>';
         html = html + '<div class="expand indent">'+artistdata[i].name+'&nbsp;('+artistdata[i].playcount+' plays)</div>';
         html = html + '</div>';
     }
@@ -588,11 +535,11 @@ function getLfmPeople(data, prefix) {
     var count = 0;
     for(var i in userdata) {
         html = html + '<div class="containerbox menuitem">';
-        html = html + '<div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="'+prefix+count.toString()+'" /></div>';
+        html = html + '<div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="'+prefix+count.toString()+'" /></div>';
         if (userdata[i].image[0]['#text'] != "") {
             html = html + '<div class="smallcover fixed"><img class="smallcover fixed clickable clickicon clicklfmuser" name="'+userdata[i].name+'" src="'+userdata[i].image[0]['#text']+'" /></div>';
         } else {
-            html = html + '<div class="smallcover fixed"><img class="smallcover fixed clickable clickicon clicklfmuser" name="'+userdata[i].name+'" src="images/album-unknown-small.png" /></div>';
+            html = html + '<div class="smallcover fixed"><img class="smallcover fixed clickable clickicon clicklfmuser" name="'+userdata[i].name+'" src="newimages/album-unknown-small.png" /></div>';
         }
         html = html + '<div class="expand">'+userdata[i].name+'</div>';
         html = html + '</div>';
@@ -648,7 +595,7 @@ var imagePopup=function(){
                                   height: '48px',
                                   top: top+'px',
                                   left: left+'px'});
-            wikipopup.append($('<img>', {class: 'spinner', height: '32px', src: 'images/waiter.png', style: 'position:relative;top:8px;left:8px'}));
+            wikipopup.append($('<img>', {class: 'spinner', height: '32px', src: 'newimages/waiter.png', style: 'position:relative;top:8px;left:8px'}));
             wikipopup.fadeIn('fast');
             if (source !== undefined) {
                 if (source == image.src) {
@@ -716,7 +663,7 @@ var imagePopup=function(){
                                           src: image.src });
 
                     imagecontainer.fadeIn('slow');
-                    wikipopup.append($('<img>', {src: 'images/edit-delete.png', height: "12px", class: 'tright', style: 'margin-top:4px;margin-right:4px'}));
+                    wikipopup.append($('<img>', {src: 'newimages/edit-delete.png', height: "12px", class: 'tright', style: 'margin-top:4px;margin-right:4px'}));
                 }
             );
         },
@@ -801,19 +748,19 @@ function format_keyinput(inpname, data) {
 
 function format_outputswitch(enabled, id) {
     if (enabled == 0) {
-        return '<img src="images/button-off.png" id="outputbutton'+id+'" onclick="outputswitch(\''+id+'\')" class="togglebutton clickicon" />';
+        return '<img src="newimages/button-off.png" id="outputbutton'+id+'" onclick="outputswitch(\''+id+'\')" class="togglebutton clickicon" />';
     } else {
-        return '<img src="images/button-on.png" id="outputbutton'+id+'" onclick="outputswitch(\''+id+'\')" class="togglebutton clickicon" />';
+        return '<img src="newimages/button-on.png" id="outputbutton'+id+'" onclick="outputswitch(\''+id+'\')" class="togglebutton clickicon" />';
     }
 }
 
 function outputswitch(id) {
     debug.log("GENERAL       : Output Switch for output",id);
-    if ($('#outputbutton'+id).attr("src") == "images/button-off.png") {
-        $('#outputbutton'+id).attr("src", "images/button-on.png");
+    if ($('#outputbutton'+id).attr("src") == "newimages/button-off.png") {
+        $('#outputbutton'+id).attr("src", "newimages/button-on.png");
         player.mpd.command("command=enableoutput&arg="+id);
     } else {
-        $('#outputbutton'+id).attr("src", "images/button-off.png");
+        $('#outputbutton'+id).attr("src", "newimages/button-off.png");
         player.mpd.command("command=disableoutput&arg="+id);
     }
 }
@@ -922,7 +869,7 @@ var popupWindow = function() {
             $(popup).append('<div id="cheese"></div>');
             $("#cheese").append('<table width="100%"><tr><td width="30px"></td><td align="center"><h2>'+title+
                 '</h2></td><td align="right" width="30px">'+
-                '<img class="clickicon" onclick="popupWindow.close()" src="images/edit-delete.png"></td></tr></table>');
+                '<img class="clickicon" onclick="popupWindow.close()" src="newimages/edit-delete.png"></td></tr></table>');
             $(popup).append('<div id="popupcontents"></div>');
             var winsize=getWindowSize();
             var windowScroll = getScrollXY();
@@ -1089,7 +1036,7 @@ function onStorageChanged(e) {
             key = key.substring(1,key.length);
             $('img[name="'+key+'"]').removeClass("notexist");
             $('img[name="'+key+'"]').addClass("notfound");
-            $('img[name="'+key+'"]').attr("src", "images/album-unknown.png");
+            $('img[name="'+key+'"]').attr("src", "newimages/album-unknown.png");
         } else {
             $('img[name="'+key+'"]').attr("src", "albumart/original/"+key+".jpg");
             $('img[name="'+key+'"]').removeClass("notexist");
@@ -1412,7 +1359,7 @@ function swipeyswipe(dir) {
 
 function doSomethingUseful(div,text) {
     var html = '<div class="containerbox bar">';
-    html = html + '<div class="fixed" style="vertical-align:middle;padding-left:8px"><img height="32px" src="images/waiter.png" class="spinner"></div>';
+    html = html + '<div class="fixed" style="vertical-align:middle;padding-left:8px"><img height="32px" src="newimages/waiter.png" class="spinner"></div>';
     html = html + '<h3 class="expand ucfirst label">'+text+'</h3>';
     html = html + '</div>';
     if (typeof div == "object") {
@@ -1493,19 +1440,19 @@ function formatPlaylistInfo(data) {
         var protocol = uri.substr(0, uri.indexOf(":"));
         switch (protocol) {
             case "soundcloud":
-                html = html + '<img src="images/soundcloud-logo.png" height="12px" style="vertical-align:middle"></td>';
+                html = html + '<img src="newimages/soundcloud-logo.png" height="12px" style="vertical-align:middle"></td>';
                 html = html + '<td align="left"><a href="#" onclick="playlist.load(\''+this.uri+'\')">'+this.name+'</a></td>';
                 html = html + '<td></td></tr>';
                 break;
             case "spotify":
-                html = html + '<img src="images/spotify-logo.png" height="12px" style="vertical-align:middle"></td>';
+                html = html + '<img src="newimages/spotify-logo.png" height="12px" style="vertical-align:middle"></td>';
                 html = html + '<td align="left"><a href="#" onclick="playlist.load(\''+this.uri+'\')">'+this.name+'</a></td>';
                 html = html + '<td></td></tr>';
                 break;
             default:
-                html = html + '<img src="images/folder.png" width="12px" style="vertical-align:middle"></td>';
+                html = html + '<img src="newimages/folder.png" width="12px" style="vertical-align:middle"></td>';
                 html = html + '<td align="left"><a href="#" onclick="playlist.load(\''+this.uri+'\')">'+this.name+'</a></td>';
-                html = html + '<td class="playlisticon" align="right"><a href="#" onclick="player.controller.deletePlaylist(\''+escape(this.name)+'\')"><img src="images/edit-delete.png" style="vertical-align:middle"></a></td></tr>';
+                html = html + '<td class="playlisticon" align="right"><a href="#" onclick="player.controller.deletePlaylist(\''+escape(this.name)+'\')"><img src="newimages/edit-delete.png" style="vertical-align:middle"></a></td></tr>';
                 break;
         }
     });
@@ -1526,7 +1473,7 @@ function progressBar(divname, orientation) {
 
     var jobject = $("#"+divname);
     if (!jobject) {
-        debug.log("PROGRESSBAR","Invalid DIV passed to progressbar!",divname);
+        debug.error("PROGRESSBAR","Invalid DIV passed to progressbar!",divname);
         return 0;
     }
 
@@ -1535,7 +1482,7 @@ function progressBar(divname, orientation) {
     } else if (orientation == "vertical") {
         jobject.addClass('progressbar_v');
     } else {
-        debug.log("PROGRESSBAR","Invalid orientation passed to progressbar!",orientation);
+        debug.error("PROGRESSBAR","Invalid orientation passed to progressbar!",orientation);
         return 0;
     }
 
@@ -1617,4 +1564,20 @@ function scrollbarWidth() {
     $outer.remove();
 
     return (width1 - width2);
+}
+
+function checkServerTimeOffset() {
+    $.ajax({
+        type: "GET",
+        url: "checkServerTime.php",
+        dataType: "json",
+        success: function(data) {
+            var time = Math.round(Date.now() / 1000);
+            serverTimeOffset = time - data.time;
+            debug.log("TIMECHECK","Browser Time is",time,". Server Time is",data.time,". Difference is",serverTimeOffset);
+        },
+        error: function(data) {
+            debug.error("TIMECHECK","Failed to read server time");
+        }
+    });
 }

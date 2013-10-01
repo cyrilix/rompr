@@ -30,7 +30,7 @@ for ($i = 0; $i < $items->length; $i++) {
  	$items->item($i)->removeAttribute('onclick');
     if (substr($link, 0, 8) == '/listen/') {
     	// $items->item($i)->setAttribute('href', '#');
-    	// $items->item($i)->setAttribute('onclick', "getInternetPlaylist('http://dir.xiph.org".$link."', 'images/icecast.png', null, null)");
+    	// $items->item($i)->setAttribute('onclick', "getInternetPlaylist('http://dir.xiph.org".$link."', 'newimages/icecast.png', null, null)");
     } else if (substr($link, 0, 10) == '/by_genre/') {
     	$items->item($i)->setAttribute('href', '#');
     	$items->item($i)->setAttribute('onclick', "refreshMyDrink('".$link."')");
@@ -70,7 +70,7 @@ for ($i = 0; $i < $items->length; $i++) {
 		if ($link != "") {
 			$items->item($i)->nodeValue = "";
 			$f = $DOM->createDocumentFragment();
-			$f->appendXML('<p><a href="#" onclick="getInternetPlaylist(\'http://dir.xiph.org'.$link.'\', \'images/icecast.png\', null, null)"><img src="images/start.png" /></a></p>');
+			$f->appendXML('<p><a href="#" onclick="getInternetPlaylist(\'http://dir.xiph.org'.$link.'\', \'newimages/icecast.png\', null, null)"><img src="newimages/start.png" /></a></p>');
 			$items->item($i)->appendChild($f);
 		}
 	}

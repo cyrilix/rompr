@@ -75,4 +75,4 @@ var info_lyrics = function() {
 
 }();
 
-nowplaying.registerPlugin("lyrics", info_lyrics, "images/lyrics.jpg", "Info Panel (Lyrics)");
+nowplaying.registerPlugin("lyrics", info_lyrics, "newimages/lyrics.jpg", "Info Panel (Lyrics)");

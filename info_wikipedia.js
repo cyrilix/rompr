@@ -313,4 +313,4 @@ var info_wikipedia = function() {
 
 }();
 
-nowplaying.registerPlugin("wikipedia", info_wikipedia, "images/Wikipedia-logo.png", "Info Panel (Wikipedia)");
+nowplaying.registerPlugin("wikipedia", info_wikipedia, "newimages/Wikipedia-logo.png", "Info Panel (Wikipedia)");

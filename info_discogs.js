@@ -11,11 +11,11 @@ var info_discogs = function() {
 				var u = urls[i];
 				var d = u.match(/https*:\/\/(.*?)(\/|$)/);
 				if (u.match(/wikipedia/i)) {
-					html = html + '<li><img src="images/Wikipedia-logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Wikipedia ('+d[1]+')</a></li>';
+					html = html + '<li><img src="newimages/Wikipedia-logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Wikipedia ('+d[1]+')</a></li>';
 				} else if (u.match(/facebook/i)) {
-					html = html + '<li><img src="images/facebook-logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Facebook</a></li>';
+					html = html + '<li><img src="newimages/facebook-logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Facebook</a></li>';
 				} else {
-					html = html + '<li><img src="images/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">'+d[1]+'</a></li>';
+					html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">'+d[1]+'</a></li>';
 				}
 			}
 		}
@@ -583,7 +583,7 @@ var info_discogs = function() {
 			        	a++;
 			        }
 			        html = html + '<div class="infoslideshow thumbslideshow" id="slideshow_'+data.data.id+'_'+a+'"></div>';
-			        html = html + '<div class="infoslideshow thumbcontroller clearfix"><img class="tright infoclick clickzoomslides" name="'+data.data.id+'" height="16px" src="images/expand.png" /></div>';
+			        html = html + '<div class="infoslideshow thumbcontroller clearfix"><img class="tright infoclick clickzoomslides" name="'+data.data.id+'" height="16px" src="newimages/expand.png" /></div>';
 			        if (parent.playlistinfo.metadata.artist.discogs['slideshow_'+data.data.id+'_'+a] === undefined) {
 			        	parent.playlistinfo.metadata.artist.discogs['slideshow_'+data.data.id+'_'+a] = new slideshow(img, "slideshow_"+data.data.id+'_'+a, false);
 			        }
@@ -619,7 +619,7 @@ var info_discogs = function() {
 		        html = html + '<div class="expand stumpy">';
 		        html = html + '<div class="holdingcell">';
 		        if (expand) {
-					html = html + '<img class="clickexpandbox infoclick tleft" style="margin:1em" src="images/expand-up.png" height="16px" name="'+data.data.id+'">';
+					html = html + '<img class="clickexpandbox infoclick tleft" style="margin:1em" src="newimages/expand-up.png" height="16px" name="'+data.data.id+'">';
 				}
 
 		        if (data.data.images) {
@@ -677,7 +677,7 @@ var info_discogs = function() {
 			    }
 
 				html = html + '<div class="mbbox underline">';
-			    html = html + '<img src="images/toggle-closed-new.png" class="menu infoclick clickdodiscography" name="'+data.data.id+'">';
+			    html = html + '<img src="newimages/toggle-closed-new.png" class="menu infoclick clickdodiscography" name="'+data.data.id+'">';
 			    html = html + '<b>'+data.data.name.toUpperCase()+' DISCOGRAPHY</b></div>';
 			    html = html + '<div name="discography_'+data.data.id+'" class="invisible">';
 			    html = html + '</div>';
@@ -692,7 +692,7 @@ var info_discogs = function() {
 				var html = "";
 		    	for (var i in members) {
 		    		html = html + '<div class="mbbox">';
-        			html = html + '<img src="images/toggle-closed-new.png" class="menu infoclick clickdoartist" name="'+members[i].id+'">';
+        			html = html + '<img src="newimages/toggle-closed-new.png" class="menu infoclick clickdoartist" name="'+members[i].id+'">';
         			var n = members[i].name;
         			n = n.replace(/ \(\d+\)$/, '');
         			html = html + '<b>'+n+'</b>';
@@ -1312,4 +1312,4 @@ var info_discogs = function() {
 
 }();
 
-nowplaying.registerPlugin("discogs", info_discogs, "images/discogs-white-2.png", "Info Panel (Discogs)");
+nowplaying.registerPlugin("discogs", info_discogs, "newimages/discogs-white-2.png", "Info Panel (Discogs)");

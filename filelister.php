@@ -2,18 +2,18 @@
 
 class mpdlistthing {
 
-    public function __construct($name, $fullpath) {    
-        $this->children = array();        
+    public function __construct($name, $fullpath) {
+        $this->children = array();
         $this->name = $name;
         $this->fullpath = $fullpath;
         $this->protocol = "";
     }
-    
+
     public function addpath($path, $fullpath) {
-        
+
         $len = (strpos($path, "/") === false) ? strlen($path) : strpos($path, "/");
         $firstdir = substr($path, 0, $len);
-                
+
         if (!array_key_exists($firstdir, $this->children)) {
             $this->children[$firstdir] = new mpdlistthing($firstdir, $fullpath);
         }
@@ -21,11 +21,11 @@ class mpdlistthing {
             $this->children[$firstdir]->addpath(substr($path, strpos($path, "/")+1, strlen($path)), $fullpath);
         }
     }
-    
+
     public function setprotocol($p) {
         $this->protocol = $p;
     }
-    
+
     public function getXML($prefix, $output, $protocol = "") {
         global $count;
         global $dirpath;
@@ -67,14 +67,14 @@ class mpdlistthing {
 function doFileHTML($item) {
     if ($item->type == 'directory') {
         print '<div class="clickable clickalbum draggable containerbox menuitem" name="'.$item->id.'">';
-        print '<div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="'.$item->id.'"></div>';
-        print '<div class="fixed playlisticon"><img width="16px" src="images/folder.png" /></div>';
+        print '<div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="'.$item->id.'"></div>';
+        print '<div class="fixed playlisticon"><img width="16px" src="newimages/folder.png" /></div>';
         print '<div class="expand">'.$item->name.'</div>';
         print '</div>';
         print '<div id="'.$item->id.'" class="dropmenu notfilled"></div>';
     } else {
         print '<div class="clickable clicktrack ninesix draggable indent containerbox padright line" name="'.$item->url.'">';
-        print '<div class="playlisticon fixed"><img height="16px" src="images/audio-x-generic.png" /></div>';
+        print '<div class="playlisticon fixed"><img height="16px" src="newimages/audio-x-generic.png" /></div>';
         print '<div class="expand">'.$item->name.'</div>';
         print '</div>';
     }

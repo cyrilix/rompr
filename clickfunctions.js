@@ -91,13 +91,34 @@ function onRadioClicked(event) {
         event.stopImmediatePropagation();
         clickedElement.addClass('spinner');
         var n = clickedElement.attr('name');
-        n = n.replace(/podrefresh_/, '');
-        refreshPodcast(n);
+        podcasts.refreshPodcast(n.replace(/podrefresh_/, ''));
     } else if (clickedElement.hasClass("podremove")) {
         event.stopImmediatePropagation();
         var n = clickedElement.attr('name');
-        n = n.replace(/podremove_/, '');
-        removePodcast(n);
+        podcasts.removePodcast(n.replace(/podremove_/, ''));
+    } else if (clickedElement.hasClass("podtrackremove")) {
+        event.stopImmediatePropagation();
+        var n = clickedElement.attr('name');
+        var m = clickedElement.parent().attr('name');
+        podcasts.removePodcastTrack(n.replace(/podtrackremove_/, ''), m.replace(/podcontrols_/,''));
+    } else if (clickedElement.hasClass("poddownload")) {
+        event.stopImmediatePropagation();
+        var n = clickedElement.attr('name');
+        var m = clickedElement.parent().attr('name');
+        podcasts.downloadPodcast(n.replace(/poddownload_/, ''), m.replace(/podcontrols_/,''));
+    } else if (clickedElement.hasClass("podgroupload")) {
+        event.stopImmediatePropagation();
+        var n = clickedElement.attr('name');
+        podcasts.downloadPodcastChannel(n.replace(/podgroupload_/, ''));
+    } else if (clickedElement.hasClass("podmarklistened")) {
+        event.stopImmediatePropagation();
+        var n = clickedElement.attr('name');
+        var m = clickedElement.parent().attr('name');
+        podcasts.markEpisodeAsListened(n.replace(/podmarklistened_/, ''), m.replace(/podcontrols_/,''));
+    } else if (clickedElement.hasClass("podgrouplisten")) {
+        event.stopImmediatePropagation();
+        var n = clickedElement.attr('name');
+        podcasts.markChannelAsListened(n.replace(/podgrouplisten_/, ''));
     } else if (prefs.clickmode == "single") {
         onRadioDoubleClicked(event);
     }

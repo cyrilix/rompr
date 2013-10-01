@@ -330,4 +330,4 @@ var info_soundcloud = function() {
 
 }();
 
-nowplaying.registerPlugin("soundcloud", info_soundcloud, "images/soundcloud-logo.png", "Info Panel (Soundcloud)");
+nowplaying.registerPlugin("soundcloud", info_soundcloud, "newimages/soundcloud-logo.png", "Info Panel (Soundcloud)");

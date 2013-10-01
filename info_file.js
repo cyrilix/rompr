@@ -104,7 +104,7 @@ var info_file = function() {
         switch(filetype) {
             case "mp3":
             case "MP3":
-                browser.setPluginIcon(me, "images/mp3-audio.jpg");
+                browser.setPluginIcon(me, "newimages/mp3-audio.jpg");
                 break;
 
             case "mp4":
@@ -113,16 +113,16 @@ var info_file = function() {
             case "MP4":
             case "M4A":
             case "AAC":
-                browser.setPluginIcon(me, "images/aac-audio.jpg");
+                browser.setPluginIcon(me, "newimages/aac-audio.jpg");
                 break;
 
             case "flac":
             case "FLAC":
-                browser.setPluginIcon(me, "images/flac-audio.jpg");
+                browser.setPluginIcon(me, "newimages/flac-audio.jpg");
                 break;
 
             default:
-            	browser.setPluginIcon(me, "images/audio-x-generic.png");
+            	browser.setPluginIcon(me, "newimages/audio-x-generic.png");
             	break;
         }
     }
@@ -195,6 +195,7 @@ var info_file = function() {
 		    this.updateFileInformation = function() {
 		    	parent.playlistinfo.metadata.track.fileinfo = createInfoFromPlayerInfo();
 		    	parent.playlistinfo.metadata.track.lyrics = null;
+                playlist.checkProgress();
 		    	self.doBrowserUpdate();
 		    }
 
@@ -215,4 +216,4 @@ var info_file = function() {
 	}
 }();
 
-nowplaying.registerPlugin("file", info_file, "images/audio-x-generic.png", "Info Panel (File Information)");
+nowplaying.registerPlugin("file", info_file, "newimages/audio-x-generic.png", "Info Panel (File Information)");

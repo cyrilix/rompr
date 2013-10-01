@@ -15,7 +15,7 @@ if (array_key_exists('mobile', $_REQUEST) && $_REQUEST['mobile'] != "no") {
         foreach ($playlists['playlist'] as $pl) {
 
             print '<tr><td align="left"><a href="#" onclick="playlist.load(\''.rawurlencode($pl).'\')">'.htmlspecialchars($pl).'</a></td>';
-            print '<td class="playlisticon" align="right"><a href="#" onclick="player.controller.deletePlaylist(\''.rawurlencode($pl).'\')"><img src="images/edit-delete.png"></a></td></tr>';
+            print '<td class="playlisticon" align="right"><a href="#" onclick="player.controller.deletePlaylist(\''.rawurlencode($pl).'\')"><img src="newimages/edit-delete.png"></a></td></tr>';
 
         }
         print '</table>';
@@ -28,7 +28,7 @@ if (array_key_exists('mobile', $_REQUEST) && $_REQUEST['mobile'] != "no") {
         foreach ($playlists['playlist'] as $pl) {
 
             print '<tr><td align="left"><a href="#" onclick="playlist.load(\''.rawurlencode($pl).'\')">'.htmlspecialchars($pl).'</a></td>';
-            print '<td class="playlisticon" align="right"><a href="#" onclick="player.controller.deletePlaylist(\''.rawurlencode($pl).'\')"><img src="images/edit-delete.png"></a></td></tr>';
+            print '<td class="playlisticon" align="right"><a href="#" onclick="player.controller.deletePlaylist(\''.rawurlencode($pl).'\')"><img src="newimages/edit-delete.png"></a></td></tr>';
 
         }
         print '</table></li>';

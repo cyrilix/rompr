@@ -5,11 +5,11 @@
 <div id="infobar">
     <div class="infobarlayout tleft bordered">
         <div id="buttons">
-            <img title="Previous Track" class="clickicon controlbutton" onclick="playlist.previous()" src="images/media-skip-backward.png">
-            <img title="Play/Pause" class="shiftleft clickicon controlbutton" onclick="infobar.playbutton.clicked()" id="playbuttonimg" src="images/media-playback-pause.png">
-            <img title="Stop" class="shiftleft2 clickicon controlbutton" onclick="player.controller.stop()" src="images/media-playback-stop.png">
-            <img title="Stop After Current Track" class="shiftleft3 clickicon controlbutton" onclick="playlist.stopafter()" id="stopafterbutton" src="images/stopafter.png">
-            <img title="Next Track" class="shiftleft4 clickicon controlbutton" onclick="playlist.next()" src="images/media-skip-forward.png">
+            <img title="Previous Track" class="clickicon controlbutton lettuce" onclick="playlist.previous()" src="newimages/media-skip-backward.png">
+            <img title="Play/Pause" class="shiftleft clickicon controlbutton lettuce" onclick="infobar.playbutton.clicked()" id="playbuttonimg" src="newimages/media-playback-pause.png">
+            <img title="Stop" class="shiftleft2 clickicon controlbutton lettuce" onclick="player.controller.stop()" src="newimages/media-playback-stop.png">
+            <img title="Stop After Current Track" class="shiftleft3 clickicon controlbutton lettuce" onclick="playlist.stopafter()" id="stopafterbutton" src="newimages/stopafter.png">
+            <img title="Next Track" class="shiftleft4 clickicon controlbutton lettuce" onclick="playlist.next()" src="newimages/media-skip-forward.png">
         </div>
         <div id="progress"></div>
         <div id="playbackTime">
@@ -17,7 +17,7 @@
     </div>
 
     <div class="infobarlayout tleft bordered">
-        <div id="volumecontrol"><div id="volume"></div></div>
+        <div title="Drag to change volume" id="volumecontrol" class="lettuce"><div id="volume"></div></div>
     </div>
 
     <div id="patrickmoore" class="infobarlayout tleft bordered">
@@ -25,8 +25,8 @@
             <img id="albumpicture" class="notexist" src="" />
         </div>
         <div id="lastfm" class="invisible">
-            <div><ul class="topnav"><a title="Love this track" id="love" href="#" onclick="nowplaying.love()"><img height="24px" src="images/lastfm-love.png"></a></ul></div>
-            <div><ul class="topnav"><a title="Ban this track" id="ban" href="#" onclick="infobar.ban()"><img height="24px" src="images/lastfm-ban.png"></a></ul></div>
+            <div><ul class="topnav"><img title="Love this track" class="clickicon lettuce" id="love" onclick="nowplaying.love()" height="24px" src="newimages/lastfm-love.png"></ul></div>
+            <div><ul class="topnav"><img title="Ban this track" class="clickicon lettuce" id="ban" href="#" onclick="infobar.ban()" height="24px" src="newimages/lastfm-ban.png"></ul></div>
         </div>
         <div id="nowplaying"></div>
     </div>
@@ -41,7 +41,7 @@
 
     <div id="albumlist" class="invisible noborder">
     <div style="padding-left:12px">
-    <a title="Search Music" href="#" onclick="toggleSearch()"><img class="topimg clickicon" height="20px" src="images/system-search.png"></a>
+    <img title="Search Music" onclick="toggleSearch()" class="topimg clickicon lettuce" height="20px" src="newimages/system-search.png">
     </div>
     <div id="search" class="invisible noborder"></div>
     <div id="collection" class="noborder"></div>
@@ -49,7 +49,7 @@
 
     <div id="filelist" class="invisible">
     <div style="padding-left:12px">
-    <a title="Search Files" href="#" onclick="toggleFileSearch()"><img class="topimg" height="20px" src="images/system-search.png"></a>
+    <img title="Search Files" href="#" onclick="toggleFileSearch()" class="topimg clickicon lettuce" height="20px" src="newimages/system-search.png">
     </div>
     <div id="filesearch" class="invisible searchbox">
     </div>
@@ -61,40 +61,40 @@
 
     <div id="radiolist" class="invisible">
     <div class="containerbox menuitem noselection">
-        <div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="yourradiolist"></div>
-        <div class="smallcover fixed"><img height="32px" width="32px" src="images/broadcast-32.png"></div>
+        <div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="yourradiolist"></div>
+        <div class="smallcover fixed"><img height="32px" width="32px" src="newimages/broadcast-32.png"></div>
         <div class="expand">Your Radio Stations</div>
     </div>
     <div id="yourradiolist" class="dropmenu">
     </div>
 
     <div class="containerbox menuitem noselection">
-        <div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="podcastslist"></div>
-        <div class="smallcover fixed"><img height="32px" width="32px" src="images/Apple_Podcast_logo.png"></div>
-        <div class="expand">Podcasts</div>
+        <div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="podcastslist"></div>
+        <div class="smallcover fixed"><img height="32px" width="32px" src="newimages/Apple_Podcast_logo.png"></div>
+        <div class="expand">Podcasts<span id="total_unlistened_podcasts"></span><span></span></div>
     </div>
     <div id="podcastslist" class="dropmenu">
     </div>
 
     <div class="containerbox menuitem noselection">
-        <div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="somafmlist"></div>
-        <div class="smallcover fixed"><img height="32px" width="32px" src="images/somafm.png"></div>
+        <div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="somafmlist"></div>
+        <div class="smallcover fixed"><img height="32px" width="32px" src="newimages/somafm.png"></div>
         <div class="expand">Soma FM</div>
     </div>
     <div id="somafmlist" class="dropmenu">
     </div>
 
     <div class="containerbox menuitem noselection">
-        <div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="bbclist"></div>
-        <div class="smallcover fixed"><img height="32px" width="32px" src="images/bbcr.png"></div>
+        <div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="bbclist"></div>
+        <div class="smallcover fixed"><img height="32px" width="32px" src="newimages/bbcr.png"></div>
         <div class="expand">Live BBC Radio</div>
     </div>
     <div id="bbclist" class="dropmenu">
     </div>
 
     <div class="containerbox menuitem noselection">
-        <div class="mh fixed"><img src="images/toggle-closed-new.png" class="menu fixed" name="icecastlist"></div>
-        <div class="smallcover fixed"><img height="32px" width="32px" src="images/icecast.png"></div>
+        <div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="icecastlist"></div>
+        <div class="smallcover fixed"><img height="32px" width="32px" src="newimages/icecast.png"></div>
         <div class="expand">Icecast Radio</div>
     </div>
     <div id="icecastlist" class="dropmenu">
@@ -111,7 +111,7 @@
 
 <div id="playlist" class="tright column noborder">
     <div id="horse" style="padding-left:12px">
-    <a title="Playlist Controls" href="#" onclick="togglePlaylistButtons()"><img class="topimg clickicon" height="20px" src="images/pushbutton.png"></a>
+    <img title="Playlist Controls" onclick="togglePlaylistButtons()" class="topimg clickicon lettuce" height="20px" src="newimages/pushbutton.png">
     </div>
         <div id="playlistbuttons" class="invisible searchbox">
         <table width="90%" align="center">
