@@ -142,7 +142,14 @@ if ($mobile != "no") {
 <script type="text/javascript" src="infobar2.js"></script>
 <script type="text/javascript" src="playlist.js"></script>
 <script type="text/javascript" src="coverscraper.js"></script>
-<script type="text/javascript" src="mopidy.js"></script>
+<?php
+
+if ($prefs['use_mopidy_http'] == 1) {
+    print'<script type="text/javascript" src="http://'.$prefs['mpd_host'].':'.$prefs['mopidy_http_port'].'/mopidy/mopidy.min.js"></script>'."\n";
+}
+
+?>
+<!-- <script type="text/javascript" src="mopidy.js"></script> -->
 <script type="text/javascript" src="player.js"></script>
 
 <?php

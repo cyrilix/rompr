@@ -75,14 +75,14 @@ $prefs = array( "mpd_host" => "localhost",
                 "use_mopidy_file_backend" => "true",
                 "use_mopidy_beets_backend" => "false",
                 "search_limit_limitsearch" => 0,
-                "search_limit_file" => 0,
+                "search_limit_local" => 0,
                 "search_limit_spotify" => 0,
                 "search_limit_soundcloud" => 0,
                 "search_limit_beets" => 0
                 );
 loadPrefs();
 
-$searchlimits = array(  "file" => "Local Files",
+$searchlimits = array(  "local" => "Local Files",
                         "spotify" => "Spotify",
                         "soundcloud" => "Soundcloud",
                         "beets" => "Beets"

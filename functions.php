@@ -214,6 +214,18 @@ function format_time($t,$f=':') // t = seconds, f = separator
     }
 }
 
+function format_time2($t,$f=':') // t = seconds, f = separator
+{
+    if (($t/86400) >= 1) {
+        return sprintf("%d%s", ($t/86400), " days");
+    }
+    if (($t/3600) >= 1) {
+        return sprintf("%d%s", ($t/3600), " hours");
+    } else {
+        return sprintf("%d%s", ($t/60)%60, " minutes");
+    }
+}
+
 class collectionOutput {
 
     public function __construct($file) {

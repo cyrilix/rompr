@@ -175,6 +175,7 @@ function multiProtocolController() {
 	    		playlist.repopulate();
 		        mopidy.getUriSchemes().then( function(data) {
 		            for(var i =0; i < data.length; i++) {
+		            	debug.log("PLAYER","Mopidy URI Scheme : ",data[i]);
 		                urischemes[data[i]] = true;
 		            }
 		            $("#mopidysearcher").find('.searchdomain').each( function() {
@@ -244,7 +245,7 @@ function multiProtocolController() {
 	                debug.log("PLAYER","Getting list of files using mopidy websocket search");
 	                var be = new Array();
 	                if (prefs.use_mopidy_file_backend) {
-	                    be.push('file:');
+	                    be.push('local:');
 	                }
 	                if (prefs.use_mopidy_beets_backend) {
 	                    be.push('beets:');
@@ -278,6 +279,7 @@ function multiProtocolController() {
 	    	reloadPlaylists: function() {
 	            debug.log("PLAYER","Retreiving Playlists from Mopidy");
 	            mopidy.playlists.getPlaylists().then(function (data) {
+	            	debug.log("PLAYER","Got Playlists from Mopidy",data);
 	            	formatPlaylistInfo(data);
 	            }, consoleError);
 

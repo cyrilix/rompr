@@ -106,6 +106,27 @@ var podcasts = function() {
 		}
 	}
 
+	function podcastRequest(options) {
+		debug.log("PODCASTS","Sending request",options);
+	    $.ajax( {
+	        type: "GET",
+	        url: "podcasts.php",
+	        cache: false,
+	        contentType: "text/html; charset=utf-8",
+	        data: options,
+	        success: function(data) {
+	            $("#podcast_"+options.channel).html(data);
+	            $("#podcast_"+options.channel).find('.fridge').tipTip();
+	            podcasts.doNewCount();
+	        },
+	        error: function(data, status) {
+	            debug.error("PODCASTS", "Failed To Set Option:",options,data,status);
+	            infobar.notify(infobar.ERROR,"Something didn't work. Try again maybe?");
+	        }
+	    });
+
+	}
+
 	return {
 		doPodcast: function(input) {
 		    var url = $("#"+input).attr("value");
@@ -187,40 +208,12 @@ var podcasts = function() {
 
 		removePodcastTrack: function(track, channel) {
 		    debug.log("PODCAST","Removing track",track,"from channel",channel);
-		    $.ajax( {
-		        type: "GET",
-		        url: "podcasts.php",
-		        cache: false,
-		        contentType: "text/html; charset=utf-8",
-		        data: {removetrack: track, channel: channel },
-		        success: function(data) {
-		            $("#podcast_"+channel).html(data);
-		            $("#podcast_"+channel).find('.fridge').tipTip();
-		            podcasts.doNewCount();
-		        },
-		        error: function(data, status) {
-		            alert("Failed To Remove Podcast");
-		        }
-		    } );
+		    podcastRequest({removetrack: track, channel: channel });
 		},
 
 		markEpisodeAsListened: function(track, channel) {
 		    debug.log("PODCAST","Marking track",track,"from channel",channel,"as listened");
-		    $.ajax( {
-		        type: "GET",
-		        url: "podcasts.php",
-		        cache: false,
-		        contentType: "text/html; charset=utf-8",
-		        data: {markaslistened: track, channel: channel },
-		        success: function(data) {
-		            $("#podcast_"+channel).html(data);
-		            $("#podcast_"+channel).find('.fridge').tipTip();
-		            podcasts.doNewCount();
-		        },
-		        error: function(data, status) {
-		            alert("Failed To Mark Podcast As Listened");
-		        }
-		    } );
+		    podcastRequest({markaslistened: track, channel: channel });
 		},
 
 		downloadPodcast: function(track, channel) {
@@ -271,7 +264,8 @@ var podcasts = function() {
 			clearTimeout(updateTimer);
 			updatenext = null;
 			$('div[id^="podcast_"]').each( function() {
-				debug.log("PODCASTS", "Looking for unlistened items in", $(this).attr('id'));
+				var id = $(this).attr('id');
+				debug.log("PODCASTS", "Looking for unlistened items in",id);
 				var obj =  $(this).find('.newpodicon');
 				var unl = $(this).find('.oldpodicon');
 				var num = obj.length;
@@ -281,6 +275,14 @@ var podcasts = function() {
 				utotal += numl;
 				var indicator = $(this).prev().find('.podnumber');
 				putPodCount(indicator, num, numl);
+
+				var confpanel = id.replace(/podcast_/, 'podconf_');
+				if ($("#"+confpanel).find('.podautodown').is(':checked')) {
+					obj.each(function() {
+						$(this).parent().parent().parent().find('.poddownload').click();
+					});
+				}
+
 				obj = $(this).find('.podnextupdate');
 				debug.debug("PODCASTS","Channel",obj.parent().attr("id"),"Next update is",obj.val());
 				if (obj.val() != 0 && (updatetime === null || obj.val() < updatetime)) {
@@ -295,45 +297,25 @@ var podcasts = function() {
 			updateTimer = setTimeout(podcasts.autoRefresh, Math.max((secondstoupdate * 1000), 100));
 		},
 
-		changeDisplayOption: function(channel) {
-			var val = $("#podconf_"+channel).find('.ds').val();
-			debug.log("PODCASTS","Changing display option for",channel,"to",val);
-		    $.ajax( {
-		        type: "GET",
-		        url: "podcasts.php",
-		        cache: false,
-		        contentType: "text/html; charset=utf-8",
-		        data: {displaymode: val, channel: channel },
-		        success: function(data) {
-		            $("#podcast_"+channel).html(data);
-		            $("#podcast_"+channel).find('.fridge').tipTip();
-		            podcasts.doNewCount();
-		        },
-		        error: function(data, status) {
-		            alert("Failed To Set Display Mode");
-		        }
-		    } );
-
-		},
-
-		changeRefreshOption: function(channel) {
-			var val = $("#podconf_"+channel).find('.rs').val();
-			debug.log("PODCASTS","Changing refresh option for",channel,"to",val);
-		    $.ajax( {
-		        type: "GET",
-		        url: "podcasts.php",
-		        cache: false,
-		        contentType: "text/html; charset=utf-8",
-		        data: {refreshoption: val, channel: channel },
-		        success: function(data) {
-		            $("#podcast_"+channel).html(data);
-		            $("#podcast_"+channel).find('.fridge').tipTip();
-		            podcasts.doNewCount();
-		        },
-		        error: function(data, status) {
-		            alert("Failed To Set Display Mode");
-		        }
-		    } );
+		changeOption: function(event) {
+			var element = $(event.target);
+			var elementType = element[0].tagName;
+			var options = {option: element.attr("name")};
+			debug.log("PODCASTS","Option:",element,elementType);
+			switch(elementType) {
+				case "SELECT":
+					options.val = element.val();
+					break;
+				case "INPUT":
+					options.val = element.is(':checked');
+					break;
+			}
+			while(!element.hasClass('dropmenu')) {
+				element = element.parent();
+			}
+			var channel = element.attr('id');
+			options.channel = channel.replace(/podconf_/,'');
+			podcastRequest(options);
 		},
 
 		autoRefresh: function() {
