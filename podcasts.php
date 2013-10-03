@@ -62,11 +62,22 @@ if (array_key_exists('refresh', $_REQUEST)) {
 
 function getNewPodcast($url) {
     debug_print("Getting podcast ".$url,"PODCASTS");
+    // iTunes links normally link to the same XML feed as the RSS link, so fixup the protocol and hope
+    $url = preg_replace('#^itpc://#', 'http://', $url);
     $fname = md5($url);
     if (!is_dir('prefs/podcasts/'.$fname)) {
         mkdir('prefs/podcasts/'.$fname);
     }
     $fp = fopen('prefs/podcasts/'.$fname.'/feed.xml', 'w');
+    if (!$fp) {
+        debug_print("COULD NOT OPEN FILE FOR FEED!","PODCASTS");
+        header('HTTP/1.0 404 Not Found');
+        debug_print("Failed to get ".$url,"PODCASTS");
+        if (file_exists('prefs/podcasts/'.$fname.'/feed.xml')) {
+            unlink('prefs/podcasts/'.$fname.'/feed.xml');
+        }
+        exit;
+    }
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL,$url);
     curl_setopt($ch, CURLOPT_FILE, $fp);
@@ -155,8 +166,8 @@ function getNewPodcast($url) {
     $x->addChild('description', htmlspecialchars((string) $feed->channel->description));
     $x->addChild('albumartist', $albumartist);
     $x->addChild('daysLive', $daysLive);
-    $tracklist = $x->addChild('trackList');
 
+    $tracklist = $x->addChild('trackList');
     $count = 0;
 
     foreach($feed->channel->item as $item) {
@@ -200,6 +211,44 @@ function getNewPodcast($url) {
             $description = (string) $m->summary;
         }
         $key = md5((string) $item->guid);
+        $listened = "no";
+        $new = "yes";
+        $deleted = "no";
+        $link = htmlspecialchars($link);
+
+        if ($oldinfo) {
+            debug_print("Checking previous download for ".$key,"PODCASTS");
+            $axp = $oldinfo->xpath('//track/key[.="'.$key.'"]/parent::*');
+            if ($axp) {
+                debug_print("... Found ".$key,"PODCASTS");
+                $listened = $axp[0]->{'listened'};
+                $link = $axp[0]->{'link'};
+                $deleted = $axp[0]->{'deleted'};
+                $new = "no";
+                $axp[0]->{'found'} = "yes";
+                if ($deleted == "no") {
+                    $count++;
+                }
+            } else {
+                $count++;
+            }
+        } else {
+            $count++;
+        }
+
+        if (($numtokeep > 0 && $count > $numtokeep) ||
+            checkExpiry($pubdate, $daystokeep)) {
+            $od = $deleted;
+            $deleted = "yes";
+            if (is_dir('prefs/podcasts/'.$fname.'/'.$key)) {
+                if ($keepdownloaded == "false") {
+                    system('rm -fR prefs/podcasts/'.$fname.'/'.$key);
+                } else {
+                    $deleted = $od;
+                }
+            }
+        }
+
         $track = $tracklist->addChild('track');
         $track->addChild('title', htmlspecialchars($item->title));
         $track->addChild('duration', $duration);
@@ -208,51 +257,11 @@ function getNewPodcast($url) {
         $track->addChild('filesize', $filesize);
         $track->addChild('description', htmlspecialchars($description));
         $track->addChild('key', $key);
-        if ($oldinfo) {
-            debug_print("Checking previous download for ".$key,"PODCASTS");
-            $axp = $oldinfo->xpath('//track/key[.="'.$key.'"]/parent::*');
-            if ($axp) {
-                debug_print("... Found ".$key,"PODCASTS");
-                $track->addChild('listened', $axp[0]->{'listened'});
-                // Copy the link from the previous version - this'll keep it correct
-                // if the file has been downloaded.
-                $track->addChild('link', $axp[0]->{'link'});
-                $track->addChild('new', "no");
-                // Mark this track as having been found in the new list
-                $axp[0]->{'found'} = "yes";
-                if ($axp[0]->{'deleted'} == "no") {
-                    $count++;
-                }
-                if ($numtokeep > 0 && $count > $numtokeep+1) {
-                    $track->addChild('deleted', "yes");
-                    if (is_dir('prefs/podcasts/'.$fname.'/'.$key)) {
-                        system('rm -fR prefs/podcasts/'.$fname.'/'.$key);
-                    }
-                } else {
-                    $track->addChild('deleted', $axp[0]->{'deleted'});
-                }
-            } else {
-                $track->addChild('link', htmlspecialchars($link));
-                $track->addChild('listened', "no");
-                $track->addChild('new', "yes");
-                $count++;
-                if ($numtokeep > 0 && $count > $numtokeep+1) {
-                    $track->addChild('deleted', "yes");
-                } else {
-                    $track->addChild('deleted', "no");
-                }
-            }
-        } else {
-            $track->addChild('link', htmlspecialchars($link));
-            $track->addChild('listened', "no");
-            $track->addChild('new', "yes");
-            $count++;
-            if ($numtokeep > 0 && $count > $numtokeep+1) {
-                $track->addChild('deleted', "yes");
-            } else {
-                $track->addChild('deleted', "no");
-            }
-        }
+        $track->addChild('link', $link);
+        $track->addChild('listened', $listened);
+        $track->addChild('new', $new);
+        $track->addChild('deleted', $deleted);
+
     }
 
     // Now add any remaining ones from the old list that have been downloaded but not
@@ -263,33 +272,45 @@ function getNewPodcast($url) {
 
             } else if (is_dir('prefs/podcasts/'.$fname.'/'.$track->key)) {
                 // This is messy but simplexml sucks big fat donkey shit and it's late and I'm tired.
-                $track = $tracklist->addChild('track');
-                $track->addChild('title', $track->title);
-                $track->addChild('duration', $track->duration);
-                $track->addChild('artist', $track->artist);
-                $track->addChild('pubdate', $track->pubdate);
-                $track->addChild('filesize', $track->filesize);
-                $track->addChild('description', $track->description);
-                $track->addChild('key', $track->key);
-                $track->addChild('link', $track->link);
-                $track->addChild('listened', $track->listened);
-                $track->addChild('new', $track->new);
                 if ($track->deleted == "no") {
                     $count++;
-                }
-                if ($numtokeep > 0 && $count > $numtokeep+1) {
-                    $track->addChild('deleted', "yes");
-                    if (is_dir('prefs/podcasts/'.$fname.'/'.$track->key)) {
+                    if ($keepdownloaded == "false" &&
+                        (($numtokeep > 0 && $count > $numtokeep) ||
+                        checkExpiry($track->pubdate, $daystokeep))) {
                         system('rm -fR prefs/podcasts/'.$fname.'/'.$track->key);
+                    } else {
+                        $item = $tracklist->addChild('track');
+                        $item->addChild('deleted', $track->deleted);
+                        $item->addChild('title', $track->title);
+                        $item->addChild('duration', $track->duration);
+                        $item->addChild('artist', $track->artist);
+                        $item->addChild('pubdate', $track->pubdate);
+                        $item->addChild('filesize', $track->filesize);
+                        $item->addChild('description', $track->description);
+                        $item->addChild('key', $track->key);
+                        $item->addChild('link', $track->link);
+                        $item->addChild('listened', $track->listened);
+                        $item->addChild('new', $track->new);
                     }
-                } else {
-                    $track->addChild('deleted', $track->deleted);
                 }
             }
         }
     }
 
     saveFormattedXML($x, 'prefs/podcasts/'.$fname.'/info.xml');
+}
+
+function checkExpiry($pubdate, $daystokeep) {
+    if ($daystokeep == 0) {
+        return false;
+    }
+    $pubtime = strtotime($pubdate);
+    $deletetime = $daystokeep * 86400;
+    if ($pubtime+$deletetime < time()) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 function refreshPodcast($name) {
@@ -345,18 +366,18 @@ function doPodcast($c) {
     print '<input type="hidden" class="podauto" value="'.$y->autodownload.'" />';
 
     print '<div class="containerbox" style="margin-top:4px">';
-    print '<span style="vertical-align:middle"><b>DISPLAY&nbsp;&nbsp;</b></span>';
-    print '<span style="vertical-align:middle"><select name="displaymode" class="topformbutton" onchange="podcasts.changeOption(event)">';
+    print '<table>';
+    print '<tr><td align="right" style="vertical-align:middle">Display&nbsp;&nbsp;</td>';
+    print '<td style="vertical-align:middle"><select name="displaymode" class="topformbutton" onchange="podcasts.changeOption(event)">';
     $options =  '<option value="all">Everything</option>'.
                 '<option value="new">Only New</option>'.
                 '<option value="unlistened">New and Unlistened</option>'.
                 '<option value="downloaded">Only Downloaded</option>';
     print preg_replace('/(<option value="'.$y->displaymode.'")/', '$1 selected', $options);
-    print '</select></span></div>';
+    print '</select></td></tr>';
 
-    print '<div class="containerbox" style="margin-top:4px">';
-    print '<span style="vertical-align:middle"><b>REFRESH&nbsp;&nbsp;</b></span>';
-    print '<span style="vertical-align:middle"><select name="refreshoption" class="topformbutton" onchange="podcasts.changeOption(event)">';
+    print '<tr><td align="right" style="vertical-align:middle">Rrefresh&nbsp;&nbsp;</td>';
+    print '<td style="vertical-align:middle"><select name="refreshoption" class="topformbutton" onchange="podcasts.changeOption(event)">';
     $options =  '<option value="never">Manually</option>'.
                 '<option value="hourly">Hourly</option>'.
                 '<option value="daily">Daily</option>'.
@@ -367,11 +388,10 @@ function doPodcast($c) {
         $opt = "never";
     }
     print preg_replace('/(<option value="'.$opt.'")/', '$1 selected', $options);
-    print '</select></span></div>';
+    print '</select></td></tr>';
 
-    print '<div class="containerbox" style="margin-top:4px">';
-    print '<span style="vertical-align:middle"><b>KEEP EPISODES FOR&nbsp;&nbsp;</b></span>';
-    print '<span style="vertical-align:middle"><select title="Any episodes older than this value will be removed from the list. Changes to this option will take effect next time you refresh the podcast" name="daystokeep" class="topformbutton fridge" onchange="podcasts.changeOption(event)">';
+    print '<tr><td align="right" style="vertical-align:middle">Keep Episodes For&nbsp;&nbsp;</td>';
+    print '<td style="vertical-align:middle"><select title="Any episodes older than this value will be removed from the list. Changes to this option will take effect next time you refresh the podcast" name="daystokeep" class="topformbutton fridge" onchange="podcasts.changeOption(event)">';
     $options =  '<option value="0">Ever</option>'.
                 '<option value="7">One Week</option>'.
                 '<option value="14">Two Weeks</option>'.
@@ -384,28 +404,28 @@ function doPodcast($c) {
         $opt = "0";
     }
     print preg_replace('/(<option value="'.$opt.'")/', '$1 selected', $options);
-    print '</select></span></div>';
+    print '</select></td></tr>';
 
-    print '<div class="containerbox" style="margin-top:4px">';
-    print '<span style="vertical-align:middle"><b>NUMBER TO KEEP&nbsp;&nbsp;</b></span>';
-    print '<span style="vertical-align:middle"><select title="The list will only ever show this many episodes. Changes to this option will take effect next time you refresh the podcast" name="numtokeep" class="topformbutton fridge" onchange="podcasts.changeOption(event)">';
+    print '<tr><td align="right" style="vertical-align:middle">Number to keep&nbsp;&nbsp;</td>';
+    print '<td style="vertical-align:middle"><select title="The list will only ever show this many episodes. Changes to this option will take effect next time you refresh the podcast" name="numtokeep" class="topformbutton fridge" onchange="podcasts.changeOption(event)">';
     $options =  '<option value="0">Unlimited</option>'.
                 '<option value="1">1</option>'.
                 '<option value="5">5</option>'.
                 '<option value="10">10</option>'.
                 '<option value="25">25</option>'.
                 '<option value="50">50</option>'.
-                '<option value="100">100</option>';
+                '<option value="100">100</option>'.
                 '<option value="200">200</option>';
     $opt = $y->numtokeep;
     if (!$opt) {
         $opt = "0";
     }
     print preg_replace('/(<option value="'.$opt.'")/', '$1 selected', $options);
-    print '</select></span></div>';
+    print '</select></td></tr>';
+    print '</table></div>';
 
     print '<div class="containerbox" style="margin-top:4px">';
-    print '<input title="Enable this option to keep all downloaded episodes. The above two options will then only apply to episodes that have not been downloaded" type="checkbox" class="topcheck fridge" name="keepdownload" onclick="podcasts.changeOption(event)"';
+    print '<input title="Enable this option to keep all downloaded episodes. The above two options will then only apply to episodes that have not been downloaded" type="checkbox" class="topcheck fridge" name="keepdownloaded" onclick="podcasts.changeOption(event)"';
     if ($y->keepdownloaded == "true") {
         print ' checked';
     }

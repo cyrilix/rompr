@@ -179,7 +179,7 @@ var info_wikipedia = function() {
 						debug.log("WIKI PLUGIN",parent.index,"got musicbrainz release group data for",parent.playlistinfo.album, data);
 						if (data.error) {
 							debug.log("WIKI PLUGIN",parent.index," ... MB error, trying a search");
-							wikipedia.search({album: parent.playlistinfo.album}, self.album.wikiResponseHandler, self.album.wikiResponseHandler);
+							wikipedia.search({album: parent.playlistinfo.album, albumartist: getSearchArtist()}, self.album.wikiResponseHandler, self.album.wikiResponseHandler);
 						} else {
 							for (var i in data.relations) {
 								if (data.relations[i].type == "wikipedia") {

@@ -1449,6 +1449,11 @@ function formatPlaylistInfo(data) {
                 html = html + '<td align="left"><a href="#" onclick="playlist.load(\''+this.uri+'\')">'+this.name+'</a></td>';
                 html = html + '<td></td></tr>';
                 break;
+            case "somafm":
+                html = html + '<img src="newimages/somafm-icon.png" height="18px" style="vertical-align:middle"></td>';
+                html = html + '<td align="left"><a href="#" onclick="playlist.load(\''+this.uri+'\')">'+this.name+'</a></td>';
+                html = html + '<td></td></tr>';
+                break;
             default:
                 html = html + '<img src="newimages/folder.png" width="12px" style="vertical-align:middle"></td>';
                 html = html + '<td align="left"><a href="#" onclick="playlist.load(\''+this.uri+'\')">'+this.name+'</a></td>';

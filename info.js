@@ -193,7 +193,7 @@ var browser = function() {
             if (source == waitingon.source && nowplayingindex == waitingon.index && waitingon[type]) {
                 debug.log("BROWSER", "  .. and we are going to display it");
                 if (data.data !== null) {
-                    $("#"+type+"information").html(banner(data, type, panelclosed.artist, source)+data.data);
+                    $("#"+type+"information").html(banner(data, type, panelclosed[type], source)+data.data);
                 } else {
                     $("#"+type+"information").html("");
                 }

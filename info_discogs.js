@@ -930,8 +930,7 @@ var info_discogs = function() {
 							debug.mark(medebug,parent.index,"artist was asked to display");
 							// Any errors (such as failing to find the artist) go under artistinfo. Originally, this was where the actual artist info would go
 							// too, but then this bright spark had the idea to index all the artist info by the artist ID. This is indeed useful.
-							// But if there was an error in the initial search, we don't know the ID. Hence artistinfo still exists
-							// and has to be checked.
+							// But if there was an error in the initial search we don't know the ID. Hence artistinfo still exists and has to be checked.
 							if (parent.playlistinfo.metadata.artist.discogs.artistinfo && parent.playlistinfo.metadata.artist.discogs.artistinfo.error) {
 								browser.Update('artist',
 									me,
@@ -952,17 +951,8 @@ var info_discogs = function() {
 													link: parent.playlistinfo.metadata.artist.discogs.artistlink,
 													data: getArtistHTML(parent.playlistinfo.metadata.artist.discogs['artist_'+parent.playlistinfo.metadata.artist.discogs.artistid], false)
 												}
-									);
-								// If the update was accepted that means the html in #artistinformation was replaced
-								// by the browser. Hence we need to reinitialise the artist slideshow
-								// If it wasn't accepted, that means that we are a new trackdatacollection and are now responsible for
-								// handling the information displayed in the browser. The old handler will have paused the slideshows
-								// so we need to restart any that are visible.
-								// if (accepted) {
-									startAllSlideshows();
-								// } else {
-									// unpauseAllSlideshows();
-								// }
+								);
+								startAllSlideshows();
 							}
 						}
 					}
@@ -978,7 +968,7 @@ var info_discogs = function() {
 				return {
 
 					populate: function() {
-						// We need to initialise these variables, to vaoid 'cannot set property of' errors later.
+						// We need to initialise these variables, to avoid 'cannot set property of' errors later.
 						if (parent.playlistinfo.metadata.album.discogs === undefined) {
 							parent.playlistinfo.metadata.album.discogs = {};
 						}

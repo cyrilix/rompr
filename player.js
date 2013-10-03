@@ -310,7 +310,7 @@ function multiProtocolController() {
 	    	getPlaylist: function() {
 	            debug.log("PLAYER","Using Mopidy HTTP connection for playlist");
 	            mopidy.tracklist.getTlTracks().then( function (data) {
-	                debug.log("PLAYER","Got Playlist from Mopidy:");
+	                debug.log("PLAYER","Got Playlist from Mopidy:",data);
 	                tracklist = data;
 	                $.ajax({
 	                        type: "POST",

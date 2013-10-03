@@ -613,6 +613,44 @@
 </link>
 </station>
 
+<station>
+<name>Deep Space One</name>
+<description>A soundtrack for deep space exploration, both inner and outer.</description>
+<longdesc>Deep ambient electronic, experimental and space music with a tempo usually too slow for Space Station Soma, but too fast for Drone Zone.</longdesc>
+<image>resources/deepspaceone120.gif</image>
+<link>
+    <desc>128 KBit MP3</desc>
+    <playlist>http://somafm.com/startstream=deepspaceone.pls</playlist>
+</link>
+<link>
+    <desc>128 KBit AAC</desc>
+    <playlist>http://somafm.com/startstream=deepspaceone130.pls</playlist>
+</link>
+<link>
+    <desc>64 KBit AACPlus</desc>
+    <playlist>http://somafm.com/startstream=deepspaceone64.pls</playlist>
+</link>
+<link>
+    <desc>32 KBit AACPlus</desc>
+    <playlist>http://somafm.com/startstream=deepspaceone32.pls</playlist>
+</link>
+</station>
+
+<station>
+<name>DEF CON 21</name>
+<description>DEF CON Radio: Music for hacking.</description>
+<longdesc>SomaFM's special DEF CON 21 broadcast. DEF CON is one of the world's largest annual hacker conventions, held every year in Las Vegas, Nevada. This year, SomaFM is providing the music for the DEF CON Chill room where we'll be broadcasting from starting August 1st. And for the rest of July, SomaFM is broadcasting this special stream from San Francisco, hosted by the DJs who will be playing in Vegas.</longdesc>
+<image>resources/defcon120.png</image>
+<link>
+    <desc>128 KBit MP3</desc>
+    <playlist>http://somafm.com/startstream=events.pls</playlist>
+</link>
+<link>
+    <desc>64 KBit AACPlus</desc>
+    <playlist>http://somafm.com/startstream=events64.pls</playlist>
+</link>
+</station>
+
 </stations>
 
 </asx>
