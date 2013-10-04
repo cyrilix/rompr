@@ -156,7 +156,7 @@ function getNewPodcast($url) {
     $x->addChild('feedurl', htmlspecialchars($url));
     $x->addChild('lastupdate', time());
     $x->addChild('image', $image);
-    $x->addChild('album', $album);
+    $x->addChild('album', htmlspecialchars($album));
     $x->addChild('refreshoption', $refreshoption);
     $x->addChild('displaymode', $displaymode);
     $x->addChild('daystokeep', $daystokeep);
@@ -164,7 +164,7 @@ function getNewPodcast($url) {
     $x->addChild('keepdownloaded', $keepdownloaded);
     $x->addChild('autodownload', $autodownload);
     $x->addChild('description', htmlspecialchars((string) $feed->channel->description));
-    $x->addChild('albumartist', $albumartist);
+    $x->addChild('albumartist', htmlspecialchars($albumartist));
     $x->addChild('daysLive', $daysLive);
 
     $tracklist = $x->addChild('trackList');
@@ -252,7 +252,7 @@ function getNewPodcast($url) {
         $track = $tracklist->addChild('track');
         $track->addChild('title', htmlspecialchars($item->title));
         $track->addChild('duration', $duration);
-        $track->addChild('artist', $artist);
+        $track->addChild('artist', htmlspecialchars($artist));
         $track->addChild('pubdate', $pubdate);
         $track->addChild('filesize', $filesize);
         $track->addChild('description', htmlspecialchars($description));
