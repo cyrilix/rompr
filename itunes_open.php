@@ -24,13 +24,13 @@
 // Terminal=false
 // Exec=/path/to/this/itunes_open.php %U
 // Name[en_US]=RompriTunes
-// Comment[en_US]=Open iTunes podcast links in RompR                
+// Comment[en_US]=Open iTunes podcast links in RompR
 // Name=RompriTunes
-// Comment=Open iTunes podcast links in Rompr                
+// Comment=Open iTunes podcast links in Rompr
 // Icon=/usr/share/icons/hicolor/256x256/apps/brasero.png
 // Categories=Application;Network;
 // MimeType=x-scheme-handler/itpc;
-// Comment[en_US.utf8]=Open iTunes podcast links in RompR 
+// Comment[en_US.utf8]=Open iTunes podcast links in RompR
 
 // Save the above as /usr/share/applications/rompritunes.desktop
 // Edit the Exec= line so it points to wherever you put this file.
@@ -53,7 +53,7 @@
 // LXDE / OpenBox
 // ===============
 
-// In LXDE and Openbox-based desktops, Google how to set protocol handlers for xdg-open
+// In LXDE and Openbox-based desktops, set protocol handlers for xdg-open
 
 
 // KDE
