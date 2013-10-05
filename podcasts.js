@@ -128,6 +128,16 @@ var podcasts = function() {
 	}
 
 	return {
+
+		loadList: function() {
+			if (!prefs.hide_radiolist) {
+		        $("#podcastslist").load("podcasts.php", function() {
+		            $(".fridge").tipTip({delay: 1000});
+		            podcasts.doNewCount();
+		        });
+		    }
+    	},
+
 		doPodcast: function(input) {
 		    var url = $("#"+input).attr("value");
 		    debug.log("PODCAST","Getting podcast",url);

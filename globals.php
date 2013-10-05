@@ -81,14 +81,14 @@ prefs.updateLocal();
 
 <?php
 if (file_exists($ALBUMSLIST)) {
-    print "var albumslistexists = true\n";
+    print "var albumslistexists = true;\n";
 } else {
-    print "var albumslistexists = false\n";
+    print "var albumslistexists = false;\n";
 }
 if (file_exists($FILESLIST)) {
-    print "var fileslistexists = true\n";
+    print "var fileslistexists = true;\n";
 } else {
-    print "var fileslistexists = false\n";
+    print "var fileslistexists = false;\n";
 }
 ?>
 var lastfm_api_key = "15f7532dff0b8d84635c757f9f18aaa3";

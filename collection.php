@@ -527,10 +527,10 @@ function process_file($collection, $filedata) {
     }
 
     if (($domain == "http" || $domain == "mms" || $domain == "rtsp") &&
-        !array_key_exists('Artist', $filedata) && !array_key_exists('Album', $filedata)) {
-        // $domain will be http for anything being played through mopidy-beets. Hence the check for
-        // Artist and Album too, since they will be set in that case but not for a stream.
-        debug_print("We think it's a stream!", "COLLECTION");
+        !preg_match('#/item/\d+/file$#', $file))
+    {
+        // domain will be http for anything being played through mopidy-beets.
+        // so we check the filename pattern too
         list (  $name, $duration, $number, $date, $genre, $artist, $album, $folder,
                 $type, $image, $expires, $stationurl, $station, $stream, $albumartist)
                 = getStuffFromXSPF($file);
@@ -630,7 +630,8 @@ function getStuffFromXSPF($url) {
 
     foreach ($podcasts as $x) {
         foreach($x->trackList->track as $track) {
-            if ($track->link == $url) {
+            if ($track->link == $url ||
+                ($track->origlink && $track->origlink == $url)) {
                 return array (
                     (string) $track->title,
                     (string) $track->duration,

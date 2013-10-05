@@ -3,7 +3,9 @@ include ("vars.php");
 include ("functions.php");
 include ("connection.php");
 $playlists = do_mpd_command($connection, "listplaylists", null, true);
-if (array_key_exists('playlist', $playlists) && !is_array($playlists['playlist'])) {
+if (!is_array($playlists)) {
+    $playlists = array();
+} else if (array_key_exists('playlist', $playlists) && !is_array($playlists['playlist'])) {
     $temp = $playlists['playlist'];
     $playlists = array();
     $playlists['playlist'][0] = $temp;

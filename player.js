@@ -600,7 +600,7 @@ function multiProtocolController() {
 		               infobar.updateWindowValues();
 		            }
 		            if ((data.state == "pause" || data.state=="stop") && data.single == 1) {
-		                this.fastcommand("command=single&arg=0");
+		                player.mpd.fastcommand("command=single&arg=0");
 		            }
 		            debug.log("MPD","Status",self.status);
 		        })

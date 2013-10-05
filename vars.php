@@ -97,7 +97,11 @@ function debug_print($out, $module = "") {
             $in .= " ";
             $indent--;
         }
-        error_log($module.$in.": ".$out."\n",3,'/Library/Logs/RomprLog.log');
+        if (php_uname('s') == "Linux") {
+            error_log($module.$in.": ".$out);
+        } else {
+            error_log($module.$in.": ".$out."\n",3,'/Library/Logs/RomprLog.log');
+        }
     }
 }
 

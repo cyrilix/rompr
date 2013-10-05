@@ -1,6 +1,5 @@
 #!/usr/bin/php
 
-
 <?php
 
 // This is the URL handler for iTunes links.
@@ -81,58 +80,5 @@
 // Put here the same thing you type in your web browser to open rompr
 $rompr = "http://localhost/rompr";
 
-// Don't mess with this bit
-$url = $rompr.'/podcasts.php?url='.rawurlencode($argv[1]);
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL,$url);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-curl_setopt($ch, CURLOPT_TIMEOUT, 45);
-$result = array();
-$result['contents'] = curl_exec($ch);
-$result['status'] = curl_getinfo($ch,CURLINFO_HTTP_CODE);
-curl_close($ch);
-
-$desktop = getenv("DESKTOP_SESSION");
-
-// TODO load  a special page that sets a local storage key. If it gets a reply it closes
-// if it doesn't, it loads RompR
-
-// You can mess with this bit if you know what you're doing
-if ($result['status'] == '200') {
-	// Stuff to do if it worked
-	switch ($desktop) {
-		case "gnome":
-			exec( 'notify-send "Podcast added to Rompr"');
-			exec( 'gnome-open '.$rompr);
-			break;
-
-		case "kde":
-			exec( 'kdialog --title "Podcast added to Rompr" --passivepopup "Rompr should now open" 5' );
-			exec( 'kde-open '.$rompr);
-			break;
-
-		default:
-			exec( 'xdg-open '.$rompr);
-			break;
-
-	}
-} else {
-	// Stuff to do if it failed
-	switch ($desktop) {
-		case "gnome":
-			exec( 'notify-send "Failed to add podcast to Rompr"');
-			break;
-
-		case "kde":
-			exec( 'kdialog --title "Failed to add podcast to Rompr" --passivepopup "Sorry" 5' );
-			break;
-
-		default:
-			break;
-
-	}
-}
-
+exec( 'xdg-open '.$rompr.'/podcasts.php?itunes='.rawurlencode($argv[1]));
 ?>
-

@@ -357,10 +357,7 @@ $(document).ready(function(){
         $("#bbclist").load("bbcradio.php");
         $("#somafmlist").load("somafm.php");
         $("#yourradiolist").load("yourradio.php");
-        $("#podcastslist").load("podcasts.php", function() {
-            $(".fridge").tipTip({delay: 1000});
-            podcasts.doNewCount();
-        });
+        podcasts.loadList();
         refreshMyDrink(false);
     }
 

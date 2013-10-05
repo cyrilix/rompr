@@ -90,7 +90,7 @@ if (array_key_exists("src", $_REQUEST)) {
     }
 }
 
-if (!preg_match('/-/', $mbid)) {
+if (preg_match('/\d+/', $mbid) && !preg_match('/-/', $mbid)) {
     debug_print(" Supplied MBID of ".$mbid." looks more like a Discogs ID","GETALBUMCOVER");
     $discogsid = $mbid;
     $mbid = "";

@@ -1029,6 +1029,8 @@ function clearPlaylist() {
 
 function onStorageChanged(e) {
 
+    debug.log("GENERAL","Storage Event",e);
+
     if (e.key == "key" && e.newValue != "Blerugh") {
         var key = e.newValue;
         debug.log("GENERAL","Updating album image for key",key,e);
@@ -1041,6 +1043,16 @@ function onStorageChanged(e) {
             $('img[name="'+key+'"]').attr("src", "albumart/original/"+key+".jpg");
             $('img[name="'+key+'"]').removeClass("notexist");
             $('img[name="'+key+'"]').removeClass("notfound");
+        }
+    } else if (e.key == "podcast" && e.newValue == "true") {
+        debug.log("GENERAL", "Podcasts have been updated");
+        localStorage.setItem("podcastresponse", "OK");
+        if (!prefs.hide_radiolist) {
+            podcasts.loadList();
+            switchsource('radiolist');
+            if ($("#podcastslist").is(':hidden')) {
+                $("#podcastslist").prev().find('.menu').click();
+            }
         }
     }
 }
@@ -1280,6 +1292,7 @@ function hidePanel(panel) {
                 $("#yourradiolist").load("yourradio.php");
                 $("#icecastlist").html('<div class="dirname"><h2 id="loadinglabel3">Loading Stations...</h2></div>');
                 refreshMyDrink('');
+                podcasts.loadList();
                 break;
             case "albumlist":
                 if (update_load_timer_running == false) {

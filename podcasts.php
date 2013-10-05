@@ -3,6 +3,8 @@ include("vars.php");
 include("functions.php");
 if (array_key_exists('url', $_REQUEST)) {
     getNewPodcast(rawurldecode($_REQUEST['url']));
+} else if (array_key_exists('itunes', $_REQUEST)) {
+    handleItunes(rawurldecode($_REQUEST['itunes']));
 } else if (array_key_exists('refresh', $_REQUEST)) {
     refreshPodcast($_REQUEST['refresh']);
 } else if (array_key_exists('remove', $_REQUEST)) {
@@ -23,6 +25,8 @@ if (array_key_exists('url', $_REQUEST)) {
 
 if (array_key_exists('refresh', $_REQUEST)) {
     doPodcast('prefs/podcasts/'.$_REQUEST['refresh']);
+} else if (array_key_exists('itunes', $_REQUEST)) {
+
 } else if (array_key_exists('listened', $_REQUEST)) {
     doPodcast('prefs/podcasts/'.$_REQUEST['listened']);
 } else if (array_key_exists('removetrack', $_REQUEST)) {
@@ -215,6 +219,7 @@ function getNewPodcast($url) {
         $new = "yes";
         $deleted = "no";
         $link = htmlspecialchars($link);
+        $origlink = null;
 
         if ($oldinfo) {
             debug_print("Checking previous download for ".$key,"PODCASTS");
@@ -224,6 +229,9 @@ function getNewPodcast($url) {
                 $listened = $axp[0]->{'listened'};
                 $link = $axp[0]->{'link'};
                 $deleted = $axp[0]->{'deleted'};
+                if ($axp[0]->{'origlink'}) {
+                    $origlink = $axp[0]->{'origlink'};
+                }
                 $new = "no";
                 $axp[0]->{'found'} = "yes";
                 if ($deleted == "no") {
@@ -261,6 +269,9 @@ function getNewPodcast($url) {
         $track->addChild('listened', $listened);
         $track->addChild('new', $new);
         $track->addChild('deleted', $deleted);
+        if ($origlink) {
+            $track->addChild('origlink', $origlink);
+        }
 
     }
 
@@ -372,6 +383,7 @@ function doPodcast($c) {
     $options =  '<option value="all">Everything</option>'.
                 '<option value="new">Only New</option>'.
                 '<option value="unlistened">New and Unlistened</option>'.
+                '<option value="downloadednew">New and Downloaded</option>'.
                 '<option value="downloaded">Only Downloaded</option>';
     print preg_replace('/(<option value="'.$y->displaymode.'")/', '$1 selected', $options);
     print '</select></td></tr>';
@@ -443,6 +455,12 @@ function doPodcast($c) {
         if ($item->deleted == "yes") {
             continue;
         }
+        
+        if ($y->displaymode == "downloadednew" &&
+            (!is_dir('prefs/podcasts/'.$pm.'/'.$item->key) && $item->new == "no"))
+        {
+            continue;
+        }
         if ($y->displaymode == "new" && $item->new == "no") {
             continue;
         }
@@ -453,6 +471,7 @@ function doPodcast($c) {
         if ($y->displaymode == "downloaded" && !is_dir('prefs/podcasts/'.$pm.'/'.$item->key)) {
             continue;
         }
+
         print '<div class="clickable clicktrack item" name="'.htmlspecialchars_decode($item->link).'">';
         print '<div class="containerbox">';
         if ($item->new == "yes") {
@@ -599,6 +618,7 @@ function downloadTrack($key, $channel) {
         system ('rm -fR prefs/podcasts/'.$channel.'/'.$key);
         exit;
     }
+    $axp[0]->{'origlink'} = (string) $axp[0]->{'link'};
     $axp[0]->{'link'} = get_base_url().'/prefs/podcasts/'.$channel.'/'.$key.'/'.$filename;
     $fp = fopen('prefs/podcasts/'.$channel.'/info.xml', 'w');
     fwrite($fp, $x->asXML());
@@ -615,4 +635,71 @@ function saveFormattedXML($simplexml, $file) {
     fclose($fp);
 }
 
+function handleItunes($link) {
+
+?>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>RompR</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" type="text/css" href="layout.css" />
+<link rel="stylesheet" type="text/css" href="Darkness.css" />
+<script type="text/javascript" src="jquery-1.8.3-min.js"></script>
+
+<script language="javascript">
+
+<?php
+print "var url = '".$link."';\n";
+?>
+
+var responseTimer = null;
+
+function onStorageChanged(e) {
+    if (e.key == "podcastresponse" && e.newValue == "OK") {
+        clearTimeout(responseTimer);
+        $('body').append('<br><br><h3 align="center">This window will close in 5 seconds</h2>');
+        setTimeout(window.close, 5000);
+    }
+}
+
+function romprNotRunning() {
+    window.location.assign('index.php');
+}
+
+$(document).ready(function(){
+
+    localStorage.setItem("podcastresponse", "No");
+    localStorage.setItem("podcast", "false");
+    window.addEventListener("storage", onStorageChanged, false);
+
+    $.ajax( {
+        type: "GET",
+        url: "podcasts.php",
+        cache: false,
+        contentType: "text/html; charset=utf-8",
+        data: {url: encodeURIComponent(url) },
+        success: function(data) {
+            $('body').append('<br><br><h2 align="center">Success!</h2>');
+            responseTimer = setTimeout(romprNotRunning, 3000);
+            localStorage.setItem("podcast", "true");
+        },
+        error: function(data, status) {
+            alert("Failed To Retrieve RSS feed");
+        }
+    });
+
+});
+
+</script>
+
+</head>
+<body>
+<br><br>
+<h2 align="center">Adding Podcast to Rompr</h2>
+</body>
+</html>
+<?php
+}
 ?>
