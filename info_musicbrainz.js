@@ -39,7 +39,7 @@ var info_musicbrainz = function() {
 		return (year_a > year_b) ? 1 : -1;
 	}
 
-	function getArtistHTML(parent, data) {
+	function getArtistHTML(data, expand) {
 
 		if (data.error) {
 			return '<h3 align="center">'+data.error+'</h3>';
@@ -74,6 +74,9 @@ var info_musicbrainz = function() {
         html = html + '</div>';
 
         html = html + '<div class="expand stumpy">';
+        if (expand) {
+			html = html + '<div class="mbbox"><img class="clickexpandbox infoclick tleft" src="newimages/expand-up.png" height="16px" name="'+data.id+'"></div>';
+		}
 
         if (data.annotation) {
         	var a = data.annotation;
@@ -102,16 +105,16 @@ var info_musicbrainz = function() {
     		}
     	}
     	if (bandMembers.length > 0) {
-        	html = html + '<div class="mbbox underline"><b>BAND MEMBERS</b></div>'+getMembers(parent, bandMembers);
+        	html = html + '<div class="mbbox underline"><b>BAND MEMBERS</b></div>'+getMembers(bandMembers);
     	}
     	if (memberOf.length > 0) {
-        	html = html + '<div class="mbbox underline"><b>MEMBER OF</b></div>'+getMembers(parent, memberOf);
+        	html = html + '<div class="mbbox underline"><b>MEMBER OF</b></div>'+getMembers(memberOf);
     	}
 
 		html = html + '<div class="mbbox underline">';
 	    html = html + '<img src="newimages/toggle-closed-new.png" class="menu infoclick clickdodiscography" name="'+data.id+'">';
-	    html = html + '<b>DISCOGRAPHY</b></div>';
-	    html = html + '<div id="discography_'+data.id+'">';
+	    html = html + '<b>'+data.name.toUpperCase()+' DISCOGRAPHY</b></div>';
+	    html = html + '<div name="discography_'+data.id+'" class="invisible">';
         html = html + '</div>';
 
         html = html + '</div>';
@@ -120,7 +123,7 @@ var info_musicbrainz = function() {
 
 	}
 
-	function getMembers(parent, data) {
+	function getMembers(data) {
 		var html = "";
 		var already_done = new Array();
         var ayears = new Array();
@@ -128,27 +131,14 @@ var info_musicbrainz = function() {
 			if (already_done[data[i].artist.id] !== true) {
 				debug.debug(medebug,"New Artist",data[i].artist.id,data[i].artist.name,data[i].begin,data[i].end);
     			html = html + '<div class="mbbox">';
-    			// Important, we need to check we don't already have info for this artist in the window.
-    			// The layout of the page and the way we populate it does not permit the same artist to
-    			// appear twice.
-
     			// The already_done flag is just there because artist can appear multiple times in this data
     			// if they did multiple stints in the band.
 
-    			if (data[i].artist.id !== parent.playlistinfo.musicbrainz.artistid &&
-    				$('#'+data[i].artist.id).length == 0) {
-    				html = html + '<img src="newimages/toggle-closed-new.png" class="menu infoclick clickdoartist" name="'+data[i].artist.id+'">';
-    			}
-
+				html = html + '<img src="newimages/toggle-closed-new.png" class="menu infoclick clickdoartist" name="'+data[i].artist.id+'">';
     			html = html + '<b>'+data[i].artist.name+'  </b>'+"AYEARS_"+data[i].artist.id;
     			ayears[data[i].artist.id] = doSpan(data[i]);
     			html = html + '</div>';
-
-    			if (data[i].artist.id !== parent.playlistinfo.musicbrainz.artistid &&
-    				$('#'+data[i].artist.id).length == 0) {
-	    			html = html + '<div id="'+data[i].artist.id+'"></div>';
-	    		}
-
+    			html = html + '<div name="'+data[i].artist.id+'" class="invisible"></div>';
     			already_done[data[i].artist.id] = true;
     		} else {
 				debug.debug(medebug,"Repeat Artist",data[i].artist.id,data[i].artist.name,data[i].begin,data[i].end);
@@ -489,39 +479,81 @@ var info_musicbrainz = function() {
 			this.handleClick = function(source, element, event) {
 				debug.log(medebug,parent.index,source,"is handling a click event");
 				if (element.hasClass('clickdoartist')){
-					if (!element.hasClass('full')) {
-						doSomethingUseful(element.attr('name'), 'Getting Data');
-	        			getArtistData(element.attr('name'));
-	        			element.attr('src', 'newimages/toggle-open-new.png');
-	        			element.addClass('full');
-	        			element.parent().next().addClass('underline');
+					var targetdiv = element.parent().next();
+					if (!(targetdiv.hasClass('full')) && element.isClosed()) {
+						doSomethingUseful(targetdiv, 'Getting Data');
+	        			targetdiv.slideToggle('fast');
+						getArtistData(element.attr('name'));
+	        			element.toggleOpen();
+	        			targetdiv.addClass('underline');
 		        	} else {
-		        		if (element.attr('src') == 'newimages/toggle-open-new.png') {
-		        			element.attr('src', 'newimages/toggle-closed-new.png');
-		        			element.parent().next().removeClass('underline');
+		        		if (element.isOpen()) {
+		        			element.toggleClosed();
+		        			targetdiv.removeClass('underline');
 		        		} else {
-		        			element.attr('src', 'newimages/toggle-open-new.png');
-		        			element.parent().next().addClass('underline');
+		        			element.toggleOpen();
+		        			targetdiv.addClass('underline');
 		        		}
-		        		$("#"+element.attr('name')).slideToggle('fast');
+		        		targetdiv.slideToggle('fast');
 		        	}
 				} else if (element.hasClass('clickdodiscography')) {
-					if (!element.hasClass('full')) {
-						doSomethingUseful('discography_'+element.attr('name'), 'Getting Data');
+					var targetdiv = element.parent().next();
+					if (!(targetdiv.hasClass('full')) && element.isClosed()) {
+						doSomethingUseful(targetdiv, 'Getting Data');
 	        			getArtistReleases(element.attr('name'), 'discography_'+element.attr('name'));
-	        			element.attr('src', 'newimages/toggle-open-new.png');
-	        			element.addClass('full');
-	        			element.parent().next().addClass('underline');
+	        			element.toggleOpen();
+	        			targetdiv.slideToggle('fast');
 		        	} else {
-		        		if (element.attr('src') == 'newimages/toggle-open-new.png') {
-		        			element.attr('src', 'newimages/toggle-closed-new.png');
-		        			element.parent().next().removeClass('underline');
+		        		if (element.isOpen()) {
+		        			element.toggleClosed();
 		        		} else {
-		        			element.attr('src', 'newimages/toggle-open-new.png');
-		        			element.parent().next().addClass('underline');
+		        			element.toggleOpen();
 		        		}
-		        		$("#discography_"+element.attr('name')).slideToggle('fast');
+	        			targetdiv.slideToggle('fast');
 		        	}
+				} else if (element.hasClass('clickexpandbox')) {
+					var id = element.attr('name');
+					var expandingframe = element.parent().parent().parent().parent();
+					var content = expandingframe.html();
+					content=content.replace(/<img class="clickexpandbox.*?>/, '');
+					var pos = expandingframe.offset();
+					var targetpos = $("#artistfoldup").offset();
+					var animator = expandingframe.clone();
+					animator.css('position', 'absolute');
+					animator.css('top', pos.top+"px");
+					animator.css('left', pos.left+"px");
+					animator.css('width', expandingframe.width()+"px");
+					animator.appendTo($('body'));
+					$("#artistfoldup").animate(
+						{
+							opacity: 0
+						},
+						'fast',
+						'swing',
+						function() {
+							animator.animate(
+								{
+									top: targetpos.top+"px",
+									left: targetpos.left+"px",
+									width: $("#artistinformation").width()+"px"
+								},
+								'fast',
+								'swing',
+								function() {
+									browser.speciaUpdate(
+										me,
+										'artist',
+										{
+											name: parent.playlistinfo.metadata.artist.musicbrainz[id].name,
+											link: null,
+											data: content
+										}
+									);
+									animator.remove();
+								}
+							);
+						}
+					);
 				} else if (element.hasClass('clickzoomimage')) {
 					imagePopup.create(element, event, element.next().val());
 				}
@@ -538,12 +570,18 @@ var info_musicbrainz = function() {
 					);
 				} else {
 					debug.log(medebug,parent.index," ... displaying what we've already got");
-					putArtistData(parent.playlistinfo.metadata.artist.musicbrainz[id], $("#"+id));
+					putArtistData(parent.playlistinfo.metadata.artist.musicbrainz[id], id);
 				}
 			}
 
 			function putArtistData(data, div) {
-				div.html(getArtistHTML(parent, data));
+				var html = getArtistHTML(data, true);
+				$('div[name="'+div+'"]').each(function() {
+					if (!$(this).hasClass('full')) {
+						$(this).html(html);
+						$(this).addClass('full');
+					}
+				});
 			}
 
 			function getArtistReleases(id, target) {
@@ -558,12 +596,18 @@ var info_musicbrainz = function() {
 					);
 				} else {
 					debug.log(medebug,"  ... displaying what we've already got",parent.playlistinfo.metadata.artist.musicbrainz[target]);
-					putArtistReleases(parent.playlistinfo.metadata.artist.musicbrainz[target], $("#"+target));
+					putArtistReleases(parent.playlistinfo.metadata.artist.musicbrainz[target], target);
 				}
 			}
 
 			function putArtistReleases(data, div) {
-				div.html(getReleaseHTML(data));
+				var html = getReleaseHTML(data);
+				$('div[name="'+div+'"]').each(function() {
+					if (!($(this).hasClass('full'))) {
+						$(this).html(html);
+						$(this).addClass('full');
+					}
+				});
 			}
 
 	        function getAlbumHTML(data) {
@@ -682,28 +726,29 @@ var info_musicbrainz = function() {
 						if (parent.playlistinfo.metadata.artist.musicbrainz === undefined) {
 							parent.playlistinfo.metadata.artist.musicbrainz = {};
 						}
-						if (parent.playlistinfo.metadata.artist.musicbrainz.artist === undefined) {
-							if (parent.playlistinfo.musicbrainz.artistid == "") {
-								debug.log(medebug,parent.index,"Artist asked to populate but no MBID, trying again in 2 seonds");
-								setTimeout(self.artist.populate, 2000);
-								return;
-							}
-							if (parent.playlistinfo.musicbrainz.artistid === null) {
-								debug.fail(medebug,parent.index,"Artist asked to populate but no MBID could be found. Aborting");
-								parent.playlistinfo.metadata.artist.musicbrainz.artist = {error: "Could not find this artist on MusicBrainz"};
-								parent.updateData({ metadata:
-											{ artist:
-												{
-													wikipedia: { artistlink: null,
-													},
-												  	discogs: {  artistlink: null,
-												  	}
-												}
+						if (parent.playlistinfo.musicbrainz.artistid == "") {
+							debug.log(medebug,parent.index,"Artist asked to populate but no MBID, trying again in 2 seonds");
+							setTimeout(self.artist.populate, 2000);
+							return;
+						}
+						if (parent.playlistinfo.musicbrainz.artistid === null) {
+							debug.fail(medebug,parent.index,"Artist asked to populate but no MBID could be found. Aborting");
+							parent.playlistinfo.metadata.artist.musicbrainz.artist = {error: "Could not find this artist on MusicBrainz"};
+							parent.updateData({ metadata:
+										{ artist:
+											{
+												wikipedia: { artistlink: null,
+												},
+											  	discogs: {  artistlink: null,
+											  	}
 											}
-										}, null);
-								self.artist.doBrowserUpdate();
-								return;
-							}
+										}
+									}, null);
+							self.artist.doBrowserUpdate();
+							return;
+						}
+						if (parent.playlistinfo.metadata.artist.musicbrainz.artist === undefined &&
+							parent.playlistinfo.metadata.artist.musicbrainz[parent.playlistinfo.musicbrainz.artistid] === undefined) {
 							debug.mark(medebug,parent.index,"artist is populating",parent.playlistinfo.musicbrainz.artistid);
 							musicbrainz.artist.getInfo(parent.playlistinfo.musicbrainz.artistid, self.artist.mbResponseHandler, self.artist.mbResponseHandler);
 						} else {
@@ -726,23 +771,27 @@ var info_musicbrainz = function() {
 										}
 									};
 						if (data) {
-							parent.playlistinfo.metadata.artist.musicbrainz.artist = data;
-							for (var i in data.relations) {
-								if (data.relations[i].type == "wikipedia" && update.metadata.artist.wikipedia.artistlink == null) {
-									debug.mark(medebug,parent.index,"has found a Wikipedia artist link",data.relations[i].url.resource);
-									// At the moment, only en.wikipedia.org links will work inside our browser
-									var wikitemp = data.relations[i].url.resource;
-									if (wikitemp.match(/en.wikipedia.org/)) {
-										update.metadata.artist.wikipedia.artistlink = data.relations[i].url.resource;
+							if (data.error) {
+								parent.playlistinfo.metadata.artist.musicbrainz.artist = data;
+							} else {
+								parent.playlistinfo.metadata.artist.musicbrainz[parent.playlistinfo.musicbrainz.artistid] = data;
+								for (var i in data.relations) {
+									if (data.relations[i].type == "wikipedia" && update.metadata.artist.wikipedia.artistlink == null) {
+										debug.mark(medebug,parent.index,"has found a Wikipedia artist link",data.relations[i].url.resource);
+										// At the moment, only en.wikipedia.org links will work inside our browser
+										var wikitemp = data.relations[i].url.resource;
+										if (wikitemp.match(/en.wikipedia.org/)) {
+											update.metadata.artist.wikipedia.artistlink = data.relations[i].url.resource;
+										}
+									}
+									if (data.relations[i].type == "discogs" && update.metadata.artist.discogs.artistlink == null) {
+										debug.mark(medebug,parent.index,"has found a Discogs artist link",data.relations[i].url.resource);
+										update.metadata.artist.discogs.artistlink = data.relations[i].url.resource;
 									}
 								}
-								if (data.relations[i].type == "discogs" && update.metadata.artist.discogs.artistlink == null) {
-									debug.mark(medebug,parent.index,"has found a Discogs artist link",data.relations[i].url.resource);
-									update.metadata.artist.discogs.artistlink = data.relations[i].url.resource;
+								if (data.disambiguation) {
+									update.metadata.artist.disambiguation = data.disambiguation;
 								}
-							}
-							if (data.disambiguation) {
-								update.metadata.artist.disambiguation = data.disambiguation;
 							}
 						} else {
 							parent.playlistinfo.metadata.artist.musicbrainz.artist = {error: "Could not get information from MusicBrainz"};
@@ -757,7 +806,7 @@ var info_musicbrainz = function() {
 						if (data) {
 							debug.log(medebug,parent.index,"got extra artist data for",data.id,data);
 							parent.playlistinfo.metadata.artist.musicbrainz[data.id] = data;
-							putArtistData(parent.playlistinfo.metadata.artist.musicbrainz[data.id], $("#"+data.id));
+							putArtistData(parent.playlistinfo.metadata.artist.musicbrainz[data.id], data.id);
 						}
 
 					},
@@ -766,15 +815,15 @@ var info_musicbrainz = function() {
 						if (data) {
 							debug.log(medebug,parent.index,"got release data for",data.id,data);
 							parent.playlistinfo.metadata.artist.musicbrainz[data.id] = data;
-							putArtistReleases(parent.playlistinfo.metadata.artist.musicbrainz[data.id], $("#"+data.id));
+							putArtistReleases(parent.playlistinfo.metadata.artist.musicbrainz[data.id], data.id);
 						}
 
 					},
 
 					doBrowserUpdate: function() {
-						if (displaying && parent.playlistinfo.metadata.artist.musicbrainz.artist !== undefined) {
+						if (displaying) {
 							debug.mark(medebug,parent.index," artist was asked to display");
-							if (parent.playlistinfo.metadata.artist.musicbrainz.artist.error) {
+							if (parent.playlistinfo.metadata.artist.musicbrainz.artist !== undefined && parent.playlistinfo.metadata.artist.musicbrainz.artist.error) {
 								browser.Update('artist',
 									me,
 									parent.index,
@@ -784,14 +833,14 @@ var info_musicbrainz = function() {
 										data: '<h3 align="center">'+parent.playlistinfo.metadata.artist.musicbrainz.artist.error+'</h3>'
 									}
 								);
-							} else {
+							} else if (parent.playlistinfo.metadata.artist.musicbrainz[parent.playlistinfo.musicbrainz.artistid] !== undefined) {
 								browser.Update('artist',
 									me,
 									parent.index,
 									{
-										name: parent.playlistinfo.metadata.artist.musicbrainz.artist.name,
-										link: 'http://musicbrainz.org/artist/'+parent.playlistinfo.metadata.artist.musicbrainz.artist.id,
-										data: getArtistHTML(parent, parent.playlistinfo.metadata.artist.musicbrainz.artist)
+										name: parent.playlistinfo.metadata.artist.musicbrainz[parent.playlistinfo.musicbrainz.artistid].name,
+										link: 'http://musicbrainz.org/artist/'+parent.playlistinfo.musicbrainz.artistid,
+										data: getArtistHTML(parent.playlistinfo.metadata.artist.musicbrainz[parent.playlistinfo.musicbrainz.artistid], false)
 									}
 								);
 							}
