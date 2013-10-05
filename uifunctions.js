@@ -1003,9 +1003,18 @@ function trackSelect(event, element) {
 
 function selectRange(first, last) {
     debug.log("GENERAL","Selecting a range between:",first.attr("name")," and ",last.attr("name"));
+
+    // Which list are we selecting from?
+    var list = first.attr('id');
+    var it = first;
+    while(list != "collection" && list != "search" && list != "filecollection" && list != "filesearch") {
+        it = it.parent();
+        list = it.attr("id");
+    }
+
     var target = null;
     var done = false;
-    $.each($('#collection .clickable'), function() {
+    $.each($('#'+list+' .clickable'), function() {
         if ($(this).attr("name") == first.attr("name") && target === null) {
             target = last;
         }
