@@ -15,7 +15,7 @@ $podcasts = array();
 $current_artist = "";
 $current_album = "";
 $abm = false;
-$current_domain = "file";
+$current_domain = "local";
 
 $playlist = array();
 
@@ -523,6 +523,7 @@ function process_file($collection, $filedata) {
 
         default:
             $folder = dirname($file);
+            $folder = preg_replace('#^local:track:#', '', $folder);
             break;
     }
 
@@ -551,7 +552,7 @@ function getDomain($d) {
     // This is why, for streams, I set the domain to be the same as the type field.
     $a = substr($d,0,strpos($d, ":"));
     if ($a == "") {
-        $a = "file";
+        $a = "local";
     }
     return $a;
 }
@@ -817,7 +818,7 @@ function do_albums_xml($artistkey, $compilations, $showartist, $prefix, $output)
             if ($album->musicbrainz_albumid) {
                 $output->writeLine(xmlnode('mbid', $album->musicbrainz_albumid));
             }
-            if ($album->domain == "file") {
+            if ($album->domain == "local") {
                 $output->writeLine(xmlnode('directory', rawurlencode($album->folder)));
             }
             $output->writeLine(xmlnode('date', $album->getDate()));
