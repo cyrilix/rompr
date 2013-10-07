@@ -204,6 +204,9 @@ var infobar = function() {
             if (info == playlist.emptytrack) {
                 debug.log("INFOBAR","Fading out Album Picture")
                 $("#albumpicture").fadeOut('fast');
+                infobar.albumImage.setSource({    image: "newimages/transparent-32x32.png",
+                                                  origimage: "newimages/transparent-32x32.png"
+                                            });
                 return 0;
             }
             if (info.type == "stream") {
@@ -246,9 +249,6 @@ var infobar = function() {
                     debug.log("INFOBAR","Scrobbling", options);
                     lastfm.track.scrobble( options );
                 }
-            }
-            if (!scrobbled) {
-                podcasts.checkMarkPodcastAsListened(trackinfo.location);
             }
             scrobbled = true;
         },

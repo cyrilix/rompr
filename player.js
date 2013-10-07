@@ -492,7 +492,7 @@ function multiProtocolController() {
 	    			tracksToAdd.push(v);
 	    		});
 	    		if (tracks.length == tracksToAdd.length) {
-	    			debug.debug("PLAYER: Creating track iterator");
+	    			debug.debug("PLAYER:","Creating track iterator");
 		    		(function iterator() {
 		    			debug.debug("PLAYER","Iterating...");
 		    			var t = albumtracks.shift() || tracksToAdd.shift();

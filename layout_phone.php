@@ -71,6 +71,14 @@
     </div>
 
     <div class="containerbox menuitem noselection">
+        <div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="podcastslist"></div>
+        <div class="smallcover fixed"><img height="32px" width="32px" src="newimages/Apple_Podcast_logo.png"></div>
+        <div class="expand">Podcasts</div>
+    </div>
+    <div id="podcastslist" class="dropmenu">
+    </div>
+
+    <div class="containerbox menuitem noselection">
         <div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="somafmlist"></div>
         <div class="smallcover fixed"><img height="32px" width="32px" src="newimages/somafm.png"></div>
         <div class="expand">Soma FM</div>
@@ -108,14 +116,10 @@
         <div id="choose_lastfmlist" class="chooser"><a href="#" onclick="sourcecontrol('lastfmlist')">Last.FM</a></div>
         <div id="choose_radiolist" class="chooser"><a href="#" onclick="sourcecontrol('radiolist')">Radio Stations</a></div>
         <div id="chooseplaylist" class="chooser"><a href="#" onclick="sourcecontrol('playlistm')">Playlist</a></div>
-        <div class="chooser penbehindtheear"><a href="#" onclick="browser.switchSource('lastfm');sourcecontrol('infopane')">Information Panel (Last.FM)</a></div>
-        <div class="chooser penbehindtheear"><a href="#" onclick="browser.switchSource('wikipedia');sourcecontrol('infopane')">Information Panel (Wikipedia)</a></div>
-        <div id="soundcloudbutton" class="chooser penbehindtheear" style="display:none"><a href="#" onclick="browser.switchSource('soundcloud');sourcecontrol('infopane')">Information Panel (SoundCloud)</a></div>
-        <div class="chooser penbehindtheear"><a href="#" onclick="browser.switchSource('slideshow');sourcecontrol('infopane')">Artist Slideshow</a></div>
-        <div class="chooser penbehindtheear"><a href="#" onclick="sourcecontrol('historypanel')">Info Panel History</a></div>
         <div class="chooser"><a href="#" onclick="clearPlaylist()">Clear Playlist</a></div>
         <div class="chooser"><a href="#" onclick="sourcecontrol('playlistman')">Playlist Management</a></div>
         <div class="chooser"><a href="#" onclick="sourcecontrol('prefsm')">Preferences</a></div>
+        <div class="chooser penbehindtheear"><a href="#" onclick="sourcecontrol('historypanel')">Info Panel History</a></div>
     </div>
 
     <div id="historypanel" class="invisible noborder">

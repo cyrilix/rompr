@@ -60,7 +60,7 @@ if (array_key_exists('refresh', $_REQUEST)) {
     print '</div>';
     print '<script language="javascript">'."\n";
     print '$("#podcastslist .enter").keyup( onKeyUp );'."\n";
-    // $('#ginger').on('drop', handleDropPodcasts);
+    print "$('#podcastsinput').on('drop', podcasts.handleDrop);\n";
     print '</script>'."\n";
 }
 
@@ -455,7 +455,7 @@ function doPodcast($c) {
         if ($item->deleted == "yes") {
             continue;
         }
-        
+
         if ($y->displaymode == "downloadednew" &&
             (!is_dir('prefs/podcasts/'.$pm.'/'.$item->key) && $item->new == "no"))
         {

@@ -142,16 +142,22 @@ var browser = function() {
         createButtons: function() {
             for (var i in sources) {
                 debug.log("BROWSER", "Found plugin", i,sources[i].icon);
-                $("#chooserbuttons").append($('<img>', {
-                    src: sources[i].icon,
-                    onclick: "browser.switchsource('"+i+"')",
-                    title: sources[i].text,
-                    class: 'topimg sep dildo',
-                    id: "button_source"+i
-                }));
+                if (mobile == "no") {
+                    $("#chooserbuttons").append($('<img>', {
+                        src: sources[i].icon,
+                        onclick: "browser.switchsource('"+i+"')",
+                        title: sources[i].text,
+                        class: 'topimg sep dildo',
+                        id: "button_source"+i
+                    }));
+                } else {
+                    $("#chooser").append('<div class="chooser penbehindtheear"><a href="#" onclick="browser.switchsource(\''+i+'\');sourcecontrol(\'infopane\')">'+sources[i].text+'</a></div>');
+                }
             }
-            $("#button_source"+current_source).addClass("currentbun");
-            $(".dildo").tipTip({delay: 1000});
+            if (mobile == "no") {
+                $("#button_source"+current_source).addClass("currentbun");
+                $(".dildo").tipTip({delay: 1000});
+            }
         },
 
         trackHasChanged: function(npindex, pinfo) {

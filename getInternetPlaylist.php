@@ -38,7 +38,7 @@ foreach($all_playlists as $file) {
     		if (preg_match("/".md5($url)."/", $file)) {
     			debug_print("We already have a playlist for URL ".$url,"RADIO_PLAYLIST");
     			print file_get_contents($file);
-    			if ($usersupplied && preg_match("/^STREAM/", $file)) {
+    			if ($usersupplied && preg_match("/^STREAM/", basename($file))) {
     				// Make this a USERSTREAM
 			        $newname = "prefs/USER".basename($file);
 			        system('mv "'.$file.'" "'.$newname.'"');

@@ -91,6 +91,7 @@ var nowplaying = function() {
 	var history = new Array();
 	var plugins = new Array();
     var currenttrack = 0;
+    var currentlocation = "";
 
 	return {
 
@@ -112,6 +113,11 @@ var nowplaying = function() {
 
 		newTrack: function(playlistinfo) {
 
+            if (currentlocation != "") {
+            	debug.log("NOWPLAYING", "Seeing if we need to mark a podcast as listsned");
+                podcasts.checkMarkPodcastAsListened(currentlocation);
+            }
+            currentlocation = playlistinfo.location;
 	        debug.groupend();
 			infobar.setNowPlayingInfo(playlistinfo);
 			if (playlistinfo == playlist.emptytrack) {

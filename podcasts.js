@@ -159,6 +159,10 @@ var podcasts = function() {
 		    } );
 		},
 
+		handleDrop: function() {
+    		setTimeout(function() { podcasts.doPodcast('podcastsinput') }, 1000);
+    	},
+
 		refreshPodcast: function(name) {
 		    debug.mark("PODCAST","Refreshing podcast",name);
 		    $.ajax( {

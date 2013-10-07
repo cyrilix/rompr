@@ -898,7 +898,7 @@ function parse_mopidy_tagcache($collection) {
                         $filedata = array();
                     }
                     if ($parts[0] == 'file') {
-                        $parts[1] = "file://".$prefs['music_directory'].$parts[1];
+                        $parts[1] = "local:track:".$parts[1];
                     }
                     $filedata[$parts[0]] = $parts[1];
                     if ($firstline == null) {

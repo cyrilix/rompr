@@ -7,11 +7,7 @@ if (array_key_exists('mpd_host', $_POST)) {
     $prefs['mpd_port'] = $_POST['mpd_port'];
     $prefs['mpd_password'] = $_POST['mpd_password'];
     $prefs['unix_socket'] = $_POST['unix_socket'];
-    $t = $_POST['music_directory'];
-    if ($t != "" && strripos($t, "/") != strlen($t)-1) {
-        $t = $t."/";
-    }
-    $prefs['music_directory'] = $t;
+
     if (array_key_exists('use_mopidy_tagcache', $_POST)) {
         $prefs['use_mopidy_tagcache'] = 1;
         $prefs['updateeverytime'] = "false";
@@ -329,6 +325,7 @@ $(document).ready(function(){
         if (prefs.hidebrowser) {
             $(".penbehindtheear").fadeOut('fast');
         }
+        browser.createButtons();
         setChooserButtons();
         player.controller.reloadPlaylists();
         var obj = document.getElementById('volumecontrol');
@@ -496,8 +493,6 @@ print $title;
             print " checked";
         }
         print '>Update local file collection using mopidy-scan</input>';
-        print '<p>Local Music Directory:<br><input type="text" class="winkle" name="music_directory" value="'.$prefs['music_directory'].'" /></p>'."\n";
-
 
         print '<p><input type="checkbox" name="use_mopidy_http" value="1"';
         if ($prefs['use_mopidy_http'] == 1) {

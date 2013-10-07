@@ -213,9 +213,9 @@ var info_discogs = function() {
 			html = html + getTracklist(data.master.data.tracklist)
 		}
 
-		if (data.release && data.release.data.videos) {
+		if (mobile == "no" && data.release && data.release.data.videos) {
 			html = html + doVideos(data.release.data.videos);
-		} else if (data.master && data.master.data.videos) {
+		} else if (mobile == "no" && data.master && data.master.data.videos) {
 			html = html + doVideos(data.master.data.videos);
 		}
 
