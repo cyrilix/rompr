@@ -213,9 +213,6 @@ function LastFM(user) {
                     options,
                     function() {
                         $("#ban").effect('pulsate', {times: 1}, 2000);
-                        if (player.status.type != "stream") {
-                            playlist.next();
-                        }
                         infobar.notify(infobar.NOTIFY, "Banned "+options.track);
                     },
                     function() {
@@ -281,10 +278,6 @@ function LastFM(user) {
 
         scrobble : function(options) {
             if (logged_in && prefs.lastfm_scrobbling) {
-                if (prefs.dontscrobbleradio && player.status.type != "local") {
-                    debug.log("LAST FM","Not Scrobbling because track is not local");
-                    return 0;
-                }
                 debug.log("LAST FM","Last.FM is scrobbling");
                 addSetOptions(options, "track.scrobble");
                 LastFMSignedRequest(

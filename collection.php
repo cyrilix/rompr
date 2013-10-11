@@ -642,7 +642,7 @@ function getStuffFromXSPF($url) {
                     (string) $track->artist,
                     (string) $x->album,
                     md5((string) $x->album),
-                    "local",
+                    "podcast",
                     (string) $x->image,
                     null,
                     null,

@@ -92,6 +92,7 @@ var nowplaying = function() {
 	var plugins = new Array();
     var currenttrack = 0;
     var currentlocation = "";
+    var currenttype = "";
 
 	return {
 
@@ -113,11 +114,12 @@ var nowplaying = function() {
 
 		newTrack: function(playlistinfo) {
 
-            if (currentlocation != "") {
-            	debug.log("NOWPLAYING", "Seeing if we need to mark a podcast as listsned");
+            if (currentlocation != "" && currenttype == "podcast") {
+            	debug.log("NOWPLAYING", "Seeing if we need to mark a podcast as listened");
                 podcasts.checkMarkPodcastAsListened(currentlocation);
             }
             currentlocation = playlistinfo.location;
+            currenttype = playlistinfo.type;
 	        debug.groupend();
 			infobar.setNowPlayingInfo(playlistinfo);
 			if (playlistinfo == playlist.emptytrack) {

@@ -388,7 +388,7 @@ function doPodcast($c) {
     print preg_replace('/(<option value="'.$y->displaymode.'")/', '$1 selected', $options);
     print '</select></td></tr>';
 
-    print '<tr><td align="right" style="vertical-align:middle">Rrefresh&nbsp;&nbsp;</td>';
+    print '<tr><td align="right" style="vertical-align:middle">Refresh&nbsp;&nbsp;</td>';
     print '<td style="vertical-align:middle"><select name="refreshoption" class="topformbutton" onchange="podcasts.changeOption(event)">';
     $options =  '<option value="never">Manually</option>'.
                 '<option value="hourly">Hourly</option>'.

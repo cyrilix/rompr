@@ -90,6 +90,11 @@ if (file_exists($FILESLIST)) {
 } else {
     print "var fileslistexists = false;\n";
 }
+if (preg_match('#^/usr/share/rompr/#', $_SERVER['SCRIPT_FILENAME'])) {
+    print "var debinstall = true;\n";
+} else {
+    print "var debinstall = false;\n";
+}
 ?>
 var lastfm_api_key = "15f7532dff0b8d84635c757f9f18aaa3";
 var lastfm_session_key;

@@ -2,6 +2,7 @@
 include("vars.php");
 debug_print("");
 debug_print("=================****==================","STARTING UP");
+debug_print($_SERVER['SCRIPT_FILENAME'],"STARTING UP");
 if (array_key_exists('mpd_host', $_POST)) {
     $prefs['mpd_host'] = $_POST['mpd_host'];
     $prefs['mpd_port'] = $_POST['mpd_port'];
@@ -361,7 +362,7 @@ $(document).ready(function(){
     player.loadCollection();
 
     sourcecontrol(prefs.chooser);
-    if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < 0.34) {
+    if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < 0.36) {
         var fnarkle = popupWindow.create(500,600,"fnarkle",true,"Information About This Version");
         $("#popupcontents").append('<div id="fnarkler" class="mw-headline"></div>');
         if (mobile != "no") {
@@ -375,10 +376,16 @@ $(document).ready(function(){
         }
         $("#fnarkler").append('<p>The Basic RompR Manual is at: <a href="https://sourceforge.net/p/rompr/wiki/Basic%20Manual/" target="_blank">http://sourceforge.net/p/rompr/wiki/Basic%20Manual/</a></p>');
         $("#fnarkler").append('<p>The Discussion Forum is at: <a href="https://sourceforge.net/p/rompr/discussion/" target="_blank">http://sourceforge.net/p/rompr/discussion/</a></p>');
+        if (!debinstall) {
+            $("#fnarkler").append('<p><b>IMPORTANT</b> The Apache configuration file has CHANGED in this version. Please make sure you update to the latest one.</p>');
+        }
+        $("#fnarkler").append('<p><b>IMPORTANT! Mopidy Users</b></p>');
         $("#fnarkler").append('<p>If you are running Mopidy, please <a href="https://sourceforge.net/p/rompr/wiki/Rompr%20and%20Mopidy/" target="_blank">read the section about Mopidy on the Wiki</a> to enable some extra features</p>');
+        $("#fnarkler").append('<p>You will have to rebuild your albums list if you use the Local Files backend</p>');
+        $("#fnarkler").append('<p>This version of Rompr REQUIRES Mopidy 0.15 or later</p>');
         $("#fnarkler").append('<p><button style="width:8em" class="tright" onclick="popupWindow.close()">OK</button></p>');
         popupWindow.open();
-        prefs.save({shownupdatewindow: 0.34});
+        prefs.save({shownupdatewindow: 0.36});
         $.get('firstrun.php');
     }
     // Initialise the player's status
