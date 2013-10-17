@@ -23,6 +23,7 @@ print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme']
 <script type="text/javascript" src="debug.js"></script>
 <script type="text/javascript" src="coverscraper.js"></script>
 <script language="JavaScript">
+debug.setLevel(9);
 // debug.setLevel(0);
 
 var mobile = "no";
@@ -478,8 +479,7 @@ var imageEditor = function() {
                                             $('<button>', { class: 'tright topformbutton', onclick: 'imageEditor.research()', style: 'width:8em' }));
 
                 $("#brian button").html('Search');
-
-                $("#searchphrase").attr("value", phrase);
+                $("#searchphrase").val(phrase);
 
                 var bigsauce = origsauce;
                 var m = origsauce.match(/albumart\/original\/(.*)/);

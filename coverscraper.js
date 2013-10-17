@@ -107,7 +107,8 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
             $(this).attr('src', waitingicon[size]);
         });
         debug.log("COVERSCRAPER","Stream is", stream);
-        animateWaiting();
+        // Causes a wierd hang in Chrome if you type into the album image search box - WTF??
+        //animateWaiting();
 
         var options = { key: name,
                         stream: stream };
