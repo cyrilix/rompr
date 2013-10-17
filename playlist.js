@@ -561,7 +561,12 @@ function Playlist() {
             if (currentTrack.title != temp.title ||
                 currentTrack.album != temp.album ||
                 currentTrack.creator != temp.creator ||
-                !streamflag) {
+                !streamflag)
+            {
+                temp.musicbrainz.artistid = "";
+                temp.musicbrainz.albumid = "";
+                temp.musicbrainz.trackid = "";
+                temp.musicbrainz.albumartistid = "";
                 currentTrack = temp;
                 nowplaying.newTrack(temp);
             } else {
