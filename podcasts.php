@@ -657,6 +657,7 @@ print "var url = '".$link."';\n";
 var responseTimer = null;
 
 function onStorageChanged(e) {
+
     if (e.key == "podcastresponse" && e.newValue == "OK") {
         clearTimeout(responseTimer);
         $('body').append('<br><br><h3 align="center">This window will close in 5 seconds</h2>');
@@ -670,9 +671,9 @@ function romprNotRunning() {
 
 $(document).ready(function(){
 
+    window.addEventListener("storage", onStorageChanged, false);
     localStorage.setItem("podcastresponse", "No");
     localStorage.setItem("podcast", "false");
-    window.addEventListener("storage", onStorageChanged, false);
 
     $.ajax( {
         type: "GET",
