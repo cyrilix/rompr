@@ -23,7 +23,7 @@ if($is_connected) {
         $mpd_status = do_mpd_command ($connection, "status", null, true);
         if (array_key_exists('state', $mpd_status)) {
             while ($mpd_status['state'] == 'play' &&
-                    !array_key_exists('elapsed', $mpd_status))
+                    (!array_key_exists('elapsed', $mpd_status) && !array_key_exists('time', $mpd_status)))
             {
                 debug_print("Playing but no elapsed time yet.. waiting","CONNECTION");
                 sleep(1);
@@ -32,6 +32,11 @@ if($is_connected) {
         }
         if (is_array($cmd_status) && !array_key_exists('error', $mpd_status)) {
             $mpd_status = array_merge($mpd_status, $cmd_status);
+        }
+        if (!array_key_exists('elapsed', $mpd_status) && array_key_exists('time', $mpd_status)) {
+            // Rompr depends on mpd's elapsed count for the song progress but some mpd-like players (eg beets)
+            // don't support this. This is lower resolution however.
+            $mpd_status['elapsed'] = substr($mpd_status['time'] ,0, strpos($mpd_status['time'], ':'));
         }
     }
 
