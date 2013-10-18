@@ -266,6 +266,8 @@ function multiProtocolController() {
 	                                data = null;
 	                            },
 	                            error: function(data) {
+	                                $("#collection").empty();
+	                                alert("Failed to generate albums list!");
 	                            	debug.error("PLAYER","failed to generate albums list",data);
 	                            }
 	                        });
@@ -320,7 +322,8 @@ function multiProtocolController() {
 	                        dataType: "json",
 	                        success: playlist.newXSPF,
 	                        error: function(data) {
-	                            alert("Something went wrong retrieving the playlist!");
+	                            infobar.notify(infobar.ERROR, "Something went wrong retrieving the playlist!");
+	                            playlist.updateFailure();
 	                        }
 	                    });
 	            }, consoleError);
