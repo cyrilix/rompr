@@ -91,6 +91,15 @@ function Playlist() {
         debug.log("PLAYLIST","Will ignore the next",ignorecounter,"updates");
     }
 
+    this.updateFailure = function() {
+        debug.error("PLAYLIST","Got notified that an update FAILED");
+        updatecounter--;
+        if (updatecounter == 0 && ignorecounter == 0) {
+            debug.log("PLAYLIST","Update failed and no more are expected. Doing another");
+            self.repopulate();
+        }
+    }
+
     this.newXSPF = function(list) {
         var item;
         var count = 0;
