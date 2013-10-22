@@ -78,6 +78,10 @@ var prefs = function() {
 }();
 
 prefs.updateLocal();
+if (prefs.infosource == "slideshow") {
+    // slideshow plugin has been removed since last.fm have removed artist.getImages from their API
+    prefs.infosource = "lastfm";
+}
 
 <?php
 if (file_exists($ALBUMSLIST)) {
