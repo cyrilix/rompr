@@ -1,6 +1,6 @@
 <?php
 include ("vars.php");
-            
+
 $keys = array(  "nextrack" => "right+++right",
                 "prevtrack" => "left+++left",
                 "stop" => "space+++space",
@@ -8,7 +8,7 @@ $keys = array(  "nextrack" => "right+++right",
                 "volumeup" => "A+++A",
                 "volumedown" => "Z+++Z"
             );
-            
+
 loadKeyBindings();
 
 function loadKeyBindings() {
