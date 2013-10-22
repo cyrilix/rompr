@@ -133,7 +133,6 @@ if ($mobile != "no") {
 <script type="text/javascript" src="info_wikipedia.js"></script>
 <script type="text/javascript" src="info_musicbrainz.js"></script>
 <script type="text/javascript" src="info_discogs.js"></script>
-<script type="text/javascript" src="info_slideshow.js"></script>
 <script type="text/javascript" src="info_lyrics.js"></script>
 <script type="text/javascript" src="info_soundcloud.js"></script>
 <script type="text/javascript" src="infobar2.js"></script>
