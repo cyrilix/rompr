@@ -361,7 +361,7 @@ $(document).ready(function(){
     player.loadCollection();
 
     sourcecontrol(prefs.chooser);
-    if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < 0.36) {
+    if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < 0.40) {
         var fnarkle = popupWindow.create(500,600,"fnarkle",true,"Information About This Version");
         $("#popupcontents").append('<div id="fnarkler" class="mw-headline"></div>');
         if (mobile != "no") {
@@ -384,7 +384,7 @@ $(document).ready(function(){
         $("#fnarkler").append('<p>This version of Rompr REQUIRES Mopidy 0.15 or later</p>');
         $("#fnarkler").append('<p><button style="width:8em" class="tright" onclick="popupWindow.close()">OK</button></p>');
         popupWindow.open();
-        prefs.save({shownupdatewindow: 0.36});
+        prefs.save({shownupdatewindow: 0.40});
         $.get('firstrun.php');
     }
     // Initialise the player's status
