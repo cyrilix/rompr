@@ -187,6 +187,12 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
             <input type="checkbox" onclick="togglePref('fullbiobydefault')" id="fullbiobydefault">Retrieve full artist biographies from Last.FM</input>
         </div>
         <div class="pref">
+           <input type="checkbox" onclick="togglePref('lastfmlang')" id="lastfmlang">Use browser language for Last.FM</input>
+        </div>
+        <div class="pref">
+           <input type="checkbox" onclick="togglePref('scrolltocurrent')" id="scrolltocurrent">Auto-Scroll playlist to current track</input>
+        </div>
+        <div class="pref">
             <input type="checkbox" onclick="togglePref('downloadart')" id="downloadart">Automatically Download Covers</input>
         </div>
 

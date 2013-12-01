@@ -4,7 +4,7 @@
 var prefsInLocalStorage = ["hidebrowser", "sourceshidden", "playlisthidden", "infosource", "playlistcontrolsvisible",
                             "sourceswidthpercent", "playlistwidthpercent", "downloadart", "clickmode", "chooser",
                             "hide_albumlist", "hide_filelist", "hide_lastfmlist", "hide_radiolist", "twocolumnsinlandscape",
-                            "shownupdatewindow", "keep_search_open", "showfileinfo"];
+                            "shownupdatewindow", "keep_search_open", "showfileinfo", "scrolltocurrent"];
 
 var prefs = function() {
 
@@ -99,6 +99,7 @@ if (preg_match('#^/usr/share/rompr/#', $_SERVER['SCRIPT_FILENAME'])) {
 } else {
     print "var debinstall = false;\n";
 }
+print "var lang = '".substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2)."';\n";
 ?>
 var lastfm_api_key = "15f7532dff0b8d84635c757f9f18aaa3";
 var lastfm_session_key;

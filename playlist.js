@@ -408,6 +408,12 @@ function Playlist() {
                 currentalbum = i;
                 currentsong = currentTrack.playlistpos;
                 debug.debug("PLAYLIST",".. found it!");
+                if (prefs.scrolltocurrent) {
+                    debug.log("PLAYLIST","Scrolling to",player.status.songid);
+                    $('#pscroller').animate({
+                       scrollTop: $('div[romprid="'+player.status.songid+'"]').offset().top - $('#sortable').offset().top - $('#pscroller').height()/2
+                    }, 500);
+                }
                 break;
             }
         }

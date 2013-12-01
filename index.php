@@ -314,6 +314,8 @@ $(document).ready(function(){
         $("#updateeverytime").attr("checked", prefs.updateeverytime);
         $("#downloadart").attr("checked", prefs.downloadart);
         $("#fullbiobydefault").attr("checked", prefs.fullbiobydefault);
+        $("#lastfmlang").attr("checked", prefs.lastfmlang);
+        $("#scrolltocurrent").attr("checked", prefs.scrolltocurrent);
         $("#themeselector").val(prefs.theme);
         $("#countryselector").val(prefs.lastfm_country_code);
         $("#button_hide_albumlist").attr("checked", prefs.hide_albumlist);

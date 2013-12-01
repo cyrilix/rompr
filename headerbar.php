@@ -78,6 +78,8 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="hidePanel('radiolist')" id="button_hide_radiolist">Hide Radio Stations</input></li>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="browser.hide()" id="hideinfobutton">Hide Information Panel</input></li>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="togglePref('fullbiobydefault')" id="fullbiobydefault">Retrieve full artist biographies from Last.FM</input></li>
+                        <li class="wide"><input type="checkbox" class="topcheck" onclick="togglePref('lastfmlang')" id="lastfmlang">Use browser language for Last.FM</input></li>
+                        <li class="wide"><input type="checkbox" class="topcheck" onclick="togglePref('scrolltocurrent')" id="scrolltocurrent">Auto-Scroll playlist to current track</input></li>
                         <li class="wide"><input type="checkbox" class="topcheck" onclick="togglePref('downloadart')" id="downloadart">Automatically Download Covers</input></li>
                         <li class="wide tiny">To use art from your music folders, enter the path to your music in this box:</li>
 <?php
@@ -196,6 +198,8 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
     $("#updateeverytime").attr("checked", prefs.updateeverytime);
     $("#downloadart").attr("checked", prefs.downloadart);
     $("#fullbiobydefault").attr("checked", prefs.fullbiobydefault);
+    $("#lastfmlang").attr("checked", prefs.lastfmlang);
+    $("#scrolltocurrent").attr("checked", prefs.scrolltocurrent);
     $("#themeselector").val(prefs.theme);
     $("#countryselector").val(prefs.lastfm_country_code);
     $("[name=clickselect][value="+prefs.clickmode+"]").attr("checked", true);

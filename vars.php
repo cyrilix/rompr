@@ -66,6 +66,7 @@ $prefs = array( "mpd_host" => "localhost",
                 "hide_lastfmlist" => "false",
                 "hide_radiolist" => "false",
                 "fullbiobydefault" => "true",
+                "lastfmlang" => "false",
                 "twocolumnsinlandscape" => "false",
                 "use_mopidy_tagcache" => 0,
                 "music_directory" => "",
@@ -78,7 +79,8 @@ $prefs = array( "mpd_host" => "localhost",
                 "search_limit_local" => 0,
                 "search_limit_spotify" => 0,
                 "search_limit_soundcloud" => 0,
-                "search_limit_beets" => 0
+                "search_limit_beets" => 0,
+                "scrolltocurrent" => "false"
                 );
 loadPrefs();
 

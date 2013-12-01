@@ -27,7 +27,7 @@ function multiProtocolController() {
 
 
     /* Things we're missing:
-            song - need to try and remove dependence on this completely. We have it but it's asynchronous
+            song - need to try and remove dependence on this completely
 
             Name - does this even have a meaning with mopidy?
             	 - currently this needs to be undefined
@@ -109,7 +109,8 @@ function multiProtocolController() {
 
             mopidy.on("event:trackPlaybackStarted", function(data) {
                 debug.log("PLAYER","Track Playback Started",data);
-                mopidy.playback.getTracklistPosition().then( function(data) { self.status.song = data });
+                //mopidy.playback.getTracklistPosition().then( function(data) { self.status.song = data });
+                self.status.song = mopidy.tracklist.index(data);
 		        self.status.songid = data.tl_track.tlid || 0;
 		        self.status.file = data.tl_track.track.uri;
 		        self.status.Date = data.tl_track.track.date;
@@ -135,10 +136,9 @@ function multiProtocolController() {
 			});
 
             mopidy.on("event:trackPlaybackEnded", function(data) {
-	        	// Workaround for mopidy bug where 'single' doesn't work.
 	        	if (self.status.single == 1) {
-	        		self.http.stop();
-	        		mopidy.playback.setSingle(false);
+	        		//self.http.stop();
+	        		mopidy.tracklist.setSingle(false);
 	        		self.status.single = 0;
 	        	}
                 debug.log("PLAYER","Track Playback Ended",data);
@@ -149,7 +149,7 @@ function multiProtocolController() {
     	function startPlaybackFromPos(playpos) {
         	debug.log("PLAYER","addTracks winding up to start playback...");
 		    mopidy.tracklist.getTlTracks().then( function (tracklist) {
-            	debug.log("PLAYER","addTracks starting playback as position",playpos);
+            	debug.log("PLAYER","addTracks starting playback at position",playpos);
 	            // Don't call playByPosition, we want to let the trackListChanged event update our
 	            // local copy of the tracklist, not here, as things may get out of sync
 	            playTlTrack(tracklist[playpos]);
@@ -434,22 +434,12 @@ function multiProtocolController() {
 
 	    	removeId: function(ids) {
 	    		debug.log("PLAYER","Removing Tracks",ids);
-	    		playlist.ignoreupdates(ids.length-1);
-	    		for (var i in ids) {
-	    			mopidy.tracklist.remove({tlid: parseInt(ids[i])});
-	    		}
-	    		// (function riterator() {
-	    		// 	var id = ids.shift();
-	    		// 	if (id !== undefined) {
-			    // 		debug.log("PLAYER","Removing ID",id);
-		    	// 		mopidy.tracklist.remove({tlid: parseInt(id)}).then( riterator );
-	    		// 	}
-	    		// })();
+	    		mopidy.tracklist.remove({'tlid': ids});
 	    	},
 
 	    	toggleRandom: function() {
-	    		mopidy.playback.getRandom().then( function(data) {
-	    			mopidy.playback.setRandom(!data);
+	    		mopidy.tracklist.getRandom().then( function(data) {
+	    			mopidy.tracklist.setRandom(!data);
 	    			var new_value = (data) ? 0 : 1;
 				    $("#random").attr("src", prefsbuttons[new_value]);
 				    self.status.random = new_value;
@@ -465,8 +455,8 @@ function multiProtocolController() {
 	    	},
 
 	    	toggleRepeat: function() {
-	    		mopidy.playback.getRepeat().then( function(data) {
-	    			mopidy.playback.setRepeat(!data);
+	    		mopidy.tracklist.getRepeat().then( function(data) {
+	    			mopidy.tracklist.setRepeat(!data);
 	    			var new_value = (data) ? 0 : 1;
 				    $("#repeat").attr("src", prefsbuttons[new_value]);
 				    self.status.repeat = new_value;
@@ -474,8 +464,8 @@ function multiProtocolController() {
 	    	},
 
 	    	toggleConsume: function() {
-	    		mopidy.playback.getConsume().then( function(data) {
-	    			mopidy.playback.setConsume(!data);
+	    		mopidy.tracklist.getConsume().then( function(data) {
+	    			mopidy.tracklist.setConsume(!data);
 	    			var new_value = (data) ? 0 : 1;
 				    $("#consume").attr("src", prefsbuttons[new_value]);
 				    self.status.consume = new_value;
@@ -548,7 +538,7 @@ function multiProtocolController() {
 						    		debug.log("PLAYER","addTracks Deleting ID",t.name);
 					    			// Yes it's odd to call addTracks to delete tracks, but we need this for Last.FM
 					    			// ONLY use it there.
-					    			mopidy.tracklist.remove({tlid: parseInt(t.name)}).then( iterator );
+					    			mopidy.tracklist.remove({'tlid': [parseInt(t.name)]}).then( iterator );
 					    			break;
 
 				    		}
@@ -565,11 +555,11 @@ function multiProtocolController() {
 
 	    	stopafter: function() {
 	            if (self.status.repeat == 1) {
-	            	mopidy.playback.setRepeat(false);
+	            	mopidy.tracklist.setRepeat(false);
 	                $("#repeat").attr("src", prefsbuttons[0]);
-	                self.status.repeat = 1;
+	                self.status.repeat = 0;
 	            }
-            	mopidy.playback.setSingle(true)
+            	mopidy.tracklist.setSingle(true)
             	self.status.single = 1;
 	    	}
 
@@ -874,6 +864,8 @@ function multiProtocolController() {
         });
         mopidy.on("state:online", this.http.connected);
         mopidy.on("state:offline", this.http.disconnected);
+        // mop is for debugging and testing - it can be called from the browser's
+        // javascript console as player.mop. DO NOT use it in code.
 	    this.mop = mopidy;
     }
 
