@@ -306,7 +306,6 @@ $(document).ready(function(){
         scrobwrangler = new progressBar('scrobwrangler', 'horizontal');
         scrobwrangler.setProgress(parseInt(prefs.scrobblepercent.toString()));
         $("#scrobwrangler").click( setscrob );
-
         $("#scrobbling").attr("checked", prefs.lastfm_scrobbling);
         $("#radioscrobbling").attr("checked", prefs.dontscrobbleradio);
         $("#autocorrect").attr("checked", prefs.lastfm_autocorrect);
@@ -363,30 +362,29 @@ $(document).ready(function(){
     player.loadCollection();
 
     sourcecontrol(prefs.chooser);
-    if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < 0.40) {
+    if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < 0.41) {
         var fnarkle = popupWindow.create(500,600,"fnarkle",true,"Information About This Version");
         $("#popupcontents").append('<div id="fnarkler" class="mw-headline"></div>');
         if (mobile != "no") {
             $("#fnarkler").addClass('tiny');
         }
-        $("#fnarkler").append('<p>Welcome to RompR version 0.40</p>');
+        $("#fnarkler").append('<p align="center">Welcome to RompR version 0.41</p>');
         if (mobile != "no") {
-            $("#fnarkler").append('<p>You are viewing the mobile version of RompR. To view the standard version go to <a href="/rompr/?mobile=no">/rompr/?mobile=no</a></p>');
+            $("#fnarkler").append('<p align="center">You are viewing the mobile version of RompR. To view the standard version go to <a href="/rompr/?mobile=no">/rompr/?mobile=no</a></p>');
         } else {
-            $("#fnarkler").append('<p>To view the mobile version go to <a href="/rompr/?mobile=phone">/rompr/?mobile=phone</a></p>');
+            $("#fnarkler").append('<p align="center">To view the mobile version go to <a href="/rompr/?mobile=phone">/rompr/?mobile=phone</a></p>');
         }
-        $("#fnarkler").append('<p>The Basic RompR Manual is at: <a href="https://sourceforge.net/p/rompr/wiki/Basic%20Manual/" target="_blank">http://sourceforge.net/p/rompr/wiki/Basic%20Manual/</a></p>');
-        $("#fnarkler").append('<p>The Discussion Forum is at: <a href="https://sourceforge.net/p/rompr/discussion/" target="_blank">http://sourceforge.net/p/rompr/discussion/</a></p>');
-        if (!debinstall) {
-            $("#fnarkler").append('<p><b>IMPORTANT</b> The Apache configuration file has CHANGED in this version. Please make sure you update to the latest one.</p>');
+        $("#fnarkler").append('<p align="center">The Basic RompR Manual is at: <a href="https://sourceforge.net/p/rompr/wiki/Basic%20Manual/" target="_blank">http://sourceforge.net/p/rompr/wiki/Basic%20Manual/</a></p>');
+        $("#fnarkler").append('<p align="center">The Discussion Forum is at: <a href="https://sourceforge.net/p/rompr/discussion/" target="_blank">http://sourceforge.net/p/rompr/discussion/</a></p>');
+        if (!debinstall && prefs.shownupdatewindow < 0.41) {
+            $("#fnarkler").append('<p align="center"><b>IMPORTANT</b> The Apache configuration file has CHANGED. If you have upgraded from a version earlier than 0.40 please make sure you update your Apache configuration.</p>');
         }
-        $("#fnarkler").append('<p><b>IMPORTANT! Mopidy Users</b></p>');
-        $("#fnarkler").append('<p>If you are running Mopidy, please <a href="https://sourceforge.net/p/rompr/wiki/Rompr%20and%20Mopidy/" target="_blank">read the section about Mopidy on the Wiki</a> to enable some extra features</p>');
-        $("#fnarkler").append('<p>You will have to rebuild your albums list if you use the Local Files backend</p>');
-        $("#fnarkler").append('<p>This version of Rompr REQUIRES Mopidy 0.15 or later</p>');
+        $("#fnarkler").append('<p align="center"><b>IMPORTANT Information for Mopidy Users</b></p>');
+        $("#fnarkler").append('<p align="center">If you are running Mopidy, please <a href="https://sourceforge.net/p/rompr/wiki/Rompr%20and%20Mopidy/" target="_blank">read the section about Mopidy on the Wiki</a> to enable some extra features</p>');
+        $("#fnarkler").append('<p align="center"><b>This version of Rompr REQUIRES Mopidy 0.17 or later</b></p>');
         $("#fnarkler").append('<p><button style="width:8em" class="tright" onclick="popupWindow.close()">OK</button></p>');
         popupWindow.open();
-        prefs.save({shownupdatewindow: 0.40});
+        prefs.save({shownupdatewindow: 0.41});
         $.get('firstrun.php');
     }
     // Initialise the player's status

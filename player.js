@@ -352,6 +352,7 @@ function multiProtocolController() {
 	                }
 	                prefssave['search_limit_'+$(this).attr("value")] = $(this).is(':checked') ? 1 : 0;
 	            });
+	            debug.log("PLAYER","Saving search prefs",prefssave);
 	            prefs.save(prefssave);
 	            if (cunt > 0 && (!($("#limitsearch").is(':checked')) || fanny > 0)) {
 	                $("#searchresultholder").empty();
@@ -784,7 +785,8 @@ function multiProtocolController() {
 	    	},
 
 	    	addTracks: function(tracks, playpos, at_pos) {
-	    		infobar.notify(infobar.NOTIFY, "Adding Tracks",playpos,at_pos);
+	    		infobar.notify(infobar.NOTIFY, "Adding Tracks");
+	    		debug.log("MPD","Adding Tracks",tracks,playpos,at_pos);
 	    		var cmdlist = [];
 	    		var pl = self.status.playlistlength;
 	    		$.each(tracks, function(i,v) {
@@ -803,6 +805,7 @@ function multiProtocolController() {
 							if (playpos && playpos > -1) {
 								playpos--;
 							}
+							pl--;
 		    				break;
 		    		}
 	    		});
@@ -812,7 +815,7 @@ function multiProtocolController() {
 					cmdlist.push('play "'+playpos.toString()+'"');
 				}
 				this.do_command_list(cmdlist, function() {
-					if (at_pos) {
+					if (at_pos == 0 || at_pos) {
 						self.mpd.move(pl, self.status.playlistlength - pl, at_pos);
 					} else {
 						playlist.repopulate();
@@ -825,6 +828,7 @@ function multiProtocolController() {
 	    		if (num > 1) {
 	    			itemstomove = itemstomove + ":" + (parseInt(first)+parseInt(num));
 	    		}
+	    		debug.log("PLAYER", "Move command is move&arg="+itemstomove+"&arg2="+moveto);
 	    		this.command("command=move&arg="+itemstomove+"&arg2="+moveto, playlist.repopulate);
 	    	},
 
