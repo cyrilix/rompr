@@ -93,7 +93,7 @@ var info_discogs = function() {
         	html = html + '<tr><th></th><th>YEAR</th><th>TITLE</th><th>ARTIST</th><th>TYPE</th><th>LABEL</th></tr>'
         	for (var i in data.data.releases) {
         		if (data.data.releases[i].thumb) {
-        			html = html + '<tr><td><img width="64px" src="'+data.data.releases[i].thumb+'" /></td>';
+        			html = html + '<tr><td><img width="64px" src="getDiscogsImage.php?url='+data.data.releases[i].thumb+'" /></td>';
         		} else {
         			html = html + '<tr><td></td>';
         		}

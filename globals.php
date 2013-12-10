@@ -117,5 +117,5 @@ var gotTopArtists = false;
 var scrobwrangler = null;
 var serverTimeOffset = 0;
 var prefsbuttons = ["newimages/button-off.png", "newimages/button-on.png"];
-
+var playlistScrollOffset = 0;
 </script>

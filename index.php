@@ -93,6 +93,7 @@ close_mpd($connection);
 <link rel="stylesheet" type="text/css" href="layout.css" />
 <link rel="stylesheet" type="text/css" href="tiptip/tipTip.css" />
 <link type="text/css" href="jqueryui1.8.16/css/start/jquery-ui-1.8.23.custom.css" rel="stylesheet" />
+<link type="text/css" href="custom-scrollbar-plugin/css/jquery.mCustomScrollbar.css" rel="stylesheet" />
 <?php
 if ($mobile != "no") {
 print '<link rel="stylesheet" type="text/css" href="layout_mobile.css" />'."\n";
@@ -101,12 +102,17 @@ print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme']
 ?>
 <script type="text/javascript" src="jquery-1.8.3-min.js"></script>
 <script type="text/javascript" src="jquery.form.js"></script>
+<!-- JQuery UI plugin, somewhat modified to make dragging work more easily and to function -->
+<!-- with the custom scrollbar plugin (now almost certainly doesn't work without it) -->
 <script type="text/javascript" src="jqueryui1.8.16/js/jquery-ui-1.8.23.custom.js"></script>
 <script type="text/javascript" src="jquery.jsonp-2.3.1.min.js"></script>
 <script type="text/javascript" src="jquery.scrollTo-1.4.3.1-min.js"></script>
 <!-- TipTip jQuery tooltip plugin -->
 <!-- http://code.drewwilson.com/entry/tiptip-jquery-plugin -->
 <script type="text/javascript" src="tiptip/jquery.tipTip.js"></script>
+<!-- Custom scrollbar plugin from http://manos.malihu.gr/jquery-custom-content-scroller/ -->
+<!-- Initial work of adding it to RompR done by Vitaly Ignatov -->
+<script type="text/javascript" src="custom-scrollbar-plugin/js/jquery.mCustomScrollbar.concat.min.js"></script>
 <?php
 if ($mobile != "no") {
     print '<script type="text/javascript" src="jquery.touchwipe.min.js"></script>'."\n";
@@ -210,9 +216,12 @@ $(document).ready(function(){
         items: ".sortable",
         axis: 'y',
         containment: '#sortable',
-        scroll: 'true',
+        scroll: true,
         scrollSpeed: 10,
         tolerance: 'pointer',
+        scrollparent: "#pscroller",
+        customscrollbars: true,
+        scrollSensitivity: 60,
         start: function(event, ui) {
             ui.item.css("background", "#555555");
             ui.item.css("opacity", "0.7")
@@ -224,7 +233,7 @@ $(document).ready(function(){
         items: ".clickradio",
         axis: "y",
         containment: "#yourradiolist",
-        scroll: 'true',
+        scroll: true,
         scrollSpeed: 10,
         tolerance: 'pointer',
         stop: saveRadioOrder
@@ -276,8 +285,13 @@ $(document).ready(function(){
             doThatFunkyThang();
             $("ul.topnav li a").click(function() {
                 $(this).parent().find("ul.subnav").slideToggle('fast', function() {
-                    // hackety hack
-                    $("#historypanel").scrollTo('.current');
+                    if ($(this).is(':visible')) {
+                        debug.log("UI","Opened menu",$(this).attr("id"));
+                        $(this).mCustomScrollbar("update");
+                        if ($(this).attr("id") == "hpscr") {
+                            $('#hpscr').mCustomScrollbar("scrollTo", '.current', {scrollInertia:0});
+                        }
+                    }
                 });
                 return false;
             });
@@ -286,7 +300,9 @@ $(document).ready(function(){
             scrobwrangler = new progressBar('scrobwrangler', 'horizontal');
             scrobwrangler.setProgress(parseInt(prefs.scrobblepercent.toString()));
             $("#scrobwrangler").click( setscrob );
-
+            $.each([ "#lpscr", "#configpanel", "#hpscr" ], function( index, value ) {
+                addCustomScrollBar(value);
+            });
         });
         loadKeyBindings();
         infobar.setVolumeState(prefs.volume);
@@ -416,9 +432,11 @@ $(document).ready(function(){
         setBottomPaneSize();
     });
 
-    sbWidth = scrollbarWidth();
     $(".lettuce").tipTip({delay: 1000});
-
+    $.each([ "#sources", "#infopane", "#pscroller" ], function( index, value ) {
+        addCustomScrollBar(value);
+    });
+    sbWidth = scrollbarWidth();
 });
 
 </script>

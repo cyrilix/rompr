@@ -29,8 +29,10 @@ include ("functions.php");
 <ul class="topnav">
     <li>
         <a href="#" title="History" class="tooltip"><img src="newimages/history_icon.png" class="topimg" height="24px"></a>
-        <ul id="historypanel" class="subnav widel">
-            <li class="wider"><b>HISTORY</b></li>
+        <ul id="hpscr" class="subnav widel">
+            <div id="historypanel" class="clearfix">
+                <li class="wider"><b>HISTORY</b></li>
+            </div>
         </ul>
     </li>
 </ul>
@@ -161,7 +163,7 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
     </li>
     <li>
         <a href="#" title="Load Saved Playlist" class="tooltip"><img class="topimg" src="newimages/document-open-folder.png" height="24px"></a>
-        <ul id="playlistslist" class="subnav wide"></ul>
+        <ul id="lpscr" class="subnav wide"><div id="playlistslist" class="clearfix"></div></ul>
     </li>
 <?php
 if ($prefs['use_mopidy_tagcache'] == 0 &&

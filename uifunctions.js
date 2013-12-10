@@ -208,6 +208,12 @@ function setBottomPaneSize() {
 }
 
 function togglePlaylistButtons() {
+    if (!$("#playlistbuttons").is(":visible")) {
+        // Make the playlist scroller shorter so the window doesn't get a vertical scrollbar
+        // while the buttons are being slid down
+        var newheight = $("#pscroller").height() - 42;
+        $("#pscroller").css("height", newheight.toString()+"px");
+    }
     $("#playlistbuttons").slideToggle('fast', setBottomPaneSize);
     var p = !prefs.playlistcontrolsvisible;
     prefs.save({ playlistcontrolsvisible: p });
@@ -1577,7 +1583,6 @@ function munge_album_name(album) {
 
 }
 
-
 function scrollbarWidth() {
     var $inner = jQuery('<div style="width: 100%; height:200px;">test</div>'),
         $outer = jQuery('<div style="width:200px;height:150px; position: absolute; top: 0; left: 0; visibility: hidden; overflow:hidden;"></div>').append($inner),
@@ -1589,7 +1594,6 @@ function scrollbarWidth() {
     $outer.css('overflow', 'scroll');
     var width2 = outer.clientWidth;
     $outer.remove();
-
     return (width1 - width2);
 }
 
@@ -1607,4 +1611,26 @@ function checkServerTimeOffset() {
             debug.error("TIMECHECK","Failed to read server time");
         }
     });
+}
+
+function addCustomScrollBar(value) {
+    if (mobile == "no") {
+        $(value).mCustomScrollbar({
+            theme: (prefs.theme == "Light.css" || prefs.theme == "BrushedAluminium.css") ? "dark-thick" : "light-thick",
+            scrollInertia: 80,
+            contentTouchScroll: true,
+            advanced: {
+                updateOnContentResize: true
+            },
+            callbacks: {
+                whileScrolling: function(){ playlistScrolled(this); }
+            }
+        });
+    }
+}
+
+function playlistScrolled(el) {
+    if (el.attr("id") == "pscroller") {
+        playlistScrollOffset = -mcs.top;
+    }
 }

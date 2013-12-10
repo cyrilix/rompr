@@ -228,7 +228,11 @@ function Playlist() {
 
         makeFictionalCharacter();
         if (scrollto > -1) {
-            $("#playlist").scrollTo('div[name="'+scrollto.toString()+'"]');
+            if (mobile == "no") {
+                $('#pscroller').mCustomScrollbar("scrollTo", 'div[name="'+scrollto.toString()+'"]', {scrollInertia:500});
+            } else {
+                $("#pscroller").scrollTo('div[name="'+scrollto.toString()+'"]');
+            }
             scrollto = -1;
         }
         findCurrentTrack();
@@ -353,7 +357,7 @@ function Playlist() {
 
     this.delete = function(id) {
         $('.track[romprid="'+id.toString()+'"]').remove();
-        player.controller.removeId([id]);
+        player.controller.removeId([parseInt(id)]);
     }
 
     this.waiting = function() {
@@ -410,9 +414,13 @@ function Playlist() {
                 debug.debug("PLAYLIST",".. found it!");
                 if (prefs.scrolltocurrent) {
                     debug.log("PLAYLIST","Scrolling to",player.status.songid);
-                    $('#pscroller').animate({
-                       scrollTop: $('div[romprid="'+player.status.songid+'"]').offset().top - $('#sortable').offset().top - $('#pscroller').height()/2
-                    }, 500);
+                    if (mobile == "no") {
+                        $('#pscroller').mCustomScrollbar("scrollTo", $('.track[romprid="'+player.status.songid+'"]').offset().top - $('#sortable').offset().top - $('#pscroller').height()/2, {scrollInertia:500});
+                    } else {
+                        $('#pscroller').animate({
+                           scrollTop: $('div[romprid="'+player.status.songid+'"]').offset().top - $('#sortable').offset().top - $('#pscroller').height()/2
+                        }, 500);
+                    }
                 }
                 break;
             }

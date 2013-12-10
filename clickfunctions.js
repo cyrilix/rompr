@@ -248,6 +248,8 @@ function setDraggable(divname) {
 
     $("#"+divname).draggable({
         connectToSortable: "#sortable",
+        appendTo: 'body',
+        scroll: false,
         addClasses: false,
         helperPos: true,
         helper: function(event) {
