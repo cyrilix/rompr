@@ -434,8 +434,12 @@ function multiProtocolController() {
 	    	},
 
 	    	removeId: function(ids) {
-	    		debug.log("PLAYER","Removing Tracks",ids);
-	    		mopidy.tracklist.remove({'tlid': ids});
+	    		debug.log("PLAYER","Removing Tracks",ids,ids.length);
+	    		// if (ids.length == 1) {
+		    	// 	mopidy.tracklist.remove({'tlid': ids[0]});
+	    		// } else {
+		    		mopidy.tracklist.remove({'tlid': ids});
+	    		// }
 	    	},
 
 	    	toggleRandom: function() {

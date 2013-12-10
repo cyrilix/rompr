@@ -35,14 +35,24 @@ var discogs = function() {
             	}
 				queue[0].flag = true;
 				debug.debug("DISCOGS","Taking next request from queue",req.url);
-		        $.jsonp({
-		            url: req.url+"callback=?",
+	            $.ajax({
+	                dataType: "json",
+	                url: "getdidata.php?uri="+encodeURIComponent(req.url),
+		        // $.jsonp({
+		        //     url: req.url+"callback=?",
 		            success: function(data) {
-		            	debug.debug("DISCOGS", "Request Success");
+		            	debug.debug("DISCOGS", "Request Success",data);
 	                	throttle = setTimeout(discogs.getrequest, 1500);
 	                	req = queue.shift();
 	                	if (data === null) {
 		                	data = {error: "There was a network error or Discogs refused to reply"}
+	                	} else if (!data.error) {
+	                		// info_discogs.js was written to accept jsonp data passed back from $.jsonp
+	                		// However as Discogs now seem to be refusing to respond to those requests
+	                		// we're using a php script to get it instead. So here we bodge the response
+	                		// into the form that info_discogs.js is expecting - since that's much easier
+	                		// than carefully trawling through 1300 lines of dense and complex code.
+	                		data = {data: data};
 	                	}
 	                	if (req.reqid != '') {
 	                		data.id = req.reqid;
@@ -83,18 +93,18 @@ var discogs = function() {
 		artist: {
 
 			search: function(name, success, fail) {
-				var url = baseURL+'database/search?type=artist&q='+name+'&';
+				var url = baseURL+'database/search?type=artist&q='+name;
 				discogs.request('', url, success, fail);
 			},
 
 			getInfo: function(reqid, id, success, fail) {
-				var url = baseURL+'artists/'+id+'?';
+				var url = baseURL+'artists/'+id;
 				discogs.request(reqid, url, success, fail);
 			},
 
 			getReleases: function(name, page, reqid, success, fail) {
 				debug.log("DISCOGS","Get Artist Releases",name,page);
-				var url = baseURL+'artists/'+name+'/releases?per_page=25&page='+page+'&';
+				var url = baseURL+'artists/'+name+'/releases?per_page=25&page='+page;
 				discogs.request(reqid, url, success, fail);
 			}
 		},
@@ -108,7 +118,7 @@ var discogs = function() {
 			},
 
 			search: function(term, success, fail) {
-				var url = baseURL+'database/search?type=master&q='+term+'&';
+				var url = baseURL+'database/search?type=master&q='+term;
 				discogs.request('', url, success, fail);
 			}
 
@@ -123,7 +133,7 @@ var discogs = function() {
 			},
 
 			search: function(term, success, fail) {
-				var url = baseURL+'database/search?type=master&q='+term+'&';
+				var url = baseURL+'database/search?type=master&q='+term;
 				discogs.request('', url, success, fail);
 			}
 

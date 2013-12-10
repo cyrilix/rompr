@@ -233,7 +233,7 @@ var info_discogs = function() {
 		if (images.length > 0) {
 	        html = html + '<div class="cleft fixed">';
 	        for (var i in images) {
-		        html = html + '<div class="infoclick clickzoomimage"><img style="margin:1em" src="'+images[i].uri150+'" /></div>';
+		        html = html + '<div class="infoclick clickzoomimage"><img style="margin:1em" src="getDiscogsImage.php?url='+images[i].uri150+'" /></div>';
 		        html = html + '<input type="hidden" value="getDiscogsImage.php?url='+images[i].uri+'" />';
 	        }
 	        html = html + '</div>';
@@ -576,7 +576,9 @@ var info_discogs = function() {
 		        if (data.data.images) {
 		        	var img = new Array();
 			        for (var i in data.data.images) {
-				        img.push(data.data.images[i].uri150);
+			        	// getDiscogsImage caches remote Discogs images to reduce the load we put on
+			        	// their servers
+				        img.push("getDiscogsImage.php?url="+data.data.images[i].uri150);
 			        }
 			        var a = 1;
 			        while ($("#slideshow_"+data.data.id+"_"+a).length > 0) {
