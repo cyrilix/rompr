@@ -891,7 +891,7 @@ if (file_exists($ALBUMSLIST)) {
     }
 
 } else {
-    print '<h3>'.get_int_text("albumart_nocovers").'<h3>';
+    print '<h3>'.get_int_text("albumart_nocollection").'<h3>';
 }
 
 do_radio_stations();
