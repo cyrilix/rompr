@@ -121,7 +121,7 @@ var podcasts = function() {
 	        },
 	        error: function(data, status) {
 	            debug.error("PODCASTS", "Failed To Set Option:",options,data,status);
-	            infobar.notify(infobar.ERROR,"Something didn't work. Try again maybe?");
+	            infobar.notify(infobar.ERROR,language.gettext("label_general_error"));
 	        }
 	    });
 
@@ -141,7 +141,7 @@ var podcasts = function() {
 		doPodcast: function(input) {
 		    var url = $("#"+input).attr("value");
 		    debug.log("PODCAST","Getting podcast",url);
-		    doSomethingUseful('cocksausage', 'Downloading...');
+		    doSomethingUseful('cocksausage', language.gettext("label_downloading"));
 		    $.ajax( {
 		        type: "GET",
 		        url: "podcasts.php",
@@ -177,7 +177,7 @@ var podcasts = function() {
 		            podcasts.doNewCount();
 		        },
 		        error: function(data, status) {
-		            alert("Failed To Retreive RSS feed");
+		            infobar.notify(infobar.ERROR, language.gettext("podcast_rss_error"));
 		        }
 		    } );
 		},
@@ -196,7 +196,7 @@ var podcasts = function() {
 		            podcasts.doNewCount();
 		        },
 		        error: function(data, status) {
-		            alert("Failed To Remove Podcast");
+		            infobar.notify(infobar.ERROR, language.gettext("podcast_remove_error"));
 		        }
 		    } );
 		},
@@ -215,7 +215,7 @@ var podcasts = function() {
 		            podcasts.doNewCount();
 		        },
 		        error: function(data, status) {
-		            alert("Failed To Remove Podcast");
+		            infobar.notify(infobar.ERROR, language.gettext("podcast_general_error"));
 		        }
 		    } );
 		},

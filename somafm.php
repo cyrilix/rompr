@@ -1,9 +1,13 @@
-<div class="containerbox indent padright wibble">
-<b>Soma.FM is a listener supported commercial-free radio station from San Francisco.<br>
-<a href="http://somafm.com" target="_blank">Please consider supporting Soma.FM if you like these stations</a></b>
-</div>
-
 <?php
+include ("vars.php");
+include ("functions.php");
+include ("international.php");
+
+print '<div class="containerbox indent padright wibble">';
+print '<b>'.get_int_text("label_soma").'<br>';
+print '<a href="http://somafm.com" target="_blank">'.get_int_text("label_soma_beg").'</a></b>';
+print '</div>';
+
 $x = simplexml_load_file("resources/somafm.xml");
 $count = 0;
 print '<div class="noselection fullwidth">';

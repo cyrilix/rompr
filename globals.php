@@ -4,7 +4,16 @@
 var prefsInLocalStorage = ["hidebrowser", "sourceshidden", "playlisthidden", "infosource", "playlistcontrolsvisible",
                             "sourceswidthpercent", "playlistwidthpercent", "downloadart", "clickmode", "chooser",
                             "hide_albumlist", "hide_filelist", "hide_lastfmlist", "hide_radiolist", "twocolumnsinlandscape",
-                            "shownupdatewindow", "keep_search_open", "showfileinfo", "scrolltocurrent"];
+                            "shownupdatewindow", "keep_search_open", "showfileinfo", "scrolltocurrent", "lastfmlang", "user_lang"];
+
+function escapeHtml(text) {
+  return text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+}
 
 var prefs = function() {
 
@@ -40,8 +49,7 @@ var prefs = function() {
                     }
                 });
             }
-            if (prefs.use_mopidy_tagcache == 1 ||
-                prefs.use_mopidy_http == 1) {
+            if (prefs.mopidy_detected) {
                 prefs.hide_filelist = true;
                 if (prefs.chooser == "filelist") {
                     prefs.chooser = "albumlist";
@@ -49,7 +57,7 @@ var prefs = function() {
             }
         },
 
-        save: function(options) {
+        save: function(options, callback) {
             var prefsToSave = {};
             var postSave = false;
             for (var i in options) {
@@ -70,11 +78,43 @@ var prefs = function() {
                 }
             }
             if (postSave) {
-                $.post('saveprefs.php', prefsToSave);
+                $.post('saveprefs.php', prefsToSave, function() {
+                    if (callback) {
+                        callback();
+                    }
+                });
             }
         }
 
     }
+}();
+
+var language = function() {
+
+    var tags = {
+<?php
+foreach ($translations as $key => $value) {
+    print "        ".$key.": \"".$value."\",\n";
+}
+?>
+    };
+
+    return {
+        gettext: function(key, args) {
+            if (tags[key] === undefined) {
+                debug.error("LANGUAGE","Unknown key",key);
+                return "UNKNOWN TRANSLATION KEY";
+            } else {
+                var s = tags[key];
+                while (s.match(/\%s/)) {
+                    s = s.replace(/\%s/, args.shift());
+                }
+                return escapeHtml(s);
+            }
+        }
+
+    }
+
 }();
 
 prefs.updateLocal();
@@ -99,7 +139,15 @@ if (preg_match('#^/usr/share/rompr/#', $_SERVER['SCRIPT_FILENAME'])) {
 } else {
     print "var debinstall = false;\n";
 }
-print "var lang = '".substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2)."';\n";
+print "var interfaceLanguage = '".$interface_language."';\n";
+print "var browserLanguage = '".$browser_language."';\n";
+// Three translation keys are need so regularly it makes sense to
+// have them as static variables, instead of looking them up every time
+print "var frequentLabels = {\n";
+print "    of: '".get_int_text("label_of")."',\n";
+print "    by: '".get_int_text("label_by")."',\n";
+print "    on: '".get_int_text("label_on")."'\n";
+print "};\n";
 ?>
 var lastfm_api_key = "15f7532dff0b8d84635c757f9f18aaa3";
 var lastfm_session_key;

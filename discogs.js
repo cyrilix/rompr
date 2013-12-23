@@ -38,20 +38,21 @@ var discogs = function() {
 	            $.ajax({
 	                dataType: "json",
 	                url: "getdidata.php?uri="+encodeURIComponent(req.url),
-		        // $.jsonp({
-		        //     url: req.url+"callback=?",
+
 		            success: function(data) {
 		            	debug.debug("DISCOGS", "Request Success",data);
 	                	throttle = setTimeout(discogs.getrequest, 1500);
 	                	req = queue.shift();
 	                	if (data === null) {
-		                	data = {error: "There was a network error or Discogs refused to reply"}
+		                	data = {error: language.gettext("discogs_error")}
 	                	} else if (!data.error) {
 	                		// info_discogs.js was written to accept jsonp data passed back from $.jsonp
 	                		// However as Discogs now seem to be refusing to respond to those requests
 	                		// we're using a php script to get it instead. So here we bodge the response
 	                		// into the form that info_discogs.js is expecting - since that's much easier
 	                		// than carefully trawling through 1300 lines of dense and complex code.
+	                		// Also this allows us to put our id field in the response without buggering up
+	                		// the one that dicsogs sends back
 	                		data = {data: data};
 	                	}
 	                	if (req.reqid != '') {
@@ -75,7 +76,7 @@ var discogs = function() {
 	                	throttle = setTimeout(discogs.getrequest, 1500);
 	                	req = queue.shift();
 	                	debug.warn("DISCOGS","Request failed",req,data);
-	                	data = {error: "There was a network error or Discogs refused to reply"}
+	                	data = {error: language.gettext("discogs_error")}
 	                	if (req.reqid != '') {
 	                		data.id = req.reqid;
 	                	}

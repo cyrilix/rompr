@@ -7,7 +7,6 @@ $FILESEARCH = 'prefs/filesearch_'.$LISTVERSION.'.xml';
 $PLAYLISTFILE = 'prefs/playlist.json';
 $connection = null;
 $is_connected = false;
-$DEBUG = 1;
 $prefsbuttons = array("newimages/button-off.png", "newimages/button-on.png");
 $ARTIST = 0;
 $ALBUM = 1;
@@ -28,12 +27,6 @@ $prefs = array( "mpd_host" => "localhost",
                 "mpd_port" => 6600,
                 "mpd_password" => "",
                 "unix_socket" => '',
-                // These are no longer used - we simply set the switches to match
-                // whatever they're set to when we start up.
-                // "consume" => 0,
-                // "repeat" => 0,
-                // "random" => 0,
-                // "crossfade" => 0,
                 'crossfade_duration' => 5,
                 "volume" => 100,
                 "lastfm_user" => "",
@@ -66,21 +59,20 @@ $prefs = array( "mpd_host" => "localhost",
                 "hide_lastfmlist" => "false",
                 "hide_radiolist" => "false",
                 "fullbiobydefault" => "true",
-                "lastfmlang" => "false",
+                "lastfmlang" => "default",
+                "user_lang" => "en",
                 "twocolumnsinlandscape" => "false",
-                "use_mopidy_tagcache" => 0,
-                "music_directory" => "",
                 "music_directory_albumart" => "",
-                "use_mopidy_http" => 0,
-                "mopidy_http_port" => "6680",
-                "use_mopidy_file_backend" => "true",
-                "use_mopidy_beets_backend" => "false",
+                "mopidy_http_port" => 6680,
                 "search_limit_limitsearch" => 0,
                 "search_limit_local" => 0,
                 "search_limit_spotify" => 0,
                 "search_limit_soundcloud" => 0,
                 "search_limit_beets" => 0,
-                "scrolltocurrent" => "false"
+                "scrolltocurrent" => "false",
+                // Minimum version of mopidy required for advanced support
+                "mopidy_minversion" => "0.17",
+                "debug_enabled" => 0
                 );
 loadPrefs();
 
@@ -91,19 +83,15 @@ $searchlimits = array(  "local" => "Local Files",
                         );
 
 function debug_print($out, $module = "") {
-    global $DEBUG;
-    if ($DEBUG) {
+    global $prefs;
+    if ($prefs['debug_enabled'] == 1) {
         $indent = 20 - strlen($module);
         $in = "";
         while ($indent > 0) {
             $in .= " ";
             $indent--;
         }
-        if (php_uname('s') == "Linux") {
-            error_log($module.$in.": ".$out);
-        } else {
-            error_log($module.$in.": ".$out."\n",3,'/Library/Logs/RomprLog.log');
-        }
+        error_log($module.$in.": ".$out);
     }
 }
 

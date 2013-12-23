@@ -4,6 +4,7 @@ include ("vars.php");
 include ("functions.php");
 include ("connection.php");
 include ("collection.php");
+include ("international.php");
 
 $count = 1;
 $divtype = "album1";
@@ -14,7 +15,7 @@ $output = new collectionOutput($ALBUMSEARCH);
 createXML($collection->getSortedArtistList(), "b", $output);
 $output->closeFile();
 print '<div class="menuitem">';
-print "<h3>Search Results:</h3>";
+print "<h3>".get_int_text("label_searchresults")."</h3>";
 print "</div>";
 dumpAlbums('balbumroot');
 print '<div class="separator"></div>';

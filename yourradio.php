@@ -1,9 +1,12 @@
 <?php
+include ("vars.php");
+include ("functions.php");
+include ("international.php");
 print '<div id="anaconda" class="noselection fullwidth">';
 
-print '<p>Enter a URL of an internet station in this box, or drag its Play button there</p>';
+print '<p>'.get_int_text("label_radioinput").'</p>';
 print '<input class="enter sourceform" name="horace" id="yourradioinput" type="text" size="60"/>';
-print '<button onclick="doInternetRadio(\'yourradioinput\')">Play</button>';
+print '<button onclick="doInternetRadio(\'yourradioinput\')">'.get_int_text("button_playradio").'</button>';
 $playlists = array();
 
 if (file_exists('prefs/radioorder.txt')) {

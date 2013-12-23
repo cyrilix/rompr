@@ -13,18 +13,18 @@ var info_soundcloud = function() {
         if (data.artwork_url) {
             html = html +  '<img src="' + data.artwork_url + '" class="clrboth" style="margin:8px" />';
         }
-        html = html + '<ul><li><h3>Track Info:</h3></li>';
-        html = html + '<li><b>Plays:</b> '+formatSCMessyBits(data.playback_count)+'</li>';
-        html = html + '<li><b>Downloads:</b> '+formatSCMessyBits(data.download_count)+'</li>';
-        html = html + '<li><b>Faves:</b> '+formatSCMessyBits(data.favoritings_count)+'</li>';
-        html = html + '<li><b>State:</b> '+formatSCMessyBits(data.state)+'</li>';
-        html = html + '<li><b>Genre:</b> '+formatSCMessyBits(data.genre)+'</li>';
-        html = html + '<li><b>Label:</b> '+formatSCMessyBits(data.label_name)+'</li>';
-        html = html + '<li><b>License:</b> '+formatSCMessyBits(data.license)+'</li>';
+        html = html + '<ul><li><h3>'+language.gettext("soundcloud_trackinfo")+':</h3></li>';
+        html = html + '<li><b>'+language.gettext("soundcloud_plays")+':</b> '+formatSCMessyBits(data.playback_count)+'</li>';
+        html = html + '<li><b>'+language.gettext("soundcloud_downloads")+':</b> '+formatSCMessyBits(data.download_count)+'</li>';
+        html = html + '<li><b>'+language.gettext("soundcloud_faves")+':</b> '+formatSCMessyBits(data.favoritings_count)+'</li>';
+        html = html + '<li><b>'+language.gettext("soundcloud_state")+'</b> '+formatSCMessyBits(data.state)+'</li>';
+        html = html + '<li><b>'+language.gettext("info_genre")+'</b> '+formatSCMessyBits(data.genre)+'</li>';
+        html = html + '<li><b>'+language.gettext("info_label")+'</b> '+formatSCMessyBits(data.label_name)+'</li>';
+        html = html + '<li><b>'+language.gettext("soundcloud_license")+':</b> '+formatSCMessyBits(data.license)+'</li>';
         if (data.purchase_url) {
-            html = html + '<li><b><a href="' + data.purchase_url + '" target="_blank">Buy Track</a></b></li>';
+            html = html + '<li><b><a href="' + data.purchase_url + '" target="_blank">'+language.gettext("soundcloud_buy")+'</a></b></li>';
         }
-        html = html + '<li><a href="' + data.permalink_url + '" title="View In New Tab" target="_blank"><b>View on SoundCloud</b></a></li>';
+        html = html + '<li><a href="' + data.permalink_url + '" title="View In New Tab" target="_blank"><b>'+language.gettext("soundcloud_view")+'</b></a></li>';
         html = html + '</ul>';
         html = html + '</div>';
 
@@ -50,12 +50,12 @@ var info_soundcloud = function() {
         if (data.avatar_url) {
             html = html +  '<img src="' + data.avatar_url + '" class="clrboth" style="margin:8px" />';
         }
-        html = html + '<ul><li><h3>SoundCloud User:</h3></li>';
-        html = html + '<li><b>Full Name:</b> '+formatSCMessyBits(data.full_name)+'</li>';
-        html = html + '<li><b>Country:</b> '+formatSCMessyBits(data.country)+'</li>';
-        html = html + '<li><b>City:</b> '+formatSCMessyBits(data.city)+'</li>';
+        html = html + '<ul><li><h3>'+language.gettext("soundcloud_user")+':</h3></li>';
+        html = html + '<li><b>'+language.gettext("soundcloud_fullname")+':</b> '+formatSCMessyBits(data.full_name)+'</li>';
+        html = html + '<li><b>'+language.gettext("soundcloud_country")+':</b> '+formatSCMessyBits(data.country)+'</li>';
+        html = html + '<li><b>'+language.gettext("soundcloud_city")+':</b> '+formatSCMessyBits(data.city)+'</li>';
         if (data.website) {
-            html = html + '<li><b><a href="' + data.website + '" target="_blank">Visit Website</a></b></li>';
+            html = html + '<li><b><a href="' + data.website + '" target="_blank">'+language.gettext("soundcloud_website")+'</a></b></li>';
         }
         html = html + '</ul>';
         html = html + '</div>';
@@ -206,7 +206,7 @@ var info_soundcloud = function() {
 		            		parent.playlistinfo.metadata.track.soundcloud = {};
 			            	var t = parent.playlistinfo.location;
 			            	if (t.substring(0,11) !== 'soundcloud:') {
-			            		parent.playlistinfo.metadata.track.soundcloud.track = {error: "This panel will only display information about music from SoundCloud"};
+			            		parent.playlistinfo.metadata.track.soundcloud.track = {error: language.gettext("soundcloud_not")};
 			            		self.artist.populate();
 			            		self.track.doBrowserUpdate();
 			            	} else {
@@ -330,4 +330,4 @@ var info_soundcloud = function() {
 
 }();
 
-nowplaying.registerPlugin("soundcloud", info_soundcloud, "newimages/soundcloud-logo.png", "Info Panel (Soundcloud)");
+nowplaying.registerPlugin("soundcloud", info_soundcloud, "newimages/soundcloud-logo.png", "button_soundcloud");

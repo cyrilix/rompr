@@ -3,6 +3,7 @@ include ("vars.php");
 include ("functions.php");
 include ("connection.php");
 include ("collection.php");
+include ("international.php");
 
 header('Content-Type: text/xml; charset=utf-8');
 

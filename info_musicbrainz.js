@@ -28,7 +28,7 @@ var info_musicbrainz = function() {
 		var by = new Date(data.begin);
 		var ey = new Date(data.end);
 		var tby = by.getFullYear() || "";
-		var tey = data.ended ? (ey.getFullYear() || "") : 'Present';
+		var tey = data.ended ? (ey.getFullYear() || "") : language.gettext("musicbrainz_now");
 		return '('+tby+'&nbsp;-&nbsp;'+tey+')';
 	}
 
@@ -49,10 +49,10 @@ var info_musicbrainz = function() {
         html = html + '<div class="fixed bright">';
         html = html + '<ul><li>'+data.disambiguation+'</li></ul>';
         if (data.type !== null) {
-        	html = html + '<ul><li><b>TYPE: </b>'+data.type+'</li></ul>';
+        	html = html + '<ul><li><b>'+language.gettext("title_type")+': </b>'+data.type+'</li></ul>';
         }
         if (data.aliases && data.aliases.length > 0) {
-	        html = html + '<br><ul><li><b>ALIASES:</b></li>';
+	        html = html + '<br><ul><li><b>'+language.gettext("discogs_aliases")+'</b></li>';
 	        for (var i in data.aliases) {
 	        	html = html + '<li>'+data.aliases[i].name + '</li>';
 	        }
@@ -60,15 +60,15 @@ var info_musicbrainz = function() {
 	    }
 
         if (data.begin_area) {
-        	html = html + '<br><ul><li><b>ORIGIN: </b>'+data.begin_area.name+", "+data.area.name+'</li></ul>';
+        	html = html + '<br><ul><li><b>'+language.gettext("musicbrainz_origin")+': </b>'+data.begin_area.name+", "+data.area.name+'</li></ul>';
         } else if (data.area) {
-        	html = html + '<br><ul><li><b>ORIGIN: </b>'+data.area.name+'</li></ul>';
+        	html = html + '<br><ul><li><b>'+language.gettext("musicbrainz_origin")+': </b>'+data.area.name+'</li></ul>';
         }
         if (data['life-span'] && data['life-span'].begin !== null) {
-        	html = html + '<br><ul><li><b>ACTIVE: </b>'+data['life-span'].begin+" - "+(data['life-span'].end || 'Present')+'</li></ul>';
+        	html = html + '<br><ul><li><b>'+language.gettext("musicbrainz_active")+': </b>'+data['life-span'].begin+" - "+(data['life-span'].end || language.gettext("musicbrainz_now"))+'</li></ul>';
         }
         if (data.rating && data.rating.value !== null) {
-        	html = html + '<br><ul><li><b>RATING: </b>'+data.rating.value+"/5 from "+data.rating['votes-count']+' votes</li></ul>';
+        	html = html + '<br><ul><li><b>'+language.gettext("musicbrainz_rating")+': </b>'+data.rating.value+"/5 from "+data.rating['votes-count']+' votes</li></ul>';
         }
         html = html + '<br>'+getURLs(data.relations, true);
         html = html + '</div>';
@@ -82,11 +82,11 @@ var info_musicbrainz = function() {
         	var a = data.annotation;
         	a = a.replace(/\n/, '<br>');
         	a = a.replace(/\[(.*?)\|(.*?)\]/g, '<a href="$1" target="_blank">$2</a>');
-        	html = html + '<div class="mbbox underline"><b>NOTES:</b></div><div class="mbbox">'+a+'</div>';
+        	html = html + '<div class="mbbox underline"><b>'+language.gettext("musicbrainz_notes")+':</b></div><div class="mbbox">'+a+'</div>';
         }
 
         if (data.tags && data.tags.length > 0) {
-	        html = html + '<div class="mbbox underline"><b>TAGS</b></div><div class="statsbox">';
+	        html = html + '<div class="mbbox underline"><b>'+language.gettext("musicbrainz_tags")+'</b></div><div class="statsbox">';
 	        for (var i in data.tags) {
 	        	html = html + '<span class="mbtag">'+data.tags[i].name+'</span> ';
 	        }
@@ -105,15 +105,15 @@ var info_musicbrainz = function() {
     		}
     	}
     	if (bandMembers.length > 0) {
-        	html = html + '<div class="mbbox underline"><b>BAND MEMBERS</b></div>'+getMembers(bandMembers);
+        	html = html + '<div class="mbbox underline"><b>'+language.gettext("discogs_bandmembers")+'</b></div>'+getMembers(bandMembers);
     	}
     	if (memberOf.length > 0) {
-        	html = html + '<div class="mbbox underline"><b>MEMBER OF</b></div>'+getMembers(memberOf);
+        	html = html + '<div class="mbbox underline"><b>'+language.gettext("discogs_memberof")+'</b></div>'+getMembers(memberOf);
     	}
 
 		html = html + '<div class="mbbox underline">';
 	    html = html + '<img src="newimages/toggle-closed-new.png" class="menu infoclick clickdodiscography" name="'+data.id+'">';
-	    html = html + '<b>'+data.name.toUpperCase()+' DISCOGRAPHY</b></div>';
+	    html = html + '<b>'+language.gettext("discogs_discography", [data.name.toUpperCase()])+'</b></div>';
 	    html = html + '<div name="discography_'+data.id+'" class="invisible">';
         html = html + '</div>';
 
@@ -157,7 +157,7 @@ var info_musicbrainz = function() {
 			return "";
 		}
 		if (withheader) {
-			var html = '<ul><li><b>EXTERNAL LINKS</b></li>';
+			var html = '<ul><li><b>'+language.gettext("discogs_external")+'</b></li>';
 		} else {
 			var html = '<ul style="list-style:none;margin:2px;padding:0px">';
 		}
@@ -176,7 +176,7 @@ var info_musicbrainz = function() {
 					break;
 
 				case "discography":
-					html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Discography ('+d[1]+')</a></li>';
+					html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_externaldiscography", [d[1]])+'</a></li>';
 					break;
 
 				case "musicmoz":
@@ -196,15 +196,15 @@ var info_musicbrainz = function() {
 					break;
 
 				case "official homepage":
-					html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Official Homepage ('+d[1]+')</a></li>';
+					html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_officalhomepage", [d[1]])+'</a></li>';
 					break;
 
 				case "fanpage":
-					html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Fan Site ('+d[1]+')</a></li>';
+					html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_fansite", [d[1]])+'</a></li>';
 					break;
 
 				case "lyrics":
-					html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Lyrics ('+d[1]+')</a></li>';
+					html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_lyrics", [d[1]])+'</a></li>';
 					break;
 
 				case "secondhandsongs":
@@ -221,7 +221,7 @@ var info_musicbrainz = function() {
 					} else if (u.match(/facebook\.com/i)) {
 						html = html + '<li><img src="newimages/facebook-logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Facebook</a></li>';
 					} else {
-						html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Social Network ('+d[1]+')</a></li>';
+						html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_social", [d[1]])+'</a></li>';
 					}
 					break;
 
@@ -237,7 +237,7 @@ var info_musicbrainz = function() {
 					if (u.match(/twitter\.com/i)) {
 						html = html + '<li><img src="newimages/Twitter-Logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Twitter</a></li>';
 					} else {
-						html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Microblog ('+d[1]+')</a></li>';
+						html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_microblog", [d[1]])+'</a></li>';
 					}
 					break;
 
@@ -253,7 +253,7 @@ var info_musicbrainz = function() {
 					if (u.match(/bbc\.co\.uk/i)) {
 						html = html + '<li><img src="newimages/BBC logo.jpg" class="menu padright wibble"><a href="'+u+'" target="_blank">BBC Music Review</a></li>';
 					} else {
-						html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Review ('+d[1]+')</a></li>';
+						html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_review", [d[1]])+'</a></li>';
 					}
 					break;
 
@@ -275,12 +275,14 @@ var info_musicbrainz = function() {
 	function getReleaseHTML(data) {
 
 		if (data.error) {
-			return '<h3 align="center">There was an error contacting Musicbrainz</h3>';
+			return '<h3 align="center">'+language.gettext("musicbrainz_contacterror")+'</h3>';
 		}
 		if (data['release-groups'].length > 0) {
 			var dby = data['release-groups'].sort(albumsbyyear);
         	var html = '<div class="mbbox"><table class="padded" width="100%">';
-        	html = html + '<tr><th>YEAR</th><th>TITLE / ARTISTS</th><th>TYPE</th><th>RATING</th><th>EXTERNAL LINKS</th></tr>'
+        	html = html + '<tr><th>'+language.gettext("title_year")+'</th><th>'+language.gettext("title_title")+' / '
+        				+language.gettext("title_artist")+'</th><th>'+language.gettext("title_type")+'</th><th>'
+        				+language.gettext("musicbrainz_rating")+'</th><th>'+language.gettext("discogs_external")+'</th></tr>'
         	for (var i in dby) {
 
         		var y = getYear(dby[i]);
@@ -301,9 +303,9 @@ var info_musicbrainz = function() {
         		html = html + ' ' + (dby[i]['primary-type'] || "");
         		html = html + '</td><td>';
         		if (dby[i].rating['votes-count'] == 0) {
-        			html = html + '(No votes)';
+        			html = html + language.gettext("musicbrainz_novotes");
         		} else {
-        			html = html + dby[i].rating.value+"/5 from "+dby[i].rating['votes-count']+" votes";
+        			html = html + language.gettext("musicbrainz_votes", [dby[i].rating.value, dby[i].rating['votes-count']]);
         		}
         		html = html + '</td><td>';
         		html = html + getURLs(dby[i].relations);
@@ -347,8 +349,9 @@ var info_musicbrainz = function() {
 		}
 
 		if (data.recording.rating && data.recording.rating.value !== null) {
-        	html = html + '<br><ul><li><b>RATING: </b>'+data.recording.rating.value+
-        				"/5 from "+data.recording.rating['votes-count']+' votes</li></ul>';
+        	html = html + '<br><ul><li><b>RATING: </b>'
+        				+language.gettext("musicbrainz_votes", [data.recording.rating.value, data.recording.rating['votes-count']])
+        				+'</li></ul>';
         }
 		var rels = new Array();
 
@@ -377,11 +380,11 @@ var info_musicbrainz = function() {
 			}
         	a = a.replace(/\n/, '<br>');
         	a = a.replace(/\[(.*?)\|(.*?)\]/, '<a href="$1" target="_blank">$2</a>');
-        	html = html + '<div class="mbbox underline"><b>NOTES:</b></div><div class="mbbox">'+a+'</div>';
+        	html = html + '<div class="mbbox underline"><b>'+language.gettext("musicbrainz_notes")+':</b></div><div class="mbbox">'+a+'</div>';
 		}
 
         if (data.recording && data.recording.tags && data.recording.tags.length > 0) {
-	        html = html + '<div class="mbbox underline"><b>TAGS</b></div><div class="statsbox">';
+	        html = html + '<div class="mbbox underline"><b>'+language.gettext("musicbrainz_tags")+'</b></div><div class="statsbox">';
 	        for (var i in data.recording.tags) {
 	        	html = html + '<span class="mbtag">'+data.recording.tags[i].name+'</span> ';
 	        }
@@ -390,7 +393,7 @@ var info_musicbrainz = function() {
 	    html = html + doCredits(rels);
 
 	    if (data.recording && data.recording.releases && data.recording.releases.length > 0) {
-			html = html + '<div class="mbbox underline"><b>THIS TRACK APPEARS ON</b></div><div class="mbbox"><table class="padded">';
+			html = html + '<div class="mbbox underline"><b>'+language.gettext("musicbrainz_appears")+'</b></div><div class="mbbox"><table class="padded">';
 			for (var i in data.recording.releases) {
 				html = html + '<tr><td><b><a href="http://www.musicbrainz.org/release/'+
 							data.recording.releases[i].id+'" target="_blank">'+
@@ -415,7 +418,7 @@ var info_musicbrainz = function() {
 	    for (var i in rels) {
 	    	if (rels[i].artist) {
 	    		if (doit) {
-					html = html + '<div class="mbbox underline"><b>CREDITS</b></div><div class="mbbox"><table class="padded">';
+					html = html + '<div class="mbbox underline"><b>'+language.gettext("musicbrainz_credits")+'</b></div><div class="mbbox"><table class="padded">';
 					doit = false;
 				}
 	    		html = html + '<tr><td class="ucfirst">'+rels[i].type;
@@ -481,7 +484,7 @@ var info_musicbrainz = function() {
 				if (element.hasClass('clickdoartist')){
 					var targetdiv = element.parent().next();
 					if (!(targetdiv.hasClass('full')) && element.isClosed()) {
-						doSomethingUseful(targetdiv, 'Getting Data');
+						doSomethingUseful(targetdiv, language.gettext("info_gettinginfo"));
 	        			targetdiv.slideToggle('fast');
 						getArtistData(element.attr('name'));
 	        			element.toggleOpen();
@@ -499,7 +502,7 @@ var info_musicbrainz = function() {
 				} else if (element.hasClass('clickdodiscography')) {
 					var targetdiv = element.parent().next();
 					if (!(targetdiv.hasClass('full')) && element.isClosed()) {
-						doSomethingUseful(targetdiv, 'Getting Data');
+						doSomethingUseful(targetdiv, language.gettext("info_gettinginfo"));
 	        			getArtistReleases(element.attr('name'), 'discography_'+element.attr('name'));
 	        			element.toggleOpen();
 	        			targetdiv.slideToggle('fast');
@@ -618,7 +621,7 @@ var info_musicbrainz = function() {
 		        var html = '<div class="containerbox">';
 		        html = html + '<div class="fixed bright">';
 		        html = html + '<ul><li>'+data.disambiguation+'</li></ul>';
-		        html = html + '<ul><li><b>STATUS: </b>';
+		        html = html + '<ul><li><b>'+language.gettext("musicbrainz_status")+': </b>';
 		        if (data.status) {
 		        	html = html +data.status+" ";
 		        }
@@ -628,15 +631,15 @@ var info_musicbrainz = function() {
         		html = html + (data['release-group']['primary-type'] || "");
 		        html = html + '</li></ul>';
 		        if (data['release-group'] && data['release-group']['first-release-date']) {
-		        	html = html + '<ul><li><b>DATE: </b>'+data['release-group']['first-release-date']+'</li></ul>';
+		        	html = html + '<ul><li><b>'+language.gettext("musicbrainz_date")+': </b>'+data['release-group']['first-release-date']+'</li></ul>';
 		        } else {
-		        	html = html + '<ul><li><b>DATE: </b>'+data.date+'</li></ul>';
+		        	html = html + '<ul><li><b>'+language.gettext("musicbrainz_date")+': </b>'+data.date+'</li></ul>';
 		        }
 		        if (data.country) {
-		        	html = html + '<ul><li><b>COUNTRY: </b>'+data.country+'</li></ul>';
+		        	html = html + '<ul><li><b>'+language.gettext("musicbrainz_country")+': </b>'+data.country+'</li></ul>';
 		        }
 		        if (data['label-info'] && data['label-info'].length > 0) {
-			        html = html + '<ul><li><b>LABELS: </b></li>';
+			        html = html + '<ul><li><b>'+language.gettext("title_label")+': </b></li>';
 			        for (var i in data['label-info']) {
 			        	html = html + '<li>'+data['label-info'][i].label.name+'</li>';
 			        }
@@ -651,11 +654,11 @@ var info_musicbrainz = function() {
 					var a = data.annotation;
 		        	a = a.replace(/\n/, '<br>');
 		        	a = a.replace(/\[(.*?)\|(.*?)\]/, '<a href="$1" target="_blank">$2</a>');
-		        	html = html + '<div class="mbbox underline"><b>NOTES:</b></div><div class="mbbox">'+a+'</div>';
+		        	html = html + '<div class="mbbox underline"><b>'+language.gettext("musicbrainz_notes")+':</b></div><div class="mbbox">'+a+'</div>';
 				}
 
 		        if (data.tags && data.tags.length > 0) {
-			        html = html + '<div class="mbbox underline"><b>TAGS</b></div><div class="statsbox">';
+			        html = html + '<div class="mbbox underline"><b>'+language.gettext("musicbrainz_tags")+'</b></div><div class="statsbox">';
 			        for (var i in data.tags) {
 			        	html = html + '<span class="mbtag">'+data.tags[i].name+'</span> ';
 			        }
@@ -664,9 +667,9 @@ var info_musicbrainz = function() {
 
 			    html = html + doCredits(data.relations);
 
-    			html = html + '<div class="mbbox underline"><b>TRACK LISTING</b></div><div class="mbbox"><table class="padded">';
+    			html = html + '<div class="mbbox underline"><b>'+language.gettext("discogs_tracklisting")+'</b></div><div class="mbbox"><table class="padded">';
     			for (var i in data.media) {
-    				html = html + '<tr><th colspan="3"><b>DISC '+data.media[i].position;
+    				html = html + '<tr><th colspan="3"><b>'+language.gettext("musicbrainz_disc")+' '+data.media[i].position;
     				if (data.media[i].title !== null && data.media[i].title != "") {
     					html = html + " - " + data.media[i].title;
     				}
@@ -733,7 +736,7 @@ var info_musicbrainz = function() {
 						}
 						if (parent.playlistinfo.musicbrainz.artistid === null) {
 							debug.fail(medebug,parent.index,"Artist asked to populate but no MBID could be found. Aborting");
-							parent.playlistinfo.metadata.artist.musicbrainz.artist = {error: "Could not find this artist on MusicBrainz"};
+							parent.playlistinfo.metadata.artist.musicbrainz.artist = {error: language.gettext("musicbrainz_noartist")};
 							parent.updateData({ metadata:
 										{ artist:
 											{
@@ -775,13 +778,30 @@ var info_musicbrainz = function() {
 								parent.playlistinfo.metadata.artist.musicbrainz.artist = data;
 							} else {
 								parent.playlistinfo.metadata.artist.musicbrainz[parent.playlistinfo.musicbrainz.artistid] = data;
+								var wikilinks = { user: null, english: null, anything: null };
+								debug.log(medebug,parent.index,"wikipedia language is",wikipedia.getLanguage());
+
+								var domain = '^http://'+wikipedia.getLanguage();
+								var re = new RegExp(domain);
 								for (var i in data.relations) {
-									if (data.relations[i].type == "wikipedia" && update.metadata.artist.wikipedia.artistlink == null) {
+									if (data.relations[i].type == "wikipedia") {
 										debug.mark(medebug,parent.index,"has found a Wikipedia artist link",data.relations[i].url.resource);
-										// At the moment, only en.wikipedia.org links will work inside our browser
+										// For wikipedia links we need to prioritise:
+										// user's chosen domain first
+										// english second
+										// followed by anything will do
+										// the php side will also try to use the link we choose to get language links for the
+										// user's chosen language, but it's definitely best if we prioritise them here
 										var wikitemp = data.relations[i].url.resource;
-										if (wikitemp.match(/en.wikipedia.org/)) {
-											update.metadata.artist.wikipedia.artistlink = data.relations[i].url.resource;
+										if (re.test(wikitemp)) {
+											debug.log(medebug,parent.index,"found user domain wiki link");
+											wikilinks.user = wikitemp;
+										} else if (wikitemp.match(/en.wikipedia.org/)) {
+											debug.log(medebug,parent.index,"found english domain wiki link");
+											wikilinks.english = wikitemp;
+										} else {
+											debug.log(medebug,parent.index,"found wiki link");
+											wikilinks.anything = wikitemp;
 										}
 									}
 									if (data.relations[i].type == "discogs" && update.metadata.artist.discogs.artistlink == null) {
@@ -789,12 +809,25 @@ var info_musicbrainz = function() {
 										update.metadata.artist.discogs.artistlink = data.relations[i].url.resource;
 									}
 								}
+								if (update.metadata.artist.wikipedia.artistlink == null) {
+									if (wikilinks.user) {
+										debug.log(medebug,parent.index,"using user domain wiki link",wikilinks.user);
+										update.metadata.artist.wikipedia.artistlink = wikilinks.user;
+									} else if (wikilinks.english) {
+										debug.log(medebug,parent.index,"using english domain wiki link",wikilinks.english);
+										update.metadata.artist.wikipedia.artistlink = wikilinks.english;
+									} else if (wikilinks.anything) {
+										debug.log(medebug,parent.index,"using any old domain wiki link",wikilinks.anything);
+										update.metadata.artist.wikipedia.artistlink = wikilinks.anything;
+									}
+
+								}
 								if (data.disambiguation) {
 									update.metadata.artist.disambiguation = data.disambiguation;
 								}
 							}
 						} else {
-							parent.playlistinfo.metadata.artist.musicbrainz.artist = {error: "Could not get information from MusicBrainz"};
+							parent.playlistinfo.metadata.artist.musicbrainz.artist = {error: language.gettext("musicbrainz_noinfo")};
 						}
 
 						parent.updateData(update, null);
@@ -862,7 +895,7 @@ var info_musicbrainz = function() {
 						if (parent.playlistinfo.metadata.album.musicbrainz.album === undefined) {
 							if (parent.playlistinfo.type == "stream") {
 								debug.mark(medebug,parent.index,"Not bothering to update album info as it's a radio station");
-								parent.playlistinfo.metadata.album.musicbrainz.album = {error: "(Internet Radio Station)"};
+								parent.playlistinfo.metadata.album.musicbrainz.album = {error: '('+language.gettext("label_internet_radio")+')'};
 								parent.updateData({
 								            musicbrainz: { album_releasegroupid: null },
 											metadata:
@@ -883,7 +916,7 @@ var info_musicbrainz = function() {
 							}
 							if (parent.playlistinfo.musicbrainz.albumid === null) {
 								debug.fail(medebug,parent.index,"Album asked to populate but no MBID could be found. Shit.");
-								parent.playlistinfo.metadata.album.musicbrainz.album = {error: "Could not find this album on MusicBrainz"};
+								parent.playlistinfo.metadata.album.musicbrainz.album = {error: language.gettext("musicbrainz_noalbum")};
 								parent.updateData({
 								            musicbrainz: { album_releasegroupid: null },
 											metadata:
@@ -922,13 +955,26 @@ var info_musicbrainz = function() {
 										}
 									};
 						if (data) {
+
 							parent.playlistinfo.metadata.album.musicbrainz.album = data;
+							var wikilinks = { user: null, english: null, anything: null };
+							debug.log(medebug,parent.index,"wikipedia language is",wikipedia.getLanguage());
+
+							var domain = '^http://'+wikipedia.getLanguage();
+							var re = new RegExp(domain);
 							for (var i in data.relations) {
 								if (data.relations[i].type == "wikipedia" && update.metadata.album.wikipedia.albumlink === null) {
 									debug.mark(medebug,parent.index,"has found a Wikipedia album link",data.relations[i].url.resource);
 									var wikitemp = data.relations[i].url.resource;
-									if (wikitemp.match(/en.wikipedia.org/)) {
-										update.metadata.album.wikipedia.albumlink = data.relations[i].url.resource;
+									if (re.test(wikitemp)) {
+										debug.log(medebug,parent.index,"found user domain wiki link");
+										wikilinks.user = wikitemp;
+									} else if (wikitemp.match(/en.wikipedia.org/)) {
+										debug.log(medebug,parent.index,"found english domain wiki link");
+										wikilinks.english = wikitemp;
+									} else {
+										debug.log(medebug,parent.index,"found wiki link");
+										wikilinks.anything = wikitemp;
 									}
 								}
 								if (data.relations[i].type == "discogs" && update.metadata.album.discogs.albumlink === null) {
@@ -936,11 +982,25 @@ var info_musicbrainz = function() {
 									update.metadata.album.discogs.albumlink = data.relations[i].url.resource;
 								}
 							}
+							if (update.metadata.album.wikipedia.albumlink == null) {
+								if (wikilinks.user) {
+									debug.log(medebug,parent.index,"using user domain wiki link",wikilinks.user);
+									update.metadata.album.wikipedia.albumlink = wikilinks.user;
+								} else if (wikilinks.english) {
+									debug.log(medebug,parent.index,"using english domain wiki link",wikilinks.english);
+									update.metadata.album.wikipedia.albumlink = wikilinks.english;
+								} else if (wikilinks.anything) {
+									debug.log(medebug,parent.index,"using any old domain wiki link",wikilinks.anything);
+									update.metadata.album.wikipedia.albumlink = wikilinks.anything;
+								}
+
+							}
+
 							if (data['release-group']) {
 								update.musicbrainz.album_releasegroupid = data['release-group'].id;
 							}
 						} else {
-							parent.playlistinfo.metadata.album.musicbrainz.album = {error: "Could not get information from MusicBrainz"};
+							parent.playlistinfo.metadata.album.musicbrainz.album = {error: language.gettext("musicbrainz_noinfo")};
 						}
 						parent.updateData(update,null);
 						self.album.doBrowserUpdate();
@@ -1008,7 +1068,7 @@ var info_musicbrainz = function() {
 							if (parent.playlistinfo.musicbrainz.trackid === null) {
 								debug.fail(medebug,parent.index,"Track asked to populate but no MBID could be found..");
 								parent.playlistinfo.metadata.track.musicbrainz.track = {};
-				 				parent.playlistinfo.metadata.track.musicbrainz.track.error = {error: "Could not find this track on MusicBrainz"};
+				 				parent.playlistinfo.metadata.track.musicbrainz.track.error = {error: language.gettext("musicbrainz_notrack")};
 								parent.updateData({
 											metadata:
 											{ track:
@@ -1049,10 +1109,10 @@ var info_musicbrainz = function() {
 									for (var i in data.recording.relations) {
 										if (data.recording.relations[i].type == "wikipedia" && update.metadata.track.wikipedia.tracklink === null) {
 											debug.mark(medebug,parent.index,"has found a Wikipedia track link!!!!!",data.recording.relations[i].url.resource);
-											var wikitemp = data.relations[i].url.resource;
-											if (wikitemp.match(/en.wikipedia.org/)) {
+											//var wikitemp = data.relations[i].url.resource;
+											//if (wikitemp.match(/en.wikipedia.org/)) {
 												update.metadata.track.wikipedia.tracklink = data.recording.relations[i].url.resource;
-											}
+											//}
 										}
 										if (data.recording.relations[i].type == "discogs" && update.metadata.track.discogs.tracklink === null) {
 											debug.mark(medebug,parent.index,"has found a Discogs track link!!!!!",data.recording.relations[i].url.resource);
@@ -1074,7 +1134,7 @@ var info_musicbrainz = function() {
 								}
 							}
 						} else {
-							parent.playlistinfo.metadata.track.musicbrainz.track.error = {error: "Could not get information from MusicBrainz"};
+							parent.playlistinfo.metadata.track.musicbrainz.track.error = {error: language.gettext("musicbrainz_noinfo")};
 						}
 						parent.updateData(update,null);
 						self.track.doBrowserUpdate();
@@ -1109,4 +1169,4 @@ var info_musicbrainz = function() {
 
 }();
 
-nowplaying.registerPlugin("musicbrainz", info_musicbrainz, "newimages/musicbrainz_logo.png", "Info Panel (MusicBrainz)");
+nowplaying.registerPlugin("musicbrainz", info_musicbrainz, "newimages/musicbrainz_logo.png", "button_musicbrainz");

@@ -19,6 +19,12 @@ function changetheme() {
     prefs.save({theme: $("#themeselector").val()});
 }
 
+function changelanguage() {
+    prefs.save({language: $("#langselector").val()}, function() {
+        location.reload(true);
+    });
+}
+
 function changecountry() {
     prefs.save({lastfm_country_code: $("#countryselector").val()});
 }
@@ -26,6 +32,11 @@ function changecountry() {
 function changeClickPolicy() {
     prefs.save({clickmode: $('[name=clickselect]:checked').val()});
     setClickHandlers();
+}
+
+function changeLastFMLang() {
+    prefs.save({lastfmlang: $('[name=clicklfmlang]:checked').val(),
+                user_lang: $('[name=userlanguage]').val()});
 }
 
 function setClickHandlers() {
@@ -257,7 +268,7 @@ function lastfmlogin() {
 // }
 
 function setAutoTag() {
-    $("#configpanel").fadeOut(1000);
+    //$("#configpanel").fadeOut(1000);
     prefs.save({autotagname: $("#configpanel").find('input[name|="taglovedwith"]').attr("value")});
 }
 
@@ -311,7 +322,7 @@ function getInternetPlaylist(url, image, station, creator, usersupplied) {
         },
         error: function(data, status) {
             playlist.repopulate();
-            alert("Failed To Tune Radio Station");
+            alert(language.gettext("label_tunefailed"));
         }
     } );
 }
@@ -328,7 +339,7 @@ function playUserStream(xspf) {
         success: playlist.newInternetRadioStation,
         error: function(data, status) {
             playlist.repopulate();
-            alert("Failed To Tune Radio Station");
+            alert(language.gettext("label_tunefailed"));
         }
     } );
 }
@@ -348,7 +359,7 @@ function removeUserStream(xspf) {
         },
         error: function(data, status) {
             playlist.repopulate();
-            alert("Failed To Remove Station");
+            alert(language.gettext("label_general_error"));
         }
     } );
 }
@@ -394,12 +405,12 @@ function doLastFM(station, value) {
 
 function lastFMTuneFailed(data) {
     playlist.repopulate();
-    infobar.notify(infobar.ERROR, "Failed to tune Last.FM Radio Station : "+$(data).find('error').text());
+    infobar.notify(infobar.ERROR, language.gettext("label_tunefailed")+" : "+$(data).find('error').text());
 }
 
 function lastFMTrackFailed(data) {
     playlist.repopulate();
-    infobar.notify(infobar.ERROR, "Failed to get Last.FM playlist : "+data.error);
+    infobar.notify(infobar.ERROR, language.gettext("label_tunefailed")+" : "+data.error);
 }
 
 function addLastFMTrack(artist, track) {
@@ -457,22 +468,22 @@ function getTopArtists(event) {
 
 function gotNoNeighbours(data) {
     stopWaitingIcon("neighbourwait");
-    infobar.notify(infobar.NOTIFY, "Didn't find any neighbours");
+    infobar.notify(infobar.NOTIFY, language.gettext("label_noneighbours"));
 }
 
 function gotNoFriends(data) {
     stopWaitingIcon("freindswait");
-    infobar.notify(infobar.NOTIFY, "You have 0 friends");
+    infobar.notify(infobar.NOTIFY, language.gettext("label_nofreinds"));
 }
 
 function gotNoTopTags(data) {
     stopWaitingIcon("toptagswait");
-    infobar.notify(infobar.NOTIFY, "Didn't find any top tags");
+    infobar.notify(infobar.NOTIFY, language.gettext("label_notags"));
 }
 
 function gotNoTopArtists(data) {
     stopWaitingIcon("topartistswait");
-    infobar.notify(infobar.NOTIFY, "Didn't find any top artists");
+    infobar.notify(infobar.NOTIFY, language.gettext("label_noartists"));
 }
 
 function toggleSearch() {
@@ -551,16 +562,16 @@ function getLfmPeople(data, prefix) {
         html = html + '</div>';
         html = html + '<div id="'+prefix+count.toString()+'" class="dropmenu">';
         html = html + '<div class="clickable clicklfm2 indent containerbox padright menuitem" name="lastfmuser" username="'+userdata[i].name+'">';
-        html = html + '<div class="expand">Library Radio</div>';
+        html = html + '<div class="expand">'+language.gettext("label_userlibrary", [userdata[i].name])+'</div>';
         html = html + '</div>';
         html = html + '<div class="clickable clicklfm2 indent containerbox padright menuitem" name="lastfmmix" username="'+userdata[i].name+'">';
-        html = html + '<div class="expand">Mix Radio</div>';
+        html = html + '<div class="expand">'+language.gettext("label_usermix", [userdata[i].name])+'</div>';
         html = html + '</div>';
         html = html + '<div class="clickable clicklfm2 indent containerbox padright menuitem" name="lastfrecommended" username="'+userdata[i].name+'">';
-        html = html + '<div class="expand">Recommended Radio</div>';
+        html = html + '<div class="expand">'+language.gettext("label_userrecommended", [userdata[i].name])+'</div>';
         html = html + '</div>';
         html = html + '<div class="clickable clicklfm2 indent containerbox padright menuitem" name="lastfmneighbours" username="'+userdata[i].name+'">';
-        html = html + '<div class="expand">Neighbourhood Radio</div>';
+        html = html + '<div class="expand">'+language.gettext("label_neighbourhood", [userdata[i].name])+'</div>';
         html = html + '</div>';
         html = html + '</div>';
         count++;
@@ -706,21 +717,23 @@ function getHotKeyDisplay(st) {
 
 function editkeybindings() {
 
+    debug.log("GENERAL", "Editing Key Bindings");
+
     $("#configpanel").slideToggle('fast');
 
     $.getJSON("getkeybindings.php")
         .done(function(data) {
-            var keybpu = popupWindow.create(500,300,"keybpu",true,"Keyboard Shortcuts");
+            var keybpu = popupWindow.create(500,300,"keybpu",true,language.gettext("title_keybindings"));
             $("#popupcontents").append('<table align="center" cellpadding="4" id="keybindtable" width="80%"></table>');
-            $("#keybindtable").append('<tr><td width="35%" align="right">Next Track</td><td>'+format_keyinput('nextrack', data)+'</td></tr>');
-            $("#keybindtable").append('<tr><td width="35%" align="right">Previous Track</td><td>'+format_keyinput('prevtrack', data)+'</td></tr>');
-            $("#keybindtable").append('<tr><td width="35%" align="right">Stop</td><td>'+format_keyinput('stop', data)+'</td></tr>');
-            $("#keybindtable").append('<tr><td width="35%" align="right">Play/Pause</td><td>'+format_keyinput('play', data)+'</td></tr>');
-            $("#keybindtable").append('<tr><td width="35%" align="right">Volume Up</td><td>'+format_keyinput('volumeup', data)+'</td></tr>');
-            $("#keybindtable").append('<tr><td width="35%" align="right">Volume Down</td><td>'+format_keyinput('volumedown', data)+'</td></tr>');
+            $("#keybindtable").append('<tr><td width="35%" align="right">'+language.gettext("button_next")+'</td><td>'+format_keyinput('nextrack', data)+'</td></tr>');
+            $("#keybindtable").append('<tr><td width="35%" align="right">'+language.gettext("button_previous")+'</td><td>'+format_keyinput('prevtrack', data)+'</td></tr>');
+            $("#keybindtable").append('<tr><td width="35%" align="right">'+language.gettext("button_stop")+'</td><td>'+format_keyinput('stop', data)+'</td></tr>');
+            $("#keybindtable").append('<tr><td width="35%" align="right">'+language.gettext("button_play")+'</td><td>'+format_keyinput('play', data)+'</td></tr>');
+            $("#keybindtable").append('<tr><td width="35%" align="right">'+language.gettext("button_volup")+'</td><td>'+format_keyinput('volumeup', data)+'</td></tr>');
+            $("#keybindtable").append('<tr><td width="35%" align="right">'+language.gettext("button_voldown")+'</td><td>'+format_keyinput('volumedown', data)+'</td></tr>');
 
-            $("#keybindtable").append('<tr><td colspan="2"><button style="width:8em" class="tleft topformbutton" onclick="popupWindow.close()">Cancel</button>'+
-                                        '<button  style="width:8em" class="tright topformbutton" onclick="saveKeyBindings()">OK</button></td></tr>');
+            $("#keybindtable").append('<tr><td colspan="2"><button style="width:8em" class="tleft topformbutton" onclick="popupWindow.close()">'+language.gettext("button_cancel")+'</button>'+
+                                        '<button  style="width:8em" class="tright topformbutton" onclick="saveKeyBindings()">'+language.gettext("button_OK")+'</button></td></tr>');
 
             $(".buttonchange").keydown( function(ev) { changeHotKey(ev) } );
             popupWindow.open();
@@ -729,35 +742,9 @@ function editkeybindings() {
 
 }
 
-function editmpdoutputs() {
-
-    $("#configpanel").slideToggle('fast');
-
-    $.getJSON("getaudiooutputs.php")
-        .done(function(data) {
-            var audiopu = popupWindow.create(500,300,"audiopu",true,"Audio Outputs");
-            $("#popupcontents").append('<table align="center" cellpadding="4" id="outputtable" width="80%"></table>');
-            for (var i in data) {
-                $("#outputtable").append('<tr><td width="50%" align="right">'+data[i].outputname+'</td><td>'+format_outputswitch(data[i].outputenabled, data[i].outputid)+'</td></tr>');
-            }
-            $("#outputtable").append('<tr><td colspan="2"><button  style="width:8em" class="tright" onclick="popupWindow.close()">OK</button></td></tr>');
-            popupWindow.open();
-        })
-        .fail( function() { alert("Failed To Get Audio Outputs From MPD!") });
-
-}
-
 function format_keyinput(inpname, data) {
     return '<input id="'+inpname+'" class="tleft sourceform buttonchange" type="text" size="10" value="'+getHotKeyDisplay(data[inpname])+'"></input>' +
             '<input name="'+inpname+'" class="buttoncode" type="hidden" value="'+getHotKey(data[inpname])+'"></input>';
-}
-
-function format_outputswitch(enabled, id) {
-    if (enabled == 0) {
-        return '<img src="newimages/button-off.png" id="outputbutton'+id+'" onclick="outputswitch(\''+id+'\')" class="togglebutton clickicon" />';
-    } else {
-        return '<img src="newimages/button-on.png" id="outputbutton'+id+'" onclick="outputswitch(\''+id+'\')" class="togglebutton clickicon" />';
-    }
 }
 
 function outputswitch(id) {
@@ -1077,11 +1064,11 @@ function savePlaylist() {
     var name = $("#playlistname").val();
     debug.log("GENERAL","Save Playlist",name);
     if (name.indexOf("/") >= 0 || name.indexOf("\\") >= 0) {
-        alert("Playlist name cannot contain / or \\");
+        alert(language.gettext("error_playlistname"));
     } else {
         player.mpd.fastcommand("command=save&arg="+encodeURIComponent(name), function() {
             player.controller.reloadPlaylists();
-            infobar.notify(infobar.NOTIFY, "Playlist saved as "+name);
+            infobar.notify(infobar.NOTIFY, language.gettext("label_savedpl", [name]));
         });
         $("#saveplst").slideToggle('fast');
     }
@@ -1151,12 +1138,12 @@ function checkCollection() {
 function loadCollection(albums, files) {
     if (albums != null) {
         debug.log("GENERAL","Loading Albums List");
-        prepareForLiftOff("Loading Collection");
+        prepareForLiftOff(language.gettext("label_updating"));
         player.controller.reloadAlbumsList(albums);
     }
     if (files != null) {
         debug.log("GENERAL","Loading Files List");
-        prepareForLiftOff2("Loading Files List");
+        prepareForLiftOff2(language.gettext("label_updating"));
         $("#filecollection").load(files);
         $('#filesearch').load("filesearch.php");
     }
@@ -1305,7 +1292,7 @@ function hidePanel(panel) {
                 $("#bbclist").load("bbcradio.php");
                 $("#somafmlist").load("somafm.php");
                 $("#yourradiolist").load("yourradio.php");
-                $("#icecastlist").html('<div class="dirname"><h2 id="loadinglabel3">Loading Stations...</h2></div>');
+                $("#icecastlist").html('<div class="dirname"><h2 id="loadinglabel3">'+language.gettext("label_loadingstations")+'</h2></div>');
                 refreshMyDrink('');
                 podcasts.loadList();
                 break;
@@ -1325,16 +1312,18 @@ function hidePanel(panel) {
 }
 
 function setXfadeDur() {
-    $("#configpanel").fadeOut(1000);
+    // $("#configpanel").fadeOut(1000);
     prefs.save({crossfade_duration: $("#configpanel").find('input[name|="michaelbarrymore"]').attr("value")});
+    debug.log("DEBUG","Setting xfade to ",prefs.crossfade_duration);
     if (player.status.xfade > 0) {
         player.controller.setCrossfade($("#configpanel").find('input[name|="michaelbarrymore"]').attr("value"));
     }
 }
 
 function setMusicDirectory() {
-    $("#configpanel").fadeOut(1000);
+    //$("#configpanel").fadeOut(1000);
     prefs.save({music_directory_albumart: $("#configpanel").find('input[name|="music_directory_albumart"]').attr("value")});
+    debug.log("DEBUG","Setting music directory to ",prefs.music_directory_albumart);
     $.post("setFinklestein.php", {dir: $("#configpanel").find('input[name|="music_directory_albumart"]').attr("value")});
 }
 
@@ -1456,7 +1445,7 @@ function formatPlaylistInfo(data) {
 
     var html = "";
     if (mobile == "no") {
-        html = html + '<li class="tleft wide"><b>Playlists</b></li>';
+        html = html + '<li class="tleft wide"><b>'+language.gettext("menu_playlists")+'</b></li>';
         html = html + '<li class="tleft wide"><table width="100%">';
     } else {
         html = html + '<h3>Playlists</h3>';
@@ -1620,7 +1609,8 @@ function addCustomScrollBar(value) {
             scrollInertia: 80,
             contentTouchScroll: true,
             advanced: {
-                updateOnContentResize: true
+                updateOnContentResize: true,
+                autoScrollOnFocus: false
             },
             callbacks: {
                 whileScrolling: function(){ playlistScrolled(this); }

@@ -45,11 +45,11 @@ var infobar = function() {
             }
             contents=contents+'</b></span>';
             if (info.creator) {
-                contents=contents+'<p>by <b>'+info.creator+'</b></p>';
+                contents=contents+'<p>'+frequentLabels.by+' <b>'+info.creator+'</b></p>';
                 doctitle = doctitle + " - " + info.creator;
             }
             if (info.album) {
-                contents=contents+'<p>on <b>'+info.album+'</b></p>';
+                contents=contents+'<p>'+frequentLabels.on+' <b>'+info.album+'</b></p>';
             }
         } else {
             var contents = '<span><b>';
@@ -59,7 +59,7 @@ var infobar = function() {
             }
             contents=contents+'</b></span><br>';
             if (info.creator) {
-                contents=contents+'<span>by <b>'+info.creator+'</b></span><br>';
+                contents=contents+'<span>'+frequentLabels.by+' <b>'+info.creator+'</b></span><br>';
                 doctitle = doctitle + " - " + info.creator;
             }
         }
@@ -178,7 +178,7 @@ var infobar = function() {
             volumeslider.setState(player.status.volume);
             infobar.playbutton.setState(player.status.state);
             if (player.status.error && player.status.error != null) {
-                alert("Player Error: "+player.status.error);
+                alert(language.gettext("label_playererror")+": "+player.status.error);
                 player.controller.clearerror();
             }
         },
@@ -398,7 +398,7 @@ var infobar = function() {
             var progressString = formatTimeString(progress);
             var durationString = formatTimeString(duration);
             if (progressString != "" && durationString != "") {
-                $("#playbackTime").html(progressString + " of " + durationString);
+                $("#playbackTime").html(progressString + " " + frequentLabels.of + " " + durationString);
             } else if (progressString != "" && durationString == "") {
                 $("#playbackTime").html(progressString);
             } else if (progressString == "" && durationString != "") {

@@ -3,8 +3,10 @@ include ("vars.php");
 include ("functions.php");
 include ("connection.php");
 include ("collection.php");
+include ("international.php");
+$mopidy_detected = detect_mopidy();
 
-if ($prefs['use_mopidy_http'] == 0) {
+if (!$mopidy_detected) {
 
 //
 // MPD - style search
@@ -14,12 +16,14 @@ if ($prefs['use_mopidy_http'] == 0) {
     <div class="containerbox" style="width:100%">
     <form name="search" action="search.php" method="get">
     <ul class="sourcenav">
-    <li><b>Search For:</b></li>
-    <li><input type="radio" name="stype" value="title"> Track</input></li>
-    <li><input type="radio" name="stype" value="album"> Album</input></li>
-    <li><input type="radio" name="stype" value="artist"> Artist</input></li>
-    <li><input class="sourceform winkle" name="searchtitle" type="text" size="60" />
-    <button id="henrythegippo" type="submit" onclick="doSomethingUseful('search','Searching...')">Search</button></li>
+<?php
+print '<li><b>'.get_int_text("label_searchfor").'</b></li>';
+print '<li><input type="radio" name="stype" value="title"> '.get_int_text("label_track").'</input></li>';
+print '<li><input type="radio" name="stype" value="album"> '.get_int_text("label_album").'</input></li>';
+print '<li><input type="radio" name="stype" value="artist"> '.get_int_text("label_artist").'</input></li>';
+print '<li><input class="sourceform winkle" name="searchtitle" type="text" size="60" />';
+print '<button id="henrythegippo" type="submit" onclick="doSomethingUseful(\'search\',\''.get_int_text("label_searching").'\')">'.get_int_text("button_search").'</button></li>';
+?>
     </ul>
     </form>
     </div>
@@ -40,7 +44,7 @@ if ($prefs['use_mopidy_http'] == 0) {
         createXML($collection->getSortedArtistList(), "b", $output);
         $output->closeFile();
         print '<div class="menuitem">';
-        print "<h3>Search Results:</h3>";
+        print '<h3>'.get_int_text("label_searchresults")."</h3>";
         print "</div>";
         dumpAlbums('balbumroot');
         print '<div class="separator"></div>';
@@ -78,29 +82,44 @@ if ($prefs['use_mopidy_http'] == 0) {
 ?>
     <div id="mopidysearcher" style="padding:6px">
         <div class="containerbox padright">
-            <h3>Search For:</h3>
+<?php
+print '<h3>'.get_int_text("label_searchfor").'</h3>';
+?>
         </div>
         <div class="containerbox padright wibble">
-            <i>Multiple search terms can be used at once</i>
-        </div>
-        <div class="containerbox padright wibble">
-            <span class="tiny"><i>The search functionality of some backends may not match these options</i></span>
+<?php
+print '<i>'.get_int_text("label_multiterms").'</i>';
+?>
         </div>
 
         <div class="containerbox padright">
-            <div class="fixed" style="width:7em"><b>Artist:</b></div>
+<?php
+$labia = strlen(get_int_text("label_artist"));
+foreach(array(get_int_text("label_album"), get_int_text("label_track"), get_int_text("label_anything")) as $a) {
+    if (strlen($a) > $labia) {
+        $labia = strlen($a);
+    }
+}
+print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_artist").'</b></div>';
+?>
             <div class="expand"><input class="searchterm enter sourceform" name="artist" type="text" size="90" style="width:95%" /></div>
         </div>
         <div class="containerbox padright">
-            <div class="fixed" style="width:7em"><b>Album:</b></div>
+<?php
+print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_album").'</b></div>';
+?>
             <div class="expand"><input class="searchterm enter sourceform" name="album" type="text" size="90" style="width:95%" /></div>
         </div>
         <div class="containerbox padright">
-            <div class="fixed" style="width:7em"><b>Track:</b></div>
-            <div class="expand"><input class="searchterm enter sourceform" name="track" type="text" size="90" style="width:95%" /></div>
+<?php
+print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_track").'</b></div>';
+?>
+            <div class="expand"><input class="searchterm enter sourceform" name="track_name" type="text" size="90" style="width:95%" /></div>
         </div>
         <div class="containerbox padright">
-            <div class="fixed" style="width:7em"><b>Anything:</b></div>
+<?php
+print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_anything").'</b></div>';
+?>
             <div class="expand"><input class="searchterm enter sourceform" name="any" type="text" size="90" style="width:95%" /></div>
         </div>
 
@@ -110,7 +129,7 @@ if ($prefs['use_mopidy_http'] == 0) {
         if ($prefs['search_limit_limitsearch'] == 1) {
             print ' checked';
         }
-        print '>Limit Search To Specific Backends</input>';
+        print '>'.get_int_text("label_limitsearch").'</input>';
         print '</div>';
 
         print '<div class="dropmenu" id="mopidysearchdomains" style="margin-top:4px';
@@ -119,7 +138,6 @@ if ($prefs['use_mopidy_http'] == 0) {
         }
         print '">';
         foreach ($searchlimits as $domain => $text) {
-
             print '<div class="indent containerbox padright">';
             print '<input type="checkbox" class="searchdomain" value="'.$domain.'"';
             if ($prefs['search_limit_'.$domain] == 1) {
@@ -132,7 +150,9 @@ if ($prefs['use_mopidy_http'] == 0) {
 ?>
         <div class="indent containerbox padright">
             <div class="expand"></div>
-            <button class="fixed" onclick="player.http.search('search')">Search</button>
+<?php
+print '<button class="fixed" onclick="player.http.search(\'search\')">'.get_int_text("button_search").'</button>';
+?>
             <!-- <button class="fixed" onclick="player.doMopidySearch('findExact')">Find Exact Match</button> -->
         </div>
 

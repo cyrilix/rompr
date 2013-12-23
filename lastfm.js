@@ -39,6 +39,27 @@ function LastFM(user) {
         );
     }
 
+    this.getLanguage = function() {
+        switch (prefs.lastfmlang) {
+            case "default":
+                return null;
+                break;
+            case "interface":
+                return interfaceLanguage;
+                break;
+            case "browser":
+                return browserLanguage;
+                break;
+            case "user":
+                if (prefs.user_lang != "") {
+                    return prefs.user_lang;
+                } else {
+                    return null;
+                }
+                break;
+        }
+    }
+
     this.username = function() {
         return username;
     }
@@ -65,13 +86,13 @@ function LastFM(user) {
         $.get(url, function(data) {
             token = $(data).find("token").text();
 
-            var lfmlog = popupWindow.create(500,400,"lfmlog",true,"Log In to Last.FM");
+            var lfmlog = popupWindow.create(500,400,"lfmlog",true,language.gettext("lastfm_loginwindow"));
             $("#popupcontents").append('<table align="center" cellpadding="2" id="lfmlogintable" width="90%"></table>');
-            $("#lfmlogintable").append('<tr><td>Please click the button below to open the Last.FM website in a new tab. Enter your Last.FM login details if required then give RompR permission to access your account</td></tr>');
-            $("#lfmlogintable").append('<tr><td>You can close the new tab when you have finished but do not close this dialog!</td></tr>');
+            $("#lfmlogintable").append('<tr><td>'+language.gettext("lastfm_login1")+'</td></tr>');
+            $("#lfmlogintable").append('<tr><td>'+language.gettext("lastfm_login2")+'</td></tr>');
             $("#lfmlogintable").append('<tr><td align="center"><a href="http://www.last.fm/api/auth/?api_key='+lastfm_api_key+'&token='+token+'" target="_blank">'+
-                                        '<button>Click Here To Log In</button></a></td></tr>');
-            $("#lfmlogintable").append('<tr><td>Once you have logged in to Last.FM, click the OK button below to complete the process</td></tr>');
+                                        '<button>'+language.gettext("lastfm_loginbutton")+'</button></a></td></tr>');
+            $("#lfmlogintable").append('<tr><td>'+language.gettext("lastfm_login3")+'</td></tr>');
             $("#lfmlogintable").append('<tr><td align="center"><button onclick="lastfm.finishlogin()">OK</button></td></tr>');
 
             popupWindow.open();
@@ -97,7 +118,7 @@ function LastFM(user) {
             },
             function(data) {
                 popupWindow.close();
-                alert("Failed to log in to Last.FM");
+                alert(language.gettext("lastfm_loginfailed"));
             }
         );
     }
@@ -180,11 +201,11 @@ function LastFM(user) {
                 LastFMSignedRequest(
                     options,
                     function() {
-                        infobar.notify(infobar.NOTIFY, "Loved "+options.track);
+                        infobar.notify(infobar.NOTIFY, language.gettext("label_loved")+" "+options.track);
                         callback(true);
                     },
                     function() {
-                        infobar.notify(infobar.ERROR, "Failed To Make Love");
+                        infobar.notify(infobar.ERROR, language.gettext("label_lovefailed"));
                     }
                 );
             }
@@ -196,11 +217,11 @@ function LastFM(user) {
                 LastFMSignedRequest(
                     options,
                     function() {
-                        infobar.notify(infobar.NOTIFY, "Unloved "+options.track);
+                        infobar.notify(infobar.NOTIFY, language.gettext("label_unloved")+" "+options.track);
                         callback(false);
                     },
                     function() {
-                        infobar.notify(infobar.ERROR, "Failed To Remove Love");
+                        infobar.notify(infobar.ERROR, language.gettext("label_unlovefailed"));
                     }
                 );
             }
@@ -213,10 +234,10 @@ function LastFM(user) {
                     options,
                     function() {
                         $("#ban").effect('pulsate', {times: 1}, 2000);
-                        infobar.notify(infobar.NOTIFY, "Banned "+options.track);
+                        infobar.notify(infobar.NOTIFY, language.gettext("banned")+" "+options.track);
                     },
                     function() {
-                        infobar.notify(infobar.ERROR, "Failed to ban"+options.track);
+                        infobar.notify(infobar.ERROR, language.gettext("label_banfailed")+" "+options.track);
                     }
                 );
             }
@@ -225,14 +246,14 @@ function LastFM(user) {
         getInfo : function(options, callback, failcallback) {
             if (username != "") { options.username = username; }
             addGetOptions(options, "track.getInfo");
-            if (prefs.lastfmlang) {
-                options.lang = lang;
+            if (self.getLanguage()) {
+                options.lang = self.getLanguage();
             }
             LastFMGetRequest(
                 options,
                 callback,
                 function(data) { failcallback({ error: 1,
-                                                message: "Could not find information about this track"}) }
+                                                message: language.gettext("label_notrackinfo")}) }
             );
         },
 
@@ -285,8 +306,8 @@ function LastFM(user) {
                 addSetOptions(options, "track.scrobble");
                 LastFMSignedRequest(
                     options,
-                    function() { infobar.notify(infobar.NOTIFY, "Scrobbled "+options.track) },
-                    function() { infobar.notify(infobar.ERROR, "Failed to scrobble "+options.track) }
+                    function() { infobar.notify(infobar.NOTIFY, language.gettext("label_scrobbled")+" "+options.track) },
+                    function() { infobar.notify(infobar.ERROR, language.gettext("label_scrobblefailed")+" "+options.track) }
                 );
             }
         },
@@ -318,14 +339,14 @@ function LastFM(user) {
             addGetOptions(options, "album.getInfo");
             if (username != "") { options.username = username }
             options.autocorrect = prefs.lastfm_autocorrect ? 1 : 0;
-            if (prefs.lastfmlang) {
-                options.lang = lang;
+            if (self.getLanguage()) {
+                options.lang = self.getLanguage();
             }
             LastFMGetRequest(
                 options,
                 callback,
                 function() { failcallback({ error: 1,
-                                            message: "Could not find information about this album"}); }
+                                            message: language.gettext("label_noalbuminfo")}); }
             );
         },
 
@@ -378,14 +399,14 @@ function LastFM(user) {
         getInfo: function(options, callback, failcallback) {
             addGetOptions(options, "artist.getInfo");
             if (username != "") { options.username = username }
-            if (prefs.lastfmlang) {
-                options.lang = lang;
+            if (self.getLanguage()) {
+                options.lang = self.getLanguage();
             }
             LastFMGetRequest(
                 options,
                 callback,
                 function() { failcallback({error: 1,
-                                            message: "Could not find information about this artist"}); }
+                                            message: language.gettext("label_noartistinfo")}); }
             );
         },
 

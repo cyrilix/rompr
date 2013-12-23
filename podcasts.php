@@ -1,6 +1,7 @@
 <?php
 include("vars.php");
 include("functions.php");
+include("international.php");
 if (array_key_exists('url', $_REQUEST)) {
     getNewPodcast(rawurldecode($_REQUEST['url']));
 } else if (array_key_exists('itunes', $_REQUEST)) {
@@ -43,7 +44,7 @@ if (array_key_exists('refresh', $_REQUEST)) {
 
     print '<div id="fruitbat" class="noselection fullwidth">';
     print '<div id="cocksausage">';
-    print '<p>Enter a URL of a podcast RSS feed in this box, or drag its icon there</p>';
+    print '<p>'.get_int_text("podcast_entrybox").'</p>';
     print '<input class="enter sourceform" name="ginger" id="podcastsinput" type="text" size="60"/>';
     print '<button onclick="podcasts.doPodcast(\'podcastsinput\')">Retreive</button>';
     print '</div>';
@@ -345,11 +346,11 @@ function doPodcast($c) {
     }
     print '<div class="whatdoicallthis">'.$y->description.'</div>';
     print '<div class="clearfix" style="padding-bottom:4px;">';
-    print '<img title="Delete this Podcast" class="clickable clickicon podremove tright fridge" name="podremove_'.$pm.'" src="newimages/edit-delete.png" height="16px" style="margin-right:4px">';
-    print '<img title="Configure this Podcast" class="clickable clickicon podconf tleft fridge" name="podconf_'.$pm.'" src="newimages/preferences.png" height="16px" style="margin-right:4px">';
-    print '<img title="Refresh this Podcast" class="clickable clickicon podrefresh tleft fridge" name="podrefresh_'.$pm.'" src="newimages/Refresh.png" height="16px" style="margin-right:4px">';
-    print '<img title="Download All Episodes of this Podcast" class="clickable clickicon podgroupload tleft fridge" name="podgroupload_'.$pm.'" src="newimages/download_icon.png" height="16px" style="margin-right:4px">';
-    print '<img title="Mark All Episodes as Listened" class="clickable clickicon podgrouplisten tleft fridge" name="podgrouplisten_'.$pm.'" src="newimages/listen.png" height="16px" style="margin-right:4px">';
+    print '<img title="'.get_int_text("podcast_delete").'" class="clickable clickicon podremove tright fridge" name="podremove_'.$pm.'" src="newimages/edit-delete.png" height="16px" style="margin-right:4px">';
+    print '<img title="'.get_int_text("podcast_configure").'" class="clickable clickicon podconf tleft fridge" name="podconf_'.$pm.'" src="newimages/preferences.png" height="16px" style="margin-right:4px">';
+    print '<img title="'.get_int_text("podcast_refresh").'" class="clickable clickicon podrefresh tleft fridge" name="podrefresh_'.$pm.'" src="newimages/Refresh.png" height="16px" style="margin-right:4px">';
+    print '<img title="'.get_int_text("podcast_download_all").'" class="clickable clickicon podgroupload tleft fridge" name="podgroupload_'.$pm.'" src="newimages/download_icon.png" height="16px" style="margin-right:4px">';
+    print '<img title="'.get_int_text("podcast_mark_all").'" class="clickable clickicon podgrouplisten tleft fridge" name="podgrouplisten_'.$pm.'" src="newimages/listen.png" height="16px" style="margin-right:4px">';
     print '</div>';
     print '<div class="dropmenu" id="podconf_'.$pm.'"';
     if ((array_key_exists('channel', $_REQUEST) && $_REQUEST['channel'] == $pm) &&
@@ -378,23 +379,23 @@ function doPodcast($c) {
 
     print '<div class="containerbox" style="margin-top:4px">';
     print '<table>';
-    print '<tr><td align="right" style="vertical-align:middle">Display&nbsp;&nbsp;</td>';
+    print '<tr><td align="right" style="vertical-align:middle">'.get_int_text("podcast_display").'&nbsp;&nbsp;</td>';
     print '<td style="vertical-align:middle"><select name="displaymode" class="topformbutton" onchange="podcasts.changeOption(event)">';
-    $options =  '<option value="all">Everything</option>'.
-                '<option value="new">Only New</option>'.
-                '<option value="unlistened">New and Unlistened</option>'.
-                '<option value="downloadednew">New and Downloaded</option>'.
-                '<option value="downloaded">Only Downloaded</option>';
+    $options =  '<option value="all">'.get_int_text("podcast_display_all").'</option>'.
+                '<option value="new">'.get_int_text("podcast_display_onlynew").'</option>'.
+                '<option value="unlistened">'.get_int_text("podcast_display_unlistened").'</option>'.
+                '<option value="downloadednew">'.get_int_text("podcast_display_downloadnew").'</option>'.
+                '<option value="downloaded">'.get_int_text("podcast_display_downloaded").'</option>';
     print preg_replace('/(<option value="'.$y->displaymode.'")/', '$1 selected', $options);
     print '</select></td></tr>';
 
-    print '<tr><td align="right" style="vertical-align:middle">Refresh&nbsp;&nbsp;</td>';
+    print '<tr><td align="right" style="vertical-align:middle">'.get_int_text("podcast_refresh").'&nbsp;&nbsp;</td>';
     print '<td style="vertical-align:middle"><select name="refreshoption" class="topformbutton" onchange="podcasts.changeOption(event)">';
-    $options =  '<option value="never">Manually</option>'.
-                '<option value="hourly">Hourly</option>'.
-                '<option value="daily">Daily</option>'.
-                '<option value="weekly">Weekly</option>'.
-                '<option value="monthly">Monthly</option>';
+    $options =  '<option value="never">'.get_int_text("podcast_refresh_never").'</option>'.
+                '<option value="hourly">'.get_int_text("podcast_refresh_hourly").'</option>'.
+                '<option value="daily">'.get_int_text("podcast_refresh_daily").'</option>'.
+                '<option value="weekly">'.get_int_text("podcast_refresh_weekly").'</option>'.
+                '<option value="monthly">'.get_int_text("podcast_refresh_monthly").'</option>';
     $opt = $y->refreshoption;
     if (!$opt) {
         $opt = "never";
@@ -402,15 +403,15 @@ function doPodcast($c) {
     print preg_replace('/(<option value="'.$opt.'")/', '$1 selected', $options);
     print '</select></td></tr>';
 
-    print '<tr><td align="right" style="vertical-align:middle">Keep Episodes For&nbsp;&nbsp;</td>';
-    print '<td style="vertical-align:middle"><select title="Any episodes older than this value will be removed from the list. Changes to this option will take effect next time you refresh the podcast" name="daystokeep" class="topformbutton fridge" onchange="podcasts.changeOption(event)">';
-    $options =  '<option value="0">Ever</option>'.
-                '<option value="7">One Week</option>'.
-                '<option value="14">Two Weeks</option>'.
-                '<option value="30">One Month</option>'.
-                '<option value="60">Two Months</option>'.
-                '<option value="182">Six Months</option>'.
-                '<option value="365">One Year</option>';
+    print '<tr><td align="right" style="vertical-align:middle">'.get_int_text("podcast_expire").'&nbsp;&nbsp;</td>';
+    print '<td style="vertical-align:middle"><select title="'.get_int_text("podcast_expire_tooltip").'" name="daystokeep" class="topformbutton fridge" onchange="podcasts.changeOption(event)">';
+    $options =  '<option value="0">'.get_int_text("podcast_expire_never").'</option>'.
+                '<option value="7">'.get_int_text("podcast_expire_week").'</option>'.
+                '<option value="14">'.get_int_text("podcast_expire_2week").'</option>'.
+                '<option value="30">'.get_int_text("podcast_expire_month").'</option>'.
+                '<option value="60">'.get_int_text("podcast_expire_2month").'</option>'.
+                '<option value="182">'.get_int_text("podcast_expire_6month").'</option>'.
+                '<option value="365">'.get_int_text("podcast_expire_year").'</option>';
     $opt = $y->daystokeep;
     if (!$opt) {
         $opt = "0";
@@ -418,9 +419,9 @@ function doPodcast($c) {
     print preg_replace('/(<option value="'.$opt.'")/', '$1 selected', $options);
     print '</select></td></tr>';
 
-    print '<tr><td align="right" style="vertical-align:middle">Number to keep&nbsp;&nbsp;</td>';
-    print '<td style="vertical-align:middle"><select title="The list will only ever show this many episodes. Changes to this option will take effect next time you refresh the podcast" name="numtokeep" class="topformbutton fridge" onchange="podcasts.changeOption(event)">';
-    $options =  '<option value="0">Unlimited</option>'.
+    print '<tr><td align="right" style="vertical-align:middle">'.get_int_text("podcast_keep").'&nbsp;&nbsp;</td>';
+    print '<td style="vertical-align:middle"><select title="'.get_int_text("podcast_keep_tooltip").'" name="numtokeep" class="topformbutton fridge" onchange="podcasts.changeOption(event)">';
+    $options =  '<option value="0">'.get_int_text("podcast_keep_0").'</option>'.
                 '<option value="1">1</option>'.
                 '<option value="5">5</option>'.
                 '<option value="10">10</option>'.
@@ -437,18 +438,18 @@ function doPodcast($c) {
     print '</table></div>';
 
     print '<div class="containerbox" style="margin-top:4px">';
-    print '<input title="Enable this option to keep all downloaded episodes. The above two options will then only apply to episodes that have not been downloaded" type="checkbox" class="topcheck fridge" name="keepdownloaded" onclick="podcasts.changeOption(event)"';
+    print '<input title="'.get_int_text("podcast_kd_tooltip").'" type="checkbox" class="topcheck fridge" name="keepdownloaded" onclick="podcasts.changeOption(event)"';
     if ($y->keepdownloaded == "true") {
         print ' checked';
     }
-    print '>Keep all downloaded episodes</input></div>';
+    print '>'.get_int_text("podcast_keep_downloaded").'</input></div>';
 
     print '<div class="containerbox" style="margin-top:4px">';
     print '<input type="checkbox" class="topcheck podautodown" name="autodownload" onclick="podcasts.changeOption(event)"';
     if ($y->autodownload == "true") {
         print ' checked';
     }
-    print '>Automatically download new episodes</input></div>';
+    print '>'.get_int_text("podcast_auto_download").'</input></div>';
 
     print '</div>';
     foreach($y->trackList->track as $item) {
@@ -475,9 +476,9 @@ function doPodcast($c) {
         print '<div class="clickable clicktrack item" name="'.htmlspecialchars_decode($item->link).'">';
         print '<div class="containerbox">';
         if ($item->new == "yes") {
-            print '<div class="fixed"><img title="This is a new episode" class="newpodicon fridge" src="newimages/icon_new.png" /></div>';
+            print '<div class="fixed"><img title="'.get_int_text("podcast_tooltip_new").'" class="newpodicon fridge" src="newimages/icon_new.png" /></div>';
         } else if ($item->listened == "no") {
-            print '<div class="fixed"><img title="This episode is not new but it has not been listened to" class="oldpodicon fridge" src="newimages/listen.png" /></div>';
+            print '<div class="fixed"><img title="'.get_int_text("podcast_tooltip_notnew").'" class="oldpodicon fridge" src="newimages/listen.png" /></div>';
         }
         print '<div class="podtitle expand">'.$item->title.'</div></div>';
         print '<div class="whatdoicallthis padright clearfix"><span class="tleft"><i>'.$item->pubdate.'</i></span>';
@@ -495,24 +496,24 @@ function doPodcast($c) {
             debug_print("time is ".time(),"PODCASTS");
             $timeleft = format_time2($expiretime - time());
             if ($expiretime < time()) {
-                print '<div><b>This episode has expired</b></div>';
+                print '<div><b>'.get_int_text("podcast_expired").'</b></div>';
             } else if ($expiretime - time() < 86400) {
-                print '<div><b><font color="red">'.$timeleft." left to listen</font></b></div>";
+                print '<div><b><font color="red">'.get_int_text("podcast_timeleft", array($timeleft))."</font></b></div>";
             } else {
-                print '<div><b>'.$timeleft." left to listen</b></div>";
+                print '<div><b>'.get_int_text("podcast_timeleft", array($timeleft))."</b></div>";
             }
         }
         print '<div class="whatdoicallthis">'.$item->description.'</div>';
         print '<div class="clearfix" name="podcontrols_'.$pm.'" style="margin-bottom:4px">';
         if (is_dir('prefs/podcasts/'.$pm.'/'.$item->key)) {
-            print '<img class="tleft fridge" title="This episode has been downloaded" src="newimages/downloaded.png" height="16px" style="margin-right:4px">';
+            print '<img class="tleft fridge" title="'.get_int_text("podcast_tooltip_downloaded").'" src="newimages/downloaded.png" height="16px" style="margin-right:4px">';
         } else {
-            print '<img class="clickable clickicon tleft poddownload fridge" title="Download this episode - it will be permanently stored on your computer" name="poddownload_'.$item->key.'" src="newimages/download_icon.png" height="16px" style="margin-right:4px">';
+            print '<img class="clickable clickicon tleft poddownload fridge" title="'.get_int_text("podcast_tooltip_download").'" name="poddownload_'.$item->key.'" src="newimages/download_icon.png" height="16px" style="margin-right:4px">';
         }
         if ($item->listened == "no") {
-            print '<img class="clickable clickicon tleft podmarklistened fridge" title="Mark as listened" name="podmarklistened_'.$item->key.'" src="newimages/listen.png" height="16px" style="margin-right:4px">';
+            print '<img class="clickable clickicon tleft podmarklistened fridge" title="'.get_int_text("podcast_tooltip_mark").'" name="podmarklistened_'.$item->key.'" src="newimages/listen.png" height="16px" style="margin-right:4px">';
         }
-        print '<img class="clickable clickicon tright podtrackremove fridge" title="Delete this episode. If it has been downloaded, the files will be removed" name="podtrackremove_'.$item->key.'" src="newimages/edit-delete.png" height="16px" style="margin-right:4px">';
+        print '<img class="clickable clickicon tright podtrackremove fridge" title="'.get_int_text("podcast_tooltip_delepisode").'" name="podtrackremove_'.$item->key.'" src="newimages/edit-delete.png" height="16px" style="margin-right:4px">';
         print '</div>';
         print '</div>';
     }

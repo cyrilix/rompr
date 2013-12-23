@@ -219,7 +219,8 @@ function Playlist() {
         if (finaltrack > -1) {
             $("#sortable").append('<div class="booger"><table width="100%" class="playlistitem"><tr><td align="left">'
                                     +(finaltrack+1).toString()
-                                    +' tracks</td><td align="right">Duration : '+formatTimeString(totaltime)+'</td></tr></table></div>');
+                                    +' '+language.gettext("label_tracks")+'</td><td align="right">'+language.gettext("label_duration")+' : '
+                                    +formatTimeString(totaltime)+'</td></tr></table></div>');
         }
 
         for (var i in tracklist) {
@@ -227,6 +228,7 @@ function Playlist() {
         }
 
         makeFictionalCharacter();
+        findCurrentTrack();
         if (scrollto > -1) {
             if (mobile == "no") {
                 $('#pscroller').mCustomScrollbar("scrollTo", 'div[name="'+scrollto.toString()+'"]', {scrollInertia:500});
@@ -235,7 +237,6 @@ function Playlist() {
             }
             scrollto = -1;
         }
-        findCurrentTrack();
 
         self.checkProgress();
 
@@ -258,7 +259,7 @@ function Playlist() {
         makeFictionalCharacter();
         playlist.waiting();
         if (mobile == "no") {
-            $("#playlistslist").hide();
+           $("#lpscr").slideToggle('fast');
         } else {
             sourcecontrol('playlistm');
         }
@@ -289,6 +290,7 @@ function Playlist() {
 
         event.stopImmediatePropagation();
         var moveto  = (function getMoveTo(i) {
+            debug.log("Drag Stopped",i.next());
             if (i.next().hasClass('track')) {
                 return parseInt(i.next().attr("name"));
             }
@@ -362,7 +364,7 @@ function Playlist() {
 
     this.waiting = function() {
         $("#waiter").empty();
-        doSomethingUseful('waiter', 'Incoming...');
+        doSomethingUseful('waiter', language.gettext("label_incoming"));
     }
 
     // This is used for adding stream playlists ONLY
@@ -412,7 +414,7 @@ function Playlist() {
                 currentalbum = i;
                 currentsong = currentTrack.playlistpos;
                 debug.debug("PLAYLIST",".. found it!");
-                if (prefs.scrolltocurrent) {
+                if (prefs.scrolltocurrent && $('.track[romprid="'+player.status.songid+'"]').offset()) {
                     debug.log("PLAYLIST","Scrolling to",player.status.songid);
                     if (mobile == "no") {
                         $('#pscroller').mCustomScrollbar("scrollTo", $('.track[romprid="'+player.status.songid+'"]').offset().top - $('#sortable').offset().top - $('#pscroller').height()/2, {scrollInertia:500});
@@ -458,13 +460,13 @@ function Playlist() {
 
                 }
 
-                if (player.status.consume == 1 && consumeflag && prefs.use_mopidy_http == 0) {
+                if (player.status.consume == 1 && consumeflag && !prefs.mopidy_detected) {
                     consumeflag = false;
                     self.repopulate();
                     return 0;
                 }
                 debug.log("PLAYLIST","Track has changed");
-                if (prefs.use_mopidy_http == 0) {
+                if (!prefs.mopidy_detected) {
                     if (currentTrack && currentTrack.type == "stream" && streamflag) {
                         debug.log("PLAYLIST","Waiting for stream info......");
                         // If it's a new stream, don't update immediately, instead give it 5 seconds
@@ -472,14 +474,14 @@ function Playlist() {
                         // This avoids us displaying some random nonsense then switching to the track
                         // data 5 seconds later
                         streamflag = false;
-                        infobar.setNowPlayingInfo({ title: 'Waiting for station info...'});
+                        infobar.setNowPlayingInfo({ title: language.gettext("label_waitingforstation")});
                         infobar.albumImage.setSource({image: currentTrack.image});
                         setTheClock(playlist.streamfunction, 5000);
                         return 0;
                     }
                 }
-                if ((prefs.use_mopidy_http == 0 && currentTrack && currentTrack.type != "stream") ||
-                    (prefs.use_mopidy_http == 1 && currentTrack)) {
+                if ((!prefs.mopidy_detected && currentTrack && currentTrack.type != "stream") ||
+                    (prefs.mopidy_detected && currentTrack)) {
                     debug.log("PLAYLIST","Creating new track",currentTrack);
                     nowplaying.newTrack(currentTrack);
                 }
@@ -506,7 +508,7 @@ function Playlist() {
                 if (progress > 4) { infobar.updateNowPlaying() };
                 if (percent >= prefs.scrobblepercent) { infobar.scrobble(); }
                 if (duration > 0 && currentTrack.type != "stream") {
-                    if (prefs.use_mopidy_http == 0) {
+                    if (!prefs.mopidy_detected) {
                         // When using mopidy HTTP, we get state change events when tracks change,
                         // so there's no need to poll like this.
                         if (progress >= duration) {
@@ -520,7 +522,7 @@ function Playlist() {
                         setTheClock( playlist.checkProgress, 1000);
                     }
                 } else {
-                   if (prefs.use_mopidy_http == 0) {
+                   if (!prefs.mopidy_detected) {
                         AlanPartridge++;
                         if (AlanPartridge < 7) {
                             setTheClock( playlist.checkProgress, 1000);
@@ -628,7 +630,7 @@ function Playlist() {
 
     this.stopafter = function() {
         if (currentTrack.type == "stream") {
-            infobar.notify(infobar.ERROR, "Not supported for radio streams");
+            infobar.notify(infobar.ERROR, language.gettext("label_notforradio"));
         } else if (player.status.state == "play") {
             player.controller.stopafter();
             var timeleft = currentTrack.duration - infobar.progress();

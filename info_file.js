@@ -18,34 +18,43 @@ var info_file = function() {
         } else {
             return "";
         }
-        html = html + '<div class="indent"><table><tr><td class="fil">File:</td><td>'+file;
+        html = html + '<div class="indent"><table><tr><td class="fil">'+language.gettext("info_file")+'</td><td>'+file;
         if (file.match(/^http:\/\/.*item\/\d+\/file/)) {
-            html = html + ' <i>(from beets server)</i>';
+            html = html + ' <i>'+language.gettext("info_from_beets")+'</i>';
         }
         if (filetype != "") {
-            html = html + '<tr><td class="fil">Format:</td><td>'+filetype+'</td></tr>';
+            html = html + '<tr><td class="fil">'+language.gettext("info_format")+'</td><td>'+filetype+'</td></tr>';
         }
         if (player.status.bitrate && player.status.bitrate != 'None') {
-            html = html + '<tr><td class="fil">Bitrate:</td><td>'+player.status.bitrate+'</td></tr>';
+            html = html + '<tr><td class="fil">'+language.gettext("info_bitrate")+'</td><td>'+player.status.bitrate+'</td></tr>';
         }
         var ai = player.status.audio;
         if (ai) {
             var p = ai.split(":");
-            html = html + '<tr><td class="fil">Sample Rate:</td><td>'+p[0]+' Hz, '+p[1]+' Bit, ';
+            html = html + '<tr><td class="fil">'+language.gettext("info_samplerate")+'</td><td>'+p[0]+' Hz, '+p[1]+' Bit, ';
             if (p[2] == 1) {
-                html = html + 'Mono';
+                html = html + language.gettext("info_mono");
             } else if (p[2] == 2) {
-                html = html + 'Stereo';
+                html = html + language.gettext("info_stereo");
             } else {
-                html = html + p[2]+' Channels';
+                html = html + p[2]+' '+language.gettext("info_channels");
             }
             '</td></tr>';
         }
         if (player.status.Date) {
-            html = html + '<tr><td class="fil">Date:</td><td>'+player.status.Date+'</td></tr>';
+            html = html + '<tr><td class="fil">'+language.gettext("info_date")+'</td><td>'+player.status.Date+'</td></tr>';
         }
         if (player.status.Genre) {
-            html = html + '<tr><td class="fil">Genre:</td><td>'+player.status.Genre+'</td></tr>';
+            html = html + '<tr><td class="fil">'+language.gettext("info_genre")+'</td><td>'+player.status.Genre+'</td></tr>';
+        }
+        if (player.status.performers) {
+            html = html + '<tr><td class="fil">'+language.gettext("info_performers")+'</td><td>'+player.status.performers+'</td></tr>';
+        }
+        if (player.status.composers) {
+            html = html + '<tr><td class="fil">'+language.gettext("info_composers")+'</td><td>'+player.status.composers+'</td></tr>';
+        }
+        if (player.status.comment) {
+            html = html + '<tr><td class="fil">'+language.gettext("info_comment")+'</td><td>'+player.status.comment+'</td></tr>';
         }
         html = html + '</table></div>';
         playlist.checkProgress();
@@ -58,42 +67,42 @@ var info_file = function() {
         var html = "";
         var file = unescape(player.status.file);
         if (!file) { return "" }
-        html = html + '<div class="indent"><table class="motherfucker"><tr><td class="fil">File:</td><td>'+file;
-        html = html + ' <i>(from beets server)</i>';
+        html = html + '<div class="indent"><table class="motherfucker"><tr><td class="fil">'+language.gettext("info_file")+'</td><td>'+file;
+        html = html + ' <i>'+language.gettext("info_from_beets")+'</i>';
         html = html +'</td></tr>';
-        html = html + '<tr><td class="fil">Format:</td><td>'+data.format+'</td></tr>';
+        html = html + '<tr><td class="fil">'+language.gettext("info_format")+'</td><td>'+data.format+'</td></tr>';
         if (data.bitrate) {
-            html = html + '<tr><td class="fil">Bitrate:</td><td>'+data.bitrate+'</td></tr>';
+            html = html + '<tr><td class="fil">'+language.gettext("info_bitrate")+'</td><td>'+data.bitrate+'</td></tr>';
         }
-        html = html + '<tr><td class="fil">Sample Rate:</td><td>'+data.samplerate+' Hz, '+data.bitdepth+' Bit, ';
+        html = html + '<tr><td class="fil">'+language.gettext("info_samplerate")+'</td><td>'+data.samplerate+' Hz, '+data.bitdepth+' Bit, ';
         if (data.channels == 1) {
-            html = html + 'Mono';
+            html = html + language.gettext("info_mono");
         } else if (data.channels == 2) {
-            html = html + 'Stereo';
+            html = html +language.gettext("info_stereo");
         } else {
-            html = html + data.channels +' Channels';
+            html = html + data.channels +' '+language.gettext("info_channels");
         }
         html = html + '</td></tr>';
         if (data.year) {
-            html = html + '<tr><td class="fil">Year:</td><td>'+data.year+'</td></tr>';
+            html = html + '<tr><td class="fil">'+language.gettext("info_year")+'</td><td>'+data.year+'</td></tr>';
         }
         if (data.composer) {
-            html = html + '<tr><td class="fil">Composer:</td><td>'+data.composer+'</td></tr>';
+            html = html + '<tr><td class="fil">'+language.gettext("info_composers")+'</td><td>'+data.composer+'</td></tr>';
         }
         if (data.genre) {
-            html = html + '<tr><td class="fil">Genre:</td><td>'+data.genre+'</td></tr>';
+            html = html + '<tr><td class="fil">'+language.gettext("info_genre")+'</td><td>'+data.genre+'</td></tr>';
         }
         if (data.label) {
-            html = html + '<tr><td class="fil">Label:</td><td>'+data.label+'</td></tr>';
+            html = html + '<tr><td class="fil">'+language.gettext("info_label")+'</td><td>'+data.label+'</td></tr>';
         }
         if (data.comments) {
-            html = html + '<tr><td class="fil">Comments:</td><td>'+data.comments+'</td></tr>';
+            html = html + '<tr><td class="fil">'+language.gettext("info_comment")+'</td><td>'+data.comments+'</td></tr>';
         }
         if (data.disctitle) {
-            html = html + '<tr><td class="fil">Disc Title:</td><td>'+data.disctitle+'</td></tr>';
+            html = html + '<tr><td class="fil">'+language.gettext("info_disctitle")+'</td><td>'+data.disctitle+'</td></tr>';
         }
         if (data.encoder) {
-            html = html + '<tr><td class="fil">Encoder:</td><td>'+data.encoder+'</td></tr>';
+            html = html + '<tr><td class="fil">'+language.gettext("info_encoder")+'</td><td>'+data.encoder+'</td></tr>';
         }
         html = html + '</table></div>';
         setBrowserIcon(data.format);
@@ -216,4 +225,4 @@ var info_file = function() {
 	}
 }();
 
-nowplaying.registerPlugin("file", info_file, "newimages/audio-x-generic.png", "Info Panel (File Information)");
+nowplaying.registerPlugin("file", info_file, "newimages/audio-x-generic.png", "button_fileinfo");

@@ -90,7 +90,8 @@ var info_discogs = function() {
         	}
         	html = html + '</span></div>';
         	html = html + '<div class="mbbox"><table class="padded" width="100%">';
-        	html = html + '<tr><th></th><th>YEAR</th><th>TITLE</th><th>ARTIST</th><th>TYPE</th><th>LABEL</th></tr>'
+        	html = html + '<tr><th></th><th>'+language.gettext("title_year")+'</th><th>'+language.gettext("title_title")+'</th><th>'
+        				+language.gettext("title_artist")+'</th><th>'+language.gettext("title_type")+'</th><th>'+language.gettext("title_label")+'</th></tr>';
         	for (var i in data.data.releases) {
         		if (data.data.releases[i].thumb) {
         			html = html + '<tr><td><img width="64px" src="getDiscogsImage.php?url='+data.data.releases[i].thumb+'" /></td>';
@@ -136,7 +137,7 @@ var info_discogs = function() {
         		html = html + '</tr>';
         	}
         	html = html + '</table></div>';
-        	html = html + '<div class="mbbox clearfix"><span style="float:right">PAGES: ';
+        	html = html + '<div class="mbbox clearfix"><span style="float:right">'+language.gettext("label_pages")+': ';
         	for (var i = 1; i <= data.data.pagination.pages; i++) {
         		if (i == data.data.pagination.page) {
         			html = html + " <b>"+i+"</b>";
@@ -175,7 +176,7 @@ var info_discogs = function() {
 		}
 
 		if (data.release) {
-			html = html + '<br><ul><li><b>COMPANIES</b></li>';
+			html = html + '<br><ul><li><b>'+language.gettext("discogs_companies")+'</b></li>';
 			for (var i in data.release.data.companies) {
 				html = html + '<li>'+data.release.data.companies[i].entity_type_name+
 							" "+data.release.data.companies[i].name+'</li>';
@@ -200,7 +201,7 @@ var info_discogs = function() {
         }
 
         if (data.release && data.release.data.extraartists && data.release.data.extraartists.length > 0) {
-			html = html + '<div class="mbbox underline"><b>PERSONNEL</b></div>';
+			html = html + '<div class="mbbox underline"><b>'+language.gettext("discogs_personnel")+'</b></div>';
 			for (var i in data.release.data.extraartists) {
 				html = html + '<div class="mbbox"><b>'+data.release.data.extraartists[i].name+
 							'</b> - '+data.release.data.extraartists[i].role+'</div>';
@@ -243,7 +244,7 @@ var info_discogs = function() {
 	}
 
 	function doVideos(videos) {
-		var html = '<div class="mbbox underline"><b>VIDEOS</b></div>';
+		var html = '<div class="mbbox underline"><b>'+language.gettext("discogs_videos")+'</b></div>';
 		for (var i in videos) {
 			var u = videos[i].uri;
 			if (videos[i].embed == true && u.match(/youtube\.com/)) {
@@ -260,7 +261,7 @@ var info_discogs = function() {
 	}
 
 	function getStyles(styles) {
-		var html = '<br><ul><li><b>STYLES</b></li>';
+		var html = '<br><ul><li><b>'+language.gettext("discogs_styles")+'</b></li>';
 		for (var i in styles) {
 			html = html + '<li>'+styles[i]+'</li>';
 		}
@@ -269,7 +270,7 @@ var info_discogs = function() {
 	}
 
 	function getGenres(genres) {
-		var html = '<br><ul><li><b>GENRES</b></li>';
+		var html = '<br><ul><li><b>'+language.gettext("discogs_genres")+'</b></li>';
 		for (var i in genres) {
 			html = html + '<li>'+genres[i]+'</li>';
 		}
@@ -278,7 +279,7 @@ var info_discogs = function() {
 	}
 
 	function getTracklist(tracks) {
-		var html = '<div class="mbbox underline"><b>TRACK LISTING</b></div><div class="mbbox"><table class="padded">';
+		var html = '<div class="mbbox underline"><b>'+language.gettext("discogs_tracklisting")+'</b></div><div class="mbbox"><table class="padded">';
 		for (var i in tracks) {
 			if (tracks[i].position == "") {
 				html = html + '<tr><th colspan="3">'+tracks[i].title+'</th></tr>';
@@ -341,7 +342,7 @@ var info_discogs = function() {
 				if (element.hasClass('clickdoartist')) {
 					var targetdiv = element.parent().next();
 					if (!(targetdiv.hasClass('full')) && element.isClosed()) {
-						doSomethingUseful(targetdiv, 'Getting Data');
+						doSomethingUseful(targetdiv, language.gettext("info_gettinginfo"));
 	        			targetdiv.slideToggle('fast');
 						getArtistData(element.attr('name'));
 	        			element.toggleOpen();
@@ -366,12 +367,12 @@ var info_discogs = function() {
 				} else if (element.hasClass('clickreleasepage')) {
 					var targetdiv = element.parent().parent().parent().attr("name");
 					element.parent().parent().parent().addClass("expectingpage_"+element.text());
-					doSomethingUseful(element.parent().parent(), "Getting Data...");
+					doSomethingUseful(element.parent().parent(), language.gettext("info_gettinginfo"));
 					getArtistReleases(element.attr('name'), element.text());
 				} else if (element.hasClass('clickdodiscography')) {
 					var targetdiv = element.parent().next();
 					if (!(targetdiv.hasClass('full')) && element.isClosed()) {
-						doSomethingUseful(targetdiv, 'Getting Data');
+						doSomethingUseful(targetdiv, language.gettext("info_gettinginfo"));
 						targetdiv.addClass("expectingpage_1");
 	        			getArtistReleases(element.attr('name'), 1);
 	        			element.toggleOpen();
@@ -489,7 +490,7 @@ var info_discogs = function() {
 								me,
 								'artist',
 								{
-									name: "Slideshow - "+parent.playlistinfo.metadata.artist.discogs['artist_'+n].data.name,
+									name: language.gettext("discogs_slideshow")+" - "+parent.playlistinfo.metadata.artist.discogs['artist_'+n].data.name,
 									link: null,
 									data: $("#artistinformation").html()
 								}
@@ -592,11 +593,11 @@ var info_discogs = function() {
 			    }
 
 			    if (data.data.realname && data.data.realname != "") {
-			        html = html + '<br><ul><li><b>REAL NAME:</b> '+data.data.realname+'</li>';
+			        html = html + '<br><ul><li><b>'+language.gettext("discogs_realname")+'</b> '+data.data.realname+'</li>';
 			    }
 
 		        if (data.data.aliases && data.data.aliases.length > 0) {
-			        html = html + '<br><ul><li><b>ALIASES:</b></li>';
+			        html = html + '<br><ul><li><b>'+language.gettext("discogs_aliases")+'</b></li>';
 			        for (var i in data.data.aliases) {
 			        	html = html + '<li>'+data.data.aliases[i].name+'</li>';
 			        }
@@ -604,7 +605,7 @@ var info_discogs = function() {
 			    }
 
 		        if (data.data.namevariations && data.data.namevariations.length > 0) {
-			        html = html + '<br><ul><li><b>ALSO KNOWN AS:</b></li>';
+			        html = html + '<br><ul><li><b>'+language.gettext("discogs_alsoknown")+'</b></li>';
 			        for (var i in data.data.namevariations) {
 			        	html = html + '<li>'+data.data.namevariations[i]+'</li>';
 			        }
@@ -612,7 +613,7 @@ var info_discogs = function() {
 			    }
 
 		        if (data.data.urls && data.data.urls.length > 0) {
-			        html = html + '<br><ul><li><b>EXTERNAL LINKS:</b></li>';
+			        html = html + '<br><ul><li><b>'+language.gettext("discogs_external")+'</b></li>';
 			        html = html + getURLs(data.data.urls);
 			        html = html + '</ul>';
 			    }
@@ -669,18 +670,18 @@ var info_discogs = function() {
 			    html = html + '</div>';
 
 			    if (data.data.members && data.data.members.length > 0) {
-		        	html = html + '<div class="mbbox underline"><b>BAND MEMBERS</b></div>';
+		        	html = html + '<div class="mbbox underline"><b>'+language.gettext("discogs_bandmembers")+'</b></div>';
 		        	html = html + doMembers(data.data.members);
 			    }
 
 			    if (data.data.groups && data.data.groups.length > 0) {
-		        	html = html + '<div class="mbbox underline"><b>MEMBER OF</b></div>';
+		        	html = html + '<div class="mbbox underline"><b>'+language.gettext("discogs_memberof")+'</b></div>';
 		        	html = html + doMembers(data.data.groups);
 			    }
 
 				html = html + '<div class="mbbox underline">';
 			    html = html + '<img src="newimages/toggle-closed-new.png" class="menu infoclick clickdodiscography" name="'+data.data.id+'">';
-			    html = html + '<b>'+data.data.name.toUpperCase()+' DISCOGRAPHY</b></div>';
+			    html = html + '<b>'+language.gettext("discogs_discography", [data.data.name.toUpperCase()])+'</b></div>';
 			    html = html + '<div name="discography_'+data.data.id+'" class="invisible">';
 			    html = html + '</div>';
 
@@ -836,6 +837,7 @@ var info_discogs = function() {
 									self.artist.artistResponseHandler
 								);
 							} else {
+
 								self.artist.abjectFailure();
 							}
 						} else {
@@ -884,7 +886,7 @@ var info_discogs = function() {
 
 					abjectFailure: function() {
 						debug.fail(medebug,"Failed to find any artist data");
-						parent.playlistinfo.metadata.artist.discogs.artistinfo = {error: "Couldn't get a sensible response from Discogs"};
+						parent.playlistinfo.metadata.artist.discogs.artistinfo = {error: language.gettext("discogs_nonsense")};
 						self.artist.doBrowserUpdate();
 					},
 
@@ -1124,7 +1126,7 @@ var info_discogs = function() {
 
 					abjectFailure: function() {
 						debug.fail(medebug,"Completely failed to find the album");
-						parent.playlistinfo.metadata.album.discogs.album.error = {error: 'No Discogs link could be found for this album'};
+						parent.playlistinfo.metadata.album.discogs.album.error = {error: language.gettext("discogs_noalbum")};
 						self.album.doBrowserUpdate();
 					},
 
@@ -1267,7 +1269,7 @@ var info_discogs = function() {
 
 					abjectFailure: function() {
 						debug.fail(medebug,"Completely failed to find the track");
-						parent.playlistinfo.metadata.track.discogs.track.error = {error: 'No Discogs link could be found for this track'};
+						parent.playlistinfo.metadata.track.discogs.track.error = {error: language.gettext("discogs_notrack")};
 						self.track.doBrowserUpdate();
 					},
 
@@ -1304,4 +1306,4 @@ var info_discogs = function() {
 
 }();
 
-nowplaying.registerPlugin("discogs", info_discogs, "newimages/discogs-white-2.png", "Info Panel (Discogs)");
+nowplaying.registerPlugin("discogs", info_discogs, "newimages/discogs-white-2.png", "button_discogs");

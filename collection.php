@@ -700,11 +700,11 @@ function doCollection($command, $jsondata = null) {
         if ($command == null) {
             debug_print("Parsing Mopidy JSON Data","COLLECTION");
             parse_mopidy_json_data($collection, $jsondata);
-        } elseif ($command == "listallinfo" && $prefs['use_mopidy_tagcache'] == 1) {
-            debug_print("Doing Mopidy tag cache scan.","COLLECTION");
-            if (file_exists("mopidy-tags/tag_cache")) {
-                parse_mopidy_tagcache($collection);
-            }
+        // } elseif ($command == "listallinfo" && $prefs['use_mopidy_tagcache'] == 1) {
+        //     debug_print("Doing Mopidy tag cache scan.","COLLECTION");
+        //     if (file_exists("mopidy-tags/tag_cache")) {
+        //         parse_mopidy_tagcache($collection);
+        //     }
         } else {
             fputs($connection, $command."\n");
             $firstline = null;
@@ -875,45 +875,45 @@ function do_albums_xml($artistkey, $compilations, $showartist, $prefix, $output)
 
 }
 
-function parse_mopidy_tagcache($collection) {
+// function parse_mopidy_tagcache($collection) {
 
-    global $prefs;
-    debug_print("Starting Mopidy Tag Cache Scan","COLLECTION");
+//     global $prefs;
+//     debug_print("Starting Mopidy Tag Cache Scan","COLLECTION");
 
-    $firstline = null;
-    $filedata = array();
-    $parts = true;
-    $fp = fopen("mopidy-tags/tag_cache", "r");
+//     $firstline = null;
+//     $filedata = array();
+//     $parts = true;
+//     $fp = fopen("mopidy-tags/tag_cache", "r");
 
-    if ($fp) {
-        $a = "";
-        while(!feof($fp) && strtolower($a) != "songlist begin") {
-            $a = trim(fgets($fp));
-        }
-        while(!feof($fp) && $parts) {
-            $parts = getline($fp);
-            if (is_array($parts)) {
-                if ($parts[0] != "playlist" && $parts[0] != "Last-Modified") {
-                    if ($parts[0] == $firstline) {
-                        process_file($collection, $filedata);
-                        $filedata = array();
-                    }
-                    if ($parts[0] == 'file') {
-                        $parts[1] = "local:track:".$parts[1];
-                    }
-                    $filedata[$parts[0]] = $parts[1];
-                    if ($firstline == null) {
-                        $firstline = $parts[0];
-                    }
-                }
-            }
-        }
+//     if ($fp) {
+//         $a = "";
+//         while(!feof($fp) && strtolower($a) != "songlist begin") {
+//             $a = trim(fgets($fp));
+//         }
+//         while(!feof($fp) && $parts) {
+//             $parts = getline($fp);
+//             if (is_array($parts)) {
+//                 if ($parts[0] != "playlist" && $parts[0] != "Last-Modified") {
+//                     if ($parts[0] == $firstline) {
+//                         process_file($collection, $filedata);
+//                         $filedata = array();
+//                     }
+//                     if ($parts[0] == 'file') {
+//                         $parts[1] = "local:track:".$parts[1];
+//                     }
+//                     $filedata[$parts[0]] = $parts[1];
+//                     if ($firstline == null) {
+//                         $firstline = $parts[0];
+//                     }
+//                 }
+//             }
+//         }
 
-        if (array_key_exists('file', $filedata) && $filedata['file']) {
-             process_file($collection, $filedata);
-        }
-    }
-    fclose($fp);
-}
+//         if (array_key_exists('file', $filedata) && $filedata['file']) {
+//              process_file($collection, $filedata);
+//         }
+//     }
+//     fclose($fp);
+// }
 
 ?>

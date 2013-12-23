@@ -1,6 +1,7 @@
 <?php
 include ("vars.php");
 include ("functions.php");
+include ("international.php");
 include ("connection.php");
 $playlists = do_mpd_command($connection, "listplaylists", null, true);
 if (!is_array($playlists)) {
@@ -23,7 +24,7 @@ if (array_key_exists('mobile', $_REQUEST) && $_REQUEST['mobile'] != "no") {
         print '</table>';
     }
 } else {
-    print '<li class="tleft wide"><b>Playlists</b></li>';
+    print '<li class="tleft wide"><b>'.get_int_text("menu_playlists").'</b></li>';
     if (array_key_exists('playlist', $playlists) && is_array($playlists['playlist'])) {
         sort($playlists['playlist'], SORT_STRING);
         print '<li class="tleft wide"><table width="100%">';

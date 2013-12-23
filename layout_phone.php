@@ -126,18 +126,11 @@
     </div>
 
     <div id="playlistman" class="invisible noborder">
-<?php
-if ($prefs['use_mopidy_tagcache'] == 0 &&
-    $prefs['use_mopidy_http'] == 0) {
-?>
         <div class="pref">
             Save Playlist As
             <input class="winkle" style="width:195px" name="nigel" id="playlistname" type="text" size="200"/>
             <button onclick="savePlaylist()">Save</button>
         </div>
-<?php
-}
-?>
         <div class="pref">
 
             <div id="playlistslist"></div>
@@ -164,8 +157,7 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
             <input type="checkbox" onclick="keepsearchopen()" id="button_keep_search_open">...but Keep Search Box Visible</input>
         </div>
 <?php
-if ($prefs['use_mopidy_tagcache'] == 0 &&
-    $prefs['use_mopidy_http'] == 0) {
+if (!$mopidy_detected) {
 ?>
         <div class="pref">
             <input type="checkbox" onclick="hidePanel('filelist')" id="button_hide_filelist">Hide Files List</input>
@@ -212,10 +204,7 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
 ?>
             <button onclick="setXfadeDur()">Set</button>
         </div>
-<?php
-if ($prefs['use_mopidy_tagcache'] == 0 &&
-    $prefs['use_mopidy_http'] == 0) {
-?>
+
         <div class="pref">
             <input type="checkbox" onclick="togglePref('updateeverytime')" id="updateeverytime">Update Collection On Start</input>
         </div>
@@ -223,31 +212,17 @@ if ($prefs['use_mopidy_tagcache'] == 0 &&
             <button onclick="player.controller.updateCollection('update')">Update Collection Now</button>
         </div>
 <?php
-} else {
-?>
-        <div class="pref">
-            <button onclick="player.controller.updateCollection('update')">Rebuild Albums List</button>
-        </div>
-<?php
-}
-if (($prefs['use_mopidy_tagcache'] == 0 &&
-    $prefs['use_mopidy_http'] == 0) ||
-    $prefs['use_mopidy_tagcache'] == 1) {
+if (!$mopidy_detected) {
 ?>
         <div class="pref">
             <button onclick="player.controller.updateCollection('rescan')">Full Collection Rescan</button>
         </div>
 <?php
 }
-if ($prefs['use_mopidy_tagcache'] == 0 &&
-    $prefs['use_mopidy_http'] == 0) {
 ?>
         <div class="pref">
             <button onclick="editmpdoutputs()">MPD Audio Outputs...</button>
         </div>
-<?php
-}
-?>
         <div class="pref">
             <b>Last.FM</b>
         </div>

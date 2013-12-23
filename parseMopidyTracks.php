@@ -4,6 +4,7 @@ include ("vars.php");
 include ("functions.php");
 include ("connection.php");
 include ("collection.php");
+include("international.php");
 
 $count = 1;
 $divtype = "album1";

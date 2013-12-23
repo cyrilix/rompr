@@ -18,7 +18,7 @@ var info_lyrics = function() {
 				debug.log("LYRICS PLUGIN","Formatting Lyrics");
 				data = data.replace(/^(\w)/, '<font size="120%">$1</font>')
 				data = data.replace(/\n/g, '<br>');
-				return '<div class="lyrics"><h2>Lyrics</h2><p>'+data+'</p></div>';
+				return '<div class="lyrics"><h2>'+language.gettext("lyrics_lyrics")+'</h2><p>'+data+'</p></div>';
 			}
 
 			this.displayData = function() {
@@ -51,7 +51,7 @@ var info_lyrics = function() {
 					return;
 				}
 				if (parent.playlistinfo.metadata.track.lyrics === null) {
-					parent.playlistinfo.metadata.track.lyrics = '<h3 align=center>No Lyrics were found</h3><p>To use the lyrics viewer, you need to use Mopidy with a Beets server and ensure your files are tagged with lyrics</p>';
+					parent.playlistinfo.metadata.track.lyrics = '<h3 align=center>'+language.gettext("lyrics_nonefound")+'</h3><p>'+language.gettext("lyrics_info")+'</p>';
 				}
 				self.doBrowserUpdate()
 		    }
@@ -75,4 +75,4 @@ var info_lyrics = function() {
 
 }();
 
-nowplaying.registerPlugin("lyrics", info_lyrics, "newimages/lyrics.jpg", "Info Panel (Lyrics)");
+nowplaying.registerPlugin("lyrics", info_lyrics, "newimages/lyrics.jpg", "button_lyrics");

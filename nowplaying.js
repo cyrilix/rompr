@@ -100,7 +100,7 @@ var nowplaying = function() {
 			debug.log("NOWPLAYING", "Plugin is regsistering - ",name);
 			plugins[name] = { 	createfunction: fn,
 								icon: icon,
-								text: text
+								text: language.gettext(text)
 							};
 		},
 

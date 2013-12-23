@@ -3,6 +3,7 @@
 
 include ("vars.php");
 include ("functions.php");
+include ("international.php");
 
 $count = 1;
 $divtype = "album1";

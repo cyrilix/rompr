@@ -3,13 +3,16 @@ include ("vars.php");
 include ("functions.php");
 include ("connection.php");
 include ("filelister.php");
+include ("international.php");
 ?>
 <div>
 <form name="filesearch" action="filesearch.php" method="get">
 <ul class="sourcenav">
-<li><b>Search For Files Containing:</b></li>
-<li><input class="sourceform winkle" name="searchtitle" type="text" size="60" />
-<button onclick="doSomethingUseful('filesearch', 'Searching...')" type="submit">Search</button></li>
+<?php
+print '<li><b>'.get_int_text("label_filesearch").'</b></li>';
+print '<li><input class="sourceform winkle" name="searchtitle" type="text" size="60" />';
+print '<button onclick="doSomethingUseful(\'filesearch\', \''.get_int_text("label_searching").'\')" type="submit">'.get_int_text("button_search").'</button></li>';
+?>
 </ul>
 </form>
 </div>
@@ -37,7 +40,7 @@ function doFileSearch($cmd) {
     $tree->getXML("b", $output);
     $output->closeFile();
     print '<div class="menuitem">';
-    print "<h3>Search Results:</h3>";
+    print "<h3>".get_int_text("label_searchresults")."</h3>";
     print "</div>";
     dumpTree('bdirroot');
     print '<div class="separator"></div>';

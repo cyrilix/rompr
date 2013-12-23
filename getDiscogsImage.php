@@ -1,9 +1,12 @@
 <?php
+include ("vars.php");
 $url = $_REQUEST['url'];
 $url = str_replace("https://", "http://", $url);
+debug_print("Getting ".$url, "GETDISCOGSIMAGE");
 $outfile = 'prefs/imagecache/'.md5($url);
 $ext = explode('.',$url);
 if (!file_exists($outfile)) {
+    debug_print("  Image is not cached", "GETDISCOGSIMAGE");
     $fp = fopen($outfile, 'wb');
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL,$url);
@@ -28,12 +31,4 @@ if (!file_exists($outfile)) {
 header('Content-type: image/'.end($ext));
 readfile($outfile);
 
-// Clean the cache - remove any files over a month old
-$cache = glob('prefs/imagecache/*');
-$now = time();
-foreach($cache as $file) {
-    if($now - filemtime($file) > 2592000) {
-        unlink ($file);
-    }
-}
 ?>

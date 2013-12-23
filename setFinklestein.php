@@ -1,6 +1,6 @@
 <?php
 
-if (is_dir("prefs/MusicFolders")) {
+if (is_link("prefs/MusicFolders")) {
 	system ("unlink prefs/MusicFolders");
 }
 

@@ -157,7 +157,7 @@ function format_tracknum($tracknum) {
 }
 
 # url_get_contents function by Andy Langton: http://andylangton.co.uk/
-function url_get_contents($url,$useragent='RompR Music Player/0.40',$headers=false,$follow_redirects=true,$debug=false) {
+function url_get_contents($url,$useragent='RompR Music Player/0.41',$headers=false,$follow_redirects=true,$debug=false) {
 
     // debug_print("Getting ".$url);
     # initialise the CURL library
@@ -205,7 +205,7 @@ function url_get_contents($url,$useragent='RompR Music Player/0.40',$headers=fal
 function format_time($t,$f=':') // t = seconds, f = separator
 {
     if (($t/86400) >= 1) {
-        return sprintf("%d%s%2d%s%02d%s%02d", ($t/86400), " days ", ($t/3600)%24, $f, ($t/60)%60, $f, $t%60);
+        return sprintf("%d%s%2d%s%02d%s%02d", ($t/86400), " ".get_int_text("label_days")." ", ($t/3600)%24, $f, ($t/60)%60, $f, $t%60);
     }
     if (($t/3600) >= 1) {
         return sprintf("%2d%s%02d%s%02d", ($t/3600), $f, ($t/60)%60, $f, $t%60);
@@ -217,12 +217,12 @@ function format_time($t,$f=':') // t = seconds, f = separator
 function format_time2($t,$f=':') // t = seconds, f = separator
 {
     if (($t/86400) >= 1) {
-        return sprintf("%d%s", ($t/86400), " days");
+        return sprintf("%d%s", ($t/86400), " ".get_int_text("label_days"));
     }
     if (($t/3600) >= 1) {
-        return sprintf("%d%s", ($t/3600), " hours");
+        return sprintf("%d%s", ($t/3600), " ".get_int_text("label_hours"));
     } else {
-        return sprintf("%d%s", ($t/60)%60, " minutes");
+        return sprintf("%d%s", ($t/60)%60, " ".get_int_text("label_minutes"));
     }
 }
 
@@ -428,12 +428,12 @@ function dumpAlbums($which) {
             flock($fp, LOCK_UN);
             if ($which == 'aalbumroot' || $which == 'balbumroot') {
                 if ($which == 'aalbumroot') {
-                    print '<div class="menuitem"><h3>Local Files:</h3></div>';
+                    print '<div class="menuitem"><h3>'.get_int_text("button_local_music").'</h3></div>';
                 }
                 print '<div style="margin-bottom:4px">';
                 print '<table width="100%" class="playlistitem">';
-                print '<tr><td align="left">'.$x->artists->numartists.' artists</td><td align="right">'.$x->artists->numalbums.' albums</td></tr>';
-                print '<tr><td align="left">'.$x->artists->numtracks.' tracks</td><td align="right">'.$x->artists->duration.'</td></tr>';
+                print '<tr><td align="left">'.$x->artists->numartists.' '.get_int_text("label_artists").'</td><td align="right">'.$x->artists->numalbums.' '.get_int_text("label_albums").'</td></tr>';
+                print '<tr><td align="left">'.$x->artists->numtracks.' '.get_int_text("label_tracks").'</td><td align="right">'.$x->artists->duration.'</td></tr>';
                 print '</table>';
                 print '</div>';
 
@@ -453,11 +453,11 @@ function dumpAlbums($which) {
 
         } else {
             debug_print("File Lock Failed!","DUMPALBUMS");
-            print '<h3>There was an error. Please refresh and try again</h3>';
+            print '<h3>'.get_int_text("label_general_error").'</h3>';
         }
     } else {
         debug_print("File Open Failed!","DUMPALBUMS");
-        print '<h3>There was an error. Please refresh and try again</h3>';
+        print '<h3>'.get_int_text("label_general_error").'</h3>';
     }
     fclose($fp);
     print '</body></html>';
@@ -524,7 +524,7 @@ function albumHeaders($artist) {
         $count ++;
     }
     if ($count == 0) {
-        print '<div class="playlistrow2" style="padding-left:64px">No Individual Albums Returned By Search</div>';
+        print '<div class="playlistrow2" style="padding-left:64px">'.get_int_text("label_noalbums").'</div>';
     }
 }
 
@@ -565,7 +565,7 @@ function albumTracks($album) {
         $count++;
     }
     if ($count == 0) {
-        print '<div class="playlistrow2" style="padding-left:64px">No Individual Tracks Returned By Search</div>';
+        print '<div class="playlistrow2" style="padding-left:64px">'.get_int_text("label_notracks").'</div>';
     }
 
 }
@@ -845,7 +845,7 @@ function outputPlaylist() {
 
 function find_executable($prog) {
 
-    // Test to see if convert is on the path and adjust if not - this makes
+    // Test to see if $prog is on the path and adjust if not - this makes
     // it work on MacOSX when everything's installed from MacPorts
     $c = "";
     $a = 1;
@@ -931,6 +931,84 @@ function getTracksForDir($dir) {
         }
     }
     return $retarr;
+}
+
+function clean_cache($term, $time) {
+    debug_print("Checking directory ".$term,"CLEAN CACHE");
+    $cache = glob($term);
+    $now = time();
+    foreach($cache as $file) {
+        if($now - filemtime($file) > $time) {
+            debug_print("Removing file ".$file,"CLEAN CACHE");
+            unlink ($file);
+        }
+    }
+}
+
+function detect_mopidy() {
+    // Let's see if we can retreieve the mopidy HTTP API
+    // If we can, then we will use it and the user doesn't have to
+    // configure everything (many users were unaware that this existed)
+    global $prefs;
+    debug_print("Checking to see if we can find mopidy","INIT");
+    // SERVER_ADDR reflects the address typed into the browser
+    debug_print("Server Address is ".$_SERVER['SERVER_ADDR'],"INIT");
+    // REMOTE_ADDR is the address of the machine running the browser
+    debug_print("Remote Address is ".$_SERVER['REMOTE_ADDR'],"INIT");
+
+    // Our default setting for mpd_host is 'localhost'. This is relative to Apache and therefore not to the browser
+    // if the browser is on another machine
+    debug_print("mpd host is ".$prefs['mpd_host'],"INIT");
+    if ($prefs['mpd_host'] == "localhost" || $prefs['mpd_host'] == "127.0.0.1") {
+        if ($_SERVER['SERVER_ADDR'] != $_SERVER['REMOTE_ADDR']) {
+            debug_print("Browser is on a different PC from the Apache server");
+            if (check_mopidy_http($_SERVER['SERVER_ADDR'])) {
+                $prefs['mopidy_http_address'] = $_SERVER['SERVER_ADDR'];
+                return true;
+            }
+        } else {
+            debug_print("Browser is on the same PC as the Apache server","INIT");
+            // Therefore, the mpd/mopidy server must be on that PC too
+            if (check_mopidy_http($prefs['mpd_host'])) {
+                $prefs['mopidy_http_address'] = $prefs['mpd_host'];
+                return true;
+            } else if ($_SERVER['SERVER_ADDR'] != "::1") {
+                if (check_mopidy_http($_SERVER['SERVER_ADDR'])) {
+                    $prefs['mopidy_http_address'] = $_SERVER['SERVER_ADDR'];
+                    return true;
+                }
+            }
+        }
+    } else {
+        // In this case, the user has set mpd_host to an IP address, therefore that's
+        // all we need to test
+        if (check_mopidy_http($prefs['mpd_host'])) {
+            $prefs['mopidy_http_address'] = $prefs['mpd_host'];
+            return true;
+        }
+    }
+    debug_print("Failed to load Mopidy HTTP API","INIT");
+    return false;
+
+}
+
+function check_mopidy_http($addr) {
+    global $prefs;
+    debug_print("Checking for mopidy HTTP API at http://".$addr.':'.$prefs['mopidy_http_port'].'/mopidy/mopidy.min.js', "INIT");
+    $result = url_get_contents('http://'.$addr.':'.$prefs['mopidy_http_port'].'/mopidy/mopidy.min.js');
+    if ($result['status'] == "200") {
+        debug_print("Mopidy HTTP API success","INIT");
+        return true;
+    } else {
+        debug_print("Failed to get Mopidy HTTP API","INIT");
+        return false;
+    }
+}
+
+function get_browser_language() {
+    // TODO - this method is not good enough.
+    debug_print("Browser Language is ".$_SERVER['HTTP_ACCEPT_LANGUAGE'],"INTERNATIONAL");
+    return substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
 }
 
 ?>

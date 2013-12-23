@@ -2,7 +2,8 @@
 
 include("vars.php");
 include("functions.php");
-// The HTML parser doesn't link the icecast page very much
+include("international.php");
+// The HTML parser doesn't like the icecast page very much
 // Their HTML is obviously crap :)
 // So we need to disable error reporting for this page otherwise people using php development settings
 // on their apache server will see a mass of crap in the icecast panel.
@@ -88,9 +89,11 @@ $outdoc->appendChild($stuff);
 <div class="containerbox fullwidth">
 <form name="searchice" action="iceScraper.php" method="get">
 <ul class="sourcenav">
-<li><b>Search For:</b></li>
-<li><input class="sourceform winkle" name="searchfor" type="text" size="60" />
-<button type="submit">Search</button></li>
+<?php
+print '<li><b>'.get_int_text("label_searchfor").'</b></li>';
+print '<li><input class="sourceform winkle" name="searchfor" type="text" size="60" />';
+print '<button type="submit">'.get_int_text("button_search").'</button></li>';
+?>
 </ul>
 </form>
 </div>

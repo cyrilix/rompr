@@ -33,7 +33,7 @@ var browser = function() {
 
     function waitingBanner(which) {
         var html = '<div class="containerbox infosection menuitem bordered">';
-        html = html + '<h3 class="expand ucfirst">'+which+' : (Getting Info....)</h3>';
+        html = html + '<h3 class="expand ucfirst">'+language.gettext("label_"+which)+' : '+language.gettext("info_gettinginfo")+'</h3>';
         html = html + '<div class="fixed" style="vertical-align:middle"><img height="32px" src="newimages/waiter.png" class="spinner"></div>';
         html = html + '</div>';
         return html;
@@ -41,19 +41,19 @@ var browser = function() {
 
     function banner(data, title, hidden, source) {
         var html = '<div class="containerbox infosection menuitem bordered">';
-        html = html + '<h2 class="expand"><span class="ucfirst">'+title+'</span> : ' + data.name + '</h2>';
+        html = html + '<h2 class="expand"><span class="ucfirst">'+language.gettext("label_"+title)+'</span> : ' + data.name + '</h2>';
         html = html + '<div class="fixed" style="vertical-align:middle;padding:12px"><a href="#" class="infoclick frog">';
         if (hidden) {
-            html = html + "CLICK TO SHOW";
+            html = html + language.gettext("info_clicktoshow");
         } else {
-            html = html + "CLICK TO HIDE";
+            html = html + language.gettext("info_clicktohide");
         }
         html = html + '</a></div>';
         if (data.link === null) {
             html = html + '<div class="fixed" style="vertical-align:middle"><img height="32px" src="'+sources[source].icon+'"></div>';
         } else {
             html = html + '<div class="fixed" style="vertical-align:middle"><a href="'+
-                        data.link + '" title="View In New Tab" target="_blank"><img height="32px" src="'+sources[source].icon+'"></a></div>';
+                        data.link + '" title="'+language.gettext("info_newtab")+'" target="_blank"><img height="32px" src="'+sources[source].icon+'"></a></div>';
         }
         html = html + '</div>';
         html = html + '<div class="foldup" id="artistfoldup"';
@@ -68,9 +68,9 @@ var browser = function() {
         $("#"+section+"information .foldup").slideToggle('slow');
         panelclosed[section] = !panelclosed[section];
         if (panelclosed[section]) {
-            $("#"+section+"information .frog").text("CLICK TO SHOW");
+            $("#"+section+"information .frog").text(language.gettext("info_clicktoshow"));
         } else {
-            $("#"+section+"information .frog").text("CLICK TO HIDE");
+            $("#"+section+"information .frog").text(language.gettext("info_clicktohide"));
         }
     }
 
@@ -95,9 +95,9 @@ var browser = function() {
 
         var html;
         if (mobile == "no") {
-            html = '<li class="wider"><b>HISTORY</b></li><li class="wider">';
+            html = '<li class="wider"><b>'+language.gettext("menu_history")+'</b></li><li class="wider">';
         } else {
-            html = '<h3>HISTORY</h3>';
+            html = '<h3>'+language.gettext("menu_history")+'</h3>';
         }
         html = html + '<table class="histable" width="100%">';
         for (var i in history) {
@@ -115,17 +115,17 @@ var browser = function() {
             if (history[i].specials.artist) {
                 html = html + history[i].specials.artist.name+'<br>';
             } else {
-                html = html + 'Artist : '+history[i].playlistinfo.creator+'<br>';
+                html = html + language.gettext("label_artist")+' : '+history[i].playlistinfo.creator+'<br>';
             }
             if (history[i].specials.album) {
                 html = html + history[i].specials.album.name+'<br>';
             } else {
-                html = html + 'Album : '+history[i].playlistinfo.album+'<br>';
+                html = html + language.gettext("label_album")+' : '+history[i].playlistinfo.album+'<br>';
             }
             if (history[i].specials.track) {
                 html = html + history[i].specials.track.name;
             } else {
-                html = html + 'Track : '+history[i].playlistinfo.title;
+                html = html + language.gettext("label_track")+' : '+history[i].playlistinfo.title;
             }
             html = html + '</td></tr>';
         }
@@ -200,6 +200,7 @@ var browser = function() {
                 debug.log("BROWSER", "  .. and we are going to display it");
                 if (data.data !== null) {
                     $("#"+type+"information").html(banner(data, type, panelclosed[type], source)+data.data);
+                    $("#"+type+"information").find("[title]").tipTip({delay:1000});
                 } else {
                     $("#"+type+"information").html("");
                 }
@@ -260,21 +261,31 @@ var browser = function() {
             history.splice(displaypointer+1,0,p);
             displaypointer++;
             updateHistory();
+            var sp;
             switch (panel) {
                 case "artist":
+                    sp = $("#artistinformation").position();
                     $("#artistinformation").html(banner(data, source, panelclosed.artist, source)+data.data);
+                    $("#artistinformation").find("[title]").tipTip({delay:1000});
                     break;
 
                 case "album":
+                    sp = $("#albuminformation").position();
                     $("#albuminformation").html(banner(data, source, panelclosed.album, source)+data.data);
+                    $("#albuminformation").find("[title]").tipTip({delay:1000});
                     break;
 
                 case "track":
+                    sp = $("#trackinformation").position();
                     $("#trackinformation").html(banner(data, source, panelclosed.track, source)+data.data);
+                    $("#trackinformation").find("[title]").tipTip({delay:1000});
                     break;
             }
-            $("#infopane").scrollTo("#"+panel+"information");
-
+            if (mobile == "no") {
+                $("#infopane").mCustomScrollbar("scrollTo",sp.top);
+            } else {
+                $("#infopane").scrollTo("#"+panel+"information");
+            }
         },
 
         doHistory: function(index) {
@@ -341,7 +352,11 @@ var browser = function() {
             debug.log("BROWSER","History flags are",showartist,showalbum,showtrack);
             displayTheData(displaypointer, showartist, showalbum, showtrack);
             updateHistory();
-            $("#infopane").scrollTo("#artistinformation");
+            if (mobile == "no") {
+                $("#infopane").mCustomScrollbar("scrollTo",0);
+            } else {
+                $("#infopane").scrollTo("#artistinformation");
+            }
         },
 
         forward: function() {

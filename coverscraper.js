@@ -54,7 +54,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
     this.updateInfo = function(n) {
         if (sendUpdates) {
             albums_without_cover = albums_without_cover - n;
-            infotext.html(albums_without_cover+" albums without a cover");
+            infotext.html(albums_without_cover+" "+language.gettext("albumart_nocovercount"));
         }
     }
 
@@ -94,7 +94,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
 
         if (sendUpdates) {
             var x = $('img[name="'+name+'"]').prev('input').val();
-            statusobj.empty().html("Getting "+decodeURIComponent(x));
+            statusobj.empty().html(language.gettext("albumart_getting")+" "+decodeURIComponent(x));
             var percent = ((numAlbums - formObjects.length)/numAlbums)*100;
             progress.setProgress(Math.round(percent));
          }

@@ -13,12 +13,13 @@ include ("vars.php");
 // The generated playlists can be updated later if no information is known -
 // the playlist will handle that when it gets stream info from mpd
 
-include("functions.php");
+include ("functions.php");
+include ("international.php");
 header('Content-Type: text/xml; charset=utf-8');
 
 $url = rawurldecode($_REQUEST['url']);
 $station = (array_key_exists('station', $_REQUEST)) ? rawurldecode($_REQUEST['station']) : "Unknown Internet Stream";
-$creator = (array_key_exists('creator', $_REQUEST)) ? rawurldecode($_REQUEST['creator']) : "Internet Radio";
+$creator = (array_key_exists('creator', $_REQUEST)) ? rawurldecode($_REQUEST['creator']) : get_int_text("label_internet_radio");
 $image = (array_key_exists('image', $_REQUEST)) ? rawurldecode($_REQUEST['image']) : "newimages/broadcast.png";
 $usersupplied = (array_key_exists('usersupplied', $_REQUEST)) ? true : false;
 

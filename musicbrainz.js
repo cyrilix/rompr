@@ -44,7 +44,7 @@ var musicbrainz = function() {
 	                	throttle = setTimeout(musicbrainz.getrequest, 1500);
 	                	req = queue.shift();
 	                	if (data === null) {
-	                		data = {error: "Did not get a response from Musicbrainz"};
+	                		data = {error: language.gettext("musicbrainz_error")};
 	                	}
 	                	if (req.reqid != '') {
 	                		data.id = req.reqid;
@@ -67,7 +67,7 @@ var musicbrainz = function() {
 	                	throttle = setTimeout(musicbrainz.getrequest, 1500);
 	                	req = queue.shift();
 	                	debug.warn("MUSICBRAINZ","Request failed",req,data);
-	                	data = {error: "Could not find this info on Musicbrainz"}
+	                	data = {error: language.gettext("musicbrainz_noinfo")}
 	                	if (req.reqid != '') {
 	                		data.id = req.reqid;
 	                	}

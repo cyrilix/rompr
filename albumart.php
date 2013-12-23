@@ -1,7 +1,9 @@
 <?php
 include ("vars.php");
 include ("functions.php");
+include ("international.php");
 set_time_limit(240);
+$mobile = "no";
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -22,9 +24,17 @@ print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme']
 <script type="text/javascript" src="uifunctions.js"></script>
 <script type="text/javascript" src="debug.js"></script>
 <script type="text/javascript" src="coverscraper.js"></script>
+<?php
+include ("globals.php");
+?>
 <script language="JavaScript">
-debug.setLevel(9);
-// debug.setLevel(0);
+<?php
+if ($prefs['debug_enabled'] == 1) {
+    print "debug.setLevel(8);\n";
+} else {
+    print "debug.setLevel(0);\n";
+}
+?>
 
 var mobile = "no";
 var imagekey = '';
@@ -133,7 +143,7 @@ function findClickableElement(event) {
 function boogerbenson() {
     if (allshown) {
         $("img", "#wobblebottom").filter( onlywithcovers ).parent().parent().hide();
-        $("#finklestein").html("Show All Covers");
+        $("#finklestein").html(language.gettext("albumart_showall"));
         $(".albumsection").filter( emptysections ).hide();
         $(".bigholder").filter( emptysections2 ).hide();
         joinEmTogether(false);
@@ -141,7 +151,7 @@ function boogerbenson() {
         $(".bigholder").show();
         $(".albumsection").show();
         $("img", "#wobblebottom").parent().parent().show();
-        $("#finklestein").html("Show Only Albums Without Covers");
+        $("#finklestein").html(language.gettext("albumart_onlyempty"));
         joinEmTogether(true);
     }
     allshown = !allshown;
@@ -209,7 +219,7 @@ function joinEmTogether(flag) {
 
 function removeUnusedFiles() {
     $("#unusedimages").empty();
-    doSomethingUseful($("#unusedimages"), "Deleting...");
+    doSomethingUseful($("#unusedimages"), language.gettext("albumart_deleting"));
     $.ajax({
         type: "GET",
         url: "albumart.php?cleanup",
@@ -217,7 +227,7 @@ function removeUnusedFiles() {
             window.location="albumart.php";
         },
         error: function(data) {
-            alert("That didn't work!");
+            alert(language.gettext("albumart_error"));
         }
     });
 }
@@ -236,7 +246,7 @@ function filterImages() {
 $(document).ready(function () {
 
     debug.log("ALBUMART","Document is ready");
-    $("#totaltext").html(numcovers+" albums");
+    $("#totaltext").html(numcovers+" "+language.gettext("label_albums"));
     progress = new progressBar('progress', 'horizontal');
     $(window).bind('resize', wobbleMyBottom );
     if ("localStorage" in window && window["localStorage"] != null) {
@@ -463,13 +473,13 @@ var imageEditor = function() {
                 var uform =                 $('<form>', { id: 'uform', action: 'getalbumcover.php', method: 'post', enctype: 'multipart/form-data' }).appendTo($("#usearch"));
                 uform.append(               $('<input>', { id: 'imagekey', type: 'hidden', name: 'key', value: '' }),
                                             $('<input>', { name: 'ufile', type: 'file', size: '80', class: 'tleft sourceform', style: 'color:#ffffff' }),
-                                            $('<input>', { type: 'button', class: 'tright topformbutton', value: 'Upload', style: 'width:8em', onclick: "imageEditor.uploadFile()" }),
-                                            '<div class="holdingcell"><p>You can drag-and-drop images from your hard drive or another browser window directly onto the image (in most browsers)</p></div>');
+                                            $('<input>', { type: 'button', class: 'tright topformbutton', value: language.gettext("albumart_uploadbutton"), style: 'width:8em', onclick: "imageEditor.uploadFile()" }),
+                                            '<div class="holdingcell"><p>'+language.gettext("albumart_dragdrop")+'</p></div>');
 
-                $("#editcontrols").append(  '<div id="g" class="tleft bleft clickable bmenu">Google Search</div>'+
-                                            '<div id="f" class="tleft bleft bmid clickable bmenu">Local Images</div>'+
-                                            '<div id="u" class="tleft bleft bmid clickable bmenu">File Upload</div>'+
-                                            '<div class="tleft bleft bmid clickable"><a href="http://www.google.com/search?q='+phrase+'&hl=en&site=imghp&tbm=isch" target="_blank">Google Search in new Tab</a></div>');
+                $("#editcontrols").append(  '<div id="g" class="tleft bleft clickable bmenu">'+language.gettext("albumart_googlesearch")+'</div>'+
+                                            '<div id="f" class="tleft bleft bmid clickable bmenu">'+language.gettext("albumart_local")+'</div>'+
+                                            '<div id="u" class="tleft bleft bmid clickable bmenu">'+language.gettext("albumart_upload")+'</div>'+
+                                            '<div class="tleft bleft bmid clickable"><a href="http://www.google.com/search?q='+phrase+'&hl=en&site=imghp&tbm=isch" target="_blank">'+language.gettext("albumart_newtab")+'</a></div>');
 
                 $("#editcontrols").append(  $('<img>', { class: "tright clickicon", onclick: "imageEditor.close()", src: "newimages/edit-delete.png", style: "height:16px"}));
 
@@ -587,7 +597,11 @@ var imageEditor = function() {
         googleSearchComplete: function(data) {
             debug.log("IMAGEEDITOR","Google Search Results", data);
             $("#morebutton").remove();
-            start = data.queries.nextPage[0].startIndex;
+            if (data.queries.nextPage) {
+                start = data.queries.nextPage[0].startIndex;
+            } else {
+                start = 1;
+            }
             $.each(data.items, function(i,v){
                 var index = start+i;
                 $("#searchresults").append($('<img>', {
@@ -608,7 +622,7 @@ var imageEditor = function() {
 
             });
             $(".gimage").css("height", "120px");
-            $("#searchresultsholder").append('<div id="morebutton" style="width:80%;display:table" class="gradbutton bigbutton" onclick="imageEditor.search()"><b>Show More Results</b></div>')
+            $("#searchresultsholder").append('<div id="morebutton" style="width:80%;display:table" class="gradbutton bigbutton" onclick="imageEditor.search()"><b>'+language.gettext("albumart_showmore")+'</b></div>');
 
         },
 
@@ -637,7 +651,7 @@ var imageEditor = function() {
 
         showError: function(message) {
             $("#morebutton").remove();
-            $("#searchresults").append('<div id="morebutton" style="width:80%;display:table" class="gradbutton"><b>There was a problem. Google said "'+message+'"</b></div>');
+            $("#searchresults").append('<div id="morebutton" style="width:80%;display:table" class="gradbutton"><b>'+language.gettext("albumart_googleproblem")+' "'+message+'"</b></div>');
         },
 
         gotLocalImages: function(data) {
@@ -785,9 +799,12 @@ function uploadComplete(data) {
 <div class="albumcovers">
 <div class="infosection">
 <table width="100%">
-<tr><td colspan="3"><h2>Album Art</h2></td></tr>
-<tr><td class="outer" id="totaltext"></td><td><div class="invisible" id="progress" style="font-size:12pt"></div></td><td class="outer" align="right"><button id="harold" class="topformbutton">Get Missing Covers</button></td></tr>
-<tr><td class="outer" id="infotext"></td><td align="center"><div class="inner" id="status">Click a cover to change it, or drag an image from your hard drive or another browser window</div></td><td class="outer" align="right"><button id="finklestein" class="topformbutton">Show Only Albums Without Covers</button></td></tr>
+<?php
+print '<tr><td colspan="3"><h2>'.get_int_text("albumart_title").'</h2></td></tr>';
+print '<tr><td class="outer" id="totaltext"></td><td><div class="invisible" id="progress" style="font-size:12pt"></div></td><td class="outer" align="right"><button id="harold" class="topformbutton">'.get_int_text("albumart_getmissing").'</button></td></tr>';
+print '<tr><td class="outer" id="infotext"></td><td align="center"><div class="inner" id="status">'.get_int_text("albumart_instructions").'</div></td><td class="outer" align="right"><button id="finklestein" class="topformbutton">'.
+        get_int_text("albumart_onlyempty").'</button></td></tr>';
+?>
 </table>
 </div>
 </div>
@@ -799,9 +816,9 @@ function uploadComplete(data) {
 $acount = 0;
 if (file_exists($ALBUMSLIST)) {
     $collection = simplexml_load_file($ALBUMSLIST);
-    print '<div class="containerbox menuitem clickable clickselectartist selected" id="allartists"><div class="expand" style="padding-top:2px;padding-bottom:2px">All Artists</div></div>';
-    print '<div class="containerbox menuitem clickable clickselectartist" id="radio"><div class="expand" style="padding-top:2px;padding-bottom:2px">Favourite Radio Stations</div></div>';
-    print '<div class="containerbox menuitem clickable clickselectartist" id="unused"><div class="expand" style="padding-top:2px;padding-bottom:2px">Unused Images</div></div>';
+    print '<div class="containerbox menuitem clickable clickselectartist selected" id="allartists"><div class="expand" style="padding-top:2px;padding-bottom:2px">'.get_int_text("albumart_allartists").'</div></div>';
+    print '<div class="containerbox menuitem clickable clickselectartist" id="radio"><div class="expand" style="padding-top:2px;padding-bottom:2px">'.get_int_text("label_yourradio").'</div></div>';
+    print '<div class="containerbox menuitem clickable clickselectartist" id="unused"><div class="expand" style="padding-top:2px;padding-bottom:2px">'.get_int_text("albumart_unused").'</div></div>';
     foreach($collection->artists->artist as $artist) {
         print '<div class="containerbox menuitem clickable clickselectartist';
         print '" id="artistname'.$acount.'">';
@@ -830,7 +847,7 @@ if (file_exists($ALBUMSLIST)) {
     foreach($collection->artists->artist as $artist) {
         print '<div class="cheesegrater" name="artistname'.$acount.'">';
         print '<div class="albumsection crackbaby">';
-        print '<div class="tleft"><h2 style="margin:8px">'.$artist->name.'</h2></div><div class="tright rightpad"><button class="topformbutton" style="margin-top:8px" onclick="getNewAlbumArt(\'#album'.$count.'\')">Get These Covers</button></div>';
+        print '<div class="tleft"><h2 style="margin:8px">'.$artist->name.'</h2></div><div class="tright rightpad"><button class="topformbutton" style="margin-top:8px" onclick="getNewAlbumArt(\'#album'.$count.'\')">'.get_int_text("albumart_getthese").'</button></div>';
         print "</div>\n";
         print '<div id="album'.$count.'" class="fullwidth bigholder">';
         print '<div class="containerbox covercontainer" id="covers'.$count.'">';
@@ -874,7 +891,7 @@ if (file_exists($ALBUMSLIST)) {
     }
 
 } else {
-    print '<h3>Please create your music collection before trying to download covers<h3>';
+    print '<h3>'.get_int_text("albumart_nocovers").'<h3>';
 }
 
 do_radio_stations();
@@ -908,7 +925,7 @@ function do_radio_stations() {
     if (count($playlists) > 0) {
         print '<div class="cheesegrater" name="radio">';
         print '<div class="albumsection crackbaby">';
-        print '<div class="tleft"><h2 style="margin:8px">Radio Stations</h2></div><div class="tright rightpad"><button class="topformbutton" style="margin-top:8px" onclick="getNewAlbumArt(\'#album'.$count.'\')">Get These Covers</button></div>';
+        print '<div class="tleft"><h2 style="margin:8px">Radio Stations</h2></div><div class="tright rightpad"><button class="topformbutton" style="margin-top:8px" onclick="getNewAlbumArt(\'#album'.$count.'\')">'.get_int_text("albumart_getthese").'</button></div>';
         print "</div>\n";
         print '<div id="album'.$count.'" class="fullwidth bigholder">';
 
@@ -963,7 +980,7 @@ function do_unused_images() {
     global $allfiles;
     print '<div class="cheesegrater" name="unused">';
     print '<div class="albumsection crackbaby">';
-    print '<div class="tleft"><h2 style="margin:8px">'.count($allfiles).' Unused Images</h2></div><div class="tright rightpad"><button class="topformbutton" style="margin-top:8px" onclick="removeUnusedFiles()">Delete These Covers</button></div>';
+    print '<div class="tleft"><h2 style="margin:8px">'.count($allfiles).' '.get_int_text("albumart_unused").'</h2></div><div class="tright rightpad"><button class="topformbutton" style="margin-top:8px" onclick="removeUnusedFiles()">'.get_int_text("albumart_deletethese").'</button></div>';
     print "</div>\n";
     print '<div id="unusedimages" class="fullwidth bigholder">';
     print '<div class="containerbox covercontainer">';

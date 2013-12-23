@@ -8,39 +8,12 @@ if (array_key_exists('mpd_host', $_POST)) {
     $prefs['mpd_port'] = $_POST['mpd_port'];
     $prefs['mpd_password'] = $_POST['mpd_password'];
     $prefs['unix_socket'] = $_POST['unix_socket'];
-
-    if (array_key_exists('use_mopidy_tagcache', $_POST)) {
-        $prefs['use_mopidy_tagcache'] = 1;
-        $prefs['updateeverytime'] = "false";
+    $prefs['mopidy_http_port'] = $_POST['mopidy_http_port'];
+    if (array_key_exists('debug_enabled', $_POST)) {
+        $prefs['debug_enabled'] = 1;
     } else {
-        $prefs['use_mopidy_tagcache'] = 0;
+        $prefs['debug_enabled'] = 0;
     }
-    if (array_key_exists('use_mopidy_http', $_POST)) {
-        $prefs['use_mopidy_http'] = 1;
-    } else {
-        $prefs['use_mopidy_http'] = 0;
-    }
-    if (array_key_exists('use_mopidy_file_backend', $_POST)) {
-        $prefs['use_mopidy_file_backend'] = $_POST['use_mopidy_file_backend'];
-    } else {
-        $prefs['use_mopidy_file_backend'] = "false";
-    }
-    if (array_key_exists('use_mopidy_beets_backend', $_POST)) {
-        $prefs['use_mopidy_beets_backend'] = $_POST['use_mopidy_beets_backend'];
-    } else {
-        $prefs['use_mopidy_beets_backend'] = "false";
-    }
-    if (array_key_exists('sortbydate', $_POST)) {
-        $prefs['sortbydate'] = $_POST['sortbydate'];
-    } else {
-        $prefs['sortbydate'] = "false";
-    }
-    if (array_key_exists('notvabydate', $_POST)) {
-        $prefs['notvabydate'] = $_POST['notvabydate'];
-    } else {
-        $prefs['notvabydate'] = "false";
-    }
-
     savePrefs();
 }
 
@@ -61,25 +34,40 @@ if (array_key_exists('mobile', $_REQUEST)) {
 
 include("functions.php");
 include("connection.php");
+include("international.php");
 if (!$is_connected) {
     debug_print("MPD Connection Failed","INDEX");
     close_mpd($connection);
-    askForMpdValues("Rompr could not connect to an mpd server");
+    askForMpdValues(get_int_text("setup_connectfail"));
     exit();
 } else if (array_key_exists('error', $mpd_status)) {
     debug_print("MPD Password Failed or other status failure","INDEX");
     close_mpd($connection);
-    askForMpdValues('There was an error when communicating with your mpd server : '.$mpd_status['error']);
+    askForMpdValues(get_int_text("setup_connecterror").$mpd_status['error']);
     exit();
 } else if (array_key_exists('setup', $_REQUEST)) {
-    askForMpdValues("You requested the setup page");
+    askForMpdValues(get_int_text("setup_request"));
     close_mpd($connection);
     exit();
 }
 
-// setswitches();
 close_mpd($connection);
 
+// Clean our caches of stored responses. 2592000 is 30 days
+clean_cache('prefs/jsoncache/musicbrainz/*', 2592000);
+clean_cache('prefs/jsoncache/discogs/*', 2592000);
+clean_cache('prefs/jsoncache/wikipedia/*', 2592000);
+clean_cache('prefs/jsoncache/lastfm/*', 2592000);
+clean_cache('prefs/imagecache/*', 2592000);
+
+// Find mopidy's HTTP interface, if present
+// This is set here but never saved. globals.php will pass this into the javascript
+// as prefs.mopidy_detected. If the user wishes to prevent us from using the HTTP
+// interface they just need to set the HTTP port to the 'wrong' value.
+// detect_mopidy will also set prefs.mopidy_http_address to the IP address where
+// it finds the HTTP API
+$mopidy_detected = detect_mopidy();
+$prefs['mopidy_detected'] = $mopidy_detected == true ? "true" : "false";
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -134,24 +122,16 @@ if ($mobile != "no") {
 <script type="text/javascript" src="wikipedia.js"></script>
 <script type="text/javascript" src="soundcloud.js"></script>
 <script type="text/javascript" src="nowplaying.js"></script>
-<script type="text/javascript" src="info_file.js"></script>
-<script type="text/javascript" src="info_lastfm.js"></script>
-<script type="text/javascript" src="info_wikipedia.js"></script>
-<script type="text/javascript" src="info_musicbrainz.js"></script>
-<script type="text/javascript" src="info_discogs.js"></script>
-<script type="text/javascript" src="info_lyrics.js"></script>
-<script type="text/javascript" src="info_soundcloud.js"></script>
 <script type="text/javascript" src="infobar2.js"></script>
 <script type="text/javascript" src="playlist.js"></script>
 <script type="text/javascript" src="coverscraper.js"></script>
 <?php
 
-if ($prefs['use_mopidy_http'] == 1) {
-    print'<script type="text/javascript" src="http://'.$prefs['mpd_host'].':'.$prefs['mopidy_http_port'].'/mopidy/mopidy.min.js"></script>'."\n";
+if ($mopidy_detected) {
+    print'<script type="text/javascript" src="http://'.$prefs['mopidy_http_address'].':'.$prefs['mopidy_http_port'].'/mopidy/mopidy.min.js"></script>'."\n";
 }
 
 ?>
-<!-- <script type="text/javascript" src="mopidy.js"></script> -->
 <script type="text/javascript" src="player.js"></script>
 
 <?php
@@ -181,10 +161,12 @@ jQuery.fn.toggleClosed = function() {
     this.attr('src', 'newimages/toggle-closed-new.png');
 }
 
-debug.setLevel(9);
-// debug.setLevel(0);
-
 <?php
+if ($prefs['debug_enabled'] == 1) {
+    print "debug.setLevel(8);\n";
+} else {
+    print "debug.setLevel(0);\n";
+}
 print "var mobile = '".$mobile."';\n";
 ?>
 
@@ -378,33 +360,35 @@ $(document).ready(function(){
     player.loadCollection();
 
     sourcecontrol(prefs.chooser);
-    if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < 0.41) {
-        var fnarkle = popupWindow.create(500,600,"fnarkle",true,"Information About This Version");
+    if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < 0.42) {
+        var fnarkle = popupWindow.create(500,600,"fnarkle",true,language.gettext("intro_title"));
         $("#popupcontents").append('<div id="fnarkler" class="mw-headline"></div>');
         if (mobile != "no") {
             $("#fnarkler").addClass('tiny');
         }
-        $("#fnarkler").append('<p align="center">Welcome to RompR version 0.41</p>');
+        $("#fnarkler").append('<p align="center">'+language.gettext("intro_welcome")+' 0.42</p>');
         if (mobile != "no") {
-            $("#fnarkler").append('<p align="center">You are viewing the mobile version of RompR. To view the standard version go to <a href="/rompr/?mobile=no">/rompr/?mobile=no</a></p>');
+            $("#fnarkler").append('<p align="center">'+language.gettext("intro_viewingmobile")+' <a href="/rompr/?mobile=no">/rompr/?mobile=no</a></p>');
         } else {
-            $("#fnarkler").append('<p align="center">To view the mobile version go to <a href="/rompr/?mobile=phone">/rompr/?mobile=phone</a></p>');
+            $("#fnarkler").append('<p align="center">'+language.gettext("intro_viewmobile")+' <a href="/rompr/?mobile=phone">/rompr/?mobile=phone</a></p>');
         }
-        $("#fnarkler").append('<p align="center">The Basic RompR Manual is at: <a href="https://sourceforge.net/p/rompr/wiki/Basic%20Manual/" target="_blank">http://sourceforge.net/p/rompr/wiki/Basic%20Manual/</a></p>');
-        $("#fnarkler").append('<p align="center">The Discussion Forum is at: <a href="https://sourceforge.net/p/rompr/discussion/" target="_blank">http://sourceforge.net/p/rompr/discussion/</a></p>');
+        $("#fnarkler").append('<p align="center">'+language.gettext("intro_basicmanual")+' <a href="https://sourceforge.net/p/rompr/wiki/Basic%20Manual/" target="_blank">http://sourceforge.net/p/rompr/wiki/Basic%20Manual/</a></p>');
+        $("#fnarkler").append('<p align="center">'+language.gettext("intro_forum")+' <a href="https://sourceforge.net/p/rompr/discussion/" target="_blank">http://sourceforge.net/p/rompr/discussion/</a></p>');
         if (!debinstall && prefs.shownupdatewindow < 0.41) {
             $("#fnarkler").append('<p align="center"><b>IMPORTANT</b> The Apache configuration file has CHANGED. If you have upgraded from a version earlier than 0.40 please make sure you update your Apache configuration.</p>');
         }
-        $("#fnarkler").append('<p align="center"><b>IMPORTANT Information for Mopidy Users</b></p>');
-        $("#fnarkler").append('<p align="center">If you are running Mopidy, please <a href="https://sourceforge.net/p/rompr/wiki/Rompr%20and%20Mopidy/" target="_blank">read the section about Mopidy on the Wiki</a> to enable some extra features</p>');
-        $("#fnarkler").append('<p align="center"><b>This version of Rompr REQUIRES Mopidy 0.17 or later</b></p>');
+        $("#fnarkler").append('<p align="center"><b>'+language.gettext("intro_mopidy")+'</b></p>');
+<?php
+        print '$("#fnarkler").append(\'<p align="center">'.get_int_text("intro_mopidywiki", array('<a href="https://sourceforge.net/p/rompr/wiki/Rompr%20and%20Mopidy/" target="_blank">', '</a>')).'</p>\');'."\n";
+        print '$("#fnarkler").append(\'<p align="center"><b>'.get_int_text("intro_mopidyversion", array($prefs["mopidy_minversion"])).'</b></p>\');'."\n";
+?>
         $("#fnarkler").append('<p><button style="width:8em" class="tright" onclick="popupWindow.close()">OK</button></p>');
         popupWindow.open();
-        prefs.save({shownupdatewindow: 0.41});
+        prefs.save({shownupdatewindow: 0.42});
         $.get('firstrun.php');
     }
     // Initialise the player's status
-    if (prefs.use_mopidy_http == 0) {
+    if (!prefs.mopidy_detected) {
         player.mpd.command("",playlist.repopulate);
     } else {
         player.mpd.command("");
@@ -440,6 +424,13 @@ $(document).ready(function(){
 });
 
 </script>
+<script type="text/javascript" src="info_file.js"></script>
+<script type="text/javascript" src="info_lastfm.js"></script>
+<script type="text/javascript" src="info_wikipedia.js"></script>
+<script type="text/javascript" src="info_musicbrainz.js"></script>
+<script type="text/javascript" src="info_discogs.js"></script>
+<script type="text/javascript" src="info_lyrics.js"></script>
+<script type="text/javascript" src="info_soundcloud.js"></script>
 <script type="text/javascript" src="info.js"></script>
 </head>
 
@@ -473,71 +464,27 @@ function askForMpdValues($title) {
     <h3>
 <?php
 print $title;
-?>
-    </h3>
-    <p>Please enter the IP address and port of your mpd server in this form</p>
-    <p class="tiny">Note: localhost in this context means the computer running the apache server</p>
-    <form name="mpdetails" action="index.php" method="post">
-<?php
-        print '<p>IP Address or hostname<br><input type="text" class="winkle" name="mpd_host" value="'.$prefs['mpd_host'].'" /></p>'."\n";
-        print '<p>Port<br><input type="text" class="winkle" name="mpd_port" value="'.$prefs['mpd_port'].'" /></p>'."\n";
-?>
-        <hr class="dingleberry" />
-        <h3>Advanced options</h3>
-        <p>Leave these blank unless you know you need them</p>
-<?php
-        print '<p>Password<br><input type="text" class="winkle" name="mpd_password" value="'.$prefs['mpd_password'].'" /></p>'."\n";
-?>
-        <p>UNIX-domain socket</p>
-<?php
-        print '<input type="text" class="winkle" name="unix_socket" value="'.$prefs['unix_socket'].'" /></p>';
-?>
-        <hr class="dingleberry" />
-        <h3>Music Collection (Albums List) Settings</h3>
-<?php
-        print '<p><input type="checkbox" name="sortbydate" value="true"';
-        if ($prefs['sortbydate'] == "true") {
-            print " checked";
-        }
-        print '>Sort Albums By Date</input></p>';
-        print '<p><input type="checkbox" name="notvabydate" value="true"';
-        if ($prefs['notvabydate'] == "true") {
-            print " checked";
-        }
-        print '>Don\'t Apply Date Sorting to \'Various Artists\'</input></p>';
-?>
-        <p>You will need to rebuild your Albums List after changing this option.</p>
-        <p>Note: Not all Mopidy backends return date information. Dates may not be what you expect, depending on your tags</p>
-        <hr class="dingleberry" />
-        <h3>Mopidy-specific Settings</h3>
-        <p>PLEASE <a href="https://sourceforge.net/p/rompr/wiki/Rompr%20and%20Mopidy/" target="_blank">read the section about Mopidy on the Wiki</a> before changing these settings</p>
-<?php
-        print '<input type="checkbox" name="use_mopidy_tagcache" value="1"';
-        if ($prefs['use_mopidy_tagcache'] == 1) {
-            print " checked";
-        }
-        print '>Update local file collection using mopidy-scan</input>';
-
-        print '<p><input type="checkbox" name="use_mopidy_http" value="1"';
-        if ($prefs['use_mopidy_http'] == 1) {
-            print " checked";
-        }
-        print '>Use Mopidy HTTP Frontend for additional features</input></p>';
-        print '<p>Mopidy HTTP port:<br><input type="text" class="winkle" name="mopidy_http_port" value="'.$prefs['mopidy_http_port'].'" /></p>'."\n";
-
-        print "<p><b>Use these mopidy backends for creating RompR's Albums List (only if HTTP Frontend is enabled) (choose one or both):</b></p>";
-        print '<p><input type="checkbox" name="use_mopidy_file_backend" value="true"';
-        if ($prefs['use_mopidy_file_backend'] == "true") {
-            print " checked";
-        }
-        print '>Local Files Backend</input></p>';
-        print '<p><input type="checkbox" name="use_mopidy_beets_backend" value="true"';
-        if ($prefs['use_mopidy_beets_backend'] == "true") {
-            print " checked";
-        }
-        print '>Beets Backend</input></p>';
-
-
+print '</h3>';
+print '<p>'.get_int_text("setup_labeladdresses").'</p>';
+print '<p class="tiny">'.get_int_text("setup_addressnote").'</p>';
+print '<form name="mpdetails" action="index.php" method="post">';
+print '<p>'.get_int_text("setup_ipaddress").'<br><input type="text" class="winkle" name="mpd_host" value="'.$prefs['mpd_host'].'" /></p>'."\n";
+print '<p>'.get_int_text("setup_port").'<br><input type="text" class="winkle" name="mpd_port" value="'.$prefs['mpd_port'].'" /></p>'."\n";
+print '<hr class="dingleberry" />';
+print '<h3>'.get_int_text("setup_advanced").'</h3>';
+print '<p>'.get_int_text("setup_leaveblank").'</p>';
+print '<p>'.get_int_text("setup_password").'<br><input type="text" class="winkle" name="mpd_password" value="'.$prefs['mpd_password'].'" /></p>'."\n";
+print '<p>'.get_int_text("setup_unixsocket").'</p>';
+print '<input type="text" class="winkle" name="unix_socket" value="'.$prefs['unix_socket'].'" /></p>';
+print '<hr class="dingleberry" />';
+print '<h3>'.get_int_text("setup_mopidy").'</h3>';
+print '<p>'.get_int_text("setup_mopidyport").'<br><input type="text" class="winkle" name="mopidy_http_port" value="'.$prefs['mopidy_http_port'].'" /></p>'."\n";
+print '<hr class="dingleberry" />';
+print '<p><input type="checkbox" name="debug_enabled" value="1"';
+if ($prefs['debug_enabled'] == 1) {
+    print " checked";
+}
+print '>'.get_int_text("setup_debug").'</input></p>';
 ?>
         <p><input type="submit" class="winkle" value="OK" /></p>
     </form>
@@ -546,4 +493,5 @@ print $title;
 </html>
 <?php
 }
+
 ?>
