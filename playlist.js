@@ -632,11 +632,17 @@ function Playlist() {
         if (currentTrack.type == "stream") {
             infobar.notify(infobar.ERROR, language.gettext("label_notforradio"));
         } else if (player.status.state == "play") {
-            player.controller.stopafter();
-            var timeleft = currentTrack.duration - infobar.progress();
-            if (timeleft < 0) { timeleft = 300 };
-            var repeats = Math.round(timeleft / 4);
-            $("#stopafterbutton").effect('pulsate', {times: repeats}, 4000);
+            if (player.status.single == 0) {
+                player.controller.stopafter();
+                var timeleft = currentTrack.duration - infobar.progress();
+                if (timeleft < 0) { timeleft = 300 };
+                var repeats = Math.round(timeleft / 4);
+                $("#stopafterbutton").effect('pulsate', {times: repeats}, 4000);
+            } else {
+                player.controller.cancelSingle();
+                $("#stopafterbutton").stop(true, true);
+            }
+
         }
     }
 

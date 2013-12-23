@@ -222,6 +222,9 @@ function prepare_string($searchstring) {
 function wikipedia_find_exact($searchfor, $domain) {
 
     $xml = wikipedia_request('http://'.$domain.'.wikipedia.org/w/api.php?action=query&list=search&srsearch=' . rawurlencode($searchfor) . '&srprop=score&format=xml');
+    if ($xml == null) {
+        return '';
+    }
     $info = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
     $page = null;
 

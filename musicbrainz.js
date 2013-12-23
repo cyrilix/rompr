@@ -36,12 +36,17 @@ var musicbrainz = function() {
             	}
 				queue[0].flag = true;
 				debug.debug("MUSICBRAINZ","Taking next request from queue",req.url);
-	            $.ajax({
+	            var getit = $.ajax({
 	                dataType: "json",
 	                url: "getmbdata.php?uri="+encodeURIComponent(req.url),
 	                success: function(data) {
-	                	debug.debug("MUSICBRAINZ","Request success");
-	                	throttle = setTimeout(musicbrainz.getrequest, 1500);
+	                	var c = getit.getResponseHeader('Pragma');
+	                	debug.debug("MUSICBRAINZ","Request success",c);
+	                	if (c == "From Cache") {
+	                		throttle = setTimeout(musicbrainz.getrequest, 100);
+	                	} else {
+	                		throttle = setTimeout(musicbrainz.getrequest, 1500);
+	                	}
 	                	req = queue.shift();
 	                	if (data === null) {
 	                		data = {error: language.gettext("musicbrainz_error")};

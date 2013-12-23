@@ -94,10 +94,11 @@ print '<i>'.get_int_text("label_multiterms").'</i>';
 
         <div class="containerbox padright">
 <?php
-$labia = strlen(get_int_text("label_artist"));
+$labia = strlen(htmlspecialchars_decode(get_int_text("label_artist"), ENT_QUOTES));
 foreach(array(get_int_text("label_album"), get_int_text("label_track"), get_int_text("label_anything")) as $a) {
-    if (strlen($a) > $labia) {
-        $labia = strlen($a);
+    if (strlen(htmlspecialchars_decode($a, ENT_QUOTES)) > $labia) {
+        debug_print("Setting search box width from ".htmlspecialchars_decode($a, ENT_QUOTES)." to ".strlen(htmlspecialchars_decode($a, ENT_QUOTES))."em","SEARCH");
+        $labia = strlen(htmlspecialchars_decode($a, ENT_QUOTES));
     }
 }
 print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_artist").'</b></div>';

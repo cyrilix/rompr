@@ -437,18 +437,22 @@ function trySpotify() {
     $DOM = new DOMDocument;
     // stop libmxl from spaffing error reports into the log
     libxml_use_internal_errors(true);
-    $DOM->loadHTML($content['contents']);
-    $stuff = $DOM->getElementById('big-cover');
-    if ($stuff) {
-        $image = $stuff->getAttribute('src');
-        if ($image) {
-            debug_print("    Returning result from Spotify : ".$image,"GETALBUMCOVER");
+    if ($content['contents'] && $content['contents'] != "") {
+        $DOM->loadHTML($content['contents']);
+        $stuff = $DOM->getElementById('big-cover');
+        if ($stuff) {
+            $image = $stuff->getAttribute('src');
+            if ($image && preg_match("/^http/", $image)) {
+                debug_print("    Returning result from Spotify : ".$image,"GETALBUMCOVER");
+            } else {
+                debug_print("    No valid image link found","GETALBUMCOVER");
+                $image = "";
+            }
         } else {
-            debug_print("    No valid image link found","GETALBUMCOVER");
-            $image = "";
+            debug_print("    No Spotify Image Found","GETALBUMCOVER");
         }
     } else {
-        debug_print("    No Spotify Image Found","GETALBUMCOVER");
+        debug_print("    Spotify page not retrieved","GETALBUMCOVER");
     }
     $delaytime = 500;
     return $image;
@@ -969,11 +973,11 @@ function getDiscogsCover($discogsid) {
                 }
             }
             if (array_key_exists('primary', $imgs)) {
-                return $imgs['primary'];
+                return get_base_url()."/getDiscogsImage.php?url=".$imgs['primary'];
             } else if (array_key_exists('secondary', $imgs)) {
-                return $imgs['secondary'];
+                return get_base_url()."/getDiscogsImage.php?url=".$imgs['secondary'];
             } else if (array_key_exists('thumb', $imgs)) {
-                return $imgs['thumb'];
+                return get_base_url()."/getDiscogsImage.php?url=".$imgs['thumb'];
             }
         }
     }

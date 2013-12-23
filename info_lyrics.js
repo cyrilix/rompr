@@ -75,4 +75,6 @@ var info_lyrics = function() {
 
 }();
 
-nowplaying.registerPlugin("lyrics", info_lyrics, "newimages/lyrics.jpg", "button_lyrics");
+if (prefs.mopidy_detected) {
+	nowplaying.registerPlugin("lyrics", info_lyrics, "newimages/lyrics.jpg", "button_lyrics");
+}

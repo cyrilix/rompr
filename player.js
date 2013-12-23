@@ -554,6 +554,11 @@ function multiProtocolController() {
 	            }
             	mopidy.tracklist.setSingle(true)
             	self.status.single = 1;
+	    	},
+
+	    	cancelSingle: function() {
+	    		mopidy.tracklist.setSingle(false);
+	    		self.status.single = 0;
 	    	}
 
 	    }
@@ -832,6 +837,10 @@ function multiProtocolController() {
 	            }
 	            cmds.push("single 1");
 	            this.do_command_list(cmds);
+	    	},
+
+	    	cancelSingle: function() {
+	    		this.command("command=single&arg=0");
 	    	}
 
 	    }

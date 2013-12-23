@@ -35,13 +35,18 @@ var discogs = function() {
             	}
 				queue[0].flag = true;
 				debug.debug("DISCOGS","Taking next request from queue",req.url);
-	            $.ajax({
+	            var getit = $.ajax({
 	                dataType: "json",
 	                url: "getdidata.php?uri="+encodeURIComponent(req.url),
 
 		            success: function(data) {
-		            	debug.debug("DISCOGS", "Request Success",data);
-	                	throttle = setTimeout(discogs.getrequest, 1500);
+	                	var c = getit.getResponseHeader('Pragma');
+		            	debug.debug("DISCOGS", "Request Success",c,data);
+	                	if (c == "From Cache") {
+		                	throttle = setTimeout(discogs.getrequest, 200);
+	                	} else {
+		                	throttle = setTimeout(discogs.getrequest, 1500);
+		                }
 	                	req = queue.shift();
 	                	if (data === null) {
 		                	data = {error: language.gettext("discogs_error")}

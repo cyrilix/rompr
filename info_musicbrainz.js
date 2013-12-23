@@ -641,7 +641,9 @@ var info_musicbrainz = function() {
 		        if (data['label-info'] && data['label-info'].length > 0) {
 			        html = html + '<ul><li><b>'+language.gettext("title_label")+': </b></li>';
 			        for (var i in data['label-info']) {
-			        	html = html + '<li>'+data['label-info'][i].label.name+'</li>';
+			        	if (data['label-info'][i].label) {
+			        		html = html + '<li>'+data['label-info'][i].label.name+'</li>';
+			        	}
 			        }
 			        html = html + '</ul>';
 			    }

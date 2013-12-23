@@ -330,4 +330,6 @@ var info_soundcloud = function() {
 
 }();
 
-nowplaying.registerPlugin("soundcloud", info_soundcloud, "newimages/soundcloud-logo.png", "button_soundcloud");
+if (prefs.mopidy_detected) {
+	nowplaying.registerPlugin("soundcloud", info_soundcloud, "newimages/soundcloud-logo.png", "button_soundcloud");
+}

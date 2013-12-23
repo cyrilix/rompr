@@ -1,7 +1,6 @@
 <?php
 include ("vars.php");
 include ("functions.php");
-include ("connection.php");
 include ("international.php");
 $mopidy_detected = detect_mopidy();
 ?>
@@ -139,6 +138,9 @@ print '<li class="wide"><button class="topformbutton" onclick="editkeybindings()
 
 print '<li class="wide"><hr /></li>';
 print '<li class="wide"><b>'.get_int_text('config_audiooutputs').'</b></li>'."\n";
+
+include ("connection.php");
+$outputdata = array();
 $outputs = do_mpd_command($connection, "outputs", null, true);
 foreach ($outputs as $i => $n) {
     if (is_array($n)) {

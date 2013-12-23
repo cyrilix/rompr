@@ -163,7 +163,7 @@ jQuery.fn.toggleClosed = function() {
 
 <?php
 if ($prefs['debug_enabled'] == 1) {
-    print "debug.setLevel(8);\n";
+    print "debug.setLevel(9);\n";
 } else {
     print "debug.setLevel(0);\n";
 }

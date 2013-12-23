@@ -352,7 +352,7 @@ var info_lastfm = function() {
                     html = html+'&nbsp;&nbsp;&nbsp;<a title="'+language.gettext("lastfm_lovethis")+'" href="#" class="infoclick clicklove"><img src="newimages/lastfm-love.png" height="12px"></a>';
                 }
                 $('li[name="userloved"]').html(html);
-                $('li[name="userloved"]').find(["title"]).tipTip({delay: 1000});
+                $('li[name="userloved"]').find("[title]").tipTip({delay: 1000});
                 html = null;
             }
 

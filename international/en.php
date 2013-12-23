@@ -64,7 +64,6 @@ $languages['en'] = array (
 	"config_autoscroll" => "Auto-Scroll playlist to current track",
 	"config_autocovers" => "Automatically Download Covers",
 	"config_musicfolders" => "To use art from your music folders, enter the path to your music in this box:",
-	"config_setbutton" => "Set",
 	"config_crossfade" => "Crossfade Duration (seconds)",
 	"config_clicklabel" => "Music Selection Click Behaviour",
 	"config_doubleclick" => "Double-click to add, Click to select",

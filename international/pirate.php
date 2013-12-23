@@ -44,6 +44,7 @@ $languages['pirate'] = array (
 	"menu_config" => "YE WHEELHOUSE",
 	"menu_clearplaylist" => "BURN T' MINSTRELS",
 	"menu_saveplaylist" => "BURY IT AN' DRAW A MAP",
+	"menu_playlists" => "MINSTREL's PROGRAMS",
 
 	// Configuration menu entries
 	"config_language" => "SPEAKS",
@@ -54,11 +55,15 @@ $languages['pirate'] = array (
 	"config_hidelastfm" => "Bury t' minstrels o' t' red ball",
 	"config_hideradio" => "Bury t' wireless",
 	"config_fullbio" => "Grab all t' red ball info",
-	"config_lastfmlang" => "Red ball speaks yer own tongue",
+	"config_lastfmlang" => "Ye Speakin' fer information",
+	"config_lastfmdefault" => "T' Queen's English",
+	"config_lastfminterface" => "What RompR Speaks",
+	"config_lastfmbrowser" => "What Browser Speaks",
+	"config_lastfmlanguser" => "Speak this tongue:",
+	"config_langinfo" => "Queen's English be always the fallback",
 	"config_autoscroll" => "Moving list o' minstrel",
 	"config_autocovers" => "Steal ye valuable art",
 	"config_musicfolders" => "Ye shantys be buried in t' location:",
-	"config_setbutton" => "Arrr",
 	"config_crossfade" => "Slice 'em (seconds)",
 	"config_clicklabel" => "How minstrel be'aves when whacked",
 	"config_doubleclick" => "Whack 'im twice t' make 'im play",
@@ -99,6 +104,20 @@ $languages['pirate'] = array (
 	"button_crossfade" => "SLICE 'EM",
 	"button_repeat" => "ETERNITY",
 	"button_consume" => "DOWN YE GROG",
+	"label_yes" => "Arrr",
+	"label_no" => "Never!",
+	"mopidy_down" => "Avast! Ye Mopidy be dead!",
+	"label_updating" => "Diggin' fer shantys",
+	"label_update_error" => "Avast! Ye shanty list be broken!",
+	"label_notsupported" => "Ye canna do that, ye scurvy dog!",
+	"label_playlisterror" => "Avast! 'Tis a broken ship, full o' holes!",
+	"label_mpd_no" => "Avast! Ye must be playin' a shanty to do that",
+	"label_downloading" => "Pillaging...",
+	"button_OK" => "Arrr",
+	"button_cancel" => "Avast!",
+	"error_playlistname" => "Ye cannot use slashes, them's only fer cutlass work",
+	"label_savedpl" => "Stored as %s",
+	"label_loadingstations" => "Pillaging...",
 
 	// Search Forms
 	"label_searchfor" => "What ye seek?",
@@ -107,6 +126,7 @@ $languages['pirate'] = array (
 	"label_searchresults" => "T' findings",
 	"label_multiterms" => "Ye can use all o' these at once, if ye desires",
 	"label_limitsearch" => "T' Specifics",
+	"label_filesearch" => "Look in t'boxes fer",
 
 	// General multipurpose labels
 	"label_tracks" => "shantys",
@@ -125,6 +145,9 @@ $languages['pirate'] = array (
 	"label_duration" => "T' length",
 	"label_playererror" => "Avast!",
 	"label_internet_radio" => "T' wireless through t' wires",
+	"label_tunefailed" => "Avast! T'wires be not workin'",
+	"label_noneighbours" => "Ye lives too far away from anyone",
+	"label_nofreinds" => "You have 0 freinds",
 
 	// Playlist and Now Playing
 	"label_waitingforstation" => "Seeking t' hidden names...",
@@ -132,16 +155,59 @@ $languages['pirate'] = array (
 	"label_incoming" => "Awaiting Salvo...",
 	"label_addingtracks" => "Queuing Shantys",
 
-	// Playlist and Now Playing
-	"label_waitingforstation" => "Waiting for station info...",
-	"label_notforradio" => "Not supported for radio streams",
-	"label_incoming" => "Incoming...",
-	"label_addingtracks" => "Adding Tracks",
-	// Now Playing - [track name] by [artist] on [album]
-	"label_by" => "by",
-	"label_on" => "on",
-	// Now playing - 1:45 of 6:50
-	"label_of" => "of",
+	// Podcasts
+	"podcast_rss_error" => "Avast! It did not work",
+	"podcast_remove_error" => "Avast! It did not work",
+	"podcast_general_error" => "Avast! It did not work",
+	"podcast_entrybox" => "Ye needs an RSS fer t'make Peg Legs. Scribble it here",
+	// Podcast tooltips
+	"podcast_delete" => "Cut off this Peg Leg",
+	"podcast_configure" => "Design this Peg Leg",
+	"podcast_refresh" => "Give it a new coat o' paint",
+	"podcast_download_all" => "Pillage all t'episodes",
+	"podcast_mark_all" => "Mark All Episodes as Listened",
+	// Podcast display options
+	"podcast_display" => "Show Me",
+	"podcast_display_all" => "T' Lot",
+	"podcast_display_onlynew" => "Only New",
+	"podcast_display_unlistened" => "New and Unlistened",
+	"podcast_display_downloadnew" => "New and Pillaged",
+	"podcast_display_downloaded" => "Only Pillaged",
+	// Podcast refresh options
+	"podcast_refresh" => "Repaint",
+	"podcast_refresh_never" => "Only by my hand",
+	"podcast_refresh_hourly" => "Hourly",
+	"podcast_refresh_daily" => "Daily",
+	"podcast_refresh_weekly" => "Weekly",
+	"podcast_refresh_monthly" => "Monthly",
+	// Podcast auto expire
+	"podcast_expire" => "Keep Episodes For",
+	"podcast_expire_tooltip" => "Any episodes older than this value will be removed from the list. Changes to this option will take effect next time you refresh the podcast",
+	"podcast_expire_never" => "Ever",
+	"podcast_expire_week" => "One Week",
+	"podcast_expire_2week" => "Two Weeks",
+	"podcast_expire_month" => "One Month",
+	"podcast_expire_2month" => "Two Months",
+	"podcast_expire_6month" => "Six Months",
+	"podcast_expire_year" => "One Year",
+	// Podcast number to keep
+	"podcast_keep" => "Number To Keep",
+	"podcast_keep_tooltip" => "The list will only ever show this many episodes. Changes to this option will take effect next time you refresh the podcast",
+	"podcast_keep_0" => "All o' em!",
+	// Podcast other options
+	"podcast_keep_downloaded" => "Keep all pillaged episodes",
+	"podcast_kd_tooltip" => "Enable this option to keep all pillaged episodes. The above two options will then only apply to episodes that have not been pillaged",
+	"podcast_auto_download" => "Automatically Pillage New Episodes",
+	"podcast_tooltip_new" => "This be a new episode",
+	"podcast_tooltip_notnew" => "This episode be not new but 't has not been listened to",
+	"podcast_tooltip_downloaded" => "This episode has been pillaged",
+	"podcast_tooltip_download" => "Pillage this episode",
+	"podcast_tooltip_mark" => "Mark as listened",
+	"podcast_tooltip_delepisode" => "Burn this episode to ashes",
+	"podcast_expired" => "This episode has expired",
+	// eg 2 days left to listen
+	"podcast_timeleft" => "%s left to listen",
+
 
 	// Last.FM Chooser Panel
 	// Title - %s will be replaced with the value of label_lastfm
@@ -166,6 +232,13 @@ $languages['pirate'] = array (
 	"button_playradio" => "Arrrrr",
 	"label_notloggedin" => "Avast! Ye must cross the palm of %s to listen to %s minstrels",
 	"label_notloggedin2" => "%s may not travel for a lubber like you",
+
+	// Soma FM Chooser Panel
+	"label_soma" => "Soma.FM is a listener supported commercial-free radio station from San Francisco, which be somewhere o'er t'horizon",
+	"label_soma_beg" => "Arrr! He be a good man, if ye likes him, gi 'im some dubloons",
+
+	// Your radio stations
+	"label_radioinput" => "T' magic scroll fer the music must be placed 'ere",
 
 	//Album Art Manager
 	"albumart_title" => "Ye Valuable Paintings",
@@ -205,6 +278,7 @@ $languages['pirate'] = array (
 	"setup_unixsocket" => "UNIX-domain socket",
 	"setup_mopidy" => "Mopidy-specific Settings",
 	"setup_mopidyport" => "Mopidy HTTP port:",
+	"setup_debug" => "Enable Capn's Log",
 
 	// Intro Window
 	"intro_title" => "Yarrrrrrrrrrrrr!",
@@ -218,6 +292,77 @@ $languages['pirate'] = array (
 	"intro_mopidywiki" => "%sRead the Wiki%s, ye scurvy dog!",
 	"intro_mopidyversion" => "Mopidy %s be a necessity fer this voyage",
 
+	// Last.FM
+	"label_loved" => "'Tis a beauty:",
+	"label_lovefailed" => "Failed To Make Love",
+	"label_unloved" => "Called it a scurvy dog:",
+	"label_unlovefailed" => "Failed To Remove Love",
+
+	// Info Panel
+	"info_gettinginfo" => "Pillaging...",
+	"info_clicktoshow" => "REVEAL",
+	"info_clicktohide" => "BURY",
+
+	// File Info panel
+	"button_fileinfo" => "Info Panel (File Information)",
+	"info_file" => "File:",
+	"info_from_beets" => "(from beets server)",
+	"info_format" => "Format:",
+	"info_bitrate" => "Bitrate:",
+	"info_samplerate" => "Sample Rate:",
+	"info_mono" => "Mono",
+	"info_stereo" => "Stereo",
+	"info_channels" => "Channels",
+	"info_date" => "Date:",
+	"info_genre" => "Genre:",
+	"info_performers" => "Minstrels:",
+	"info_composers" => "Ye Writer:",
+	"info_comment" => "Arrrrrrr:",
+	"info_label" => "Label:",
+	"info_disctitle" => "Disc Title:",
+	"info_encoder" => "Magic Squasher:",
+	"info_year" => "Yearrrrr:",
+
+	// Last.FM Info Panel
+	"button_infolastfm" => "Info Panel (Last.FM)",
+	"label_notrackinfo" => "Avast! Ye shanty could not be found!",
+	"label_noalbuminfo" => "Avast! Ye Book o' shantys could not be found",
+	"label_noartistinfo" => "Avast! Ye Minstrel could not be found",
+	"lastfm_listeners" => "Audience:",
+	"lastfm_plays" => "Plays:",
+	"lastfm_yourplays" => "Your Plays:",
+	"lastfm_toptags" => "YE TOP MARKINGS:",
+	"lastfm_tagradiotooltip" => "Play %s Wireless",
+	"lastfm_readfullbio" => "Read Full Biography",
+	"lastfm_addtags" => "ADD MARKINGS",
+	"lastfm_addtagslabel" => "Add ye markings, separate wi' ye comma",
+	"button_add" => "ARRRR",
+	"lastfm_yourtags" => "YER MARKINGS:",
+	"lastfm_buyoncd" => "BUY ON SILVER PLATTER:",
+	"lastfm_download" => "PILLAGE (for Dubloons):",
+	"lastfm_similarradio" => "Hear minstrels like %s",
+	"lastfm_radio_fan" => "Play what ye admirers o' %s are listenin' to",
+	"lastfm_simar" => "Minstrels Who Sounds A Bit Like This 'Un",
+	"lastfm_removetag" => "Scupper Ye Marking",
+	"lastfm_buyalbum" => "EXCHANGE DUBLOONS",
+	"lastfm_releasedate" => "When 'twas made",
+	"lastfm_viewtrack" => "View track on Last.FM",
+	"lastfm_playsample" => "Play Sample",
+	"lastfm_playtrack" => "Play Shanty",
+	"lastfm_buytrack" => "EXCHANGE DUBLOONS",
+	"lastfm_tagerror" => "Failed to modify markings",
+	"lastfm_loved" => "'Tis A Beauty",
+	"lastfm_lovethis" => "Put markings of a Beauty on this shanty",
+	"lastfm_unlove" => "Call this shanty a scurvy land lubber",
+	"lastfm_notfound" => "%s Not Found",
+	"lastfm_nobio" => "No full biography available",
+
+	// Lyrics info panel
+	"button_lyrics" => "Info Panel (Lyrics)",
+	"lyrics_lyrics" => "Ye Words",
+	"lyrics_nonefound" => "No words are known",
+	"lyrics_info" => "Ye minstrel, 'e speaks only gibberish",
+
 	// For Discogs/Musicbrainz release tables. Label in this context means record label
 	// These are all section headers and so should all be UPPER CASE, unless there's a good linguistic
 	// reason not to do that
@@ -228,6 +373,23 @@ $languages['pirate'] = array (
 	"title_label" => "YE PUBLISHER",
 	"label_pages" => "PAGES",
 
+	// For discogs/musicbrains album info. discogs_companies means the companies involved in producing the album
+	// These are all section headers and so should all be UPPER CASE, unless there's a good linguistic
+	// reason not to do that
+	"discogs_companies" => "COMP'NIES",
+	"discogs_personnel" => "YE SAILORS RESPONSIBLE",
+	"discogs_videos" => "YE MOVIN' PICTURES",
+	"discogs_styles" => "STYLES",
+	"discogs_genres" => "GENRES",
+	"discogs_tracklisting" => "SHANTY LISTIN'",
+	"discogs_realname" => "REAL NAME:",
+	"discogs_aliases" => "ALIASES:",
+	"discogs_alsoknown" => "ALSO KNOWN AS:",
+	"discogs_external" => "TRADE ROUTES",
+	"discogs_bandmembers" => "PEOPLE IN T' GROUP",
+	"discogs_memberof" => "THIS PERSON BE ALLIED WI'",
+	"discogs_discography" => "%s HAS MADE THESE SHANTYS:",
+
 	// Discogs
 	"button_discogs" => "Info Panel (Discogs)",
 	"discogs_error" => "Avast! Somethin' is amiss in t' wires",
@@ -235,26 +397,68 @@ $languages['pirate'] = array (
 	"discogs_noalbum" => "Couldn't find this book o' shantys on Discogs",
 	"discogs_notrack" => "Couldn't find this shanty on Discogs",
 	"discogs_slideshow" => "Painting Gallery",
-	// For discogs/musicbrains album info. discogs_companies means the companies involved in producing the album
-	// These are all section headers and so should all be UPPER CASE, unless there's a good linguistic
-	// reason not to do that
-	"discogs_companies" => "COMPANIES",
-	"discogs_personnel" => "PERSONNEL",
-	"discogs_videos" => "YE MOVING PICTURES",
-	"discogs_styles" => "STYLES",
-	"discogs_genres" => "GENRES",
-	"discogs_tracklisting" => "SHANTY LISTING",
-	"discogs_realname" => "REAL NAME:",
-	"discogs_aliases" => "ALIASES:",
-	"discogs_alsoknown" => "ALSO KNOWN AS:",
-	"discogs_external" => "EXTERNAL LINKS:",
-	"discogs_bandmembers" => "MINSTRELS IN GROUP",
-	"discogs_memberof" => "MEMBER OF",
-	"discogs_discography" => "DISCOGRAPHY",
 
 	// Musicbrainz
-	"musicbrainz_error" => "Did not get a response from MusicBrainz"
+	"button_musicbrainz" => "Info Panel (Musicbrainz)",
+	"musicbrainz_error" => "Ye Musicbrainz be no speakin'",
+	"musicbrainz_contacterror" => "Avast! It not be workin'",
+	"musicbrainz_noartist" => "This Minstrel si not on Musicbrainz",
+	"musicbrainz_noalbum" => "This book o' shantys is not on Musicbrainz",
+	"musicbrainz_notrack" => "This shanty is not on Musicbrainz",
+	"musicbrainz_noinfo" => "Ye Musicbrainz be no speakin'",
+	// This is used for date ranges -  eg 2005 - Present
+	"musicbrainz_now" => "T'Day",
+	"musicbrainz_origin" => "ORIGIN",
+	"musicbrainz_active" => "ACTIVE",
+	"musicbrainz_rating" => "RATING",
+	"musicbrainz_notes" => "NOTES",
+	"musicbrainz_tags" => "MARKINGS",
+	"musicbrainz_externaldiscography" => "Discography (%s)",
+	"musicbrainz_officalhomepage" => "Official Homepage (%s)",
+	"musicbrainz_fansite" => "Ye Site fer Admirers (%s)",
+	"musicbrainz_lyrics" => "Ye words (%s)",
+	"musicbrainz_social" => "Misanthropy",
+	"musicbrainz_microblog" => "Microblog",
+	"musicbrainz_review" => "Review (%s)",
+	"musicbrainz_novotes" => "(No Votes)",
+	// eg: 3/5 from 15 votes
+	"musicbrainz_votes" => "%s/5 from %s votes",
+	"musicbrainz_appears" => "THIS SHANTY APPEARS ON",
+	"musicbrainz_credits" => "YE SAILORS WHO MADE IT",
+	"musicbrainz_status" => "STATUS",
+	"musicbrainz_date" => "DATE",
+	"musicbrainz_country" => "COUNTRY",
+	"musicbrainz_disc" => "DISC",
 
+	// SoundCloud info panel
+	"button_soundcloud" => "Info Panel (SoundCloud)",
+	"soundcloud_trackinfo" => "Shanty Info",
+	"soundcloud_plays" => "Plays",
+	"soundcloud_downloads" => "Pillages",
+	"soundcloud_faves" => "People Who Admire It",
+	// State means eg State: Finished or State: Unfinished
+	"soundcloud_state" => "State",
+	"soundcloud_license" => "License",
+	"soundcloud_buy" => "Exchange Dubloons",
+	"soundcloud_view" => "View on SoundCloud",
+	"soundcloud_user" => "Ye Cap'n",
+	"soundcloud_fullname" => "Full Name",
+	"soundcloud_Country" => "Country",
+	"soundcloud_city" => "City",
+	"soundcloud_website" => "Visit Website",
+	"soundcloud_not" => "Avast! Ye is not listenin' to SoundCloud",
+
+	// Wikipedia Info Panel
+	"button_wikipedia" => "Info Panel (Wikipedia)",
+	"wiki_nothing" => "Ye Wikipedia be not respondin'",
+	"wiki_fail" => "Ye Wikipedia hath no scroll relatin' to '%s'",
+	"wiki_suggest" => "Ye Wikipedia hath no scroll relatin' to '%s'",
+	"wiki_suggest2" => "He suggests you go t' these places",
+
+	// Keybindings editor
+	"title_keybindings" => "Dextrous Cheats",
+	"button_volup" => "Make Minstrel Louder",
+	"button_voldown" => "Make Minstrel Softer",
 
 
 );
