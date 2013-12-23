@@ -288,8 +288,7 @@ $languages['pirate'] = array (
 	"intro_basicmanual" => "T' instructions be hidden at",
 	"intro_forum" => "T' grog shop be at",
 	"intro_mopidy" => "IMPORTANT! If ye be a Mopidyist",
-	// The %s in this next line make a hypertext link
-	"intro_mopidywiki" => "%sRead the Wiki%s, ye scurvy dog!",
+	"intro_mopidywiki" => "Read the Wiki, ye scurvy dog!",
 	"intro_mopidyversion" => "Mopidy %s be a necessity fer this voyage",
 
 	// Last.FM

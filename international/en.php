@@ -298,8 +298,7 @@ $languages['en'] = array (
 	"intro_basicmanual" => "The Basic RompR Manual is at:",
 	"intro_forum" => "The Discussion Forum is at:",
 	"intro_mopidy" => "IMPORTANT Information for Mopidy Users",
-	// The %s in this next line make a hypertext link
-	"intro_mopidywiki" => "If you are running Mopidy, please %sread the Wiki%s",
+	"intro_mopidywiki" => "If you are running Mopidy, please read the Wiki",
 	"intro_mopidyversion" => "You must be using Mopidy %s or later",
 
 	// Last.FM
