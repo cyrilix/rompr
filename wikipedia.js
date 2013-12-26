@@ -16,11 +16,20 @@ var wikipedia = function() {
 				url = url + i+'='+encodeURIComponent(terms[i])+"&";
 			}
 			url = url + "lang="+wikipedia.getLanguage();
+			if (mobile != "no") {
+				url = url + "&mobile="+mobile;
+			}
 		    $.ajax({
 		        type: "GET",
 		        url: url,
-		        success: success,
-		        error: fail
+		        contentType: "text/xml; charset=utf-8",
+		        dataType: "xml",
+		        success: function(data) {
+		        	success(data);
+		        },
+		        error: function(data) {
+		        	fail(data);
+		        }
 		    });
 		},
 
@@ -30,11 +39,20 @@ var wikipedia = function() {
 				url = url + i+'='+encodeURIComponent(terms[i])+"&";
 			}
 			url = url + "lang="+wikipedia.getLanguage();
+			if (mobile != "no") {
+				url = url + "&mobile="+mobile;
+			}
 		    $.ajax({
 		        type: "GET",
 		        url: url,
-		        success: success,
-		        error: fail
+		        contentType: "text/xml; charset=utf-8",
+		        dataType: "xml",
+		        success: function(data) {
+		        	success(data);
+		        },
+		        error: function(data) {
+		        	fail(data);
+		        }
 		    });
 		},
 
@@ -62,11 +80,17 @@ var wikipedia = function() {
 			$("#infopane").css({cursor:'wait'});
 			$("#infopane a").css({cursor:'wait'});
 			var url = "info_wikipedia.php?wiki="+link;
+			if (mobile != "no") {
+				url = url + "&mobile="+mobile;
+			}
 		    $.ajax({
 		        type: "GET",
 		        url: url,
+		        contentType: "text/xml; charset=utf-8",
+		        dataType: "xml",
 		        success: function(data) {
-		        	success(link, data);
+		        	debug.log("WIKIPEDIA","Wiki Link Success",data);
+		        	success(data);
 		        },
 		        error: function(data) {
 		        	fail(data);

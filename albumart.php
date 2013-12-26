@@ -19,7 +19,9 @@ $mobile = "no";
 <?php
 print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme'].'" />'."\n";
 ?>
+<link type="text/css" href="custom-scrollbar-plugin/css/jquery.mCustomScrollbar.css" rel="stylesheet" />
 <script type="text/javascript" src="jquery-1.8.3-min.js"></script>
+<script type="text/javascript" src="custom-scrollbar-plugin/js/jquery.mCustomScrollbar.concat.min.js"></script>
 <script type="text/javascript" src="functions.js"></script>
 <script type="text/javascript" src="uifunctions.js"></script>
 <script type="text/javascript" src="debug.js"></script>
@@ -246,6 +248,7 @@ function filterImages() {
 $(document).ready(function () {
 
     debug.log("ALBUMART","Document is ready");
+
     $("#totaltext").html(numcovers+" "+language.gettext("label_albums"));
     progress = new progressBar('progress', 'horizontal');
     $(window).bind('resize', wobbleMyBottom );
@@ -262,6 +265,22 @@ $(document).ready(function () {
         e.preventDefault();
     }, false);
     wobblebottom.click(onWobblebottomClicked);
+    $('#artistcoverslist').mCustomScrollbar({
+        theme: (prefs.theme == "Light.css" || prefs.theme == "BrushedAluminium.css") ? "dark-thick" : "light-thick",
+        scrollInertia: 80,
+        advanced: {
+            updateOnContentResize: true,
+            autoScrollOnFocus: false
+        },
+    });
+    $('#coverslist').mCustomScrollbar({
+        theme: (prefs.theme == "Light.css" || prefs.theme == "BrushedAluminium.css") ? "dark-thick" : "light-thick",
+        scrollInertia: 80,
+        advanced: {
+            updateOnContentResize: true,
+            autoScrollOnFocus: false
+        },
+    });
 });
 
 $(window).load(function () {

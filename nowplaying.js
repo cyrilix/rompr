@@ -222,12 +222,18 @@ var nowplaying = function() {
 		},
 
 		setSoundCloudCorrections: function(index, updates) {
-			if (index == currenttrack) {
-		    	var t = history[index].playlistinfo.location;
-            	if (t.substring(0,11) == 'soundcloud:') {
-            		debug.log("NOWPLAYING", "Sending SoundCloud Updates");
-            		infobar.setLastFMCorrections(updates);
-            	}
+	    	var t = history[index].playlistinfo.location;
+        	if (t.substring(0,11) == 'soundcloud:') {
+				if (history[index].playlistinfo.creator == null) {
+					// We have to update this, or nowplaying won't realise the artist has changed
+					// Really, someone should fix the SoundCloud plugin for Mopidy so it doesn't
+					// return null as an artist name... I don't like python so I ain't doin' it.
+					history[index].playlistinfo.creator = updates.creator;
+				}
+				if (index == currenttrack) {
+					debug.log("NOWPLAYING","Got SoundCloud updates",updates);
+	        		infobar.setLastFMCorrections(updates);
+	        	}
             }
         },
 

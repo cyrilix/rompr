@@ -4,60 +4,65 @@ include ("functions.php");
 include ("international.php");
 $domain = "en";
 $userdomain = false;
+$mobile = array_key_exists('mobile', $_REQUEST) ? true : false;
+
 if (array_key_exists("lang", $_REQUEST)) {
     $domain = $_REQUEST["lang"];
 }
 debug_print("Using Language ".$domain,"WIKIPEDIA");
+
 if(array_key_exists("wiki", $_REQUEST)) {
     // An intra-wiki link from a page we're displaying
     $a = preg_match('#(.*?)/(.*)#', rawurldecode($_REQUEST['wiki']), $matches);
-    $html = get_wikipedia_page( $matches[2], $matches[1].".wikipedia.org", false );
-    print $html;
+    send_result(get_wikipedia_page( $matches[2], $matches[1].".wikipedia.org", false ));
 
 } else if(array_key_exists("uri", $_REQUEST)) {
     // Full URI to get - eg this will be a link found from musicbrainz
     $uri = rawurldecode($_REQUEST['uri']);
     $a = preg_match('#http://(.*?)/#', $uri, $matches);
-    $html = get_wikipedia_page(basename($uri), $matches[1], true);
+    $xml_response = get_wikipedia_page(basename($uri), $matches[1], true);
     if ($userdomain == false) {
         // Found a page, but not in the user's chosen domain
         if (array_key_exists('term', $_REQUEST)) {
             debug_print("Page was retreieved but not in user's chosen language. Checking via a search","WIKIPEDIA");
             $upage = wikipedia_find_exact($_REQUEST['term'], $domain);
             if ($upage != '') {
-                $html = $upage;
+                $xml_response = $upage;
             }
         }
     }
-    print $html;
+    send_result($xml_response);
 
 } else if (array_key_exists("artist", $_REQUEST)) {
     // Search for an artist
-    $html = getArtistWiki(rawurldecode($_REQUEST['artist']), rawurldecode($_REQUEST['disambiguation']));
-    if ($html == null) {
-        print '<h3 align="center">'.get_int_text("wiki_fail", array(rawurldecode($_REQUEST['artist']))).'</h3>';
+    $xml_response = getArtistWiki(rawurldecode($_REQUEST['artist']), rawurldecode($_REQUEST['disambiguation']));
+    if ($xml_response == null) {
+        send_failure(rawurldecode($_REQUEST['artist']));
+        // print '<h3 align="center">'.get_int_text("wiki_fail", array(rawurldecode($_REQUEST['artist']))).'</h3>';
     } else {
-        print $html;
+        send_result($xml_response);
     }
 
 } else if (array_key_exists("album", $_REQUEST)) {
     // Search for an album
     debug_print("Doing album ".$_REQUEST['album'],"WIKIPEDIA");
-    $html = getAlbumWiki(rawurldecode($_REQUEST['album']), rawurldecode($_REQUEST['albumartist']));
-    if ($html == null) {
-        print '<h3 align="center">'.get_int_text("wiki_fail", array(rawurldecode($_REQUEST['album']))).'</h3>';
+    $xml_response = getAlbumWiki(rawurldecode($_REQUEST['album']), rawurldecode($_REQUEST['albumartist']));
+    if ($xml_response == null) {
+        send_failure(rawurldecode($_REQUEST['album']));
+        // print '<h3 align="center">'.get_int_text("wiki_fail", array(rawurldecode($_REQUEST['album']))).'</h3>';
     } else {
-        print $html;
+        send_result($xml_response);
     }
 
 } else if (array_key_exists("track", $_REQUEST)) {
     // Search for a track
     debug_print("Doing track ".$_REQUEST['track'],"WIKIPEDIA");
-    $html = getTrackWiki(rawurldecode($_REQUEST['track']), rawurldecode($_REQUEST['trackartist']));
-    if ($html == null) {
-        print '<h3 align="center">'.get_int_text("wiki_fail", array(rawurldecode($_REQUEST['track']))).'</h3>';
+    $xml_response = getTrackWiki(rawurldecode($_REQUEST['track']), rawurldecode($_REQUEST['trackartist']));
+    if ($xml_response == null) {
+        send_failure(rawurldecode($_REQUEST['track']));
+        // print '<h3 align="center">'.get_int_text("wiki_fail", array(rawurldecode($_REQUEST['track']))).'</h3>';
     } else {
-        print $html;
+        send_result($xml_response);
     }
 }
 
@@ -94,12 +99,13 @@ function get_wikipedia_page($page, $site, $langsearch) {
     // $domain is the language the user wants to use - eg 'fr'
     global $domain;
     global $userdomain;
+    global $mobile;
 
     // $request_domain is the language of the page we've been asked to get
     $r = preg_match("#(.*?)\.#", $site, $matches);
     $request_domain = $matches[1];
-    $req = 'http://'.$site.'/w/api.php?action=parse&prop=text&page='.$page.'&format=xml';
     $format_domain = $request_domain;
+    $req = "";
 
     if ($langsearch) {
 
@@ -136,75 +142,66 @@ function get_wikipedia_page($page, $site, $langsearch) {
         debug_print("User Link is ".$user_link." and english link is ".$english_link,"WIKIPEDIA");
 
         if ($user_link !== null) {
-            $req = 'http://'.$domain.'.wikipedia.org/w/api.php?action=parse&prop=text&page='.$user_link.'&format=xml';
             $format_domain = $domain;
             $userdomain = true;
+            $page = $user_link;
+            $site = $domain.'.wikipedia.org';
         } else if ($english_link !== null) {
-            $req = 'http://en.wikipedia.org/w/api.php?action=parse&prop=text&page='.$english_link.'&format=xml';
+            $page = $english_link;
+            $site = "en.wikipedia.org";
             $format_domain = "en";
         }
 
     }
 
+    // if ($mobile) {
+    //     $req = 'http://'.$site.'/w/api.php?action=mobileview&sections=all&prop=text&page='.$page.'&format=xml';
+    // } else {
+        $req = 'http://'.$site.'/w/api.php?action=parse&prop=text&page='.$page.'&format=xml';
+    // }
+
     $xml = wikipedia_request($req);
     if ($xml !== null) {
-        $info = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
-        $html = $info->parse->text;
-        if (preg_match( '/REDIRECT <a href="\/wiki\/(.*?)"/', $html, $matches )) {
-            $xml = wikipedia_request('http://'.$format_domain.'.wikipedia.org/w/api.php?action=parse&prop=text&page='.$matches[1].'&format=xml');
+        $info = "";
+        // if ($mobile) {
+        //     $info = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
+        //     // foreach($info->mobileview->sections->section as $section) {
+        //     //     $html .= dom_import_simplexml($section)->textContent;
+        //     // }
+        // } else {
             $info = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
             $html = $info->parse->text;
-        }
-        return format_wikipedia_page($html, $format_domain);
+            if (preg_match( '/REDIRECT <a href="\/wiki\/(.*?)"/', $html, $matches )) {
+                $xml = wikipedia_request('http://'.$format_domain.'.wikipedia.org/w/api.php?action=parse&prop=text&page='.$matches[1].'&format=xml');
+                $info = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
+                // $html = $info->parse->text;
+            }
+        // }
+        return wrap_response($info, $format_domain, $page);
     } else {
         return "";
     }
 
 }
 
-function format_wikipedia_page($html, $domain) {
-    // Remove unwanted edit links:
-    $html = preg_replace('/<span class="editsection">.*?<\/span>/', '', $html);
-    //<a rel="nofollow" class="external text" href="http://www.jamaicanrecordings.com/jr_pages/005_aggrovators.htm">
-    $html = preg_replace( '/(<a .*? href="http:\/\/.*?")/', '$1 target="_blank"', $html );
-    //<a class="external text" href="//en.wikipedia.org/w/index.php?title=Special:Book&amp;bookcmd=render_collection&amp;colltitle=Book:Deep_Purple&amp;writer=rl">Download PDF</a>
-    $html = preg_replace( '/(<a .*? href=".*?Special\:Book.*?")/', '$1 target="_blank"', $html );
-    //<a href="/w/index.php?title=J%C3%B6rg_Schwenke&amp;action=edit&amp;redlink=1" class="new" title="JÃ¶rg Schwenke (page does not exist)">JÃ¶rg Schwenke</a>
-    $html = preg_replace( '/<a href="\/w\/.*?">(.*?)<\/a>/', '$1', $html );
+function wrap_response($xml, $domain, $page) {
+    $meta = $xml->addChild('rompr');
+    $meta->addChild('domain', $domain);
+    $meta->addChild('page', $page);
+    return $xml->asXML();
+}
 
-    // Reformat wikimedia links so they go to our AJAX query : <a href="/wiki/File:Billbongo.jpg"
-    // Note that in non-english languages File: may be in that language. This regexp works for latin alphabets
-    // but not for non-european languages with UTF-8 word characters - \w doesn't match these and using the u modifier
-    // makes no difference
-    $html = preg_replace_callback(
-        '/<a href="(.*?\/wiki)\/(\w+:.*?)" class="image".*?>/',
-        function($matches) use ($domain) {
-            if ($matches[1] == '//commons.wikimedia.org/wiki/') {
-                return '<a href="#" name="commons.wikimedia.org/'.htmlspecialchars($matches[2], ENT_QUOTES).'" class="infoclick clickwikimedia">';
-            } else {
-                return '<a href="#" name="'.$domain.'.wikipedia.org/'.htmlspecialchars($matches[2], ENT_QUOTES).'" class="infoclick clickwikimedia">';
-            }
-        },
-        $html
-    );
+function send_result($xml) {
+    header('Content-Type: text/xml; charset=utf-8');
+    print $xml;
+}
 
-    //Redirect intra-wikipedia links so they come back to us and we can parse them
-    $html = preg_replace_callback(
-        '/<a href="\/wiki\/(.*?)"/',
-        function($matches) use ($domain) {
-            return '<a href="#" name="'.$domain.'/'.htmlspecialchars($matches[1], ENT_QUOTES).'" class="infoclick clickwikilink"';
-        },
-        $html
-    );
-
-    // Remove inline color styles on elements
-    $html = preg_replace( '/(style=.*?)background.*?(\"|\;)/', '$1$2', $html );
-    // Sometimes tables seem to have 2 background styles applied ??
-    $html = preg_replace( '/(style=.*?)background.*?(\"|\;)/', '$1$2', $html );
-    $html = preg_replace( '/(style=.*?)color.*?(\"|\;)/', '$1$2', $html );
-    // These bits are a pain in the arse
-    $html = preg_replace('/<li class="nv-.*?<\/li>/', '', $html);
-    return $html;
+function send_failure($term) {
+    $xml = '<?xml version="1.0"?><api><parse><text xml:space="preserve">';
+    $xml .= htmlspecialchars('<h3 align="center">', ENT_QUOTES).get_int_text("wiki_fail", array($term)).htmlspecialchars('</h3>', ENT_QUOTES);
+    $xml .= '</text></parse>';
+    $xml .= '<rompr><domain>null</domain><page>null</page></rompr></api>';
+    send_result($xml);
 }
 
 // ==========================================================================
@@ -269,26 +266,29 @@ function wikipedia_get_list_of_suggestions($term) {
     debug_print("Getting list of suggestions for ".$term." from ".$domain.".wikipedia.org", "WIKIPEDIA");
     $xml = wikipedia_request('http://'.$domain.'.wikipedia.org/w/api.php?action=query&list=search&srsearch=' . rawurlencode($term) . '&srprop=score&format=xml');
     if ($xml != "") {
+        $html = '<?xml version="1.0"?><api><parse><text xml:space="preserve">';
         $xml = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
 
         if (count($xml->query->search->p) == 0) {
             return null;
         }
-        $html = '<h3>'.get_int_text("wiki_suggest", array($term)).'</h3>';
-        $html = $html . '<h3>'.get_int_text("wiki_suggest2").'</h3>';
-        $html = $html . "<ul>";
+        $html .= htmlspecialchars('<h3 align="center">', ENT_QUOTES).get_int_text("wiki_suggest", array($term)).htmlspecialchars('</h3>', ENT_QUOTES);
+        $html .= htmlspecialchars('<h3 align="center">', ENT_QUOTES).get_int_text("wiki_suggest2").htmlspecialchars('</h3>', ENT_QUOTES);
+        $html .= htmlspecialchars('<ul>', ENT_QUOTES);
         foreach ($xml->query->search->p as $id) {
             $link = preg_replace('/\s/', '_', $id['title']);
-            $html = $html . '<li><a href="#" name="'.$domain.'/'.htmlspecialchars($link, ENT_QUOTES).'" class="infoclick clickwikilink">'.$id['title'].'</a></li>';
+            $html .= htmlspecialchars('<li><a href="#" name="', ENT_QUOTES).$domain.'/'.htmlspecialchars($link, ENT_QUOTES).htmlspecialchars('" class="infoclick clickwikilink">'.$id['title'].'</a></li>', ENT_QUOTES);
         }
-        $html = $html . "</ul>";
+        $html .= htmlspecialchars("</ul>", ENT_QUOTES);
+        $html .= '</text></parse>';
+        $html .= '<rompr><domain>'.$domain.'</domain><page>'.htmlspecialchars($term, ENT_QUOTES).'</page></rompr></api>';
+
         return $html;
     } else {
         return "";
     }
 
 }
-
 
 // ==========================================================================
 //
@@ -717,23 +717,5 @@ function wikipedia_track_search($track, $trackartist) {
     return get_wikipedia_page(preg_replace('/ /', '_', $page), "en.wikipedia.org", true);
 
 }
-
-
-// function get_wikipedia_mobile_page($page, $domain="en.wikipedia.org") {
-
-//     debug_print("Getting mobile page ".$page." from ".$domain,"WIKIPEDIA");
-//     $content = url_get_contents('http://'.$domain.'/w/api.php?action=mobileview&sections=all&prop=text&page=' . rawurlencode($page) . '&format=xml');
-//     $xml = $content['contents'];
-//     $html = "";
-//     if ($content['status'] == "200") {
-//         $info = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
-//         foreach($info->mobileview->sections->section as $section) {
-//             $html .= dom_import_simplexml($section)->textContent;
-//         }
-//     }
-//     return $html;
-
-// }
-
 
 ?>

@@ -33,6 +33,12 @@ h2
     margin-bottom:12px;
 }
 
+.prefsection
+{
+    padding-bottom:4px;
+    border-bottom: 1px solid #dddddd;
+}
+
 #volumecontrol
 {
     z-index:102;

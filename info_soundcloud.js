@@ -52,7 +52,7 @@ var info_soundcloud = function() {
         }
         html = html + '<ul><li><h3>'+language.gettext("soundcloud_user")+':</h3></li>';
         html = html + '<li><b>'+language.gettext("soundcloud_fullname")+':</b> '+formatSCMessyBits(data.full_name)+'</li>';
-        html = html + '<li><b>'+language.gettext("soundcloud_country")+':</b> '+formatSCMessyBits(data.country)+'</li>';
+        html = html + '<li><b>'+language.gettext("soundcloud_Country")+':</b> '+formatSCMessyBits(data.country)+'</li>';
         html = html + '<li><b>'+language.gettext("soundcloud_city")+':</b> '+formatSCMessyBits(data.city)+'</li>';
         if (data.website) {
             html = html + '<li><b><a href="' + data.website + '" target="_blank">'+language.gettext("soundcloud_website")+'</a></b></li>';
@@ -142,13 +142,13 @@ var info_soundcloud = function() {
 							} else if (parent.playlistinfo.metadata.artist.soundcloud !== undefined &&
 										parent.playlistinfo.metadata.artist.soundcloud.artist !== undefined) {
 								if (parent.playlistinfo.metadata.artist.soundcloud.artist.error) {
-									browser.Update('artist', me, parent.index, {	name: parent.playlistinfo.creator,
+									browser.Update('artist', me, parent.index, {name: parent.playlistinfo.creator,
 																				link: "",
 																				data: '<h3 align="center">'+parent.playlistinfo.metadata.artist.soundcloud.artist.error+'</h3>'
 																			}
 									);
 								} else {
-									var accepted = browser.Update('artist', me, parent.index, {	name: parent.playlistinfo.creator,
+									var accepted = browser.Update('artist', me, parent.index, {	name: parent.playlistinfo.creator || parent.playlistinfo.metadata.artist.soundcloud.artist.username,
 																				link: parent.playlistinfo.metadata.artist.soundcloud.artist.permalink_url,
 																				data: getArtistHTML(parent.playlistinfo.metadata.artist.soundcloud.artist)
 																			}
@@ -161,9 +161,9 @@ var info_soundcloud = function() {
 									image = parent.playlistinfo.metadata.artist.soundcloud.artist.avatar_url
 								}
 								nowplaying.setSoundCloudCorrections(parent.index, {
-									creator: parent.playlistinfo.metadata.artist.soundcloud.artist.username,
+									creator: parent.playlistinfo.creator || parent.playlistinfo.metadata.artist.soundcloud.artist.username,
 									album: 'SoundCloud',
-									title: parent.playlistinfo.metadata.track.soundcloud.track.title,
+									title: parent.playlistinfo.title || parent.playlistinfo.metadata.track.soundcloud.track.title,
 									image: image,
 									origimage: image
 								});

@@ -70,7 +70,7 @@ $prefs = array( "mpd_host" => "localhost",
                 "search_limit_soundcloud" => 0,
                 "search_limit_beets" => 0,
                 "scrolltocurrent" => "false",
-                // Minimum version of mopidy required for advanced support
+                // Minimum version of mopidy required
                 "mopidy_version" => "0.17",
                 "debug_enabled" => 0
                 );
@@ -100,9 +100,6 @@ function savePrefs() {
     $fp = fopen('prefs/prefs', 'w');
     if($fp) {
         foreach($prefs as $key=>$value) {
-            // Don't save these two items!!! They're not user-updateable
-            // and saving them will prevent the Javascript from knowing if we
-            // change the format
             if ($key != "albumslist" && $key != "fileslist" && $key != "mopidy_version") {
                 fwrite($fp, $key . "||||" . $value . "\n");
             }

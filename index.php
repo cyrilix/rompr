@@ -51,7 +51,10 @@ if (!$is_connected) {
     exit();
 }
 
-close_mpd($connection);
+if ($mobile == "no") {
+    // layout_mobile.php will close it instead
+    close_mpd($connection);
+}
 
 // Clean our caches of stored responses. 2592000 is 30 days
 clean_cache('prefs/jsoncache/musicbrainz/*', 2592000);
@@ -161,9 +164,28 @@ jQuery.fn.toggleClosed = function() {
     this.attr('src', 'newimages/toggle-closed-new.png');
 }
 
+jQuery.fn.removeInlineCss = function(property){
+
+    if(property == null)
+        return this.removeAttr('style');
+
+    var proporties = property.split(/\s+/);
+
+    return this.each(function(){
+        var remover =
+            this.style.removeProperty   // modern browser
+            || this.style.removeAttribute   // old browser (ie 6-8)
+            || jQuery.noop;  //eventual
+
+        for(var i = 0 ; i < proporties.length ; i++)
+            remover.call(this.style,proporties[i]);
+
+    });
+};
+
 <?php
 if ($prefs['debug_enabled'] == 1) {
-    print "debug.setLevel(9);\n";
+    print "debug.setLevel(8);\n";
 } else {
     print "debug.setLevel(0);\n";
 }
@@ -311,16 +333,19 @@ $(document).ready(function(){
         $("#updateeverytime").attr("checked", prefs.updateeverytime);
         $("#downloadart").attr("checked", prefs.downloadart);
         $("#fullbiobydefault").attr("checked", prefs.fullbiobydefault);
-        $("#lastfmlang").attr("checked", prefs.lastfmlang);
         $("#scrolltocurrent").attr("checked", prefs.scrolltocurrent);
         $("#themeselector").val(prefs.theme);
+        $("#langselector").val(interfaceLanguage);
         $("#countryselector").val(prefs.lastfm_country_code);
         $("#button_hide_albumlist").attr("checked", prefs.hide_albumlist);
         $("#button_keep_search_open").attr("checked", prefs.keep_search_open);
         $("#button_hide_filelist").attr("checked", prefs.hide_filelist);
         $("#button_hide_lastfmlist").attr("checked", prefs.hide_lastfmlist);
         $("#button_hide_radiolist").attr("checked", prefs.hide_radiolist);
-        $("#hideinfobutton").attr("checked", prefs.hidebrowser);
+        $("#sortbydate").attr("checked", prefs.sortbydate);
+        $("#notvabydate").attr("checked", prefs.notvabydate);
+        $("[name=clicklfmlang][value="+prefs.lastfmlang+"]").attr("checked", true);
+        $("[name=userlanguage]").val(prefs.user_lang);
         if (prefs.hidebrowser) {
             $(".penbehindtheear").fadeOut('fast');
         }

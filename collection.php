@@ -82,8 +82,13 @@ class album {
         if ($trackimage) {
             $image = $trackimage;
         }
-        // Finally, if there's a local image this overrides everything else
         $artname = $this->getKey();
+        if ($this->spotilink !== null) {
+            if (file_exists("prefs/imagecache/".$artname."_".$size.".jpg")) {
+                $image = "prefs/imagecache/".$artname."_".$size.".jpg";
+            }
+        }
+        // Finally, if there's a local image this overrides everything else
         if (file_exists("albumart/".$size."/".$artname.".jpg")) {
             $image = "albumart/".$size."/".$artname.".jpg";
         }

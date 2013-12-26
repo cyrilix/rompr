@@ -104,13 +104,13 @@ if ($discogsid != "") {
 // Last.FM can try to find us a musicbrainz ID if we don't have one
 
 if ($discogsid != "" && $mbid != "") {
-    $searchfunctions = array( 'tryLocal', 'tryRemoteCache', 'trySpotify', 'tryDiscogsId', 'tryMusicBrainz', 'tryDiscogsId', 'tryLastFM', 'tryDiscogs' );
+    $searchfunctions = array( 'tryLocal', 'trySpotify', 'tryDiscogsId', 'tryMusicBrainz', 'tryDiscogsId', 'tryLastFM', 'tryDiscogs' );
 } else if ($discogsid != "" && $mbid == "") {
-    $searchfunctions = array( 'tryLocal', 'tryRemoteCache', 'trySpotify', 'tryDiscogsId', 'tryLastFM', 'tryMusicBrainz', 'tryDiscogsId', 'tryDiscogs' );
+    $searchfunctions = array( 'tryLocal', 'trySpotify', 'tryDiscogsId', 'tryLastFM', 'tryMusicBrainz', 'tryDiscogsId', 'tryDiscogs' );
 } else if ($discogsid == "" && $mbid != "") {
-    $searchfunctions = array( 'tryLocal', 'tryRemoteCache', 'trySpotify', 'tryMusicBrainz', 'tryDiscogsId', 'tryLastFM', 'tryDiscogs' );
+    $searchfunctions = array( 'tryLocal', 'trySpotify', 'tryMusicBrainz', 'tryDiscogsId', 'tryLastFM', 'tryDiscogs' );
 } else {
-    $searchfunctions = array( 'tryLocal', 'tryRemoteCache', 'trySpotify', 'tryLastFM', 'tryMusicBrainz', 'tryDiscogsId', 'tryDiscogs' );
+    $searchfunctions = array( 'tryLocal', 'trySpotify', 'tryLastFM', 'tryMusicBrainz', 'tryDiscogsId', 'tryDiscogs' );
 }
 
 
@@ -141,14 +141,10 @@ if ($file != "") {
         $fn = array_shift($searchfunctions);
         $src = $fn();
         if ($src != "") {
-            // Don't store files locally if we know it's a spotify album
-            // - this'll just fill up the disk really quickly.
-            if ($spotilink == "") {
-                $download_file = download_file($src, $fname, $convert_path);
-                if ($error == 1) {
-                    $error = 0;
-                    $src = "";
-                }
+            $download_file = download_file($src, $fname, $convert_path);
+            if ($error == 1) {
+                $error = 0;
+                $src = "";
             }
         }
     }
@@ -158,8 +154,8 @@ if ($file != "") {
     }
 }
 
-if ($error == 0 && $spotilink == "") {
-    saveImage($fname);
+if ($error == 0) {
+    saveImage($fname, $spotilink);
 }
 
 // Now that we've attempted to retrieve an image, even if it failed,
@@ -167,10 +163,6 @@ if ($error == 0 && $spotilink == "") {
 // and edit the URL so it points to the correct image if one was found
 if (file_exists($ALBUMSLIST) && $stream == "" && $spotilink == "") {
     update_cache($fname, $error, $ALBUMSLIST, "albumart/small/".$fname.".jpg");
-}
-
-if ($spotilink != "") {
-    updateRemoteCache($fname, $src);
 }
 
 if ($error == 0) {
@@ -195,15 +187,16 @@ header('Content-Type: text/xml; charset=utf-8');
 print  '<?xml version="1.0" encoding="utf-8"?>'."\n".
         '<imageresults version="1">'."\n".
         '<imageList>';
-if ($spotilink == "") {
-    if ($error == 1) {
-        print xmlnode('url', "");
-    } else {
+if ($error == 1) {
+    print xmlnode('url', "");
+} else {
+    if ($spotilink == "") {
         print xmlnode('url', "albumart/original/".$fname.".jpg");
         print xmlnode('origurl', "albumart/asdownloaded/".$fname.".jpg");
+    } else {
+        print xmlnode('url', "prefs/imagecache/".$fname."_original.jpg");
+        print xmlnode('origurl', "prefs/imagecache/".$fname."_asdownloaded.jpg");
     }
-} else {
-    print xmlnode('url', $src);
 }
 print xmlnode('delaytime', $delaytime);
 print "</imageList>\n</imageresults>\n";
@@ -263,13 +256,24 @@ function download_file($src, $fname, $convert_path) {
     return $download_file;
 }
 
-function saveImage($fname) {
+function saveImage($fname, $spotilink = "") {
     debug_print("  Saving Image","GETALBUMCOVER");
     global $convert_path;
     global $download_file;
-    $main_file = "albumart/original/".$fname.".jpg";
-    $small_file = "albumart/small/".$fname.".jpg";
-    $anglofile = "albumart/asdownloaded/".$fname.".jpg";
+    $main_file = null;
+    $small_file = null;
+    $anglofile = null;
+    if ($spotilink == "") {
+        debug_print("    Saving image to albumart folder");
+        $main_file = "albumart/original/".$fname.".jpg";
+        $small_file = "albumart/small/".$fname.".jpg";
+        $anglofile = "albumart/asdownloaded/".$fname.".jpg";
+    } else {
+        debug_print("    Saving image to image cache");
+        $small_file = "prefs/imagecache/".$fname."_small.jpg";
+        $main_file = "prefs/imagecache/".$fname."_original.jpg";
+        $anglofile = "prefs/imagecache/".$fname."_asdownloaded.jpg";
+    }
     if (file_exists($main_file)) {
         unlink($main_file);
     }
@@ -284,9 +288,7 @@ function saveImage($fname) {
     $o = array();
     $r = exec( $convert_path."convert \"".$download_file."\" -resize 82x82 -background none -gravity center -extent 82x82 \"".$main_file."\" 2>&1", $o);
     $r = exec( $convert_path."convert \"".$download_file."\" -resize 32x32 -background none -gravity center -extent 32x32 \"".$small_file."\" 2>&1", $o);
-    if (is_dir("albumart/asdownloaded")) {
-        $r = exec( $convert_path."convert \"".$download_file."\" \"".$anglofile."\" 2>&1", $o);
-    }
+    $r = exec( $convert_path."convert \"".$download_file."\" \"".$anglofile."\" 2>&1", $o);
 }
 
 function archiveImage($fname, $src) {
@@ -988,78 +990,11 @@ function getDiscogsCover($discogsid) {
 function loadXML($domain, $path) {
 
     $t = url_get_contents($domain.$path);
-
     if ($t['status'] == "200") {
         return simplexml_load_string($t['contents']);
     }
-
     return false;
 
-}
-
-function tryRemoteCache() {
-    global $fname;
-    global $delaytime;
-    global $download_file;
-    global $convert_path;
-    global $error;
-    global $spotilink;
-    $timestamp = time();
-    debug_print("  Checking Remote Image Cache","GETALBUMCOVER");
-    if (file_exists('prefs/remoteImageCache.xml')) {
-        $x = simplexml_load_file('prefs/remoteImageCache.xml');
-        $xp = $x->xpath("images/image[@id='".$fname."']");
-        if ($xp) {
-            debug_print("    Found Cached Remote Image","GETALBUMCOVER");
-            if ($timestamp - $xp[0]->stamp < 600) {
-                debug_print("      Archiving Frequently-accessed remote image","GETALBUMCOVER");
-                $download_file = download_file($xp[0]->src, $fname, $convert_path);
-                if ($error == 0) {
-                    saveImage($fname);
-                    $delaytime = 50;
-                    return "albumart/original/".$fname.".jpg";
-                }
-            } else {
-                $delaytime = 50;
-                return $xp[0]->src;
-            }
-        }
-    }
-    return "";
-
-}
-
-function updateRemoteCache($fname, $src) {
-
-    // Fuck me. SimpleXML sucks massive ass. With chocolate sauce.
-
-    $timestamp = time();
-    $x = null;
-    if (file_exists('prefs/remoteImageCache.xml')) {
-        $x = simplexml_load_file('prefs/remoteImageCache.xml');
-        $xp = $x->xpath("images/image[@id='".$fname."']");
-        if ($xp) {
-            debug_print("  Remote Cache - Updating Timestamp","GETALBUMCOVER");
-            $xp[0]->stamp = $timestamp;
-        } else {
-            debug_print("  Adding New Remote Image to Cache","GETALBUMCOVER");
-            $e = $x->images->addChild('image');
-            $e->addAttribute('id', $fname);
-            $e->addChild('src', $src);
-            $e->addChild('stamp', $timestamp);
-        }
-    } else {
-        debug_print("  Creating Remote Image Cache","GETALBUMCOVER");
-        $x = new SimpleXMLElement('<imageCache></imageCache>');
-        $e = $x->addChild('images');
-        $f = $e->addChild('image');
-        $f->addAttribute('id', $fname);
-        $f->addChild('src', $src);
-        $f->addChild('stamp', $timestamp);
-    }
-    $fp = fopen('prefs/remoteImageCache.xml', 'w');
-    fwrite($fp, $x->asXML());
-    fclose($fp);
 }
 
 function save_base64_data($data, $fname) {

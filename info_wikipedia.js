@@ -2,6 +2,86 @@ var info_wikipedia = function() {
 
 	var me = "wikipedia";
 
+	function formatWiki(xml) {
+		var xml_node = $('api',xml);
+       	var html = xml_node.find('parse > text').text();
+       	var domain = xml_node.find('rompr > domain').text();
+       	var jq = $('<div>'+html+'</div>');
+
+		// Remove unwanted edit links
+		jq.find("span.editsection").remove();
+
+		// Make external links open in a new tab
+		jq.find("a[href^='http:']").attr("target", "_blank");
+		jq.find("a[href^='//']").attr("target", "_blank");
+		jq.find("a[href^='/w/']").each( function() {
+			var ref = $(this).attr('href');
+			$(this).attr('href', 'http://'+domain+'.wikipedia.org'+ref);
+			$(this).attr("target", "_blank");
+		});
+
+		// Make the contents table links work
+		jq.find("a[href^='#']").each( function() {
+			if (!$(this).hasClass('infoclick')) {
+				var ref = $(this).attr('href');
+				$(this).attr('name', ref);
+				$(this).attr("href", "#");
+				$(this).addClass("infoclick clickwikicontents");
+			}
+		});
+
+		// Redirect wiki image links so they go to our function to be displayed
+		jq.find("a.image[href^='/wiki/']").each( function() {
+			var ref = $(this).attr('href');
+			$(this).attr('href', '#');
+			$(this).attr('name', domain+'.wikipedia.org/'+ref.replace(/\/wiki\//,''));
+			$(this).addClass('infoclick clickwikimedia');
+		});
+		jq.find("a.image[href^='//commons.wikimedia.org/']").each( function() {
+			var ref = $(this).attr('href');
+			$(this).attr('href', '#');
+			$(this).attr('name', 'commons.wikimedia.org/'+ref.replace(/\/\/commons\.wikimedia\.org\/wiki\//,''));
+			$(this).addClass('infoclick clickwikimedia');
+		});
+
+		// Redirect intra-wikipedia links so they go to our function
+		jq.find("a[href^='/wiki/']").each( function() {
+			var ref = $(this).attr('href');
+			$(this).attr('href', '#');
+			$(this).attr('name', domain+'/'+ref.replace(/\/wiki\//,''));
+			$(this).addClass('infoclick clickwikilink');
+		});
+
+		// Remove inline colour styles on elements.
+		// We do background color twice because some elements have been found
+		// to have 2 background color styles applied.
+		jq.find('[style*=background-color]').removeInlineCss('background-color');
+		jq.find('[style*=background-color]').removeInlineCss('background-color');
+		jq.find('[style*=background]').removeInlineCss('background');
+		jq.find('[style*=color]').removeInlineCss('color');
+
+		// Remove these bits because they're a pain in the arse
+		jq.find("li[class|='nv']").remove();
+
+		return jq.html();
+
+		// The original PHP formatter had these, but I'm not sure they're needed
+		// //<a class="external text" href="//en.wikipedia.org/w/index.php?title=Special:Book&amp;bookcmd=render_collection&amp;colltitle=Book:Deep_Purple&amp;writer=rl">Download PDF</a>
+		// $html = preg_replace( '/(<a .*? href=".*?Special\:Book.*?")/', '$1 target="_blank"', $html );
+
+	}
+
+	function formatLink(xml) {
+		var xml_node = $('api',xml);
+		return 'http://'+xml_node.find('rompr > domain').text()+'.wikipedia.org/wiki/'+xml_node.find('rompr > page').text();
+	}
+
+	function formatPage(xml) {
+		var xml_node = $('api',xml);
+		var page = xml_node.find('rompr > page').text();
+		return page.replace(/_/g, ' ');
+	}
+
 	return {
 		getRequirements: function(parent) {
 			return ["musicbrainz"];
@@ -34,6 +114,14 @@ var info_wikipedia = function() {
                 	var link = decodeURIComponent(element.attr('name'));
                 	debug.log("WIKI PLUGIN",parent.index,source,"clicked a wiki link",link);
                 	self[source].followLink(link);
+                } else if (element.hasClass('clickwikicontents')) {
+                	var section = element.attr('name');
+                	debug.log("WIKI PLUGIN",parent.index,source,"clicked a contents link",section);
+                	if (mobile == "no") {
+          				//TODO make this work on a phone (no custom scrollbars)
+                		$("#infopane").mCustomScrollbar("scrollTo", section);
+                	}
+
                 }
             }
 
@@ -89,9 +177,10 @@ var info_wikipedia = function() {
 					},
 
 					wikiResponseHandler: function(data) {
-						debug.log("WIKI PLUGIN",parent.index,"got artist data for",parent.playlistinfo.creator);
+						debug.log("WIKI PLUGIN",parent.index,"got artist data for",parent.playlistinfo.creator,data);
 						if (data) {
-							parent.playlistinfo.metadata.artist.wikipedia.artistinfo = data;
+							parent.playlistinfo.metadata.artist.wikipedia.artistinfo = formatWiki(data);
+							parent.playlistinfo.metadata.artist.wikipedia.artistlink = formatLink(data);
 						} else {
 							parent.playlistinfo.metadata.artist.wikipedia.artistinfo = {error: language.gettext("wiki_nothing")}
 						}
@@ -103,13 +192,13 @@ var info_wikipedia = function() {
 						if (displaying && parent.playlistinfo.metadata.artist.wikipedia.artistinfo !== undefined) {
 							debug.log("WIKI PLUGIN",parent.index,"artist was asked to display");
 							if (parent.playlistinfo.metadata.artist.wikipedia.artistinfo.error) {
-								browser.Update('artist', me, parent.index, {	name: parent.playlistinfo.creator,
-																			link: "",
+								browser.Update('artist', me, parent.index, {name: parent.playlistinfo.creator,
+																			link: null,
 																			data: '<h3 align="center">'+parent.playlistinfo.metadata.artist.wikipedia.artistinfo.error+'</h3>'
 																		}
 								);
 							} else {
-								browser.Update('artist', me, parent.index, {	name: parent.playlistinfo.creator,
+								browser.Update('artist', me, parent.index, {name: parent.playlistinfo.creator,
 																			link: parent.playlistinfo.metadata.artist.wikipedia.artistlink,
 																			data: parent.playlistinfo.metadata.artist.wikipedia.artistinfo
 																		}
@@ -122,10 +211,10 @@ var info_wikipedia = function() {
 						wikipedia.getWiki(link, self.artist.gotWikiLink, self.wikiGotFailed);
 					},
 
-					gotWikiLink: function(link, data) {
-						browser.speciaUpdate(me, 'artist', { name: link.replace(/_/g, " "),
-															 link: null,
-															 data: data});
+					gotWikiLink: function(data) {
+						browser.speciaUpdate(me, 'artist', { name: formatPage(data),
+															 link: formatLink(data),
+															 data: formatWiki(data)});
 					}
 				}
 			}();
@@ -178,7 +267,8 @@ var info_wikipedia = function() {
 					wikiResponseHandler: function(data) {
 						debug.log("WIKI PLUGIN",parent.index,"got album data for",parent.playlistinfo.album);
 						if (data) {
-							parent.playlistinfo.metadata.album.wikipedia.albumdata = data;
+							parent.playlistinfo.metadata.album.wikipedia.albumdata = formatWiki(data);
+							parent.playlistinfo.metadata.album.wikipedia.albumlink = formatLink(data);
 						} else {
 							parent.playlistinfo.metadata.album.wikipedia.albumdata = {error: language.gettext("wiki_nothing")}
 						}
@@ -220,8 +310,8 @@ var info_wikipedia = function() {
 								);
 							} else {
 								browser.Update('album', me, parent.index, {	name: parent.playlistinfo.album,
-																		link: parent.playlistinfo.metadata.album.wikipedia.albumlink,
-																		data: parent.playlistinfo.metadata.album.wikipedia.albumdata
+																			link: parent.playlistinfo.metadata.album.wikipedia.albumlink,
+																			data: parent.playlistinfo.metadata.album.wikipedia.albumdata
 																	}
 								);
 							}
@@ -232,10 +322,10 @@ var info_wikipedia = function() {
 						wikipedia.getWiki(link, self.album.gotWikiLink, self.wikiGotFailed);
 					},
 
-					gotWikiLink: function(link, data) {
-						browser.speciaUpdate(me, 'album', { name: link.replace(/_/g, " "),
-															link: 'http://en.wikipedia.org/wiki/'+link,
-															data: data});
+					gotWikiLink: function(data) {
+						browser.speciaUpdate(me, 'album', { name: formatPage(data),
+															link: formatLink(data),
+															data: formatWiki(data)});
 					}
 
 				}
@@ -284,7 +374,8 @@ var info_wikipedia = function() {
 					wikiResponseHandler: function(data) {
 						debug.log("WIKI PLUGIN",parent.index,"got track data for",parent.playlistinfo.title);
 						if (data) {
-							parent.playlistinfo.metadata.track.wikipedia.trackdata = data;
+							parent.playlistinfo.metadata.track.wikipedia.trackdata = formatWiki(data);
+							parent.playlistinfo.metadata.track.wikipedia.tracklink = formatLink(data);
 						} else {
 							parent.playlistinfo.metadata.track.wikipedia.trackdata = {error: language.gettext("wiki_nothing")}
 						}
@@ -303,8 +394,8 @@ var info_wikipedia = function() {
 								);
 							} else {
 								browser.Update('track', me, parent.index, {	name: parent.playlistinfo.title,
-																		link: parent.playlistinfo.metadata.track.wikipedia.tracklink,
-																		data: parent.playlistinfo.metadata.track.wikipedia.trackdata
+																			link: parent.playlistinfo.metadata.track.wikipedia.tracklink,
+																			data: parent.playlistinfo.metadata.track.wikipedia.trackdata
 																	}
 								);
 							}
@@ -315,10 +406,10 @@ var info_wikipedia = function() {
 						wikipedia.getWiki(link, self.track.gotWikiLink, self.wikiGotFailed);
 					},
 
-					gotWikiLink: function(link, data) {
-						browser.speciaUpdate(me, 'track', { name: link.replace(/_/g, " "),
-															link: 'http://en.wikipedia.org/wiki/'+link,
-															data: data});
+					gotWikiLink: function(data) {
+						browser.speciaUpdate(me, 'track', { name: formatPage(data),
+															link: formatLink(data),
+															data: formatWiki(data)});
 					}
 
 				}

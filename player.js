@@ -147,11 +147,11 @@ function multiProtocolController() {
                 debug.log("PLAYER","Track Playback Ended",data);
             });
 
-            mopidy.on("event:volumeChanged", function(data) {
-            	debug.debug("PLAYER", "Mopidy volume has changed to ",data);
-            	self.status.volume = data.volume;
-            	infobar.updateWindowValues();
-            });
+            // mopidy.on("event:volumeChanged", function(data) {
+            // 	debug.debug("PLAYER", "Mopidy volume has changed to ",data);
+            // 	self.status.volume = data.volume;
+            // 	infobar.updateWindowValues();
+            // });
 
     	}
 
@@ -559,6 +559,17 @@ function multiProtocolController() {
 	    	cancelSingle: function() {
 	    		mopidy.tracklist.setSingle(false);
 	    		self.status.single = 0;
+	    	},
+
+	    	doOutput: function(id, state) {
+	    		if (state) {
+	    			mopidy.playback.setMute(true);
+	    		} else {
+	    			mopidy.playback.setMute(false).then( function() {
+		    			// Workaround for possible mopidy bug
+	    				mopidy.playback.setVolume(Math.round(self.status.volume));
+	    			});
+	    		}
 	    	}
 
 	    }
@@ -841,6 +852,14 @@ function multiProtocolController() {
 
 	    	cancelSingle: function() {
 	    		this.command("command=single&arg=0");
+	    	},
+
+	    	doOutput: function(id, state) {
+	    		if (state) {
+			        this.command("command=enableoutput&arg="+id);
+	    		} else {
+    		        this.command("command=disableoutput&arg="+id);
+	    		}
 	    	}
 
 	    }

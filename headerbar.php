@@ -157,7 +157,7 @@ foreach ($outputs as $i => $n) {
 for ($i = 0; $i < count($outputdata); $i++) {
     print '<li class="wide">'.$outputdata[$i]['outputname'];
     print '<img src="'.$prefsbuttons[$outputdata[$i]['outputenabled']].'" id="outputbutton'.$i.'" style="margin-left:12px" onclick="outputswitch(\''.$i.'\')" class="togglebutton clickicon" />';
-    print "</li>'\n";
+    print "</li>\n";
 }
 
 print '<li class="wide"><hr /></li>';
@@ -233,9 +233,7 @@ close_mpd($connection);
     $("#sortbydate").attr("checked", prefs.sortbydate);
     $("#notvabydate").attr("checked", prefs.notvabydate);
     $("#themeselector").val(prefs.theme);
-    if (prefs.language) {
-        $("#langselector").val(prefs.language);
-    }
+    $("#langselector").val(interfaceLanguage);
     $("#countryselector").val(prefs.lastfm_country_code);
     $("[name=clickselect][value="+prefs.clickmode+"]").attr("checked", true);
     $("[name=clicklfmlang][value="+prefs.lastfmlang+"]").attr("checked", true);

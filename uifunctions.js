@@ -751,10 +751,10 @@ function outputswitch(id) {
     debug.log("GENERAL       : Output Switch for output",id);
     if ($('#outputbutton'+id).attr("src") == "newimages/button-off.png") {
         $('#outputbutton'+id).attr("src", "newimages/button-on.png");
-        player.mpd.command("command=enableoutput&arg="+id);
+        player.controller.doOutput(id, true);
     } else {
         $('#outputbutton'+id).attr("src", "newimages/button-off.png");
-        player.mpd.command("command=disableoutput&arg="+id);
+        player.controller.doOutput(id, false);
     }
 }
 
@@ -1181,7 +1181,7 @@ function sourcecontrol(source) {
         sources = ["lastfmlist", "albumlist", "filelist", "radiolist"];
     } else if (mobile == "phone") {
         if (landscape) {
-            sources = ["lastfmlist", "albumlist", "filelist", "radiolist", "infopane", "chooser", "prefsm"];
+            sources = ["lastfmlist", "albumlist", "filelist", "radiolist", "infopane", "chooser", "historypanel", "playlistman", "prefsm"];
         } else {
             sources = ["lastfmlist", "albumlist", "filelist", "radiolist", "infopane", "playlistm", "chooser", "historypanel", "playlistman", "prefsm"];
         }

@@ -480,6 +480,12 @@ $languages['en'] = array (
 	"button_volup" => "Volume Up",
 	"button_voldown" => "Volume Down",
 
+	// Extras for mobile version
+	"button_playlist" => "Playlist",
+	"button_playman" => "Playlist Management",
+	"button_mob_history" => "Info Panel History",
+	"config_2columns" => "Use 2 Columns in landscape mode"
+
 );
 
 ?>
