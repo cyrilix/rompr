@@ -73,5 +73,4 @@ if($is_connected) {
 close_mpd($connection);
 print json_encode($mpd_status);
 
-
 ?>

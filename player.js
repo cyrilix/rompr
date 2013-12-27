@@ -802,6 +802,9 @@ function multiProtocolController() {
 	    				case "uri":
 		    				cmdlist.push('add "'+v.name+'"');
 		    				break;
+	    				case "cue":
+		    				cmdlist.push('load "'+v.name+'"');
+		    				break;
 		    			case "item":
 		    				cmdlist.push("additem "+v.name);
 		    				break;

@@ -11,7 +11,7 @@ if (array_key_exists('item', $_REQUEST) && file_exists($FILESLIST)) {
 	dumpTree($_REQUEST['item']);
 } else {
 	include ("connection.php");
-	$tree = doFileList("list file");
+	$tree = doFileList("listall");
 	doFileCollection($FILESLIST);
    	dumpTree('adirroot');
 }

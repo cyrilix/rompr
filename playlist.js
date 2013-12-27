@@ -302,18 +302,33 @@ function Playlist() {
             }
             return (parseInt(finaltrack))+1;
         })($(ui.item));
+        debug.log("PLAYLIST","GOT HERE");
         if (ui.item.hasClass("draggable")) {
             // Something dragged from the albums list
             var tracks = new Array();
             $.each($('.selected').filter(removeOpenItems), function (index, element) {
                 var uri = $(element).attr("name");
+                debug.log("PLAYLIST","Dragged",uri);
                 if (uri) {
                     if ($(element).hasClass('clickalbum')) {
                         tracks.push({  type: "item",
                                         name: uri});
-                    } else {
-                        tracks.push({  type: "uri",
+                    } else if ($(element).hasClass('clickcue')) {
+                        tracks.push({  type: "cue",
                                         name: decodeURIComponent(uri)});
+                    } else {
+                        var options = { type: "uri",
+                                        name: decodeURIComponent(uri)};
+                        $(element).find('input').each( function() {
+                            switch ($(this).val()) {
+                                case "needsfiltering":
+                                    options.findexact = {artist: $(element).children('.saname').text()};
+                                    options.filterdomain = ['spotify:'];
+                                    debug.log("PLAYLIST", "Adding Spotify artist",$(element).children('.saname').text());
+                                    break;
+                            }
+                        });
+                        tracks.push(options);
                     }
                 }
             });
@@ -344,13 +359,13 @@ function Playlist() {
     }
 
     function removeOpenItems(index) {
-        if ($(this).hasClass('clicktrack')) {
+        if ($(this).hasClass('clicktrack') || $(this).hasClass('clickcue')) {
             return true;
         }
         // Filter out artist and album items whose dropdowns have been populated -
         // In these cases the individual tracks will exist and will be selected
         // (and might only have partial selections even if the header is selected)
-        if ($("#"+$(this).attr('name')).hasClass('notfilled')) {
+        if ($("#"+$(this).attr('name')).hasClass('notfilled') || $(this).hasClass('onefile')) {
             return true;
         } else {
             return false;
@@ -695,12 +710,26 @@ function Playlist() {
                                     null);
     }
 
+    this.addcue = function(element) {
+        self.waiting();
+        scrollto = (finaltrack)+1;
+        var n = decodeURIComponent(element.attr("name"));
+
+        var options = [{    type: "cue",
+                            name: n,
+                      }];
+
+        player.controller.addTracks(options,
+                                    playlist.playFromEnd(),
+                                    null);
+    }
+
     this.addalbum = function(element) {
         self.waiting();
         scrollto = (finaltrack)+1;
         player.controller.addTracks([{  type: "item",
                                         name: element.attr("name")}],
-                                    playlist.playFromEnd(), null);
+                                        playlist.playFromEnd(), null);
     }
 
     this.addFavourite = function(index) {

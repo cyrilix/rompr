@@ -494,6 +494,9 @@ function albumHeaders($artist) {
         if ($album->spotilink) {
             print '<div class="clickable clicktrack draggable containerbox menuitem" name="'.$album->spotilink.'">';
             print '<div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="'.$album['id'].'"></div>';
+        } else if ($album->isonefile) {
+            print '<div class="clickable clickalbum onefile draggable containerbox menuitem" name="'.$album['id'].'">';
+            print '<div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="'.$album['id'].'"></div>';
         } else {
             print '<div class="clickable clickalbum draggable containerbox menuitem" name="'.$album['id'].'">';
             print '<div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="'.$album['id'].'"></div>';
@@ -532,37 +535,39 @@ function albumTracks($album) {
     $currdisc = -1;
     $count = 0;
     foreach($album->tracks->track as $i => $trackobj) {
-        if ($album->numdiscs > 1) {
-            if ($trackobj->disc && $trackobj->disc != $currdisc) {
-                $currdisc = $trackobj->disc;
-                print '<div class="discnumber indent">Disc '.$currdisc.'</div>';
+        if (!$trackobj->playlist) {
+            if ($album->numdiscs > 1) {
+                if ($trackobj->disc && $trackobj->disc != $currdisc) {
+                    $currdisc = $trackobj->disc;
+                    print '<div class="discnumber indent">Disc '.$currdisc.'</div>';
+                }
             }
-        }
-        if ($trackobj->artist) {
-            print '<div class="clickable clicktrack ninesix draggable indent containerbox vertical padright" name="'.$trackobj->url.'">';
-            print '<div class="containerbox line">';
-        } else {
-            print '<div class="clickable clicktrack ninesix draggable indent containerbox padright line" name="'.$trackobj->url.'">';
-        }
-        print '<div class="tracknumber fixed"';
-        if ($album->tracks->track->count() > 99 ||
-            $trackobj->number > 99) {
-            print ' style="width:3em"';
-        }
-        print '>'.$trackobj->number.'</div>';
-        if (substr($trackobj->url,0,strlen('spotify')) == "spotify") {
-            print '<div class="playlisticon fixed"><img height="12px" src="newimages/spotify-logo.png" /></div>';
-        }
-        print '<div class="expand">'.$trackobj->name.'</div>';
-        print '<div class="fixed playlistrow2">'.$trackobj->duration.'</div>';
-        if ($trackobj->artist) {
-            print '</div><div class="containerbox line">';
-            print '<div class="tracknumber fixed"></div>';
-            print '<div class="expand playlistrow2">'.$trackobj->artist.'</div>';
+            if ($trackobj->artist) {
+                print '<div class="clickable clicktrack ninesix draggable indent containerbox vertical padright" name="'.$trackobj->url.'">';
+                print '<div class="containerbox line">';
+            } else {
+                print '<div class="clickable clicktrack ninesix draggable indent containerbox padright line" name="'.$trackobj->url.'">';
+            }
+            print '<div class="tracknumber fixed"';
+            if ($album->tracks->track->count() > 99 ||
+                $trackobj->number > 99) {
+                print ' style="width:3em"';
+            }
+            print '>'.$trackobj->number.'</div>';
+            if (substr($trackobj->url,0,strlen('spotify')) == "spotify") {
+                print '<div class="playlisticon fixed"><img height="12px" src="newimages/spotify-logo.png" /></div>';
+            }
+            print '<div class="expand">'.$trackobj->name.'</div>';
+            print '<div class="fixed playlistrow2">'.$trackobj->duration.'</div>';
+            if ($trackobj->artist) {
+                print '</div><div class="containerbox line">';
+                print '<div class="tracknumber fixed"></div>';
+                print '<div class="expand playlistrow2">'.$trackobj->artist.'</div>';
+                print '</div>';
+            }
             print '</div>';
+            $count++;
         }
-        print '</div>';
-        $count++;
     }
     if ($count == 0) {
         print '<div class="playlistrow2" style="padding-left:64px">'.get_int_text("label_notracks").'</div>';
@@ -916,7 +921,11 @@ function getTracksForArtist($artist) {
 function getTracksForAlbum($album) {
     $retarr = array();
     foreach($album->tracks->track as $j => $track) {
-        array_push($retarr, "add ".rawurldecode($track->url));
+        if ($track->playlist) {
+            array_push($retarr, "load ".rawurldecode($track->playlist));
+        } else {
+            array_push($retarr, "add ".rawurldecode($track->url));
+        }
     }
     return $retarr;
 }
@@ -926,6 +935,8 @@ function getTracksForDir($dir) {
     foreach($dir->artists->item as $i => $d) {
         if ($d->type == "file") {
             array_push($retarr, "add ".rawurldecode($d->url));
+        } else if ($d->type == "cue") {
+            array_push($retarr, "load ".rawurldecode($d->url));
         } else {
             $retarr = array_merge($retarr, getTracksForDir($d));
         }

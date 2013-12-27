@@ -2,23 +2,31 @@
 
 class mpdlistthing {
 
-    public function __construct($name, $fullpath) {
+    public function __construct($name, $fullpath, $iscue) {
         $this->children = array();
         $this->name = $name;
         $this->fullpath = $fullpath;
         $this->protocol = "";
+        $this->isplaylist = $iscue;
     }
 
-    public function addpath($path, $fullpath) {
+    public function addpath($path, $fullpath, $is_playlist) {
 
         $len = (strpos($path, "/") === false) ? strlen($path) : strpos($path, "/");
         $firstdir = substr($path, 0, $len);
-
+        $flag = false;
+        if ($firstdir == $path) {
+            $flag = $is_playlist;
+        }
         if (!array_key_exists($firstdir, $this->children)) {
-            $this->children[$firstdir] = new mpdlistthing($firstdir, $fullpath);
+            $this->children[$firstdir] = new mpdlistthing($firstdir, $fullpath, $flag);
+        } else {
+            if ($this->children[$firstdir]->isplaylist == false && $flag) {
+                $this->children[$firstdir]->isplaylist = true;
+            }
         }
         if (strpos($path, "/") != false) {
-            $this->children[$firstdir]->addpath(substr($path, strpos($path, "/")+1, strlen($path)), $fullpath);
+            $this->children[$firstdir]->addpath(substr($path, strpos($path, "/")+1, strlen($path)), $fullpath, $is_playlist);
         }
     }
 
@@ -42,7 +50,7 @@ class mpdlistthing {
                 $count++;
             } else {
                 $output->writeLine("<item>\n");
-                $output->writeLine(xmlnode('type', 'file'));
+                $output->writeLine(xmlnode('type', $this->isplaylist ? 'cue' : 'file'));
                 $output->writeLine(xmlnode('url', rawurlencode($protocol.$this->fullpath)));
                 $output->writeLine(xmlnode('name', $this->name));
                 $output->writeLine("</item>\n");
@@ -72,6 +80,11 @@ function doFileHTML($item) {
         print '<div class="expand">'.$item->name.'</div>';
         print '</div>';
         print '<div id="'.$item->id.'" class="dropmenu notfilled"></div>';
+    } else if ($item->type == 'cue') {
+        print '<div class="clickable clickcue ninesix draggable indent containerbox padright line" name="'.$item->url.'">';
+        print '<div class="playlisticon fixed"><img height="16px" src="newimages/audio-x-generic.png" /></div>';
+        print '<div class="expand">'.$item->name.'</div>';
+        print '</div>';
     } else {
         print '<div class="clickable clicktrack ninesix draggable indent containerbox padright line" name="'.$item->url.'">';
         print '<div class="playlisticon fixed"><img height="16px" src="newimages/audio-x-generic.png" /></div>';
@@ -86,7 +99,7 @@ function doFileList($command) {
     global $connection;
     global $is_connected;
 
-    $tree = new mpdlistthing("/", "/");
+    $tree = new mpdlistthing("/", "/", false);
     $parts = true;
     if ($is_connected) {
         fputs($connection, $command."\n");
@@ -97,8 +110,12 @@ function doFileList($command) {
                     $tree->setprotocol("file:///");
                     $parts[1] = substr($parts[1], 8, strlen($parts[1]));
                 }
-                $tree->addpath(trim($parts[1]), trim($parts[1]));
+                $tree->addpath(trim($parts[1]), trim($parts[1]), false);
+            } else if (is_array($parts) && $parts[0] == "playlist") {
+                debug_print("Cue file found ".trim($parts[1]),"FILE LIST");
+                $tree->addpath(trim($parts[1]), trim($parts[1]), true);
             }
+
         }
     }
     return $tree;

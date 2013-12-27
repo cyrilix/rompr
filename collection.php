@@ -51,6 +51,18 @@ class album {
         $object->setAlbumObject($this);
     }
 
+    public function isOneFile() {
+        $result = true;
+        foreach ($this->tracks as $i => $track) {
+            if ($track->playlist) {
+
+            } else {
+                $result = false;
+            }
+        }
+        return $result;
+    }
+
     public function isCompilation() {
         return $this->iscompilation;
     }
@@ -204,7 +216,8 @@ class artist {
 class track {
     public function __construct($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
                                 $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station,
-                                $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack, $origimage) {
+                                $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack,
+                                $origimage, $playlist) {
 
         $this->artist = $artist;
         $this->album = $album;
@@ -232,6 +245,7 @@ class track {
         $this->musicbrainz_albumid = $mbalbum;
         $this->musicbrainz_albumartistid = $mbalbumartist;
         $this->musicbrainz_trackid = $mbtrack;
+        $this->playlist = $playlist;
     }
 
     public function getImage($size) {
@@ -288,7 +302,7 @@ class musicCollection {
     public function newTrack($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
                                 $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station,
                                 $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack,
-                                $origimage, $spotialbum, $spotiartist, $domain) {
+                                $origimage, $spotialbum, $spotiartist, $domain, $cuefile) {
 
         global $current_album;
         global $current_artist;
@@ -306,7 +320,7 @@ class musicCollection {
         // Create a track object then find an artist and album to associate it with
         $t = new track($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
                         $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station,
-                        $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack, $origimage);
+                        $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack, $origimage, $cuefile);
 
         // If artist doesn't exist, create it - indexed by all lower case name for convenient sorting and grouping
         if (!array_key_exists($artistkey, $this->artists)) {
@@ -449,29 +463,6 @@ class musicCollection {
         return $this->artists[$artist]->spotilink;
     }
 
-    // public function createCompilation($name, $albums, $domain) {
-    //     debug_print("Creating Compilation out of ".$name." in domain ".$domain);
-    //     // mark an already existing album as a compilation
-    //     $abm = new album($name, "", $domain);
-    //     // Take all the tracks from the existing albums with the same name
-    //     foreach($albums as $i => $object) {
-    //         $object->setAsCompilation();
-    //         if ($abm->spotilink == null) {
-    //             $abm->spotilink = $object->spotilink;
-    //         }
-    //         foreach($object->tracks as $t) {
-    //             $abm->newTrack($t);
-    //         }
-    //     }
-    //     $this->albums[] = $abm;
-    //     $abm->setAsCompilation();
-    //     if (!array_key_exists("various artists", $this->artists)) {
-    //         $this->artists["various artists"] = new artist("Various Artists");
-    //     }
-    //     // Add the album to the various artists group
-    //     $this->artists["various artists"]->newAlbum($abm);
-    // }
-
 }
 
 // Create a new collection
@@ -492,11 +483,11 @@ function process_file($collection, $filedata) {
     list (  $name, $duration, $number, $date, $genre, $artist, $album, $folder,
             $type, $image, $expires, $stationurl, $station, $backendid, $playlistpos,
             $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack,
-            $origimage, $spoitalbum, $spotiartist)
+            $origimage, $spoitalbum, $spotiartist, $playlist)
         = array (   null, 0, "", null, null, null, null, null,
                     "local", null, null, null, null, null, null,
                     null, 0, "", null, null, null, null,
-                    null, null, null );
+                    null, null, null, null );
 
     $artist = (array_key_exists('Artist', $filedata)) ? $filedata['Artist'] : rawurldecode(basename(dirname(dirname($file))));
     $album = (array_key_exists('Album', $filedata)) ? $filedata['Album'] : rawurldecode(basename(dirname($file)));
@@ -517,6 +508,11 @@ function process_file($collection, $filedata) {
     $playlistpos = (array_key_exists('Pos',$filedata)) ? $filedata['Pos'] : null;
     $spotialbum = (array_key_exists('SpotiAlbum',$filedata)) ? $filedata['SpotiAlbum'] : null;
     $spotiartist = (array_key_exists('SpotiArtist',$filedata)) ? $filedata['SpotiArtist'] : null;
+    $playlist = (array_key_exists('playlist',$filedata)) ? $filedata['playlist'] : null;
+
+    // 'playlist' is how mpd handles flac/cue files (either embedded cue or external cue).
+    // It's not the most helpful key to give it, but that's what we have to work with
+
     switch($domain) {
         case "soundcloud":
             $folder = "soundcloud";
@@ -546,7 +542,7 @@ function process_file($collection, $filedata) {
     $collection->newTrack(  $name, $file, $duration, $number, $date, $genre, $artist, $album, $folder,
                             $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station,
                             $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack,
-                            $origimage, $spotialbum, $spotiartist, $domain);
+                            $origimage, $spotialbum, $spotiartist, $domain, $playlist);
 
     $numtracks++;
     $totaltime += $duration;
@@ -705,11 +701,6 @@ function doCollection($command, $jsondata = null) {
         if ($command == null) {
             debug_print("Parsing Mopidy JSON Data","COLLECTION");
             parse_mopidy_json_data($collection, $jsondata);
-        // } elseif ($command == "listallinfo" && $prefs['use_mopidy_tagcache'] == 1) {
-        //     debug_print("Doing Mopidy tag cache scan.","COLLECTION");
-        //     if (file_exists("mopidy-tags/tag_cache")) {
-        //         parse_mopidy_tagcache($collection);
-        //     }
         } else {
             fputs($connection, $command."\n");
             $firstline = null;
@@ -718,13 +709,15 @@ function doCollection($command, $jsondata = null) {
             while(!feof($connection) && $parts) {
                     $parts = getline($connection);
                     if (is_array($parts)) {
-                        if ($parts[0] != "playlist" && $parts[0] != "Last-Modified") {
+                        // if ($parts[0] != "playlist" && $parts[0] != "Last-Modified") {
+                        if ($parts[0] != "Last-Modified") {
                             if ($parts[0] == $firstline) {
                                 $filecount++;
                                 process_file($collection, $filedata);
                                 $filedata = array();
                             }
-                            $filedata[$parts[0]] = $parts[1];
+                            $value = is_array($parts[1]) ? $parts[1][0] : $parts[1];
+                            $filedata[$parts[0]] = $value;
                             if ($firstline == null) {
                                 $firstline = $parts[0];
                             }
@@ -738,34 +731,6 @@ function doCollection($command, $jsondata = null) {
             }
         }
 
-        // This has been disabled because it was creating compilations out of things that weren't
-        // especially when doing searches.
-        // // Rescan stage - to find albums that are compilations but have been missed by the above step
-        // $possible_compilations = array();
-        // foreach($collection->albums as $i => $al) {
-        //     $an = utf8_decode($al->name);
-        //     if (!$al->isCompilation() && $an != "") {
-        //         $numtracks = $al->trackCount();
-        //         if ($numtracks < $COMPILATION_THRESHOLD) {
-        //             $dm = $al->domain;
-        //             $possible_compilations[$dm][$an][] = $al;
-        //         }
-        //     }
-        // }
-
-        // debug_print("Possible Compilations:");
-        // debug_print(print_r($possible_compilations, true));
-
-        // foreach($possible_compilations as $domain => $albumnamearray) {
-        //     if (count($albumnamearray) > 1) {
-        //         foreach($albumnamearray as $name => $array) {
-        //             if (count($array) > 1) {
-        //                 $collection->createCompilation($name, $array, $domain);
-        //             }
-        //         }
-        //     }
-
-        // }
     }
 
     return $collection;
@@ -839,7 +804,9 @@ function do_albums_xml($artistkey, $compilations, $showartist, $prefix, $output)
             }
             $output->writeLine(xmlnode('searched', 'no'));
             $output->writeLine("</image>\n");
-
+            if ($album->isOneFile()) {
+                $output->writeLine(xmlnode('isonefile', 'yes'));
+            }
             $numdiscs = $album->sortTracks();
             $output->writeLine(xmlnode('numdiscs', $numdiscs));
             $currdisc = -1;
@@ -854,17 +821,23 @@ function do_albums_xml($artistkey, $compilations, $showartist, $prefix, $output)
                             $output->writeLine(xmlnode('disc', $currdisc));
                         }
                     }
-                    if ( ($showartist ||
+                    if (($showartist ||
                         ($trackobj->albumartist != null && ($trackobj->albumartist != $trackobj->artist))) &&
                         ($trackobj->artist != null && $trackobj->artist != '.')
                     ) {
                         $output->writeLine(xmlnode('artist', $trackobj->artist));
                     }
-                    // $output->writeLine(xmlnode('albumartist', $trackobj->albumartist));
                     $output->writeLine(xmlnode('url', rawurlencode($trackobj->url)));
                     $output->writeLine(xmlnode('number', $trackobj->number));
                     $output->writeLine(xmlnode('name', $trackobj->name));
                     $output->writeLine(xmlnode('duration', format_time($trackobj->duration)));
+                    if ($trackobj->playlist && count($album->tracks) == 1) {
+                        // Don't include the cue sheet if the albums object has more than one track -
+                        // because if it does then it will be a cue sheet alongside a multi-track rip
+                        // and if we include the the whole album gets added to the playlist twice
+                        // It's totally silly to even display it
+                        $output->writeLine(xmlnode('playlist', rawurlencode($trackobj->playlist)));
+                    }
                     $output->writeLine("</track>\n");
                     $count++;
                 }
@@ -879,46 +852,5 @@ function do_albums_xml($artistkey, $compilations, $showartist, $prefix, $output)
     }
 
 }
-
-// function parse_mopidy_tagcache($collection) {
-
-//     global $prefs;
-//     debug_print("Starting Mopidy Tag Cache Scan","COLLECTION");
-
-//     $firstline = null;
-//     $filedata = array();
-//     $parts = true;
-//     $fp = fopen("mopidy-tags/tag_cache", "r");
-
-//     if ($fp) {
-//         $a = "";
-//         while(!feof($fp) && strtolower($a) != "songlist begin") {
-//             $a = trim(fgets($fp));
-//         }
-//         while(!feof($fp) && $parts) {
-//             $parts = getline($fp);
-//             if (is_array($parts)) {
-//                 if ($parts[0] != "playlist" && $parts[0] != "Last-Modified") {
-//                     if ($parts[0] == $firstline) {
-//                         process_file($collection, $filedata);
-//                         $filedata = array();
-//                     }
-//                     if ($parts[0] == 'file') {
-//                         $parts[1] = "local:track:".$parts[1];
-//                     }
-//                     $filedata[$parts[0]] = $parts[1];
-//                     if ($firstline == null) {
-//                         $firstline = $parts[0];
-//                     }
-//                 }
-//             }
-//         }
-
-//         if (array_key_exists('file', $filedata) && $filedata['file']) {
-//              process_file($collection, $filedata);
-//         }
-//     }
-//     fclose($fp);
-// }
 
 ?>

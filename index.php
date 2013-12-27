@@ -194,7 +194,6 @@ print "var mobile = '".$mobile."';\n";
 
 function aADownloadFinished() {
     debug.log("INDEX","Album Art Download Has Finished");
-    $.get("checkRemoteImageCache.php", function() { debug.debug("INDEX","Finished Thinning Remote Cache")});
 }
 
 var playlist = new Playlist();
