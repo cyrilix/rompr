@@ -34,7 +34,7 @@ function onFileCollectionClicked(event) {
         if (clickedElement.hasClass("clickalbum")) {
             event.stopImmediatePropagation();
             albumSelect(event, clickedElement);
-        } else if (clickedElement.hasClass("clicktrack")) {
+        } else if (clickedElement.hasClass("clicktrack") || clickedElement.hasClass("clickcue")) {
             event.stopImmediatePropagation();
             trackSelect(event, clickedElement);
         }
@@ -51,6 +51,9 @@ function onFileCollectionDoubleClicked(event) {
     } else if (clickedElement.hasClass("clicktrack")) {
         event.stopImmediatePropagation();
         playlist.addtrack(clickedElement);
+    } else if (clickedElement.hasClass("clickcue")) {
+        event.stopImmediatePropagation();
+        playlist.addcue(clickedElement);
     }
 }
 
@@ -260,7 +263,7 @@ function setDraggable(divname) {
             if (!clickedElement.hasClass("selected")) {
                 if (clickedElement.hasClass("clickalbum")) {
                     albumSelect(event, clickedElement);
-                } else if (clickedElement.hasClass("clicktrack")) {
+                } else if (clickedElement.hasClass("clicktrack") || clickedElement.hasClass("clickcue")) {
                     trackSelect(event, clickedElement);
                 }
             }
