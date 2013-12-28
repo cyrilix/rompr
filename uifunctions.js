@@ -181,18 +181,18 @@ function setBottomPaneSize() {
     if (mobile != "no") {
         if (itisbigger) {
             var newheight = ws.y-36;
+            // $("#nowplaying").detach().prependTo("#controls");
         } else {
             var newheight = ws.y - 116;
+            // $("#nowplaying").detach().appendTo("#buttons")
         }
         var gibbon = ws.x-136;
         $("#nowplaying").css('width', gibbon.toString()+"px");
         var oldls = landscape;
         if (ws.x > ws.y) {
             landscape = prefs.twocolumnsinlandscape;
-            $("#playinginfo").show();
         } else {
             landscape = false;
-            $("#playinginfo").hide();
         }
         if (oldls != landscape) {
             switchColumnMode(landscape);
@@ -1335,8 +1335,8 @@ function makeitbigger() {
         } else {
             $("#bottompage").css('top', "116px");
         }
+        setBottomPaneSize();
     });
-    setBottomPaneSize();
 }
 
 function swipeyswipe(dir) {

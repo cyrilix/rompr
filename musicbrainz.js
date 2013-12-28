@@ -9,14 +9,7 @@ var musicbrainz = function() {
 
 		request: function(reqid, url, success, fail) {
 
-			for (var i in queue) {
-				if (url == queue[i].url && reqid == queue[i].reqid) {
-					debug.debug("MUSICBRAINZ","New request for",url,"is a duplicate");
-					queue[i].dupes.push({reqid: reqid, url: url, success: success, fail: fail});
-					return;
-				}
-			}
-			queue.push( {flag: false, reqid: reqid, url: url, success: success, fail: fail, dupes: new Array()} );
+			queue.push( {flag: false, reqid: reqid, url: url, success: success, fail: fail } );
 			debug.debug("MUSICBRAINZ","New request",url);
 			if (throttle == null && queue.length == 1) {
 				musicbrainz.getrequest();
@@ -56,16 +49,8 @@ var musicbrainz = function() {
 	                	}
 		                if (data.error) {
 		                    req.fail(data);
-		                    for (var i in req.dupes) {
-		                    	// If the request failed and there were duplicates, don't throw them away,
-		                    	// stick them back on the queue as retries
-		                    	musicbrainz.request(req.dupes[i].reqid, req.dupes[i].url, req.dupes[i].success, req.dupes[i].fail);
-		                    }
 		                } else {
 		                    req.success(data);
-		                    for (var i in req.dupes) {
-		                    	req.dupes[i].success(data);
-		                    }
 		                }
 		            },
 	                error: function(data) {
@@ -77,9 +62,6 @@ var musicbrainz = function() {
 	                		data.id = req.reqid;
 	                	}
 	                	req.fail(data);
-	                    for (var i in req.dupes) {
-	                    	musicbrainz.request(req.dupes[i].reqid, req.dupes[i].url, req.dupes[i].success, req.dupes[i].fail);
-	                    }
 	                }
 	            });
 	        } else {

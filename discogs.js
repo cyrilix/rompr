@@ -8,14 +8,7 @@ var discogs = function() {
 
 		request: function(reqid, url, success, fail) {
 
-			for (var i in queue) {
-				if (url == queue[i].url && reqid == queue[i].reqid) {
-					debug.debug("DISCOGS","New request for",url,"is a duplicate");
-					queue[i].dupes.push({reqid: reqid, url: url, success: success, fail: fail});
-					return;
-				}
-			}
-			queue.push( {flag: false, reqid: reqid, url: url, success: success, fail: fail, dupes: new Array()} );
+			queue.push( {flag: false, reqid: reqid, url: url, success: success, fail: fail } );
 			debug.debug("DISCOGS","New request",url,"throttle is",throttle,"length is",queue.length);
 			if (throttle == null && queue.length == 1) {
 				discogs.getrequest();
@@ -65,16 +58,8 @@ var discogs = function() {
 	                	}
 		                if (data.error) {
 		                    req.fail(data);
-		                    for (var i in req.dupes) {
-		                    	// If the request failed and there were duplicates, don't throw them away,
-		                    	// stick them back on the queue as retries
-		                    	discogs.request(req.dupes[i].reqid, req.dupes[i].url, req.dupes[i].success, req.dupes[i].fail);
-		                    }
 		                } else {
 		                    req.success(data);
-		                    for (var i in req.dupes) {
-		                    	req.dupes[i].success(data);
-		                    }
 		                }
 		            },
 	                error: function(data) {
@@ -86,9 +71,6 @@ var discogs = function() {
 	                		data.id = req.reqid;
 	                	}
 	                	req.fail(data);
-	                    for (var i in req.dupes) {
-	                    	discogs.request(req.dupes[i].reqid, req.dupes[i].url, req.dupes[i].success, req.dupes[i].fail);
-	                    }
 	                }
 		        });
 	        } else {

@@ -2,15 +2,13 @@
 
 <div id="infobar">
     <div id="notifications"></div>
-    <div class="infobarlayout bordered">
+    <div id="geoffreyboycott" class="infobarlayout bordered">
         <div id="buttons">
             <div class="tleft">
 <img class="clickicon controlbutton" onclick="playlist.previous()" src="newimages/media-skip-backward.png"><img class="shiftleft clickicon controlbutton" onclick="infobar.playbutton.clicked()" id="playbuttonimg" src="newimages/media-playback-pause.png"><img class="shiftleft2 clickicon controlbutton" onclick="player.controller.stop()" src="newimages/media-playback-stop.png"><img class="shiftleft3 clickicon controlbutton" onclick="playlist.stopafter()" id="stopafterbutton" src="newimages/stopafter.png"><img class="shiftleft4 clickicon controlbutton" onclick="playlist.next()" src="newimages/media-skip-forward.png">
             </div>
-            <div id="playinginfo" class="tleft invisible">
             <div id="albumcover">
-                <img id="albumpicture" src="" />
-            </div>
+                <img id="albumpicture" class="notexist" src="" />
             </div>
             <div id="lastfm" class="invisible">
             <div><ul class="topnav"><a id="love" href="#" onclick="nowplaying.love()"><img height="20px" src="newimages/lastfm-love.png"></a></ul></div>

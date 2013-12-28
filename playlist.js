@@ -226,19 +226,24 @@ function Playlist() {
         for (var i in tracklist) {
             $("#sortable").append(tracklist[i].getHTML());
         }
-
         makeFictionalCharacter();
-        findCurrentTrack();
-        if (scrollto > -1) {
-            if (mobile == "no") {
-                $('#pscroller').mCustomScrollbar("scrollTo", 'div[name="'+scrollto.toString()+'"]', {scrollInertia:500});
-            } else {
-                $("#pscroller").scrollTo('div[name="'+scrollto.toString()+'"]');
-            }
-            scrollto = -1;
+        if (mobile == "no") {
+            $('#pscroller').mCustomScrollbar("update");
         }
-
+        findCurrentTrack();
         self.checkProgress();
+
+        // scrollto is now used only to prevent findCurrentTrack from scrolling to the current track.
+        // This stops it from being really annoying where it scrolls to the current track
+        // when you're in the middle of deleting some stuff lower down.
+        // Scrolling when we have the custom scrollbars isn't necessary when we repopulate as the 'scrollbars'
+        // basically just stay where they were.
+        // Note that we currently set scrollto to 1 when we drag stuff onto or within the playlist. This prevents
+        // the auto-scroll from moving the playlist around by itself, which is very confusing for the user.
+        // We don't set it when stuff is added by double-click. This means auto-scroll will keep the playlist
+        // on or around the current track when we do this. This seems to make the most sense.
+        scrollto = -1;
+
 
         if (expiresin != null) {
             debug.log("PLAYLIST","Last.FM Items in this playlist expire in",expiresin);
@@ -302,13 +307,11 @@ function Playlist() {
             }
             return (parseInt(finaltrack))+1;
         })($(ui.item));
-        debug.log("PLAYLIST","GOT HERE");
         if (ui.item.hasClass("draggable")) {
             // Something dragged from the albums list
             var tracks = new Array();
             $.each($('.selected').filter(removeOpenItems), function (index, element) {
                 var uri = $(element).attr("name");
-                debug.log("PLAYLIST","Dragged",uri);
                 if (uri) {
                     if ($(element).hasClass('clickalbum')) {
                         tracks.push({  type: "item",
@@ -332,6 +335,7 @@ function Playlist() {
                     }
                 }
             });
+            scrollto = 1;
             player.controller.addTracks(tracks, null, moveto);
             $('.selected').removeClass('selected');
             $("#dragger").remove();
@@ -354,6 +358,7 @@ function Playlist() {
                 moveto = moveto - numitems;
                 if (moveto < 0) { moveto = 0; }
             }
+            scrollto = 1;
             player.controller.move(firstitem, numitems, moveto);
         }
     }
@@ -373,6 +378,7 @@ function Playlist() {
     }
 
     this.delete = function(id) {
+        scrollto = 1;
         $('.track[romprid="'+id.toString()+'"]').remove();
         player.controller.removeId([parseInt(id)]);
     }
@@ -429,13 +435,15 @@ function Playlist() {
                 currentalbum = i;
                 currentsong = currentTrack.playlistpos;
                 debug.debug("PLAYLIST",".. found it!");
-                if (prefs.scrolltocurrent && $('.track[romprid="'+player.status.songid+'"]').offset()) {
+                if (prefs.scrolltocurrent &&
+                    $('.track[romprid="'+player.status.songid+'"]').offset()
+                    && scrollto === -1) {
                     debug.log("PLAYLIST","Scrolling to",player.status.songid);
                     if (mobile == "no") {
-                        $('#pscroller').mCustomScrollbar("scrollTo", $('.track[romprid="'+player.status.songid+'"]').offset().top - $('#sortable').offset().top - $('#pscroller').height()/2, {scrollInertia:500});
+                        $('#pscroller').mCustomScrollbar("scrollTo", $('div.track[romprid="'+player.status.songid+'"]').offset().top - $('#sortable').offset().top - $('#pscroller').height()/2, {scrollInertia:0});
                     } else {
                         $('#pscroller').animate({
-                           scrollTop: $('div[romprid="'+player.status.songid+'"]').offset().top - $('#sortable').offset().top - $('#pscroller').height()/2
+                           scrollTop: $('div.track[romprid="'+player.status.songid+'"]').offset().top - $('#sortable').offset().top - $('#pscroller').height()/2
                         }, 500);
                     }
                 }
@@ -674,6 +682,7 @@ function Playlist() {
     }
 
     this.deleteGroup = function(index) {
+        scrollto = 1;
         tracklist[index].deleteSelf();
     }
 
@@ -688,7 +697,7 @@ function Playlist() {
 
     this.addtrack = function(element) {
         self.waiting();
-        scrollto = (finaltrack)+1;
+        // scrollto = (finaltrack)+1;
         var n = decodeURIComponent(element.attr("name"));
 
         var options = [{    type: "uri",
@@ -712,7 +721,7 @@ function Playlist() {
 
     this.addcue = function(element) {
         self.waiting();
-        scrollto = (finaltrack)+1;
+        // scrollto = (finaltrack)+1;
         var n = decodeURIComponent(element.attr("name"));
 
         var options = [{    type: "cue",
@@ -726,7 +735,7 @@ function Playlist() {
 
     this.addalbum = function(element) {
         self.waiting();
-        scrollto = (finaltrack)+1;
+        // scrollto = (finaltrack)+1;
         player.controller.addTracks([{  type: "item",
                                         name: element.attr("name")}],
                                         playlist.playFromEnd(), null);

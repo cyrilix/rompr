@@ -234,7 +234,7 @@ function LastFM(user) {
                     options,
                     function() {
                         $("#ban").effect('pulsate', {times: 1}, 2000);
-                        infobar.notify(infobar.NOTIFY, language.gettext("banned")+" "+options.track);
+                        infobar.notify(infobar.NOTIFY, language.gettext("label_banned")+" "+options.track);
                     },
                     function() {
                         infobar.notify(infobar.ERROR, language.gettext("label_banfailed")+" "+options.track);
