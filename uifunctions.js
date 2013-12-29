@@ -181,13 +181,9 @@ function setBottomPaneSize() {
     if (mobile != "no") {
         if (itisbigger) {
             var newheight = ws.y-36;
-            // $("#nowplaying").detach().prependTo("#controls");
         } else {
             var newheight = ws.y - 116;
-            // $("#nowplaying").detach().appendTo("#buttons")
         }
-        var gibbon = ws.x-136;
-        $("#nowplaying").css('width', gibbon.toString()+"px");
         var oldls = landscape;
         if (ws.x > ws.y) {
             landscape = prefs.twocolumnsinlandscape;
@@ -201,6 +197,18 @@ function setBottomPaneSize() {
         var v = newheight - 32;
         $("#volumecontrol").css("height", v.toString()+"px");
         infobar.setVolumeState(prefs.volume);
+
+        if (($("#albumcover").position().left + 64) <= ($("#buttons").width() / 2) && !itisbigger) {
+            $("#nowplaying").detach().appendTo("#buttons");
+            var gibbon = $("#buttons").width() - ($("#albumcover").position().left + 64);
+            $("#nowplaying").css('width', gibbon.toString()+"px");
+            infobar.bumbleTheMobileChuff();
+        } else {
+            $("#nowplaying").detach().insertAfter("#lastfm");
+            var gibbon = ws.x-188;
+            $("#nowplaying").css('width', gibbon.toString()+"px");
+            infobar.bumbleTheMobileChuff();
+        }
     } else {
         var newheight = ws.y - 148;
         var notpos = ws.x - 340;
@@ -1138,12 +1146,12 @@ function checkCollection() {
 function loadCollection(albums, files) {
     if (albums != null) {
         debug.log("GENERAL","Loading Albums List");
-        prepareForLiftOff(language.gettext("label_updating"));
+        //prepareForLiftOff(language.gettext("label_updating"));
         player.controller.reloadAlbumsList(albums);
     }
     if (files != null) {
         debug.log("GENERAL","Loading Files List");
-        prepareForLiftOff2(language.gettext("label_updating"));
+        //prepareForLiftOff2(language.gettext("label_updating"));
         $("#filecollection").load(files);
         $('#filesearch').load("filesearch.php");
     }

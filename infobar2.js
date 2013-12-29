@@ -37,7 +37,8 @@ var infobar = function() {
     function setTheText(info) {
         // debug.log("INFOBAR","Setting now playing info",info);
         var doctitle = "RompR";
-        if (mobile == "no") {
+        if (mobile == "no" ||
+            $("#nowplaying").parent().attr("id") == "buttons") {
             var contents = '<span class="larger"><b>';
             contents=contents+info.title;
             if (info.title != "") {
@@ -180,6 +181,14 @@ var infobar = function() {
             if (player.status.error && player.status.error != null) {
                 alert(language.gettext("label_playererror")+": "+player.status.error);
                 player.controller.clearerror();
+            }
+        },
+
+        bumbleTheMobileChuff: function() {
+            if (lfminfo.title) {
+                setTheText(lfminfo);
+            } else if (trackinfo.title) {
+                setTheText(trackinfo);
             }
         },
 

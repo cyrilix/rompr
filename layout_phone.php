@@ -10,10 +10,6 @@
             <div id="albumcover">
                 <img id="albumpicture" class="notexist" src="" />
             </div>
-            <div id="lastfm" class="invisible">
-            <div><ul class="topnav"><a id="love" href="#" onclick="nowplaying.love()"><img height="20px" src="newimages/lastfm-love.png"></a></ul></div>
-            <div><ul class="topnav"><a id="ban" href="#" onclick="infobar.ban()"><img height="20px" src="newimages/lastfm-ban.png"></a></ul></div>
-            </div>
         </div>
         <div id="progress"></div>
     </div>
@@ -21,8 +17,11 @@
 
 <div id="headerbar" class="noborder fullwidth">
 <div id="controls" class="noborder fullwidth">
-<div id="nowplaying" class="tleft">
+<div id="lastfm" class="invisible tleft">
+<a id="love" href="#" onclick="nowplaying.love()"><img height="20px" src="newimages/lastfm-love.png"></a>
+<a id="ban" href="#" onclick="infobar.ban()"><img height="20px" src="newimages/lastfm-ban.png"></a>
 </div>
+<div id="nowplaying" class="tleft"></div>
 <a href="#" id="volbutton" onclick="sourcecontrol('chooser')"><img class="tright topimg" src="newimages/preferences.png" height="24px"></a>
 <a href="#" onclick="makeitbigger()"><img class="tright topimg" src="newimages/pushbutton.png" height="24px"></a>
 <div class="tright">
@@ -70,7 +69,7 @@ print '<div class="expand">'.get_int_text('label_yourradio').'</div>';
         <div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="podcastslist"></div>
         <div class="smallcover fixed"><img height="32px" width="32px" src="newimages/Apple_Podcast_logo.png"></div>
 <?php
-print '<div class="expand">'.get_int_text('label_podcasts').'</div>';
+print '<div class="expand">'.get_int_text('label_podcasts').'<span id="total_unlistened_podcasts"></span><span></span></div>';
 ?>
     </div>
     <div id="podcastslist" class="dropmenu">

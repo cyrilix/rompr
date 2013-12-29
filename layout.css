@@ -740,6 +740,8 @@ a
     font-size: 92%;
     line-height: 1.5em;
     clear: right;
+    max-width: 325px;
+    word-wrap: break-word;
 }
 
 .thumb
@@ -1337,6 +1339,11 @@ table.ambox-content {
 
 table.ambox {
     margin: 1em 10%;
+}
+
+.infobox caption {
+    font-size:120%;
+    font-weight:bold;
 }
 
 /*-- For IceCast Scraper --*/

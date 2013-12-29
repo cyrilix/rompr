@@ -187,13 +187,13 @@ function getNewPodcast($url) {
         if ($m && $m->content) {
             if ($m->content[0]->attributes()->duration) {
                 $duration = (string) $m->content[0]->attributes()->duration;
-                debug_print("Duration set from media namespace to ".$duration,"PODCASTS");
+                // debug_print("Duration set from media namespace to ".$duration,"PODCASTS");
             }
         }
         $m = $item->children('itunes', TRUE);
         if ($duration == 0 && $m && $m->duration) {
             $duration = (string) $m->duration;
-            debug_print("Duration set from itunes namespace to ".$duration,"PODCASTS");
+            // debug_print("Duration set from itunes namespace to ".$duration,"PODCASTS");
         }
         // Always store time values in seconds
         if ($duration != 0 && preg_match('/:/', $duration)) {
@@ -203,7 +203,7 @@ function getNewPodcast($url) {
             }
             $duration = strtotime($duration) - strtotime('TODAY');
         }
-        debug_print("Duration string is ".$duration,"PODCASTS");
+        // debug_print("Duration string is ".$duration,"PODCASTS");
         if ($m && $m->author) {
             $artist = (string) $m->author;
         } else {
@@ -223,10 +223,10 @@ function getNewPodcast($url) {
         $origlink = null;
 
         if ($oldinfo) {
-            debug_print("Checking previous download for ".$key,"PODCASTS");
+            // debug_print("Checking previous download for ".$key,"PODCASTS");
             $axp = $oldinfo->xpath('//track/key[.="'.$key.'"]/parent::*');
             if ($axp) {
-                debug_print("... Found ".$key,"PODCASTS");
+                // debug_print("... Found ".$key,"PODCASTS");
                 $listened = $axp[0]->{'listened'};
                 $link = $axp[0]->{'link'};
                 $deleted = $axp[0]->{'deleted'};
@@ -487,13 +487,13 @@ function doPodcast($c) {
         }
         print '</div>';
         if ($y->daysLive > -1 && $item->listened == "no" && !is_dir('prefs/podcasts/'.$pm.'/'.$item->key)) {
-            debug_print("Podcast days Live is ".$y->daysLive,"PODCASTS");
+            // debug_print("Podcast days Live is ".$y->daysLive,"PODCASTS");
             $pubtime = strtotime((string) $item->pubdate);
-            debug_print("Podcast pub date is ".$item->pubdate,"PODCASTS");
-            debug_print("Podcast pub time is ".$pubtime,"PODCASTS");
+            // debug_print("Podcast pub date is ".$item->pubdate,"PODCASTS");
+            // debug_print("Podcast pub time is ".$pubtime,"PODCASTS");
             $expiretime = $pubtime + (($y->daysLive) * 86400);
-            debug_print("Podcast expire time is ".$expiretime,"PODCASTS");
-            debug_print("time is ".time(),"PODCASTS");
+            // debug_print("Podcast expire time is ".$expiretime,"PODCASTS");
+            // debug_print("time is ".time(),"PODCASTS");
             $timeleft = format_time2($expiretime - time());
             if ($expiretime < time()) {
                 print '<div><b>'.get_int_text("podcast_expired").'</b></div>';
@@ -558,7 +558,7 @@ function deleteTrack($key, $channel) {
 }
 
 function markKeyAsListened($key, $channel) {
-    debug_print("Marking ".$key." from ".$channel." as deleted","PODCASTS");
+    debug_print("Marking ".$key." from ".$channel." as listened","PODCASTS");
     $x = simplexml_load_file('prefs/podcasts/'.$channel.'/info.xml');
     $axp = $x->xpath('//track/key[.="'.$key.'"]/parent::*');
     debug_print("Found Track. Title is ".$axp[0]->{'title'},"PODCASTS");

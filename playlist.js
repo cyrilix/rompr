@@ -467,8 +467,11 @@ function Playlist() {
                 $(".playlistcurrentitem").removeClass('playlistcurrentitem').addClass('playlistitem');
                 $(".playlistcurrenttitle").removeClass('playlistcurrenttitle').addClass('playlisttitle');
                 if (player.status.songid === undefined) {
-                    debug.warn("PLAYLIST","Nanoo Nanoo");
+                    // This'll happen when using mopidy HTTP and we stop playback
+                    debug.log("PLAYLIST","Nanoo Nanoo");
                     currentTrack = self.emptytrack;
+                    // Set this here so last.fm items remove the currently playing track
+                    currentsong = -1;
                 } else {
                     findCurrentTrack();
                     if (!currentTrack) {
@@ -483,13 +486,13 @@ function Playlist() {
 
                 }
 
-                if (player.status.consume == 1 && consumeflag && !prefs.mopidy_detected) {
+                if (player.status.consume == 1 && consumeflag && !player.http.isConnected()) {
                     consumeflag = false;
                     self.repopulate();
                     return 0;
                 }
                 debug.log("PLAYLIST","Track has changed");
-                if (!prefs.mopidy_detected) {
+                if (!player.http.isConnected()) {
                     if (currentTrack && currentTrack.type == "stream" && streamflag) {
                         debug.log("PLAYLIST","Waiting for stream info......");
                         // If it's a new stream, don't update immediately, instead give it 5 seconds
@@ -503,8 +506,8 @@ function Playlist() {
                         return 0;
                     }
                 }
-                if ((!prefs.mopidy_detected && currentTrack && currentTrack.type != "stream") ||
-                    (prefs.mopidy_detected && currentTrack)) {
+                if ((!player.http.isConnected() && currentTrack && currentTrack.type != "stream") ||
+                    (player.http.isConnected() && currentTrack)) {
                     debug.log("PLAYLIST","Creating new track",currentTrack);
                     nowplaying.newTrack(currentTrack);
                 }
@@ -531,7 +534,7 @@ function Playlist() {
                 if (progress > 4) { infobar.updateNowPlaying() };
                 if (percent >= prefs.scrobblepercent) { infobar.scrobble(); }
                 if (duration > 0 && currentTrack.type != "stream") {
-                    if (!prefs.mopidy_detected) {
+                    if (!player.http.isConnected()) {
                         // When using mopidy HTTP, we get state change events when tracks change,
                         // so there's no need to poll like this.
                         if (progress >= duration) {
@@ -545,7 +548,7 @@ function Playlist() {
                         setTheClock( playlist.checkProgress, 1000);
                     }
                 } else {
-                   if (!prefs.mopidy_detected) {
+                   if (!player.http.isConnected()) {
                         AlanPartridge++;
                         if (AlanPartridge < 7) {
                             setTheClock( playlist.checkProgress, 1000);

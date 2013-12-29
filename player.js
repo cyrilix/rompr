@@ -140,18 +140,11 @@ function multiProtocolController() {
 
             mopidy.on("event:trackPlaybackEnded", function(data) {
 	        	if (self.status.single == 1) {
-	        		//self.http.stop();
 	        		mopidy.tracklist.setSingle(false);
 	        		self.status.single = 0;
 	        	}
                 debug.log("PLAYER","Track Playback Ended",data);
             });
-
-            // mopidy.on("event:volumeChanged", function(data) {
-            // 	debug.debug("PLAYER", "Mopidy volume has changed to ",data);
-            // 	self.status.volume = data.volume;
-            // 	infobar.updateWindowValues();
-            // });
 
     	}
 
@@ -168,7 +161,21 @@ function multiProtocolController() {
 		return {
 
 			checkCollection: function() {
-				if (isReady && !collectionLoaded) {
+				/* This is called from 2 places:
+				 	a) The mopidy connect event
+					b) The document onload event
+					We have to do that because we can't be certain what will occur first
+					So we need to check 3 things
+					1) We are connected to mopidy (isReady == true)
+					2) We haven't already loaded the collection (collectionLoaded == false)
+					3) The document has loaded and is ready to accept the data (#collection exists - meaning loadtest.length > 0)
+						(the collection is loaded with $("#collection").load(phpscript). If #collection doesn't
+						exists then jQuery won't send the AJAX request. This happens more often than you might think
+						and took me a while to figure out. So don't remove that check)
+				*/
+				var loadtest = $("#collection");
+				debug.debug("PLAYER","checkCollection was called",isReady,collectionLoaded,loadtest.length);
+				if (isReady && !collectionLoaded && loadtest.length > 0) {
 					collectionLoaded = true;
 					debug.log("PLAYER","Checking Collection");
 					checkCollection();
@@ -203,6 +210,10 @@ function multiProtocolController() {
 		        isReady = false;
 		        self.controller = self.mpd;
 		        self.mpd.reloadPlaylists();
+	    	},
+
+	    	isConnected: function() {
+	    		return isReady;
 	    	},
 
 	    	checkPlaybackTime: function() {
@@ -873,13 +884,11 @@ function multiProtocolController() {
 
     this.controller = this.mpd;
 
-    this.loadCollection = function() {
+    this.loadLocalCollection = function() {
 	    if (!prefs.mopidy_detected) {
 	    	debug.log("MPD", "Checking Collection");
 	    	checkCollection();
 	    } else {
-	    	// This will almost certainly be called before the http socket
-	    	// has connected to mopidy
 	    	self.http.checkCollection();
 	    }
     }

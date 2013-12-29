@@ -327,19 +327,19 @@ function getArtistWiki($artist_name, $disambig) {
         $alist = explode(' & ', $artist);
         $jhtml = '';
         foreach ($alist as $artistname) {
-            $jhtml = $jhtml .  wikipedia_artist_search($artistname, "");
-        }
-        if ($jhtml != '') {
-            return $jhtml;
+            $jhtml = wikipedia_artist_search($artistname, "");
+            if ($jhtml != '') {
+                return $jhtml;
+            }
         }
     } elseif (preg_match('/,/', $artist) > 0) {
         $alist = explode(',', $artist);
         $jhtml = '';
         foreach ($alist as $artistname) {
-            $jhtml = $jhtml .  wikipedia_artist_search($artistname, "");
-        }
-        if ($hjtml != '') {
-            return $jhtml;
+            $jhtml = wikipedia_artist_search($artistname, "");
+            if ($hjtml != '') {
+                return $jhtml;
+            }
         }
     }
 
