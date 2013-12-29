@@ -177,6 +177,12 @@ function multiProtocolController() {
 				debug.debug("PLAYER","checkCollection was called",isReady,collectionLoaded,loadtest.length);
 				if (isReady && !collectionLoaded && loadtest.length > 0) {
 					collectionLoaded = true;
+		            $("#mopidysearcher").find('.searchdomain').each( function() {
+		                var v = $(this).attr("value");
+		                if (!urischemes.hasOwnProperty(v)) {
+		                    $(this).parent().remove();
+		                }
+		            });
 					debug.log("PLAYER","Checking Collection");
 					checkCollection();
 				}
@@ -184,24 +190,20 @@ function multiProtocolController() {
 
 	    	connected: function() {
 		        debug.log("PLAYER","Connected to Mopidy");
-		        isReady = true;
-		        self.controller = self.http;
-	    		enableMopidyEvents();
-	    		self.http.reloadPlaylists();
-	    		playlist.repopulate();
+		        // Get the URI schemes before doing anything else - checkCollection hides search domain
+		        // options based on this but must only do so when the window has fully loaded
 		        mopidy.getUriSchemes().then( function(data) {
 		            for(var i =0; i < data.length; i++) {
 		            	debug.log("PLAYER","Mopidy URI Scheme : ",data[i]);
 		                urischemes[data[i]] = true;
 		            }
-		            $("#mopidysearcher").find('.searchdomain').each( function() {
-		                var v = $(this).attr("value");
-		                if (!urischemes.hasOwnProperty(v)) {
-		                    $(this).parent().remove();
-		                }
-		            });
+			        isReady = true;
+			        self.controller = self.http;
+		    		enableMopidyEvents();
+		    		self.http.reloadPlaylists();
+		    		playlist.repopulate();
+			        self.http.checkCollection();
 		        });
-		        self.http.checkCollection();
 	    	},
 
 	    	disconnected: function() {
@@ -233,7 +235,6 @@ function multiProtocolController() {
 
 	    	updateCollection: function(cmd) {
 		        prepareForLiftOff(language.gettext("label_updating"));
-		        // prepareForLiftOff2("Scanning Files");
 		        debug.log("PLAYER","Updating collection with command", cmd);
 		        // Running mopidy local scan and parsing the tag cache is no
 		        // longer supported as it's impossible to make it work in all situations.
@@ -309,7 +310,6 @@ function multiProtocolController() {
 	    		// We'll need a mechanism for doing this when mopidy supports
 	    		// saving and loading of playlists.
 	    		self.mpd.clearPlaylist();
-	    		// mopidy.tracklist.clear();
 	    	},
 
 	    	getPlaylist: function() {
