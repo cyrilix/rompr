@@ -249,7 +249,11 @@ class track {
     }
 
     public function getImage($size) {
-        return ($this->albumobject->getImage($size, $this->image));
+        if ($size == "asdownloaded") {
+            return ($this->albumobject->getImage($size, $this->original_image));
+        } else {
+            return ($this->albumobject->getImage($size, $this->image));
+        }
     }
 
     public function getSpotiAlbum() {
@@ -537,6 +541,9 @@ function process_file($collection, $filedata) {
                 $type, $image, $expires, $stationurl, $station, $stream, $albumartist)
                 = getStuffFromXSPF($file);
         $domain = $type;
+        if ($origimage == null && preg_match('#^albumart/original/#',$image)) {
+            $origimage = "albumart/asdownloaded/".basename($image);
+        }
     }
 
     $collection->newTrack(  $name, $file, $duration, $number, $date, $genre, $artist, $album, $folder,

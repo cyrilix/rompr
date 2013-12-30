@@ -47,12 +47,14 @@ foreach($all_playlists as $file) {
     		}
     	}
         $x = simplexml_load_file($file);
-        $n = (string)$x->trackList->track[0]->album;
-        $n = preg_replace('/ \d+$/', '', $n);
-        if (array_key_exists($n, $existing_album_names)) {
-        	$existing_album_names[$n]++;
-        } else {
-        	$existing_album_names[$n] = 1;
+        if ($x->trackList && $x->trackList->track[0]) {
+	        $n = (string)$x->trackList->track[0]->album;
+	        $n = preg_replace('/ \d+$/', '', $n);
+	        if (array_key_exists($n, $existing_album_names)) {
+	        	$existing_album_names[$n]++;
+	        } else {
+	        	$existing_album_names[$n] = 1;
+	        }
         }
     }
 }
