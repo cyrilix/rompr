@@ -330,7 +330,7 @@ function getInternetPlaylist(url, image, station, creator, usersupplied) {
         },
         error: function(data, status) {
             playlist.repopulate();
-            alert(language.gettext("label_tunefailed"));
+            infobar.notify(infobar.ERROR, language.gettext("label_tunefailed"));
         }
     } );
 }

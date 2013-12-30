@@ -279,12 +279,12 @@ var podcasts = function() {
 			updatenext = null;
 			$('div[id^="podcast_"]').each( function() {
 				var id = $(this).attr('id');
-				debug.log("PODCASTS", "Looking for unlistened items in",id);
+				debug.debug("PODCASTS", "Looking for unlistened items in",id);
 				var obj =  $(this).find('.newpodicon');
 				var unl = $(this).find('.oldpodicon');
 				var num = obj.length;
 				var numl = unl.length;
-				debug.log("PODCASTS", "... the count is",num,numl);
+				debug.debug("PODCASTS", "... the count is",num,numl);
 				total += num;
 				utotal += numl;
 				var indicator = $(this).prev().find('.podnumber');

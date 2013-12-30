@@ -15,7 +15,6 @@ include ("vars.php");
 
 include ("functions.php");
 include ("international.php");
-header('Content-Type: text/xml; charset=utf-8');
 
 $url = rawurldecode($_REQUEST['url']);
 $station = (array_key_exists('station', $_REQUEST)) ? rawurldecode($_REQUEST['station']) : "Unknown Internet Stream";
@@ -65,32 +64,26 @@ if ($url) {
 	$qpos = strpos($type, "?");
   	if ($qpos != false) $type = substr($type, 0, $qpos);
 	debug_print("Playlist Type Is ".$type,"RADIO_PLAYLIST");
-	if ($type != "" && $type != null) {
+	$content = url_get_contents($url, $_SERVER['HTTP_USER_AGENT'], false, true);
+	debug_print("Playlist Is ".$content['status']." ".$content['contents'],"RADIO_PLAYLIST");
+	if ($type != "" && $type != null && $content['status'] == "200" && $content['contents'] != "") {
 
 		$playlist = null;
 		switch ($type) {
 			case "pls":
 			case "PLS":
-				$content = url_get_contents($url, 'RompR Media Player/0.1', false, true);
-				debug_print("Playlist Is ".$content['contents'],"RADIO_PLAYLIST");
 				$playlist = new plsFile($content['contents'], $url, $station, $creator, $image);
 				break;
 			case "asx";
 			case "ASX";
-				$content = url_get_contents($url, 'RompR Media Player/0.1', false, true);
-				debug_print("Playlist Is ".$content['contents'],"RADIO_PLAYLIST");
 				$playlist = new asxFile($content['contents'], $url, $station, $creator, $image);
 				break;
 			case "xspf";
 			case "XSPF";
-				$content = url_get_contents($url, 'RompR Media Player/0.1', false, true);
-				debug_print("Playlist Is ".$content['contents'],"RADIO_PLAYLIST");
 				$playlist = new xspfFile($content['contents'], $url, $station, $creator, $image);
 				break;
 			case "m3u";
 			case "M3U";
-				$content = url_get_contents($url, 'RompR Media Player/0.1', false, true);
-				debug_print("Playlist Is ".$content['contents'],"RADIO_PLAYLIST");
 				$playlist = new m3uFile($content['contents'], $url, $station, $creator, $image);
 				break;
 			default;
@@ -100,6 +93,7 @@ if ($url) {
 		}
 
 		if ($playlist) {
+			header('Content-Type: text/xml; charset=utf-8');
 			$output = '<?xml version="1.0" encoding="utf-8"?>'."\n".
 			          '<playlist>'."\n".
 					  '<trackList>'."\n";
@@ -122,6 +116,7 @@ if ($url) {
 		}
 	} else {
 		debug_print("Could not determine playlist type","RADIO_PLAYLIST");
+		header('HTTP/1.0 404 Not Found');
 	}
 }
 

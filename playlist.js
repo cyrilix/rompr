@@ -7,7 +7,6 @@ function Playlist() {
     var safetytimer = 500;
     var currentTrack = null;
     var AlanPartridge = 0;
-    var streamflag = true;
     var consumeflag = true;
     var finaltrack = -1;
     var previoussong = -1;
@@ -397,7 +396,9 @@ function Playlist() {
                             name: $(this).find("location").text()}
             );
         });
-        player.controller.addTracks(tracks, playlist.playFromEnd(), null);
+        if (tracks.length > 0) {
+            player.controller.addTracks(tracks, playlist.playFromEnd(), null);
+        }
     }
 
     this.hideItem = function(i) {
@@ -459,116 +460,92 @@ function Playlist() {
             debug.log("PLAYLIST","Playlist is empty");
             nowplaying.newTrack(self.emptytrack);
             infobar.setProgress(0,-1,-1);
-        } else {
-            // Track changes are detected based on the playlist id. This prevents us from repopulating
-            // the browser every time the playlist gets repopulated.
-            if (player.status.songid != previoussong) {
-                debug.log("PLAYLIST","Track has changed");
+            return 0;
+        }
+        // Track changes are detected based on the playlist id. This prevents us from repopulating
+        // the browser every time the playlist gets repopulated.
+        if (player.status.songid != previoussong) {
+            debug.log("PLAYLIST","Track has changed");
 
-                $(".playlistcurrentitem").removeClass('playlistcurrentitem').addClass('playlistitem');
-                $(".playlistcurrenttitle").removeClass('playlistcurrenttitle').addClass('playlisttitle');
-                if (player.status.songid === undefined) {
-                    // This'll happen when using mopidy HTTP and we stop playback
-                    debug.log("PLAYLIST","Nanoo Nanoo");
-                    currentTrack = self.emptytrack;
-                    // Set this here so last.fm items remove the currently playing track
-                    currentsong = -1;
-                } else {
-                    findCurrentTrack();
-                    if (!currentTrack) {
-                        // That can happen if a mopidy state change event comes in before we've
-                        // updated the playlist - as often happens when we add new tracks and start
-                        // playback immediately.
-                        // We must return, otherwise previoussong will get updated this time and
-                        // no info will update when the playlist repopulates.
-                        debug.log("PLAYLIST","Could not find current track!");
-                        return 0;
-                    }
-
+            $(".playlistcurrentitem").removeClass('playlistcurrentitem').addClass('playlistitem');
+            $(".playlistcurrenttitle").removeClass('playlistcurrenttitle').addClass('playlisttitle');
+            if (player.status.songid === undefined) {
+                // This'll happen when using mopidy HTTP and we stop playback
+                // Set currentsong so last.fm items remove the currently playing track
+                debug.log("PLAYLIST","SongID is undefined. Probably stopped.");
+                currentTrack = self.emptytrack;
+                currentsong = -1;
+            } else {
+                findCurrentTrack();
+                if (!currentTrack) {
+                    // This can happen if a mopidy state change event comes in before we've
+                    // updated the playlist - as often happens when we add new tracks and start
+                    // playback immediately.
+                    // We must return, otherwise previoussong will get updated this time and
+                    // no info will update when the playlist repopulates.
+                    debug.log("PLAYLIST","Could not find current track!");
+                    return 0;
                 }
-
-                if (prefs.mopidy_detected) {
-                    // Using the HTTP interface, we get status change events when anything happens
-                    // so the only thing we need to concern ourselves with is if the track has changed
-                    if (currentTrack) {
-                        debug.log("PLAYLIST","Creating new track",currentTrack);
-                        nowplaying.newTrack(currentTrack);
-                    }
-                } else {
-                    // With MPD we rely on polling. This is horrid.
-                    if (player.status.consume == 1 && consumeflag) {
-                        // If consume is one, we must repopulate
-                        consumeflag = false;
-                        self.repopulate();
-                        return 0;
-                    }
-                    if (currentTrack && currentTrack.type == "stream" && streamflag) {
-                        // If it's a new stream, don't update immediately, instead give it 5 seconds
-                        // to let mpd extract any useful track info from the stream
-                        // This avoids us displaying some random nonsense then switching to the track
-                        // data 5 seconds later
-                        debug.log("PLAYLIST","Waiting for stream info......");
-                        streamflag = false;
-                        infobar.setNowPlayingInfo({ title: language.gettext("label_waitingforstation")});
-                        infobar.albumImage.setSource({image: currentTrack.image});
-                        setTheClock(playlist.streamfunction, 5000);
-                        return 0;
-                    }
-                    if (currentTrack && currentTrack.type != "stream") {
-                        // If the track has changed, do things
-                        debug.log("PLAYLIST","Creating new track",currentTrack);
-                        nowplaying.newTrack(currentTrack);
-                    }
-                }
-
-                for(var i in tracklist) {
-                    // Force our last.fm items to remove played tracks
-                    if (tracklist[i].invalidateOldTracks(currentsong, previoussong)) { break; }
-                }
-
-                previoussong = player.status.songid;
-                streamflag = true;
-                consumeflag = true;
-                safetytimer = 500;
             }
 
-            if (currentTrack === null) {
-                // If there's no current track, do nothing
-                return;
+            if (!prefs.mopidy_detected && player.status.consume == 1 && consumeflag) {
+                debug.log("PLAYLIST","Repopulating due to consume being on");
+                // If consume is one, we must repopulate
+                consumeflag = false;
+                self.repopulate();
+                return 0;
             }
 
-             progress = infobar.progress();
-             duration = currentTrack.duration || 0;
-             percent = (duration == 0) ? 0 : (progress/duration) * 100;
-             infobar.setProgress(Math.round(percent),progress,duration);
+            if (currentTrack) {
+                debug.log("PLAYLIST","Creating new track",currentTrack);
+                nowplaying.newTrack(currentTrack);
+            }
 
-             if (player.status.state == "play") {
-                if (progress > 4) { infobar.updateNowPlaying() };
-                if (percent >= prefs.scrobblepercent) { infobar.scrobble(); }
-                if (prefs.mopidy_detected) {
-                    // We get status change events from mopidy, so we only need to set the timer
-                    // to keep the progress bar moving
-                    setTheClock( playlist.checkProgress, 1000);
-                } else {
-                    // MPD interface. We need to poll.
-                    if (duration > 0 && currentTrack.type != "stream") {
-                        if (progress >= duration) {
-                            // Check to see if the track has changed. The safety timer
-                            // is there because sometimes the track length we are given is not correct
-                            setTheClock(playlist.checkchange, safetytimer);
-                            if (safetytimer < 5000) { safetytimer += 500 }
-                        } else {
-                            setTheClock( playlist.checkProgress, 1000);
-                        }
+            for(var i in tracklist) {
+                // Force our last.fm items to remove played tracks
+                if (tracklist[i].invalidateOldTracks(currentsong, previoussong)) { break; }
+            }
+
+            previoussong = player.status.songid;
+            consumeflag = true;
+            safetytimer = 500;
+        }
+
+        if (currentTrack === null) {
+            return;
+        }
+
+         progress = infobar.progress();
+         duration = currentTrack.duration || 0;
+         percent = (duration == 0) ? 0 : (progress/duration) * 100;
+         infobar.setProgress(Math.round(percent),progress,duration);
+
+         if (player.status.state == "play") {
+            if (progress > 4) { infobar.updateNowPlaying() };
+            if (percent >= prefs.scrobblepercent) { infobar.scrobble(); }
+            if (prefs.mopidy_detected) {
+                // We get status change events from mopidy, so we only need to set the timer
+                // to keep the progress bar moving
+                setTheClock( playlist.checkProgress, 1000);
+            } else {
+                // MPD interface. We need to poll.
+                if (duration > 0 && currentTrack.type != "stream") {
+                    if (progress >= duration) {
+                        // Check to see if the track has changed. The safety timer
+                        // is there because sometimes the track length we are given is not correct
+                        setTheClock(playlist.checkchange, safetytimer);
+                        if (safetytimer < 5000) { safetytimer += 500 }
                     } else {
-                        // It's a stream. Every 10 seconds we poll mpd to see if the track has changed
-                        AlanPartridge++;
-                        if (AlanPartridge < 10) {
-                            setTheClock( playlist.checkProgress, 1000);
-                        } else {
-                            AlanPartridge = 0;
-                            setTheClock( playlist.streamfunction, 1000);
-                        }
+                        setTheClock( playlist.checkProgress, 1000);
+                    }
+                } else {
+                    // It's a stream. Every 7 seconds we poll mpd to see if the track has changed
+                    AlanPartridge++;
+                    if (AlanPartridge < 7) {
+                        setTheClock( playlist.checkProgress, 1000);
+                    } else {
+                        AlanPartridge = 0;
+                        setTheClock( playlist.streamfunction, 1000);
                     }
                 }
             }
@@ -581,6 +558,7 @@ function Playlist() {
     }
 
     this.streamfunction = function() {
+        self.clearProgressTimer();
         player.mpd.command("", playlist.checkStream);
     }
 
@@ -628,17 +606,22 @@ function Playlist() {
                     temp.album = a;
                 }
             }
+
+            debug.debug("STREAM","'"+currentTrack.title+"'","'"+temp.title+"'");
+            debug.debug("STREAM","'"+currentTrack.album+"'","'"+temp.album+"'");
+            debug.debug("STREAM","'"+currentTrack.creator+"'","'"+temp.creator+"'");
+
             if (currentTrack.title != temp.title ||
                 currentTrack.album != temp.album ||
-                currentTrack.creator != temp.creator ||
-                !streamflag)
+                currentTrack.creator != temp.creator)
             {
                 temp.musicbrainz.artistid = "";
                 temp.musicbrainz.albumid = "";
                 temp.musicbrainz.trackid = "";
                 temp.musicbrainz.albumartistid = "";
                 currentTrack = temp;
-                nowplaying.newTrack(temp);
+                debug.log("STREAMHANDLER","Detected change of track",currentTrack);
+                nowplaying.newTrack(currentTrack);
             } else {
                 temp = null;
             }
@@ -683,7 +666,7 @@ function Playlist() {
             if (player.status.single == 0) {
                 player.controller.stopafter();
                 var timeleft = currentTrack.duration - infobar.progress();
-                if (timeleft < 0) { timeleft = 300 };
+                if (timeleft < 4) { timeleft = 300 };
                 var repeats = Math.round(timeleft / 4);
                 $("#stopafterbutton").effect('pulsate', {times: repeats}, 4000);
             } else {
