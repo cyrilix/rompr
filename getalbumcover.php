@@ -315,23 +315,6 @@ function check_file($file, $data) {
             fwrite($fp, $aagh['contents']);
             fclose($fp);
         }
-    // } else {
-    //     $o = array();
-    //     $r = exec("file \"".$file."\" 2>&1", $o);
-    //     if (preg_match('/HTML/', $r)) {
-    //         debug_print("  check_file thinks it has found a diversion");
-    //         if (preg_match('/<a href="(.*?)"/', $data, $matches)) {
-    //             $new_url = $matches[1];
-    //             system('rm "'.$file.'"');
-    //             $aagh = url_get_contents($new_url);
-    //             debug_print("    check_file is getting ".$new_url);
-    //             $fp = fopen($file, "x");
-    //             if ($fp) {
-    //                 fwrite($fp, $aagh['contents']);
-    //                 fclose($fp);
-    //             }
-    //         }
-    //     }
     }
 }
 

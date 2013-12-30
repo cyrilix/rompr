@@ -610,6 +610,7 @@ var imagePopup=function(){
                 imagecontainer = $('<img>', { id: 'imagecontainer', onclick: 'imagePopup.close()', src: ''}).appendTo($('body'));
             } else {
                 wikipopup.empty();
+                imagecontainer.fadeOut('fast');
             }
             mousepos = getPosition(event);
             clickedelement = element;

@@ -21,6 +21,7 @@ function Playlist() {
     var lastfmcleanuptimer = null;
     var ignorecounter = 0;
     var progresstimer = null;
+    var updateErrorFlag = 0;
 
     this.emptytrack = {
         album: "",
@@ -54,17 +55,13 @@ function Playlist() {
     };
 
     /*
-        There are three mechanisms for preventing multiple repeated updates of the playlist
+        There are two mechanisms for preventing multiple repeated updates of the playlist
         1. We keep count of how many ongoing requests we have sent to Apache
             If this ever exceeds 1, all responses we receive will be ignored until
             the count reaches zero. We then do one more. This, however, only decreases
             the load on US, not on mpd/mopidy
 
-        2. Every update request we receive starts a timer. Subsequent reqeusts restart it
-            if it hasn't expired. We only request a new playlist from mpd/mopidy when the
-            timer expires
-
-        3. Functions can tell us to ignore the next n repopulate reqeusts
+        2. Functions can tell us to ignore the next n repopulate reqeusts
 
     */
 
@@ -92,10 +89,16 @@ function Playlist() {
 
     this.updateFailure = function() {
         debug.error("PLAYLIST","Got notified that an update FAILED");
+        infobar.notify(infobar.ERROR, language.gettext("label_playlisterror"));
         updatecounter--;
-        if (updatecounter == 0 && ignorecounter == 0) {
+        updateErrorFlag++;
+        // After 5 consecutive update failures, we give up because something is obviously wrong.
+        if (updatecounter == 0 && ignorecounter == 0 && updateErrorFlag < 6) {
             debug.log("PLAYLIST","Update failed and no more are expected. Doing another");
             self.repopulate();
+        }
+        if (updateErrorFlag > 5) {
+            alert(language.gettext("label_playlisterror"));
         }
     }
 
@@ -108,7 +111,7 @@ function Playlist() {
         var current_type = "";
         // var track;
         var expiresin = null;
-
+        updateErrorFlag = 0;
         self.cleanupCleanupTimer();
 
         // This is a mechanism to prevent multiple repeated updates of the playlist in the case

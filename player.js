@@ -324,10 +324,7 @@ function multiProtocolController() {
 	                        contentType: "application/json",
 	                        dataType: "json",
 	                        success: playlist.newXSPF,
-	                        error: function(data) {
-	                            infobar.notify(infobar.ERROR, language.gettext("label_playlisterror"));
-	                            playlist.updateFailure();
-	                        }
+	                        error: playlist.updateFailure
 	                    });
 	            }, consoleError);
 	    	},
@@ -705,12 +702,9 @@ function multiProtocolController() {
 	                type: "GET",
 	                url: "getplaylist.php",
 	                cache: false,
-	                //contentType: "text/xml; charset=utf-8",
 	                dataType: "json",
 	                success: playlist.newXSPF,
-	                error: function(data) {
-	                    alert(language.gettext("label_playlisterror"));
-	                }
+	                error: playlist.updateFailure
 	            });
 	    	},
 
