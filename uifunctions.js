@@ -635,7 +635,7 @@ var imagePopup=function(){
             // Calculate popup size and position
             var imgwidth = image.width;
             var imgheight = image.height;
-
+            debug.log("POPUP","Image size is",imgwidth,imgheight);
             // Make sure it's not bigger than the window
             var winsize=getWindowSize();
             // hack to allow for vertical scrollbar
@@ -643,14 +643,16 @@ var imagePopup=function(){
             // Allow for popup border
             var w = winsize.x - 63;
             var h = winsize.y - 36;
-            if (imgwidth > w) {
-                imgwidth = w;
-                imgheight = Math.round(imgheight * (imgwidth/image.width));
+            debug.log("POPUP","Allowed size is",w,h);
+            var scale = w/image.width;
+            if (h/image.height < scale) {
+                scale = h/image.height;
             }
-            if (imgheight > h) {
-                imgheight = h;
-                imgwidth = Math.round(imgwidth * (imgheight/image.height));
+            if (scale < 1) {
+                imgheight = Math.round(imgheight * scale);
+                imgwidth = Math.round(imgwidth * scale);
             }
+            debug.log("POPUP","Calculated Image size is",imgwidth,imgheight,(imgwidth/image.width),(imgheight/image.height));
             var popupwidth = imgwidth+36;
             var popupheight = imgheight+36;
 
