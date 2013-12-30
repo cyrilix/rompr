@@ -463,7 +463,8 @@ function Playlist() {
             // Track changes are detected based on the playlist id. This prevents us from repopulating
             // the browser every time the playlist gets repopulated.
             if (player.status.songid != previoussong) {
-                debug.log("PLAYLIST","Updating current song");
+                debug.log("PLAYLIST","Track has changed");
+
                 $(".playlistcurrentitem").removeClass('playlistcurrentitem').addClass('playlistitem');
                 $(".playlistcurrenttitle").removeClass('playlistcurrenttitle').addClass('playlisttitle');
                 if (player.status.songid === undefined) {
@@ -486,7 +487,6 @@ function Playlist() {
 
                 }
 
-                debug.log("PLAYLIST","Track has changed");
                 if (prefs.mopidy_detected) {
                     // Using the HTTP interface, we get status change events when anything happens
                     // so the only thing we need to concern ourselves with is if the track has changed
