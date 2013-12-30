@@ -340,6 +340,7 @@ function handleDrop(ev) {
                     var srces = data.match(/src\s*=\s*"(.*?)"/);
                     if (srces && srces[1]) {
                         src = srces[1];
+                        origsauce = imgobj.attr("src");
                         debug.log("ALBUMART","Image Source",src);
                         imgobj.attr("src", "newimages/album-unknown.png");
                         imgobj.removeClass('nospin').addClass('spinner');
@@ -379,6 +380,7 @@ function handleDrop(ev) {
                     debug.log("ALBUMART","Found Files");
                     var files = evt.dataTransfer.files;
                     if (files[0]) {
+                        origsauce = imgobj.attr("src");
                         imgobj.attr("src", "newimages/album-unknown.png");
                         imgobj.removeClass('nospin').addClass('spinner');
                         // For some reason I no longer care about, doing this with jQuery.post doesn't work

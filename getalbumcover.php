@@ -217,7 +217,9 @@ function get_user_file($src, $fname, $tmpname) {
         debug_print("    File ".$src." is valid, and was successfully uploaded.","GETALBUMCOVER");
     } else {
         debug_print("    Possible file upload attack!","GETALBUMCOVER");
-        $error = 1;
+        header('HTTP/1.0 403 Forbidden');
+        ob_flush();
+        exit(0);
     }
     return $download_file;
 }
