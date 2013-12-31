@@ -92,6 +92,9 @@ function format_listenlink($c, $p, $label) {
         case 'aacp':
             print '<div class="expand">AAC Plus</div>';
             break;
+        default:
+            print '<div class="expand">Unknown Format</div>';
+            break;
 
     }
     print '</div>';
