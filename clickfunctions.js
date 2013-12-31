@@ -135,6 +135,9 @@ function onRadioDoubleClicked(event) {
     } else if (clickedElement.hasClass("clicksoma")) {
         event.stopImmediatePropagation();
         getInternetPlaylist(clickedElement.attr("name"), clickedElement.attr("somaimg"), clickedElement.attr("somaname"), 'Soma FM');
+    } else if (clickedElement.hasClass("clickfmradio")) {
+        event.stopImmediatePropagation();
+        getInternetPlaylist(clickedElement.attr("name"), null, clickedElement.attr("fmname"), clickedElement.attr("fmthing"));
     } else if (clickedElement.hasClass("clickradio")) {
         event.stopImmediatePropagation();
         playUserStream(clickedElement.attr("name"));

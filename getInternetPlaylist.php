@@ -65,12 +65,29 @@ if ($url) {
 	$type = pathinfo($path, PATHINFO_EXTENSION);
 	$qpos = strpos($type, "?");
   	if ($qpos != false) $type = substr($type, 0, $qpos);
-	debug_print("Playlist Type Is ".$type,"RADIO_PLAYLIST");
-	$content = url_get_contents($url, $_SERVER['HTTP_USER_AGENT'], false, true);
-	debug_print("Playlist Is ".$content['status']." ".$content['contents'],"RADIO_PLAYLIST");
-	if ($type != "" && $type != null && $content['status'] == "200" && $content['contents'] != "") {
+	debug_print("Playlist Type From URL is Is ".$type,"RADIO_PLAYLIST");
 
-		$playlist = null;
+	$content = url_get_contents($url, $_SERVER['HTTP_USER_AGENT'], false, true, true);
+	debug_print("Playlist Is ".$content['status']." ".$content['contents'],"RADIO_PLAYLIST");
+
+	foreach($content['info'] as $e => $g) {
+		debug_print($e." = ".$g,"CURLINFO");
+	}
+
+	if ($type == "" || $type == null) {
+		$content_type = $content['info']['content_type'];
+		switch ($content_type) {
+			case "video/x-ms-asf":
+				$type = asfOrasx($content['contents']);
+				break;
+		}
+	}
+
+
+	$playlist = null;
+
+	if ($content['status'] == "200" && $content['contents'] != "") {
+
 		switch ($type) {
 			case "pls":
 			case "PLS":
@@ -79,6 +96,10 @@ if ($url) {
 			case "asx";
 			case "ASX";
 				$playlist = new asxFile($content['contents'], $url, $station, $creator, $image);
+				break;
+			case "asf";
+			case "ASF";
+				$playlist = new asfFile($content['contents'], $url, $station, $creator, $image);
 				break;
 			case "xspf";
 			case "XSPF";
@@ -94,28 +115,31 @@ if ($url) {
 
 		}
 
-		if ($playlist) {
-			header('Content-Type: text/xml; charset=utf-8');
-			$output = '<?xml version="1.0" encoding="utf-8"?>'."\n".
-			          '<playlist>'."\n".
-					  '<trackList>'."\n";
-			$output = $output . $playlist->getTracks();
-			$output = $output . "</trackList>\n</playlist>\n";
+	} else {
+		$playlist = new possibleStreamUrl($url, $station, $creator, $image);
+	}
 
-			$fp = null;
-			if ($usersupplied) {
-				$fp = fopen('prefs/USERSTREAM_'.md5($url).'.xspf', 'w');
-			} else {
-				$fp = fopen('prefs/STREAM_'.md5($url).'.xspf', 'w');
-			}
-			if ($fp) {
-			    fwrite($fp, $output);
-			}
-			fclose($fp);
+	if ($playlist) {
+		header('Content-Type: text/xml; charset=utf-8');
+		$output = '<?xml version="1.0" encoding="utf-8"?>'."\n".
+		          '<playlist>'."\n".
+				  '<trackList>'."\n";
+		$output = $output . $playlist->getTracks();
+		$output = $output . "</trackList>\n</playlist>\n";
 
-			print $output;
-
+		$fp = null;
+		if ($usersupplied) {
+			$fp = fopen('prefs/USERSTREAM_'.md5($url).'.xspf', 'w');
+		} else {
+			$fp = fopen('prefs/STREAM_'.md5($url).'.xspf', 'w');
 		}
+		if ($fp) {
+		    fwrite($fp, $output);
+		}
+		fclose($fp);
+
+		print $output;
+
 	} else {
 		debug_print("Could not determine playlist type","RADIO_PLAYLIST");
 		header('HTTP/1.0 404 Not Found');
@@ -306,6 +330,46 @@ class m3uFile {
 		foreach($this->tracks as $i => $track) {
 			$output = $output . "<track>\n";
 			$output = $output . xmlnode('album', $this->station);
+			$output = $output . xmlnode('stream', $this->station);
+			$output = $output . xmlnode('creator', $this->creator);
+			$output = $output . xmlnode('image', $this->image);
+			$output = $output . xmlnode('location', $track).
+								xmlnode('compilation', 'yes').
+								"</track>\n";
+		}
+		return $output;
+	}
+}
+
+// [Reference]
+// Ref1=http://wmlive-lracl.bbc.co.uk/wms/england/lrleicester?MSWMExt=.asf
+// Ref2=http://212.58.252.33:80/wms/england/lrleicester?MSWMExt=.asf
+
+class asfFile {
+
+	public function __construct($data, $url, $station, $creator, $image) {
+		$this->url = $url;
+		$this->station = checkStationName($station);
+		$this->creator = $creator;
+		$this->image = $image;
+		$this->tracks = array();
+
+		$parts = explode(PHP_EOL, $data);
+		foreach ($parts as $line) {
+			if (preg_match('/^Ref\d+=(.*)/', $line, $matches)) {
+				$uri = trim($matches[1]);
+				array_push($this->tracks, preg_replace('/http:/','mms:', $uri));
+			}
+		}
+	}
+
+	public function getTracks() {
+
+		$output = "";
+		foreach($this->tracks as $i => $track) {
+			$output = $output . "<track>\n";
+			$output = $output . xmlnode('album', $this->station);
+			$output = $output . xmlnode('stream', $this->station);
 			$output = $output . xmlnode('creator', $this->creator);
 			$output = $output . xmlnode('image', $this->image);
 			$output = $output . xmlnode('location', $track).
@@ -321,6 +385,7 @@ class m3uFile {
 class possibleStreamUrl {
 
 	public function __construct($url, $station, $creator, $image) {
+		debug_print("Unknown Playlist Type - treating as stream URL","RADIO_PLAYLIST");
 		$this->url = $url;
 		$this->station = checkStationName($station);
 		$this->creator = $creator;
@@ -361,6 +426,18 @@ function checkStationAgain($currenttitle, $tracktitle) {
 		}
 	}
 	return $currenttitle;
+}
+
+function asfOrasx($s) {
+	$type = null;
+	if (preg_match('/^\[Reference\]/', $s)) {
+		debug_print("Type of playlist determined as asf","RADIO_PLAYLIST");
+		$type = "asf";
+	} else if (preg_match('/^<ASX /', $s)) {
+		debug_print("Type of playlist determined as asx","RADIO_PLAYLIST");
+		$type = "asx";
+	}
+	return $type;
 }
 
 ?>
