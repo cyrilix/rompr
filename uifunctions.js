@@ -39,6 +39,10 @@ function changeLastFMLang() {
                 user_lang: $('[name=userlanguage]').val()});
 }
 
+function changeradiocountry() {
+    $("#bbclist").load("bbcradio.php?country="+$("#radioselector").val());
+}
+
 function setClickHandlers() {
 
     // Set up all our click event listeners

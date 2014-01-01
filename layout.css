@@ -381,6 +381,13 @@ a
     margin-right:8px;
 }
 
+.smallcoverpadder
+{
+    width:32px;
+    vertical-align:middle;
+    margin-right:8px;
+}
+
 .tracknumber
 {
     height:1.3em;

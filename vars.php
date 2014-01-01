@@ -72,7 +72,8 @@ $prefs = array( "mpd_host" => "localhost",
                 "scrolltocurrent" => "false",
                 // Minimum version of mopidy required
                 "mopidy_version" => "0.17",
-                "debug_enabled" => 0
+                "debug_enabled" => 0,
+                "radiocountry" => "http://www.listenlive.eu/uk.html"
                 );
 loadPrefs();
 

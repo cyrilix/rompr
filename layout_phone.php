@@ -87,9 +87,9 @@ print '<div class="expand">'.get_int_text('label_somafm').'</div>';
 
     <div class="containerbox menuitem noselection">
         <div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="bbclist"></div>
-        <div class="smallcover fixed"><img height="32px" width="32px" src="newimages/bbcr.png"></div>
+        <div class="smallcover fixed"><img height="32px" width="32px" src="newimages/broadcast-32.png"></div>
 <?php
-print '<div class="expand">'.get_int_text('label_bbcradio').'</div>';
+print '<div class="expand">'.get_int_text('label_streamradio').'</div>';
 ?>
     </div>
     <div id="bbclist" class="dropmenu">

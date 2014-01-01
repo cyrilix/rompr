@@ -62,10 +62,7 @@ foreach($all_playlists as $file) {
 if ($url) {
 
 	$path = $url;
-	$type = pathinfo($path, PATHINFO_EXTENSION);
-	$qpos = strpos($type, "?");
-  	if ($qpos != false) $type = substr($type, 0, $qpos);
-	debug_print("Playlist Type From URL is Is ".$type,"RADIO_PLAYLIST");
+	$type = null;
 
 	$content = url_get_contents($url, $_SERVER['HTTP_USER_AGENT'], false, true, true);
 	debug_print("Playlist Is ".$content['status']." ".$content['contents'],"RADIO_PLAYLIST");
@@ -74,15 +71,37 @@ if ($url) {
 		debug_print($e." = ".$g,"CURLINFO");
 	}
 
-	if ($type == "" || $type == null) {
-		$content_type = $content['info']['content_type'];
-		switch ($content_type) {
-			case "video/x-ms-asf":
-				$type = asfOrasx($content['contents']);
-				break;
-		}
-	}
+	$content_type = $content['info']['content_type'];
+	// To cope with charsets in the header...
+	// case "audio/x-scpls;charset=UTF-8";
+	$content_type = preg_replace('/;.*/','',$content_type);
 
+	switch ($content_type) {
+		case "video/x-ms-asf":
+			$type = asfOrasx($content['contents']);
+			break;
+		case "audio/x-scpls":
+			$type = "pls";
+			break;
+		case "audio/x-mpegurl":
+			$type = "m3u";
+			break;
+		case "application/xspf+xml":
+			$type = "xspf";
+			break;
+		case "text/html":
+			debug_print("HTML page returned!","RADIO_PLAYLIST");
+			header('HTTP/1.0 404 Not Found');
+			exit (0);
+	}
+	debug_print("Playlist Type From Content Type is ".$type,"RADIO_PLAYLIST");
+
+	if ($type == "" || $type == null) {
+		$type = pathinfo($path, PATHINFO_EXTENSION);
+		$qpos = strpos($type, "?");
+	  	if ($qpos != false) $type = substr($type, 0, $qpos);
+		debug_print("Playlist Type From URL is ".$type,"RADIO_PLAYLIST");
+	}
 
 	$playlist = null;
 
@@ -114,7 +133,8 @@ if ($url) {
 				break;
 
 		}
-
+	} else if ($content['status'] == "404") {
+		$playlist = null;
 	} else {
 		$playlist = new possibleStreamUrl($url, $station, $creator, $image);
 	}
@@ -178,7 +198,8 @@ class plsFile {
 			$bits = explode("=", $line);
 			if (preg_match('/File/', $bits[0])) {
 				$pointer++;
-				$tracks[$pointer]['track'] = $bits[1];
+				//$tracks[$pointer]['track'] = $bits[1];
+				$tracks[$pointer]['track'] = implode('=', array_slice($bits,1));
 				if (!array_key_exists('title', $tracks[$pointer])) {
 					$tracks[$pointer]['title'] = "";
 				}
@@ -201,6 +222,8 @@ class plsFile {
 			$output = $output . xmlnode('image', $this->image);
 		    if ($this->tracks[$i]['title'] != "") {
 				$output = $output . xmlnode('stream', $this->tracks[$i]['title']);
+			} else {
+				$output = $output . xmlnode('stream', $this->station);
 			}
 			$output = $output . xmlnode('location', $this->tracks[$i]['track']).
 								xmlnode('compilation', 'yes').
@@ -436,6 +459,9 @@ function asfOrasx($s) {
 	} else if (preg_match('/^<ASX /', $s)) {
 		debug_print("Type of playlist determined as asx","RADIO_PLAYLIST");
 		$type = "asx";
+	} else if (preg_match('/^http:/', $s)) {
+		debug_print("Type of playlist determined as m3u-like","RADIO_PLAYLIST");
+		$type = "m3u";
 	}
 	return $type;
 }
