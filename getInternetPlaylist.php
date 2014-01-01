@@ -199,7 +199,7 @@ class plsFile {
 			if (preg_match('/File/', $bits[0])) {
 				$pointer++;
 				//$tracks[$pointer]['track'] = $bits[1];
-				$tracks[$pointer]['track'] = implode('=', array_slice($bits,1));
+				$tracks[$pointer]['track'] = trim(implode('=', array_slice($bits,1)));
 				if (!array_key_exists('title', $tracks[$pointer])) {
 					$tracks[$pointer]['title'] = "";
 				}
