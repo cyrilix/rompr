@@ -35,6 +35,7 @@ if (array_key_exists('mobile', $_REQUEST)) {
 include("functions.php");
 include("connection.php");
 include("international.php");
+include("firstrun.php");
 if (!$is_connected) {
     debug_print("MPD Connection Failed","INDEX");
     close_mpd($connection);
@@ -410,7 +411,6 @@ $(document).ready(function(){
         $("#fnarkler").append('<p><button style="width:8em" class="tright" onclick="popupWindow.close()">OK</button></p>');
         popupWindow.open();
         prefs.save({shownupdatewindow: 0.42});
-        $.get('firstrun.php');
     }
     // Initialise the player's status
     if (!prefs.mopidy_detected) {
