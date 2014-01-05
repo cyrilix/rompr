@@ -192,6 +192,7 @@ function multiProtocolController() {
 		                }
 		            });
 		        }
+	    		self.http.reloadPlaylists();
 		    },
 
 	    	connected: function() {
@@ -206,7 +207,6 @@ function multiProtocolController() {
 			        isReady = true;
 			        self.controller = self.http;
 		    		enableMopidyEvents();
-		    		self.http.reloadPlaylists();
 		    		playlist.repopulate();
 			        self.http.checkCollection();
 		        });

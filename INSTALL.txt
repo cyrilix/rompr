@@ -1,44 +1,196 @@
+==================
+= Installing RompR
+==================
+The most up-to-date version of these instructions can always be found here:
 
-These are basic installation instructions for RompR
+http://sourceforge.net/p/rompr/wiki/Installation/
 
-RompR is a web-based client for mpd or mopidy. You can use it to control mpd
-or mopidy when they are running on your local computer or on a remote computer.
+MacOS X Users
+=============
 
-For mpd or mopidy configuration, see the appropriate website
+Please read the online instrctions here:
 
-Ubuntu users can now install RompR from my PPA:
-http://launchpad.net/~fatgerman-m/+archive/rompr
+http://sourceforge.net/p/rompr/wiki/Installation%20on%20Mac%20OS%20X/
 
-Manual installation: The following works on Ubuntu 11.10
+Windows Users
+=============
 
-sudo apt-get install apache2 php5-curl imagemagick mpd libapache2-mod-php5
+First, install a better operating system, then read this file again :)
+Actually, it may well be possible to get this to run on Windows, if mpd or mopidy can be got
+to work then there's probably a LAMP stack for Windows that will run apache and php
+OK. But I don't intend to go buy a Windows computer just to find out.
 
-Copy the apache configuration file from apache_conf.d into /etc/apache2/conf.d/
 
-Edit that file so that PATH-TO-ROMPR is the path to your installed copy of RompR
-(i.e. if you copied the RompR files into /home/you/web/rompr change
-PATH-TO-ROMPR to /home/you/web/rompr)
+Ubuntu Users can now install from my PPA:
+==========================================
 
-Apache needs WRITE access to prefs and albumart directories.
+	http://launchpad.net/~fatgerman-m/+archive/rompr
+
+Just follow the instructions to add the PPA, then
+
+	sudo apt-get install mpd-client-rompr mpd
+
+(If you intend to run mpd on a different computer than the one on which you install rompr,
+then you don't need to install mpd). If you want to use mopidy, don't install mpd and
+follow the instructions on the mopidy site to install mopidy.
+
+
+==============================
+= Manual Installation on Linux
+==============================
+
+Things work differently depending on whether you use debian-derived or redhat-derived linux.
+If you're on Ubuntu or Mint, the PPA is the best way to go. The PPA packages might even work on Debian.
+For RedHat-like distros, I've given some info on installing it on Mageia 3 below as well as manual steps for Ubuntu.
+
+Install some packages
+=====================
+RompR needs apache2, php5 and imagemagick to be installed on the same computer.
+PHP must not be configured in 'safe mode' or all sorts of awful things will happen.
+In addition you need the php modules
+
+	php5-curl, php5-mbstring, and php5-json.
+
+Sometimes they're installed by default and sometimes they're not, so if you get an error
+about one of the packages not being able to found, just remove it from the following list.
+
+	On Ubuntu: sudo apt-get install apache2 php5-curl imagemagick libapache2-mod-php5 php5-json
+
+	On Mageia 3 (as root): urpmi apache apache-mod_php php-curl imagemagick php-mbstring
+
+Install RompR
+=============
+Extract this zip file somewhere. You'll get a bunch of files and directories.
+Now you need to find the Apache configuration file.
+
+Users of Apache 2.4 and later (Ubuntu Saucy, Mageia 3)
+------------------------------------------------------
+Use the file
+
+	rompr/apache_conf.d/Apache2.4/rompr.conf.
+
+Edit it so that /PATH-TO-ROMPR becomes the path to your installed copy of RompR -
+i.e. if you extracted the zip file into into /home/you/web/rompr change
+/PATH-TO-ROMPR to /home/you/web/rompr. You'll need to change it in several places. Be sure not to miss any.
+
+What you need to do next depends upon your distribution and where it has decided to install stuff. Sigh.
+
+1.) Your apache config directory will either be /etc/apache2 or
+	/etc/httpd depending upon the whims of those who create debs and rpms.
+
+2.) Your apache config directory will either contain a directory called 'conf-available'
+	or one called 'conf.d', or conf/conf.d, or conf/sites.d
+
+Again, there seems to be no logic to when this happens. I think people who understand Apache like making it difficult :)
+
+Find the appropriate directory and copy the edited rompr.conf into it. For example:
+
+	sudo cp /home/you/web/rompr/apache_conf.d/Apache2.4/rompr.conf /etc/apache2/conf-available/
+
+On Mageia 3, copying it into sites.d seems to work
+
+	cp /home/you/web/rompr/apache_conf.d/Apache2.4/rompr.conf /etc/httpd/conf/sites.d/
+
+If you copied into conf-available enable the configuration:
+
+	sudo a2enconf rompr
+
+Users of Apache earlier than 2.4 (Ubuntu Raring and earlier)
+------------------------------------------------------------
+Use the file
+
+	rompr/apache_conf.d/rompr.conf.
+
+Edit that file so that /PATH-TO-ROMPR becomes the path to your installed copy of RompR -
+i.e. if you extracted the zip file into into /home/you/web/rompr change
+/PATH-TO-ROMPR to /home/you/web/rompr. You'll need to change it in several places. Be sure not to miss any.
+
+Once edited, copy the file into /etc/apache2/conf.d, or /etc/httpd/conf.d depending upon where your
+distributions packagers have decided to put it. Just look for one of those folders and trust to luck.
+
+	sudo cp /home/you/web/rompr/apache_conf.d/rompr.conf /etc/apache2/conf.d/
+
+All Users
+=========
+
+Set Permissions
+---------------
+
+Apache needs WRITE access to the prefs and albumart directories.
 The easy way is: (assuming the above installation path)
-chmod -R ugo+rw /home/you/web/rompr/prefs
-chmod -R ugo+rw /home/you/web/rompr/albumart
+
+	chmod -R ugo+rw /home/you/web/rompr/prefs
+	chmod -R ugo+rw /home/you/web/rompr/albumart
 
 If you want to be more secure about it, then on ubuntu apache runs as the user www-data, so do
-chown -R www-data /home/you/web/rompr/prefs
-chown -R www-data /home/you/web/rompr/albumart
 
-Enable the required apache modules:
-sudo a2enmod expires
-sudo a2enmod headers
-sudo a2enmod deflate
-sudo a2enmod php5
+	sudo chown -R www-data /home/you/web/rompr/prefs
+	sudo chown -R www-data /home/you/web/rompr/albumart
 
-restart apache:
-sudo service apache2 restart
+Or on Mageia 3 (as root)
 
-Now you can use rompr - point your web browser at
-http://localhost/rompr
+	chown -R apache /home/you/web/rompr/prefs
+	chown -R apache /home/you/web/rompr/albumart
+
+Enable the required apache modules
+----------------------------------
+
+On debian/Ubuntu/Mint etc, this is as easy as
+
+	sudo a2enmod expires
+	sudo a2enmod headers
+	sudo a2enmod deflate
+	sudo a2enmod php5
+
+On Mageia 3 and other RedHat-like distros they're probably enabled by default.
+There'll be a config file somewhere, possibly at /etc/httpd/conf/modules.d/00_base.conf
+and you should find lines like 'LoadModule deflate_module' and one for the headers and
+expires modules too. If I were you, I'd just assume it's all OK :)
+
+Restart apache
+--------------
+
+	sudo service apache2 restart
+
+Or for Mageia 3
+
+	service httpd restart
+
+Now you can use rompr
+---------------------
+Point your web browser at http://localhost/rompr
 
 
-If you're using mopidy in spotify mode, use the search function in RompR to search spotify.
+MPD Communication Settings
+==========================
+
+In the case where your mpd server is not running on the same PC as your apache server,
+or you need a password for mpd, or you'd like to use a unix-domain socket to communicate with mpd,
+point your browser at:
+
+	[ip address of apache server]/rompr/?setup
+
+and enter the appropriate values. This page will appear automatically if rompr can't communicate
+with mpd when you load the page.
+
+Mopidy Settings
+===============
+
+Make sure you read this : https://sourceforge.net/p/rompr/wiki/Rompr%20and%20Mopidy/
+The most important thing is to make sure Mopidy's HTTP frontend is accessible from your browser.
+
+In your mopidy.conf you should have
+
+	[http]
+	hostname = ::
+
+
+
+
+
+
+
+
+Using the Album Artist tag helps RompR to sort your music into correct albums.
+It also helps greatly if your local files are tagged with Musicbrainz IDs. MusicBrainz Picard is a good tagger, though those with large music collections may like to check out Beets.
+[1] You install RompR on the same computer as your music player. You can use a web browser on any other computer to control it.
