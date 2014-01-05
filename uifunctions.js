@@ -478,6 +478,20 @@ function getTopArtists(event) {
     }
 }
 
+function loadSomaFM() {
+    if ($("#somafmlist").is(':empty')) {
+        makeWaitingIcon("somawait");
+        $("#somafmlist").load("somafm.php", function() { stopWaitingIcon("somawait")});
+    }
+}
+
+function loadBigRadio() {
+    if ($("#bbclist").is(':empty')) {
+        makeWaitingIcon("bbcwait");
+        $("#bbclist").load("bbcradio.php", function() { stopWaitingIcon("bbcwait")});
+    }
+}
+
 function gotNoNeighbours(data) {
     stopWaitingIcon("neighbourwait");
     infobar.notify(infobar.NOTIFY, language.gettext("label_noneighbours"));
@@ -1304,11 +1318,11 @@ function hidePanel(panel) {
                 $("#lastfmlist").load("lastfmchooser.php");
                 break;
             case "radiolist":
-                $("#bbclist").load("bbcradio.php");
-                $("#somafmlist").load("somafm.php");
+                //$("#bbclist").load("bbcradio.php");
+                //$("#somafmlist").load("somafm.php");
                 $("#yourradiolist").load("yourradio.php");
-                $("#icecastlist").html('<div class="dirname"><h2 id="loadinglabel3">'+language.gettext("label_loadingstations")+'</h2></div>');
-                refreshMyDrink('');
+                // $("#icecastlist").html('<div class="dirname"><h2 id="loadinglabel3">'+language.gettext("label_loadingstations")+'</h2></div>');
+                // refreshMyDrink('');
                 podcasts.loadList();
                 break;
             case "albumlist":
@@ -1402,11 +1416,12 @@ function doSomethingUseful(div,text) {
 }
 
 function refreshMyDrink(path) {
-    if (path === false) {
-        $("#icecastlist").load("iceScraper.php");
+    makeWaitingIcon("icewait");
+    if ($("#icecastlist").is(':empty') || path === false) {
+        $("#icecastlist").load("iceScraper.php", function() { stopWaitingIcon("icewait") });
     } else {
         debug.log("GENERAL","Fanoogling the hubstraff",path);
-        $("#icecastlist").load("iceScraper.php?path="+path);
+        $("#icecastlist").load("iceScraper.php?path="+path, function() { stopWaitingIcon("icewait") });
     }
 }
 
@@ -1463,7 +1478,7 @@ function formatPlaylistInfo(data) {
         html = html + '<li class="tleft wide"><b>'+language.gettext("menu_playlists")+'</b></li>';
         html = html + '<li class="tleft wide"><table width="100%">';
     } else {
-        html = html + '<h3>Playlists</h3>';
+        html = html + '<h3>'+language.gettext("menu_playlists")+'</h3>';
         html = html + '<table width="90%">';
     }
     $.each(data, function() {
@@ -1483,6 +1498,11 @@ function formatPlaylistInfo(data) {
                 break;
             case "somafm":
                 html = html + '<img src="newimages/somafm-icon.png" height="18px" style="vertical-align:middle"></td>';
+                html = html + '<td align="left"><a href="#" onclick="playlist.load(\''+this.uri+'\')">'+this.name+'</a></td>';
+                html = html + '<td></td></tr>';
+                break;
+            case "radio-de":
+                html = html + '<img src="newimages/broadcast-12.png" height="12px" style="vertical-align:middle"></td>';
                 html = html + '<td align="left"><a href="#" onclick="playlist.load(\''+this.uri+'\')">'+this.name+'</a></td>';
                 html = html + '<td></td></tr>';
                 break;

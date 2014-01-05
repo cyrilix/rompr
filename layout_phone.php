@@ -76,34 +76,34 @@ print '<div class="expand">'.get_int_text('label_podcasts').'<span id="total_unl
     </div>
 
     <div class="containerbox menuitem noselection">
-        <div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="somafmlist"></div>
+        <div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" onclick="loadSomaFM()" name="somafmlist"></div>
         <div class="smallcover fixed"><img height="32px" width="32px" src="newimages/somafm.png"></div>
 <?php
 print '<div class="expand">'.get_int_text('label_somafm').'</div>';
 ?>
+    <img id="somawait" height="14px" width="14px" src="newimages/transparent-32x32.png" />
     </div>
-    <div id="somafmlist" class="dropmenu">
-    </div>
+    <div id="somafmlist" class="dropmenu"></div>
 
     <div class="containerbox menuitem noselection">
-        <div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="bbclist"></div>
+        <div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" onclick="loadBigRadio()" name="bbclist"></div>
         <div class="smallcover fixed"><img height="32px" width="32px" src="newimages/broadcast-32.png"></div>
 <?php
 print '<div class="expand">'.get_int_text('label_streamradio').'</div>';
 ?>
+    <img id="bbcwait" height="14px" width="14px" src="newimages/transparent-32x32.png" />
     </div>
-    <div id="bbclist" class="dropmenu">
-    </div>
+    <div id="bbclist" class="dropmenu"></div>
 
     <div class="containerbox menuitem noselection">
-        <div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="icecastlist"></div>
+        <div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" onclick="refreshMyDrink()" name="icecastlist"></div>
         <div class="smallcover fixed"><img height="32px" width="32px" src="newimages/icecast.png"></div>
 <?php
 print '<div class="expand">'.get_int_text('label_icecast').'</div>';
 ?>
+    <img id="icewait" height="14px" width="14px" src="newimages/transparent-32x32.png" />
     </div>
-    <div id="icecastlist" class="dropmenu">
-    </div>
+    <div id="icecastlist" class="dropmenu"></div>
 
     </div>
 
@@ -149,10 +149,6 @@ print '<div class="chooser penbehindtheear"><a href="#" onclick="sourcecontrol(\
     </div>
 
     <div id="prefsm" class="invisible noborder">
-
-
-
-
 
 <?php
 print '<div class="pref"><b>'.get_int_text('config_language').'</b><select id="langselector" class="topformbutton" onchange="changelanguage()">';
@@ -225,6 +221,11 @@ print '<div class="pref prefsection">
 <div><span class="tiny">'.get_int_text('config_dateinfo').'</span></div>
 </div>';
 
+print '<div class="pref prefsection">
+<div><b>'.get_int_text('config_clicklabel').'</b></div>
+<div><input type="radio" class="topcheck" onclick="changeClickPolicy()" name="clickselect" value="double">'.get_int_text('config_doubleclick').'</input></div>
+<div><input type="radio" class="topcheck" onclick="changeClickPolicy()" name="clickselect" value="single">'.get_int_text('config_singleclick').'</input></div>
+</div>';
 
 print '<div class="pref">
 <input type="checkbox" onclick="togglePref(\'downloadart\')" id="downloadart">'.get_int_text('config_autocovers').'</input>

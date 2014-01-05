@@ -130,7 +130,7 @@ var info_wikipedia = function() {
             }
 
             function getSearchArtist() {
-                return (parent.playlistinfo.albumartist && parent.playlistinfo.albumartist != "") ? parent.playlistinfo.albumartist : self.artist.name();
+                return (parent.playlistinfo.albumartist && parent.playlistinfo.albumartist != "") ? parent.playlistinfo.albumartist : parent.playlistinfo.creator;
             }
 
 			this.artist = function() {

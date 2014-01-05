@@ -760,9 +760,13 @@ function parseTrack($collection, $track, $plpos = null, $plid = null) {
         $trackdata['MUSICBRAINZ_TRACKID'] = $track->{'musicbrainz_id'};
     }
     if (property_exists($track, 'artists')) {
-        if (property_exists($track->{'artists'}[0], 'name')) {
-            $trackdata['Artist'] = $track->{'artists'}[0]->{'name'};
+        $art = array();
+        foreach($track->{'artists'} as $a) {
+            if (property_exists($a, 'name')) {
+                array_push($art, $a->{'name'});
+            }
         }
+        $trackdata['Artist'] = implode(' & ',$art);
         if (property_exists($track->{'artists'}[0], 'musicbrainz_id')) {
             $trackdata['MUSICBRAINZ_ARTISTID'] = $track->{'artists'}[0]->{'musicbrainz_id'};
         }

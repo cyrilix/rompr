@@ -154,30 +154,32 @@ function get_wikipedia_page($page, $site, $langsearch) {
 
     }
 
-    // if ($mobile) {
-    //     $req = 'http://'.$site.'/w/api.php?action=mobileview&sections=all&prop=text&page='.$page.'&format=xml';
-    // } else {
+    if ($mobile) {
+        $req = 'http://'.$site.'/w/api.php?action=mobileview&sections=all&prop=text&page='.$page.'&format=xml';
+    } else {
         $req = 'http://'.$site.'/w/api.php?action=parse&prop=text&page='.$page.'&format=xml';
-    // }
+    }
 
     $xml = wikipedia_request($req);
     if ($xml !== null) {
         $info = "";
-        // if ($mobile) {
-        //     $info = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
-        //     // foreach($info->mobileview->sections->section as $section) {
-        //     //     $html .= dom_import_simplexml($section)->textContent;
-        //     // }
-        // } else {
+        if ($mobile) {
+            $info = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
+            $reformat = '<?xml version="1.0"?><api><parse><text xml:space="preserve">';
+            foreach($info->mobileview->sections->section as $section) {
+                $reformat .= htmlspecialchars($section, ENT_QUOTES);
+            }
+            $reformat .= '</text></parse><rompr><domain>'.$format_domain.'</domain><page>'.$page.'</page></rompr></api>';
+            return $reformat;
+        } else {
             $info = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
             $html = $info->parse->text;
             if (preg_match( '/REDIRECT <a href="\/wiki\/(.*?)"/', $html, $matches )) {
                 $xml = wikipedia_request('http://'.$format_domain.'.wikipedia.org/w/api.php?action=parse&prop=text&page='.$matches[1].'&format=xml');
                 $info = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
-                // $html = $info->parse->text;
             }
-        // }
-        return wrap_response($info, $format_domain, $page);
+            return wrap_response($info, $format_domain, $page);
+        }
     } else {
         return "";
     }
@@ -189,6 +191,20 @@ function wrap_response($xml, $domain, $page) {
     $meta->addChild('domain', $domain);
     $meta->addChild('page', $page);
     return $xml->asXML();
+}
+
+function join_responses($bits) {
+    $t = "";
+    $d = "";
+    $p = "";
+    foreach ($bits as $b) {
+        $info = simplexml_load_string($b, 'SimpleXMLElement', LIBXML_NOCDATA);
+        $t .= $info->parse->text;
+        $d = $info->rompr->domain;
+        $p = $info->rompr->page;
+    }
+    $reformat = '<?xml version="1.0"?><api><parse><text xml:space="preserve">'.$t.'</text></parse><rompr><domain>'.$d.'</domain><page>'.$p.'</page></rompr></api>';
+    return $reformat;
 }
 
 function send_result($xml) {
@@ -323,24 +339,27 @@ function getArtistWiki($artist_name, $disambig) {
     // try querying for 'Fruitbat' and 'Umbrella' separately and if there are any results, display them all
     $artist = preg_replace('/ and /', ' & ', $artist_name);
     $artist = preg_replace('/\+/', '&', $artist);
+    $jhtml = array();
     if (preg_match('/ & /', $artist) > 0) {
         $alist = explode(' & ', $artist);
-        $jhtml = '';
         foreach ($alist as $artistname) {
-            $jhtml = wikipedia_artist_search($artistname, "");
-            if ($jhtml != '') {
-                return $jhtml;
+            $j = wikipedia_artist_search($artistname, "");
+            if ($j != '') {
+                array_push($jhtml, $j);
             }
         }
     } elseif (preg_match('/,/', $artist) > 0) {
         $alist = explode(',', $artist);
         $jhtml = '';
         foreach ($alist as $artistname) {
-            $jhtml = wikipedia_artist_search($artistname, "");
-            if ($hjtml != '') {
-                return $jhtml;
+            $j = wikipedia_artist_search($artistname, "");
+            if ($j != '') {
+                array_push($jhtml, $j);
             }
         }
+    }
+    if (count($jhtml) > 0) {
+        return join_responses($jhtml);
     }
 
     $h = find_dismbiguation_page($artist_name);

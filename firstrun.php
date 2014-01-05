@@ -21,4 +21,3 @@ if (!is_dir('prefs/jsoncache/lastfm')) {
 	mkdir('prefs/jsoncache/lastfm');
 }
 ?>
-<html></html>

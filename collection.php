@@ -526,20 +526,75 @@ function process_file($collection, $filedata) {
             $folder = ($spotialbum == null) ? $file : $spotialbum;
             break;
 
+        case "radio-de":
+            $folder = "radio-de";
+            $album = "radio-de";
+            $artist = "Radio-De";
+            $image = "newimages/broadcast.png";
+            $number = null;
+            break;
+
         default:
             $folder = dirname($file);
             $folder = preg_replace('#^local:track:#', '', $folder);
             break;
     }
 
-    if (($domain == "http" || $domain == "mms" || $domain == "rtsp") &&
+    if (($domain == "http" || $domain == "mms" || $domain == "rtsp" || $domain == "https" || $domain == "rtmp" || $domain == "rtmps") &&
         !preg_match('#/item/\d+/file$#', $file))
     {
         // domain will be http for anything being played through mopidy-beets.
         // so we check the filename pattern too
-        list (  $name, $duration, $number, $date, $genre, $artist, $album, $folder,
-                $type, $image, $expires, $stationurl, $station, $stream, $albumartist)
-                = getStuffFromXSPF($file);
+        list (  $track_found,
+                $a_name,
+                $duration,
+                $number,
+                $date,
+                $genre,
+                $a_artist,
+                $a_album,
+                $folder,
+                $type,
+                $a_image,
+                $expires,
+                $stationurl,
+                $station,
+                $a_stream,
+                $albumartist) = getStuffFromXSPF($file);
+
+        // Bit of a hack, but streams added to Mopidy by various backends DO return some useful metadata
+        // Which is better than showing 'Unknonw internet stream'
+        if (!$track_found) {
+            $name = (array_key_exists('Title', $filedata)) ? $filedata['Title'] : $a_name;
+            $stream = (array_key_exists('Title', $filedata)) ? $filedata['Title'] : $a_stream;
+            $artist = (array_key_exists('Artist', $filedata)) ? $filedata['Artist'] : $a_artist;
+            $album = (array_key_exists('Album', $filedata)) ? $filedata['Album'] : $a_album;
+            if ($album == "Unknown Internet Stream") {
+                $album = $name;
+            }
+            $image = (array_key_exists('Image', $filedata)) ? $filedata['Image'] : $a_image;
+            // Create an xspf for it so it can be added to favourites
+            debug_print("Making STREAM playlist for ".$file,"COLLECTION");
+            $xspf = '<?xml version="1.0" encoding="utf-8"?>'."\n".
+                  '<playlist>'."\n".
+                  '<trackList>'."\n".
+                  '<track>'."\n";
+            $xspf .= xmlnode("album", $album).
+                    xmlnode('creator', $artist).
+                    xmlnode('image', $image).
+                    xmlnode('stream', $stream).
+                    xmlnode('location', $file).
+                    xmlnode('compilation', 'yes');
+            $xspf .= "</track>\n</trackList>\n</playlist>\n";
+            file_put_contents('prefs/STREAM_'.md5($file).'.xspf', $xspf);
+
+        } else {
+            $name = $a_name;
+            $artist = $a_artist;
+            $album = $a_album;
+            $image = $a_image;
+            $stream = $a_stream;
+        }
         $domain = $type;
         if ($origimage == null && preg_match('#^albumart/original/#',$image)) {
             $origimage = "albumart/asdownloaded/".basename($image);
@@ -601,7 +656,8 @@ function getStuffFromXSPF($url) {
     foreach($lfm_xspfs as $i => $x) {
         foreach($x->playlist->trackList->track as $i => $track) {
             if($track->location == $url) {
-                return array (  (string) $track->title,
+                return array (  true,
+                                (string) $track->title,
                                 ($track->duration)/1000,
                                 null, null, null,
                                 (string) $track->creator,
@@ -622,7 +678,8 @@ function getStuffFromXSPF($url) {
     foreach($stream_xspfs as $i => $x) {
         foreach($x->trackList->track as $i => $track) {
             if($track->location == $url) {
-                return array (  (string) $track->stream,
+                return array (  true,
+                                (string) $track->stream,
                                 0,
                                 null, null, null,
                                 (string) $track->creator,
@@ -642,6 +699,7 @@ function getStuffFromXSPF($url) {
             if ($track->link == $url ||
                 ($track->origlink && $track->origlink == $url)) {
                 return array (
+                    true,
                     (string) $track->title,
                     (string) $track->duration,
                     null,
@@ -664,7 +722,8 @@ function getStuffFromXSPF($url) {
 
     if (file_exists('prefs/'.md5($url).'.xspf')) {
         $x = simplexml_load_file('prefs/'.md5($url).'.xspf');
-        return array (  (string) $x->trackList->track->title,
+        return array (  true,
+                        (string) $x->trackList->track->title,
                         ($x->trackList->track->duration)/1000,
                         null, null, null,
                         (string) $x->trackList->track->creator,
@@ -676,13 +735,14 @@ function getStuffFromXSPF($url) {
                         (string) $x->trackList->track->creator);
     }
 
-    return array(   "",
+    return array(   false,
+                    "",
                     0,
                     "",
                     null, null,
                     htmlspecialchars($url),
                     "Unknown Internet Stream",
-                    null,
+                    "streamish",
                     "stream",
                     "newimages/broadcast.png",
                     null, null, null,

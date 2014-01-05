@@ -344,6 +344,7 @@ $(document).ready(function(){
         $("#button_hide_radiolist").attr("checked", prefs.hide_radiolist);
         $("#sortbydate").attr("checked", prefs.sortbydate);
         $("#notvabydate").attr("checked", prefs.notvabydate);
+        $("[name=clickselect][value="+prefs.clickmode+"]").attr("checked", true);
         $("[name=clicklfmlang][value="+prefs.lastfmlang+"]").attr("checked", true);
         $("[name=userlanguage]").val(prefs.user_lang);
         if (prefs.hidebrowser) {
@@ -370,16 +371,13 @@ $(document).ready(function(){
         }, false);
     }
 
-    $('#search').load("search.php");
+    $('#search').load("search.php", player.http.checkSearchDomains);
     if (!prefs.hide_lastfmlist) {
         $("#lastfmlist").load("lastfmchooser.php");
     }
     if (!prefs.hide_radiolist) {
-        $("#bbclist").load("bbcradio.php");
-        $("#somafmlist").load("somafm.php");
         $("#yourradiolist").load("yourradio.php");
         podcasts.loadList();
-        refreshMyDrink(false);
     }
 
     player.loadLocalCollection();

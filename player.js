@@ -177,16 +177,22 @@ function multiProtocolController() {
 				debug.debug("PLAYER","checkCollection was called",isReady,collectionLoaded,loadtest.length);
 				if (isReady && !collectionLoaded && loadtest.length > 0) {
 					collectionLoaded = true;
+					debug.log("PLAYER","Checking Collection");
+					self.http.checkSearchDomains();
+					checkCollection();
+				}
+			},
+
+			checkSearchDomains: function() {
+				if (isReady) {
 		            $("#mopidysearcher").find('.searchdomain').each( function() {
 		                var v = $(this).attr("value");
 		                if (!urischemes.hasOwnProperty(v)) {
 		                    $(this).parent().remove();
 		                }
 		            });
-					debug.log("PLAYER","Checking Collection");
-					checkCollection();
-				}
-			},
+		        }
+		    },
 
 	    	connected: function() {
 		        debug.log("PLAYER","Connected to Mopidy");
@@ -240,7 +246,10 @@ function multiProtocolController() {
 		        // longer supported as it's impossible to make it work in all situations.
 		        // Mopidy will soon support updating from a client, hopefully
 		        // by adding it to this command.
-	            mopidy.library.refresh().then( function() { checkPoll({data: 'dummy' }) });
+	            mopidy.library.refresh().then( function() {
+	            	debug.log("PLAYER", "Refresh Success");
+	            	checkPoll({data: 'dummy' })
+	            }, consoleError);
 	    	},
 
 	    	reloadAlbumsList: function(uri) {
@@ -259,7 +268,9 @@ function multiProtocolController() {
 	                    $("#collection").empty();
 	                    return 0;
 	                }
+	                debug.log("PLAYER","Doing Library search with",be);
 	                mopidy.library.search({}, be).then( function(data) {
+	                	debug.log("PLAYER","Got Mopidy Library Response");
 	                    $.ajax({
 	                            type: "POST",
 	                            url: "parseMopidyTracks.php",
@@ -520,7 +531,7 @@ function multiProtocolController() {
 						    					at_pos++;
 						    				}
 						    				iterator();
-						    			});
+						    			},consoleError);
 						    		}
 					    			break;
 

@@ -45,8 +45,13 @@ var info_musicbrainz = function() {
 			return '<h3 align="center">'+data.error+'</h3>';
 		}
 
-        var html = '<div class="containerbox">';
-        html = html + '<div class="fixed bright">';
+        if (mobile == "no") {
+	        var html = '<div class="containerbox">';
+        	html = html + '<div class="fixed bright">';
+        } else {
+	        var html = '<div class="containerbox vertical">';
+        	html = html + '<div class="stumpy notbright">';
+        }
         html = html + '<ul><li>'+data.disambiguation+'</li></ul>';
         if (data.type !== null) {
         	html = html + '<ul><li><b>'+language.gettext("title_type")+': </b>'+data.type+'</li></ul>';
@@ -73,7 +78,11 @@ var info_musicbrainz = function() {
         html = html + '<br>'+getURLs(data.relations, true);
         html = html + '</div>';
 
-        html = html + '<div class="expand stumpy">';
+        if (mobile == "no") {
+        	html = html + '<div class="expand stumpy">';
+        } else {
+        	html = html + '<div class="stumpy">';
+        }
         if (expand) {
 			html = html + '<div class="mbbox"><img class="clickexpandbox infoclick tleft" src="newimages/expand-up.png" height="16px" name="'+data.id+'"></div>';
 		}
@@ -323,9 +332,9 @@ var info_musicbrainz = function() {
 		if (data) {
 			for (var i in data.images) {
 				html = html + '<div class="infoclick clickzoomimage">';
-				html = html + '<img style="margin:1em" src="'+data.images[i].thumbnails.small+'" />';
+				html = html + '<img style="margin:1em" src="getRemoteImage.php?url='+data.images[i].thumbnails.small+'" />';
 				html = html + '</div>';
-				html = html + '<input type="hidden" value="'+data.images[i].image+'" />';
+				html = html + '<input type="hidden" value="getRemoteImage.php?url='+data.images[i].image+'" />';
 			}
 		}
 		return html;
@@ -335,8 +344,13 @@ var info_musicbrainz = function() {
 		if (data.error && data.recording === undefined && data.work === undefined) {
 			return '<h3 align="center">'+data.error.error+'</h3>';
 		}
-        var html = '<div class="containerbox">';
-        html = html + '<div class="fixed bright">';
+		if (mobile == "no") {
+	        var html = '<div class="containerbox">';
+	        html = html + '<div class="fixed bright">';
+	    } else {
+	        var html = '<div class="containerbox vertical">';
+	        html = html + '<div class="stumpy notbright">';
+	    }
 		if (data.recording) {
 			if (data.recording.disambiguation) {
 				html = html + '<ul>'+data.recording.disambiguation+'</ul>';
@@ -368,7 +382,11 @@ var info_musicbrainz = function() {
 		html = html + getURLs(rels, true);
 		html = html + '</div>';
 
-        html = html + '<div class="expand stumpy">';
+        if (mobile == "no") {
+        	html = html + '<div class="expand stumpy">';
+        } else {
+        	html = html + '<div class="stumpy">';
+        }
 
 		if ((data.work && data.work.annotation) || (data.recording && data.recording.annotation)) {
 			var a  = "";
@@ -618,8 +636,13 @@ var info_musicbrainz = function() {
 					return '<h3 align="center">'+data.error+'</h3>';
 				}
 
-		        var html = '<div class="containerbox">';
-		        html = html + '<div class="fixed bright">';
+		        if (mobile == "no") {
+		        	var html = '<div class="containerbox">';
+		        	html = html + '<div class="fixed bright">';
+		        } else {
+		        	var html = '<div class="containerbox vertical">';
+		        	html = html + '<div class="stumpy notbright">';
+		        }
 		        html = html + '<ul><li>'+data.disambiguation+'</li></ul>';
 		        html = html + '<ul><li><b>'+language.gettext("musicbrainz_status")+': </b>';
 		        if (data.status) {
@@ -650,7 +673,11 @@ var info_musicbrainz = function() {
 		        html = html + '<br>'+getURLs(data.relations, true);
 				html = html + '</div>';
 
-		        html = html + '<div class="expand stumpy">';
+		        if (mobile == "no") {
+			        html = html + '<div class="expand stumpy">';
+			    } else {
+			        html = html + '<div class="stumpy">';
+			    }
 
 				if (data.annotation) {
 					var a = data.annotation;
@@ -699,7 +726,12 @@ var info_musicbrainz = function() {
 		        html = html + '</div>';
 		        html = html + '</div>';
 		        if (data['cover-art-archive'].artwork == true) {
-			        html = html + '<div class="cleft fixed" id="coverart">';
+		        	debug.log(medebug,"There is cover art available");
+			        if (mobile == "no") {
+				        html = html + '<div class="cleft fixed" id="coverart">';
+				    } else {
+				        html = html + '<div class="stumpy" id="coverart">';
+				    }
 			        html = html + getCoverArt();
 			        html = html + '</div>';
 			    }

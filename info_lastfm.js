@@ -18,7 +18,11 @@ var info_lastfm = function() {
 
     function doTags(taglist) {
     	debug.debug(medebug,"    Doing Tags");
-        var html = '<ul><li><b>'+language.gettext("lastfm_toptags")+'</b></li><li><table width="100%">';
+        var html = '<ul><li><b>'+language.gettext("lastfm_toptags")+'</b></li><li><table';
+        if (mobile == "no") {
+            html = html + ' width="100%"';
+        }
+        html = html + '>';
         for(var i in taglist) {
             html = html + '<tr><td><a href="'+taglist[i].url+'" target="_blank">'+taglist[i].name+'</a></td>';
             html = html + '<td align="right"><a href="#" title="'+language.gettext("lastfm_tagradiotooltip", [taglist[i].name])+'" onclick="doLastFM(\'lastfmglobaltag\', \''+taglist[i].name+'\')"><img style="vertical-align:middle" src="newimages/start.png" height="12px"></a></td></tr>';
@@ -53,7 +57,11 @@ var info_lastfm = function() {
     }
 
     function doUserTags(name) {
-        var html = '<ul><li><b>'+language.gettext("lastfm_yourtags")+'</b></li><li><table name="'+name+'tagtable" width="100%">';
+        var html = '<ul><li><b>'+language.gettext("lastfm_yourtags")+'</b></li><li><table name="'+name+'tagtable"';
+        if (mobile == "no") {
+            html = html + ' width="100%"';
+        }
+        html = html + '>';
         html = html + '</table></li></ul>';
         return html;
     }
@@ -124,13 +132,20 @@ var info_lastfm = function() {
 
     function getArtistHTML(lfmdata, parent) {
         var html = sectionHeader(lfmdata);
+        var bigurl = lfmdata.image("mega");
         if (mobile == "no") {
             var imageurl = lfmdata.image("extralarge");
-            var bigurl = lfmdata.image("mega");
         } else {
-            var imageurl = lfmdata.image("large");
+            var imageurl = lfmdata.image("extralarge");
             if (imageurl != '') {
-                html = html + '<img src="' + imageurl + '" class="clrbth" />';
+                html = html + '<img';
+                if (bigurl && bigurl != imageurl) {
+                    html = html + ' class="infoclick clickzoomimage"';
+                }
+                html = html + ' src="getRemoteImage.php?url=' + imageurl + '" />';
+                if (bigurl && bigurl != imageurl) {
+                    html = html + '<input type="hidden" value="getRemoteImage.php?url='+bigurl+'" />';
+                }
             }
         }
         html = html + '<br><li class="tiny">'+language.gettext("lastfm_similarradio", [lfmdata.name()])+'&nbsp;&nbsp;<a href="#" onclick="doLastFM(\'lastfmartist\', \''+lfmdata.name()+'\')"><img style="vertical-align:middle" src="newimages/start.png" height="12px"></a></li>';
@@ -150,9 +165,9 @@ var info_lastfm = function() {
             if (bigurl && bigurl != imageurl) {
                 html = html + ' infoclick clickzoomimage';
             }
-            html = html + '" src="' + imageurl + '" />';
+            html = html + '" src="getRemoteImage.php?url=' + imageurl + '" />';
             if (bigurl && bigurl != imageurl) {
-                html = html + '<input type="hidden" value="'+bigurl+'" />';
+                html = html + '<input type="hidden" value="getRemoteImage.php?url='+bigurl+'" />';
             }
         }
         html = html +  '<div id="artistbio">';
@@ -170,7 +185,7 @@ var info_lastfm = function() {
         html = html + '<table width="100%" cellspacing="0" cellpadding="0"><tr><td align="center"><div class="smlrtst">';
         for(var i in similies) {
             html = html + '<div class="simar">';
-            html = html + '<table><tr><td align="center"><img class="infoclick clickzoomimage" src="'+lfmdata.similarimage(i, "medium")+'"><input type="hidden" value="'+lfmdata.similarimage(i, "mega")+'" /></td></tr>';
+            html = html + '<table><tr><td align="center"><img class="infoclick clickzoomimage" src="getRemoteImage.php?url='+lfmdata.similarimage(i, "medium")+'"><input type="hidden" value="getRemoteImage.php?url='+lfmdata.similarimage(i, "mega")+'" /></td></tr>';
             html = html + '<tr><td align="center"><a href="'+similies[i].url+'" target="_blank">'+similies[i].name+'</a></td></tr>';
             html = html + '<tr><td align="center"><a href="#" title="'+language.gettext("label_artistradio", [similies[i].name])+'" onclick="doLastFM(\'lastfmartist\', \''+similies[i].name+'\')"><img src="newimages/start.png" height="12px"></a></td></tr></table>';
             html = html + '</div>';
@@ -203,9 +218,9 @@ var info_lastfm = function() {
             if (bigurl && bigurl != imageurl) {
                 html = html + ' infoclick clickzoomimage';
             }
-            html = html + '" src="' + imageurl + '" />';
+            html = html + '" src="getRemoteImage.php?url=' + imageurl + '" />';
             if (bigurl && bigurl != imageurl) {
-                html = html + '<input type="hidden" value="'+bigurl+'" />';
+                html = html + '<input type="hidden" value="getRemoteImage.php?url='+bigurl+'" />';
             }
         }
         html = html +  '<p>';

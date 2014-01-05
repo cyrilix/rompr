@@ -227,3 +227,49 @@ h2
     margin-left:auto;
 }
 
+.infobox
+{
+    float:none;
+    clear:both;
+    margin-left:auto !important;
+    margin-right:auto !important;
+    width:90% !important;
+}
+
+.infobox_v3
+{
+    float:none;
+    clear:both;
+    margin-left:auto !important;
+    margin-right:auto !important;
+    width:90% !important;
+}
+
+.stleft
+{
+    float:none;
+    width:auto;
+    max-width:95%;
+    clear:both;
+    border-right:none !important;
+    border-bottom: 1px solid #dddddd !important;
+}
+
+.thumb
+{
+    float:none !important;
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+}
+
+.content img
+{
+    max-width: 100% !important;
+    height: auto !important;
+}
+
+.thumbinner
+{
+    margin-left:auto;
+    margin-right:auto;
+}

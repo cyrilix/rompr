@@ -29,13 +29,15 @@ foreach ($links as $l) {
     // debug_print($n." - ".$p,"RADIOCOUNTRIES");
 }
 
-$stuff = $DOM->getElementById('thetable2');
-$links = $stuff->getElementsByTagName('a');
-foreach ($links as $l) {
-    $p = $l->getAttribute('href');
-    $n = DOMinnerHTML($l);
-    $genres[$n] = $base_url.$p;
-    // debug_print($n." - ".$p,"RADIOCOUNTRIES");
+if (preg_match('/listenlive.eu/', $prefs['radiocountry'])) {
+    $stuff = $DOM->getElementById('thetable2');
+    $links = $stuff->getElementsByTagName('a');
+    foreach ($links as $l) {
+        $p = $l->getAttribute('href');
+        $n = DOMinnerHTML($l);
+        $genres[$n] = $base_url.$p;
+        // debug_print($n." - ".$p,"RADIOCOUNTRIES");
+    }
 }
 
 $content = url_get_contents($cbase_url);
@@ -48,6 +50,17 @@ foreach ($links as $l) {
     $n = DOMinnerHTML($l);
     $countries['Canada - '.$n] = $cbase_url.$p;
     // debug_print($n." - ".$p,"RADIOCOUNTRIES");
+}
+
+if (preg_match('/canadianwebradio/', $prefs['radiocountry'])) {
+    $stuff = $DOM->getElementById('thetable2');
+    $links = $stuff->getElementsByTagName('a');
+    foreach ($links as $l) {
+        $p = $l->getAttribute('href');
+        $n = DOMinnerHTML($l);
+        $genres[$n] = $cbase_url.$p;
+        // debug_print($n." - ".$p,"RADIOCOUNTRIES");
+    }
 }
 
 $countries['United States'] = "http://www.usliveradio.com/";
@@ -210,10 +223,10 @@ function DOMinnerHTML(DOMNode $element)
 
 function getStationImage($name) {
     $nospaces = preg_replace('/ /','_',$name);
-    if (file_exists('resources/'.$nospaces.'.png')) {
-        return 'resources/'.$nospaces.'.png';
-    } else if (file_exists('prefs/userimages/'.$nospaces.'.png')) {
+    if (file_exists('prefs/userimages/'.$nospaces.'.png')) {
         return 'prefs/userimages/'.$nospaces.'.png';
+    } else if (file_exists('resources/'.$nospaces.'.png')) {
+        return 'resources/'.$nospaces.'.png';
     } else {
         $nospaces = preg_replace('/_\(.*?\)$/', '', $nospaces);
         if (file_exists('resources/'.$nospaces.'.png')) {

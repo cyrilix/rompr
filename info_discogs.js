@@ -10,6 +10,10 @@ var info_discogs = function() {
 			if (urls[i] != "") {
 				var u = urls[i];
 				var d = u.match(/https*:\/\/(.*?)(\/|$)/);
+				if (d == null) {
+					d = [u,u];
+					u = 'http://'+u;
+				}
 				if (u.match(/wikipedia/i)) {
 					html = html + '<li><img src="newimages/Wikipedia-logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Wikipedia ('+d[1]+')</a></li>';
 				} else if (u.match(/facebook/i)) {
@@ -162,8 +166,13 @@ var info_discogs = function() {
 			return '<h3 align="center">'+data.error.error+'</h3>';
 		}
 
-        var html = '<div class="containerbox">';
-        html = html + '<div class="fixed bright">';
+        if (mobile == "no") {
+        	var html = '<div class="containerbox">';
+        	html = html + '<div class="fixed bright">';
+        } else {
+        	var html = '<div class="containerbox vertical">';
+        	html = html + '<div class="stumpy notbright">';
+        }
 		if (data.release) {
 			html = html + getStyles(data.release.data.styles);
 		} else {
@@ -187,7 +196,11 @@ var info_discogs = function() {
 
 		html = html + '</div>';
 
-        html = html + '<div class="expand stumpy">';
+        if (mobile == "no") {
+        	html = html + '<div class="expand stumpy">';
+        } else {
+        	html = html + '<div class="stumpy">';
+        }
 
         if (data.master && data.master.data.notes) {
         	var n = data.master.data.notes;
@@ -232,7 +245,11 @@ var info_discogs = function() {
 		}
 
 		if (images.length > 0) {
-	        html = html + '<div class="cleft fixed">';
+			if (mobile == "no") {
+	        	html = html + '<div class="cleft fixed">';
+	        } else {
+	        	html = html + '<div class="stumpy">';
+	        }
 	        for (var i in images) {
 		        html = html + '<div class="infoclick clickzoomimage"><img style="margin:1em" src="getDiscogsImage.php?url='+images[i].uri150+'" /></div>';
 		        html = html + '<input type="hidden" value="getDiscogsImage.php?url='+images[i].uri+'" />';
@@ -571,8 +588,13 @@ var info_discogs = function() {
 					return '<h3 align="center">'+data.error+'</h3>';
 				}
 				debug.debug(medebug, "Creating Artist HTML",data);
-		        var html = '<div class="containerbox">';
-		        html = html + '<div class="fixed bright">';
+				if (mobile == "no") {
+			        var html = '<div class="containerbox">';
+			        html = html + '<div class="fixed bright">';
+			    } else {
+			        var html = '<div class="containerbox vertical">';
+			        html = html + '<div class="stumpy notbright">';
+			    }
 
 		        if (data.data.images) {
 		        	var img = new Array();
@@ -619,13 +641,17 @@ var info_discogs = function() {
 			    }
 			    html = html + '</div>';
 
-		        html = html + '<div class="expand stumpy">';
+		        if (mobile == "no") {
+		        	html = html + '<div class="expand stumpy">';
+		        } else {
+		        	html = html + '<div class="stumpy">';
+		        }
 		        html = html + '<div class="holdingcell">';
 		        if (expand) {
 					html = html + '<img class="clickexpandbox infoclick tleft" style="margin:1em" src="newimages/expand-up.png" height="16px" name="'+data.data.id+'">';
 				}
 
-		        if (data.data.images) {
+		        if (mobile == "no" && data.data.images) {
 					html = html + '<div class="infoclick clickzoomimage stright standout"><img width="250px" src="getDiscogsImage.php?url='+
 								getPrimaryImage(data.data.images, 'uri')+'" /></div>';
 					html = html + '<input type="hidden" value="getDiscogsImage.php?url='+getPrimaryImage(data.data.images, 'uri')+'" />';
@@ -706,7 +732,7 @@ var info_discogs = function() {
 		    }
 
             function getSearchArtist() {
-                var a = (parent.playlistinfo.albumartist && parent.playlistinfo.albumartist != "") ? parent.playlistinfo.albumartist : self.artist.name();
+                var a = (parent.playlistinfo.albumartist && parent.playlistinfo.albumartist != "") ? parent.playlistinfo.albumartist : parent.playlistinfo.creator;
                 if (a == "Various Artists") {
                 	a = "Various";
                 }
