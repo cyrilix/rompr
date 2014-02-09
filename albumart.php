@@ -1,7 +1,8 @@
 <?php
-include ("vars.php");
-include ("functions.php");
+include ("includes/vars.php");
+include ("includes/functions.php");
 include ("international.php");
+include ("backends/sql/backend.php");
 set_time_limit(240);
 $mobile = "no";
 ?>
@@ -15,19 +16,21 @@ $mobile = "no";
 <meta http-equiv="expires" content="0" />
 <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
 <meta http-equiv="pragma" content="no-cache" />
-<link rel="stylesheet" type="text/css" href="layout.css" />
+<link rel="stylesheet" type="text/css" href="css/layout.css" />
 <?php
-print '<link id="theme" rel="stylesheet" type="text/css" href="'.$prefs['theme'].'" />'."\n";
+print '<link id="theme" rel="stylesheet" type="text/css" href="themes/'.$prefs['theme'].'" />'."\n";
+print '<link rel="stylesheet" id="fontsize" type="text/css" href="sizes/'.$prefs['fontsize'].'" />'."\n";
+print '<link rel="stylesheet" id="fontfamily" type="text/css" href="fonts/'.$prefs['fontfamily'].'" />'."\n";
 ?>
 <link type="text/css" href="custom-scrollbar-plugin/css/jquery.mCustomScrollbar.css" rel="stylesheet" />
-<script type="text/javascript" src="jquery-1.8.3-min.js"></script>
+<script type="text/javascript" src="jquery/jquery-1.8.3-min.js"></script>
 <script type="text/javascript" src="custom-scrollbar-plugin/js/jquery.mCustomScrollbar.concat.min.js"></script>
-<script type="text/javascript" src="functions.js"></script>
-<script type="text/javascript" src="uifunctions.js"></script>
-<script type="text/javascript" src="debug.js"></script>
-<script type="text/javascript" src="coverscraper.js"></script>
+<script type="text/javascript" src="ui/functions.js"></script>
+<script type="text/javascript" src="ui/uifunctions.js"></script>
+<script type="text/javascript" src="ui/debug.js"></script>
+<script type="text/javascript" src="ui/coverscraper.js"></script>
 <?php
-include ("globals.php");
+include ("includes/globals.php");
 ?>
 <script language="JavaScript">
 <?php
@@ -248,6 +251,8 @@ function filterImages() {
 $(document).ready(function () {
 
     debug.log("ALBUMART","Document is ready");
+    $("#fontsize").attr({href: "sizes/"+prefs.fontsize});
+    $("#fontfamily").attr({href: "fonts/"+prefs.fontfamily});
 
     $("#totaltext").html(numcovers+" "+language.gettext("label_albums"));
     progress = new progressBar('progress', 'horizontal');
@@ -261,12 +266,8 @@ $(document).ready(function () {
     $("#finklestein").click( boogerbenson );
     wobblebottom = $('#wobblebottom');
     wobbleMyBottom();
-    document.body.addEventListener('drop', function(e) {
-        e.preventDefault();
-    }, false);
-    wobblebottom.click(onWobblebottomClicked);
     $('#artistcoverslist').mCustomScrollbar({
-        theme: (prefs.theme == "Light.css" || prefs.theme == "BrushedAluminium.css") ? "dark-thick" : "light-thick",
+        theme: (prefs.theme == "Light.css" || prefs.theme == "BrushedAluminium.css" || prefs.theme == "Aqua.css") ? "dark-thick" : "light-thick",
         scrollInertia: 80,
         advanced: {
             updateOnContentResize: true,
@@ -274,13 +275,17 @@ $(document).ready(function () {
         },
     });
     $('#coverslist').mCustomScrollbar({
-        theme: (prefs.theme == "Light.css" || prefs.theme == "BrushedAluminium.css") ? "dark-thick" : "light-thick",
+        theme: (prefs.theme == "Light.css" || prefs.theme == "BrushedAluminium.css" || prefs.theme == "Aqua.css") ? "dark-thick" : "light-thick",
         scrollInertia: 80,
         advanced: {
             updateOnContentResize: true,
             autoScrollOnFocus: false
         },
     });
+    document.body.addEventListener('drop', function(e) {
+        e.preventDefault();
+    }, false);
+    wobblebottom.click(onWobblebottomClicked);
 });
 
 $(window).load(function () {
@@ -650,9 +655,8 @@ var imageEditor = function() {
         onGoogleSearchClicked: function(event) {
             var clickedElement = findClickableElement(event);
             if (clickedElement.hasClass("clickgimage")) {
-                debug.group("ALBUMART","Search Result clicked :",clickedElement.attr('romprsrc'), clickedElement.attr('romprindex'));
+                debug.group("ALBUMART","Search Result clicked :",clickedElement.next().val(), clickedElement.next().next().val());
                 event.stopImmediatePropagation();
-                // updateImage(clickedElement.attr('romprsrc'), clickedElement.attr('romprindex'));
                 updateImage(clickedElement.next().val(), clickedElement.next().next().val());
             } else if (clickedElement.hasClass("bmenu")) {
                 var menu = clickedElement.attr("id");
@@ -834,18 +838,14 @@ print '<tr><td class="outer" id="infotext"></td><td align="center"><div class="i
 <div id="artistcoverslist" class="tleft noborder" style="width:20%">
     <div class="noselection fullwidth">
 <?php
-$acount = 0;
-if (file_exists($ALBUMSLIST)) {
-    $collection = simplexml_load_file($ALBUMSLIST);
+if ($mysqlc || file_exists($ALBUMSLIST)) {
     print '<div class="containerbox menuitem clickable clickselectartist selected" id="allartists"><div class="expand" style="padding-top:2px;padding-bottom:2px">'.get_int_text("albumart_allartists").'</div></div>';
     print '<div class="containerbox menuitem clickable clickselectartist" id="radio"><div class="expand" style="padding-top:2px;padding-bottom:2px">'.get_int_text("label_yourradio").'</div></div>';
     print '<div class="containerbox menuitem clickable clickselectartist" id="unused"><div class="expand" style="padding-top:2px;padding-bottom:2px">'.get_int_text("albumart_unused").'</div></div>';
-    foreach($collection->artists->artist as $artist) {
-        print '<div class="containerbox menuitem clickable clickselectartist';
-        print '" id="artistname'.$acount.'">';
-        print '<div class="expand" style="padding-top:2px;padding-bottom:2px">'.$artist->name.'</div>';
-        print '</div>';
-        $acount++;
+    if ($mysqlc) {
+        do_artists_db_style();
+    } else {
+        do_artists_xml_style();
     }
 }
 ?>
@@ -862,7 +862,62 @@ debug_print("There are ".count($allfiles)." Images", "ALBUMART");
 
 $count = 0;
 $albums_without_cover = 0;
-if (file_exists($ALBUMSLIST)) {
+if ($mysqlc) {
+    do_covers_db_style();
+} else if (file_exists($ALBUMSLIST)) {
+    do_covers_xml_style();
+} else {
+    print '<h3>'.get_int_text("albumart_nocollection").'<h3>';
+}
+
+do_radio_stations();
+
+debug_print("There are ".count($allfiles)." unused images", "ALBUMART");
+if (count($allfiles) > 0) {
+    if (array_key_exists("cleanup", $_REQUEST)) {
+        remove_unused_images();
+    } else {
+        do_unused_images();
+    }
+}
+
+print '</div>';
+
+print "</div>\n";
+print "</div>\n";
+print '<script language="JavaScript">'."\n";
+print 'var numcovers = '.$count.";\n";
+print 'var albums_without_cover = '.$albums_without_cover.";\n";
+print "</script>\n";
+print "</body>\n";
+print "</html>\n";
+
+function do_artists_xml_style() {
+    $acount = 0;
+    $collection = simplexml_load_file($ALBUMSLIST);
+    foreach($collection->artists->artist as $artist) {
+        print '<div class="containerbox menuitem clickable clickselectartist';
+        print '" id="artistname'.$acount.'">';
+        print '<div class="expand" style="padding-top:2px;padding-bottom:2px">'.$artist->name.'</div>';
+        print '</div>';
+        $acount++;
+    }
+}
+
+function do_artists_db_style() {
+    $alist = get_list_of_artists();
+    foreach ($alist as $artist) {
+        print '<div class="containerbox menuitem clickable clickselectartist';
+        print '" id="artistname'.$artist['Artistindex'].'">';
+        print '<div class="expand" style="padding-top:2px;padding-bottom:2px">'.$artist['Artistname'].'</div>';
+        print '</div>';
+    }
+}
+
+function do_covers_xml_style() {
+    global $count;
+    global $albums_without_cover;
+    global $allfiles;
     $collection = simplexml_load_file($ALBUMSLIST);
     $acount = 0;
     foreach($collection->artists->artist as $artist) {
@@ -910,32 +965,63 @@ if (file_exists($ALBUMSLIST)) {
         print "</div></div></div>\n";
         $acount++;
     }
-
-} else {
-    print '<h3>'.get_int_text("albumart_nocollection").'<h3>';
 }
 
-do_radio_stations();
+function do_covers_db_style() {
+    global $count;
+    global $albums_without_cover;
+    global $allfiles;
+    $alist = get_list_of_artists();
+    foreach ($alist as $artist) {
+        print '<div class="cheesegrater" name="artistname'.$artist['Artistindex'].'">';
+        print '<div class="albumsection crackbaby">';
+        print '<div class="tleft"><h2 style="margin:8px">'.$artist['Artistname'].'</h2></div><div class="tright rightpad"><button class="topformbutton" style="margin-top:8px" onclick="getNewAlbumArt(\'#album'.$count.'\')">'.get_int_text("albumart_getthese").'</button></div>';
+        print "</div>\n";
+        print '<div id="album'.$count.'" class="fullwidth bigholder">';
+        print '<div class="containerbox covercontainer" id="covers'.$count.'">';
+        $colcount = 0;
+        $blist = get_list_of_albums($artist['Artistindex']);
+        foreach ($blist as $album) {
+            print '<div class="expand containerbox vertical albumimg closet">';
+            print '<div class="albumimg fixed">';
 
-debug_print("There are ".count($allfiles)." unused images", "ALBUMART");
-if (count($allfiles) > 0) {
-    if (array_key_exists("cleanup", $_REQUEST)) {
-        remove_unused_images();
-    } else {
-        do_unused_images();
+            $class = "clickable clickicon clickalbumcover droppable";
+            $src = "";
+            if ($album['Image'] == null || $album['Image'] == "") {
+                $class = $class . " notexist";
+                $albums_without_cover++;
+                $src = "newimages/album-unknown.png";
+            } else {
+                $src = $album['Image'];
+                if (dirname($src) == "albumart/small") {
+                    $src = "albumart/original/".basename($src);
+                    if(($key = array_search($src, $allfiles)) !== false) {
+                        unset($allfiles[$key]);
+                    }
+                } else if (dirname($src) == "prefs/imagecache") {
+                    $src = preg_replace('/_small/', '_original', $src);
+                }
+            }
+            print '<input type="hidden" value="'.$album['Directory'].'" />';
+            print '<input type="hidden" value="'.rawurlencode($artist['Artistname']." ".munge_album_name($album['Albumname'])).'" />';
+            print '<img class="'.$class.'" name="'.$album['ImgKey'].'" height="82px" width="82px" src="'.$src.'" />';
+
+            print '</div>';
+            print '<div class="albumimg fixed"><table><tr><td align="center">'.$album['Albumname'].'</td></tr></table></div>';
+            print '</div>';
+
+            $colcount++;
+            if ($colcount == 8) {
+                print "</div>\n".'<div class="containerbox covercontainer">';
+                $colcount = 0;
+            }
+            $count++;
+        }
+
+        print "</div></div></div>\n";
+
     }
 }
-
-print '</div>';
-
-print "</div>\n";
-print "</div>\n";
-print '<script language="JavaScript">'."\n";
-print 'var numcovers = '.$count.";\n";
-print 'var albums_without_cover = '.$albums_without_cover.";\n";
-print "</script>\n";
-print "</body>\n";
-print "</html>\n";
 
 function do_radio_stations() {
 
@@ -958,7 +1044,7 @@ function do_radio_stations() {
             $x = simplexml_load_file($file);
             foreach($x->trackList->track as $i => $track) {
                 if ($track->album) {
-                    $artname = md5($track->album);
+                    $artname = md5(" ".$track->album);
                     $class = "";
                     $src = "newimages/broadcast.png";
                     if ($track->image != "newimages/broadcast.png") {

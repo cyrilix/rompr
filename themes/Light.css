@@ -1,0 +1,285 @@
+body
+{
+    color:#000000;
+    background-color:#f8f8f8;
+}
+
+body,p,h1,h2,h3,h4,table,td,th,ul,ol,textarea,input
+{
+    color:#000000;
+}
+
+h1,h2,h3,h4,h5,h6
+{
+    color:#000000;
+}
+
+a:link
+{
+    color:#2255cc;
+}
+
+a:visited
+{
+    color:#2255cc;
+}
+
+a:hover,a:active
+{
+    color:#ff4800;
+}
+
+#headerbar
+{
+    background-color:#f8f8f8;
+}
+
+#notifications
+{
+    background-color:#e7e7e7;
+}
+
+/*-- divs used to create infobar layout --*/
+
+.bordered
+{
+    border-left:1px solid #dddddd;
+    border-bottom:1px solid #ffffff;
+    border-right:1px solid #ffffff;
+    border-top:1px solid #dddddd;
+}
+
+/*-- divs and classes used in the albums list --*/
+
+.album1
+{
+    background-color:#f8f8f8;
+}
+
+.album2
+{
+    background-color:#eeeeee;
+}
+
+a.album:visited
+{
+    color:#000000;
+}
+
+a.album:hover,a.album:active
+{
+    color:#ff4800;
+}
+
+#filemenu
+{
+    border-left:1px solid #444444;
+}
+
+div.clickable:hover
+{
+    color:#ff4800;
+}
+
+div.clickable.selected:hover
+{
+    color:#dddddd;
+}
+
+/*-- divs and classes used in the playlist --*/
+
+.playlistcurrentitem
+{
+    color:#cc0000;
+}
+
+.playlistcurrenttitle
+{
+    color:#cc0000;
+}
+
+.item
+{
+    border-top:1px solid #222222;
+}
+
+.inbrowser
+{
+    color:#000000;
+}
+
+/*-- For Wikipedia and Last.FM pages --*/
+
+.stleft
+{
+    border-right:1px solid #333333;
+}
+
+#wikipopup
+{
+    background-color:#000000;
+}
+
+#imagecontainer
+{
+    background-color:#ffffff;
+}
+
+.infosection
+{
+    background-color:#ededed;
+    /*border-bottom:1px solid #000000;*/
+}
+
+.albumsection
+{
+    background-color:#d5d5d5;
+}
+
+.translucent
+{
+    opacity:0.7;
+}
+
+.infowiki
+{
+    background-color:#f8f8f8;
+}
+
+.infoslideshow
+{
+    background-color:#000000;
+}
+
+/*-- For Album Cover Art --*/
+
+.crackbaby
+{
+    background-color:#f8f8f8;
+}
+
+#albumcovers
+{
+    background-color:#f8f8f8;
+}
+
+.popupwindow
+{
+    background-color:#dedede;
+    border-left:2px solid #888888;
+    border-bottom:2px solid #888888;
+    border-right:2px solid #888888;
+    border-top:2px solid #888888;
+}
+
+.underlined
+{
+    border-bottom:1px solid #000000;
+}
+
+/*-- Styles for drop-down menus --*/
+
+ul.topnav li a
+{
+    color:#12569a;
+}
+
+ul.subnav li a
+{
+    color:#000000;
+}
+
+ul.topnav li a:hover
+{
+    color:#ff4800;
+}
+
+ul.subnav
+{
+    border-left:1px solid #555555;
+    border-bottom:1px solid #555555;
+    border-right:1px solid #555555;
+    border-top:none;
+}
+
+ul.topnav li ul.subnav
+{
+    background-color:#f8f8f8;
+    color:#000000;
+}
+
+ul.topnav li ul.subnav input.topform
+{
+    background:#f8f8f8;
+    color:#000000;
+    border:1px solid #999999;
+}
+
+ul.topnav li ul.subnav input.topcheck
+{
+    background-color:#f8f8f8;
+    color:#000000;
+}
+
+.separator
+{
+     border-bottom:12px solid #888888;
+}
+
+input.sourceform
+{
+    border:1px solid #999999;
+    color:#000000;
+}
+
+input.topformbutton
+{
+    color:#000000;
+}
+
+/*-- Styles to make the Wikipedia nav boxes look prettier --*/
+
+.navbox-abovebelow
+{
+    padding-bottom:4px;
+}
+
+.navbox-title a:link,
+.navbox-abovebelow a:link,
+.navbox-group a:link
+{
+    text-decoration:none;
+}
+
+.navbox-title a:visited,
+.navbox-abovebelow a:visited,
+.navbox-group a:visited
+{
+    text-decoration:none;
+}
+
+.navbox-title a:hover,a:active,
+.navbox-abovebelow a:hover,a:active,
+.navbox-group a:hover,a:active
+{
+    text-decoration:none;
+}
+
+.tracklist tbody tr th
+{
+    font-weight:bold;
+}
+
+.funkymusic
+{
+    background-color:#f8f8f8;
+}
+
+table.histable tr:hover {
+    background-color:#CC5500;
+}
+
+.backhi:hover {
+    background-color:#CC5500;
+    cursor:pointer;
+}

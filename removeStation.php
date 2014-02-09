@@ -1,5 +1,5 @@
 <?php
-include ("vars.php");
+include ("includes/vars.php");
 
 $file = "prefs/LFMRADIO_".$_POST['remove'].".xspf";
 debug_print("Asked to remove ".$file);

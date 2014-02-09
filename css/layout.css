@@ -1,0 +1,2178 @@
+html{ height:100%; }
+
+body
+{
+    font-size:8pt;
+    margin:0px;
+    /*height:100%;*/
+    overflow:hidden;
+}
+
+body,p,h1,h2,h3,h4,table,td,th,ul,ol,textarea,input
+{
+    font-family:verdana,helvetica,arial,sans-serif;
+}
+
+h1
+{
+    font-size:250%;
+    margin-top:20%;
+    margin-left:20%;
+    margin-right:20%;
+    font-weight:normal;
+}
+
+h2
+{
+    font-size:170%;
+    font-weight:bold;
+    margin-top:0px;
+    margin-bottom:0px;
+}
+
+h3
+{
+    padding-bottom:0px;
+    margin-bottom:8px;
+}
+
+h1,h2,h3,h4,h5,h6
+{
+    background-color:transparent;
+    white-space:normal;
+}
+
+a
+{
+    text-decoration:none;
+}
+
+input
+{
+    margin-top:2px;
+    padding:1px;
+}
+
+select
+{
+    margin:2px;
+}
+
+/*-- Divs used to create page layout in index.php --*/
+
+#infobar
+{
+    width:100%;
+    height:100px;
+    padding-top:4px;
+    padding-bottom:4px;
+    margin:0px;
+    overflow-y:hidden;
+    overflow-x:hidden;
+}
+
+#headerbar
+{
+    padding:0px;
+    margin:0px;
+    width:100%;
+    height:40px;
+}
+
+#bottompage
+{
+    position:absolute;
+    top:148px;
+    width:100%;
+    height:80%;
+}
+
+#sources
+{
+    height:100%;
+    overflow:auto;
+}
+
+.topimg
+{
+    padding-right:4px;
+    padding-left:4px;
+    height: 22px;
+    padding-bottom:2px;
+    cursor: pointer;
+}
+
+#infopane
+{
+    height:100%;
+    overflow:auto;
+    position:relative;
+}
+
+#playlist
+{
+    height:100%;
+    /*overflow:auto;*/
+}
+
+#pscroller
+{
+    overflow:auto;
+}
+
+#sortable
+{
+    margin:0px;
+    padding:0px;
+}
+
+/*-- divs used to create infobar layout --*/
+
+.infobarlayout
+{
+    margin-left:8px;
+    margin-right:8px;
+    margin-top:0px;
+    margin-bottom:0px;
+    padding-top:0px;
+    padding-bottom:2px;
+    padding-left:0px;
+    padding-right:0px;
+    height:90px;
+}
+
+#buttons
+{
+    padding-left:24px;
+    padding-right:8px;
+    padding-top:4px;
+    padding-bottom:4px;
+}
+
+.controlbutton
+{
+    margin:0px;
+    padding:0px;
+}
+
+.shiftleft
+{
+    position:relative;
+    left:-8px;
+}
+
+.shiftleft2
+{
+    position:relative;
+    left:-16px;
+}
+
+.shiftleft3
+{
+    position:relative;
+    left:-18px;
+}
+
+.shiftleft4
+{
+    position:relative;
+    left:-20px;
+}
+
+#progress
+{
+    cursor:pointer;
+    font-size:6pt;
+}
+
+#playbackTime
+{
+    text-align:center;
+    margin-right:auto;
+    margin-left:auto;
+    font-weight:bold;
+    padding-bottom:4px;
+    font-size:8pt;
+}
+
+#albumcover
+{
+    float:left;
+    padding-left:4px;
+    padding-right:16px;
+    padding-top:4px;
+    padding-bottom:4px;
+    margin:0px;
+}
+
+#albumpicture
+{
+    height:82px;
+    width:82px;
+}
+
+#nowplaying
+{
+    font-size:8pt;
+    padding-top:0px;
+    padding-bottom:0px;
+    padding-left:8px;
+    white-space:nowrap;
+    height:60px;
+}
+
+#nptext
+{
+    width:auto;
+    display:inline;
+}
+
+.larger
+{
+    font-size:140%;
+}
+
+.npinfo
+{
+    line-height:1.5em;
+}
+
+#volumecontrol
+{
+    width:12px;
+    height:100%;
+    margin-left:0px;
+    margin-right:0px;
+    font-size:8px;
+}
+
+#notifications
+{
+    position:absolute;
+    width:300px;
+    padding:8px;
+    opacity:0.7;
+    top:0px;
+    display:none;
+    z-index:2000;
+}
+
+/*-- Classes used to control flow and layout --*/
+
+.pref
+{
+
+    margin-left:8px;
+    margin-bottom:8px;
+}
+
+.prefsection
+{
+    padding-bottom:8px;
+    border-bottom: 1px solid #dddddd;
+}
+
+.tright
+{
+    float:right;
+}
+
+.tleft
+{
+    float:left;
+}
+
+.column
+{
+    width:22%;
+}
+
+.cmiddle
+{
+    width:56%;
+}
+
+.noborder
+{
+    margin:0px;
+    padding:0px;
+}
+
+.textcentre
+{
+    text-align:center;
+}
+
+.newtag
+{
+    display:none;
+}
+
+/*-- divs and classes used in the albums list --*/
+
+.topbox
+{
+    padding-top:4px;
+}
+
+.leftbox
+{
+    padding-left:8px;
+}
+
+.containerbox
+{
+    display:-webkit-box;
+    display:-moz-box;
+    display:-o-box;
+    display:box;
+    display:flexbox;
+    display:flex-box;
+}
+
+.vertical
+{
+    -moz-box-orient:vertical;
+    -webkit-box-orient:vertical;
+    box-orient:vertical;
+}
+
+.center {
+    box-pack:center;
+    -moz-box-pack:center;
+    -webkit-box-pack:center;
+}
+
+.menuitem
+{
+    font-weight:bold;
+    margin:0px;
+    padding-left:8px;
+    padding-right:0px;
+    padding-top:2px;
+    padding-bottom:2px;
+    box-align:center;
+    -moz-box-align:center;
+    -webkit-box-align:center;
+}
+
+.mh {
+    width:18px;
+    margin-right:6px;
+    display:block;
+}
+
+.menu
+{
+    width:18px;
+    vertical-align:middle;
+    cursor:pointer;
+}
+
+.expand
+{
+    -moz-box-flex:1.0; /* Firefox */
+    -webkit-box-flex:1.0; /* Safari and Chrome */
+    box-flex:1.0;
+    width:2000px; /* Firefox will ONLY shrink elements in a box layout, not expand them */
+}
+
+.fixed
+{
+    -moz-box-flex:0; /* Firefox */
+    -webkit-box-flex:0; /* Safari and Chrome */
+    box-flex:0;
+}
+
+.dropmenu
+{
+    display:none;
+    margin:0px;
+    padding-left:8px;
+    padding-right:0px;
+    padding-top:0px;
+    padding-bottom:2px;
+}
+
+.fullwidth
+{
+    width:100%;
+    padding:0px;
+    margin:0px;
+}
+
+.smallcover
+{
+    width:32px;
+    height:32px;
+    vertical-align:middle;
+    margin-right:8px;
+}
+
+.smallcoverpadder
+{
+    width:32px;
+    vertical-align:middle;
+    margin-right:8px;
+}
+
+.tracknumber
+{
+    height:1.3em;
+    width:2em;
+    font-weight:bold;
+}
+
+.ninesix
+{
+    font-size:96%;
+    padding-top:2px;
+}
+
+.noselection
+{
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+    cursor:default;
+}
+
+.tracknumbr
+{
+    width:2em;
+}
+
+.discnumber
+{
+    font-weight:bold;
+    font-size:110%;
+    padding-top:2px;
+    padding-bottom:2px;
+    display:block;
+}
+
+.padright
+{
+    padding-right:4px;
+}
+
+#patrickmoore
+{
+    height:90px;
+    overflow:hidden;
+}
+
+.whatdoicallthis
+{
+    padding-left:0px;
+    padding-top:2px;
+    padding-bottom:4px;
+    font-size:96%;
+    font-weight:normal;
+}
+
+.bum
+{
+    font-style:italic;
+}
+
+.wibble
+{
+    padding-bottom:6px;
+}
+
+.dirname
+{
+    padding-bottom:0px;
+    padding-left:12px;
+    font-weight:bold;
+}
+
+.indent
+{
+    margin-left:24px;
+}
+
+.selected
+{
+    background-color:#CC5500;
+}
+
+.bold
+{
+    font-weight:bold;
+}
+
+.clickable
+{
+    cursor:default;
+}
+
+.line
+{
+    padding-bottom:2px;
+    box-align:center;
+    -moz-box-align:center;
+    -webkit-box-align:center;
+}
+
+/*-- divs and classes used in the playlist --*/
+
+#horse
+{
+    padding-top:0px;
+    padding-bottom:0px;
+    font-weight:bold;
+    font-size:90%;
+    cursor:default;
+}
+
+#playlistbuttons
+{
+    padding-bottom:2px;
+}
+
+.playlistitem
+{
+    padding-left:8px;
+    padding-right:0px;
+    padding-top:0px;
+    padding-bottom:2px;
+    font-weight:bold;
+    font-size:90%;
+    cursor:pointer;
+}
+
+.trackgroup
+{
+    margin-right:2px;
+}
+
+.playlisttitle
+{
+    padding-left:4px;
+    margin-right:2px;
+    margin-left:4px;
+    padding-top:8px;
+    padding-bottom:8px;
+    font-size:110%;
+    cursor:pointer;
+}
+
+.playlistcurrenttitle
+{
+    font-size:120%;
+    padding-top:8px;
+    padding-bottom:8px;
+    padding-left:4px;
+    margin-right:2px;
+    margin-left:4px;
+    cursor:pointer;
+}
+
+.playlistcurrentitem
+{
+    padding-left:8px;
+    padding-right:0px;
+    padding-top:0px;
+    font-size:100%;
+    cursor:pointer;
+}
+
+.playlistrow2
+{
+    font-size:90%;
+    font-style:italic;
+    font-weight:normal;
+}
+
+.playlisticon
+{
+    padding-right:0px;
+    padding-left:0px;
+    padding-top:0px;
+    padding-bottom:0px;
+    width:20px;
+    vertical-align:middle;
+}
+
+.playlisticonr
+{
+    padding-right:0px;
+    padding-left:0px;
+    padding-top:0px;
+    padding-bottom:0px;
+    width:16px;
+    vertical-align:middle;
+}
+
+.togglebutton
+{
+    padding:0px;
+    height:16px;
+    width:33px;
+}
+
+.togglediv
+{
+    display:table-cell;
+    vertical-align:middle;
+}
+
+.togglecontainer
+{
+    display:table;
+    width:100%;
+}
+
+.tgtl
+{
+    padding-right:4px;
+}
+
+.tgtr
+{
+    padding-left:4px;
+}
+
+.togglebutton-0
+{
+    background-image:url('../newimages/button-off.png');
+}
+
+.togglebutton-1
+{
+    background-image:url('../newimages/button-on.png');
+}
+
+.clickicon
+{
+    cursor:pointer;
+}
+
+.amid
+{
+    vertical-align:middle;
+}
+
+.noclick
+{
+    cursor:default;
+}
+
+/*-- For Wikipedia and Last.FM pages --*/
+
+.infotext
+{
+    margin:8px;
+}
+
+#similarartists
+{
+    width:100%;
+}
+
+#smlrtst
+{
+    margin-left:auto;
+    margin-right:auto;
+    float:none;
+    display:block;
+    width:auto;
+}
+
+.simar
+{
+    padding-left:4px;
+    padding-right:4px;
+    padding-top:4px;
+    padding-bottom:4px;
+    display:inline-block;
+}
+
+.standout
+{
+    margin-bottom:12px;
+    margin-top:12px;
+}
+
+.foldup
+{
+    width:100%;
+}
+
+.stleft
+{
+    float:left;
+    width:auto;
+    max-width:50%;
+}
+
+.frog
+{
+    opacity:0.4;
+    font-weight:bold;
+}
+
+.stright
+{
+    float:right;
+    margin-left:12px;
+    margin-right:6px;
+    padding-right:0px;
+    /*padding-top:8px;*/
+}
+
+.standout ul
+{
+    list-style:none;
+    margin:2px;
+    padding:0px;
+}
+
+.standout ul li
+{
+    line-height:1.5em;
+}
+
+.holdingcell
+{
+    display:inline-block;
+    width:100%
+}
+
+.wotsit
+{
+    display:inline-block;
+}
+
+.statsbox
+{
+    margin-left:0px;
+    margin-right:12px;
+    padding:4px;
+}
+
+.tiny
+{
+    font-size:80%;
+    margin-right:4px;
+    margin-left:2px;
+}
+
+.mw-headline
+{
+    padding-top:8px;
+    padding-bottom:8px;
+    padding-left:12px;
+    padding-right:12px;
+    margin-bottom:8px;
+}
+
+#wikipopup
+{
+    position:absolute;
+    display:none;
+    z-index:1001;
+    opacity:0.75;
+    border-radius: 10px 10px 10px 10px;
+}
+
+.dropshadow
+{
+    -webkit-box-shadow: 7px 7px 5px rgba(50, 50, 50, 0.6);
+    -moz-box-shadow:    7px 7px 5px rgba(50, 55, 50, 0.6);
+    box-shadow:         7px 7px 5px rgba(50, 50, 50, 0.6);
+}
+
+#dragger
+{
+    position:absolute;
+    width:300px;
+    z-index:200;
+}
+
+.dragsort
+{
+    padding:4px;
+}
+
+.draggable {
+    cursor:default;
+}
+
+#imagecontainer
+{
+    position:absolute;
+    opacity:1;
+    z-index:1002;
+    display:none;
+}
+
+.infobox
+{
+    float:right;
+    margin-right:0px;
+    margin-bottom:12px;
+    margin-left:12px;
+    margin-top:12px;
+    border: 1px solid #454545;
+    font-size: 92%;
+    line-height: 1.5em;
+    clear: right;
+}
+
+.infobox_v3
+{
+    float:right;
+    margin-right:0px;
+    margin-bottom:12px;
+    margin-left:12px;
+    margin-top:12px;
+    border: 1px solid #454545;
+    font-size: 92%;
+    line-height: 1.5em;
+    clear: right;
+    max-width: 325px;
+    word-wrap: break-word;
+}
+
+.thumb
+{
+    margin-right:12px;
+    margin-bottom:12px;
+    margin-left:12px;
+    margin-top:12px;
+    text-align:center;
+}
+
+.infosection
+{
+/*    padding-top:4px;
+    padding-bottom:4px;
+*/
+    padding-left:12px;
+    padding-right:12px;
+    margin-bottom:4px;
+}
+
+.dablink
+{
+    font-style: italic;
+    padding-left: 1.6em;
+    margin-bottom: 0.5em;
+}
+
+.infoslideshow
+{
+    position:relative;
+}
+
+.albumsection
+{
+    padding-top:4px;
+    padding-bottom:4px;
+    display:table;
+    width:100%;
+    /*margin-top:8px;*/
+}
+
+.lrspace
+{
+    margin-left:12px;
+    margin-right:12px;
+    margin-top:8px;
+}
+
+.covercontainer
+{
+    margin-left:8px;
+    margin-right:8px;
+    margin-top:8px;
+}
+
+td.fil
+{
+    font-weight:bold;
+}
+
+table.motherfucker tr td
+{
+    vertical-align:middle;
+    padding:4px;
+}
+
+/*-- For Album Cover Art and sundry popups --*/
+
+#wobblebottom
+{
+    height:80%;
+}
+
+#artistcoverslist
+{
+    overflow-y:auto;
+    height:100%;
+}
+
+#coverslist
+{
+    overflow-y:auto;
+    height:100%;
+}
+
+.popupwindow
+{
+    position:absolute;
+    display:none;
+    z-index:1001;
+    overflow:hidden;
+}
+
+#popupcontents
+{
+    height:100%;
+    padding:0px;
+    margin:0px;
+    overflow:auto;
+}
+
+.invisible
+{
+    display:none;
+}
+
+.controlholder
+{
+    width:100%;
+}
+
+.controlholder tr
+{
+    height:62px;
+}
+
+.gimage
+{
+    float:left;
+    padding:8px;
+}
+
+.holdingcell li input
+{
+    width:90%;
+}
+
+.holdingcell li button
+{
+    margin-right:6px;
+}
+
+.underlined
+{
+    margin-bottom:8px;
+}
+
+#branding
+{
+    display:inline-block;
+    padding-left:8px;
+    padding-right:8px;
+}
+
+.albumimg
+{
+    margin-left:8px;
+    margin-right:8px;
+    margin-top:8px;
+    box-align:center;
+    -moz-box-align:center;
+    -webkit-box-align:center;
+}
+
+#status
+{
+    font-weight:bold;
+    white-space:nowrap;
+    overflow:hidden;
+}
+
+.outer
+{
+    width:20%;
+}
+
+.giraffe
+{
+    width:100%;
+}
+
+/*-- Styles for drop-down menus --*/
+
+ul.topnav
+{
+    list-style:none;
+    margin:0;
+    padding:0;
+    padding-left:6px;
+    float:left;
+}
+
+ul.topnav li
+{
+    float:left;
+    position:relative;
+    width:36px;
+    z-index:1000;
+}
+
+ul.topnav li a
+{
+    display:block;
+    text-decoration:none;
+    font-size:120%;
+    float:left;
+    font-weight:bold;
+    /*-- padding-top:4px; --*/
+}
+
+ul.subnav
+{
+    border-radius: 0px 0px 0px 0px;
+    max-height:500px;
+    overflow-y:auto;
+    overflow-x:hidden;
+}
+
+ul.subnav li
+{
+    width:140px;
+}
+
+ul.topnav li ul.subnav
+{
+    list-style:none;
+    position:absolute;
+    top:30px;
+    left:-124px;
+    margin:0;
+    padding:6px;
+    display:none;
+    float:left;
+    font-size:110%;
+    font-weight:normal;
+    width:auto;
+}
+
+ul.subnav li a
+{
+    font-weight:normal;
+    font-size:100%;
+}
+
+ul.topnav li ul.subnav li
+{
+    margin:0;
+    padding:4px;
+    clear:both;
+}
+
+ul.subnav li.wide
+{
+    width:260px;
+}
+
+#countryselector
+{
+    width:220px;
+}
+
+ul.topnav li ul.wide
+{
+    left:-270px;
+}
+
+ul.topnav li ul.widel
+{
+    left:-20px;
+}
+
+ul.subnav li.wider
+{
+    width:380px;
+}
+
+ul.topnav li ul.widel li
+{
+    text-align:left;
+}
+
+ul.topnav li ul.subnav input.topform
+{
+    font-size:90%;
+    width:180px;
+}
+
+ul.topnav li ul.subnav input.topcheck
+{
+    font-size:90%;
+}
+
+ul.topnav li ul.subnav li ul
+{
+    list-style:none;
+}
+
+.separator
+{
+     margin-top:8px;
+     margin-bottom:8px;
+     width:100%;
+}
+
+.middle
+{
+    vertical-align:text-top;
+}
+
+ul.sourcenav
+{
+    list-style:none;
+    margin:0;
+    padding:0;
+    padding-left:6px;
+    float:left;
+}
+
+ul.sourcenav li
+{
+    margin-top:4px;
+}
+
+input.sourceform
+{
+    font-size:100%;
+    /*border-radius: 2px 2px 2px 2px;*/
+    width:100%;
+    margin-bottom:4px;
+    margin-top:4px;
+}
+
+button.sourceform
+{
+    font-size:100%;
+    /*border-radius: 2px 2px 2px 2px;*/
+    /*width:20%;*/
+    margin-bottom:4px;
+    margin-top:4px;
+    margin-left:8px;
+}
+
+.topformbutton
+{
+    /*font-size:100%;*/
+}
+
+ul.buyalbum li
+{
+    font-size:90%;
+}
+
+.waiting
+{
+    padding:4px;
+}
+
+#scrobwrangler
+{
+    cursor: pointer;
+    font-size:6pt;
+}
+
+/*-- Key bindings editor --*/
+
+#searchbox
+{
+    padding-bottom:12px;
+}
+
+.filetable
+{
+    padding:0px;
+    width:100%;
+    border:0;
+    vertical-align:middle;
+    border-spacing:0;
+    border-collapse:collapse;
+}
+
+/*-- Styles to make the Wikipedia nav boxes look prettier
+    Poached from Wikipedia's CSS directly. If they ever
+    change their layout, I'm fucked :-D
+--*/
+
+table.navbox
+{
+    width: 100%;
+    margin: auto;
+    clear: both;
+}
+
+.navbox-title
+{
+    padding-bottom:4px;
+}
+
+.navbox-abovebelow ul li
+{
+    list-style:none;
+    float:left;
+    padding-left:1em;
+}
+
+.navbox-list
+{
+    padding-bottom:4px;
+    border-color:#454545;
+}
+
+.navbox-list div ul
+{
+    display:inline-block;
+    margin: 0.125em;
+}
+
+.navbox-list div ul li
+{
+    list-style:none;
+    float:left;
+    padding-left:2em;
+}
+
+#cheese
+{
+    padding-right:12px;
+    display:inline-block;
+    width:100%;
+}
+
+.rightpad
+{
+    padding-right:16px;
+    margin-right:16px;
+}
+
+.arsecheese
+{
+    border-spacing:0px;
+    border-width:0px;
+}
+
+.winkle
+{
+    color:#000000;
+}
+
+.dingleberry
+{
+    margin-left:auto;
+    margin-right:auto;
+    text-align:center;
+    width:90%;
+    display:block;
+}
+
+#artistbio ul
+{
+    list-style-type:none;
+}
+
+.mw-editsection {
+    display:none;
+}
+
+th.mbox-text
+{
+    padding-top: 0.25em;
+    padding-right: 0.9em;
+}
+
+.infowiki h2
+{
+    margin-top: 10px;
+    margin-bottom:8px;
+    border-bottom:1px solid #454545;
+    padding-bottom:0.5em;
+    overflow:hidden;
+}
+
+.infowiki h3
+{
+    margin-top: 6px;
+    margin-bottom:4px;
+    padding-top:0.5em;
+}
+
+.ucfirst {
+    text-transform:capitalize;
+}
+
+#toc ul, .toc ul {
+    list-style-type: none;
+    list-style-image: none;
+    text-align: left;
+    line-height: 1.5em;
+    margin-left: -20px;
+}
+
+#toc, .toc {
+    display: -moz-inline-block;
+    display: inline-block;
+    zoom: 1;
+    padding: 7px;
+    border: 1px solid #454545;
+    font-size:90%;
+}
+
+#toc #toctitle, .toc #toctitle, #toc .toctitle, .toc .toctitle {
+    text-align: center;
+}
+
+.infobox td, .infobox th {
+    vertical-align: top;
+}
+
+span.item {
+    border:none;
+}
+
+table.wikitable {
+    margin: 1em 0;
+    border: 1px solid #454545;
+    border-collapse: collapse;
+}
+
+table.padded {
+    border-collapse: collapse;
+}
+
+table.padded tr
+{
+    border-bottom:1px solid #454545;
+}
+
+table.padded tr td {
+    line-height:1.6em;
+    padding-left:8px;
+    padding-right:8px;
+}
+
+table.padded tr th {
+    line-height:1.8em;
+    padding-left:8px;
+    padding-right:8px;
+    /*text-align:center;*/
+    font-weight:bold;
+}
+
+table.histable
+{
+    border-collapse: collapse;
+    cursor: pointer;
+}
+
+table.histable tr.top
+{
+    border-top:1px solid #454545;
+}
+
+table.histable tr td {
+    line-height:1.6em;
+    padding-left:8px;
+    padding-right:8px;
+}
+
+table.histable tr:hover {
+    background-color:#454545;
+}
+
+table.histable tr.current
+{
+    font-weight:bold;
+}
+
+table.wikitable tr td
+{
+    border: 1px solid #454545;
+    padding:0.2em;
+}
+
+table.wikitable tr th
+{
+    border: 1px solid #454545;
+    padding:0.2em;
+}
+
+.navbox-group {
+    padding-right:1em;
+    padding-left:1em;
+    border-color:#454545;
+}
+
+th.navbox-group {
+    white-space: nowrap;
+    text-align: right;
+}
+
+.navbox-inner, .navbox-subgroup {
+    width: 100%;
+}
+
+.infowiki div.tright {
+    clear:right;
+    float:right;
+}
+
+table.ambox-content {
+    border-left: 10px solid #f28500;
+}
+
+table.ambox {
+    margin: 1em 10%;
+}
+
+.infobox caption {
+    font-size:120%;
+    font-weight:bold;
+}
+
+/*-- For IceCast Scraper --*/
+
+#content
+{
+    padding-left:8px;
+}
+
+td.tune-in
+{
+    vertical-align:middle;
+    padding:8px;
+}
+
+span.name
+{
+    font-size:130%;
+    font-weight:bold;
+}
+
+span.listeners
+{
+    font-size:90%;
+}
+
+table.servers-list
+{
+    width:100%;
+    list-style-type:none;
+    border-collapse:collapse;
+}
+
+table.servers-list tr
+{
+    border-bottom:1px solid #ffffff;
+    margin-bottom:0.3em;
+}
+
+table.servers-list tr td
+{
+    padding-bottom:0.8em;
+}
+
+table.servers-list div.stream-tags ul
+{
+    display: inline;
+}
+
+table.servers-list div.stream-tags ul li
+{
+    display: inline;
+}
+
+.inline-tags
+{
+    list-style-type: none;
+    padding-left: 4px;
+    margin: 0;
+}
+
+.stream-onair
+{
+    font-size:90%;
+}
+
+.stream-tags
+{
+    font-size:90%;
+}
+
+ul.pager
+{
+    list-style-type:none;
+    padding-bottom:1em;
+}
+
+ul.pager li
+{
+    display: inline;
+}
+
+ul.pager li a.active
+{
+    font-weight:bold;
+}
+
+.stream-description
+{
+    font-style:italic;
+}
+
+a.previewbutton {
+    display:none;
+}
+
+table.mbox-small
+{
+    clear: right;
+    float: right;
+    margin: 4px 0 4px 1em;
+    width: 238px;
+    font-size: 88%;
+    line-height: 1.25em;
+}
+
+div.fn {
+    display:table;
+    width:100%;
+}
+
+.mediaContainer
+{
+    margin-top:6px;
+}
+
+div .thumb
+{
+    clear: right;
+}
+
+/*-- Sundries --*/
+
+.notbold
+{
+    font-weight:normal;
+}
+
+.bar h3.label {
+    padding-left:12px;
+    padding-bottom:4px;
+     -webkit-animation: pulseit 4s ease infinite;
+     -moz-animation: pulseit 4s ease infinite;
+     animation: pulseit 4s ease infinite;
+}
+
+@-webkit-keyframes fadeit{
+     0%{
+          opacity:1;
+     }
+     100%{
+          opacity:0;
+     }
+}
+@-moz-keyframes fadeit{
+     0%{
+          opacity:1;
+     }
+     100%{
+          opacity:0;
+     }
+}
+@keyframes fadeit{
+     0%{
+          opacity:1;
+     }
+     100%{
+          opacity:0;
+     }
+}
+
+@-webkit-keyframes pulseit{
+     0%{
+          opacity:1;
+     }
+     50%{
+          opacity:0;
+     }
+     100%{
+          opacity:1;
+     }
+}
+@-moz-keyframes pulseit{
+     0%{
+          opacity:1;
+     }
+     50%{
+          opacity:0;
+     }
+     100%{
+          opacity:1;
+     }
+}
+@keyframes pulseit{
+     0%{
+          opacity:1;
+     }
+     50%{
+          opacity:0;
+     }
+     100%{
+          opacity:1;
+     }
+}
+
+.spinner {
+     -webkit-animation: spin 4s linear infinite;
+     -moz-animation: spin 4s linear infinite;
+     animation: spin 4s linear infinite;
+}
+
+.nospin {
+      -webkit-transform: rotate(0deg);
+      -moz-transform: rotate(0deg);
+      transform: rotate(0deg);
+}
+
+@-webkit-keyframes spin{
+     0%{
+          -webkit-transform: rotate(0deg);
+     }
+     100%{
+          -webkit-transform: rotate(359deg);
+     }
+}
+@-moz-keyframes spin{
+     0% {
+          -moz-transform: rotate(0deg);
+     }
+     50% {
+          -moz-transform: rotate(180deg);
+     }
+     100% {
+          -moz-transform: rotate(359deg);
+     }
+}
+@keyframes spin{
+     0% {
+          transform: rotate(0deg);
+     }
+     50% {
+          transform: rotate(180deg);
+     }
+     100% {
+          transform: rotate(359deg);
+     }
+}
+
+.flasher {
+     -webkit-animation: flash 1s linear infinite;
+     -moz-animation: flash 1s linear infinite;
+     animation: flash 1s linear infinite;
+}
+
+.noflash {
+    opacity: 1;
+}
+
+@-webkit-keyframes flash{
+     0%{
+          opacity: 1;
+     }
+     50%{
+          opacity: 0;
+     }
+     100%{
+          opacity: 1;
+     }
+}
+@-moz-keyframes flash{
+     0%{
+          opacity: 1;
+     }
+     50%{
+          opacity: 0;
+     }
+     100%{
+          opacity: 1;
+     }
+}
+@keyframes flash{
+     0%{
+          opacity: 1;
+     }
+     50%{
+          opacity: 0;
+     }
+     100%{
+          opacity: 1;
+     }
+}
+
+.highlighted {
+    border: 4px solid #fe6800;
+    border-radius:2px;
+}
+
+.bigbutton {
+    padding:8px;
+    margin-top:8px;
+    margin-bottom:4px;
+    border-radius: 4px;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+.gradbutton {
+    text-align: center;
+    opacity:0.7;
+    cursor:pointer;
+    background-image: linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
+    background-image: -o-linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
+    background-image: -moz-linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
+    background-image: -webkit-linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
+    background-image: -ms-linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
+    color:#111177;
+    border-top:1px solid #F6BD12;
+    border-left:1px solid #DBA40B;
+    border-right:1px solid #DBA40B;
+    border-bottom:1px solid #9D5D04;
+}
+
+button{
+    background-image: linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
+    background-image: -o-linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
+    background-image: -moz-linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
+    background-image: -webkit-linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
+    background-image: -ms-linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
+    color:#111177;
+    border-top:1px solid #F6BD12;
+    border-left:1px solid #DBA40B;
+    border-right:1px solid #DBA40B;
+    border-bottom:1px solid #9D5D04;
+    border-radius:4px;
+    padding-top:1px;
+    padding-bottom:1px;
+    opacity:0.8;
+}
+
+button:hover {
+    opacity: 1;
+    color:#881111;
+}
+
+.gradbutton:hover {
+    opacity: 1;
+    color:#881111;
+}
+
+#imageeditor {
+    width:99%;
+    margin-right:auto;
+    margin-left:auto;
+    min-height:400px;
+    border: 4px solid #fe6500;
+}
+
+/* Ideally this would all be classed up, but CSS is so fucking clunky */
+
+#origimage {
+    display:-webkit-box;
+    display:-moz-box;
+    display:-o-box;
+    display:box;
+    display:flexbox;
+    display:flex-box;
+
+    -moz-box-flex:1; /* Firefox */
+    -webkit-box-flex:1; /* Safari and Chrome */
+    box-flex:1;
+
+    -ms-flex-align:center;
+    -moz-box-align:center;
+    -webkit-box-align:center;
+    box-align:center;
+
+    border-left: 1px solid #fe6500;
+    margin:8px;
+    padding:8px;
+}
+
+#searchcontent
+{
+    -moz-box-flex:100.0; /* Firefox */
+    -webkit-box-flex:100.0; /* Safari and Chrome */
+    box-flex:100.0;
+    width:2000px; /* Firefox will ONLY shrink elements in a box layout, not expand them */
+}
+
+#brian {
+    padding-left:8px;
+    padding-right:8px;
+}
+
+#editcontrols {
+    padding-right:8px;
+    padding-top:2px;
+    padding-bottom:4px;
+}
+
+#fiddler {
+    position:absolute;
+    height:48px;
+    width:100%;
+    /*background-color:#ffffff;*/
+    border-left: 4px solid #fe6500;
+    border-right: 4px solid #fe6500;
+    left:-4px;
+}
+
+.closet {
+    position:relative;
+}
+
+.bleft
+{
+    font-weight:bold;
+    padding-top:2px;
+    padding-bottom:2px;
+    padding-left:8px;
+    padding-right:8px;
+}
+
+.bmid
+{
+    border-left:1px solid #fe6500;
+    /*border-right:1px solid #fe6500;*/
+}
+
+.bsel
+{
+    color:#ff8800;
+    font-size:110%;
+}
+
+.bleft:hover
+{
+    color:#ff0000;
+    cursor:pointer;
+}
+
+
+
+.progressbar
+{
+    width:95%;
+    border:1px solid #414141;
+    height:1em;
+    margin-right:auto;
+    margin-left:auto;
+}
+
+.progressbar_v
+{
+    height:100%;
+    border:1px solid #414141;
+    width:12px;
+    margin-right:auto;
+    margin-left:auto;
+}
+
+.mbtag
+{
+    margin-left:4px;
+    margin-right:4px;
+    white-space:nowrap;
+}
+
+.infoclick
+{
+    cursor:pointer;
+}
+
+.bright ul
+{
+    list-style:none;
+    margin:2px;
+    padding:0px;
+}
+
+.bright ul li
+{
+    line-height:1.5em;
+}
+
+.notbright ul
+{
+    list-style:none;
+    margin:2px;
+    padding:0px;
+}
+
+.notbright ul li
+{
+    line-height:1.5em;
+}
+
+.bright {
+    border-right: 1px solid #454545;
+    padding-right:1em;
+    max-width:240px;
+}
+
+.cleft {
+    border-left: 1px solid #454545;
+    padding-left:1em;
+    margin-left:1em;
+}
+
+.stumpy
+{
+    padding-left: 1em;
+}
+
+.underline
+{
+    border-bottom: 1px solid #454545;
+    margin-top:2em;
+    margin-bottom:0.75em;
+}
+
+.mbbox
+{
+    margin-left:0px;
+    margin-right:6px;
+    padding:4px;
+}
+
+.video
+{
+    margin-left:auto;
+    margin-right:auto;
+    margin-top:3em;
+}
+
+.thumbslideshow
+{
+    width:180px;
+    height:180px;
+}
+
+.thumbcontroller
+{
+    width:180px;
+}
+
+div.lyrics p
+{
+    text-align:center;
+    font-size:110%;
+}
+
+.currentbun
+{
+    border-bottom:1px solid #fe6500;
+}
+
+.clearfix:after
+{
+   content: " ";
+   display: block;
+   height: 0;
+   clear: both;
+}
+
+.newpod
+{
+    border-radius:1em;
+    font-weight:bold;
+    margin-left:1em;
+    padding-left:6px;
+    padding-right:6px;
+    padding-bottom:2px;
+    padding-top:1px;
+    background: -moz-radial-gradient(center, ellipse cover, rgba(255,40,25,0.81) 0%, rgba(232,22,18,0.81) 49%, rgba(212,7,12,0) 91%, rgba(208,4,11,0) 100%); /* FF3.6+ */
+    background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(255,40,25,0.81)), color-stop(49%,rgba(232,22,18,0.81)), color-stop(91%,rgba(212,7,12,0)), color-stop(100%,rgba(208,4,11,0))); /* Chrome,Safari4+ */
+    background: -webkit-radial-gradient(center, ellipse cover, rgba(255,40,25,0.81) 0%,rgba(232,22,18,0.81) 49%,rgba(212,7,12,0) 91%,rgba(208,4,11,0) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-radial-gradient(center, ellipse cover, rgba(255,40,25,0.81) 0%,rgba(232,22,18,0.81) 49%,rgba(212,7,12,0) 91%,rgba(208,4,11,0) 100%); /* Opera 12+ */
+    background: -ms-radial-gradient(center, ellipse cover, rgba(255,40,25,0.81) 0%,rgba(232,22,18,0.81) 49%,rgba(212,7,12,0) 91%,rgba(208,4,11,0) 100%); /* IE10+ */
+    background: radial-gradient(ellipse at center, rgba(255,40,25,0.81) 0%,rgba(232,22,18,0.81) 49%,rgba(212,7,12,0) 91%,rgba(208,4,11,0) 100%); /* W3C */
+}
+
+.unlistenedpod
+{
+    border-radius:1em;
+    font-weight:bold;
+    margin-left:1em;
+    padding-left:6px;
+    padding-right:6px;
+    padding-bottom:2px;
+    padding-top:1px;
+    background: -moz-radial-gradient(center, ellipse cover, rgba(255,103,15,1) 0%, rgba(255,103,15,1) 43%, rgba(255,103,15,0.27) 66%, rgba(255,103,15,0.27) 100%); /* FF3.6+ */
+    background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(255,103,15,1)), color-stop(43%,rgba(255,103,15,1)), color-stop(66%,rgba(255,103,15,0.27)), color-stop(100%,rgba(255,103,15,0.27))); /* Chrome,Safari4+ */
+    background: -webkit-radial-gradient(center, ellipse cover, rgba(255,103,15,1) 0%,rgba(255,103,15,1) 43%,rgba(255,103,15,0.27) 66%,rgba(255,103,15,0.27) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-radial-gradient(center, ellipse cover, rgba(255,103,15,1) 0%,rgba(255,103,15,1) 43%,rgba(255,103,15,0.27) 66%,rgba(255,103,15,0.27) 100%); /* Opera 12+ */
+    background: -ms-radial-gradient(center, ellipse cover, rgba(255,103,15,1) 0%,rgba(255,103,15,1) 43%,rgba(255,103,15,0.27) 66%,rgba(255,103,15,0.27) 100%); /* IE10+ */
+    background: radial-gradient(ellipse at center, rgba(255,103,15,1) 0%,rgba(255,103,15,1) 43%,rgba(255,103,15,0.27) 66%,rgba(255,103,15,0.27) 100%); /* W3C */
+}
+
+.podtitle
+{
+    font-weight:bold;
+    padding:2px;
+    margin:2px;
+}
+
+.newpodicon
+{
+    height:24px;
+    width:24px;
+    margin-top:2px;
+}
+
+.oldpodicon
+{
+    height:20px;
+    width:20px;
+    margin-top:2px;
+}
+
+.alarmnumbers
+{
+    font-size:300%;
+    font-weight:bold;
+    line-height:0.7em;
+    padding-bottom:0.2em;
+}
+
+#lastfm
+{
+    float:left;
+    margin-left:4px;
+    padding-top:1px;
+}
+
+#stars
+{
+    float:left;
+    margin-right:8px;
+    padding-top:1px;
+}
+
+#lastfm img
+{
+    margin-right:4px;
+}
+
+#amontobin
+{
+    padding-top:6px;
+}
+
+.tag {
+    margin-left:0px;
+    margin-right:1.2em;
+}
+
+.tagremover
+{
+    margin-left:0.5em;
+}
+
+#dbtags {
+    padding-top:0px;
+    padding-left:8px;
+    overflow:hidden;
+    opacity:0.9;
+    font-size:7pt;
+}
+
+.clicktext
+{
+    font-size:7pt;
+    font-weight:bold;
+}
+
+.clicknotlink
+{
+    color:#0b0080;
+    cursor:pointer;
+}
+
+.clicknotlink:hover
+{
+    color:#ff4800;
+}
+
+.funkymusic
+{
+    z-index:1500;
+    position:absolute;
+    padding-right:4px;
+    padding-bottom:4px;
+}
+
+#tagadder
+{
+    width: 400px;
+}
+
+#tagslist
+{
+    line-height:150%;
+}
+
+.dropdown-container
+{
+    box-align:center;
+    -moz-box-align:center;
+    -webkit-box-align:center;
+}
+
+.dropdown-holder
+{
+    position:relative;
+}
+
+.drop-box
+{
+    position:absolute;
+    z-index:3000;
+    display:none;
+    max-height:15em;
+    overflow:auto;
+    background-color:#ffffff;
+    color:#000000;
+    line-height:1.5em;
+    padding-left:8px;
+    cursor:pointer;
+}
+
+.dropdown-button
+{
+    margin-left:-15px;
+    cursor:pointer;
+    width:15px;
+    height:15px;
+    position:relative;
+    overflow:hidden;
+}

@@ -1,5 +1,5 @@
 <?php
-include("vars.php");
+include("includes/vars.php");
 if (array_key_exists('order', $_POST)) {
 	$fp = fopen('prefs/radioorder.txt', 'w');
 	if ($fp) {

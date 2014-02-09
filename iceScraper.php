@@ -1,7 +1,7 @@
 <?php
 
-include("vars.php");
-include("functions.php");
+include("includes/vars.php");
+include("includes/functions.php");
 include("international.php");
 // The HTML parser doesn't like the icecast page very much
 // Their HTML is obviously crap :)
@@ -71,7 +71,7 @@ for ($i = 0; $i < $items->length; $i++) {
 		if ($link != "") {
 			$items->item($i)->nodeValue = "";
 			$f = $DOM->createDocumentFragment();
-			$f->appendXML('<p><a href="#" onclick="getInternetPlaylist(\'http://dir.xiph.org'.$link.'\', \'newimages/icecast.png\', null, null)"><img src="newimages/start.png" /></a></p>');
+			$f->appendXML('<p><img class="clickable clickicon clickstream" name="http://dir.xiph.org'.$link.'" streamimg="newimages/icecast.png" src="newimages/start.png" /></p>');
 			$items->item($i)->appendChild($f);
 		}
 	}
@@ -86,17 +86,13 @@ $stuff = $outdoc->importNode($stuff, true);
 $outdoc->appendChild($stuff);
 ?>
 
-<div class="containerbox fullwidth">
 <form name="searchice" action="iceScraper.php" method="get">
-<ul class="sourcenav">
 <?php
-print '<li><b>'.get_int_text("label_searchfor").'</b></li>';
-print '<li><input class="sourceform winkle" name="searchfor" type="text" size="60" />';
-print '<button type="submit">'.get_int_text("button_search").'</button></li>';
+print '<div class="containerbox"><div class="expand"><b>'.get_int_text("label_searchfor").'</b></div></div>';
+print '<div class="containerbox"><div class="expand"><input class="sourceform winkle enter" name="searchfor" type="text" /></div>';
+print '<button class="fixed sourceform" type="submit">'.get_int_text("button_search").'</button></div>';
 ?>
-</ul>
 </form>
-</div>
 <div class="containerbox fullwidth">
 <div class="expand">
 <?php

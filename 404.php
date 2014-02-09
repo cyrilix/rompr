@@ -1,8 +1,8 @@
 <html>
 <head>
 <?php
-include('vars.php');
-include("functions.php");
+include('includes/vars.php');
+include("includes/functions.php");
 $request = $_SERVER['REQUEST_URI'];
 // Custom redirect for small album covers that don't exist.
 if (preg_match('/albumart\/small\//', $request)) {

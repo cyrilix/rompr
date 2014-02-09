@@ -1,8 +1,8 @@
 <?php
-include ("vars.php");
-include ("functions.php");
+include ("includes/vars.php");
+include ("includes/functions.php");
 include ("international.php");
-include ("connection.php");
+include ("player/mpd/connection.php");
 $playlists = do_mpd_command($connection, "listplaylists", null, true);
 if (!is_array($playlists)) {
     $playlists = array();

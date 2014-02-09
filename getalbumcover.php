@@ -1,7 +1,13 @@
 <?php
 ob_start();
-include ("vars.php");
-include ("functions.php");
+include ("includes/vars.php");
+include ("includes/functions.php");
+include ("utils/imagefunctions.php");
+debug_print("------- Searching For Album Art --------","GETALBUMCOVER");
+include ("backends/".$prefs['apache_backend']."/backend.php");
+
+// Discogs functionality removed in version 0.50 after discogs strated requiring
+// authentication for images
 
 $stream = "";
 $src = "";
@@ -10,24 +16,25 @@ $file = "";
 $artist = "";
 $album = "";
 $mbid = "";
-$discogsid = "";
 $albumpath = "";
 $spotilink = "";
 $small_file = "";
 $main_file = "";
+$big_file = "";
 $base64data = "";
 $delaytime = 1;
 $fp = null;
-$preferred_countries = array("UK", "UK and Europe", "Europe", "Germany", "US");
-$preferred_formats = array("CD", "Vinyl", "Album", "Cassette", "Minidisc");
-$compilation = false;
-
-debug_print("------- Searching For Album Art --------","GETALBUMCOVER");
+$in_collection = false;
+$found = false;
 
 $fname = $_REQUEST['key'];
 if (array_Key_exists('stream', $_REQUEST)) {
+    // 'Stream' is used when we're updating the image for
+    // a favourite radio station.
     $stream = $_REQUEST["stream"];
 }
+
+$findalbum = array("get_imagesearch_info", "check_stream", "check_search", "check_playlist");
 
 if (array_key_exists("src", $_REQUEST)) {
     $src = $_REQUEST['src'];
@@ -36,83 +43,29 @@ if (array_key_exists("src", $_REQUEST)) {
 } else if (array_key_exists("base64data", $_REQUEST)) {
     $base64data = $_REQUEST['base64data'];
 } else {
-    if ($stream != "") {
-        if (file_exists($stream)) {
-            $ax = simplexml_load_file($stream);
-            $artist = "Internet Radio";
-            $album = $ax->trackList->track[0]->album;
-        } else {
-            debug_print(" Supplied stream file not found!","GETALBUMCOVER");
-        }
-    } else {
-        $axp = array();
-        // Look for this album in our caches
-        if (file_exists($ALBUMSLIST)) {
-            if (get_file_lock($ALBUMSLIST, $fp)) {
-                $ax = simplexml_load_file($ALBUMSLIST);
-                $axp = $ax->xpath('//image/name[.="'.$fname.'"]/parent::*/parent::*');
-            }
-            release_file_lock($fp);
-        }
-        if (!$axp && file_exists($ALBUMSEARCH)) {
-            if (get_file_lock($ALBUMSEARCH, $fp)) {
-                $ax = simplexml_load_file($ALBUMSEARCH);
-                $axp = $ax->xpath('//image/name[.="'.$fname.'"]/parent::*/parent::*');
-            }
-            release_file_lock($fp);
-        }
-        if (!$axp) {
-            if (file_exists($PLAYLISTFILE)) {
-                if (get_file_lock($PLAYLISTFILE, $fp)) {
-                    $ax = json_decode(file_get_contents($PLAYLISTFILE), true);
-                    foreach ($ax as $track) {
-                        if ($track['key'] == $fname) {
-                            $artist    = $track['albumartist'];
-                            $album     = $track['album'];
-                            $mbid      = $track['musicbrainz']['albumid'];
-                            $albumpath = rawurldecode($track['dir']);
-                            $spotilink = rawurldecode($track['spotify']['album']);
-                            debug_print("Found album ".$album." in playlist","DEBUGGING");
-                            break;
-                        }
-                    }
-                }
-                release_file_lock($fp);
-            }
-        } else {
-            $aar       = $ax->xpath('//image/name[.="'.$fname.'"]/parent::*/parent::*/parent::*/parent::*');
-            $artist    = $aar[0]->{'name'};
-            $album     = $axp[0]->{'name'};
-            $mbid      = $axp[0]->{'mbid'};
-            $albumpath = rawurldecode($axp[0]->{'directory'});
-            $spotilink = rawurldecode($axp[0]->{'spotilink'});
-        }
+    while ($found == false && count($findalbum) > 0) {
+        $fn = array_shift($findalbum);
+        list($in_collection, $artist, $album, $mbid, $albumpath, $spotilink, $found) = $fn($fname);
+    }
+    if (!$found) {
+        debug_print("Image key could not be found!","GETALBUMCOVER");
+        header("HTTP/1.1 404 Not Found");
+        ob_flush();
+        exit(0);
     }
 }
 
 if (preg_match('/\d+/', $mbid) && !preg_match('/-/', $mbid)) {
     debug_print(" Supplied MBID of ".$mbid." looks more like a Discogs ID","GETALBUMCOVER");
-    $discogsid = $mbid;
     $mbid = "";
 }
 
-if ($discogsid != "") {
-    $discogsid = 'release/'.$discogsid;
-}
 
-// trying a discogs id will reset it, so musicbrains can try filling it in with a master release
-// Last.FM can try to find us a musicbrainz ID if we don't have one
-
-if ($discogsid != "" && $mbid != "") {
-    $searchfunctions = array( 'tryLocal', 'trySpotify', 'tryDiscogsId', 'tryMusicBrainz', 'tryDiscogsId', 'tryLastFM', 'tryDiscogs' );
-} else if ($discogsid != "" && $mbid == "") {
-    $searchfunctions = array( 'tryLocal', 'trySpotify', 'tryDiscogsId', 'tryLastFM', 'tryMusicBrainz', 'tryDiscogsId', 'tryDiscogs' );
-} else if ($discogsid == "" && $mbid != "") {
-    $searchfunctions = array( 'tryLocal', 'trySpotify', 'tryMusicBrainz', 'tryDiscogsId', 'tryLastFM', 'tryDiscogs' );
+if ($mbid != "") {
+    $searchfunctions = array( 'tryLocal', 'trySpotify', 'tryMusicBrainz', 'tryLastFM' );
 } else {
-    $searchfunctions = array( 'tryLocal', 'trySpotify', 'tryLastFM', 'tryMusicBrainz', 'tryDiscogsId', 'tryDiscogs' );
+    $searchfunctions = array( 'tryLocal', 'trySpotify', 'tryLastFM', 'tryMusicBrainz' );
 }
-
 
 debug_print("  KEY     : ".$fname,"GETALBUMCOVER");
 debug_print("  SOURCE  : ".$src,"GETALBUMCOVER");
@@ -121,7 +74,6 @@ debug_print("  STREAM  : ".$stream,"GETALBUMCOVER");
 debug_print("  ARTIST  : ".$artist,"GETALBUMCOVER");
 debug_print("  ALBUM   : ".$album,"GETALBUMCOVER");
 debug_print("  MBID    : ".$mbid,"GETALBUMCOVER");
-debug_print("  DISCOGS : ".$discogsid,"GETALBUMCOVER");
 debug_print("  PATH    : ".$albumpath,"GETALBUMCOVER");
 debug_print("  SPOTIFY : ".$spotilink,"GETALBUMCOVER");
 
@@ -131,10 +83,13 @@ $convert_path = find_executable("convert");
 
 $download_file = "";
 if ($file != "") {
+    $in_collection = ($stream == "") ? true : false;
     $download_file = get_user_file($file, $fname, $_FILES['ufile']['tmp_name']);
 } elseif ($src != "") {
+    $in_collection = ($stream == "") ? true : false;
     $download_file = download_file($src, $fname, $convert_path);
 } elseif ($base64data != "") {
+    $in_collection = ($stream == "") ? true : false;
     $download_file = save_base64_data($base64data, $fname);
 } else {
     while (count($searchfunctions) > 0 && $src == "") {
@@ -155,49 +110,25 @@ if ($file != "") {
 }
 
 if ($error == 0) {
-    saveImage($fname, $spotilink);
+    list ($small_file, $main_file, $big_file) = saveImage($fname, $in_collection, $stream);
 }
 
 // Now that we've attempted to retrieve an image, even if it failed,
 // we need to edit the cached albums list so it doesn't get searched again
 // and edit the URL so it points to the correct image if one was found
-if (file_exists($ALBUMSLIST) && $stream == "" && $spotilink == "") {
-    update_cache($fname, $error, $ALBUMSLIST, "albumart/small/".$fname.".jpg");
-}
-
-if ($error == 0) {
-    if ($stream != "") {
-        if (file_exists($stream)) {
-            debug_print("    Updating stream playlist ".$stream,"GETALBUMCOVER");
-            $x = simplexml_load_file($stream);
-            foreach($x->trackList->track as $i => $track) {
-                $track->image = "albumart/original/".$fname.".jpg";
-            }
-            $fp = fopen($stream, 'w');
-            if ($fp) {
-                fwrite($fp, $x->asXML());
-            }
-            fclose($fp);
-        }
-    }
-
+if ($in_collection) {
+    // We only put small_file in the image db. The rest can be calculated from that.
+    update_image_db($fname, $error, $small_file);
+} else if ($error == 0 && $stream != "") {
+    update_stream_image($stream, $main_file);
 }
 
 header('Content-Type: text/xml; charset=utf-8');
 print  '<?xml version="1.0" encoding="utf-8"?>'."\n".
         '<imageresults version="1">'."\n".
         '<imageList>';
-if ($error == 1) {
-    print xmlnode('url', "");
-} else {
-    if ($spotilink == "") {
-        print xmlnode('url', "albumart/original/".$fname.".jpg");
-        print xmlnode('origurl', "albumart/asdownloaded/".$fname.".jpg");
-    } else {
-        print xmlnode('url', "prefs/imagecache/".$fname."_original.jpg");
-        print xmlnode('origurl', "prefs/imagecache/".$fname."_asdownloaded.jpg");
-    }
-}
+print xmlnode('url', $main_file);
+print xmlnode('origurl', $big_file);
 print xmlnode('delaytime', $delaytime);
 print "</imageList>\n</imageresults>\n";
 
@@ -208,6 +139,74 @@ if ($download_file != "" && file_exists($download_file)) {
 debug_print("--------------------------------------------","GETALBUMCOVER");
 
 ob_flush();
+
+function check_stream($fname) {
+    global $stream;
+    $retval = array(false, null, null, null, null, null, false);
+    if ($stream != "") {
+        if (file_exists($stream)) {
+            $ax = simplexml_load_file($stream);
+            $retval[1] = "Internet Radio";
+            $retval[2] = $ax->trackList->track[0]->album;
+            $retval[6] = true;
+            debug_print("Found stream file ".$stream,"GETALBUMCOVER");
+        } else {
+            debug_print(" Supplied stream file not found!","GETALBUMCOVER");
+        }
+    }
+    return $retval;
+}
+
+function check_search($fname) {
+    global $ALBUMSEARCH;
+    $axp = array();
+    $fp = null;
+    $retval = array(false, null, null, null, null, null, false);
+
+    if (file_exists($ALBUMSEARCH)) {
+        if (get_file_lock($ALBUMSEARCH, $fp)) {
+            $ax = simplexml_load_file($ALBUMSEARCH);
+            $axp = $ax->xpath('//image/name[.="'.$fname.'"]/parent::*/parent::*');
+        }
+        release_file_lock($fp);
+    }
+    if ($axp) {
+        $aar       = $ax->xpath('//image/name[.="'.$fname.'"]/parent::*/parent::*/parent::*/parent::*');
+        $retval[1] = $aar[0]->{'name'};
+        $retval[2] = $axp[0]->{'name'};
+        $retval[3] = $axp[0]->{'mbid'};
+        $retval[4] = rawurldecode($axp[0]->{'directory'});
+        $retval[5] = rawurldecode($axp[0]->{'spotilink'});
+        $retval[6] = true;
+    }
+    return $retval;
+
+}
+
+function check_playlist($fname) {
+    global $PLAYLISTFILE;
+    $fp = null;
+    $retval = array(false, null, null, null, null, null, false);
+    if (file_exists($PLAYLISTFILE)) {
+        if (get_file_lock($PLAYLISTFILE, $fp)) {
+            $ax = json_decode(file_get_contents($PLAYLISTFILE), true);
+            foreach ($ax as $track) {
+                if ($track['key'] == $fname) {
+                    $retval[1] = $track['albumartist'];
+                    $retval[2] = $track['album'];
+                    $retval[3] = $track['musicbrainz']['albumid'];
+                    $retval[4] = rawurldecode($track['dir']);
+                    $retval[5] = rawurldecode($track['spotify']['album']);
+                    $retval[6] = true;
+                    debug_print("Found album in playlist","DEBUGGING");
+                    break;
+                }
+            }
+        }
+        release_file_lock($fp);
+    }
+    return $retval;
+}
 
 function get_user_file($src, $fname, $tmpname) {
     global $error;
@@ -224,150 +223,13 @@ function get_user_file($src, $fname, $tmpname) {
     return $download_file;
 }
 
-function download_file($src, $fname, $convert_path) {
-    global $error;
-
-    $download_file = "albumart/".$fname;
-    debug_print("   Downloading Image ".$src." to ".$fname,"GETALBUMCOVER");
-
-    if (file_exists($download_file)) {
-        unlink ($download_file);
-    }
-    $aagh = url_get_contents($src);
-    $fp = fopen($download_file, "x");
-    if ($fp) {
-        fwrite($fp, $aagh['contents']);
-        fclose($fp);
-        check_file($download_file, $aagh['contents']);
-        $o = array();
-        $c = $convert_path."identify \"".$download_file."\" 2>&1";
-        // debug_print("    Command is ".$c,"GETALBUMCOVER");
-        $r = exec( $c, $o);
-        debug_print("    Return value from identify was ".$r,"GETALBUMCOVER");
-        if ($r == '' ||
-            preg_match('/GIF 1x1/', $r) ||
-            preg_match('/unable to open/', $r) ||
-            preg_match('/no decode delegate/', $r)) {
-            debug_print("      Broken/Invalid file returned","GETALBUMCOVER");
-            $error = 1;
-        }
-    } else {
-        debug_print("    File open failed!","GETALBUMCOVER");
-        $error = 1;
-    }
-    return $download_file;
-}
-
-function saveImage($fname, $spotilink = "") {
-    debug_print("  Saving Image","GETALBUMCOVER");
-    global $convert_path;
-    global $download_file;
-    $main_file = null;
-    $small_file = null;
-    $anglofile = null;
-    if ($spotilink == "") {
-        debug_print("    Saving image to albumart folder");
-        $main_file = "albumart/original/".$fname.".jpg";
-        $small_file = "albumart/small/".$fname.".jpg";
-        $anglofile = "albumart/asdownloaded/".$fname.".jpg";
-    } else {
-        debug_print("    Saving image to image cache");
-        $small_file = "prefs/imagecache/".$fname."_small.jpg";
-        $main_file = "prefs/imagecache/".$fname."_original.jpg";
-        $anglofile = "prefs/imagecache/".$fname."_asdownloaded.jpg";
-    }
-    if (file_exists($main_file)) {
-        unlink($main_file);
-    }
-    if (file_exists($small_file)) {
-        unlink($small_file);
-    }
-    if (file_exists($anglofile)) {
-        unlink($anglofile);
-    }
-    // Ohhhhhh imagemagick is just... wow.
-    // This resizes the images into a square box while adding padding to preserve the apsect ratio
-    $o = array();
-    $r = exec( $convert_path."convert \"".$download_file."\" -resize 82x82 -background none -gravity center -extent 82x82 \"".$main_file."\" 2>&1", $o);
-    $r = exec( $convert_path."convert \"".$download_file."\" -resize 32x32 -background none -gravity center -extent 32x32 \"".$small_file."\" 2>&1", $o);
-    $r = exec( $convert_path."convert \"".$download_file."\" \"".$anglofile."\" 2>&1", $o);
-}
-
-function archiveImage($fname, $src) {
-    debug_print("  Archving Image ".$fname,"GETALBUMCOVER");
-    global $download_file;
-    global $convert_path;
-    $download_file = download_file($src, $fname, $convert_path);
-    saveImage($fname);
-}
-
-function check_file($file, $data) {
-    // NOTE. WE've configured curl to follow redirects, so in truth this code should never do anything
-    $matches = array();
-    if (preg_match('/See: (.*)/', $data, $matches)) {
-        debug_print("    Check_file has found a silly musicbrainz diversion ".$data,"GETALBUMCOVER");
-        $new_url = $matches[1];
-        system('rm "'.$file.'"');
-        $aagh = url_get_contents($new_url);
-        debug_print("    check_file is getting ".$new_url,"GETALBUMCOVER");
-        $fp = fopen($file, "x");
-        if ($fp) {
-            fwrite($fp, $aagh['contents']);
-            fclose($fp);
-        }
-    }
-}
-
-function update_cache($fname, $notfound, $cachefile, $imagefile) {
-
-    if (file_exists($cachefile)) {
-        // Get an exclusive lock on the file. We can't have two threads trying to update it at once.
-        // That would be bad.
-        $fp = fopen($cachefile, 'r+');
-        if ($fp) {
-            $crap = true;
-            if (flock($fp, LOCK_EX, $crap)) {
-
-                $x = simplexml_load_file($cachefile);
-                debug_print("  Updating cache for for ".$fname.", error is ".$notfound,"GETALBUMCOVER");
-                foreach($x->artists->artist as $i => $artist) {
-                    foreach($artist->albums->album as $j => $album) {
-                        if ($album->image->name == $fname) {
-                            debug_print("    Found XML Entry","GETALBUMCOVER");
-                            if ($notfound == 0) {
-                                $album->image->src = $imagefile;
-                                $album->image->exists = "yes";
-                            } else {
-                                $album->image->src = "";
-                                $album->image->exists = "no";
-                            }
-                            $album->image->searched = "yes";
-                            ftruncate($fp, 0);
-                            fwrite($fp, $x->asXML());
-                            fflush($fp);
-                            flock($fp, LOCK_UN);
-                            break 2;
-                        }
-                    }
-                }
-            } else {
-                debug_print("    FAILED TO GET FILE LOCK","GETALBUMCOVER");
-            }
-        } else {
-            debug_print("    FAILED TO OPEN CACHE FILE!","GETALBUMCOVER");
-        }
-        fclose($fp);
-    }
-
-}
-
 function tryLocal() {
     global $albumpath;
     global $covernames;
     global $album;
     global $artist;
     global $fname;
-    if ($albumpath == "" || $albumpath == ".") {
+    if ($albumpath == "" || $albumpath == "." || $albumpath === null) {
         return "";
     }
     $files = scan_for_images($albumpath);
@@ -491,14 +353,11 @@ function tryLastFM() {
 function tryMusicBrainz() {
     global $mbid;
     global $delaytime;
-    global $discogsid;
-    global $compilation;
     $delaytime = 600;
     if ($mbid == "") {
         return "";
     }
     $retval = "";
-    $groupid = null;
     // Let's get some information from musicbrainz about this album
     debug_print("  Getting MusicBrainz release info for ".$mbid,"GETALBUMCOVER");
     $release_info = url_get_contents('http://musicbrainz.org/ws/2/release/'.$mbid.'?inc=release-groups');
@@ -514,460 +373,6 @@ function tryMusicBrainz() {
         $retval = "http://coverartarchive.org/release/".$mbid."/front";
     }
 
-    foreach($x->{'release'}->{'release-group'} as $j) {
-        if ($j->attributes()->{'id'}) {
-            debug_print("    Release Group ID is ".(string)$j->attributes()->{'id'}, "GETALBUMCOVER");
-            $groupid = (string)$j->attributes()->{'id'};
-            break;
-        }
-    }
-
-    if ($groupid !== null && $discogsid == "") {
-        $group_info = url_get_contents("http://musicbrainz.org/ws/2/release-group/".$groupid."?inc=releases+release-group-rels+release-rels+url-rels");
-        $x = simplexml_load_string($group_info['contents'], 'SimpleXMLElement', LIBXML_NOCDATA);
-        foreach($x->{'release-group'}->{'relation-list'} as $j) {
-            if ((string)$j->attributes()->{'target-type'} == "url") {
-                foreach($j->{'relation'} as $k) {
-                    if ((string)$k->attributes()->{'type'} == "discogs") {
-                        $dp = $k->{'target'};
-                        $discogsid = basename(dirname($dp))."/".basename($dp);
-                        debug_print("    Discogs ID is ".$discogsid,"GETALBUMCOVER");
-                    }
-                }
-            }
-        }
-        debug_print("     Primary Type is ".$x->{'release-group'}->{'primary-type'},"DEBUGGING");
-        if (property_exists($x->{'release-group'}, 'secondary-type-list')) {
-            foreach($x->{'release-group'}->{'secondary-type-list'}->{'secondary-type'} as $j) {
-                debug_print("        Secondary Type is ".$j,"DEBUGGING");
-                if ($j == "Compilation") {
-                    debug_print("      Flagging this album as a compilation","GETALBUMCOVER");
-                    $compilation = true;
-                }
-            }
-        }
-
-    }
-
-    return $retval;
-
-}
-
-function tryDiscogsId() {
-
-    global $discogsid;
-    global $delaytime;
-    $retval = "";
-
-    $delaytime = 1000;
-    if ($discogsid != "") {
-        $retval = getDiscogsCover($discogsid);
-    }
-    $discogsid = "";
-    return $retval;
-
-}
-
-function tryDiscogs() {
-
-    global $artist;
-    global $album;
-    global $discogsid;
-    global $delaytime;
-    $delaytime = 1000;
-
-    // We search several times, each time spreading the search a little wider
-
-    // Firstly - try discogs with a sanitised artist and album name
-    $a = discogify_artist($artist);
-    $al = munge_album_name($album);
-    $result = searchDiscogs($a, $al);
-    if ($result != "") {
-        return $result;
-    }
-
-    // Now, try munging the album name a little more
-    $al2 = really_munge_album_name($al);
-    if ($al2 != $al && !preg_match('/^\s*$/', $al2)) {
-        sleep(1);
-        $retval = searchDiscogs($a, $al2);
-        if ($retval != "") {
-            return $retval;
-        }
-    }
-
-    // Artist name with nickname
-    $modded = preg_replace('#(\'|"|“|”).*?(\'|"|“|”) #', '', $a);
-    if ($modded != $a && !preg_match('/^\s*$/', $al2)) {
-        sleep(1);
-        $retval = searchDiscogs($modded, $al2);
-        if ($retval != "") {
-            return $retval;
-        }
-    }
-
-    // Try splitting the album name at a :, if there is one
-    $a_mod2 = preg_match('#(.*?)\:.*#', $al2, $b);
-    if (is_array($b) && count($b) > 1 && !preg_match('/^\s*\:*\s*$/', $b[1])) {
-        sleep(1);
-        $retval = searchDiscogs($a, $b[1]);
-        if ($retval != "") {
-            return $retval;
-        } else if ($modded != $a) {
-            sleep(1);
-            $retval = searchDiscogs($modded, $b[1]);
-            if ($retval != "") {
-                return $retval;
-            }
-        }
-    } else {
-        $a_mod2 = preg_match('#(.*?) (-|–) .*#', $al2, $b);
-        if (is_array($b) && count($b) > 1 && !preg_match('/^\s*(-|–)*\s*$/', $b[1])) {
-            sleep(1);
-            $retval = searchDiscogs($a, $b[1]);
-            if ($retval != "") {
-                return $retval;
-            } else if ($modded != $a) {
-                sleep(1);
-                $retval = searchDiscogs($modded, $b[1]);
-                if ($retval != "") {
-                    return $retval;
-                }
-            }
-        }
-    }
-
-    // Now, take the munged album name and remove all puncutation
-    $al3 = remove_punctuation($al2);
-    if ($al3 != $al2 && !preg_match('/^\s*$/', $al3)) {
-        sleep(1);
-        $retval = searchDiscogs($a, $al3);
-        if ($retval != "") {
-            return $retval;
-        }
-    }
-
-    // Search for artist without leading 'The'
-    $anothe = noDefiniteArticles($a);
-    if ($anothe != $a && !preg_match('/^\s*$/', $al3)) {
-        sleep(1);
-        $retval = searchDiscogs($anothe, $al3);
-        if ($retval != "") {
-            return $retval;
-        }
-    }
-
-    // Split the artist on '&', 'and', or 'with' boundaries and try each one in turn.
-    if (preg_match('/ \& | and | with | feat\.* | featuring | \/ | meets | vs\.* /i', $a) && !preg_match('/^\s*$/', $al3)) {
-        $arr = preg_split('/ \& | and | with | feat\.* | featuring | \/ | meets | vs\.* /i', $a);
-        foreach($arr as $arrtist) {
-            sleep(1);
-            $retval = searchDiscogs($arrtist, $al3);
-            if ($retval != "") {
-                return $retval;
-            }
-        }
-    }
-
-    // Remove some special bits
-    $al35 = remove_some_stuff($al3);
-    if ($al35 != $al3 && !preg_match('/^\s*$/', $al35)) {
-        sleep(1);
-        $retval = searchDiscogs($a, $al35);
-        if ($retval != "") {
-            return $retval;
-        }
-    }
-
-    // If the album name contains the artist name, remove artist name from album name
-    // and try again - eg Motorhead - The Very Best of Motorhead
-    if (preg_match('#'.$artist.'#', $al3)) {
-        $al4 = preg_replace('#^'.$artist.' #', '', $al3);
-        $al4 = preg_replace('#\s+$#', '', $al4);
-        if (!preg_match('/^\s*$/', $al4)) {
-            sleep(1);
-            $retval = searchDiscogs($a, $al4);
-        }
-    }
-
-    return "";
-
-}
-
-function searchDiscogs($a, $al) {
-    debug_print("  Trying Discogs for ".$a." - ".$al,"GETALBUMCOVER");
-
-    $t = url_get_contents("http://api.discogs.com/database/search?type=release&artist=".rawurlencode($a)."&release_title=".rawurlencode($al));
-    if ($t['status'] != "200") {
-        debug_print("    Received error response from Discogs","GETALBUMCOVER");
-    } else {
-
-        // debug_print(print_r($t['contents'],true));
-
-        $j = json_decode($t['contents']);
-
-        $results_by_relevance = array();
-        // Generate a relevance score for each result
-        foreach($j->results as $result) {
-            debug_print("    Found ".$result->{'title'}." ".$result->{'country'}, "GETALBUMCOVER");
-
-            // This matches eg  Artist - Album or
-            //                  Artist (2) = Album
-            // These are the most relevant. The final score depends on the country
-            $regexp = '^'.$a.' (\(\d+\) )*- '.$al;
-            // debug_print("        Comparing ".$regexp." with ".$result->{'title'},"GETALBUMCOVER");
-            if (preg_match('#'.$regexp.'$#ui', sanitsizeDiscogsResult($result->{'title'}))) {
-                $score = calculate_relevance($result, 0);
-                if ($score !== null) {
-                    while (array_key_exists($score, $results_by_relevance)) {
-                        $score+=1;
-                    }
-                    $results_by_relevance[$score] = $result->{'id'};
-                }
-                continue;
-            }
-
-            // Try without any reference to 'The' in either the result or the search term
-            $a_mod = noDefiniteArticles($a);
-            $al_mod = noDefiniteArticles($al);
-            $regexp = '^'.$a_mod.' (\(\d+\) )*- '.$al_mod;
-            $tit = noDefiniteArticles(sanitsizeDiscogsResult($result->{'title'}));
-            // debug_print("        Comparing ".$regexp." with ".$tit,"GETALBUMCOVER");
-            if (preg_match('#'.$regexp.'$#ui', $tit)) {
-                $score = calculate_relevance($result, 0);
-                if ($score !== null) {
-                    while (array_key_exists($score, $results_by_relevance)) {
-                        $score+=1;
-                    }
-                    $results_by_relevance[$score] = $result->{'id'};
-                }
-                continue;
-            }
-
-            // Now try with no punctuation
-            $a_mod = remove_punctuation($a_mod);
-            $al_mod = remove_punctuation($al_mod);
-            $regexp = '^'.$a_mod.' (\(\d+\) )*'.$al_mod;
-            $tit = noDefiniteArticles($result->{'title'});
-            $tit = remove_punctuation($tit);
-            // debug_print("        Comparing ".$regexp." with ".$tit,"GETALBUMCOVER");
-            if (preg_match('#'.$regexp.'$#ui', $tit)) {
-                $score = calculate_relevance($result, 0);
-                if ($score !== null) {
-                    while (array_key_exists($score, $results_by_relevance)) {
-                        $score+=1;
-                    }
-                    $results_by_relevance[$score] = $result->{'id'};
-                }
-                continue;
-            }
-
-            // Convert all eccented characters to ASCII equivalents
-            $a_mod = normalizeChars($a_mod);
-            $al_mod = normalizeChars($al_mod);
-            $regexp = '^'.$a_mod.' (\(\d+\) )*'.$al_mod;
-            $tit = normalizeChars($tit);
-            // debug_print("        Comparing ".$regexp." with ".$tit,"GETALBUMCOVER");
-            if (preg_match('#'.$regexp.'$#ui', $tit)) {
-                $score = calculate_relevance($result, 0);
-                if ($score !== null) {
-                    while (array_key_exists($score, $results_by_relevance)) {
-                        $score+=1;
-                    }
-                    $results_by_relevance[$score] = $result->{'id'};
-                }
-                continue;
-            }
-
-            // Now *carefully* try something much wider.
-            $regexp = '^'.$a_mod.' (\(\d+\) )*.*'.$al_mod.'.*';
-            // debug_print("        Comparing ".$regexp." with ".$tit,"GETALBUMCOVER");
-            if (preg_match('#'.$regexp.'$#ui', $tit)) {
-                $score = calculate_relevance($result, 100);
-                if ($score !== null) {
-                    while (array_key_exists($score, $results_by_relevance)) {
-                        $score+=1;
-                    }
-                    $results_by_relevance[$score] = $result->{'id'};
-                }
-                continue;
-            }
-
-            // Now *carefully* try something much wider.
-            $regexp = $a_mod.'.*(\(\d+\) )*.*'.$al_mod.'.*';
-            // debug_print("        Comparing ".$regexp." with ".$tit,"GETALBUMCOVER");
-            if (preg_match('#'.$regexp.'$#ui', $tit)) {
-                $score = calculate_relevance($result, 150);
-                if ($score !== null) {
-                    while (array_key_exists($score, $results_by_relevance)) {
-                        $score+=1;
-                    }
-                    $results_by_relevance[$score] = $result->{'id'};
-                }
-                continue;
-            }
-
-            $a_mod = deJazzify($a_mod);
-            $tit = deJazzify($tit);
-            $regexp = '^'.$a_mod.' (\(\d+\) )*'.$al_mod;
-            // debug_print("        Comparing ".$regexp." with ".$tit,"GETALBUMCOVER");
-            if (preg_match('#'.$regexp.'$#ui', $tit)) {
-                $score = calculate_relevance($result, 20);
-                if ($score !== null) {
-                    while (array_key_exists($score, $results_by_relevance)) {
-                        $score+=1;
-                    }
-                    $results_by_relevance[$score] = $result->{'id'};
-                }
-                continue;
-            }
-
-        }
-
-        ksort($results_by_relevance, SORT_NUMERIC);
-        // debug_print("Results By Relevance:".print_r($results_by_relevance, true),"GETALBUMCOVER");
-        foreach($results_by_relevance as $result) {
-            // Throttle requests to discogs or they'll ban us
-            sleep(1);
-            $p = getDiscogsCover('release/'.$result);
-            if ($p != "") {
-                return $p;
-            }
-        }
-
-    }
-    return "";
-}
-
-function calculate_relevance($result, $base_score) {
-
-    global $preferred_countries;
-    global $preferred_formats;
-    global $album;
-    global $compilation;
-    $format = "";
-    $s = count($preferred_countries) * 5;
-    if (property_exists($result, 'country')) {
-        $c = $result->{'country'};
-        foreach($preferred_countries as $i => $cy) {
-            if ($result->{'country'} == $cy) {
-                $s = $i*5;
-                break;
-            }
-        }
-    }
-    if (property_exists($result, 'format')) {
-        if (in_array('7"', $result->{'format'}) ||
-            in_array('45 RPM', $result->{'format'}) ||
-            in_array('VHS', $result->{'format'}) ||
-            in_array('Maxi-Single', $result->{'format'}) ||
-            in_array('Single', $result->{'format'})) {
-            $s = null;
-            debug_print("          Score for ".$result->{'id'}." ".$result->{'title'}." in country ".$result->{'country'}." is null (irrelevant format)","GETALBUMCOVER");
-            return $s;
-        }
-
-        $pf = count($preferred_formats) * 10;
-        foreach ($preferred_formats as $i => $f) {
-            if (in_array($f, $result->{'format'})) {
-                $format = $f;
-                $pf = $i*10;
-                break;
-            }
-        }
-        if (preg_match('/EP$|\(EP\)$/', $album) && (in_array("EP", $result->{'format'}) || in_array('12"', $result->{'format'}))) {
-            debug_print('            Boosting rating due to EP/12"', "GETALBUMCOVER");
-            $pf = $pf/2;
-        } else {
-            if (in_array("EP", $result->{'format'})) {
-                debug_print('            Marking down as format is EP', "GETALBUMCOVER");
-                $pf += 100;
-            }
-            if (in_array('12"', $result->{'format'})) {
-                debug_print('            Marking down as format is 12"', "GETALBUMCOVER");
-                $pf += 150;
-            }
-            if (in_array("Limited Edition", $result->{'format'}) && !preg_match('/limited edition/i', $album)) {
-                debug_print('            Marking down as format is Limited Edition', "GETALBUMCOVER");
-                $pf += 100;
-            }
-            if (in_array("Club Edition", $result->{'format'}) && !preg_match('/club edition/i', $album)) {
-                debug_print('            Marking down as format is Club Edition', "GETALBUMCOVER");
-                $pf += 100;
-            }
-            if (in_array("Compilation", $result->{'format'})) {
-                if ($compilation) {
-                    debug_print('            Boosting rating as this is a compilation', "GETALBUMCOVER");
-                    $pf = $pf/2;
-                } else {
-                    debug_print('            Marking down as this is a compilation', "GETALBUMCOVER");
-                    $pf += 200;
-                }
-            }
-            if (in_array("Promo", $result->{'format'})) {
-                debug_print('            Marking down as format is Promo', "GETALBUMCOVER");
-                $pf += 200;
-            }
-            if (in_array("Sampler", $result->{'format'})) {
-                debug_print('            Marking down as format is Sampler', "GETALBUMCOVER");
-                $pf += 200;
-            }
-            if (in_array("Partially Unofficial", $result->{'format'})) {
-                debug_print('            Marking down as format is Partially Unofficial', "GETALBUMCOVER");
-                $pf += 200;
-            }
-            if (in_array("Unofficial Release", $result->{'format'})) {
-                debug_print('            Marking down as format is Unofficial Release', "GETALBUMCOVER");
-                $pf += 200;
-            }
-        }
-    }
-
-    $score = $s + $pf+ $base_score;
-    debug_print("          Score for ".$result->{'id'}." ".$result->{'title'}." in country ".$result->{'country'}." format ".$format." is ".$score,"GETALBUMCOVER");
-    return $score;
-
-}
-
-function discogify_artist($artist) {
-    $artist = preg_replace('/Various Artists/', 'Various', $artist);
-    return $artist;
-}
-
-function getDiscogsCover($discogsid) {
-    $retval = "";
-    debug_print("  Trying Discogs for ".$discogsid,"GETALBUMCOVER");
-    $t = url_get_contents("http://api.discogs.com/".$discogsid);
-    if ($t['status'] != "200") {
-        debug_print("    Received error response from Discogs","GETALBUMCOVER");
-    } else {
-        // debug_print(print_r($t['contents'],true));
-        $j = json_decode($t['contents']);
-        $imgs = array();
-        $key = null;
-        if (property_exists($j->{'resp'}, 'release')) {
-            $key = $j->{'resp'}->{'release'};
-        } else if (property_exists($j->{'resp'}, 'master')) {
-            $key = $j->{'resp'}->{'master'};
-        } else {
-            return "";
-        }
-        if (property_exists($key, 'images')) {
-            foreach($key->{'images'} as $image) {
-                debug_print("    Type:".$image->{'type'}." : ".$image->{'uri'}, "GETALBUMCOVER");
-                if (!array_key_exists($image->{'type'}, $imgs)) {
-                    $imgs[$image->{'type'}] = $image->{'uri'};
-                }
-            }
-            if (array_key_exists('primary', $imgs)) {
-                return get_base_url()."/getDiscogsImage.php?url=".$imgs['primary'];
-            } else if (array_key_exists('secondary', $imgs)) {
-                return get_base_url()."/getDiscogsImage.php?url=".$imgs['secondary'];
-            } else if (array_key_exists('thumb', $imgs)) {
-                return get_base_url()."/getDiscogsImage.php?url=".$imgs['thumb'];
-            }
-        }
-    }
     return $retval;
 
 }
@@ -998,6 +403,21 @@ function save_base64_data($data, $fname) {
 
     $error = 0;
     return $download_file;
+}
+
+function update_stream_image($stream, $image) {
+    if (file_exists($stream)) {
+        debug_print("    Updating stream playlist ".$stream,"GETALBUMCOVER");
+        $x = simplexml_load_file($stream);
+        foreach($x->trackList->track as $i => $track) {
+            $track->image = $image;
+        }
+        $fp = fopen($stream, 'w');
+        if ($fp) {
+            fwrite($fp, $x->asXML());
+        }
+        fclose($fp);
+    }
 }
 
 ?>

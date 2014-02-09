@@ -1,0 +1,325 @@
+body.mobile
+{
+    font-size:11pt;
+}
+
+h1
+{
+    font-size:130%;
+}
+
+h2
+{
+    font-size:120%;
+}
+
+.chooser
+{
+    margin-left:auto;
+    margin-right:auto;
+    font-weight:bold;
+    font-size:130%;
+    padding-bottom:1em;
+    text-align:center;
+}
+
+.pref
+{
+
+    margin-left:8px;
+    margin-bottom:12px;
+}
+
+.prefsection
+{
+    padding-bottom:4px;
+    border-bottom: 1px solid #dddddd;
+}
+
+#volumecontrol
+{
+    z-index:102;
+    position:absolute;
+    display: none;
+    width:3em;
+}
+
+#playlistm
+{
+    height:100%;
+    overflow:auto;
+}
+
+#infopane
+{
+    height:100%;
+    overflow:auto;
+}
+
+.menu
+{
+	width:1.5em;
+	height:1.5em;
+}
+
+.mh
+{
+    width:1.5em;
+    margin-right:1em;
+    margin-top:0.5em;
+    margin-bottom:0.5em;
+}
+
+#patrickmoore
+{
+    height:56px;
+    overflow:hidden;
+    margin: 0px;
+    padding: 0px;
+    position:relative;
+    left:-12px;
+}
+
+.playlisticon
+{
+    padding-left:4px;
+    width:28px;
+}
+
+#playbackTime
+{
+	font-size:8pt;
+}
+
+#progress
+{
+	margin-top:4px;
+    font-size:4pt;
+}
+
+#scrobwrangler
+{
+    font-size:8pt;
+    width:90%;
+}
+
+.infobarlayout
+{
+    height:70px;
+}
+
+#lastfm
+{
+    margin-top:0px;
+    margin-right:2px;
+    margin-left:4px;
+}
+
+#stars
+{
+    margin-top:0px;
+    margin-right:2px;
+    margin-left:4px;
+    padding-top:0px;
+}
+
+.infotext
+{
+	font-size:8pt;
+}
+
+#infobar
+{
+    height:80px;
+    padding-bottom:0px;
+}
+
+#bottompage
+{
+    top:112px;
+}
+
+#headerbar
+{
+	height:24px;
+    padding-top:4px;
+	overflow:hidden;
+}
+
+#buttons
+{
+    float:left;
+    padding-left:0px;
+    padding-right:0px;
+    padding-top:10px;
+    padding-bottom:0px;
+}
+
+#albumpicture
+{
+    height:48px;
+    width:48px;
+}
+
+#albumcover
+{
+    margin-right:0px;
+    padding-right:4px;
+}
+
+.controlbutton
+{
+    height:36px;
+}
+
+.shiftleft
+{
+    position:relative;
+    left:-6px;
+}
+
+.shiftleft2
+{
+    position:relative;
+    left:-12px;
+}
+
+.shiftleft3
+{
+    position:relative;
+    left:-12px;
+}
+
+.shiftleft4
+{
+    position:relative;
+    left:-12px;
+}
+
+#nowplaying
+{
+	font-size:8pt;
+	padding:0px;
+    padding-top:0px;
+	margin-left:4px;
+    height:56px;
+    /*position:relative;*/
+    /*left:-12px;*/
+}
+
+.larger
+{
+    font-size:130%;
+}
+
+.frog
+{
+	font-size:6pt;
+}
+
+.playlistitem
+{
+    font-size:9pt;
+}
+
+.playlisttitle
+{
+    font-size:10pt;
+}
+
+.playlistcurrenttitle
+{
+    font-size:10.5pt;
+}
+
+.playlistcurrentitem
+{
+    font-size:9.5pt;
+}
+
+.playlistrow2
+{
+    font-size:7pt;
+}
+
+#notifications
+{
+    position:absolute;
+    width:100%;
+    padding:4px;
+    top:0px;
+    left:0px;
+    display:none;
+    opacity:1.0;
+    font-size:8pt;
+    font-weight:bold;
+    z-index:2000;
+}
+
+.clrbth
+{
+    clear:both;
+    display:table;
+    margin-top:8px;
+}
+
+.scroller
+{
+    -webkit-overflow-scrolling:touch;
+}
+
+.progressbar_v
+{
+    height:100%;
+    border:1px solid #414141;
+    width:2em;
+    margin-right:auto;
+    margin-left:auto;
+}
+
+.infobox
+{
+    float:none;
+    clear:both;
+    margin-left:auto !important;
+    margin-right:auto !important;
+    width:90% !important;
+}
+
+.infobox_v3
+{
+    float:none;
+    clear:both;
+    margin-left:auto !important;
+    margin-right:auto !important;
+    width:90% !important;
+}
+
+.stleft
+{
+    float:none;
+    width:auto;
+    max-width:95%;
+    clear:both;
+    border-right:none !important;
+    border-bottom: 1px solid #dddddd !important;
+}
+
+.thumb
+{
+    float:none !important;
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+}
+
+.content img
+{
+    max-width: 100% !important;
+    height: auto !important;
+}
+
+.thumbinner
+{
+    margin-left:auto;
+    margin-right:auto;
+}

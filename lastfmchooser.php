@@ -1,6 +1,6 @@
 <?php
-include ("vars.php");
-include ("functions.php");
+include ("includes/vars.php");
+include ("includes/functions.php");
 include('international.php');
 if ($prefs['lastfm_user'] != "") {
 ?>
@@ -57,9 +57,11 @@ print '<h3>'.get_int_text("label_artistradio", array(get_int_text("label_lastfm"
 ?>
     </div>
     <div class="indent containerbox padright">
-        <input class="enter sourceform" name="albert" id="lastfmartist" type="text" size="60"/>
+        <div class="expand">
+            <input class="enter sourceform" name="albert" id="lastfmartist" type="text" />
+        </div>
 <?php
-print '<button class="fixed" onclick="doLastFM(\'lastfmartist\')">'.get_int_text("button_playradio").'</button>';
+print '<button class="fixed sourceform" onclick="doLastFM(\'lastfmartist\')">'.get_int_text("button_playradio").'</button>';
 ?>
     </div>
 
@@ -69,9 +71,11 @@ print '<h3>'.get_int_text("label_fanradio", array(get_int_text("label_lastfm")))
 ?>
     </div>
     <div class="indent containerbox padright">
-        <input class="enter sourceform expand" name="gary" id="lastfmfan" type="text" size="60"/>
+        <div class="expand">
+            <input class="enter sourceform" name="gary" id="lastfmfan" type="text" />
+        </div>
 <?php
-print '<button class="fixed" onclick="doLastFM(\'lastfmfan\')">'.get_int_text("button_playradio").'</button>';
+print '<button class="fixed sourceform" onclick="doLastFM(\'lastfmfan\')">'.get_int_text("button_playradio").'</button>';
 ?>
     </div>
 
@@ -81,9 +85,11 @@ print '<h3>'.get_int_text("label_tagradio", array(get_int_text("label_lastfm")))
 ?>
     </div>
     <div class="indent containerbox padright">
-        <input class="enter sourceform expand" name="throatwobbler" id="lastfmglobaltag" type="text" size="60"/>
+        <div class="expand">
+            <input class="enter sourceform" name="throatwobbler" id="lastfmglobaltag" type="text" />
+        </div>
 <?php
-print '<button class="fixed" onclick="doLastFM(\'lastfmglobaltag\')">'.get_int_text("button_playradio").'</button>';
+print '<button class="fixed sourceform" onclick="doLastFM(\'lastfmglobaltag\')">'.get_int_text("button_playradio").'</button>';
 ?>
     </div>
 

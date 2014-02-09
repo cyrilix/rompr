@@ -1,7 +1,7 @@
 <?php
-include ("vars.php");
-include ("functions.php");
-include ("connection.php");
+include ("includes/vars.php");
+include ("includes/functions.php");
+include ("player/mpd/connection.php");
 $mpd_status['albumart'] = "";
 
 if (!array_key_exists('fast', $_REQUEST) && array_key_exists('song', $mpd_status)) {
@@ -11,4 +11,5 @@ if (!array_key_exists('fast', $_REQUEST) && array_key_exists('song', $mpd_status
 }
 close_mpd($connection);
 print json_encode($mpd_status);
+//test
 ?>

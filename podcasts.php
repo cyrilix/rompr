@@ -1,6 +1,6 @@
 <?php
-include("vars.php");
-include("functions.php");
+include("includes/vars.php");
+include("includes/functions.php");
 include("international.php");
 if (array_key_exists('url', $_REQUEST)) {
     getNewPodcast(rawurldecode($_REQUEST['url']));
@@ -44,9 +44,9 @@ if (array_key_exists('refresh', $_REQUEST)) {
 
     print '<div id="fruitbat" class="noselection fullwidth">';
     print '<div id="cocksausage">';
-    print '<p>'.get_int_text("podcast_entrybox").'</p>';
-    print '<input class="enter sourceform" name="ginger" id="podcastsinput" type="text" size="60"/>';
-    print '<button onclick="podcasts.doPodcast(\'podcastsinput\')">Retreive</button>';
+    print '<div class="containerbox"><div class="expand">'.get_int_text("podcast_entrybox").'</div></div>';
+    print '<div class="containerbox"><div class="expand"><input class="enter sourceform" name="ginger" id="podcastsinput" type="text" /></div>';
+    print '<button class="fixed sourceform" onclick="podcasts.doPodcast(\'podcastsinput\')">Retreive</button></div>';
     print '</div>';
 
     $channels = glob('prefs/podcasts/*');
@@ -83,18 +83,9 @@ function getNewPodcast($url) {
         }
         exit;
     }
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL,$url);
-    curl_setopt($ch, CURLOPT_FILE, $fp);
-    curl_setopt($ch, CURLOPT_USERAGENT, 'RompR Music Player/0.40');
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 45);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-    curl_exec($ch);
-    $result = curl_getinfo($ch,CURLINFO_HTTP_CODE);
-    curl_close($ch);
+    $result = url_get_contents($url, 'RompR Music Player/0.41', false, true, false, $fp);
     fclose($fp);
-    if ($result != "200") {
+    if ($result['status'] != "200") {
         header('HTTP/1.0 404 Not Found');
         debug_print("Failed to get ".$url,"PODCASTS");
         if (file_exists('prefs/podcasts/'.$fname.'/feed.xml')) {
@@ -352,13 +343,13 @@ function doPodcast($c) {
     print '<img title="'.get_int_text("podcast_download_all").'" class="clickable clickicon podgroupload tleft fridge" name="podgroupload_'.$pm.'" src="newimages/download_icon.png" height="16px" style="margin-right:4px">';
     print '<img title="'.get_int_text("podcast_mark_all").'" class="clickable clickicon podgrouplisten tleft fridge" name="podgrouplisten_'.$pm.'" src="newimages/listen.png" height="16px" style="margin-right:4px">';
     print '</div>';
-    print '<div class="dropmenu" id="podconf_'.$pm.'"';
+    print '<div class="dropmenu bordered" id="podconf_'.$pm.'" style="margin-bottom:4px;';
     if ((array_key_exists('channel', $_REQUEST) && $_REQUEST['channel'] == $pm) &&
         array_key_exists('option', $_REQUEST)) {
         // Don't rehide the config panel if we're choosing something from it
-        print ' style="display:block"';
+        print 'display:block';
     }
-    print '>';
+    print '"">';
     $nextupdate = 0;
     switch($y->refreshoption) {
         case "hourly";
@@ -602,18 +593,9 @@ function downloadTrack($key, $channel) {
     fclose($fp);
     debug_print('Downloading To prefs/podcasts/'.$channel.'/'.$key.'/'.$filename,"PODCASTS");
     $fp = fopen('prefs/podcasts/'.$channel.'/'.$key.'/'.$filename, 'wb');
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL,$link);
-    curl_setopt($ch, CURLOPT_FILE, $fp);
-    curl_setopt($ch, CURLOPT_USERAGENT, 'RompR Music Player/0.40');
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 45);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-    curl_exec($ch);
-    $result = curl_getinfo($ch,CURLINFO_HTTP_CODE);
-    curl_close($ch);
+    $result = url_get_contents($link, 'RompR Music Player/0.41', false, true, false, $fp);
     fclose($fp);
-    if ($result != "200") {
+    if ($result['status'] != "200") {
         header('HTTP/1.0 404 Not Found');
         debug_print("Failed to get ".$link,"PODCASTS");
         system ('rm -fR prefs/podcasts/'.$channel.'/'.$key);

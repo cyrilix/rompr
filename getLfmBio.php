@@ -1,7 +1,7 @@
 <?php
 ob_start();
-include ("vars.php");
-include ("functions.php");
+include ("includes/vars.php");
+include ("includes/functions.php");
 if(array_key_exists("url", $_REQUEST)) {
     $lang = array_key_exists("lang", $_REQUEST) ? $_REQUEST["lang"] : false;
     get_lfm_page( $_REQUEST['url'], $lang );

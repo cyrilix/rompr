@@ -1,7 +1,7 @@
 <?php
 
-include("vars.php");
-include("functions.php");
+include("includes/vars.php");
+include("includes/functions.php");
 include("international.php");
 
 error_reporting(0);
@@ -178,7 +178,7 @@ for ($i=0; $i<$rows->length; $i++) {
         print '<div class="smallcoverpadder fixed"></div><div class="expand">'.implode(' ', $track['meta']).'</div>';
         print '</div>';
         foreach ($track['links'] as $k) {
-            print '<div class="clickable clickfmradio indent containerbox padright menuitem" name="'.$k['url'].'" fmname="'.$track['title'].'" fmthing="Streaming Radio" fmimg="'.$imgname.'">';
+            print '<div class="clickable clickstream indent containerbox padright menuitem" name="'.$k['url'].'" streamname="'.$track['title'].'" streamimg="'.$imgname.'">';
 
             $littleimg = "";
             switch($k['type']) {

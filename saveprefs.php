@@ -1,8 +1,8 @@
 <?php
-include ("vars.php");
-//debug_print("Saving prefs");
+include ("includes/vars.php");
+debug_print("Saving prefs");
 foreach($_POST as $key => $value) {
-    //debug_print($key."=".$value);
+    debug_print($key."=".$value,"SAVEPREFS");
     if ($key == "lastfm_session_key") {
         $fp = fopen('prefs/prefs.js', 'w');
         if($fp) {

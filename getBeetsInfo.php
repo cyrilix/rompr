@@ -1,6 +1,6 @@
 <?php
-include ("vars.php");
-include ("functions.php");
+include ("includes/vars.php");
+include ("includes/functions.php");
 $uri = rawurldecode($_REQUEST['uri']);
 debug_print("Getting ".$uri, "GETBEETSINFO");
 

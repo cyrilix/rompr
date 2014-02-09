@@ -1,6 +1,6 @@
 <?php
-include ("vars.php");
-include ("functions.php");
+include ("includes/vars.php");
+include ("includes/functions.php");
 include ("international.php");
 $domain = "en";
 $userdomain = false;
@@ -38,7 +38,6 @@ if(array_key_exists("wiki", $_REQUEST)) {
     $xml_response = getArtistWiki(rawurldecode($_REQUEST['artist']), rawurldecode($_REQUEST['disambiguation']));
     if ($xml_response == null) {
         send_failure(rawurldecode($_REQUEST['artist']));
-        // print '<h3 align="center">'.get_int_text("wiki_fail", array(rawurldecode($_REQUEST['artist']))).'</h3>';
     } else {
         send_result($xml_response);
     }
@@ -49,7 +48,6 @@ if(array_key_exists("wiki", $_REQUEST)) {
     $xml_response = getAlbumWiki(rawurldecode($_REQUEST['album']), rawurldecode($_REQUEST['albumartist']));
     if ($xml_response == null) {
         send_failure(rawurldecode($_REQUEST['album']));
-        // print '<h3 align="center">'.get_int_text("wiki_fail", array(rawurldecode($_REQUEST['album']))).'</h3>';
     } else {
         send_result($xml_response);
     }
@@ -60,7 +58,6 @@ if(array_key_exists("wiki", $_REQUEST)) {
     $xml_response = getTrackWiki(rawurldecode($_REQUEST['track']), rawurldecode($_REQUEST['trackartist']));
     if ($xml_response == null) {
         send_failure(rawurldecode($_REQUEST['track']));
-        // print '<h3 align="center">'.get_int_text("wiki_fail", array(rawurldecode($_REQUEST['track']))).'</h3>';
     } else {
         send_result($xml_response);
     }
@@ -199,7 +196,7 @@ function join_responses($bits) {
     $p = "";
     foreach ($bits as $b) {
         $info = simplexml_load_string($b, 'SimpleXMLElement', LIBXML_NOCDATA);
-        $t .= $info->parse->text;
+        $t .= htmlspecialchars($info->parse->text, ENT_QUOTES);
         $d = $info->rompr->domain;
         $p = $info->rompr->page;
     }
@@ -350,7 +347,7 @@ function getArtistWiki($artist_name, $disambig) {
         }
     } elseif (preg_match('/,/', $artist) > 0) {
         $alist = explode(',', $artist);
-        $jhtml = '';
+        $jhtml = array();
         foreach ($alist as $artistname) {
             $j = wikipedia_artist_search($artistname, "");
             if ($j != '') {

@@ -1,0 +1,533 @@
+var lastfmImporter = function() {
+
+	var impu = null;
+	var currpage = 1;
+	var totalpages = 0;
+	var totaltracks = 0;
+	var progressbar;
+	var spbar;
+	var perpage = 100;
+	var databits = new Array();
+	var stopped = false;
+	var lastkey = 0;
+	var finished = false;
+	var throttleBackReset = null;
+	var searchcount = 0;
+
+	function putRow(t) {
+
+		var fancy = $('<tr>', { class: "invisible", id: "trackrow"+t.key,  style: "border-top:1px solid #454545" });
+
+		var row = '<td><img class="smallcover" src="';
+		if (t.image) {
+			row = row + t.image;
+		} else {
+			row += "newimages/album-unknown-small.png";
+		}
+		row += '" /></td>';
+		row += '<td><b>'+t.title+'</b><br><i>by </i>';
+		if (t.artist) {
+			row += t.artist;
+		}
+		row += '<br><i>on </i>';
+		if (t.album) {
+			row += t.album;
+		}
+		row += '</td>';
+		var tags = "";
+		if (t.tags) {
+			tags = t.tags.join(', ');
+		}
+		row += '<td>'+tags+'</td>';
+		row += '<td align="center">';
+		if (t.loved) {
+			row += '<img src="newimages/lastfm-love.png" height="20px" />';
+		}
+		row += '</td>';
+		row += '<td id="trackfound'+t.key+'"></td>';
+		fancy.html(row);
+		$("#frankzappa").append(fancy);
+		fancy.fadeIn('slow');
+	}
+
+	function displayFinishBits() {
+		if ($("#reviewfirst").is(':checked')) {
+			$("#hoobajoob").html('<button class="fixed topformbutton" onclick="lastfmImporter.importEverything()">Import Now</button>');
+		} else {
+			$("#hoobajoob").html('<h3 align="center">Import Finished</h3>');
+		}
+		$('[name="beefheart"]').slideToggle(500);
+		$("#hoobajoob").slideToggle(600);
+ 	}
+
+	function doNextBatch() {
+		// Note : totalpages = eg 57 but totaltracks/perpage might give eg 56.2 if the last page has only 20 tracks
+		// and perpage is 100. Using that for the % calculation prevents the progress bar skipping backwards
+		var p = (currpage/(totaltracks/perpage))*100;
+		debug.mark("LASTM IMPORTER","doNextBatch. Progress is",p.toFixed(2),currpage,totalpages);
+		progressbar.setProgress(p.toFixed(2));
+		if (faveFinder.queueLength() == 0) {
+			spbar.setProgress(p.toFixed(2));
+		}
+		currpage++;
+		if (currpage <= totalpages) {
+			debug.mark("LASTFM IMPORTER","Getting page",currpage);
+			lastfmImporter.go();
+		} else {
+			debug.mark("LASTFM IMPORTER","Finished");
+			progressbar.setProgress(100);
+			finished = true;
+			lastfm.setThrottling(500);
+			if (searchcount == 0) {
+				debug.mark("LASTM IMPORTER","Track Search Appears to have completed");
+				displayFinishBits();
+			}
+		}
+	}
+
+	function throttleBack(time) {
+		clearTimeout(throttleBackReset);
+		lastfm.setThrottling(time);
+		throttleBackReset = setTimeout(lastfmImporter.putYourFootDown, 20000);
+	}
+
+	function trackHtml(data) {
+		var html = "";
+		if (data.spotilink) {
+			html = html + '<img height="12px" src="newimages/spotify-logo.png" style="margin-right:1em" />';
+		}
+		html = html + '<b>'+data.title+'</b><br><i>on </i>';
+		var arse = data.uri;
+		html = html + data.album + '  <i>(' + arse.substr(0, arse.indexOf(":")) + ')</i>';
+		return html;
+	}
+
+	return {
+
+		open: function() {
+		    $("#configpanel").slideToggle('fast');
+
+        	impu = browser.registerExtraPlugin("impu", "Import Your Last.FM Library", lastfmImporter);
+
+        	if (!lastfm.isLoggedIn()) {
+	            $("#impufoldup").append('<h3>You must be logged in to Last.FM to do this</h3>');
+	            impu.slideToggle('fast');
+	            return;
+        	}
+
+        	if (prefs.apache_backend != 'sql' || prefs.player_backend != 'mopidy') {
+	            $("#impufoldup").append('<h3>This is not possible with your configuration</h3>');
+	            // TODO add wiki link here
+	            impu.slideToggle('fast');
+	            return;
+        	}
+
+            $("#impufoldup").append(
+
+            	'<div name="beefheart" class="containerbox vertical">'+
+            		'<div style="margin-left:8px;margin-right:8px;margin-top:4px;margin-bottom:4px" class="containerbox">'+
+            			'<div class="fixed menuitem" style="width:10em"><b>Last.FM</b></div>'+
+            			'<div class="expand menuitem" id="lfmprogress"></div>'+
+            		'</div>'+
+					'<div style="margin-left:8px;margin-right:8px;margin-top:4px;margin-bottom:12px" class="containerbox">'+
+            			'<div class="fixed menuitem" style="width:10em"><b>Track Search</b></div>'+
+            			'<div class="expand menuitem" id="searchprogress"></div>'+
+            		'</div>'+
+            	'</div>'
+            	);
+
+			// Have to let these be created visible or the layout doesn't work
+			$('[name="beefheart"]').hide();
+
+            $("#impufoldup").append('<div id="hoobajoob" style="margin-left:24px;margin-right:24px;margin-top:8px;margin-bottom:4px;padding:4px;" class="containerbox bordered">'+
+            	'<div class="expand">'+
+            	'<input type="radio" class="topcheck" name="importc" value="onlyloved" checked>Loved Tracks Only</input><br>'+
+            	'<input type="radio" class="topcheck" name="importc" value="onlytagged">Tagged Tracks Only</input><br>'+
+            	'<input type="radio" class="topcheck" name="importc" value="both">Tagged Tracks And Loved Tracks</input><br>'+
+            	'<input type="radio" class="topcheck" name="importc" value="all">Everything</input></div>'+
+
+            	'<div class="expand">Loved Tracks Get: '+
+            	'<select id="goo" class="topformbutton">'+
+            	'<option value="5">5 stars</option>'+
+            	'<option value="4">4 stars</option>'+
+            	'<option value="3">3 stars</option>'+
+            	'<option value="2">2 stars</option>'+
+            	'<option value="1">1 star</option>'+
+            	'<option value="0">No Rating</option>'+
+            	'</select><br>'+
+            	'<input type="checkbox" class="topcheck" id="reviewfirst">Review Results Before Importing</input><br>'+
+            	'<input type="checkbox" class="topcheck" id="wishlist">If A Track Can\'t Be Found, Add It To The Wishlist</input>'+
+            	'</div>'+
+
+            	'<button class="fixed topformbutton" onclick="lastfmImporter.go()" id="importgo">GO</button>'+
+            	'</div>');
+
+            $("#impufoldup").append('<table id="frankzappa" class="invisible" align="center" cellpadding="2" width="95%" style="border-collapse:collapse"></table>');
+            $("#frankzappa").append('<tr><th></th><th>Track</th><th>Tags</th><th>Loved</th><th>Search Result</th></tr>');
+
+            progressbar = new progressBar("lfmprogress", "horizontal");
+            spbar = new progressBar("searchprogress", "horizontal");
+
+            impu.slideToggle('fast');
+            currpage = 1;
+            databits = [];
+            stopped = false;
+            finished = false;
+            lastkey = 0;
+			lastfm.setThrottling(1500);
+			searchcount = 0;
+		},
+
+		go: function() {
+			if (!stopped) {
+				if ($("#hoobajoob").is(':visible')) {
+					$("#hoobajoob").slideToggle(500);
+					$('[name="beefheart"]').slideToggle(600, function() {
+						$("#frankzappa").fadeIn('fast');
+					});
+				}
+				lastfm.library.getTracks(perpage, currpage, lastfmImporter.gotNextBatch, lastfmImporter.failed);
+			}
+		},
+
+		gotNextBatch: function(data, dummy) {
+			var olk = lastkey;
+			if (data.tracks) {
+				currpage = data.tracks['@attr'].page;
+				totalpages = data.tracks['@attr'].totalPages;
+				totaltracks = data.tracks['@attr'].total;
+				// This tends to hammer last.fm and they don't like it, so throttle our requests right back
+				debug.mark("LASTFM IMPORTER","Got Page",currpage,"of",totalpages,"in LastFM Library");
+				for (var i = 0; i < data.tracks.track.length; i++) {
+					var d = {};
+					var key = i+((currpage-1)*perpage);
+					if (data.tracks.track[i].image &&
+						data.tracks.track[i].image[data.tracks.track[i].image.length-1] &&
+						data.tracks.track[i].image[data.tracks.track[i].image.length-1]['#text']) {
+						var x = data.tracks.track[i].image[data.tracks.track[i].image.length-1]['#text'];
+						if (!x.match(/default_album_.*?\.png/)) {
+							d.image = "getRemoteImage.php?url="+x;
+						}
+						x = null;
+					}
+					d.title = data.tracks.track[i].name;
+					if (data.tracks.track[i].artist && data.tracks.track[i].artist.name) {
+						d.artist = data.tracks.track[i].artist.name;
+						d.albumartist = data.tracks.track[i].artist.name;
+					}
+					if (data.tracks.track[i].album && data.tracks.track[i].album.name) {
+						d.album = data.tracks.track[i].album.name;
+					}
+					if (data.tracks.track[i].duration) {
+						d.duration = Math.round(data.tracks.track[i].duration/1000);
+					}
+					d.key = key;
+					// We can save ourselves some time by not bothering to carry on here if we know we don't need to
+					var doit = ($('[name="importc"]:checked').val() == "onlytagged" && data.tracks.track[i].tagcount == 0) ? false : true;
+					if (doit) {
+						databits[key] = {index: 0, data: [d]};
+						lastkey = key;
+						if (data.tracks.track[i].tagcount > 0) {
+							lastfm.track.getTags({artist: d.artist, track: d.title}, lastfmImporter.gotTags, lastfmImporter.gotNoTags, key);
+						}
+						// We have to do a getInfo lookup just to see if it's loved.
+						// They do like to make using your loved tracks difficult, which kind of begs the question
+						// What the hell are Loved Tracks for these days?
+						lastfm.track.getInfo({artist: d.artist, track: d.title}, lastfmImporter.gotTrackinfo, lastfmImporter.gotNoTrackinfo, key);
+					}
+
+				}
+			}
+			data = null;
+			if (olk == lastkey) {
+				doNextBatch();
+			}
+		},
+
+		failed: function(data) {
+			debug.error("LASTFM IMPORTER","Something shit happened. Trying same page again");
+			throttleBack(5000);
+			currpage--;
+			doNextBatch();
+		},
+
+		gotTags: function(data, reqid) {
+			debug.log("LASTFM IMPORTER","Got Tags for reqid",reqid);
+			var tags = new Array();
+			try {
+				var r = getArray(data.tags.tag);
+			} catch(err) {
+				var r = [];
+			}
+			for (var i in r) {
+				tags.push(r[i].name);
+			}
+			databits[reqid].data[databits[reqid].index].tags = tags;
+		},
+
+		gotNoTags: function(data, reqid) {
+			debug.warn("LASTFM IMPORTER","Tag Fuckup. Backing Off");
+			throttleBack(2500);
+		},
+
+		gotTrackinfo: function(data, reqid) {
+			if (!stopped) {
+				debug.log("LASTFM IMPORTER","Got TrackInfo for",reqid);
+				databits[reqid].data[databits[reqid].index].loved = (data.track.userloved && data.track.userloved == "1") ? true : false;
+				// Since Last.FM requests are queued, we know that when we get this we've got all the data
+
+				databits[reqid].data[databits[reqid].index].Rating = 0;
+				if (databits[reqid].data[databits[reqid].index].loved === false &&
+					($('[name="importc"]:checked').val() == "onlyloved" || $('[name="importc"]:checked').val() == "both" )) {
+					// We don't want this one
+					databits[reqid].data[databits[reqid].index].ignore = true;
+				} else {
+					databits[reqid].data[databits[reqid].index].ignore = false;
+					databits[reqid].data[databits[reqid].index].Rating = $("#goo").val();
+					putRow(databits[reqid].data[databits[reqid].index]);
+					databits[reqid].data[databits[reqid].index].reqid = reqid;
+					faveFinder.findThisOne(databits[reqid].data[databits[reqid].index], lastfmImporter, false, true);
+					searchcount++;
+				}
+				var p = (reqid/totaltracks)*100;
+				progressbar.setProgress(p.toFixed(2));
+				debug.mark("TRACKINFO","Progress is",p.toFixed(2),reqid,totaltracks);
+				if (reqid == lastkey) {
+					doNextBatch();
+				}
+			}
+			data = null;
+		},
+
+		gotNoTrackinfo: function(data, reqid) {
+			debug.warn("LASTFM IMPORTER","TrackInfo Fuckup. Backing Off");
+			throttleBack(2500);
+			if (reqid == lastkey) {
+				doNextBatch();
+			}
+		},
+
+		updateDatabase: function(results) {
+			debug.log("LASTFMIMPORTER","Got Track results",results);
+			// faveFinder calls back into here
+			searchcount--;
+			var data = results[0];
+			if (stopped) {
+				data.ignore = true;
+				databits[data.reqid] = { index: 0, data: results };
+				return;
+			}
+			databits[data.reqid] = {index: 0, data: results };
+			var p = (data.key/totaltracks)*100;
+			spbar.setProgress(p.toFixed(2));
+
+			var html = '<div>';
+			var html2 = null;
+			if (data.uri) {
+				$.each(databits[data.reqid].data, function(i,r) {
+					r.ignore = false;
+				});
+				html = html + trackHtml(data);
+				if (results.length > 1 && $("#reviewfirst").is(':checked')) {
+					html = html + '<br /><span class="clickicon tiny plugclickable dropchoices infoclick" name="'+data.key+'"> + '+(results.length - 1).toString()+' more choice';
+					if (results.length > 2) {
+						html = html + 's';
+					}
+					html = html +'</span></div>';
+					html2 = '<tr><td></td><td></td><td></td><td></td><td><div id="choices'+data.key+'" class="invisible">';
+					for (var i = 1; i < results.length; i++) {
+						html2 = html2 + '<div class="backhi plugclickable infoclick choosenew" name="'+i+'" style="margin-bottom:4px">'+trackHtml(results[i])+'</div>';
+					}
+					html2 = html2 + '</div></td><td></td><td></td></tr>';
+				} else {
+					html = html + '</div>';
+				}
+			} else {
+				html = "<b><i>Track Not Found</i></b></div>";
+				if (!($("#wishlist").is(':checked'))) {
+					databits[data.reqid].data[0].ignore = true;
+				}
+			}
+			$("#trackfound"+data.key).html(html);
+			if (!($("#reviewfirst").is(':checked'))) {
+				$("#trackrow"+data.key).append('<td align="center"></td>');
+				lastfmImporter.doSqlStuff(data, false);
+			} else {
+				$("#trackrow"+data.key).append('<td align="center"><img src="newimages/edit-delete.png" class="clickicon plugclickable infoclick removerow" /></td>');
+				$("#trackrow"+data.key).append('<td align="center"><button class="plugclickable infoclick importrow">Import</button></td>');
+				if (html2) {
+					$("#trackrow"+data.key).after(html2);
+				}
+			}
+			debug.log("LASTFM IMPORTER", "Searchcount is",searchcount);
+			if (searchcount == 0 && finished) {
+				debug.mark("LASTM IMPORTER","Track Search Finished");
+				displayFinishBits();
+			}
+		},
+
+		handleClick: function(element, event) {
+			if (element.hasClass('dropchoices')) {
+				lastfmImporter.dropChoices(parseInt(element.attr('name')));
+			} else if (element.hasClass('choosenew')) {
+				lastfmImporter.chooseNew(element);
+			} else if (element.hasClass('removerow')) {
+				lastfmImporter.removeRow(event);
+			} else if (element.hasClass('importrow')) {
+				lastfmImporter.importRow(event);
+			}
+		},
+
+		chooseNew: function(clickedElement) {
+			var key = clickedElement.parent().attr("id");
+			key = key.replace(/choices/, "");
+			var index = clickedElement.attr("name");
+			clickedElement.html(trackHtml(databits[key].data[databits[key].index]));
+			clickedElement.attr("name", databits[key].index);
+			databits[key].index = index;
+			var html = '<div>' + trackHtml(databits[key].data[index]) +
+			'<br /><span class="clickicon tiny plugclickable dropchoices infoclick" name="'+key+'"> + '+(databits[key].data.length - 1).toString()+' more choice';
+			if (databits[key].data.length > 2) {
+				html = html + 's';
+			}
+			html = html +'</span></div>';
+			$("#trackfound"+key).html(html);
+		},
+
+		dropChoices: function(which) {
+			$("#choices"+which).slideToggle('fast');
+		},
+
+		stopThisCraziness: function() {
+			stopped = true;
+			lastfm.flushReqids();
+			lastfm.setThrottling(500);
+			displayFinishBits();
+		},
+
+		close: function() {
+			stopped = true;
+			lastfm.flushReqids();
+			lastfm.setThrottling(500);
+			impu = null;
+			databits = [];
+		},
+
+		removeRow: function(event) {
+			var clickedElement = $(event.target).parent().parent().attr("id");
+			debug.log("LASTFM IMPORTER","Delete row",clickedElement);
+			var key = parseInt(clickedElement.replace('trackrow',''));
+			databits[key].data[databits[key].index].ignore = true;
+			$("#"+clickedElement).fadeOut('slow');
+		},
+
+		importRow: function(event) {
+			var clickedElement = $(event.target).parent().parent().attr("id");
+			debug.log("LASTFM IMPORTER","Import row",clickedElement);
+			var key = parseInt(clickedElement.replace('trackrow',''));
+			debug.log("LASTFMIMPORTER","Importing",databits[key], databits[key].data[databits[key].index]);
+			lastfmImporter.doSqlStuff(databits[key].data[databits[key].index], false);
+		},
+
+		doSqlStuff: function(data, callback) {
+			if (!data || data.ignore) {
+				if (callback) {
+					debug.debug("LASTFM IMPORTER","Track is undefined or marked as ignore");
+					callback();
+				}
+			} else {
+				data.action = 'set';
+				data.attribute = 'Rating';
+				data.value = data.Rating;
+				data.urionly = 1;
+				debug.mark("LASTFM IMPORTER","Doing SQL Rating Stuff",data);
+		        $.ajax({
+		            url: "userRatings.php",
+		            type: "POST",
+		            data: data,
+		            dataType: 'json',
+		            success: function(rdata) {
+		                debug.log("LASTFM IMPORTER","Success",rdata);
+		                updateCollectionDisplay(rdata);
+		                if (data.tags && data.tags.length > 0) {
+		                	data.attribute = 'Tags';
+		                	data.value = data.tags;
+							debug.mark("LASTFM IMPORTER","Doing SQL Tag Stuff",data);
+					        $.ajax({
+					            url: "userRatings.php",
+					            type: "POST",
+					            data: data,
+					            dataType: 'json',
+					            success: function(rdata) {
+					                debug.log("LASTFM IMPORTER","Success",rdata);
+					                updateCollectionDisplay(rdata);
+					                data.ignore = true;
+									$("#trackrow"+data.key+' td:last').html('<img src="newimages/tick.png" />');
+									if (callback) {
+										setTimeout(callback, 1000);
+									}
+					            },
+					            error: function(rdata) {
+					                debug.warn("LASTFM IMPORTER","Failure");
+					                infobar.notify(infobar.ERROR,"Setting Tags Failed");
+									if (callback) {
+										setTimeout(callback, 1000);
+									}
+					            }
+					        });
+		                } else {
+		                	data.ignore = true;
+							$("#trackrow"+data.key+' td:last').html('<img src="newimages/tick.png" />');
+							if (callback) {
+								setTimeout(callback, 1000);
+							}
+		                }
+		            },
+		            error: function(rdata) {
+		                infobar.notify(infobar.ERROR,"Track Import Failed");
+		                debug.warn("LASTFM IMPORTER","Failure");
+						if (callback) {
+							setTimeout(callback, 1000);
+						}
+		            }
+		        });
+		    }
+		},
+
+		importEverything: function() {
+			if ($("#hoobajoob").is(':visible')) {
+				$('[name="beefheart"]').children()[1].remove();
+				$('[name="beefheart"] div:last').prev().html('<b>Progress</b>');
+				$("#hoobajoob").slideToggle(500);
+				$('[name="beefheart"]').slideToggle(600);
+				progressbar.setProgress(0);
+				// Remove the delete and 'import' boxes from the rows
+				$('#frankzappa tr').each(function() { $(this).children('td').last().html('').prev().html('') });
+			}
+
+			if (databits.length > 0) {
+				var next = databits.shift();
+				var thing = null;
+				if (next) {
+					thing = next.data[next.index];
+					if (thing) {
+						if (thing.key) {
+							var p = (thing.key/lastkey)*100;
+							progressbar.setProgress(p.toFixed(2));
+						}
+					}
+				}
+				lastfmImporter.doSqlStuff(thing, lastfmImporter.importEverything);
+			}
+		},
+
+		putYourFootDown: function() {
+			clearTimeout(throttleBackReset);
+			lastfm.setThrottling(1500);
+		}
+
+	}
+
+}();
+
+$("#specialplugins").append('<button onclick="lastfmImporter.open()">Import Last.FM Library</button>');

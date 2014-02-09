@@ -1,5 +1,5 @@
 <?php
-include ("vars.php");
+include ("includes/vars.php");
 
 // This is for getting a remote playlist from a radio station - eg PLS or ASX files
 // This script parses that remote playlist and creates a local XSPF which will be
@@ -7,57 +7,26 @@ include ("vars.php");
 
 // Called with : 	url   	:  	The remote playlist to download or stream to add
 //					station :	The name of the radio station (Groove Salad)
-//					creator :	The name of the broadcaster (Soma FM)
+//					creator :	Not used for radio streams
 //					image   :	The image to use in the playlist
 
 // The generated playlists can be updated later if no information is known -
 // the playlist will handle that when it gets stream info from mpd
 
-include ("functions.php");
+include ("includes/functions.php");
 include ("international.php");
 
 $url = rawurldecode($_REQUEST['url']);
 $station = (array_key_exists('station', $_REQUEST)) ? rawurldecode($_REQUEST['station']) : "Unknown Internet Stream";
-$creator = (array_key_exists('creator', $_REQUEST)) ? rawurldecode($_REQUEST['creator']) : get_int_text("label_internet_radio");
+$creator = "";
 $image = (array_key_exists('image', $_REQUEST)) ? rawurldecode($_REQUEST['image']) : "newimages/broadcast.png";
 $usersupplied = (array_key_exists('usersupplied', $_REQUEST)) ? true : false;
 
 debug_print("Getting Internet Stream:","RADIO_PLAYLIST");
 debug_print("  url : ".$url,"RADIO_PLAYLIST");
 debug_print("  station : ".$station,"RADIO_PLAYLIST");
-debug_print("  creator : ".$creator,"RADIO_PLAYLIST");
 debug_print("  image : ".$image,"RADIO_PLAYLIST");
 debug_print("  user : ".$usersupplied,"RADIO_PLAYLIST");
-
-$existing_album_names = array();
-// Check which names we already have
-$all_playlists = glob("prefs/*STREAM*.xspf");
-foreach($all_playlists as $file) {
-    if (file_exists($file)) {
-    	if ($url) {
-    		if (preg_match("/".md5($url)."/", $file)) {
-    			debug_print("We already have a playlist for URL ".$url,"RADIO_PLAYLIST");
-    			print file_get_contents($file);
-    			if ($usersupplied && preg_match("/^STREAM/", basename($file))) {
-    				// Make this a USERSTREAM
-			        $newname = "prefs/USER".basename($file);
-			        system('mv "'.$file.'" "'.$newname.'"');
-    			}
-    			exit(0);
-    		}
-    	}
-        $x = simplexml_load_file($file);
-        if ($x->trackList && $x->trackList->track[0]) {
-	        $n = (string)$x->trackList->track[0]->album;
-	        $n = preg_replace('/ \d+$/', '', $n);
-	        if (array_key_exists($n, $existing_album_names)) {
-	        	$existing_album_names[$n]++;
-	        } else {
-	        	$existing_album_names[$n] = 1;
-	        }
-        }
-    }
-}
 
 if ($url) {
 
@@ -140,11 +109,14 @@ if ($url) {
 	}
 
 	if ($playlist) {
+		list($tl, $st) = $playlist->getTracks();
 		header('Content-Type: text/xml; charset=utf-8');
 		$output = '<?xml version="1.0" encoding="utf-8"?>'."\n".
-		          '<playlist>'."\n".
+		          "<playlist>\n".
+		          "<playlisturl>".htmlspecialchars($url)."</playlisturl>\n".
+		          "<addedbyrompr>true</addedbyrompr>\n".
 				  '<trackList>'."\n";
-		$output = $output . $playlist->getTracks();
+		$output = $output . $tl;
 		$output = $output . "</trackList>\n</playlist>\n";
 
 		$fp = null;
@@ -187,7 +159,7 @@ class plsFile {
 
 	public function __construct($data, $url, $station, $creator, $image) {
 		$this->url = $url;
-		$this->station = checkStationName($station);
+		$this->station = $station;
 		$this->creator = $creator;
 		$this->image = $image;
 
@@ -198,16 +170,14 @@ class plsFile {
 			$bits = explode("=", $line);
 			if (preg_match('/File/', $bits[0])) {
 				$pointer++;
-				//$tracks[$pointer]['track'] = $bits[1];
 				$tracks[$pointer]['track'] = trim(implode('=', array_slice($bits,1)));
-				if (!array_key_exists('title', $tracks[$pointer])) {
-					$tracks[$pointer]['title'] = "";
-				}
 			}
 			if (preg_match('/Title/', $bits[0])) {
 				$tracks[$pointer]['title'] = $bits[1];
-				$this->station = checkStationAgain($this->station, $tracks[$pointer]['title']);
 			}
+		}
+		if (array_key_exists('title', $tracks[0])) {
+			$this->station = checkStationAgain($this->station, $tracks[0]['title']);
 		}
 		$this->tracks = $tracks;
 	}
@@ -215,21 +185,29 @@ class plsFile {
 	public function getTracks() {
 
 		$output = "";
+		$t = array();
 		foreach($this->tracks as $i => $track) {
-			$output = $output . "<track>\n";
-			$output = $output . xmlnode('album', $this->station);
-			$output = $output . xmlnode('creator', $this->creator);
-			$output = $output . xmlnode('image', $this->image);
-		    if ($this->tracks[$i]['title'] != "") {
-				$output = $output . xmlnode('stream', $this->tracks[$i]['title']);
+			if (in_array($this->tracks[$i]['track'], $t)) {
+				debug_print("Skipping duplicate track entry","RADIO PLAYLIST");
 			} else {
-				$output = $output . xmlnode('stream', $this->station);
+				$output = $output . "<track>\n";
+				$output = $output . xmlnode('album', $this->station);
+				$output = $output . xmlnode('creator', $this->creator);
+				$output = $output . xmlnode('title', "");
+				$output = $output . xmlnode('type', "stream");
+				$output = $output . xmlnode('image', $this->image);
+			    if ($this->tracks[$i]['title'] != "") {
+					$output = $output . xmlnode('stream', $this->tracks[$i]['title']);
+				} else {
+					$output = $output . xmlnode('stream', "");
+				}
+				$output = $output . xmlnode('location', $this->tracks[$i]['track']).
+									xmlnode('compilation', 'yes').
+									"</track>\n";
+				array_push($t, $this->tracks[$i]['track']);
 			}
-			$output = $output . xmlnode('location', $this->tracks[$i]['track']).
-								xmlnode('compilation', 'yes').
-								"</track>\n";
 		}
-		return $output;
+		return array($output, $this->station);
 	}
 
 }
@@ -256,25 +234,33 @@ class asxFile {
 	public function __construct($data, $url, $station, $creator, $image) {
 		$this->url = $url;
 		$this->xml = simplexml_load_string($data, 'SimpleXMLElement', LIBXML_NOCDATA);
-		$this->station = checkStationName(($this->xml->TITLE != null) ? $this->xml->TITLE : $station);
-		$this->creator = ($this->xml->AUTHOR != null) ? $this->xml->AUTHOR : $creator;
+		$this->station = $this->xml->TITLE != null ? $this->xml->TITLE : $station;
+		$this->creator = $creator;
 		$this->image = $image;
 	}
 
 	public function getTracks() {
 
 		$output = "";
+		$t = array();
 	    foreach($this->xml->Entry as $i => $r) {
-	        $output = $output . "<track>\n".
-	                            xmlnode('stream', $this->station).
-	                            xmlnode('album', $this->station).
-	                            xmlnode('image', $this->image).
-	                            xmlnode('creator', $this->creator).
-	                            xmlnode('location', $r->ref['href']).
-	                            "</track>\n";
+	    	if (in_array((string) $r->ref['href'], $t)) {
+	    		debug_print("Skipping duplicate track entry","RADIO PLAYLIST");
+	    	} else {
+		        $output = $output . "<track>\n".
+		                            xmlnode('stream', "").
+		                            xmlnode('album', $this->station).
+									xmlnode('type', "stream").
+									xmlnode('title', "").
+		                            xmlnode('image', $this->image).
+		                            xmlnode('creator', $this->creator).
+		                            xmlnode('location', $r->ref['href']).
+		                            "</track>\n";
+		        array_push($t, (string) $r->ref['href']);
+		    }
 
 	    }
-	    return $output;
+		return array($output, $this->station);
 
 	}
 }
@@ -301,8 +287,8 @@ class xspfFile {
 	public function __construct($data, $url, $station, $creator, $image) {
 		$this->url = $url;
 		$this->xml = simplexml_load_string($data, 'SimpleXMLElement', LIBXML_NOCDATA);
-		$this->station = checkStationName(($this->xml->title != null) ? $this->xml->title : $station);
-		$this->creator = ($this->xml->info != null) ? $this->xml->info : $creator;
+		$this->station = $this->xml->title != null ? $this->xml->title : $station;
+		$this->creator = $creator;
 		$this->image = $image;
 	}
 
@@ -311,14 +297,16 @@ class xspfFile {
 		$output = "";
 	    foreach($this->xml->trackList->track as $i => $r) {
 	        $output = $output . "<track>\n".
-	                            xmlnode('stream', $this->station).
+	                            xmlnode('stream', "").
 	                            xmlnode('album', $this->station).
 	                            xmlnode('image', $this->image).
+								xmlnode('type', "stream").
+								xmlnode('title', "").
 	                            xmlnode('creator', $this->creator).
 	                            xmlnode('location', $r->location).
 	                            "</track>\n";
 	    }
-	    return $output;
+		return array($output, $this->station);
 
 	}
 }
@@ -327,11 +315,17 @@ class xspfFile {
 //
 // http://uk1.internet-radio.com:15614/
 
+// or
+
+// #EXTM3U
+// #EXTINF:duration,Artist - Album
+
 class m3uFile {
 
 	public function __construct($data, $url, $station, $creator, $image) {
+		debug_print("New M3U Station ".$station,"RADIO PLAYLIST");
 		$this->url = $url;
-		$this->station = checkStationName($station);
+		$this->station = $station;
 		$this->creator = $creator;
 		$this->image = $image;
 		$this->tracks = array();
@@ -350,17 +344,20 @@ class m3uFile {
 	public function getTracks() {
 
 		$output = "";
+		debug_print("Outputting M3U Station ".$this->station,"RADIO PLAYLIST");
 		foreach($this->tracks as $i => $track) {
 			$output = $output . "<track>\n";
 			$output = $output . xmlnode('album', $this->station);
-			$output = $output . xmlnode('stream', $this->station);
+			$output = $output . xmlnode('stream', "");
 			$output = $output . xmlnode('creator', $this->creator);
+			$output = $output . xmlnode('title', "");
+			$output = $output . xmlnode('type', "stream");
 			$output = $output . xmlnode('image', $this->image);
 			$output = $output . xmlnode('location', $track).
 								xmlnode('compilation', 'yes').
 								"</track>\n";
 		}
-		return $output;
+		return array($output, $this->station);
 	}
 }
 
@@ -372,7 +369,7 @@ class asfFile {
 
 	public function __construct($data, $url, $station, $creator, $image) {
 		$this->url = $url;
-		$this->station = checkStationName($station);
+		$this->station = $station;
 		$this->creator = $creator;
 		$this->image = $image;
 		$this->tracks = array();
@@ -392,14 +389,16 @@ class asfFile {
 		foreach($this->tracks as $i => $track) {
 			$output = $output . "<track>\n";
 			$output = $output . xmlnode('album', $this->station);
-			$output = $output . xmlnode('stream', $this->station);
+			$output = $output . xmlnode('stream', "");
 			$output = $output . xmlnode('creator', $this->creator);
+			$output = $output . xmlnode('title', "");
+			$output = $output . xmlnode('type', "stream");
 			$output = $output . xmlnode('image', $this->image);
 			$output = $output . xmlnode('location', $track).
 								xmlnode('compilation', 'yes').
 								"</track>\n";
 		}
-		return $output;
+		return array($output, $this->station);
 	}
 }
 
@@ -410,42 +409,34 @@ class possibleStreamUrl {
 	public function __construct($url, $station, $creator, $image) {
 		debug_print("Unknown Playlist Type - treating as stream URL","RADIO_PLAYLIST");
 		$this->url = $url;
-		$this->station = checkStationName($station);
+		$this->station = $station;
 		$this->creator = $creator;
 		$this->image = $image;
 	}
 
 	public function getTracks() {
 
-        return "<track>\n".
-                xmlnode('stream', $this->station).
+        return array("<track>\n".
+                xmlnode('stream', "").
                 xmlnode('album', $this->station).
                 xmlnode('image', $this->image).
+				xmlnode('title', "").
+				xmlnode('type', "stream").
                 xmlnode('creator', $this->creator).
                 xmlnode('location', $this->url).
-                "</track>\n";
+                "</track>\n", $this->station);
 	}
-}
-
-function checkStationName($station) {
-	global $existing_album_names;
-	$station = (string)$station;
-	if (array_key_exists($station, $existing_album_names)) {
-		$existing_album_names[$station]++;
-		$station = $station. " ".$existing_album_names[$station];
-	} else {
-		$existing_album_names[$station] = 1;
-	}
-	return $station;
 }
 
 function checkStationAgain($currenttitle, $tracktitle) {
-	global $existing_album_names;
+	// For MPD, we can get a station name from the pls file
+	// For Mopidy, we'll let mopidy's scanner find one for us. This is more accurate
+	global $prefs;
 	$currenttitle = (string)$currenttitle;
-	if (preg_match('/Unknown Internet Stream/', $currenttitle)) {
+	if (preg_match('/Unknown Internet Stream/', $currenttitle) && $prefs['player_backend'] == "mpd") {
 		$a = preg_replace('/\(.*?\)/', '', $tracktitle);
 		if ($a != '') {
-			$currenttitle = checkStationName($a);
+			$currenttitle = $a;
 		}
 	}
 	return $currenttitle;

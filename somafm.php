@@ -1,6 +1,6 @@
 <?php
-include ("vars.php");
-include ("functions.php");
+include ("includes/vars.php");
+include ("includes/functions.php");
 include ("international.php");
 
 print '<div class="containerbox indent padright wibble">';
@@ -76,10 +76,7 @@ if ($content['status'] == "200") {
 }
 
 function format_listenlink($c, $p, $label) {
-    // debug_print("PLS ".(string) $p, "SOMAFM");
-    // debug_print("TYPE ".(string) $p[0]['format'],"SOMAFM");
-    // debug_print("IMAGE ".(string) $c->xlimage,"SOMAFM");
-    print '<div class="clickable clicksoma indent containerbox padright menuitem" name="'.(string) $p.'" somaimg="'.(string) $c->xlimage.'" somaname="'.$c->title.'">';
+    print '<div class="clickable clickstream indent containerbox padright menuitem" name="'.(string) $p.'" streamimg="'.(string) $c->xlimage.'" streamname="'.$c->title.'">';
     print '<div class="fixed">'.$label.'&nbsp;</div>';
     print '<div class="playlisticon fixed"><img height="12px" src="newimages/broadcast-12.png" /></div>';
     switch ($p[0]['format']) {

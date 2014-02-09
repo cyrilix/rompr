@@ -8,7 +8,7 @@ http://sourceforge.net/p/rompr/wiki/Installation/
 MacOS X Users
 =============
 
-Please read the online instrctions here:
+Please read the online instructions here:
 
 http://sourceforge.net/p/rompr/wiki/Installation%20on%20Mac%20OS%20X/
 

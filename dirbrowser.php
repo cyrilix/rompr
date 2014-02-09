@@ -1,8 +1,9 @@
 
 <?php
-include ("vars.php");
-include ("functions.php");
-include ("filelister.php");
+include ("includes/vars.php");
+include ("includes/functions.php");
+include ("backends/xml/backend.php");
+include ("backends/xml/filelister.php");
 
 $count = 1;
 $tree = null;
@@ -10,7 +11,7 @@ $tree = null;
 if (array_key_exists('item', $_REQUEST) && file_exists($FILESLIST)) {
 	dumpTree($_REQUEST['item']);
 } else {
-	include ("connection.php");
+	include ("player/mpd/connection.php");
 	$tree = doFileList("listall");
 	doFileCollection($FILESLIST);
    	dumpTree('adirroot');

@@ -1,6 +1,7 @@
 <?php
-include ("vars.php");
-include ("functions.php");
+include ("includes/vars.php");
+include ("includes/functions.php");
+include ("player/mpd/sockets.php");
 $mpd_status = array();
 $mpd_status['albumart'] = "";
 

@@ -1,5 +1,5 @@
 <?php
-include ("vars.php");
+include ("includes/vars.php");
 
 $keys = array(  "nextrack" => "right+++right",
                 "prevtrack" => "left+++left",
