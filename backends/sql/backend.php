@@ -1,14 +1,21 @@
 <?php
 
 $mysqlc = null;
-$mysqlc = mysqli_connect($prefs['mysql_host'],$prefs['mysql_user'],$prefs['mysql_password'],'romprdb');
-if (mysqli_connect_errno()) {
-	debug_print("Failed to connect to MySQL: ".mysqli_connect_error(), "MYSQL");
-	$mysqlc = null;
+if (function_exists('mysqli_connect')) {
+	try {
+		$mysqlc = @mysqli_connect($prefs['mysql_host'],$prefs['mysql_user'],$prefs['mysql_password'],'romprdb');
+		if (mysqli_connect_errno()) {
+			debug_print("Failed to connect to MySQL: ".mysqli_connect_error(), "MYSQL");
+			$mysqlc = null;
+		} else {
+			debug_print("Connected to MySQL","MYSQL");
+		}
+	} catch (Exception $e) {
+		debug_print("Database connect failure - ".$e,"MYSQL");
+	}
 } else {
-	debug_print("Connected to MySQL","MYSQL");
+	debug_print("PHP SQL driver is not installed","MYSQL");
 }
-
 $artist_created = false;
 $album_created = false;
 

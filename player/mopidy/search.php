@@ -46,6 +46,9 @@ print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_an
         <div class="expand"><input class="searchterm enter sourceform" name="any" type="text" /></div>
     </div>
 
+<?php
+if ($prefs['apache_backend'] == "sql") {
+?>
     <div class="containerbox padright dropdown-container">
 <?php
 print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_tag").'</b></div>';
@@ -75,11 +78,13 @@ print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_ra
         <option value="1">1 star</option>
         <option value="" selected></option>
         </select>
-    </div>
+       </div>
 
     </div>
 
 <?php
+}
+
     print '<div class="indent containerbox padright">';
     print '<input type="checkbox" id="limitsearch" value="1" onclick="weaselBurrow()"';
     if ($prefs['search_limit_limitsearch'] == 1) {
@@ -109,9 +114,7 @@ print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_ra
 <?php
 print '<button class="fixed" onclick="player.controller.search(\'search\')">'.get_int_text("button_search").'</button>';
 ?>
-        <!-- <button class="fixed" onclick="player.doMopidySearch('findExact')">Find Exact Match</button> -->
     </div>
-
 
     <div id="searchresultholder" class="noselection fullwidth"></div>
 

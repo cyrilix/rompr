@@ -4,7 +4,6 @@ function Playlist() {
     var tracklist = [];
     var currentalbum = -1;
     this.currentTrack = null;
-    var AlanPartridge = 0;
     var finaltrack = -1;
     this.rolledup = [];
     var updatecounter = 0;

@@ -186,6 +186,7 @@ for ($i=0; $i<$rows->length; $i++) {
                     $littleimg = "newimages/wma_16.png";
                     break;
                 case "aacplus":
+                case 'aacPlus':
                     $littleimg = "newimages/aac_16.png";
                     break;
                 case "mp3":

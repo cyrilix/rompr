@@ -511,10 +511,8 @@ var imageEditor = function() {
 
                 $("#"+current).addClass("bsel");
 
-                $("#brian").append(         $('<input>', { type: 'text', id: 'searchphrase', class: 'tleft sourceform', size: '80' }),
-                                            $('<button>', { class: 'tright topformbutton', onclick: 'imageEditor.research()', style: 'width:8em' }));
+                $("#brian").append('<div class="containerbox"><div class="expand"><input type="text" id="searchphrase" class="sourceform" /></div><button class="fixed sourceform" onclick="imageEditor.research()">Search</button></div>');
 
-                $("#brian button").html('Search');
                 $("#searchphrase").val(phrase);
 
                 var bigsauce = origsauce;
@@ -893,6 +891,7 @@ print "</body>\n";
 print "</html>\n";
 
 function do_artists_xml_style() {
+    global $ALBUMSLIST;
     $acount = 0;
     $collection = simplexml_load_file($ALBUMSLIST);
     foreach($collection->artists->artist as $artist) {
@@ -915,6 +914,7 @@ function do_artists_db_style() {
 }
 
 function do_covers_xml_style() {
+    global $ALBUMSLIST;
     global $count;
     global $albums_without_cover;
     global $allfiles;

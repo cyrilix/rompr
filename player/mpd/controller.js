@@ -7,6 +7,7 @@ function playerController() {
     var consumeflag = true;
     var currentsong = -1;
     var previoussongid = null;
+    var AlanPartridge = 0;
 
     function updateStreamInfo() {
 
@@ -27,7 +28,7 @@ function playerController() {
                     temp.title = parts.join(" - ");
                 }
             }
-            if (player.status.Name) {
+            if (player.status.Name && !player.status.Name.match(/^\//)) {
                 // NOTE: 'Name' is returned by MPD - it's the station name
                 // as read from the station's stream metadata
                 checkForUpdateToUnknownStream(player.status.file, player.status.Name);
@@ -36,7 +37,7 @@ function playerController() {
 
             if (playlist.currentTrack.title != temp.title ||
                 playlist.currentTrack.album != temp.album ||
-                prent.currentTrack.creator != temp.creator)
+                playlist.currentTrack.creator != temp.creator)
             {
                 temp.musicbrainz.artistid = "";
                 temp.musicbrainz.albumid = "";
@@ -75,7 +76,7 @@ function playerController() {
     }
 
     this.initialise = function() {
-    	self.command("");
+    	self.command("", playlist.repopulate);
     	debug.log("MPD", "Checking Collection");
 		checkCollection();
 		self.reloadPlaylists();
@@ -101,7 +102,7 @@ function playerController() {
                infobar.updateWindowValues();
             }
             if ((data.state == "pause" || data.state=="stop") && data.single == 1) {
-                player.mpd.fastcommand("command=single&arg=0");
+                self.fastcommand("command=single&arg=0");
             }
             debug.log("MPD","Status",player.status);
         })
@@ -177,7 +178,18 @@ function playerController() {
     }
 
 	this.reloadPlaylists = function() {
-          $("#playlistslist").load("loadplaylists.php?mobile="+mobile);
+        $.get("loadplaylists.php", function(data) {
+            var html = playlistMenuHeader()+data;
+            if (mobile == "no") {
+                html = html + '</table></li>';
+            } else {
+                html = html + "</table>";
+            }
+            $("#playlistslist").html(html);
+            $("#playlistslist").find('.enter').keyup(onKeyUp);
+            $("#poohbear").click(onDropdownClicked);
+            addCustomScrollBar("#tigger");
+        });
 	}
 
 	this.loadPlaylist = function(name) {
@@ -199,7 +211,7 @@ function playerController() {
 	    if (name.indexOf("/") >= 0 || name.indexOf("\\") >= 0) {
 	        alert(language.gettext("error_playlistname"));
 	    } else {
-	        player.mpd.fastcommand("command=save&arg="+encodeURIComponent(name), function() {
+	        self.fastcommand("command=save&arg="+encodeURIComponent(name), function() {
 	            self.reloadPlaylists();
 	            infobar.notify(infobar.NOTIFY, language.gettext("label_savedpl", [name]));
 	        });
@@ -245,7 +257,7 @@ function playerController() {
 
 	this.seek = function(seekto) {
         self.command("command=seek&arg="+player.status.song+"&arg2="+parseInt(seekto.toString()),
-            function() { self.mpd.deferredupdate(1000) });
+            function() { self.deferredupdate(1000) });
 	}
 
 	this.playId = function(id) {
@@ -382,6 +394,49 @@ function playerController() {
 		callback([]);
 	}
 
+    this.search = function() {
+        var terms = {};
+        var termcount = 0;
+        $("#mopidysearcher").find('.searchterm').each( function() {
+            var key = $(this).attr('name');
+            var value = $(this).attr("value");
+            if (value != "") {
+                debug.debug("PLAYER","Searching for",key, value);
+                if (key == 'tag') {
+                    terms[key] = value.split(',');
+                } else {
+                    terms[key] = [value];
+                }
+                termcount++;
+            }
+        });
+        if ($('[name="searchrating"]').val() != "") {
+            terms['rating'] = $('[name="searchrating"]').val();
+            termcount++;
+        }
+        if (termcount > 0) {
+            $("#searchresultholder").empty();
+            doSomethingUseful('searchresultholder', language.gettext("label_searching"));
+            debug.log("PLAYER","Doing Search:", terms);
+            var st;
+            if (terms.tag || terms.rating) {
+                st = {terms: terms};
+            } else {
+                st = {mpdsearch: terms};
+            }
+            $.ajax({
+                    type: "POST",
+                    url: "albums.php",
+                    data: st,
+                    success: function(data) {
+                        $("#searchresultholder").html(data);
+                        data = null;
+                    }
+            });
+        }
+
+    }
+
 	this.postLoadActions = function() {
 		self.checkProgress();
 	}
@@ -433,7 +488,7 @@ function playerController() {
         }
 
         progress = infobar.progress();
-        duration = currentTrack.duration || 0;
+        duration = playlist.currentTrack.duration || 0;
         percent = (duration == 0) ? 0 : (progress/duration) * 100;
         infobar.setProgress(percent.toFixed(2),progress,duration);
 
@@ -451,9 +506,9 @@ function playerController() {
                     setTheClock( self.checkProgress, 1000);
                 }
             } else {
-                // It's a stream. Every 7 seconds we poll mpd to see if the track has changed
+                // It's a stream. Every 5 seconds we poll mpd to see if the track has changed
                 AlanPartridge++;
-                if (AlanPartridge < 7) {
+                if (AlanPartridge < 5) {
                     setTheClock( self.checkProgress, 1000);
                 } else {
                     AlanPartridge = 0;
@@ -465,12 +520,12 @@ function playerController() {
 
     this.checkchange = function() {
         // Update the status to see if the track has changed
-        player.mpd.command("", self.checkProgress);
+        self.command("", self.checkProgress);
     }
 
     this.streamfunction = function() {
         self.clearProgressTimer();
-        player.mpd.command("", self.checkStream);
+        self.command("", self.checkStream);
     }
 
     this.checkStream = function() {
@@ -479,9 +534,9 @@ function playerController() {
         self.checkProgress();
     }
 
-    this.onstop = function() {
+    this.onStop = function() {
         self.clearProgressTimer();
-    	playlist.checkSongIdAfterStop(previoussong)
+        playlist.checkSongIdAfterStop(player.status.songid);
         self.checkProgress();
     }
 

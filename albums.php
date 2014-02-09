@@ -12,21 +12,24 @@ if (array_key_exists('rebuild', $_REQUEST) ||
     // At the moment, the sql backend only does the main collection. Search is still XML
     $apache_backend = $prefs['apache_backend'];
 }
-// Don't include the plery backend or collection at this point
+// Don't include the player backend or collection at this point
 // because it slows things down and makes the UI look unresponsive
 include ("backends/".$apache_backend."/backend.php");
 
 if (array_key_exists('item', $_REQUEST)) {
     // Populate a dropdown in the collection or search results
 	dumpAlbums($_REQUEST['item']);
-} else if (array_key_exists("searchtitle", $_REQUEST)) {
+} else if (array_key_exists("mpdsearch", $_REQUEST)) {
     // Handle an mpd-style search request
     include ("player/".$player_backend."/connection.php");
     include ("collection/collection.php");
-    $cmd = "search ".$_REQUEST['stype'].' "'.format_for_mpd(html_entity_decode($_REQUEST['searchtitle'])).'"';
+    $cmd = "search";
+    foreach ($_REQUEST['mpdsearch'] as $key => $term) {
+        $cmd .= " ".$key.' "'.format_for_mpd(html_entity_decode($term[0])).'"';
+    }
+    debug_print("Search command : ".$cmd,"MPD SEARCH");
     $collection = doCollection($cmd);
     createAlbumsList($ALBUMSEARCH, "b");
-    include ("player/".$player_backend."/search.php");
     dumpAlbums('balbumroot');
     print '<div class="separator"></div>';
     close_player();

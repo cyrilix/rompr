@@ -679,20 +679,24 @@ function getStuffFromXSPF($url) {
                     if (preg_match('/^http:/', $image)) {
                         $image = "getRemoteImage.php?url=".$image;
                     }
-                    return array (  true,
-                                    (string) $track->title,
-                                    ($track->duration)/1000,
-                                    null, null, null,
-                                    (string) $track->creator,
-                                    (string) $track->album,
-                                    null,
-                                    "lastfmradio",
-                                    $image,
-                                    (string) $track->expires,
-                                    (string) $x->playlist->stationurl,
-                                    (string) $x->playlist->title,
-                                    null,
-                                    (string) $track->creator);
+                    return array (
+                        true,
+                        (string) $track->title,
+                        ($track->duration)/1000,
+                        null,
+                        null,
+                        null,
+                        (string) $track->creator,
+                        (string) $track->album,
+                        null,
+                        "lastfmradio",
+                        $image,
+                        (string) $track->expires,
+                        (string) $x->playlist->stationurl,
+                        (string) $x->playlist->title,
+                        null,
+                        (string) $track->creator
+                    );
                 }
 
             }
@@ -732,51 +736,72 @@ function getStuffFromXSPF($url) {
                 if (preg_match('/^http:/', $image)) {
                     $image = "getRemoteImage.php?url=".$image;
                 }
-                return array (  true,
-                                (string) $track->title,
-                                0,
-                                null, null, null,
-                                (string) $track->creator,
-                                (string) $track->album,
-                                null,
-                                (string) $track->type,
-                                $image,
-                                null, null, null,
-                                (string) $track->stream,
-                                "");
+                $type = (string) $track->type;
+                if ($type == "") {
+                    $type = "stream";
+                }
+                return array (
+                    true,
+                    (string) $track->title,
+                    0,
+                    null,
+                    null,
+                    null,
+                    (string) $track->creator,
+                    (string) $track->album,
+                    null,
+                    $type,
+                    $image,
+                    null,
+                    null,
+                    null,
+                    (string) $track->stream,
+                    ""
+                );
             }
         }
     }
 
     if (file_exists('prefs/'.md5($url).'.xspf')) {
         $x = simplexml_load_file('prefs/'.md5($url).'.xspf');
-        return array (  true,
-                        (string) $x->trackList->track->title,
-                        ($x->trackList->track->duration)/1000,
-                        null, null, null,
-                        (string) $x->trackList->track->creator,
-                        (string) $x->trackList->track->album,
-                        null,
-                        "local",
-                        (string) $x->trackList->track->image,
-                        null, null, null, null,
-                        (string) $x->trackList->track->creator);
+        return array (
+            true,
+            (string) $x->trackList->track->title,
+            ($x->trackList->track->duration)/1000,
+            null,
+            null,
+            null,
+            (string) $x->trackList->track->creator,
+            (string) $x->trackList->track->album,
+            null,
+            "local",
+            (string) $x->trackList->track->image,
+            null,
+            null,
+            null,
+            null,
+            (string) $x->trackList->track->creator
+        );
     }
 
-    return array(   false,
-                    "",
-                    0,
-                    "",
-                    null, null,
-                    "",
-                    "Unknown Internet Stream",
-                    "streamish",
-                    "stream",
-                    "newimages/broadcast.png",
-                    null, null, null,
-                    "",
-                    ""
-                );
+    return array(
+        false,
+        "",
+        0,
+        "",
+        null,
+        null,
+        "",
+        "Unknown Internet Stream",
+        "streamish",
+        "stream",
+        "newimages/broadcast.png",
+        null,
+        null,
+        null,
+        "",
+        ""
+    );
 
 }
 

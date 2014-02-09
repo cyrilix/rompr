@@ -2,6 +2,7 @@
 include ("includes/vars.php");
 include ("includes/functions.php");
 include ("player/mpd/sockets.php");
+include ("backends/".$prefs['apache_backend']."/backend.php");
 $mpd_status = array();
 $mpd_status['albumart'] = "";
 

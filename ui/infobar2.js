@@ -256,7 +256,9 @@ var infobar = function() {
 
         setLastFMCorrections: function(info) {
             lfminfo = info;
-            setTheText(info);
+            if (prefs.lastfm_autocorrect) {
+                setTheText(info);
+            }
             infobar.albumImage.setSecondarySource(info);
         },
 

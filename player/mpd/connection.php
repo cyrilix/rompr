@@ -74,7 +74,7 @@ function doCollection($command) {
     while(!feof($connection) && $parts) {
         $parts = getline($connection);
         if (is_array($parts)) {
-            if ($parts[0] != "Last-Modified") {
+            // if ($parts[0] != "Last-Modified") {
                 if ($parts[0] == $firstline) {
                     $filecount++;
                     process_file($collection, $filedata);
@@ -85,7 +85,7 @@ function doCollection($command) {
                 if ($firstline == null) {
                     $firstline = $parts[0];
                 }
-            }
+            // }
         }
     }
 

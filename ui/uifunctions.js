@@ -449,14 +449,17 @@ function gotNoTopArtists(data) {
 function toggleSearch() {
     if (mobile == "no") {
         if ($("#albumlist").is(':visible')) {
-            debug.log("DINGO","Filibustering");
-            $("#search").slideToggle('fast');
+            if (albumScrollOffset < 20) {
+                $("#search").slideToggle('fast');
+            } else {
+                $("#search").slideDown('fast');
+            }
         } else {
-            debug.log("DINGO","Snookering");
             sourcecontrol("albumlist");
-            $("#search").show();
+            $("#search").slideDown('fast');
         }
         $('#sources').mCustomScrollbar("scrollTo", 0, {scrollInertia:20});
+        albumScrollOffset = 0;
     } else {
         $("#search").slideToggle('fast');
     }
@@ -1467,6 +1470,8 @@ function addCustomScrollBar(value) {
 function playlistScrolled(el) {
     if (el.attr("id") == "pscroller") {
         playlistScrollOffset = -mcs.top;
+    } else if (el.attr("id") == "sources") {
+        albumScrollOffset = -mcs.top;
     }
 }
 
@@ -1714,4 +1719,67 @@ function setPrefs() {
     $("#synctags").attr("checked", prefs.synctags);
     $("#synclove").attr("checked", prefs.synclove);
     $("#synclovevalue").val(prefs.synclovevalue);
+}
+
+
+function playlistMenuHeader() {
+    var html = "";
+    if (mobile == "no") {
+        html = html + '<li class="tleft wide"><b>'+language.gettext("menu_playlists")+'</b></li>';
+        html = html + '<li class="tleft wide"><table width="100%">';
+    } else {
+        html = html + '<h3>'+language.gettext("menu_playlists")+'</h3>';
+        html = html + '<table width="90%">';
+    }
+
+    if (prefs.apache_backend == "sql") {
+
+        html = html + '<tr><td class="playlisticon" align="left">';
+        html = html + '<img src="newimages/singlestar.png" height="12px" style="vertical-align:middle"></td>';
+        html = html + '<td align="left"><a href="#" onclick="playlist.loadSmart(\'1stars\')"><img src="newimages/1stars.png" height="12px" style="vertical-align:middle;margin-right:4px">1 Star And Above</a></td>';
+        html = html + '<td></td></tr>';
+
+        html = html + '<tr><td class="playlisticon" align="left">';
+        html = html + '<img src="newimages/singlestar.png" height="12px" style="vertical-align:middle"></td>';
+        html = html + '<td align="left"><a href="#" onclick="playlist.loadSmart(\'2stars\')"><img src="newimages/2stars.png" height="12px" style="vertical-align:middle;margin-right:4px">2 Stars And Above</a></td>';
+        html = html + '<td></td></tr>';
+
+        html = html + '<tr><td class="playlisticon" align="left">';
+        html = html + '<img src="newimages/singlestar.png" height="12px" style="vertical-align:middle"></td>';
+        html = html + '<td align="left"><a href="#" onclick="playlist.loadSmart(\'3stars\')"><img src="newimages/3stars.png" height="12px" style="vertical-align:middle;margin-right:4px">3 Stars And Above</a></td>';
+        html = html + '<td></td></tr>';
+
+        html = html + '<tr><td class="playlisticon" align="left">';
+        html = html + '<img src="newimages/singlestar.png" height="12px" style="vertical-align:middle"></td>';
+        html = html + '<td align="left"><a href="#" onclick="playlist.loadSmart(\'4stars\')"><img src="newimages/4stars.png" height="12px" style="vertical-align:middle;margin-right:4px">4 Stars And Above</a></td>';
+        html = html + '<td></td></tr>';
+
+        html = html + '<tr><td class="playlisticon" align="left">';
+        html = html + '<img src="newimages/singlestar.png" height="12px" style="vertical-align:middle"></td>';
+        html = html + '<td align="left"><a href="#" onclick="playlist.loadSmart(\'5stars\')"><img src="newimages/5stars.png" height="12px" style="vertical-align:middle;margin-right:4px">5 Star Tracks</a></td>';
+        html = html + '<td></td></tr>';
+        html = html + '</table>';
+
+        html = html + '<div class="containerbox dropdown-container">'+
+                        '<div class="fixed playlisticon"><img src="newimages/tag.png" height="12px" style="vertical-align:middle"></div>'+
+                        '<div class="expand dropdown-holder">'+
+                        '<input class="searchterm enter sourceform" id="cynthia" type="text" style="width:100%;font-size:100%"/>'+
+                        '<div class="drop-box dropshadow tagmenu" id="tigger" style="width:100%">'+
+                        '<div class="tagmenu-contents">'+
+                        '</div>'+
+                        '</div>'+
+                        '</div>'+
+                        '<div class="fixed dropdown-button" id="poohbear">'+
+                        '<img src="newimages/dropdown.png">'+
+                        '</div>'+
+                        '<button class="fixed" style="margin-left:8px" onclick="playlist.loadSmart(\'tag\')">'+language.gettext('button_playradio')+'</button>'+
+                        '</div>';
+
+        if (mobile == "no") {
+            html = html + '<table width="100%">';
+        } else {
+            html = html + '<table width="90%">';
+        }
+    }
+    return html;
 }

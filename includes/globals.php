@@ -171,5 +171,6 @@ var gotTopArtists = false;
 var scrobwrangler = null;
 var serverTimeOffset = 0;
 var playlistScrollOffset = 0;
+var albumScrollOffset = 0;
 var sbWidth;
 </script>

@@ -101,9 +101,9 @@ var wishlistViewer = function() {
         	wlv = browser.registerExtraPlugin("wlv", "Wishlist", wishlistViewer);
 
         	if (prefs.apache_backend != 'sql') {
-	            $("#impufoldup").append('<h3>This is not possible with your configuration</h3>');
+	            $("#wlvfoldup").append('<h3>This is not possible with your configuration</h3>');
 	            // TODO add wiki link here
-	            impu.slideToggle('fast');
+	            wlv.slideToggle('fast');
 	            return;
         	}
 

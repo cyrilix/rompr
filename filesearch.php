@@ -2,36 +2,28 @@
 include ("includes/vars.php");
 include ("includes/functions.php");
 include ("player/mpd/connection.php");
+include ("backends/xml/backend.php");
 include ("backends/xml/filelister.php");
 include ("international.php");
 ?>
-<div>
+<div style="padding:6px">
 <form name="filesearch" action="filesearch.php" method="get">
-<ul class="sourcenav">
 <?php
-print '<li><b>'.get_int_text("label_filesearch").'</b></li>';
-print '<li><input class="sourceform winkle" name="searchtitle" type="text" size="60" />';
-print '<button onclick="doSomethingUseful(\'filesearch\', \''.get_int_text("label_searching").'\')" type="submit">'.get_int_text("button_search").'</button></li>';
+print '<div clas="containerbox"><div class="expand"><b>'.get_int_text("label_filesearch").'</b></div></div>';
+print '<div class="containerbox"><div class="expand"><input class="sourceform winkle" name="searchtitle" type="text" /></div>';
+print '<button class="fixed sourceform" onclick="doSomethingUseful(\'filesearch\', \''.get_int_text("label_searching").'\')" type="submit">'.get_int_text("button_search").'</button></div>';
 ?>
-</ul>
 </form>
 </div>
 <?php
 
-$cmd = "";
-
 if(array_key_exists("searchtitle", $_REQUEST)) {
     $cmd = 'search file "'.format_for_mpd(html_entity_decode($_REQUEST['searchtitle'])).'"';
-}
-
-if ($cmd != "") {
-
     $count = 1;
     doFileSearch($cmd);
-
 }
 
-close_mpd($connection);
+close_player($connection);
 
 function doFileSearch($cmd) {
     global $FILESEARCH;
@@ -49,9 +41,7 @@ function doFileSearch($cmd) {
 ?>
 
 <script type="text/javascript">
-
 $('form[name="filesearch"]').ajaxForm(function(data) {
     $('#filesearch').html(data);
 });
-
 </script>

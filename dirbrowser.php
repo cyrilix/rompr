@@ -15,9 +15,8 @@ if (array_key_exists('item', $_REQUEST) && file_exists($FILESLIST)) {
 	$tree = doFileList("listall");
 	doFileCollection($FILESLIST);
    	dumpTree('adirroot');
+	close_player($connection);
 }
-
-close_mpd($connection);
 
 function doFileCollection($file) {
 

@@ -1,37 +1,97 @@
+<div id="mopidysearcher" style="padding:6px">
+    <div class="containerbox padright">
 <?php
-require_once("includes/vars.php");
-require_once("includes/functions.php");
-require_once("international.php");
+print '<h3>'.get_int_text("label_searchfor").'</h3>';
+?>
+    </div>
+    <div class="containerbox padright wibble">
+<?php
+print '<i>'.get_int_text("label_multiterms").'</i>';
+?>
+    </div>
 
-?>
-<div class="containerbox" style="width:100%">
-<form name="search" action="albums.php" method="get">
-<ul class="sourcenav">
+    <div class="containerbox padright dropdown-container">
 <?php
-print '<li><b>'.get_int_text("label_searchfor").'</b></li>';
-print '<li><input type="radio" name="stype" value="title"> '.get_int_text("label_track").'</input></li>';
-print '<li><input type="radio" name="stype" value="album"> '.get_int_text("label_album").'</input></li>';
-print '<li><input type="radio" name="stype" value="artist"> '.get_int_text("label_artist").'</input></li>';
-print '<li><input class="sourceform winkle" name="searchtitle" type="text" />';
-print '<button id="henrythegippo" type="submit" onclick="doSomethingUseful(\'search\',\''.get_int_text("label_searching").'\')">'.get_int_text("button_search").'</button></li>';
+$labia = strlen(htmlspecialchars_decode(get_int_text("label_artist"), ENT_QUOTES));
+foreach(array(get_int_text("label_album"), get_int_text("label_track"), get_int_text("label_tag")) as $a) {
+    if (strlen(htmlspecialchars_decode($a, ENT_QUOTES)) > $labia) {
+        debug_print("Setting search box width from ".htmlspecialchars_decode($a, ENT_QUOTES)." to ".strlen(htmlspecialchars_decode($a, ENT_QUOTES))."em","SEARCH");
+        $labia = strlen(htmlspecialchars_decode($a, ENT_QUOTES));
+    }
+}
+$labia -= 1;
+print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_artist").'</b></div>';
 ?>
-</ul>
-</form>
+        <div class="expand"><input class="searchterm enter sourceform" name="artist" type="text" /></div>
+    </div>
+
+    <div class="containerbox padright dropdown-container">
+<?php
+print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_album").'</b></div>';
+?>
+        <div class="expand"><input class="searchterm enter sourceform" name="album" type="text" /></div>
+    </div>
+
+    <div class="containerbox padright dropdown-container">
+<?php
+print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_track").'</b></div>';
+?>
+        <div class="expand"><input class="searchterm enter sourceform" name="title" type="text" /></div>
+    </div>
+
+<?php
+if ($prefs['apache_backend'] == "sql") {
+?>
+    <div class="containerbox padright dropdown-container">
+<?php
+print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_tag").'</b></div>';
+?>
+        <div class="expand dropdown-holder">
+            <input class="searchterm enter sourceform" name="tag" type="text" style="width:100%;font-size:100%"/>
+            <div class="drop-box dropshadow tagmenu" style="width:100%">
+                <div class="tagmenu-contents">
+                </div>
+            </div>
+        </div>
+        <div class="fixed dropdown-button">
+            <img src="newimages/dropdown.png">
+        </div>
+    </div>
+
+    <div class="containerbox padright dropdown-container">
+<?php
+print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_rating").'</b></div>';
+?>
+        <div class="expand">
+        <select name="searchrating">
+        <option value="5">5 stars</option>
+        <option value="4">4 stars</option>
+        <option value="3">3 stars</option>
+        <option value="2">2 stars</option>
+        <option value="1">1 star</option>
+        <option value="" selected></option>
+        </select>
+       </div>
+
+    </div>
+
+<?php
+}
+?>
+    <div class="indent containerbox padright">
+        <div class="expand"></div>
+<?php
+print '<button class="fixed" onclick="player.controller.search(\'search\')">'.get_int_text("button_search").'</button>';
+?>
+    </div>
+
+    <div id="searchresultholder" class="noselection fullwidth"></div>
+
 </div>
 <script type="text/javascript">
-$('form[name="search"]').ajaxForm(function(data) {
-    $('#search').html(data);
-});
-<?php
-    $pigeon = "artist";
-    if (array_key_exists("stype", $_REQUEST)) {
-        $pigeon = $_REQUEST['stype'];
-    }
-
-    print '    $(\'input[value="'.$pigeon.'"]\').attr("checked", true);'."\n";
-
-    if (array_key_exists("searchtitle", $_REQUEST)) {
-        print '    $(\'input[name="searchtitle"]\').val(\''.addslashes($_REQUEST['searchtitle']).'\');'."\n";
-    }
-?>
+    $("#mopidysearcher input").keyup( function(event) {
+        if (event.keyCode == 13) {
+            player.controller.search('search');
+        }
+    } );
 </script>
