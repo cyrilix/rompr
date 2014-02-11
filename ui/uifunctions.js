@@ -1725,15 +1725,35 @@ function setPrefs() {
 function playlistMenuHeader() {
     var html = "";
     if (mobile == "no") {
-        html = html + '<li class="tleft wide"><b>'+language.gettext("menu_playlists")+'</b></li>';
-        html = html + '<li class="tleft wide"><table width="100%">';
+        html = html + '<div class="containerbox"><div class="expand"><b>'+language.gettext("menu_playlists")+'</b></div></div>';
     } else {
         html = html + '<h3>'+language.gettext("menu_playlists")+'</h3>';
+    }
+
+    if (prefs.apache_backend == "sql") {
+        html = html + '<div class="containerbox dropdown-container">'+
+                        '<div class="fixed playlisticon"><img src="newimages/tag.png" height="12px" style="vertical-align:middle"></div>'+
+                        '<div class="expand dropdown-holder">'+
+                        '<input class="searchterm enter sourceform" id="cynthia" type="text" style="width:100%;font-size:100%"/>'+
+                        '<div class="drop-box dropshadow tagmenu" id="tigger" style="width:100%">'+
+                        '<div class="tagmenu-contents">'+
+                        '</div>'+
+                        '</div>'+
+                        '</div>'+
+                        '<div class="fixed dropdown-button" id="poohbear">'+
+                        '<img src="newimages/dropdown.png">'+
+                        '</div>'+
+                        '<button class="fixed" style="margin-left:8px" onclick="playlist.loadSmart(\'tag\')">'+language.gettext('button_playradio')+'</button>'+
+                        '</div>';
+    }
+
+    if (mobile == "no") {
+        html = html + '<table width="100%">';
+    } else {
         html = html + '<table width="90%">';
     }
 
     if (prefs.apache_backend == "sql") {
-
         html = html + '<tr><td class="playlisticon" align="left">';
         html = html + '<img src="newimages/singlestar.png" height="12px" style="vertical-align:middle"></td>';
         html = html + '<td align="left"><a href="#" onclick="playlist.loadSmart(\'1stars\')"><img src="newimages/1stars.png" height="12px" style="vertical-align:middle;margin-right:4px">1 Star And Above</a></td>';
@@ -1758,28 +1778,7 @@ function playlistMenuHeader() {
         html = html + '<img src="newimages/singlestar.png" height="12px" style="vertical-align:middle"></td>';
         html = html + '<td align="left"><a href="#" onclick="playlist.loadSmart(\'5stars\')"><img src="newimages/5stars.png" height="12px" style="vertical-align:middle;margin-right:4px">5 Star Tracks</a></td>';
         html = html + '<td></td></tr>';
-        html = html + '</table>';
 
-        html = html + '<div class="containerbox dropdown-container">'+
-                        '<div class="fixed playlisticon"><img src="newimages/tag.png" height="12px" style="vertical-align:middle"></div>'+
-                        '<div class="expand dropdown-holder">'+
-                        '<input class="searchterm enter sourceform" id="cynthia" type="text" style="width:100%;font-size:100%"/>'+
-                        '<div class="drop-box dropshadow tagmenu" id="tigger" style="width:100%">'+
-                        '<div class="tagmenu-contents">'+
-                        '</div>'+
-                        '</div>'+
-                        '</div>'+
-                        '<div class="fixed dropdown-button" id="poohbear">'+
-                        '<img src="newimages/dropdown.png">'+
-                        '</div>'+
-                        '<button class="fixed" style="margin-left:8px" onclick="playlist.loadSmart(\'tag\')">'+language.gettext('button_playradio')+'</button>'+
-                        '</div>';
-
-        if (mobile == "no") {
-            html = html + '<table width="100%">';
-        } else {
-            html = html + '<table width="90%">';
-        }
     }
     return html;
 }

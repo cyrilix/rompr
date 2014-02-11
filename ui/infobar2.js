@@ -25,7 +25,8 @@ var infobar = function() {
             },
 
             restoreState: function() {
-                volumecontrol.setProgress(parseInt(self.volume));
+                volume = prefs.volume;
+                volumecontrol.setProgress(parseInt(prefs.volume));
             },
 
             getVolume: function() {
@@ -212,7 +213,11 @@ var infobar = function() {
         }(),
 
         updateWindowValues: function() {
-            volumeslider.setState(player.status.volume);
+            if (player.status.volume == -1) {
+                volumeslider.setState(prefs.volume);
+            } else {
+                volumeslider.setState(player.status.volume);
+            }
             infobar.playbutton.setState(player.status.state);
             setPlaylistButtons();
             if (player.status.error && player.status.error != null) {
@@ -340,8 +345,11 @@ var infobar = function() {
         setvolume: function(e, u) {
             var volume = u.value;
             debug.log("INFOBAR","Saving volume",volume);
-            player.controller.volume(volume);
-            prefs.save({volume: parseInt(volume.toString())});
+            if (player.controller.volume(volume)) {
+                prefs.save({volume: parseInt(volume.toString())});
+            } else {
+                volumeslider.restoreState();
+            }
         },
 
         volumemoved: function(e, u) {
@@ -403,9 +411,10 @@ var infobar = function() {
             volume = volume + inc;
             if (volume > 100) { volume = 100 };
             if (volume < 0) { volume = 0 };
-            player.controller.volume(volume);
-            volumeslider.setState(volume);
-            prefs.save({volume: parseInt(volume.toString())});
+            if (player.controller.volume(volume)) {
+                volumeslider.setState(volume);
+                prefs.save({volume: parseInt(volume.toString())});
+            }
         },
 
         notify: function(type, message) {

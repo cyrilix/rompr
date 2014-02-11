@@ -15,6 +15,7 @@ print '<img title="'.get_int_text('button_next').'" class="shiftleft4 clickicon 
         </div>
         <div id="progress"></div>
         <div id="playbackTime">
+        <!-- <span id="playbackTime"></span> -->
         </div>
     </div>
 

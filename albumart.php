@@ -251,17 +251,14 @@ function filterImages() {
 $(document).ready(function () {
 
     debug.log("ALBUMART","Document is ready");
+    covergetter = new coverScraper(1, useLocalStorage, true, true);
     $("#fontsize").attr({href: "sizes/"+prefs.fontsize});
     $("#fontfamily").attr({href: "fonts/"+prefs.fontfamily});
-
-    $("#totaltext").html(numcovers+" "+language.gettext("label_albums"));
     progress = new progressBar('progress', 'horizontal');
     $(window).bind('resize', wobbleMyBottom );
     if ("localStorage" in window && window["localStorage"] != null) {
         useLocalStorage = true;
     }
-    covergetter = new coverScraper(1, useLocalStorage, true, true);
-    covergetter.reset(albums_without_cover);
     $("#harold").click( start );
     $("#finklestein").click( boogerbenson );
     wobblebottom = $('#wobblebottom');
@@ -296,6 +293,8 @@ $(window).load(function () {
         $(this).addClass("notexist");
         $(this).attr("src", "newimages/album-unknown.png");
     });
+    $("#totaltext").html(numcovers+" "+language.gettext("label_albums"));
+    covergetter.reset(albums_without_cover);
     covergetter.updateInfo(albums_without_cover - count);
 });
 

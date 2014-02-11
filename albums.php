@@ -33,6 +33,22 @@ if (array_key_exists('item', $_REQUEST)) {
     dumpAlbums('balbumroot');
     print '<div class="separator"></div>';
     close_player();
+} else if (array_key_exists("rawterms", $_REQUEST)) {
+    // Handle an mpd-style search request requiring tl_track format results
+    include ("player/".$player_backend."/connection.php");
+    include ("collection/collection.php");
+    $cmd = "search";
+    foreach ($_REQUEST['rawterms'] as $key => $term) {
+        if ($key == "track_name") {
+            $cmd .= ' title "'.format_for_mpd(html_entity_decode($term[0])).'"';
+        } else {
+            $cmd .= " ".$key.' "'.format_for_mpd(html_entity_decode($term[0])).'"';
+        }
+    }
+    debug_print("Search command : ".$cmd,"MPD SEARCH");
+    $collection = doCollection($cmd);
+    mopidyfy($collection);
+    close_player();
 } else if (array_key_exists('terms', $_REQUEST)) {
     // SQL database search request
     $domains = (array_key_exists('domains', $_REQUEST)) ? $_REQUEST['domains'] : null;
@@ -66,5 +82,50 @@ if (array_key_exists('item', $_REQUEST)) {
     dumpAlbums('balbumroot');
     print '<div class="separator"></div>';
 }
+
+function mopidyfy($collection) {
+    // Output a collection as mopidy format search results
+    // Note these only contain the info relevant to FaveFinder,
+    // which isn't very much.
+    $results = array();
+    $results[0] = array(
+        "__model__" => "SearchResult",
+        "tracks" => array(),
+        "uri" => "local:search"
+    );
+    $artistlist = $collection->getSortedArtistList();
+    foreach($artistlist as $artistkey) {
+        $albumartist = $collection->artistName($artistkey);
+        $albumlist = $collection->getAlbumList($artistkey, false, false);
+        if (count($albumlist) > 0) {
+            foreach($albumlist as $album) {
+                foreach($album->tracks as $trackobj) {
+                    $trackartist = ($trackobj->artist != null && $trackobj->artist != '.') ? $trackobj->artist : $albumartist;
+                    $track = array(
+                        "album" => array(
+                            "artists" => array(
+                                array(
+                                    "name" => $albumartist
+                                )
+                            ),
+                            "name" => $album->name
+                        ),
+                        "artists" => array(
+                            array(
+                                "name" => $trackartist
+                            )
+                        ),
+                        "name" => $trackobj->name,
+                        "track_no" => $trackobj->number,
+                        "uri" => $trackobj->url
+                    );
+                    array_push($results[0]['tracks'], $track);
+                }
+            }
+        }
+    }
+    print json_encode($results);
+}
+
 ?>
 

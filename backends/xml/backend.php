@@ -224,7 +224,7 @@ function do_albums_xml($artistkey, $compilations, $showartist, $prefix, $output)
     if (count($albumlist) > 0 || $collection->spotilink($artistkey) != null) {
         $numartists++;
         $output->writeLine('<artist id="'.$prefix.'artist'.$count.'">'."\n");
-        $output->WriteLine(xmlnode('name', $artist));
+        $output->writeLine(xmlnode('name', $artist));
         if ($collection->spotilink($artistkey) != null) {
             $output->writeLine(xmlnode('spotilink', rawurlencode($collection->spotilink($artistkey))));
         }
@@ -285,7 +285,7 @@ function do_albums_xml($artistkey, $compilations, $showartist, $prefix, $output)
                     if ($trackobj->playlist && count($album->tracks) == 1) {
                         // Don't include the cue sheet if the albums object has more than one track -
                         // because if it does then it will be a cue sheet alongside a multi-track rip
-                        // and if we include the the whole album gets added to the playlist twice
+                        // and if we include it then the whole album gets added to the playlist twice
                         // It's totally silly to even display it
                         $output->writeLine(xmlnode('playlist', rawurlencode($trackobj->playlist)));
                     }

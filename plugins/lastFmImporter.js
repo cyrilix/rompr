@@ -97,8 +97,11 @@ var lastfmImporter = function() {
 			html = html + '<img height="12px" src="newimages/spotify-logo.png" style="margin-right:1em" />';
 		}
 		html = html + '<b>'+data.title+'</b><br><i>on </i>';
+		html = html + data.album;
 		var arse = data.uri;
-		html = html + data.album + '  <i>(' + arse.substr(0, arse.indexOf(":")) + ')</i>';
+		if (arse.indexOf(":") > 0) {
+			html = html + '  <i>(' + arse.substr(0, arse.indexOf(":")) + ')</i>';
+		}
 		return html;
 	}
 
@@ -115,7 +118,7 @@ var lastfmImporter = function() {
 	            return;
         	}
 
-        	if (prefs.apache_backend != 'sql' || prefs.player_backend != 'mopidy') {
+        	if (prefs.apache_backend != 'sql') {
 	            $("#impufoldup").append('<h3>This is not possible with your configuration</h3>');
 	            // TODO add wiki link here
 	            impu.slideToggle('fast');
@@ -283,7 +286,11 @@ var lastfmImporter = function() {
 					databits[reqid].data[databits[reqid].index].ignore = true;
 				} else {
 					databits[reqid].data[databits[reqid].index].ignore = false;
-					databits[reqid].data[databits[reqid].index].Rating = $("#goo").val();
+					if (databits[reqid].data[databits[reqid].index].loved) {
+						databits[reqid].data[databits[reqid].index].Rating = $("#goo").val();
+					} else {
+						databits[reqid].data[databits[reqid].index].Rating = 0;
+					}
 					putRow(databits[reqid].data[databits[reqid].index]);
 					databits[reqid].data[databits[reqid].index].reqid = reqid;
 					faveFinder.findThisOne(databits[reqid].data[databits[reqid].index], lastfmImporter, false, true);

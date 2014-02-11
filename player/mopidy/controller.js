@@ -217,11 +217,7 @@ function playerController() {
 	                break;
 	        }
 	    });
-	    if (mobile == "no") {
-	        html = html + '</table></li>';
-	    } else {
-	        html = html + "</table>";
-	    }
+        html = html + '</table>';
 	    $("#playlistslist").html(html);
 	    $("#playlistslist").find('.enter').keyup(onKeyUp);
 	    $("#poohbear").click(onDropdownClicked);
@@ -588,6 +584,7 @@ function playerController() {
 				callback();
 			}
 		});
+		return true;
 	}
 
 	this.removeId = function(ids) {

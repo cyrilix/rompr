@@ -633,7 +633,9 @@ function get_list_of_artists() {
     $qstring = "SELECT a.Artistname, a.Artistindex FROM Artisttable AS a JOIN Albumtable AS al ON a.Artistindex = al.AlbumArtistindex JOIN Tracktable AS t ON al.Albumindex = t.Albumindex WHERE t.Uri IS NOT NULL ";
     $qstring .= "GROUP BY a.Artistindex ORDER BY TRIM(LEADING 'the ' FROM LOWER(Artistname))";
 	if ($result = mysqli_query($mysqlc, $qstring)) {
-		$vals = mysqli_fetch_all($result, MYSQLI_ASSOC);
+		while ($v = mysqli_fetch_assoc($result)) {
+			array_push($vals, $v);
+		}
 	} else {
 		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
@@ -728,14 +730,16 @@ function do_albums_from_database($which, $fragment = false) {
 
 function get_list_of_albums($aid) {
 	global $mysqlc;
-	$retval = array();
+	$vals = array();
 	$qstring = "SELECT * FROM Albumtable WHERE AlbumArtistindex = '".$aid."' GROUP BY ImgKey ORDER BY LOWER(Albumname)";
 	if ($result = mysqli_query($mysqlc, $qstring)) {
-		$retval = mysqli_fetch_all($result, MYSQLI_ASSOC);
+		while ($v = mysqli_fetch_assoc($result)) {
+			array_push($vals, $v);
+		}
 	} else {
 		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
-	return $retval;
+	return $vals;
 }
 
 function get_album_tracks_from_database($index) {
@@ -745,7 +749,11 @@ function get_album_tracks_from_database($index) {
 	$qstring = "SELECT Uri FROM Tracktable WHERE Albumindex = '".$index."' AND Uri IS NOT NULL ORDER BY TrackNo";
 	if ($result = mysqli_query($mysqlc, $qstring)) {
 		while ($obj = mysqli_fetch_object($result)) {
-			array_push($retarr, "add ".$obj->Uri);
+			if (preg_match('/\.cue$/', (string) $obj->Uri)) {
+				array_push($retarr, "load ".$obj->Uri);
+			} else {
+				array_push($retarr, "add ".$obj->Uri);
+			}
 		}
 		mysqli_free_result($result);
 	} else {
@@ -807,11 +815,9 @@ function do_tracks_from_database($which, $fragment = false) {
 		if ($result = mysqli_query($mysqlc, $qstring)) {
 			$numtracks = mysqli_num_rows($result);
 			$currdisc = -1;
-	        if ($numtracks == 0) {
-	            noAlbumTracks();
-	        } else {
-				while ($obj = mysqli_fetch_object($result)) {
-					//TODO Handle playlist types
+			$count = 0;
+			while ($obj = mysqli_fetch_object($result)) {
+				if (!preg_match('/\.cue$/', (string) $obj->Uri)) {
 					if ($obj->NumDiscs > 1 && $obj->Disc && $obj->Disc != $currdisc) {
 	                    $currdisc = $obj->Disc;
 		                print '<div class="discnumber indent">Disc '.$currdisc.'</div>';
@@ -826,7 +832,11 @@ function do_tracks_from_database($which, $fragment = false) {
 						format_time($obj->Duration),
 						$obj->LastModified
 					);
+					$count++;
 				}
+			}
+	        if ($count == 0) {
+	            noAlbumTracks();
 	        }
 			mysqli_free_result($result);
 		} else {
@@ -1228,13 +1238,14 @@ function do_artist_database_stuff($artistkey, $now) {
 	    $albumlist = $collection->getAlbumList($artistkey, true);
     }
 
-	if ($stmt = mysqli_prepare($mysqlc, "UPDATE Tracktable SET Trackno=?, Duration=?, LastModified=?, Disc=? WHERE TTindex=?")) {
+	if ($stmt = mysqli_prepare($mysqlc, "UPDATE Tracktable SET Trackno=?, Duration=?, LastModified=?, Disc=?, Uri=? WHERE TTindex=?")) {
 	} else {
         debug_print("    MYSQL Statement Error: ".mysqli_error($mysqlc),"MYSQL");
         return false;
 	}
 
-	if ($find_track = mysqli_prepare($mysqlc, "SELECT TTindex FROM Tracktable WHERE Albumindex=? AND Title=? AND TrackNo=?")) {
+	// Check for NULL track number will find items that are in the wishlist so they can be updated
+	if ($find_track = mysqli_prepare($mysqlc, "SELECT TTindex FROM Tracktable WHERE Albumindex=? AND Title=? AND (TrackNo=? OR TrackNo IS NULL)")) {
 	} else {
         debug_print("    MYSQL Statement Error: ".mysqli_error($mysqlc),"MYSQL");
         return false;
@@ -1277,9 +1288,10 @@ function do_artist_database_stuff($artistkey, $now) {
             // The SELECT before UPDATE is crucial.
             // The other advantage of this is that we can put an INDEX on Albumindex, TrackNo, and Title, which we can't do with Uri cos it's too long
             // - this speeds the whole process up by a factor of about 32 (9 minutes when checking by URI vs 15 seconds this way, on my collection)
+            // Also, URIs might change if the user moves his music collection.
+            // And this means we can update WishList tracks when they're added to the collection.
 
-            debug_print("Checking for track ".$trackobj->name." ".$trackobj->number." ".$trackobj->duration." ".$now." ".$trackobj->disc." ".$trackobj->url,"MYSQL");
-
+            // debug_print("Checking for track ".$trackobj->name." ".$trackobj->number." ".$trackobj->duration." ".$now." ".$trackobj->disc." ".$trackobj->url,"MYSQL");
             mysqli_stmt_bind_param($find_track, "isi", $albumindex, $trackobj->name, $trackobj->number);
 			if (mysqli_stmt_execute($find_track)) {
 			    mysqli_stmt_bind_result($find_track, $ttid);
@@ -1294,10 +1306,10 @@ function do_artist_database_stuff($artistkey, $now) {
 	        }
 
 		    if ($ttid) {
-		    	debug_print("  Track found with ttid ".$ttid,"MYSQL");
-				mysqli_stmt_bind_param($stmt, "iiiii", $trackobj->number, $trackobj->duration, $now, $trackobj->disc, $ttid);
+		    	// debug_print("  Track found with ttid ".$ttid,"MYSQL");
+				mysqli_stmt_bind_param($stmt, "iiiisi", $trackobj->number, $trackobj->duration, $now, $trackobj->disc, $trackobj->url, $ttid);
 				if (mysqli_stmt_execute($stmt)) {
-					debug_print("    Updated track","MYSQL");
+					// debug_print("    Updated track","MYSQL");
 				} else {
 	                debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 				}
@@ -1315,6 +1327,10 @@ function do_artist_database_stuff($artistkey, $now) {
 		        	debug_print("ERROR! Trackartistindex is still null!","MYSQL");
                     continue;
                 }
+                $trackuri = $trackobj->url;
+                if ($trackobj->playlist && count($album->tracks == 1)) {
+                	$trackuri = $trackobj->playlist;
+                }
                 create_new_track(
                     $trackobj->name,
                     null,
@@ -1325,7 +1341,7 @@ function do_artist_database_stuff($artistkey, $now) {
                     null,
                     null,
                     null,
-                    $trackobj->url,
+                    $trackuri,
                     $trackartistindex,
                     $artistindex,
                     $albumindex,

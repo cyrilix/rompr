@@ -17,7 +17,7 @@ var info_ratings = function() {
             function doThingsWithData() {
                 if (parent.isCurrentTrack()) {
                     $("#ratingimage").attr("src","newimages/"+parent.playlistinfo.metadata.track.usermeta.Rating+"stars.png");
-                    $("#dbtags").html('<b>TAGS&nbsp;</b><a href="#" class="clicktext" onclick="tagAdderDo(event)">+</a><br>');
+                    $("#dbtags").html('<span style="margin-right:8px"><b>TAGS&nbsp;</b><a href="#" class="clicktext" onclick="tagAdderDo(event)">+</a></span>');
                     $.each(parent.playlistinfo.metadata.track.usermeta.Tags, function(i,t) {
                         $("#dbtags").append('<span class="tag">'+t+'<span class="tagremover invisible"><a href="#" class="clicktext" onclick="infobar.tagRemove(event)">x</a></span></span>');
                     });
@@ -122,11 +122,7 @@ var info_ratings = function() {
                     if (data.uri) {
                         self.updateDatabase(data);
                     } else {
-                        if (prefs.player_backend == "mopidy" && prefs.apache_backend == "sql") {
-                            faveFinder.findThisOne(data, self, true, false);
-                        } else {
-                            self.updateDatabase(data);
-                        }
+                        faveFinder.findThisOne(data, self, true, false);
                     }
                 }
             }
@@ -258,7 +254,7 @@ var faveFinder = function() {
                             req.data.album = data[i].tracks[k].album.name;
                             req.data.title = data[i].tracks[k].name;
                             req.data.artist = mopidyDoesWierdThings(data[i].tracks[k].artists);
-                            r.data.albumartist = mopidyDoesWierdThings(data[i].tracks[k].album.artists);
+                            req.data.albumartist = mopidyDoesWierdThings(data[i].tracks[k].album.artists);
                             if (data[i].tracks[k].track_no) {
                                 req.data.trackno = data[i].tracks[k].track_no;
                             }

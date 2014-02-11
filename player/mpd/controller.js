@@ -18,8 +18,6 @@ function playerController() {
 
         if (playlist.currentTrack && playlist.currentTrack.type == "stream") {
             var temp = cloneObject(playlist.currentTrack);
-            // temp.title = player.status.Title || playlist.currentTrack.title;
-            // temp.album = playlist.currentTrack.creator + " - " + playlist.currentTrack.album;
             if (player.status.Title) {
                 var tit = player.status.Title;
                 var parts = tit.split(" - ");
@@ -46,9 +44,8 @@ function playerController() {
                 playlist.currentTrack = temp;
                 debug.log("STREAMHANDLER","Detected change of track",playlist.currentTrack);
                 nowplaying.newTrack(playlist.currentTrack);
-            } else {
-                temp = null;
             }
+            temp = null;
         }
     }
 
@@ -83,11 +80,11 @@ function playerController() {
     }
 
 	this.command = function(cmd, callback) {
-        debug.log("MPD","'"+cmd+"'");
-        playlist.clearProgressTimer();
+        debug.debug("MPD","'"+cmd+"'");
+        self.clearProgressTimer();
         $.getJSON("ajaxcommand.php", cmd)
         .done(function(data) {
-            debug.log("MPD","Result for","'"+cmd+"'",data);
+            debug.debug("MPD","Result for","'"+cmd+"'",data);
             if (cmd == "command=clearerror" && data.error) {
                 // Ignore errors on clearerror - we get into an endless loop
                 data.error = null;
@@ -98,17 +95,17 @@ function playerController() {
                 callback();
                 infobar.updateWindowValues();
             } else {
-               playlist.checkProgress();
+               self.checkProgress();
                infobar.updateWindowValues();
             }
             if ((data.state == "pause" || data.state=="stop") && data.single == 1) {
                 self.fastcommand("command=single&arg=0");
             }
-            debug.log("MPD","Status",player.status);
+            debug.debug("MPD","Status",player.status);
         })
         .fail( function() {
             alert("Failed to send command '"+cmd+"' to MPD");
-            playlist.checkProgress();
+            self.checkProgress();
         });
 	}
 
@@ -120,7 +117,7 @@ function playerController() {
 
 	this.do_command_list = function(list, callback) {
         debug.log("MPD","Command List",list);
-        playlist.clearProgressTimer();
+        self.clearProgressTimer();
         if (typeof list == "string") {
             data = list;
         } else {
@@ -138,7 +135,7 @@ function playerController() {
                     callback();
                     infobar.updateWindowValues();
                 } else {
-                    playlist.checkProgress();
+                    self.checkProgress();
                     infobar.updateWindowValues();
                 }
 
@@ -180,11 +177,7 @@ function playerController() {
 	this.reloadPlaylists = function() {
         $.get("loadplaylists.php", function(data) {
             var html = playlistMenuHeader()+data;
-            if (mobile == "no") {
-                html = html + '</table></li>';
-            } else {
-                html = html + "</table>";
-            }
+            html = html + "</table>";
             $("#playlistslist").html(html);
             $("#playlistslist").find('.enter').keyup(onKeyUp);
             $("#poohbear").click(onDropdownClicked);
@@ -277,8 +270,12 @@ function playerController() {
             self.command("command=setvol&arg="+parseInt(volume.toString()), callback);
         } else {
             infobar.notify(infobar.ERROR, language.gettext("label_mpd_no"));
-            volumeslider.restoreState();
+            if (callback) {
+                callback();
+            }
+            return false;
         }
+        return true;
 	}
 
 	this.removeId = function(ids) {
@@ -390,10 +387,6 @@ function playerController() {
 		}
 	}
 
-	this.rawsearch = function(terms, callback) {
-		callback([]);
-	}
-
     this.search = function() {
         var terms = {};
         var termcount = 0;
@@ -437,6 +430,24 @@ function playerController() {
 
     }
 
+    this.rawsearch = function(terms, callback) {
+        $.ajax({
+                type: "POST",
+                url: "albums.php",
+                dataType: 'json',
+                data: {rawterms: terms},
+                success: function(data) {
+                    callback(data);
+                    data = null;
+                },
+                error: function(data) {
+                    callback([]);
+                    data = null;
+                }
+        });
+    }
+
+
 	this.postLoadActions = function() {
 		self.checkProgress();
 	}
@@ -474,6 +485,13 @@ function playerController() {
                 currentsong = playlist.currentTrack.playlistpos;
             } else {
                 currentsong = -1;
+                player.status.songid = undefined;
+                player.status.elapsed = undefined;
+                player.status.file = undefined;
+                nowplaying.newTrack(playlist.emptytrack);
+                infobar.setProgress(0);
+                $(".playlistcurrentitem").removeClass('playlistcurrentitem').addClass('playlistitem');
+                $(".playlistcurrenttitle").removeClass('playlistcurrenttitle').addClass('playlisttitle');
             }
 
             playlist.doLastFmStuff(currentsong, previoussongid);

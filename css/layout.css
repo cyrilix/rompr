@@ -187,12 +187,13 @@ select
 
 #playbackTime
 {
-    text-align:center;
-    margin-right:auto;
-    margin-left:auto;
     font-weight:bold;
-    padding-bottom:4px;
-    font-size:8pt;
+    font-size:11px;
+    padding-top:1px;
+    height:15px;
+    line-height:15px;
+    text-align:center;
+    width:100%;
 }
 
 #albumcover
@@ -1032,9 +1033,9 @@ ul.topnav li a
 {
     display:block;
     text-decoration:none;
-    font-size:120%;
-    float:left;
-    font-weight:bold;
+    /*font-size:120%;*/
+    /*float:left;*/
+    /*font-weight:bold;*/
     /*-- padding-top:4px; --*/
 }
 
@@ -1082,6 +1083,18 @@ ul.topnav li ul.subnav li
 ul.subnav li.wide
 {
     width:260px;
+}
+
+#lpscr
+{
+    width:300px;
+    font-weight:normal;
+    font-size:100%;
+}
+
+#configpanel
+{
+    width:300px;
 }
 
 #countryselector
@@ -2103,7 +2116,9 @@ div.lyrics p
     padding-left:8px;
     overflow:hidden;
     opacity:0.9;
-    font-size:7pt;
+    font-size:8pt;
+    height:22px;
+    line-height:22px;
 }
 
 .clicktext
