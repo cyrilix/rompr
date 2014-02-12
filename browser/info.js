@@ -230,6 +230,13 @@ var browser = function() {
             }
         },
 
+        reDo: function(index, source) {
+            if (index == history[displaypointer].nowplayingindex && source == current_source) {
+                debug.log("BROWSER","Re-disaplying data for",source,"index",index);
+                displayTheData(displaypointer, true, true, true);
+            }
+        },
+
         switchsource: function(src) {
             debug.log("BROWSER", "Source switched to",src);
             $("#button_source"+current_source).removeClass("currentbun");

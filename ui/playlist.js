@@ -262,14 +262,22 @@ function Playlist() {
 
     function modehtml(m) {
         if (!m) return "";
+        var html = "";
         if (m.match(/stars/)) {
-            return '<img src="newimages/'+m+'.png" height="14px" />';
-        } else if (mode.match(/tag/)) {
+            html = '<img src="newimages/'+m+'.png" height="14px" />';
+            html = html + '<img class="clickicon" height="14px" style="margin-left:8px" src="newimages/edit-delete.png" onclick="playlist.endSmartMode()" />';
+        } else if (m.match(/tag/)) {
             m = m.replace(/tag\+/,'');
             m = m.replace(/,/, ', ');
-            return '<img src="newimages/tag.png" height="14px" style="margin-right:4px;vertical-align:middle" />'+m;
+            html = '<img src="newimages/tag.png" height="14px" style="margin-right:4px;vertical-align:middle" />'+m;
+            html = html + '<img class="clickicon" height="14px" style="margin-left:8px;vertical-align:middle" src="newimages/edit-delete.png" onclick="playlist.endSmartMode()" />';
         }
-        return "";
+        return html;
+    }
+
+    this.endSmartMode = function() {
+        mode = null;
+        self.repopulate();
     }
 
     this.setHeight = function() {

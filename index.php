@@ -295,7 +295,7 @@ print get_int_text("lastfm_addtags").'<br></b>'.get_int_text("lastfm_addtagslabe
         <div class="fixed dropdown-button">
             <img src="newimages/dropdown.png">
         </div>
-        <button class="fixed" style="margin-left:8px" onclick="infobar.addtags()">
+        <button class="fixed" style="margin-left:8px" onclick="tagAdder.add()">
 <?php
 print get_int_text("button_add");
 ?>

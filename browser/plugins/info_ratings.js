@@ -17,16 +17,18 @@ var info_ratings = function() {
             function doThingsWithData() {
                 if (parent.isCurrentTrack()) {
                     $("#ratingimage").attr("src","newimages/"+parent.playlistinfo.metadata.track.usermeta.Rating+"stars.png");
-                    $("#dbtags").html('<span style="margin-right:8px"><b>TAGS&nbsp;</b><a href="#" class="clicktext" onclick="tagAdderDo(event)">+</a></span>');
-                    $.each(parent.playlistinfo.metadata.track.usermeta.Tags, function(i,t) {
-                        $("#dbtags").append('<span class="tag">'+t+'<span class="tagremover invisible"><a href="#" class="clicktext" onclick="infobar.tagRemove(event)">x</a></span></span>');
-                    });
+                    $("#dbtags").html('<span style="margin-right:8px"><b>TAGS&nbsp;</b><a href="#" class="clicktext" onclick="tagAdder.show(event)">+</a></span>');
+                    for(var i = 0; i < parent.playlistinfo.metadata.track.usermeta.Tags.length; i++) {
+                        $("#dbtags").append('<span class="tag">'+parent.playlistinfo.metadata.track.usermeta.Tags[i]+'<span class="tagremover invisible"><a href="#" class="clicktext" onclick="nowplaying.removeTag(event)">x</a></span></span>');
+                    }
                     $(".tag").hover( function() {
                         $(this).children().show();
                     }, function() {
                         $(this).children().hide();
                     });
                 }
+                // Make sure the browser updates the file info display
+                browser.reDo(parent.index, 'file');
             }
 
             function hideTheInputs() {

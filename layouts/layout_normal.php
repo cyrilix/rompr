@@ -34,7 +34,8 @@ print '<div title="'.get_int_text('button_volume').'" id="volumecontrol" class="
             </div>
             <div id="amontobin" class="clearfix">
                 <div id="stars" class="invisible">
-                    <img id="ratingimage" onclick="infobar.setRating(event)" height="20px" src="newimages/0stars.png">
+                    <img id="ratingimage" onclick="nowplaying.setRating(event)" height="20px" src="newimages/0stars.png">
+                    <input type="hidden" value="-1" />
                 </div>
                 <div id="lastfm" class="invisible">
 <?php

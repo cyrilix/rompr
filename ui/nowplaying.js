@@ -252,35 +252,53 @@ var nowplaying = function() {
 			}
 		},
 
-		setRating: function(rating) {
-            debug.log("NOWPLAYING", "Setting Rating to",rating);
-			if (currenttrack > 0) {
-				history[currenttrack].setMeta('set', 'Rating', rating.toString());
-				if (prefs.synclove && lastfm.isLoggedIn() && rating >= prefs.synclovevalue) {
-					history[currenttrack].love();
-		            $("#love").effect('pulsate', {times: 1}, 2000);
+        setRating: function(evt) {
+            if (prefs.apache_backend == 'sql') {
+                var position = getPosition(evt);
+                var elem = $(evt.target);
+                var width = elem.width();
+                var offset = elem.offset();
+                var rating = Math.ceil(((position.x - offset.left - 6)/width) * 5);
+                var index = elem.next().val();
+                if (index == -1) index = currenttrack;
+				if (index > 0) {
+		            debug.log("NOWPLAYING", "Setting Rating to",rating,"on index",index);
+					history[index].setMeta('set', 'Rating', rating.toString());
+					if (prefs.synclove && lastfm.isLoggedIn() && rating >= prefs.synclovevalue) {
+						history[index].love();
+						if (index == currenttrack) {
+			            	$("#love").effect('pulsate', {times: 1}, 2000);
+			            }
+					}
+				}
+            } else {
+                alert("This is not possible with your setup.");
+                // TODO add wiki link
+            }
+        },
+
+		addTags: function(index, tags) {
+			if (!index) index = currenttrack;
+            var tagarr = tags.split(',');
+			if (index > 0) {
+	            debug.log("NOWPLAYING", "Adding tags",tags,"to index",index);
+				history[index].setMeta('set', 'Tags', tagarr);
+				if (lastfm.isLoggedIn() && prefs.synctags) {
+					history[index].addlfmtags(tags);
 				}
 			}
 		},
 
-		addTags: function(tags) {
-            debug.log("NOWPLAYING", "Adding tags",tags);
-            var tagarr = tags.split(',');
-			if (currenttrack > 0) {
-				history[currenttrack].setMeta('set', 'Tags', tagarr);
-			}
-			if (lastfm.isLoggedIn() && prefs.synctags) {
-				history[currenttrack].addlfmtags(tags);
-			}
-		},
-
-		removeTag: function(tag) {
-            debug.log("NOWPLAYING", "Removing tags",tag);
-			if (currenttrack > 0) {
-				history[currenttrack].setMeta('remove', 'Tags', tag);
-			}
-			if (lastfm.isLoggedIn() && prefs.synctags) {
-				history[currenttrack].remlfmtags(tag);
+		removeTag: function(event, index) {
+			if (!index) index = currenttrack;
+            var tag = $(event.target).parent().parent().text();
+            tag = tag.replace(/x$/,'');
+			if (index > 0) {
+	            debug.log("NOWPLAYING", "Removing tag",tag,"from index",index);
+				history[index].setMeta('remove', 'Tags', tag);
+				if (lastfm.isLoggedIn() && prefs.synctags) {
+					history[index].remlfmtags(tag);
+				}
 			}
 		},
 

@@ -66,10 +66,6 @@ var info_file = function() {
             html = html + '<tr><td class="fil">'+language.gettext("info_composers")+'</td><td>'+text+'</td></tr>';
         }
         if (player.status.Comment) html = html + '<tr><td class="fil">'+language.gettext("info_comment")+'</td><td>'+player.status.Comment+'</td></tr>';
-
-        html = html + '</table></div>';
-
-        //playlist.checkProgress();
         setBrowserIcon(filetype);
         return html;
     }
@@ -99,8 +95,6 @@ var info_file = function() {
         });
         if (data.composer) html = html + '<tr><td class="fil">'+language.gettext("info_composers")+'</td><td>'+data.composer+'</td></tr>';
         if (data.comments) html = html + '<tr><td class="fil">'+language.gettext("info_comment")+'</td><td>'+data.comments+'</td></tr>';
-
-        html = html + '</table></div>';
         setBrowserIcon(data.format);
         return html;
     }
@@ -163,6 +157,16 @@ var info_file = function() {
 				displaying = false;
 			}
 
+            this.handleClick = function(source, element, event) {
+                if (element.hasClass("clicksetrating")) {
+                    nowplaying.setRating(event);
+                } else if (element.hasClass("clickremtag")) {
+                    nowplaying.removeTag(event, parent.index);
+                } else if (element.hasClass("clickaddtags")) {
+                    tagAdder.show(event, parent.index);
+                }
+            }
+
 			this.populate = function() {
                 if (parent.playlistinfo.metadata.track.fileinfo === undefined) {
     				var file = parent.playlistinfo.location;
@@ -181,7 +185,7 @@ var info_file = function() {
 		    }
 
 		    this.updateFileInformation = function() {
-		    	parent.playlistinfo.metadata.track.fileinfo = createInfoFromPlayerInfo();
+                parent.playlistinfo.metadata.track.fileinfo = {beets: null, player: true};
 		    	parent.playlistinfo.metadata.track.lyrics = null;
                 playlist.checkProgress();
 		    	self.doBrowserUpdate();
@@ -192,7 +196,7 @@ var info_file = function() {
                 $.getJSON('getBeetsInfo.php', 'uri='+thing)
                 .done(function(data) {
                     debug.log("FILE PLUGIN",'Got info from beets server',data);
-                    parent.playlistinfo.metadata.track.fileinfo = createInfoFromBeetsInfo(data);
+                    parent.playlistinfo.metadata.track.fileinfo = {beets: data, player: false};
                     if (data.lyrics) {
                         parent.playlistinfo.metadata.track.lyrics = data.lyrics;
                     } else {
@@ -202,16 +206,35 @@ var info_file = function() {
 
                 })
                 .fail( function() {
-                    debug.fail("FILE PLUGIN", "Error getting info from beets server");
+                    debug.error("FILE PLUGIN", "Error getting info from beets server");
                     self.updateFileInformation();
                 });
             }
 
+            this.ratingsInfo = function() {
+
+                var html = '<tr><td class="fil">Rating:</td><td><img class="infoclick clicksetrating" height="20px" src="newimages/'+parent.playlistinfo.metadata.track.usermeta.Rating+'stars.png" />';
+                html = html + '<input type="hidden" value="'+parent.index+'" />';
+                html = html + '</td></tr>';
+                html = html + '<tr><td class="fil">Tags:</td><td>';
+                html = html + '<table>';
+                for(var i = 0; i < parent.playlistinfo.metadata.track.usermeta.Tags.length; i++) {
+                    html = html + '<tr><td><span class="tag">'+parent.playlistinfo.metadata.track.usermeta.Tags[i]+'<span class="tagremover"><a href="#" class="clicktext infoclick clickremtag">x</a></span></span></td></tr>';
+                }
+                html = html + '<tr><td><a href="#" class="infoclick clickaddtags">ADD TAGS</a></td></tr>';
+                html = html + '</table>';
+                html = html + '</td></tr>';
+                html = html + '</table></div>';
+                return html;
+            }
+
 			this.doBrowserUpdate = function() {
 				if (displaying && parent.playlistinfo.metadata.track.fileinfo !== undefined) {
+                    var data = (parent.playlistinfo.metadata.track.fileinfo.player) ? createInfoFromPlayerInfo() : createInfoFromBeetsInfo(parent.playlistinfo.metadata.track.fileinfo.beets);
+                    data = data + self.ratingsInfo();
 	                browser.Update('track', me, parent.index, { name: parent.playlistinfo.title,
 	                    					link: "",
-	                    					data: parent.playlistinfo.metadata.track.fileinfo
+	                    					data: data
 	                						}
 					);
 				}

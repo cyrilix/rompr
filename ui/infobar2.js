@@ -455,39 +455,6 @@ var infobar = function() {
                 $("#playbackTime").html("");
             }
             nowplaying.progressUpdate(percent);
-        },
-
-        setRating: function(evt) {
-            if (prefs.apache_backend == 'sql') {
-                var position = getPosition(evt);
-                var width = $('#ratingimage').width();
-                var offset = $('#ratingimage').offset();
-                var rating = Math.ceil(((position.x - offset.left - 6)/width) * 5);
-                $("#ratingimage").attr("src","newimages/"+rating+"stars.png");
-                nowplaying.setRating(rating);
-            } else {
-                alert("This is not possible with your setup.");
-                // TODO add wiki link
-            }
-        },
-
-        addtags: function() {
-            if (prefs.apache_backend == 'sql') {
-                var toadd = $("#newtags").val();
-                debug.log("INFOBAR","New Tags :",toadd);
-                nowplaying.addTags(toadd);
-                $("#tagadder").slideToggle('fast');
-            } else {
-                alert("This is not possible with your setup.");
-                // TODO add wiki link
-            }
-        },
-
-        tagRemove: function(event) {
-            var tag = $(event.target).parent().parent().text();
-            var t = tag.replace(/x$/,'');
-            debug.log("INFOBAR", "Removing Tag",t);
-            nowplaying.removeTag(t);
         }
     }
 }();

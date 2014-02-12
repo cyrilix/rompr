@@ -1537,11 +1537,31 @@ function removeTrackFromDb(element) {
     });
 }
 
-function tagAdderDo(evt) {
-    var position = getPosition(evt);
-    $("#tagadder").css({top: position.y+8, left: position.x+8});
-    $("#tagadder").slideToggle('fast');
-}
+var tagAdder = function() {
+
+    var index = null;
+
+    return {
+        show: function(evt, idx) {
+            index = idx;
+            var position = getPosition(evt);
+            $("#tagadder").css({top: position.y+8, left: position.x+8});
+            $("#tagadder").slideToggle('fast');
+        },
+
+        add: function() {
+            if (prefs.apache_backend == 'sql') {
+                var toadd = $("#newtags").val();
+                debug.log("TAGADDER","New Tags :",toadd);
+                nowplaying.addTags(index, toadd);
+                $("#tagadder").slideToggle('fast');
+            } else {
+                alert("This is not possible with your setup.");
+                // TODO add wiki link
+            }
+        }
+    }
+}();
 
 function chooseNewTag(event) {
     var value = $(this).html();
