@@ -263,6 +263,8 @@ var nowplaying = function() {
                 if (index == -1) index = currenttrack;
 				if (index > 0) {
 		            debug.log("NOWPLAYING", "Setting Rating to",rating,"on index",index);
+		            // The image will get updated anyway, but this makes it more responsive
+		            elem.attr("src", "newimages/"+rating+"stars.png");
 					history[index].setMeta('set', 'Rating', rating.toString());
 					if (prefs.synclove && lastfm.isLoggedIn() && rating >= prefs.synclovevalue) {
 						history[index].love();

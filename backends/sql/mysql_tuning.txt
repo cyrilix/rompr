@@ -10,6 +10,10 @@
 query_cache_limit       = 16M
 query_cache_size        = 64M
 
+binlog_ignore_db = romprdb
 
 innodb_buffer_pool_size = 64M
 innodb_flush_log_at_trx_commit = 0
+
+
+put these in /etc/mysql/conf.d/rompr-tweaks.cnf

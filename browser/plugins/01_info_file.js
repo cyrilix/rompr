@@ -212,18 +212,20 @@ var info_file = function() {
             }
 
             this.ratingsInfo = function() {
-
-                var html = '<tr><td class="fil">Rating:</td><td><img class="infoclick clicksetrating" height="20px" src="newimages/'+parent.playlistinfo.metadata.track.usermeta.Rating+'stars.png" />';
-                html = html + '<input type="hidden" value="'+parent.index+'" />';
-                html = html + '</td></tr>';
-                html = html + '<tr><td class="fil">Tags:</td><td>';
-                html = html + '<table>';
-                for(var i = 0; i < parent.playlistinfo.metadata.track.usermeta.Tags.length; i++) {
-                    html = html + '<tr><td><span class="tag">'+parent.playlistinfo.metadata.track.usermeta.Tags[i]+'<span class="tagremover"><a href="#" class="clicktext infoclick clickremtag">x</a></span></span></td></tr>';
+                var html = "";
+                if (parent.playlistinfo.metadata.track.usermeta) {
+                    html = html + '<tr><td class="fil">Rating:</td><td><img class="infoclick clicksetrating" height="20px" src="newimages/'+parent.playlistinfo.metadata.track.usermeta.Rating+'stars.png" />';
+                    html = html + '<input type="hidden" value="'+parent.index+'" />';
+                    html = html + '</td></tr>';
+                    html = html + '<tr><td class="fil" style="vertical-align:top">Tags:</td><td>';
+                    html = html + '<table>';
+                    for(var i = 0; i < parent.playlistinfo.metadata.track.usermeta.Tags.length; i++) {
+                        html = html + '<tr><td><span class="tag">'+parent.playlistinfo.metadata.track.usermeta.Tags[i]+'<span class="tagremover"><a href="#" class="clicktext infoclick clickremtag">x</a></span></span></td></tr>';
+                    }
+                    html = html + '<tr><td><a href="#" class="infoclick clickaddtags">ADD TAGS</a></td></tr>';
+                    html = html + '</table>';
+                    html = html + '</td></tr>';
                 }
-                html = html + '<tr><td><a href="#" class="infoclick clickaddtags">ADD TAGS</a></td></tr>';
-                html = html + '</table>';
-                html = html + '</td></tr>';
                 html = html + '</table></div>';
                 return html;
             }

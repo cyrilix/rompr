@@ -161,14 +161,6 @@ function loadPrefs() {
                             $prefs[$a[0]] = trim($a[1]);
                         }
                     }
-                    // // Convert old pref types to new booleans
-                    // foreach (array('dontscrobbleradio', 'lastfm_scrobbling', 'lastfm_autocorrect') as $i) {
-                    //     if ($prefs[$i] === 0) {
-                    //         $prefs[$i] = "false";
-                    //     } else if ($prefs[$i] === 1) {
-                    //         $prefs[$i] = "true";
-                    //     }
-                    // }
                 } else {
                     error_log("================================");
                     error_log("ERROR!              : COULD NOT READ PREFS FILE");

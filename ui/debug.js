@@ -18,6 +18,8 @@ window.debug = (function() {
 			string = string + " ";
 		}
 		string = string + ": ";
+		var a = new Date();
+		string = string + a.toLocaleTimeString()+" : ";
 
 		for (var i in args) {
 			if (typeof(args[i]) != "object" || args[i] === null || args[i] === undefined) {

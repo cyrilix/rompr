@@ -11,7 +11,6 @@ function Playlist() {
     var scrollto = -1;
     var searchedimages = [];
     var lastfmcleanuptimer = null;
-    var ignorecounter = 0;
     var updateErrorFlag = 0;
     var mode = null;
 
@@ -48,36 +47,18 @@ function Playlist() {
     };
 
     /*
-        There are two mechanisms for preventing multiple repeated updates of the playlist
-        1. We keep count of how many ongoing requests we have sent to Apache
-            If this ever exceeds 1, all responses we receive will be ignored until
-            the count reaches zero. We then do one more. This, however, only decreases
-            the load on US, not on mpd/mopidy
-
-        2. Functions can tell us to ignore the next n repopulate reqeusts
-
+    We keep count of how many ongoing requests we have sent to Apache
+    If this ever exceeds 1, all responses we receive will be ignored until
+    the count reaches zero. We then do one more afterwards, because we can't be
+    sure the responses have come back in the right order.
     */
 
     this.repopulate = function() {
-        if (ignorecounter > 0) {
-            ignorecounter--;
-            debug.log("PLAYLIST","Ignoring repopulate request, as requested",ignorecounter,"remaining");
-            return;
-        }
         debug.log("PLAYLIST","Repopulating....");
         updatecounter++;
         player.controller.getPlaylist();
         self.cleanupCleanupTimer();
         coverscraper.clearCallbacks();
-    }
-
-    this.ignoreupdates = function(num) {
-        // Every single track we add or remove, mopidy sends us an update.
-        // If we act on all of them we waste a lot of time.
-        // Functions that know how many items they're going to modify in the playlist
-        // can tell the playlist to ignore some of them (probably n-1 of them)
-        ignorecounter += num;
-        debug.log("PLAYLIST","Will ignore the next",ignorecounter,"updates");
     }
 
     this.updateFailure = function() {
@@ -86,7 +67,7 @@ function Playlist() {
         updatecounter--;
         updateErrorFlag++;
         // After 5 consecutive update failures, we give up because something is obviously wrong.
-        if (updatecounter == 0 && ignorecounter == 0 && updateErrorFlag < 6) {
+        if (updatecounter == 0 && updateErrorFlag < 6) {
             debug.log("PLAYLIST","Update failed and no more are expected. Doing another");
             self.repopulate();
         }
@@ -111,11 +92,9 @@ function Playlist() {
         // where, for example, the user is clicking rapidly on the delete button for lots of tracks
         // and the playlist is slow to update from mpd
         updatecounter--;
-        if (updatecounter > 0 || ignorecounter > 0) {
-            debug.log("PLAYLIST","Received playlist update but ",updatecounter," more are coming and ",ignorecounter," are expected - ignoring");
-            if (ignorecounter == 0) {
-                do_delayed_update = true;
-            }
+        if (updatecounter > 0) {
+            debug.log("PLAYLIST","Received playlist update but ",updatecounter," more are coming - ignoring");
+            do_delayed_update = true;
             return 0;
         }
 
@@ -204,7 +183,7 @@ function Playlist() {
         // before we put all this stuff into the window. (More might have come in while we were organising this one)
         // This might all seem like a faff, but you do not want stuff you've just removed
         // suddenly re-appearing in front of your eyes and then vanishing again. It looks crap.
-        if (updatecounter > 0 || ignorecounter > 0) {
+        if (updatecounter > 0) {
             debug.log("PLAYLIST","Aborting update because counter is non-zero");
             return;
         }

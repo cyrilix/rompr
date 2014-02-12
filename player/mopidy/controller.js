@@ -12,6 +12,7 @@ function playerController() {
     var tracknotfound = true;
     var consoleError = console.error.bind(console);
     var mopidy = null;
+    var tlchangeTimer = null;
 
     function playTlTrack(track) {
         debug.log("PLAYER","Playing Track",track);
@@ -87,10 +88,6 @@ function playerController() {
 	        infobar.updateWindowValues();
         });
 
-		mopidy.on("event:tracklistChanged", function(data) {
-			debug.log("PLAYER","Tracklist Changed",data);
-			playlist.repopulate();
-		});
 
         mopidy.on("event:trackPlaybackEnded", function(data) {
         	self.trackPlaybackEnded();
@@ -101,6 +98,16 @@ function playerController() {
             debug.log("PLAYER","Track Playback Ended",data);
         });
 
+        watchTracklist();
+
+	}
+
+	function watchTracklist() {
+		mopidy.on("event:tracklistChanged", self.tlChange);
+	}
+
+	function stopWatchingTracklist() {
+		mopidy.off("event:tracklistChanged", self.tlChange);
 	}
 
 	function setStatusValues(tl_track) {
@@ -119,6 +126,7 @@ function playerController() {
 	}
 
 	function startPlaybackFromPos(playpos) {
+		if (playpos == null || playpos == -1) return null;
     	debug.log("PLAYER","addTracks winding up to start playback...");
 	    mopidy.tracklist.getTlTracks().then( function (tracklist) {
         	debug.log("PLAYER","addTracks starting playback at position",playpos);
@@ -126,6 +134,7 @@ function playerController() {
             // local copy of the tracklist, not here, as things may get out of sync
             playTlTrack(tracklist[playpos]);
 		});
+		return null;
 	}
 
 	function sortByAlbum(tracks) {
@@ -225,6 +234,13 @@ function playerController() {
 
 	}
 
+	this.tlChange = function(data) {
+		// Don'y repopulate immediately in case there are more coming
+		debug.log("PLAYER","Tracklist Changed");
+		clearTimeout(tlchangeTimer);
+		tlchangeTimer = setTimeout(playlist.repopulate, 200);
+	}
+
     this.initialise = function() {
         debug.log("PLAYER","Connecting to Mopidy HTTP frontend");
         mopidy = new Mopidy({
@@ -315,6 +331,12 @@ function playerController() {
         debug.warn("PLAYER","Mopidy Has Gone Offline");
         infobar.notify(infobar.ERROR, language.gettext("mopidy_down"));
         isReady = false;
+        mopidy.off("event:playlistsLoaded");
+        mopidy.off("event:playbackStateChanged");
+        mopidy.off("event:trackPlaybackStarted");
+        mopidy.off("event:seeked");
+        mopidy.off("event:trackPlaybackEnded");
+        stopWatchingTracklist();
 	}
 
 	this.isConnected = function() {
@@ -424,7 +446,6 @@ function playerController() {
 	}
 
 	this.loadPlaylist = function(uri) {
-		playlist.ignoreupdates(1);
 		mopidy.tracklist.clear().then( function() {
 			$.get("cleanPlaylists.php?command=clear");
             mopidy.playlists.lookup(uri).then( function(list) {
@@ -471,7 +492,6 @@ function playerController() {
             var key = $(this).attr('name');
             var value = $(this).attr("value");
             if (value != "") {
-                debug.debug("PLAYER","Searching for",key, value);
                 if (key == 'tag') {
                 	terms[key] = value.split(',');
                 } else {
@@ -495,7 +515,6 @@ function playerController() {
             }
             prefssave['search_limit_'+$(this).attr("value")] = $(this).is(':checked') ? 1 : 0;
         });
-        debug.log("PLAYER","Saving search prefs",prefssave);
         prefs.save(prefssave);
         if (termcount > 0 && (!($("#limitsearch").is(':checked')) || fanny > 0)) {
             $("#searchresultholder").empty();
@@ -503,27 +522,35 @@ function playerController() {
             debug.log("PLAYER","Doing Search:", terms, domains);
             if (terms.tag || terms.rating) {
                 $.ajax({
-                        type: "POST",
-                        url: "albums.php",
-                        data: {terms: terms, domains: domains},
-                        success: function(data) {
-                            $("#searchresultholder").html(data);
-			                data = null;
-                        }
-                    });
+                    type: "POST",
+                    url: "albums.php",
+                    data: {terms: terms, domains: domains},
+                    success: function(data) {
+                        $("#searchresultholder").html(data);
+		                data = null;
+                    },
+                    error: function() {
+                        $("#searchresultholder").empty();
+                        infobar.notify(infobar.ERROR,"Search Failed");
+                    }
+                });
             } else {
 	            mopidy.library[searchtype](terms, domains).then( function(data) {
 	                debug.log("PLAYER","Search Results",data);
 	                $.ajax({
-	                        type: "POST",
-	                        url: "albums.php",
-	                        data: JSON.stringify(data),
-	                        contentType: "application/json",
-	                        success: function(data) {
-	                            $("#searchresultholder").html(data);
-	                            data = null;
-	                        }
-	                    });
+                        type: "POST",
+                        url: "albums.php",
+                        data: JSON.stringify(data),
+                        contentType: "application/json",
+                        success: function(data) {
+                            $("#searchresultholder").html(data);
+                            data = null;
+	                    },
+	                    error: function() {
+	                        $("#searchresultholder").empty();
+	                        infobar.notify(infobar.ERROR,"Search Failed");
+	                    }
+                    });
 	                data = null;
 	            }, consoleError);
 	        }
@@ -626,25 +653,20 @@ function playerController() {
 
 	this.addTracks = function(tracks, playpos, at_pos) {
 		if (tracks.length == 0) { return }
-		if (mobile != "no") {
-			infobar.notify(infobar.NOTIFY, language.gettext("label_addingtracks"));
-		}
+		if (mobile != "no") infobar.notify(infobar.NOTIFY, language.gettext("label_addingtracks"));
 		debug.log("PLAYER","Adding Tracks",tracks,playpos,at_pos);
-
-		var started = false;
-		playlist.ignoreupdates(tracks.length-1);
-		// Add the tracks to a single variable. otherwise if we get one add request
-		// before the previous one has finished, the tracks get muddled up and
-		// playpos gets confused.
-		$.each(tracks, function(i,v) {
-			tracksToAdd.push(v);
-		});
+		// Add the tracks to a single variable. Otherwise if we get one add request
+		// before the previous one has finished the tracks get muddled up
+		tracksToAdd = tracksToAdd.concat(tracks);
+		if (tracksToAdd.length > 1) stopWatchingTracklist();
 		if (tracks.length == tracksToAdd.length) {
 			debug.debug("PLAYER:","Creating track iterator");
     		(function iterator() {
-    			debug.debug("PLAYER","Iterating...");
     			var t = albumtracks.shift() || tracksToAdd.shift();
     			if (t) {
+    				if (tracksToAdd.length + albumtracks.length == 1) {
+ 						watchTracklist();
+    				}
 		    		switch (t.type) {
 		    			case "uri":
 		    				if (t.findexact) {
@@ -660,13 +682,8 @@ function playerController() {
 		    						debug.log("PLAYER", "findExact results : ",data[0].tracks);
 		    						if (data[0].tracks) {
 			    						mopidy.tracklist.add(sortByAlbum(data[0].tracks),at_pos,null).then(function() {
-						    				if (playpos !== null && playpos > -1 && !started) {
-						    					started = true;
-						    					startPlaybackFromPos(playpos);
-						    				}
-						    				if (at_pos !== null) {
-						    					at_pos += data[0].tracks.length;
-						    				}
+					    					playpos = startPlaybackFromPos(playpos);
+						    				if (at_pos !== null) at_pos += data[0].tracks.length;
 						    				iterator();
 			    						},consoleError);
 			    					} else {
@@ -676,45 +693,25 @@ function playerController() {
 		    					}, consoleError);
 		    				} else {
 					    		debug.log("PLAYER","addTracks Adding",t.name,"at",at_pos);
-
-					    		// This doesn't work because spotify tracks that aren't the result of a search
-					    		// can't be played like this. It's no quicker anyway.
-					    		// Might well be quicker to lookup everything first and then
-					    		// add the whole lot in one go?
-					    		// mopidy.library.lookup(t.name).then(function(tracks) {
-					    		// 	mopidy.tracklist.add(tracks, at_pos, null).then( function() {
-
-					    			mopidy.tracklist.add(null, at_pos, t.name).then( function() {
-
-					    				if (playpos !== null && playpos > -1 && !started) {
-					    					started = true;
-					    					startPlaybackFromPos(playpos);
-					    				}
-					    				if (at_pos !== null) {
-					    					at_pos++;
-					    				}
-					    				iterator();
-					    			},consoleError);
-
-					    		// },consoleError);
+				    			mopidy.tracklist.add(null, at_pos, t.name).then( function() {
+			    					playpos = startPlaybackFromPos(playpos);
+				    				if (at_pos !== null) at_pos++;
+				    				iterator();
+				    			},consoleError);
 				    		}
 			    			break;
 
 			    		case "item":
 				    		debug.log("PLAYER","addTracks Adding",t.name,"at",at_pos);
 			    			$.getJSON("getItems.php?item="+t.name, function(data) {
-			    				playlist.ignoreupdates(data.length-1);
-			    				$(data).each( function() {
-			    					albumtracks.push(this);
-			    				});
+			    				stopWatchingTracklist();
+			    				albumtracks = albumtracks.concat(data);
 			    				iterator();
 			    			});
 			    			break;
 
 			    		case "delete":
 				    		debug.log("PLAYER","addTracks Deleting ID",t.name);
-			    			// Yes it's odd to call addTracks to delete tracks, but we need this for Last.FM
-			    			// ONLY use it there.
 			    			mopidy.tracklist.remove({'tlid': [parseInt(t.name)]}).then( iterator );
 			    			break;
 
@@ -722,7 +719,7 @@ function playerController() {
     			}
     		})();
 		}
-
+		tracks = null;
 	}
 
 	this.move = function(first, number, moveto) {
