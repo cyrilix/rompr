@@ -1287,7 +1287,7 @@ function do_artist_database_stuff($artistkey, $now) {
 	        }
 
 		    if ($ttid) {
-		    	// debug_print("  Track found with ttid ".$ttid,"MYSQL");
+		    	debug_print("  Track found with ttid ".$ttid,"MYSQL");
 				mysqli_stmt_bind_param($stmt, "iiiisi", $trackobj->number, $trackobj->duration, $now, $trackobj->disc, $trackobj->url, $ttid);
 				if (mysqli_stmt_execute($stmt)) {
 					// debug_print("    Updated track","MYSQL");
