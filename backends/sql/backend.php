@@ -441,10 +441,10 @@ function list_tags() {
 
 function generic_sql_query($qstring) {
 	global $mysqlc;
-	//debug_print($qstring,"SQL_QUERY");
+	debug_print($qstring,"SQL_QUERY");
 	if ($result = mysqli_query($mysqlc, $qstring)
 	) {
-		//debug_print("  .. Done","MYSQL");
+		debug_print("Done : ".mysqli_affected_rows($mysqlc)." rows affected","MYSQL");
 		return true;
 	} else {
 		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
@@ -1215,8 +1215,21 @@ function remove_cruft() {
     generic_sql_query("DELETE FROM Albumtable WHERE Albumindex NOT IN (SELECT DISTINCT Albumindex FROM Tracktable WHERE Albumindex IS NOT NULL)");
 
     debug_print("Removing orphaned artists","MYSQL");
-	generic_sql_query("CREATE TEMPORARY TABLE Cruft SELECT Artistindex FROM Artisttable WHERE Artistindex NOT IN (SELECT DISTINCT Artistindex FROM Tracktable) AND Artistindex NOT IN (SELECT DISTINCT Albumartistindex as Artistindex FROM Albumtable)");
+
+    $t = time();
+	generic_sql_query("CREATE TEMPORARY TABLE Croft SELECT Artistindex FROM Tracktable UNION SELECT AlbumArtistindex FROM Albumtable");
+	$dur = format_time(time() - $t);
+	debug_print("Croft table creation took ".$dur,"MYSQL");
+
+    $t = time();
+	generic_sql_query("CREATE TEMPORARY TABLE Cruft SELECT Artistindex FROM Artisttable WHERE Artistindex NOT IN (SELECT Artistindex FROM Croft)");
+	$dur = format_time(time() - $t);
+	debug_print("Cruft table creation took ".$dur,"MYSQL");
+
+    $t = time();
 	generic_sql_query("DELETE Artisttable FROM Artisttable INNER JOIN Cruft ON Artisttable.Artistindex = Cruft.Artistindex");
+	$dur = format_time(time() - $t);
+	debug_print("Artist deletion took ".$dur,"MYSQL");
 
     debug_print("Tidying tags and ratings","MYSQL");
     generic_sql_query("DELETE FROM Ratingtable WHERE Rating = '0'");
