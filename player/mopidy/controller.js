@@ -13,6 +13,7 @@ function playerController() {
     var consoleError = console.error.bind(console);
     var mopidy = null;
     var tlchangeTimer = null;
+    var plstartpos = null;
 
     function playTlTrack(track) {
         debug.log("PLAYER","Playing Track",track);
@@ -123,18 +124,6 @@ function playerController() {
 	        player.status.Genre = tl_track.track.genre;
 	        player.status.Comment = tl_track.track.comment;
 	    }
-	}
-
-	function startPlaybackFromPos(playpos) {
-		if (playpos == null || playpos == -1) return null;
-    	debug.log("PLAYER","addTracks winding up to start playback...");
-	    mopidy.tracklist.getTlTracks().then( function (tracklist) {
-        	debug.log("PLAYER","addTracks starting playback at position",playpos);
-            // Don't call playByPosition, we want to let the trackListChanged event update our
-            // local copy of the tracklist, not here, as things may get out of sync
-            playTlTrack(tracklist[playpos]);
-		});
-		return null;
 	}
 
 	function sortByAlbum(tracks) {
@@ -473,6 +462,10 @@ function playerController() {
         mopidy.tracklist.getTlTracks().then( function (data) {
             debug.log("PLAYER","Got Playlist from Mopidy:",data);
             tracklist = data;
+            if (plstartpos !== null && plstartpos > -1) {
+            	mopidy.playback.play(tracklist[plstartpos]);
+            	plstartpos = null;
+            }
             $.ajax({
                     type: "POST",
                     url: "getplaylist.php",
@@ -652,37 +645,32 @@ function playerController() {
 	}
 
 	this.addTracks = function(tracks, playpos, at_pos) {
-		if (tracks.length == 0) { return }
+		if (tracks.length == 0) return;
 		if (mobile != "no") infobar.notify(infobar.NOTIFY, language.gettext("label_addingtracks"));
 		debug.log("PLAYER","Adding Tracks",tracks,playpos,at_pos);
 		// Add the tracks to a single variable. Otherwise if we get one add request
 		// before the previous one has finished the tracks get muddled up
 		tracksToAdd = tracksToAdd.concat(tracks);
 		if (tracksToAdd.length > 1) stopWatchingTracklist();
+		if (plstartpos == null || plstartpos == -1) plstartpos = playpos;
 		if (tracks.length == tracksToAdd.length) {
 			debug.debug("PLAYER:","Creating track iterator");
     		(function iterator() {
     			var t = albumtracks.shift() || tracksToAdd.shift();
     			if (t) {
-    				if (tracksToAdd.length + albumtracks.length == 1) {
- 						watchTracklist();
-    				}
+    				if (tracksToAdd.length + albumtracks.length == 1) watchTracklist();
 		    		switch (t.type) {
 		    			case "uri":
 		    				if (t.findexact) {
 		    					// We use this for filtering items when we add a spotify:artist link.
-		    					// The reason is that adding spotify:artist:whatever to the playlist
-		    					// adds every *album* that artist is on, including compilations - thus
-		    					// we get loads of tracks that *aren't* by that artist.
-		    					// I don't like that, so I filter by the artist name to get a bunch
-		    					// of tracks. These, unfortunately (this being spotify), come back in an
-		    					// unsorted list...
+		    					// The reason is that adding spotify:artist:whatever to the playlist adds every *album* that artist is on,
+		    					// including compilations - thus we get loads of tracks that *aren't* by that artist.
+		    					// I don't like that, so I filter by the artist name to get a bunch of tracks.
+		    					// These, unfortunately (this being spotify), come back in an unsorted list...
 		    					debug.log("PLAYER","addTracks has a findexact filter to apply",t.findexact,t.filterdomain);
 		    					mopidy.library.findExact(t.findexact, t.filterdomain).then(function(data) {
-		    						debug.log("PLAYER", "findExact results : ",data[0].tracks);
 		    						if (data[0].tracks) {
 			    						mopidy.tracklist.add(sortByAlbum(data[0].tracks),at_pos,null).then(function() {
-					    					playpos = startPlaybackFromPos(playpos);
 						    				if (at_pos !== null) at_pos += data[0].tracks.length;
 						    				iterator();
 			    						},consoleError);
@@ -694,7 +682,6 @@ function playerController() {
 		    				} else {
 					    		debug.log("PLAYER","addTracks Adding",t.name,"at",at_pos);
 				    			mopidy.tracklist.add(null, at_pos, t.name).then( function() {
-			    					playpos = startPlaybackFromPos(playpos);
 				    				if (at_pos !== null) at_pos++;
 				    				iterator();
 				    			},consoleError);
@@ -716,10 +703,12 @@ function playerController() {
 			    			break;
 
 		    		}
+		    		t = null;
     			}
     		})();
 		}
 		tracks = null;
+		at_pos = null;
 	}
 
 	this.move = function(first, number, moveto) {

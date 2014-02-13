@@ -446,6 +446,10 @@ var lastfmImporter = function() {
 				data.action = 'set';
 				data.attribute = 'Rating';
 				data.value = data.Rating;
+				// urionly here is set to ensure that the backend matches ONLY the specific
+				// version of this track that the user has chosen. It'll be created automatically
+				// if it doesn't. Failure to set urionly would mean that any old version
+				// of the track in the database would get matched. I think.
 				data.urionly = 1;
 				debug.mark("LASTFM IMPORTER","Doing SQL Rating Stuff",data);
 		        $.ajax({

@@ -27,7 +27,7 @@ class album {
     public function __construct($name, $artist, $domain) {
         global $numalbums;
         $this->artist = $artist;
-        $this->name = $name;
+        $this->name = trim($name);
         $this->tracks = array();
         $this->folder = null;
         $this->iscompilation = false;
@@ -189,10 +189,7 @@ class artist {
 
     public function newAlbum($object) {
         // Pass an album object to this function
-        $key = strtolower($object->name);
-        while (array_key_exists($key, $this->albums)) {
-            $key = $key."1";
-        }
+        $key = md5(strtolower($object->name).$object->domain);
         $this->albums[$key] = $object;
         $object->setArtistObject($this);
     }
@@ -289,15 +286,19 @@ class musicCollection {
 
     private function findAlbum($album, $artist, $directory, $domain) {
         if ($artist != null) {
-            $a = trim($album);
-            foreach ($this->artists[strtolower($artist)]->albums as $object) {
-                if ($a == trim($object->name) && $object->domain == $domain) {
-                    return $object;
-                }
+            $a = md5(trim(strtolower($album)).$domain);
+            $art = strtolower($artist);
+            if (array_key_exists($a, $this->artists[$art]->albums)) {
+                return $this->artists[$art]->albums[$a];
             }
+            // foreach ($this->artists[$art]->albums as $object) {
+            //     if ($a == trim($object->name) && $object->domain == $domain) {
+            //         return $object;
+            //     }
+            // }
         }
         if ($directory != null && $directory != ".") {
-            foreach ($this->findAlbumByName(strtolower($album)) as $object) {
+            foreach ($this->findAlbumByName(trim(strtolower($album))) as $object) {
                 if ($directory == $object->folder && $object->domain == $domain) {
                     return $object;
                 }
@@ -376,20 +377,25 @@ class musicCollection {
         if ($abm === false) {
             $abm = $this->findAlbum($album, $artistkey, null, $domain);
             if ($abm === false) {
-                // Does an album with this name where the tracks are in the same directory exist?
-                $abm = $this->findAlbum($album, null, $directory, $domain);
-                if ($abm !== false) {
-                    // We found one - it's not by the same artist so we need to mark it as a compilation if it isn't already
-                    if (!($abm->isCompilation())) {
-                        $abm->setAsCompilation();
-                        // Create various artists group if it isn't there
-                        if (!array_key_exists("various artists", $this->artists)) {
-                            $this->artists["various artists"] = new artist("Various Artists");
+                if ($albumartist == null) {
+                    // Does an album with this name where the tracks are in the same directory exist?
+                    // We don't need to do this if albumartist is set - this is for detecting
+                    // badly tagged compilations
+                    $abm = $this->findAlbum($album, null, $directory, $domain);
+                    if ($abm !== false) {
+                        // We found one - it's not by the same artist so we need to mark it as a compilation if it isn't already
+                        if (!($abm->isCompilation())) {
+                            $abm->setAsCompilation();
+                            // Create various artists group if it isn't there
+                            if (!array_key_exists("various artists", $this->artists)) {
+                                $this->artists["various artists"] = new artist("Various Artists");
+                            }
+                            // Add the album to the various artists group
+                            $this->artists["various artists"]->newAlbum($abm);
                         }
-                        // Add the album to the various artists group
-                        $this->artists["various artists"]->newAlbum($abm);
                     }
-                } else {
+                }
+                if ($abm === false) {
                     // We didn't find the album, so create it
                     $abm = new album($album, $sortartist, $domain);
                     $this->albums[] = $abm;

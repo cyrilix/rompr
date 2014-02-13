@@ -67,12 +67,14 @@ if (array_key_exists('item', $_REQUEST)) {
 } else if (array_key_exists('rebuild', $_REQUEST)) {
     // This is a request to rebuild the music collection coming from either
     // the mpd or mopidy controller
+    $now = time();
     include ("player/".$player_backend."/connection.php");
     include ("collection/collection.php");
 	$collection = doCollection("listallinfo");
     createAlbumsList($ALBUMSLIST, "a");
 	dumpAlbums('aalbumroot');
     close_player();
+    debug_print("Collection Update took ".format_time(time() - $now),"COLLECTION");
 } else {
     // This can only be a mopidy search requiring parsing
     include ("player/".$player_backend."/connection.php");

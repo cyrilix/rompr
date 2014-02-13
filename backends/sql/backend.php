@@ -542,33 +542,6 @@ function update_image_db($key, $notfound, $imagefile) {
 
 }
 
-// function collectionIfy() {
-// 	global $mysqlc;
-// 	$collection = new musicCollection(null);
-// 	debug_print("Making Collection from Starred Tracks","MYSQL");
-// 	if ($result = mysqli_query($mysqlc, "SELECT t.*, al.*, a1.*, a2.Artistname AS AlbumArtistName FROM Tracktable AS t JOIN Artisttable AS a1 ON a1.Artistindex = t.Artistindex JOIN Albumtable AS al ON al.Albumindex = t.Albumindex JOIN Artisttable AS a2 ON al.AlbumArtistindex = a2.Artistindex WHERE t.Uri IS NOT NULL")) {
-// 		while ($obj = mysqli_fetch_object($result)) {
-// 			$filedata = array(
-// 				'Artist' => $obj->Artistname,
-// 				'Album' => $obj->Albumname,
-// 				'AlbumArtist' => $obj->AlbumArtistName,
-// 				'file' => $obj->Uri,
-// 				'Title' => $obj->Title,
-// 				'Track' => $obj->TrackNo,
-// 				'Image' => $obj->Image,
-// 				'Time' => $obj->Duration,
-// 				'SpotiAlbum' => $obj->Spotilink,
-// 				'Date' => $obj->Year
-// 			);
-// 			process_file($collection, $filedata);
-// 		}
-// 		mysqli_free_result($result);
-// 	} else {
-// 		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
-// 	}
-// 	return $collection;
-// }
-
 function do_artists_from_database($which) {
 	global $mysqlc;
 	global $divtype;
@@ -1109,11 +1082,6 @@ function check_albumslist() {
 function update_track_stats() {
 	debug_print("Updating Track Stats","MYSQL");
 	global $mysqlc;
-	// if ($result = mysqli_query($mysqlc, "SELECT AlbumArtistindex FROM Albumtable GROUP BY AlbumArtistindex")) {
-	// 	update_stat('ArtistCount',mysqli_num_rows($result));
-	// } else {
-	// 	debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
-	// }
 	if ($result = mysqli_query($mysqlc, "SELECT COUNT(*) AS NumArtists FROM Artisttable")) {
 		$ac = 0;
 		while ($obj = mysqli_fetch_object($result)) {
@@ -1189,6 +1157,7 @@ function doDatabaseMagic() {
     }
 
     // Find tracks that have been removed
+    debug_print("Finding tracks that have been deleted","MYSQL");
 	if ($stmt = mysqli_prepare($mysqlc, "DELETE FROM Tracktable WHERE LastModified IS NOT NULL AND LastModified < ?")) {
 		mysqli_stmt_bind_param($stmt, "i", $now);
 		if (mysqli_stmt_execute($stmt)) {
@@ -1209,7 +1178,6 @@ function doDatabaseMagic() {
 }
 
 function remove_cruft() {
-	// This is quite fast but still takes a measurable amount of time so optimise when you use it
     debug_print("Removing orphaned albums","MYSQL");
     // NOTE - the Albumindex IS NOT NULL is essential - if any albumindex is NULL the entire () expression returns NULL
     generic_sql_query("DELETE FROM Albumtable WHERE Albumindex NOT IN (SELECT DISTINCT Albumindex FROM Tracktable WHERE Albumindex IS NOT NULL)");
@@ -1217,12 +1185,12 @@ function remove_cruft() {
     debug_print("Removing orphaned artists","MYSQL");
 
     $t = time();
-	generic_sql_query("CREATE TEMPORARY TABLE Croft SELECT Artistindex FROM Tracktable UNION SELECT AlbumArtistindex FROM Albumtable");
+	generic_sql_query("CREATE TEMPORARY TABLE Croft(Artistindex INT UNSIGNED NOT NULL UNIQUE, PRIMARY KEY(Artistindex)) SELECT Artistindex FROM Tracktable UNION SELECT AlbumArtistindex FROM Albumtable");
 	$dur = format_time(time() - $t);
 	debug_print("Croft table creation took ".$dur,"MYSQL");
 
     $t = time();
-	generic_sql_query("CREATE TEMPORARY TABLE Cruft SELECT Artistindex FROM Artisttable WHERE Artistindex NOT IN (SELECT Artistindex FROM Croft)");
+	generic_sql_query("CREATE TEMPORARY TABLE Cruft(Artistindex INT UNSIGNED NOT NULL UNIQUE, PRIMARY KEY(Artistindex)) SELECT Artistindex FROM Artisttable WHERE Artistindex NOT IN (SELECT Artistindex FROM Croft)");
 	$dur = format_time(time() - $t);
 	debug_print("Cruft table creation took ".$dur,"MYSQL");
 
@@ -1258,7 +1226,7 @@ function do_artist_database_stuff($artistkey, $now) {
 	}
 
 	// Check for NULL track number will find items that are in the wishlist so they can be updated
-	if ($find_track = mysqli_prepare($mysqlc, "SELECT TTindex FROM Tracktable WHERE Albumindex=? AND Title=? AND (TrackNo=? OR TrackNo IS NULL)")) {
+	if ($find_track = mysqli_prepare($mysqlc, "SELECT TTindex FROM Tracktable WHERE (Albumindex=? OR Albumindex IS NULL) AND Title=? AND (TrackNo=? OR TrackNo IS NULL)")) {
 	} else {
         debug_print("    MYSQL Statement Error: ".mysqli_error($mysqlc),"MYSQL");
         return false;

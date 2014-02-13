@@ -184,13 +184,11 @@ In your mopidy.conf you should have
 	[http]
 	hostname = ::
 
+Proxy Settings
+==============
 
+If you need to use a proxy to access the internet, point your browser at:
 
+	[ip address of apache server]/rompr/?setup
 
-
-
-
-
-Using the Album Artist tag helps RompR to sort your music into correct albums.
-It also helps greatly if your local files are tagged with Musicbrainz IDs. MusicBrainz Picard is a good tagger, though those with large music collections may like to check out Beets.
-[1] You install RompR on the same computer as your music player. You can use a web browser on any other computer to control it.
+and enter the appropriate values.
