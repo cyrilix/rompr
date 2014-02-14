@@ -528,6 +528,11 @@ function process_file($collection, $filedata) {
     $lastmodified = (array_key_exists('Last-Modified',$filedata)) ? $filedata['Last-Modified'] : null;
     $linktype = (array_key_exists('linktype',$filedata)) ? $filedata['linktype'] : 'file';
 
+    if ($prefs['player_backend'] == "mpd") {
+        // MPD provides lastmodified in a bloomin' time string and we need integers, dammit :)
+        $lastmodified = strtotime($lastmodified);
+    }
+
     // Capture tracks where the basename/dirname route didn't work
     if ($artist == ".") {
         $artist = '[Unknown]';

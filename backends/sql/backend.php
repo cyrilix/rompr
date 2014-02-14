@@ -933,7 +933,7 @@ function check_sql_tables() {
 			"LastModified INT UNSIGNED, ".
 			"INDEX(Albumindex), ".
 			"INDEX(Title), ".
-			"INDEX(TrackNo) ",
+			"INDEX(TrackNo), ".
 			"INDEX(Disc))"))
 		{
 			debug_print("  Tracktable OK","MYSQL");
@@ -1151,6 +1151,8 @@ function doDatabaseMagic() {
     global $collection;
     global $LISTVERSION;
     global $mysqlc;
+    global $prefs;
+
     $now = time();
 	generic_sql_query("CREATE TEMPORARY TABLE Foundtracks(TTindex INT UNSIGNED NOT NULL UNIQUE, PRIMARY KEY(TTindex))");
 
@@ -1162,20 +1164,6 @@ function doDatabaseMagic() {
     // Find tracks that have been removed
     debug_print("Finding tracks that have been deleted","MYSQL");
     generic_sql_query("DELETE FROM Tracktable WHERE LastModified IS NOT NULL AND TTindex NOT IN (SELECT TTindex FROM Foundtracks)");
-
-
-    // Find tracks that have been removed
- //    debug_print("Finding tracks that have been deleted","MYSQL");
-	// if ($stmt = mysqli_prepare($mysqlc, "DELETE FROM Tracktable WHERE LastModified IS NOT NULL AND LastModified < ?")) {
-	// 	mysqli_stmt_bind_param($stmt, "i", $now);
-	// 	if (mysqli_stmt_execute($stmt)) {
-	// 		debug_print("Removed ".mysqli_stmt_affected_rows($stmt)." tracks","MYSQL");
-	// 	} else {
- //            debug_print("  MYSQL Statement Error: ".mysqli_error($mysqlc),"MYSQL");
-	// 	}
-	// } else {
- //        debug_print("  MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
- //    }
 
     remove_cruft();
 	update_stat('ListVersion',$LISTVERSION);
