@@ -61,7 +61,10 @@ switch ($_POST['action']) {
 		break;
 
 	case 'set':
-		if ($artist === null || $title === null || !array_key_exists('attribute', $_POST) || !array_key_exists('value', $_POST)) {
+		if ($artist === null ||
+			$title === null ||
+			!array_key_exists('attribute', $_POST) ||
+			!array_key_exists('value', $_POST)) {
 			debug_print("Something is not set","USERRATING");
 			header('HTTP/1.0 403 Forbidden');
 			exit(0);
@@ -163,20 +166,6 @@ switch ($_POST['action']) {
 		break;
 
 }
-
-// function make_it_come_out_green() {
-// 	global $mysqlc;
-// 	global $RATINGLIST;
-// 	global $collection;
-// 	if (!file_exists($RATINGLIST)) {
-// 		$collection = collectionIfy();
-// 	    $output = new collectionOutput($RATINGLIST);
-// 	    createXML($collection->getSortedArtistList(), "c", $output);
-// 	    $output->closeFile();
-// 	}
-// 	dumpAlbums('calbumroot');
-
-// }
 
 function preparePlaylist() {
 	generic_sql_query("DROP TABLE IF EXISTS pltable");

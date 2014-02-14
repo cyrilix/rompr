@@ -222,7 +222,7 @@ function create_new_track($title, $artist, $trackno, $duration, $albumartist, $s
 function check_artist($artist, $upflag) {
 	global $mysqlc;
 	$index = null;
-	debug_print("Checking for artist ".$artist,"MYSQL");
+	// debug_print("Checking for artist ".$artist,"MYSQL");
 	if ($stmt = mysqli_prepare($mysqlc, "SELECT Artistindex FROM Artisttable WHERE STRCMP(Artistname, ?) = 0")) {
 		mysqli_stmt_bind_param($stmt, "s", $artist);
 		mysqli_stmt_execute($stmt);
@@ -230,7 +230,7 @@ function check_artist($artist, $upflag) {
 	    mysqli_stmt_fetch($stmt);
 	    mysqli_stmt_close($stmt);
 	    if ($index) {
-			debug_print("    Found Artistindex ".$index,"MYSQL");
+			// debug_print("    Found Artistindex ".$index,"MYSQL");
 	    } else {
 			$index = create_new_artist($artist, $upflag);
 	    }
@@ -259,7 +259,7 @@ function create_new_artist($artist, $upflag) {
 function check_album($album, $albumai, $spotilink, $image, $date, $isonefile, $searched, $imagekey, $mbid, $numdiscs, $domain, $directory) {
 	global $mysqlc;
 	$index = null;
-	debug_print("Checking for album ".$album." on ".$domain, "MYSQL");
+	// debug_print("Checking for album ".$album." on ".$domain, "MYSQL");
 	if ($stmt = mysqli_prepare($mysqlc, "SELECT Albumindex FROM Albumtable WHERE STRCMP(Albumname, ?) = 0 AND AlbumArtistindex = ? AND Domain = ?")) {
 		mysqli_stmt_bind_param($stmt, "sis", $album, $albumai, $domain);
 		mysqli_stmt_execute($stmt);
@@ -268,7 +268,7 @@ function check_album($album, $albumai, $spotilink, $image, $date, $isonefile, $s
 	    mysqli_stmt_close($stmt);
 	    if ($index) {
 	    	// TODO we probably ought to update the album details - at least date and numdiscs anyway
-			debug_print("    Found Albumindex ".$index,"MYSQL");
+			// debug_print("    Found Albumindex ".$index,"MYSQL");
 	    } else {
 			$index = create_new_album($album, $albumai, $spotilink, $image, $date, $isonefile, $searched, $imagekey, $mbid, $numdiscs, $domain, $directory);
 	    }
@@ -439,15 +439,15 @@ function list_tags() {
 	return $tags;
 }
 
-function generic_sql_query($qstring) {
+function generic_sql_query($qstring, $log = true) {
 	global $mysqlc;
-	debug_print($qstring,"SQL_QUERY");
+	if ($log) debug_print($qstring,"SQL_QUERY");
 	if ($result = mysqli_query($mysqlc, $qstring)
 	) {
-		debug_print("Done : ".mysqli_affected_rows($mysqlc)." rows affected","MYSQL");
+		if ($log) debug_print("Done : ".mysqli_affected_rows($mysqlc)." rows affected","MYSQL");
 		return true;
 	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+		if ($log) debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 		return false;
 	}
 
@@ -933,7 +933,8 @@ function check_sql_tables() {
 			"LastModified INT UNSIGNED, ".
 			"INDEX(Albumindex), ".
 			"INDEX(Title), ".
-			"INDEX(TrackNo))"))
+			"INDEX(TrackNo) ",
+			"INDEX(Disc))"))
 		{
 			debug_print("  Tracktable OK","MYSQL");
 		} else {
@@ -1151,6 +1152,8 @@ function doDatabaseMagic() {
     global $LISTVERSION;
     global $mysqlc;
     $now = time();
+	generic_sql_query("CREATE TEMPORARY TABLE Foundtracks(TTindex INT UNSIGNED NOT NULL UNIQUE, PRIMARY KEY(TTindex))");
+
     $artistlist = $collection->getSortedArtistList();
     foreach($artistlist as $artistkey) {
         do_artist_database_stuff($artistkey, $now);
@@ -1158,16 +1161,21 @@ function doDatabaseMagic() {
 
     // Find tracks that have been removed
     debug_print("Finding tracks that have been deleted","MYSQL");
-	if ($stmt = mysqli_prepare($mysqlc, "DELETE FROM Tracktable WHERE LastModified IS NOT NULL AND LastModified < ?")) {
-		mysqli_stmt_bind_param($stmt, "i", $now);
-		if (mysqli_stmt_execute($stmt)) {
-			debug_print("Removed ".mysqli_stmt_affected_rows($stmt)." tracks","MYSQL");
-		} else {
-            debug_print("  MYSQL Statement Error: ".mysqli_error($mysqlc),"MYSQL");
-		}
-	} else {
-        debug_print("  MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
-    }
+    generic_sql_query("DELETE FROM Tracktable WHERE LastModified IS NOT NULL AND TTindex NOT IN (SELECT TTindex FROM Foundtracks)");
+
+
+    // Find tracks that have been removed
+ //    debug_print("Finding tracks that have been deleted","MYSQL");
+	// if ($stmt = mysqli_prepare($mysqlc, "DELETE FROM Tracktable WHERE LastModified IS NOT NULL AND LastModified < ?")) {
+	// 	mysqli_stmt_bind_param($stmt, "i", $now);
+	// 	if (mysqli_stmt_execute($stmt)) {
+	// 		debug_print("Removed ".mysqli_stmt_affected_rows($stmt)." tracks","MYSQL");
+	// 	} else {
+ //            debug_print("  MYSQL Statement Error: ".mysqli_error($mysqlc),"MYSQL");
+	// 	}
+	// } else {
+ //        debug_print("  MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+ //    }
 
     remove_cruft();
 	update_stat('ListVersion',$LISTVERSION);
@@ -1226,7 +1234,7 @@ function do_artist_database_stuff($artistkey, $now) {
 	}
 
 	// Check for NULL track number will find items that are in the wishlist so they can be updated
-	if ($find_track = mysqli_prepare($mysqlc, "SELECT TTindex FROM Tracktable WHERE (Albumindex=? OR Albumindex IS NULL) AND Title=? AND (TrackNo=? OR TrackNo IS NULL)")) {
+	if ($find_track = mysqli_prepare($mysqlc, "SELECT TTindex, LastModified FROM Tracktable WHERE Albumindex=? AND Title=? AND TrackNo=? AND Disc=?")) {
 	} else {
         debug_print("    MYSQL Statement Error: ".mysqli_error($mysqlc),"MYSQL");
         return false;
@@ -1261,6 +1269,7 @@ function do_artist_database_stuff($artistkey, $now) {
         foreach($album->tracks as $trackobj) {
             $trackartistindex = null;
             $ttid = null;
+            $lastmodified = null;
 
             // Why are we not checking by URI? That should be unique, right?
             // Well, er. no. They're not. Especially Spotify returns the same URI multiple times if it's in mutliple playlists
@@ -1272,10 +1281,11 @@ function do_artist_database_stuff($artistkey, $now) {
             // Also, URIs might change if the user moves his music collection.
             // And this means we can update WishList tracks when they're added to the collection.
 
-            // debug_print("Checking for track ".$trackobj->name." ".$trackobj->number." ".$trackobj->duration." ".$now." ".$trackobj->disc." ".$trackobj->url,"MYSQL");
-            mysqli_stmt_bind_param($find_track, "isi", $albumindex, $trackobj->name, $trackobj->number);
+            // debug_print("Checking for track ".$trackobj->name." ".$trackobj->number." ".$trackobj->url,"MYSQL");
+
+            mysqli_stmt_bind_param($find_track, "isii", $albumindex, $trackobj->name, $trackobj->number, $trackobj->disc);
 			if (mysqli_stmt_execute($find_track)) {
-			    mysqli_stmt_bind_result($find_track, $ttid);
+			    mysqli_stmt_bind_result($find_track, $ttid, $lastmodified);
 			    mysqli_stmt_store_result($find_track);
 			    while (mysqli_stmt_fetch($find_track)) {
 			    	// PHP is the retarded bastard offspring of Perl and BASIC.
@@ -1287,12 +1297,14 @@ function do_artist_database_stuff($artistkey, $now) {
 	        }
 
 		    if ($ttid) {
-		    	debug_print("  Track found with ttid ".$ttid,"MYSQL");
-				mysqli_stmt_bind_param($stmt, "iiiisi", $trackobj->number, $trackobj->duration, $now, $trackobj->disc, $trackobj->url, $ttid);
-				if (mysqli_stmt_execute($stmt)) {
-					// debug_print("    Updated track","MYSQL");
-				} else {
-	                debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+		    	if ($lastmodified === null || $trackobj->lastmodified != $lastmodified) {
+			    	debug_print("  Updating track with ttid ".$ttid." ".$trackobj->number,"MYSQL");
+					mysqli_stmt_bind_param($stmt, "iiiisi", $trackobj->number, $trackobj->duration, $trackobj->lastmodified, $trackobj->disc, $trackobj->url, $ttid);
+					if (mysqli_stmt_execute($stmt)) {
+						// debug_print("    Updated track","MYSQL");
+					} else {
+		                debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+					}
 				}
 		    } else {
 		    	debug_print("  Track not found","MYSQL");
@@ -1312,7 +1324,7 @@ function do_artist_database_stuff($artistkey, $now) {
                 if ($trackobj->playlist && count($album->tracks == 1)) {
                 	$trackuri = $trackobj->playlist;
                 }
-                create_new_track(
+                $ttid = create_new_track(
                     $trackobj->name,
                     null,
                     $trackobj->number,
@@ -1329,7 +1341,7 @@ function do_artist_database_stuff($artistkey, $now) {
                     null,
                     null,
                     null,
-                    $now,
+                    $trackobj->lastmodified,
                     $trackobj->disc,
                     null,
                     null,
@@ -1337,6 +1349,12 @@ function do_artist_database_stuff($artistkey, $now) {
                     null
                 );
 
+		    }
+
+		    if ($ttid == null) {
+		    	debug_print("ERROR! No ttid for track ".$trackobj->name,"MYSQL");
+		    } else {
+		    	generic_sql_query("INSERT INTO Foundtracks (TTindex) VALUES (".$ttid.")", false);
 		    }
         }
     }

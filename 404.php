@@ -24,8 +24,8 @@ if (preg_match('/albumart\/small\//', $request)) {
 	// Custom 404 page for anything else
     header("HTTP/1.1 404 Not Found");
 ?>
-<link rel="stylesheet" type="text/css" href="layout.css" />
-<link rel="stylesheet" type="text/css" href="Darkness.css" />
+<link rel="stylesheet" type="text/css" href="css/layout.css" />
+<link rel="stylesheet" type="text/css" href="themes/Darkness.css" />
 <title>Badgers!</title>
 </head>
 <body>
