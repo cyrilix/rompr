@@ -127,44 +127,35 @@ class album {
 
     public function sortTracks() {
 
-        $temp = array();
-        $number = 0;
+        $discs = array();
+        $number = 1;
         foreach ($this->tracks as $num => $ob) {
             if ($ob->number) {
-                $index = intval($ob->number);
+                $track_no = intval($ob->number);
             } else {
-                $index = $number;
+                $track_no = $number;
             }
             # Just in case we have a multiple disc album with no disc number tags
-            # (or mpd 0.16 and earlier which doesn't read Disc tags from m4a files)
-            # (or indeed, mopidy)
             $discno = intval($ob->disc);
-            if (!array_key_exists($discno, $temp)) {
-            	$temp[$discno] = array();
+            if (!array_key_exists($discno, $discs)) {
+            	$discs[$discno] = array();
             }
-            while(array_key_exists($index, $temp[$discno])) {
+            while(array_key_exists($track_no, $discs[$discno])) {
                 $discno++;
-	            if (!array_key_exists($discno, $temp)) {
-    	        	$temp[$discno] = array();
+	            if (!array_key_exists($discno, $discs)) {
+    	        	$discs[$discno] = array();
                 }
             }
-            $temp[$discno][$index] = $ob;
+            $discs[$discno][$track_no] = $ob;
             $number++;
         }
-        $numdiscs = count($temp);
+        $numdiscs = count($discs);
+
         $this->tracks = array();
-        $temp2 = array_keys($temp);
-        sort($temp2, SORT_NUMERIC);
-        foreach($temp2 as $i => $a) {
-            $temp3 = array_keys($temp[$a]);
-            sort($temp3, SORT_NUMERIC);
-            $temp4 = array();
-            foreach($temp3 as $cock) {
-                $temp4[$cock] = $temp[$a][$cock];
-            }
-            foreach($temp4 as $r => $o) {
-                $this->tracks[] = $o;
-            }
+        ksort($discs, SORT_NUMERIC);
+        foreach ($discs as $disc) {
+            ksort($disc, SORT_NUMERIC);
+            $this->tracks = array_merge($this->tracks, $disc);
         }
         return $numdiscs;
     }
@@ -441,36 +432,42 @@ class musicCollection {
     public function getAlbumList($artist, $ignore_compilations) {
         global $prefs;
         $albums = array();
-        foreach($this->artists[$artist]->albums as $i => $object) {
-            if ($object->isCompilation() && $ignore_compilations) {
+        if ($prefs['apache_backend'] == "sql") {
+            // No need to sort the albums when using the SQL database
+            // - it's all done on the fly when we read the data out.
+            return $this->artists[$artist]->albums;
+        } else {
+            foreach($this->artists[$artist]->albums as $i => $object) {
+                if ($object->isCompilation() && $ignore_compilations) {
 
-            } else {
-                if ($prefs['sortbydate'] == "true" &&
-                    !($artist == "various artists" && $prefs['notvabydate'] == "true")) {
-                    $d = $object->getDate();
-                    if ($d == null) {
-                        $d = "99999";
-                    }
-                    while (array_key_exists($d, $albums)) {
-                        $d = "0".$d;
-                    }
-                    $albums[$d] = $object;
                 } else {
-                    $d = $object->name;
-                    while (array_key_exists($d, $albums)) {
-                        $d = $d."1";
+                    if ($prefs['sortbydate'] == "true" &&
+                        !($artist == "various artists" && $prefs['notvabydate'] == "true")) {
+                        $d = $object->getDate();
+                        if ($d == null) {
+                            $d = "99999";
+                        }
+                        while (array_key_exists($d, $albums)) {
+                            $d = "0".$d;
+                        }
+                        $albums[$d] = $object;
+                    } else {
+                        $d = $object->name;
+                        while (array_key_exists($d, $albums)) {
+                            $d = $d."1";
+                        }
+                        $albums[$d] = $object;
                     }
-                    $albums[$d] = $object;
                 }
             }
+            if ($prefs['sortbydate'] == "true" &&
+                !($artist == "various artists" && $prefs['notvabydate'] == "true")) {
+                ksort($albums, SORT_NUMERIC);
+            } else {
+                ksort($albums, SORT_STRING);
+            }
+            return $albums;
         }
-        if ($prefs['sortbydate'] == "true" &&
-            !($artist == "various artists" && $prefs['notvabydate'] == "true")) {
-            ksort($albums, SORT_NUMERIC);
-        } else {
-            ksort($albums, SORT_STRING);
-        }
-        return $albums;
     }
 
     public function spotilink($artist) {
@@ -511,8 +508,8 @@ function process_file($collection, $filedata) {
     $albumartist = (array_key_exists('AlbumArtist', $filedata)) ? $filedata['AlbumArtist'] : null;
     $name = (array_key_exists('Title', $filedata)) ? $filedata['Title'] : rawurldecode(basename($file));
     $duration = (array_key_exists('Time', $filedata)) ? $filedata['Time'] : 0;
-    $number = (array_key_exists('Track', $filedata)) ? format_tracknum($filedata['Track']) : format_tracknum(basename($file));
-    $disc = (array_key_exists('Disc', $filedata)) ? format_tracknum($filedata['Disc']) : 0;
+    $number = (array_key_exists('Track', $filedata)) ? ltrim($filedata['Track'], '0') : format_tracknum(basename($file));
+    $disc = (array_key_exists('Disc', $filedata)) ? ltrim($filedata['Disc'], '0') : 0;
     $date = (array_key_exists('Date',$filedata)) ? $filedata['Date'] : null;
     $genre = (array_key_exists('Genre', $filedata)) ? $filedata['Genre'] : null;
     $image = (array_key_exists('Image', $filedata)) ? $filedata['Image'] : null;
@@ -527,11 +524,6 @@ function process_file($collection, $filedata) {
     $playlist = (array_key_exists('playlist',$filedata)) ? $filedata['playlist'] : null;
     $lastmodified = (array_key_exists('Last-Modified',$filedata)) ? $filedata['Last-Modified'] : null;
     $linktype = (array_key_exists('linktype',$filedata)) ? $filedata['linktype'] : 'file';
-
-    if ($prefs['player_backend'] == "mpd") {
-        // MPD provides lastmodified in a bloomin' time string and we need integers, dammit :)
-        $lastmodified = strtotime($lastmodified);
-    }
 
     // Capture tracks where the basename/dirname route didn't work
     if ($artist == ".") {
