@@ -157,7 +157,7 @@ function create_new_track($title, $artist, $trackno, $duration, $albumartist, $s
 						  $trackai = null, $albumai = null, $albumi = null, $isonefile = null, $searched = null,
 						  $imagekey = null, $lastmodified = null, $disc = null, $ambid = null, $numdiscs = null, $domain = null,
 						  $directory = null) {
-	debug_print("Adding New Track ".$title,"MYSQL");
+	debug_print("Adding New Track ".$title." ".$trackno,"MYSQL");
 	global $mysqlc;
 	global $artist_created;
 
@@ -1222,9 +1222,9 @@ function do_artist_database_stuff($artistkey, $now) {
 	}
 
 	// First find tracks that we already have ...
-	if ($find_track = mysqli_prepare($mysqlc, "SELECT TTindex, LastModified FROM Tracktable WHERE (Albumindex=? AND Title=? AND TrackNo=? AND Disc=?)".
-	// ... then tracks that are in the wishlist. These will have TrackNo and Disc as NULL but Albumindex might not be.
-		" OR (Title=? AND Artistindex=? AND TrackNo IS NULL AND Disc IS NULL)")) {
+	if ($find_track = mysqli_prepare($mysqlc, "SELECT TTindex, LastModified FROM Tracktable WHERE Title=? AND ((Albumindex=? AND TrackNo=? AND Disc=?)".
+	// ... then tracks that are in the wishlist. These will have TrackNo as NULL but Albumindex might not be.
+		" OR (Artistindex=? AND TrackNo IS NULL))")) {
 	} else {
         debug_print("    MYSQL Statement Error: ".mysqli_error($mysqlc),"MYSQL");
         return false;
@@ -1272,7 +1272,7 @@ function do_artist_database_stuff($artistkey, $now) {
 
             // debug_print("Checking for track ".$trackobj->name." ".$trackobj->number." ".$trackobj->url,"MYSQL");
 
-            mysqli_stmt_bind_param($find_track, "isiisi", $albumindex, $trackobj->name, $trackobj->number, $trackobj->disc, $trackobj->name, $artistindex);
+            mysqli_stmt_bind_param($find_track, "siiii", $trackobj->name, $albumindex, $trackobj->number, $trackobj->disc, $artistindex);
 			if (mysqli_stmt_execute($find_track)) {
 			    mysqli_stmt_bind_result($find_track, $ttid, $lastmodified);
 			    mysqli_stmt_store_result($find_track);

@@ -23,6 +23,12 @@ function format_tracknum($tracknum) {
     if (preg_match('/^\s*0*(\d+)/', $tracknum, $matches)) {
         return $matches[1];
     }
+    if (preg_match('/0*(\d+) of \d+/i', $tracknum, $matches)) {
+        return $matches[1];
+    }
+    // if (preg_match('/0*(\d+)\..*?$/', $tracknum, $matches)) {
+    //     return $matches[1];
+    // }
     return '';
 }
 
@@ -234,11 +240,14 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
         print '<div class="clickable clicktrack ninesix draggable indent containerbox padright line" name="'.$url.'">';
     }
     print '<div class="tracknumber fixed"';
-    if ($numtracks > 99 ||
-        $number > 99) {
+    if ($numtracks > 99 || $number > 99) {
         print ' style="width:3em"';
     }
-    print '>'.$number.'</div>';
+    if ($number > 0) {
+        print '>'.$number.'</div>';
+    } else {
+        print '></div>';
+    }
     if (substr($url,0,7) == "spotify") {
         print '<div class="playlisticon fixed"><img height="12px" src="newimages/spotify-logo.png" /></div>';
     } else if (substr($url,0,10) == "soundcloud") {
