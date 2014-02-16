@@ -65,11 +65,9 @@ function dumpAlbums($which) {
                     $currdisc = -1;
                     foreach($obj->tracks->track as $i => $trackobj) {
                         if (!$trackobj->playlist) {
-                            if ($obj->numdiscs > 1) {
-                                if ($trackobj->disc && $trackobj->disc != $currdisc) {
-                                    $currdisc = $trackobj->disc;
-                                    print '<div class="discnumber indent">Disc '.$currdisc.'</div>';
-                                }
+                            if ($obj->numdiscs > 1 && $trackobj->disc && $trackobj->disc != $currdisc) {
+                                $currdisc = $trackobj->disc;
+                                print '<div class="discnumber indent">Disc '.$currdisc.'</div>';
                             }
                             albumTrack(
                                 $trackobj->artist,

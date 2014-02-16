@@ -37,6 +37,7 @@ class album {
         $this->domain = $domain;
         $this->image = null;
         $this->artistobject = null;
+        $this->numOfDiscs = -1;
         $numalbums++;
     }
 
@@ -51,6 +52,9 @@ class album {
         }
         if ($this->datestamp == null) {
             $this->datestamp = $object->datestamp;
+        }
+        if ($this->numOfDiscs < $object->disc) {
+            $this->numOfDiscs = $object->disc;
         }
         $object->setAlbumObject($this);
     }
@@ -126,6 +130,10 @@ class album {
     }
 
     public function sortTracks() {
+        global $prefs;
+        if ($prefs['apache_backend'] == "sql") {
+            return $this->numOfDiscs === 0 ? 1 : $this->numOfDiscs;
+        }
 
         $discs = array();
         $number = 1;
@@ -508,7 +516,7 @@ function process_file($collection, $filedata) {
     $albumartist = (array_key_exists('AlbumArtist', $filedata)) ? $filedata['AlbumArtist'] : null;
     $name = (array_key_exists('Title', $filedata)) ? $filedata['Title'] : rawurldecode(basename($file));
     $duration = (array_key_exists('Time', $filedata)) ? $filedata['Time'] : 0;
-    $number = (array_key_exists('Track', $filedata)) ? ltrim($filedata['Track'], '0') : format_tracknum(basename($file));
+    $number = (array_key_exists('Track', $filedata)) ? ltrim($filedata['Track'], '0') : format_tracknum(rawurldecode(basename($file)));
     $disc = (array_key_exists('Disc', $filedata)) ? ltrim($filedata['Disc'], '0') : 0;
     $date = (array_key_exists('Date',$filedata)) ? $filedata['Date'] : null;
     $genre = (array_key_exists('Genre', $filedata)) ? $filedata['Genre'] : null;
@@ -521,6 +529,8 @@ function process_file($collection, $filedata) {
     $playlistpos = (array_key_exists('Pos',$filedata)) ? $filedata['Pos'] : null;
     $spotialbum = (array_key_exists('SpotiAlbum',$filedata)) ? $filedata['SpotiAlbum'] : null;
     $spotiartist = (array_key_exists('SpotiArtist',$filedata)) ? $filedata['SpotiArtist'] : null;
+    // 'playlist' is how mpd handles flac/cue files (either embedded cue or external cue).
+    // It's not the most helpful key to give it, but that's what we have to work with
     $playlist = (array_key_exists('playlist',$filedata)) ? $filedata['playlist'] : null;
     $lastmodified = (array_key_exists('Last-Modified',$filedata)) ? $filedata['Last-Modified'] : null;
     $linktype = (array_key_exists('linktype',$filedata)) ? $filedata['linktype'] : 'file';
@@ -535,9 +545,6 @@ function process_file($collection, $filedata) {
     // Fix up mopidy URIs for untagged files
     $artist = preg_replace('/local:track:/', '', $artist);
     $album = preg_replace('/local:track:/', '', $album);
-
-    // 'playlist' is how mpd handles flac/cue files (either embedded cue or external cue).
-    // It's not the most helpful key to give it, but that's what we have to work with
 
     switch($domain) {
         case "soundcloud":
