@@ -38,7 +38,7 @@ function parse_mopidy_json_data($collection, $jsondata) {
             }
 
         } else if ($searchresults->{'__model__'} == "TlTrack") {
-            parseTrack($collection, $searchresults->track, $plpos, property_exists($searchresults, 'tlid') ? $searchresults->{'tlid'} : 0);
+            parseTrack($collection, $searchresults->track, $plpos, $searchresults->{'tlid'});
         }
         $plpos++;
     }
@@ -49,6 +49,7 @@ function parseArtist($collection, $track) {
     $trackdata = array();
     $trackdata['linktype'] = 'artist';
     if (property_exists($track, 'uri')) {
+        $trackdata['SpotiArtist'] = $track->{'uri'};
         $trackdata['file'] = $track->{'uri'};
     }
     if (property_exists($track, 'name')) {

@@ -3,7 +3,7 @@
 $mysqlc = null;
 if (function_exists('mysqli_connect')) {
 	try {
-		$mysqlc = @mysqli_connect($prefs['mysql_host'],$prefs['mysql_user'],$prefs['mysql_password'],'romprdb');
+		$mysqlc = @mysqli_connect($prefs['mysql_host'],$prefs['mysql_user'],$prefs['mysql_password'],'romprdb',$prefs['mysql_port']);
 		if (mysqli_connect_errno()) {
 			debug_print("Failed to connect to MySQL: ".mysqli_connect_error(), "MYSQL");
 			$mysqlc = null;
@@ -18,6 +18,7 @@ if (function_exists('mysqli_connect')) {
 }
 $artist_created = false;
 $album_created = false;
+$backend_in_use = "sql";
 
 // In the following, we're using a mixture of prepared statement (mysqli_prepare) and just raw queries.
 // Raw queries are easier to handle in many cases, but prepared statements take a lot of fuss away
@@ -649,7 +650,7 @@ function do_albums_from_database($which, $fragment = false) {
 		($va && $prefs['notvabydate'] == "true")) {
 		$qstring .= ' ORDER BY LOWER(Albumname)';
 	} else {
-		$qstring .= ' ORDER BY Year';
+		$qstring .= ' ORDER BY Year, LOWER(Albumname)';
 	}
 
 	if ($result = mysqli_query($mysqlc, $qstring)) {
@@ -719,7 +720,7 @@ function get_album_tracks_from_database($index) {
 	global $mysqlc;
 	$retarr = array();
 	debug_print("Getting Album Tracks for Albumindex ".$index,"MYSQL");
-	$qstring = "SELECT Uri FROM Tracktable WHERE Albumindex = '".$index."' AND Uri IS NOT NULL ORDER BY TrackNo";
+	$qstring = "SELECT Uri FROM Tracktable WHERE Albumindex = '".$index."' AND Uri IS NOT NULL ORDER BY Disc, TrackNo";
 	if ($result = mysqli_query($mysqlc, $qstring)) {
 		while ($obj = mysqli_fetch_object($result)) {
 			if (preg_match('/\.cue$/', (string) $obj->Uri)) {
@@ -758,9 +759,9 @@ function get_artist_tracks_from_database($index) {
 	$qstring = "SELECT Uri FROM Tracktable JOIN Albumtable ON Tracktable.Albumindex = AlbumTable.Albumindex WHERE Albumtable.AlbumArtistindex = '".$index."' AND Uri IS NOT NULL";
 	if ($prefs['sortbydate'] == "false" ||
 		($va && $prefs['notvabydate'] == "true")) {
-		$qstring .= ' ORDER BY LOWER(Albumname), TrackNo';
+		$qstring .= ' ORDER BY LOWER(Albumname), Disc, TrackNo';
 	} else {
-		$qstring .= ' ORDER BY Year, Trackno';
+		$qstring .= ' ORDER BY Year, LOWER(Albumname), Disc, Trackno';
 	}
 	if ($result = mysqli_query($mysqlc, $qstring)) {
 		while ($obj = mysqli_fetch_object($result)) {

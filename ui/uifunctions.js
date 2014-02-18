@@ -1776,27 +1776,27 @@ function playlistMenuHeader() {
     if (prefs.apache_backend == "sql") {
         html = html + '<tr><td class="playlisticon" align="left">';
         html = html + '<img src="newimages/singlestar.png" height="12px" style="vertical-align:middle"></td>';
-        html = html + '<td align="left"><a href="#" onclick="playlist.loadSmart(\'1stars\')"><img src="newimages/1stars.png" height="12px" style="vertical-align:middle;margin-right:4px">1 Star And Above</a></td>';
+        html = html + '<td align="left"><a href="#" onclick="playlist.loadSmart(\'1stars\')"><img src="newimages/1stars.png" height="12px" style="vertical-align:middle;margin-right:4px">'+language.gettext('playlist_xstar', ["1"])+'</a></td>';
         html = html + '<td></td></tr>';
 
         html = html + '<tr><td class="playlisticon" align="left">';
         html = html + '<img src="newimages/singlestar.png" height="12px" style="vertical-align:middle"></td>';
-        html = html + '<td align="left"><a href="#" onclick="playlist.loadSmart(\'2stars\')"><img src="newimages/2stars.png" height="12px" style="vertical-align:middle;margin-right:4px">2 Stars And Above</a></td>';
+        html = html + '<td align="left"><a href="#" onclick="playlist.loadSmart(\'2stars\')"><img src="newimages/2stars.png" height="12px" style="vertical-align:middle;margin-right:4px">'+language.gettext('playlist_xstar', ["2"])+'</a></td>';
         html = html + '<td></td></tr>';
 
         html = html + '<tr><td class="playlisticon" align="left">';
         html = html + '<img src="newimages/singlestar.png" height="12px" style="vertical-align:middle"></td>';
-        html = html + '<td align="left"><a href="#" onclick="playlist.loadSmart(\'3stars\')"><img src="newimages/3stars.png" height="12px" style="vertical-align:middle;margin-right:4px">3 Stars And Above</a></td>';
+        html = html + '<td align="left"><a href="#" onclick="playlist.loadSmart(\'3stars\')"><img src="newimages/3stars.png" height="12px" style="vertical-align:middle;margin-right:4px">'+language.gettext('playlist_xstar', ["3"])+'</a></td>';
         html = html + '<td></td></tr>';
 
         html = html + '<tr><td class="playlisticon" align="left">';
         html = html + '<img src="newimages/singlestar.png" height="12px" style="vertical-align:middle"></td>';
-        html = html + '<td align="left"><a href="#" onclick="playlist.loadSmart(\'4stars\')"><img src="newimages/4stars.png" height="12px" style="vertical-align:middle;margin-right:4px">4 Stars And Above</a></td>';
+        html = html + '<td align="left"><a href="#" onclick="playlist.loadSmart(\'4stars\')"><img src="newimages/4stars.png" height="12px" style="vertical-align:middle;margin-right:4px">'+language.gettext('playlist_xstar', ["5"])+'</a></td>';
         html = html + '<td></td></tr>';
 
         html = html + '<tr><td class="playlisticon" align="left">';
         html = html + '<img src="newimages/singlestar.png" height="12px" style="vertical-align:middle"></td>';
-        html = html + '<td align="left"><a href="#" onclick="playlist.loadSmart(\'5stars\')"><img src="newimages/5stars.png" height="12px" style="vertical-align:middle;margin-right:4px">5 Star Tracks</a></td>';
+        html = html + '<td align="left"><a href="#" onclick="playlist.loadSmart(\'5stars\')"><img src="newimages/5stars.png" height="12px" style="vertical-align:middle;margin-right:4px">'+language.gettext('playlist_5star')+'</a></td>';
         html = html + '<td></td></tr>';
 
     }

@@ -55,6 +55,13 @@ function close_player() {
     close_mpd($connection);
 }
 
+// Create a new collection
+// Now... the trouble is that do_mpd_command returns a big array of the parsed text from mpd, which is lovely and all that.
+// Trouble is, the way that works is that everything is indexed by number so parsing that array ONLY works IF every single
+// track has the exact same tags - which in reality just ain't gonna happen.
+// So - the only thing we can rely on is the list of files and we have to parse it very carefully.
+// However on the plus side parsing 'listallinfo' is the fastest way to create our collection by about a quadrillion miles.
+
 function doCollection($command) {
 
     global $connection;
@@ -74,18 +81,16 @@ function doCollection($command) {
     while(!feof($connection) && $parts) {
         $parts = getline($connection);
         if (is_array($parts)) {
-            // if ($parts[0] != "Last-Modified") {
-                if ($parts[0] == $firstline) {
-                    $filecount++;
-                    process_file($collection, $filedata);
-                    $filedata = array();
-                }
-                $value = is_array($parts[1]) ? $parts[1][0] : $parts[1];
-                $filedata[$parts[0]] = $value;
-                if ($firstline == null) {
-                    $firstline = $parts[0];
-                }
-            // }
+            if ($parts[0] == $firstline) {
+                $filecount++;
+                process_file($collection, $filedata);
+                $filedata = array();
+            }
+            $value = is_array($parts[1]) ? $parts[1][0] : $parts[1];
+            $filedata[$parts[0]] = $value;
+            if ($firstline == null) {
+                $firstline = $parts[0];
+            }
         }
     }
 

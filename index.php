@@ -89,8 +89,10 @@ if (!$mopidy_detected) {
 include ("backends/sql/backend.php");
 if ($mysqlc) {
     $prefs["apache_backend"] = "sql";
+    $backend_in_use = "sql";
 } else {
     $prefs["apache_backend"] = "xml";
+    $backend_in_use = "xml";
 }
 
 savePrefs();

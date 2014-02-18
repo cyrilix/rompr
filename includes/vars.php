@@ -11,6 +11,7 @@ $ARTIST = 0;
 $ALBUM = 1;
 $covernames = array("cover", "albumart", "thumb", "albumartsmall", "front");
 $mysqlc = null;
+$backend_in_use = "";
 
 // NOTE: sortbydate can be set to "true' to make the collection sort albums by date
 // - however mpd can only read the 'Date' ID3 tag, whereas the 'Original Release Date'
@@ -78,6 +79,8 @@ $prefs = array( "mpd_host" => "localhost",
                 "mysql_host" => "localhost",
                 "mysql_user" => "rompr",
                 "mysql_password" => "romprdbpass",
+                "mysql_port" => "3306",
+                "mysql_socket" => "/var/run/mysqld/mysqld.sock",
                 "fontsize" => "02-Normal.css",
                 "fontfamily" => "Verdana.css",
                 "alarmtime" => 43200,

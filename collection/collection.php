@@ -130,14 +130,14 @@ class album {
     }
 
     public function sortTracks() {
-        global $prefs;
-        if ($prefs['apache_backend'] == "sql") {
+        global $backend_in_use;
+        if ($backend_in_use == "sql") {
             return $this->numOfDiscs === 0 ? 1 : $this->numOfDiscs;
         }
 
         $discs = array();
         $number = 1;
-        foreach ($this->tracks as $num => $ob) {
+        foreach ($this->tracks as $ob) {
             if ($ob->number) {
                 $track_no = intval($ob->number);
             } else {
@@ -290,11 +290,6 @@ class musicCollection {
             if (array_key_exists($a, $this->artists[$art]->albums)) {
                 return $this->artists[$art]->albums[$a];
             }
-            // foreach ($this->artists[$art]->albums as $object) {
-            //     if ($a == trim($object->name) && $object->domain == $domain) {
-            //         return $object;
-            //     }
-            // }
         }
         if ($directory != null && $directory != ".") {
             foreach ($this->findAlbumByName(trim(strtolower($album))) as $object) {
@@ -324,26 +319,20 @@ class musicCollection {
             $artistkey = "various artists";
         }
 
-        // Create a track object then find an artist and album to associate it with
-        $t = new track($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
-                        $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station,
-                        $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist,
-                        $mbtrack, $origimage, $cuefile, $lastmodified);
-
         // If artist doesn't exist, create it - indexed by all lower case name for convenient sorting and grouping
         if (!array_key_exists($artistkey, $this->artists)) {
             $this->artists[$artistkey] = new artist($sortartist);
         }
 
-        // IF this is an artist result, then we need do nothing further
-        if ($linktype == 'artist') {
-            $this->artists[$artistkey]->spotilink = $file;
-            return true;
+        if ($this->artists[$artistkey]->spotilink == null ) {
+            if ($spotiartist != null) {
+                $this->artists[$artistkey]->spotilink = $spotiartist;
+            } else if ($linktype == "artist") {
+                $this->artists[$artistkey]->spotilink = $file;
+            }
         }
 
-        if ($this->artists[$artistkey]->spotilink == null && $spotiartist != null) {
-            $this->artists[$artistkey]->spotilink = $spotiartist;
-        }
+        if ($linktype == 'artist') return true;
 
         // Keep albums from different domains separate
         if ($linktype == 'album') {
@@ -369,6 +358,12 @@ class musicCollection {
         if ($album != $current_album || $sortartist != $current_artist || $domain != $current_domain) {
             $abm = false;
         }
+
+        // Create a track object then find an artist and album to associate it with
+        $t = new track($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
+                        $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station,
+                        $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist,
+                        $mbtrack, $origimage, $cuefile, $lastmodified);
 
         // Albums are not indexed by name, since we may have 2 or more albums with the same name by multiple artists
 
@@ -439,8 +434,9 @@ class musicCollection {
 
     public function getAlbumList($artist, $ignore_compilations) {
         global $prefs;
+        global $backend_in_use;
         $albums = array();
-        if ($prefs['apache_backend'] == "sql") {
+        if ($backend_in_use == "sql") {
             // No need to sort the albums when using the SQL database
             // - it's all done on the fly when we read the data out.
             return $this->artists[$artist]->albums;
@@ -484,13 +480,6 @@ class musicCollection {
 
 }
 
-// Create a new collection
-// Now... the trouble is that do_mpd_command returns a big array of the parsed text from mpd, which is lovely and all that.
-// Trouble is, the way that works is that everything is indexed by number so parsing that array ONLY works IF every single
-// track has the exact same tags - which in reality just ain't gonna happen.
-// So - the only thing we can rely on is the list of files and we have to parse it very carefully.
-// However on the plus side parsing 'listallinfo' is the fastest way to create our collection by about a quadrillion miles.
-
 function process_file($collection, $filedata) {
 
     global $numtracks;
@@ -498,21 +487,11 @@ function process_file($collection, $filedata) {
     global $streamdomains;
     global $prefs;
 
-    $file = $filedata['file'];
-    $domain = getDomain($file);
-
-    list (  $name, $duration, $number, $date, $genre, $artist, $album, $folder,
-            $type, $image, $expires, $stationurl, $station, $backendid, $playlistpos,
-            $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack,
-            $origimage, $spoitalbum, $spotiartist, $playlist, $lastmodified, $linktype )
-        = array (   null, 0, "", null, null, null, null, null,
-                    "local", null, null, null, null, null, null,
-                    null, 0, "", null, null, null, null,
-                    null, null, null, null, null, "track" );
+    list ( $file, $domain, $type, $expires, $stationurl, $station, $stream, $origimage )
+        = array ( $filedata['file'], getDomain($filedata['file']), "local", null, null, null, "", null );
 
     $artist = (array_key_exists('Artist', $filedata)) ? $filedata['Artist'] : rawurldecode(basename(dirname(dirname($file))));
     $album = (array_key_exists('Album', $filedata)) ? $filedata['Album'] : rawurldecode(basename(dirname($file)));
-    // $albumartist = (array_key_exists('AlbumArtistSort', $filedata)) ? $filedata['AlbumArtistSort'] : ((array_key_exists('AlbumArtist', $filedata)) ? $filedata['AlbumArtist'] : null);
     $albumartist = (array_key_exists('AlbumArtist', $filedata)) ? $filedata['AlbumArtist'] : null;
     $name = (array_key_exists('Title', $filedata)) ? $filedata['Title'] : rawurldecode(basename($file));
     $duration = (array_key_exists('Time', $filedata)) ? $filedata['Time'] : 0;
@@ -530,10 +509,20 @@ function process_file($collection, $filedata) {
     $spotialbum = (array_key_exists('SpotiAlbum',$filedata)) ? $filedata['SpotiAlbum'] : null;
     $spotiartist = (array_key_exists('SpotiArtist',$filedata)) ? $filedata['SpotiArtist'] : null;
     // 'playlist' is how mpd handles flac/cue files (either embedded cue or external cue).
-    // It's not the most helpful key to give it, but that's what we have to work with
     $playlist = (array_key_exists('playlist',$filedata)) ? $filedata['playlist'] : null;
-    $lastmodified = (array_key_exists('Last-Modified',$filedata)) ? $filedata['Last-Modified'] : null;
-    $linktype = (array_key_exists('linktype',$filedata)) ? $filedata['linktype'] : 'file';
+    $lastmodified = (array_key_exists('Last-Modified',$filedata)) ? $filedata['Last-Modified'] : 0;
+    if (!array_key_exists('linktype', $filedata)) {
+        if (preg_match('/^.*?:artist:/', $file)) {
+            $linktype = "artist";
+            $apotiartist = $file;
+        } else if (preg_match('/^.*?:album:/', $file)) {
+            $linktype = "album";
+        } else {
+            $linktype = "file";
+        }
+    } else {
+        $linktype = $filedata['linktype'];
+    }
 
     // Capture tracks where the basename/dirname route didn't work
     if ($artist == ".") {

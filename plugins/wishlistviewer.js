@@ -96,22 +96,23 @@ var wishlistViewer = function() {
 	return {
 
 		open: function() {
-		    $("#configpanel").slideToggle('fast');
 
-        	wlv = browser.registerExtraPlugin("wlv", "Wishlist", wishlistViewer);
-
-        	if (prefs.apache_backend != 'sql') {
-	            $("#wlvfoldup").append('<h3>This is not possible with your configuration</h3>');
-	            // TODO add wiki link here
-	            wlv.slideToggle('fast');
-	            return;
-        	}
-
-            $("#wlvfoldup").append('<div id="wishlist"></div>');
-            $("#wishlist").load("albums.php?wishlist=1", function() {
-	            wlv.slideToggle('fast');
-	            $("#wishlist").find('.menu').addClass("infoclick plugclickable");
-            })
+        	if (wlv == null) {
+	        	wlv = browser.registerExtraPlugin("wlv", language.gettext("label_wishlist"), wishlistViewer);
+	        	if (prefs.apache_backend != 'sql') {
+		            $("#wlvfoldup").append('<h3 align="center">'+language.gettext("label_nosql")+'</h3>');
+		            // TODO add wiki link here
+		            wlv.slideToggle('fast');
+		            return;
+	        	}
+	            $("#wlvfoldup").append('<div id="wishlistlist"></div>');
+	            $("#wishlistlist").load("albums.php?wishlist=1", function() {
+		            wlv.slideToggle('fast');
+		            $("#wishlist").find('.menu').addClass("infoclick plugclickable");
+	            });
+	        } else {
+	        	browser.goToPlugin("wlv");
+	        }
 
 		},
 
@@ -133,4 +134,4 @@ var wishlistViewer = function() {
 
 }();
 
-$("#specialplugins").append('<button onclick="wishlistViewer.open()">View Your Wishlist</button>');
+$("#specialplugins").append('<button onclick="wishlistViewer.open()">'+language.gettext("label_viewwishlist")+'</button>');

@@ -17,7 +17,7 @@ var info_ratings = function() {
             function doThingsWithData() {
                 if (parent.isCurrentTrack()) {
                     $("#ratingimage").attr("src","newimages/"+parent.playlistinfo.metadata.track.usermeta.Rating+"stars.png");
-                    $("#dbtags").html('<span style="margin-right:8px"><b>TAGS&nbsp;</b><a href="#" class="clicktext" onclick="tagAdder.show(event)">+</a></span>');
+                    $("#dbtags").html('<span style="margin-right:8px"><b>'+language.gettext("musicbrainz_tags")+'&nbsp;</b><a href="#" class="clicktext" onclick="tagAdder.show(event)">+</a></span>');
                     for(var i = 0; i < parent.playlistinfo.metadata.track.usermeta.Tags.length; i++) {
                         $("#dbtags").append('<span class="tag">'+parent.playlistinfo.metadata.track.usermeta.Tags[i]+'<span class="tagremover invisible"><a href="#" class="clicktext" onclick="nowplaying.removeTag(event)">x</a></span></span>');
                     }
@@ -132,7 +132,7 @@ var info_ratings = function() {
             this.updateDatabase = function(data) {
                 debug.log("RATINGS","Update Database Function Called");
                 if (!data.uri) {
-                    infobar.notify(infobar.NOTIFY,"Added to Wishlist");
+                    infobar.notify(infobar.NOTIFY,language.gettext("label_addtow"));
                 }
                 $.ajax({
                     url: "userRatings.php",
@@ -242,7 +242,16 @@ var faveFinder = function() {
                             if (u.match(/^spotify:album:/)) {
                                 r.data.spotilink = u;
                             }
-                            results.push(r.data);
+                            // Prioritise results with a matching album, unless that's
+                            // already been done
+                            if (req.data.album &&
+                                    r.data.album.toLowerCase() == req.data.album.toLowerCase() &&
+                                    results[0] &&
+                                    results[0].album.toLowerCase() != req.data.album.toLowerCase()) {
+                                results.unshift(r.data);
+                            } else {
+                                results.push(r.data);
+                            }
                         }
                     }
                 }

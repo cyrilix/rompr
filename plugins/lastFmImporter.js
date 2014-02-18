@@ -52,9 +52,9 @@ var lastfmImporter = function() {
 
 	function displayFinishBits() {
 		if ($("#reviewfirst").is(':checked')) {
-			$("#hoobajoob").html('<button class="fixed topformbutton" onclick="lastfmImporter.importEverything()">Import Now</button>');
+			$("#hoobajoob").html('<button class="fixed topformbutton" onclick="lastfmImporter.importEverything()">'+language.gettext("button_importnow")+'</button>');
 		} else {
-			$("#hoobajoob").html('<h3 align="center">Import Finished</h3>');
+			$("#hoobajoob").html('<h3 align="center">'+language.gettext("label_finished")+'</h3>');
 		}
 		$('[name="beefheart"]').slideToggle(500);
 		$("#hoobajoob").slideToggle(600);
@@ -108,77 +108,78 @@ var lastfmImporter = function() {
 	return {
 
 		open: function() {
-		    $("#configpanel").slideToggle('fast');
+			if (impu == null) {
+	        	impu = browser.registerExtraPlugin("impu", language.gettext("lastfm_import"), lastfmImporter);
+	        	if (!lastfm.isLoggedIn()) {
+		            $("#impufoldup").append('<h3 align="center">'+language.gettext("lastfm_pleaselogin")+'</h3>');
+		            impu.slideToggle('fast');
+		            return;
+	        	}
 
-        	impu = browser.registerExtraPlugin("impu", "Import Your Last.FM Library", lastfmImporter);
+	        	if (prefs.apache_backend != 'sql') {
+		            $("#impufoldup").append('<h3 align="center">'+language.gettext("label_nosql")+'</h3>');
+		            // TODO add wiki link here
+		            impu.slideToggle('fast');
+		            return;
+	        	}
 
-        	if (!lastfm.isLoggedIn()) {
-	            $("#impufoldup").append('<h3>You must be logged in to Last.FM to do this</h3>');
+	            $("#impufoldup").append(
+	            	'<div name="beefheart" class="containerbox vertical">'+
+	            		'<div style="margin-left:8px;margin-right:8px;margin-top:4px;margin-bottom:4px" class="containerbox">'+
+	            			'<div class="fixed menuitem" style="width:10em"><b>Last.FM</b></div>'+
+	            			'<div class="expand menuitem" id="lfmprogress"></div>'+
+	            		'</div>'+
+						'<div style="margin-left:8px;margin-right:8px;margin-top:4px;margin-bottom:12px" class="containerbox">'+
+	            			'<div class="fixed menuitem" style="width:10em"><b>Track Search</b></div>'+
+	            			'<div class="expand menuitem" id="searchprogress"></div>'+
+	            		'</div>'+
+	            	'</div>'
+	            	);
+
+				// Have to let these be created visible or the layout doesn't work
+				$('[name="beefheart"]').hide();
+
+	            $("#impufoldup").append('<div id="hoobajoob" style="margin-left:24px;margin-right:24px;margin-top:8px;margin-bottom:4px;padding:4px;" class="containerbox bordered">'+
+	            	'<div class="expand">'+
+	            	'<input type="radio" class="topcheck" name="importc" value="onlyloved" checked>'+language.gettext("label_onlyloved")+'</input><br>'+
+	            	'<input type="radio" class="topcheck" name="importc" value="onlytagged">'+language.gettext("label_onlytagged")+'</input><br>'+
+	            	'<input type="radio" class="topcheck" name="importc" value="both">'+language.gettext("label_tagandlove")+'</input><br>'+
+	            	'<input type="radio" class="topcheck" name="importc" value="all">'+language.gettext("label_everything")+'</input></div>'+
+
+	            	'<div class="expand">'+language.gettext("label_giveloved")+' '+
+	            	'<select id="goo" class="topformbutton">'+
+	            	'<option value="5">5 '+language.gettext("stars")+'</option>'+
+	            	'<option value="4">4 '+language.gettext("stars")+'</option>'+
+	            	'<option value="3">3 '+language.gettext("stars")+'</option>'+
+	            	'<option value="2">2 '+language.gettext("stars")+'</option>'+
+	            	'<option value="1">1 '+language.gettext("stars")+'</option>'+
+	            	'<option value="0">'+language.gettext("norating")+'</option>'+
+	            	'</select><br>'+
+	            	'<input type="checkbox" class="topcheck" id="reviewfirst">'+language.gettext("label_review")+'</input><br>'+
+	            	'<input type="checkbox" class="topcheck" id="wishlist">'+language.gettext("label_addtowish")+'</input>'+
+	            	'</div>'+
+
+	            	'<button class="fixed topformbutton" onclick="lastfmImporter.go()" id="importgo">GO</button>'+
+	            	'</div>');
+
+				$("#goo").val(prefs.synclovevalue);
+	            $("#impufoldup").append('<table id="frankzappa" class="invisible" align="center" cellpadding="2" width="95%" style="border-collapse:collapse"></table>');
+	            $("#frankzappa").append('<tr><th></th><th>'+language.gettext("label_track")+'</th><th>'+language.gettext("label_tags")+'</th><th>'+language.gettext("lastfm_loved")+'</th><th>'+language.gettext("label_oneresult")+'</th></tr>');
+
+	            progressbar = new progressBar("lfmprogress", "horizontal");
+	            spbar = new progressBar("searchprogress", "horizontal");
+
 	            impu.slideToggle('fast');
-	            return;
-        	}
-
-        	if (prefs.apache_backend != 'sql') {
-	            $("#impufoldup").append('<h3>This is not possible with your configuration</h3>');
-	            // TODO add wiki link here
-	            impu.slideToggle('fast');
-	            return;
-        	}
-
-            $("#impufoldup").append(
-
-            	'<div name="beefheart" class="containerbox vertical">'+
-            		'<div style="margin-left:8px;margin-right:8px;margin-top:4px;margin-bottom:4px" class="containerbox">'+
-            			'<div class="fixed menuitem" style="width:10em"><b>Last.FM</b></div>'+
-            			'<div class="expand menuitem" id="lfmprogress"></div>'+
-            		'</div>'+
-					'<div style="margin-left:8px;margin-right:8px;margin-top:4px;margin-bottom:12px" class="containerbox">'+
-            			'<div class="fixed menuitem" style="width:10em"><b>Track Search</b></div>'+
-            			'<div class="expand menuitem" id="searchprogress"></div>'+
-            		'</div>'+
-            	'</div>'
-            	);
-
-			// Have to let these be created visible or the layout doesn't work
-			$('[name="beefheart"]').hide();
-
-            $("#impufoldup").append('<div id="hoobajoob" style="margin-left:24px;margin-right:24px;margin-top:8px;margin-bottom:4px;padding:4px;" class="containerbox bordered">'+
-            	'<div class="expand">'+
-            	'<input type="radio" class="topcheck" name="importc" value="onlyloved" checked>Loved Tracks Only</input><br>'+
-            	'<input type="radio" class="topcheck" name="importc" value="onlytagged">Tagged Tracks Only</input><br>'+
-            	'<input type="radio" class="topcheck" name="importc" value="both">Tagged Tracks And Loved Tracks</input><br>'+
-            	'<input type="radio" class="topcheck" name="importc" value="all">Everything</input></div>'+
-
-            	'<div class="expand">Loved Tracks Get: '+
-            	'<select id="goo" class="topformbutton">'+
-            	'<option value="5">5 stars</option>'+
-            	'<option value="4">4 stars</option>'+
-            	'<option value="3">3 stars</option>'+
-            	'<option value="2">2 stars</option>'+
-            	'<option value="1">1 star</option>'+
-            	'<option value="0">No Rating</option>'+
-            	'</select><br>'+
-            	'<input type="checkbox" class="topcheck" id="reviewfirst">Review Results Before Importing</input><br>'+
-            	'<input type="checkbox" class="topcheck" id="wishlist">If A Track Can\'t Be Found, Add It To The Wishlist</input>'+
-            	'</div>'+
-
-            	'<button class="fixed topformbutton" onclick="lastfmImporter.go()" id="importgo">GO</button>'+
-            	'</div>');
-
-            $("#impufoldup").append('<table id="frankzappa" class="invisible" align="center" cellpadding="2" width="95%" style="border-collapse:collapse"></table>');
-            $("#frankzappa").append('<tr><th></th><th>Track</th><th>Tags</th><th>Loved</th><th>Search Result</th></tr>');
-
-            progressbar = new progressBar("lfmprogress", "horizontal");
-            spbar = new progressBar("searchprogress", "horizontal");
-
-            impu.slideToggle('fast');
-            currpage = 1;
-            databits = [];
-            stopped = false;
-            finished = false;
-            lastkey = 0;
-			lastfm.setThrottling(1500);
-			searchcount = 0;
+	            currpage = 1;
+	            databits = [];
+	            stopped = false;
+	            finished = false;
+	            lastkey = 0;
+				lastfm.setThrottling(1500);
+				searchcount = 0;
+			} else {
+				browser.goToPlugin("impu");
+			}
 		},
 
 		go: function() {
@@ -336,10 +337,7 @@ var lastfmImporter = function() {
 				});
 				html = html + trackHtml(data);
 				if (results.length > 1 && $("#reviewfirst").is(':checked')) {
-					html = html + '<br /><span class="clickicon tiny plugclickable dropchoices infoclick" name="'+data.key+'"> + '+(results.length - 1).toString()+' more choice';
-					if (results.length > 2) {
-						html = html + 's';
-					}
+					html = html + '<br /><span class="clickicon tiny plugclickable dropchoices infoclick" name="'+data.key+'"> '+language.gettext("label_moreresults", [(results.length - 1)]);
 					html = html +'</span></div>';
 					html2 = '<tr><td></td><td></td><td></td><td></td><td><div id="choices'+data.key+'" class="invisible">';
 					for (var i = 1; i < results.length; i++) {
@@ -350,21 +348,23 @@ var lastfmImporter = function() {
 					html = html + '</div>';
 				}
 			} else {
-				html = "<b><i>Track Not Found</i></b></div>";
+				html = "<b><i>"+language.gettext("label_notfound")+"</i></b></div>";
 				if (!($("#wishlist").is(':checked'))) {
 					databits[data.reqid].data[0].ignore = true;
 				}
 			}
-			$("#trackfound"+data.key).html(html);
+			$("#trackfound"+data.key).hide().html(html).fadeIn('fast');
 			if (!($("#reviewfirst").is(':checked'))) {
 				$("#trackrow"+data.key).append('<td align="center"></td>');
 				lastfmImporter.doSqlStuff(data, false);
 			} else {
-				$("#trackrow"+data.key).append('<td align="center"><img src="newimages/edit-delete.png" class="clickicon plugclickable infoclick removerow" /></td>');
-				$("#trackrow"+data.key).append('<td align="center"><button class="plugclickable infoclick importrow">Import</button></td>');
+				$("#trackrow"+data.key).append('<td align="center" class="invisible"><img src="newimages/edit-delete.png" class="clickicon plugclickable infoclick removerow" /></td>').fadeIn('fast');
+				$("#trackrow"+data.key).append('<td align="center" class="invisible"><button class="plugclickable infoclick importrow">Import</button></td>').fadeIn('fast');
 				if (html2) {
 					$("#trackrow"+data.key).after(html2);
 				}
+				$("#trackrow"+data.key+' td:last').fadeIn('fast');
+				$("#trackrow"+data.key+' td:last').prev().fadeIn('fast');
 			}
 			debug.log("LASTFM IMPORTER", "Searchcount is",searchcount);
 			if (searchcount == 0 && finished) {
@@ -393,12 +393,10 @@ var lastfmImporter = function() {
 			clickedElement.attr("name", databits[key].index);
 			databits[key].index = index;
 			var html = '<div>' + trackHtml(databits[key].data[index]) +
-			'<br /><span class="clickicon tiny plugclickable dropchoices infoclick" name="'+key+'"> + '+(databits[key].data.length - 1).toString()+' more choice';
-			if (databits[key].data.length > 2) {
-				html = html + 's';
-			}
+			'<br /><span class="clickicon tiny plugclickable dropchoices infoclick" name="'+key+'"> '+language.gettext("label_moreresults", [(databits[key].data.length - 1)]);
 			html = html +'</span></div>';
 			$("#trackfound"+key).html(html);
+			clickedElement.parent().slideToggle('fast');
 		},
 
 		dropChoices: function(which) {
@@ -460,7 +458,7 @@ var lastfmImporter = function() {
 		            success: function(rdata) {
 		                debug.log("LASTFM IMPORTER","Success",rdata);
 		                updateCollectionDisplay(rdata);
-		                if (data.tags && data.tags.length > 0) {
+		                if (data.tags) {
 		                	data.attribute = 'Tags';
 		                	data.value = data.tags;
 							debug.mark("LASTFM IMPORTER","Doing SQL Tag Stuff",data);
@@ -480,7 +478,7 @@ var lastfmImporter = function() {
 					            },
 					            error: function(rdata) {
 					                debug.warn("LASTFM IMPORTER","Failure");
-					                infobar.notify(infobar.ERROR,"Setting Tags Failed");
+					                //infobar.notify(infobar.ERROR,"Setting Tags Failed");
 									if (callback) {
 										setTimeout(callback, 1000);
 									}
@@ -508,7 +506,7 @@ var lastfmImporter = function() {
 		importEverything: function() {
 			if ($("#hoobajoob").is(':visible')) {
 				$('[name="beefheart"]').children()[1].remove();
-				$('[name="beefheart"] div:last').prev().html('<b>Progress</b>');
+				$('[name="beefheart"] div:last').prev().html('<b>'+language.gettext("label_progress")+'</b>');
 				$("#hoobajoob").slideToggle(500);
 				$('[name="beefheart"]').slideToggle(600);
 				progressbar.setProgress(0);
@@ -541,4 +539,4 @@ var lastfmImporter = function() {
 
 }();
 
-$("#specialplugins").append('<button onclick="lastfmImporter.open()">Import Last.FM Library</button>');
+$("#specialplugins").append('<button onclick="lastfmImporter.open()">'+language.gettext("lastfm_import")+'</button>');

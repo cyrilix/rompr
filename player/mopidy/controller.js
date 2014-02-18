@@ -134,7 +134,6 @@ function playerController() {
 		for (var i in tracks) {
 			if (!albums.hasOwnProperty(tracks[i].album.uri)) {
 				albums[tracks[i].album.uri] = new Array();
-				debug.log("PLAYER", "New album",tracks[i].album.uri);
 			}
 			albums[tracks[i].album.uri].push(tracks[i]);
 		}
@@ -152,7 +151,7 @@ function playerController() {
 	}
 
 	function mopidyTooOld() {
-		alert("Your version of Mopidy is too old. You need at least version "+prefs.mopidy_version);
+		alert(language.gettext("mopidy_tooold", [prefs.mopidy_version]));
 	}
 
 	function doTracklistButtons() {
@@ -224,10 +223,10 @@ function playerController() {
 	}
 
 	this.tlChange = function(data) {
-		// Don'y repopulate immediately in case there are more coming
+		// Don't repopulate immediately in case there are more coming
 		debug.log("PLAYER","Tracklist Changed");
 		clearTimeout(tlchangeTimer);
-		tlchangeTimer = setTimeout(playlist.repopulate, 200);
+		tlchangeTimer = setTimeout(playlist.repopulate, 250);
 	}
 
     this.initialise = function() {

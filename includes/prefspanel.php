@@ -166,22 +166,27 @@ foreach($x->CountryEntry as $i => $c) {
 print '</select>
 </div>';
 
+// Tags and Ratings
 if ($prefs['apache_backend'] == "sql") {
+print '<div class="pref">
+<b>'.get_int_text('config_tagrat').'</b>
+</div>
+<div class="pref">
+<input type="checkbox" onclick="togglePref(\'synctags\')" id="synctags">'.get_int_text('config_synctags').'</input>';
 ?>
-<div class="pref">
-<b>Ratings and Tags</b>
 </div>
 <div class="pref">
-<input type="checkbox" onclick="togglePref('synctags')" id="synctags">Keep Tags in Sync with Last.FM</input>
-</div>
-<div class="pref">
-<input type="checkbox" onclick="togglePref('synclove')" id="synclove">Last.FM Love Means</input>
+<?php
+print '<input type="checkbox" onclick="togglePref(\'synclove\')" id="synclove">'.get_int_text('config_loveis').'</input>'."\n";
+?>
 <select id="synclovevalue" onchange="setSLValue()">
-<option value="5">5 stars</option>
-<option value="4">4 stars</option>
-<option value="3">3 stars</option>
-<option value="2">2 stars</option>
-<option value="1">1 star</option>
+<?php
+print '<option value="5">5 '.get_int_text('stars').'</option>
+<option value="4">4 '.get_int_text('stars').'</option>
+<option value="3">3 '.get_int_text('stars').'</option>
+<option value="2">2 '.get_int_text('stars').'</option>
+<option value="1">1 '.get_int_text('star').'</option>';
+?>
 </select>
 </div>
 <?php

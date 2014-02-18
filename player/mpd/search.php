@@ -60,22 +60,18 @@ print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_ta
 
     <div class="containerbox padright dropdown-container">
 <?php
-print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_rating").'</b></div>';
-?>
+print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_rating").'</b></div>
         <div class="expand">
         <select name="searchrating">
-        <option value="5">5 stars</option>
-        <option value="4">4 stars</option>
-        <option value="3">3 stars</option>
-        <option value="2">2 stars</option>
-        <option value="1">1 star</option>
+        <option value="5">5 '.get_int_text('stars').'</option>
+        <option value="4">4 '.get_int_text('stars').'</option>
+        <option value="3">3 '.get_int_text('stars').'</option>
+        <option value="2">2 '.get_int_text('stars').'</option>
+        <option value="1">1 '.get_int_text('star').'</option>
         <option value="" selected></option>
         </select>
        </div>
-
-    </div>
-
-<?php
+    </div>';
 }
 ?>
     <div class="indent containerbox padright">

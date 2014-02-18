@@ -613,6 +613,7 @@ print '<p>'.get_int_text("setup_mopidyport").'<br><input type="text" class="wink
 print '<hr class="dingleberry" />';
 print '<h3>MySQL Server Settings</h3>';
 print '<p>Server<br><input type="text" class="winkle" name="mysql_host" value="'.$prefs['mysql_host'].'" /></p>'."\n";
+print '<p>Port<br><input type="text" class="winkle" name="mysql_port" value="'.$prefs['mysql_port'].'" /></p>'."\n";
 print '<p>Username<br><input type="text" class="winkle" name="mysql_user" value="'.$prefs['mysql_user'].'" /></p>'."\n";
 print '<p>Password<br><input type="text" class="winkle" name="mysql_password" value="'.$prefs['mysql_password'].'" /></p>'."\n";
 print '<hr class="dingleberry" />';

@@ -431,13 +431,22 @@ var browser = function() {
 
         registerExtraPlugin: function(id, name, parent) {
             var displayer = $('<div>', {id: id+"information", class: "infotext invisible"}).insertBefore('#artistinformation');
-            $("#infopane").mCustomScrollbar("scrollTo", "#"+id+"information");
             displayer.html(banner({name: name}, id, false, false, true));
             panelclosed[id] = false;
             displayer.unbind('click');
             displayer.click(onBrowserClicked);
             extraPlugins[id] = { div: displayer, parent: parent };
+            browser.goToPlugin(id);
             return displayer;
+        },
+
+        goToPlugin: function(id) {
+            if (mobile == "no") {
+                $("#configpanel").slideToggle('fast');
+                $("#infopane").mCustomScrollbar("scrollTo", "#"+id+"information");
+            } else {
+                sourcecontrol("infopane");
+            }
         },
 
         dumpHistory: function() {

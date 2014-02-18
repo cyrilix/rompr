@@ -11,7 +11,6 @@ $languages['en'] = array (
 
 	// The Sources Chooser Button tooltips
 	"button_local_music" => "Music Collection",
-	"button_starred" => "Rated Tracks",
 	"button_file_browser" => "File Browser",
 	"button_lastfm" => "Last.FM Radio",
 	"button_internet_radio" => "Internet Radio Stations and Podcasts",
@@ -492,7 +491,40 @@ $languages['en'] = array (
 	"button_playman" => "Playlist Management",
 	"button_mob_history" => "Info Panel History",
 	"config_2columns" => "Use 2 Columns in landscape mode",
-	"label_streamradio" => "Local and National Radio"
+	"label_streamradio" => "Local and National Radio",
+
+	// Various Plugins, Rating, and Tagging
+	"lastfm_import" => "Import Your Last.FM Library",
+	"lastfm_pleaselogin" => "You must be logged in to Last.FM to do this",
+	"label_nosql" => "This is not possible with your configuration",
+	"label_onlyloved" => "Loved Tracks Only",
+	"label_onlytagged" => "Tagged Tracks Only",
+	"label_tagandlove" => "Tagged Tracks and Loved Tracks",
+	"label_everything" => "Everything",
+	"label_giveloved" => "Loved Tracks Get:",
+	"stars" => "stars",
+	"star" => "star",
+	"norating" => "No Rating",
+	"button_importnow" => "Import Now",
+	"label_review" => "Review Results Before Importing",
+	"label_addtowish" => "If A Track Can't Be Found, Add It To The Wishlist",
+	"label_tags" => "Tags",
+	"label_oneresult" => "Search Result",
+	"label_progress" => "Progress",
+	"label_wishlist" => "Wishlist",
+	"label_viewwishlist" => "View Your Wishlist",
+	"label_addtow" => "Added To Wishlist",
+	"label_finished" => "Finished",
+	"config_tagrat" => "Ratings and Tags",
+	"config_synctags" => "Keep Tags in Sync With Last.FM",
+	"config_loveis" => "Last.FM Love Means",
+	"playlist_xstar" => "%s or More Stars",
+	"playlist_5star" => "5 Star Tracks",
+	"button_about" => "About Rompr",
+	"label_notfound" => "Track Not Found",
+	// Eg + 3 more
+	"label_moreresults" => "+ %s more"
+
 
 );
 
