@@ -1,5 +1,7 @@
 <?php
 
+$backend_in_use = "xml";
+
 function dumpAlbums($which) {
 
     global $divtype;
