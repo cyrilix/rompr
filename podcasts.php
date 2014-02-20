@@ -2,6 +2,10 @@
 include("includes/vars.php");
 include("includes/functions.php");
 include("international.php");
+$dtz = ini_get('date.timezone');
+if (!$dtz) {
+    date_default_timezone_set('UTC');
+}
 if (array_key_exists('url', $_REQUEST)) {
     getNewPodcast(rawurldecode($_REQUEST['url']));
 } else if (array_key_exists('itunes', $_REQUEST)) {

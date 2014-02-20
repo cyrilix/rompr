@@ -1,6 +1,10 @@
 <?php
 
 include ("player/mpd/sockets.php");
+$dtz = ini_get('date.timezone');
+if (!$dtz) {
+    date_default_timezone_set('UTC');
+}
 
 @open_mpd_connection();
 
@@ -87,6 +91,9 @@ function doCollection($command) {
                 $filedata = array();
             }
             $value = is_array($parts[1]) ? $parts[1][0] : $parts[1];
+            if ($parts[0] == "Last-Modified") {
+                $value = strtotime($value);
+            }
             $filedata[$parts[0]] = $value;
             if ($firstline == null) {
                 $firstline = $parts[0];
