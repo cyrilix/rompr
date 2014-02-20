@@ -387,7 +387,7 @@ function update_image_db($fname, $notfound, $imagefile) {
     if (file_exists($ALBUMSLIST)) {
         // Get an exclusive lock on the file. We can't have two threads trying to update it at once.
         // That would be bad.
-        $fp = fopen($cachefile, 'r+');
+        $fp = fopen($ALBUMSLIST, 'r+');
         if ($fp) {
             $crap = true;
             if (flock($fp, LOCK_EX, $crap)) {
