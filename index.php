@@ -142,6 +142,8 @@ print '<link rel="stylesheet" id="fontfamily" type="text/css" href="fonts/'.$pre
 <script type="text/javascript" src="custom-scrollbar-plugin/js/jquery.mCustomScrollbar.concat.min.js"></script>
 <!-- MD5 hashing algorith : http://pajhome.org.uk/crypt/md5 -->
 <script type="text/javascript" src="jshash-2.2/md5-min.js"></script>
+<!-- Masonry layout engine : http://masonry.desandro.com/ -->
+<script type="text/javascript" src="jquery/masonry.pkgd.min.js"></script>
 <?php
 if ($mobile != "no") {
     // JQuery touchwipe plugin : http://www.netcu.de/jquery-touchwipe-iphone-ipad-library

@@ -205,10 +205,6 @@ var faveFinder = function() {
             var req = queue[0];
             // First - prioritise local tracks
             // Well, in fact, de-prioritise spotify tracks
-            // TODO ideally we need some kind of sensible order in which internet sources
-            // are de-prioritised in favour of local ones.
-            // BUT what if the same track exists on multiple 'local' sources? Do we return
-            // all of them?
             var spot = null;
             for (var i in data) {
                 var dom = data[i].uri;

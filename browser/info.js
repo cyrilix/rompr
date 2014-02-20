@@ -436,7 +436,6 @@ var browser = function() {
             displayer.unbind('click');
             displayer.click(onBrowserClicked);
             extraPlugins[id] = { div: displayer, parent: parent };
-            browser.goToPlugin(id);
             return displayer;
         },
 

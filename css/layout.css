@@ -1742,8 +1742,8 @@ div .thumb
 }
 
 .highlighted {
-    border: 4px solid #fe6800;
-    border-radius:2px;
+    border: 4px solid #fe6800 !important;
+    border-radius:2px !important;
 }
 
 .bigbutton {
@@ -2190,4 +2190,25 @@ div.lyrics p
     height:15px;
     position:relative;
     overflow:hidden;
+}
+
+#tagdoer
+{
+    width: 100%;
+}
+
+.tagholder
+{
+    margin-top: 12px;
+}
+
+.tagholder table tr th
+{
+    border-bottom:1px solid #cccccc;
+    background-color:#e8ebf0;
+}
+
+.tagman-hover
+{
+    background-color:#e1e4ea;
 }

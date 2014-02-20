@@ -523,7 +523,10 @@ $languages['en'] = array (
 	"button_about" => "About Rompr",
 	"label_notfound" => "Track Not Found",
 	// Eg + 3 more
-	"label_moreresults" => "+ %s more"
+	"label_moreresults" => "+ %s more",
+	"label_tagmanager" => "Tag Manager",
+	"label_tagmanagertop" => "Drag and Drop from the Music Collection to add tags to tracks",
+	"button_createtag" => "CREATE TAG"
 
 
 );

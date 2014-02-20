@@ -107,7 +107,9 @@ var wishlistViewer = function() {
 	        	}
 	            $("#wlvfoldup").append('<div id="wishlistlist"></div>');
 	            $("#wishlistlist").load("albums.php?wishlist=1", function() {
-		            wlv.slideToggle('fast');
+		            wlv.slideToggle('fast', function() {
+			        	browser.goToPlugin("wlv");
+		            });
 		            $("#wishlist").find('.menu').addClass("infoclick plugclickable");
 	            });
 	        } else {

@@ -169,12 +169,15 @@ var lastfmImporter = function() {
 	            progressbar = new progressBar("lfmprogress", "horizontal");
 	            spbar = new progressBar("searchprogress", "horizontal");
 
-	            impu.slideToggle('fast');
+	            impu.slideToggle('fast', function() {
+					browser.goToPlugin("impu");
+	            });
 	            currpage = 1;
 	            databits = [];
 	            stopped = false;
 	            finished = false;
 	            lastkey = 0;
+				// This tends to hammer last.fm and they don't like it, so throttle our requests right back
 				lastfm.setThrottling(1500);
 				searchcount = 0;
 			} else {
@@ -200,7 +203,6 @@ var lastfmImporter = function() {
 				currpage = data.tracks['@attr'].page;
 				totalpages = data.tracks['@attr'].totalPages;
 				totaltracks = data.tracks['@attr'].total;
-				// This tends to hammer last.fm and they don't like it, so throttle our requests right back
 				debug.mark("LASTFM IMPORTER","Got Page",currpage,"of",totalpages,"in LastFM Library");
 				for (var i = 0; i < data.tracks.track.length; i++) {
 					var d = {};
@@ -446,8 +448,8 @@ var lastfmImporter = function() {
 				data.value = data.Rating;
 				// urionly here is set to ensure that the backend matches ONLY the specific
 				// version of this track that the user has chosen. It'll be created automatically
-				// if it doesn't. Failure to set urionly would mean that any old version
-				// of the track in the database would get matched. I think.
+				// if it doesn't exist. Failure to set urionly would mean that any old version
+				// of the track in the database would get matched.
 				data.urionly = 1;
 				debug.mark("LASTFM IMPORTER","Doing SQL Rating Stuff",data);
 		        $.ajax({
@@ -458,6 +460,9 @@ var lastfmImporter = function() {
 		            success: function(rdata) {
 		                debug.log("LASTFM IMPORTER","Success",rdata);
 		                updateCollectionDisplay(rdata);
+		                // For some unknown reason, testing data.tags.length doesn't work.
+		                // So if the tags array is empty we do this anyway. The PHP checks
+		                // and returns 403 Forbidden in that case so nothing untoward will happen.
 		                if (data.tags) {
 		                	data.attribute = 'Tags';
 		                	data.value = data.tags;
@@ -477,8 +482,7 @@ var lastfmImporter = function() {
 									}
 					            },
 					            error: function(rdata) {
-					                debug.warn("LASTFM IMPORTER","Failure");
-					                //infobar.notify(infobar.ERROR,"Setting Tags Failed");
+					                debug.log("LASTFM IMPORTER","Failure with",data.tags);
 									if (callback) {
 										setTimeout(callback, 1000);
 									}

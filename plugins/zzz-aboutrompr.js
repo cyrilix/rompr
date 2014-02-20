@@ -8,7 +8,9 @@ var aboutRompr = function() {
             if (about == null) {
       	      about = browser.registerExtraPlugin("about", "About Rompr", aboutRompr);
                   $("#aboutfoldup").load("includes/about.html", function() {
-                        about.slideToggle('fast');
+                        about.slideToggle('fast', function() {
+                              browser.goToPlugin("about");
+                        });
                   });
             } else {
                   browser.goToPlugin("about");

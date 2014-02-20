@@ -44,6 +44,18 @@ switch ($_POST['action']) {
 		doPlaylist($_POST['playlist']);
 		break;
 
+	case 'taglist':
+		print json_encode(list_all_tag_data());
+		break;
+
+	case 'deletetag':
+		if (remove_tag_from_db($_POST['value'])) {
+			print '<html></html>';
+		} else {
+			header('HTTP/1.0 403 Forbidden');
+		}
+		break;
+
 	case 'get':
 		if ($artist === null || $title === null) {
 			header('HTTP/1.0 403 Forbidden');

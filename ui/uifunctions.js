@@ -137,6 +137,7 @@ function doThatFunkyThang() {
         $("#expandleft").attr("src", i);
         i = (prefs.playlisthidden) ? "newimages/arrow-left-double.png" : "newimages/arrow-right-double.png";
         $("#expandright").attr("src", i);
+        tagManager.redoLayout();
     }
 }
 
@@ -201,6 +202,7 @@ function setBottomPaneSize() {
     newheight = null;
     playlist.setHeight();
     infobar.rejigTheText();
+    tagManager.redoLayout();
 }
 
 function togglePlaylistButtons() {

@@ -440,11 +440,48 @@ function list_tags() {
 	return $tags;
 }
 
+function list_all_tag_data() {
+	global $mysqlc;
+	$tags = array();
+	if ($result = mysqli_query($mysqlc, "SELECT t.Name, a.Artistname, tr.Title, al.Albumname, al.Image FROM Tagtable AS t JOIN TagListtable AS tl USING (Tagindex) JOIN Tracktable AS tr USING (TTindex) JOIN Albumtable AS al USING (Albumindex) JOIN Artisttable AS a ON (tr.Artistindex = a.Artistindex) ORDER BY t.Name, a.Artistname, al.Albumname, tr.TrackNo
+")) {
+		while ($obj = mysqli_fetch_object($result)) {
+			if (!array_key_exists($obj->Name, $tags)) {
+				$tags[$obj->Name] = array();
+			}
+			array_push($tags[$obj->Name], array(
+				'Title' => $obj->Title,
+				'Album' => $obj->Albumname,
+				'Artist' => $obj->Artistname,
+				'Image' => $obj->Image
+			));
+		}
+	} else {
+		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+	}
+	return $tags;
+}
+
+function remove_tag_from_db($tag) {
+	global $mysqlc;
+	$r = true;
+	if ($result = mysqli_query($mysqlc, "SELECT Tagindex FROM Tagtable WHERE Name = '".mysqli_real_escape_string($mysqlc, $tag)."'")) {
+		$obj = mysqli_fetch_object($result);
+		$tagindex = $obj->Tagindex;
+		$r = generic_sql_query("DELETE FROM TagListtable WHERE Tagindex = ".$tagindex);
+		if ($r) {
+			$r = generic_sql_query("DELETE FROM Tagtable WHERE Tagindex = ".$tagindex);
+		}
+	} else {
+		$r = false;
+	}
+	return $r;
+}
+
 function generic_sql_query($qstring, $log = true) {
 	global $mysqlc;
 	if ($log) debug_print($qstring,"SQL_QUERY");
-	if ($result = mysqli_query($mysqlc, $qstring)
-	) {
+	if ($result = mysqli_query($mysqlc, $qstring)) {
 		if ($log) debug_print("Done : ".mysqli_affected_rows($mysqlc)." rows affected","MYSQL");
 		return true;
 	} else {
