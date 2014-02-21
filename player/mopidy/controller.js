@@ -6,6 +6,7 @@ function playerController() {
 	var isReady = false;
 	var tracksToAdd = new Array();
 	var albumtracks = new Array();
+	var tltracksToAdd = new Array();
 	var collectionLoaded = false;
 	var timerTimer = null;
     var progresstimer = null;
@@ -255,15 +256,11 @@ function playerController() {
 	this.connected = function() {
         debug.log("PLAYER","Connected to Mopidy");
         if ('getVersion' in mopidy) {
-        	mopidy.getVersion().then(function(v){
-        		var b = v.match(/\d+/g);
-        		if (b) {
-        			var version = parseFloat(b[0]+"."+b[1]);
-        			debug.log("PLAYER", "Mopidy Version is",version);
-        			if (version < parseFloat(prefs.mopidy_version)) {
-        				mopidyTooOld();
-        			}
-        		}
+        	mopidy.getVersion().then(function(version){
+    			debug.log("PLAYER", "Mopidy Version is",version);
+    			if (version < prefs.mopidy_version) {
+    				mopidyTooOld();
+    			}
         	});
         } else {
         	mopidyTooOld();
@@ -650,47 +647,36 @@ function playerController() {
 		// Add the tracks to a single variable. Otherwise if we get one add request
 		// before the previous one has finished the tracks get muddled up
 		tracksToAdd = tracksToAdd.concat(tracks);
-		if (tracksToAdd.length > 1) stopWatchingTracklist();
 		if (plstartpos == null || plstartpos == -1) plstartpos = playpos;
 		if (tracks.length == tracksToAdd.length) {
 			debug.debug("PLAYER:","Creating track iterator");
     		(function iterator() {
     			var t = albumtracks.shift() || tracksToAdd.shift();
     			if (t) {
-    				if (tracksToAdd.length + albumtracks.length == 1) watchTracklist();
 		    		switch (t.type) {
 		    			case "uri":
 		    				if (t.findexact) {
 		    					// We use this for filtering items when we add a spotify:artist link.
-		    					// The reason is that adding spotify:artist:whatever to the playlist adds every *album* that artist is on,
-		    					// including compilations - thus we get loads of tracks that *aren't* by that artist.
-		    					// I don't like that, so I filter by the artist name to get a bunch of tracks.
-		    					// These, unfortunately (this being spotify), come back in an unsorted list...
+		    					// The reason is that adding spotify:artist:whatever to the playlist
+		    					// adds every *album* that artist is on, including compilations -
+		    					// thus we get loads of tracks that *aren't* by that artist.
 		    					debug.log("PLAYER","addTracks has a findexact filter to apply",t.findexact,t.filterdomain);
 		    					mopidy.library.findExact(t.findexact, t.filterdomain).then(function(data) {
-		    						if (data[0].tracks) {
-			    						mopidy.tracklist.add(sortByAlbum(data[0].tracks),at_pos,null).then(function() {
-						    				if (at_pos !== null) at_pos += data[0].tracks.length;
-						    				iterator();
-			    						},consoleError);
-			    					} else {
-			    						infobar.notify(infobar.NOTIFY, "Couldn't find any tracks");
-			    						playlist.repopulate();
-			    					}
+		    						if (data[0].tracks)	tltracksToAdd = tltracksToAdd.concat(sortByAlbum(data[0].tracks));
+		    						iterator();
 		    					}, consoleError);
 		    				} else {
 					    		debug.log("PLAYER","addTracks Adding",t.name,"at",at_pos);
-				    			mopidy.tracklist.add(null, at_pos, t.name).then( function() {
-				    				if (at_pos !== null) at_pos++;
-				    				iterator();
-				    			},consoleError);
+					    		mopidy.library.lookup(t.name).then(function(tracks) {
+					    			tltracksToAdd = tltracksToAdd.concat(tracks);
+					    			iterator();
+					    		}, consoleError);
 				    		}
 			    			break;
 
 			    		case "item":
 				    		debug.log("PLAYER","addTracks Adding",t.name,"at",at_pos);
 			    			$.getJSON("getItems.php?item="+t.name, function(data) {
-			    				stopWatchingTracklist();
 			    				albumtracks = albumtracks.concat(data);
 			    				iterator();
 			    			});
@@ -703,6 +689,16 @@ function playerController() {
 
 		    		}
 		    		t = null;
+    			} else {
+    				debug.log("MOPIDY","TlTracks Array is",tltracksToAdd);
+    				if (tltracksToAdd.length > 0) {
+	    				mopidy.tracklist.add(tltracksToAdd, at_pos, null).then( function() {
+	    					tltracksToAdd = [];
+	    				}, consoleError);
+	    			} else {
+						infobar.notify(infobar.NOTIFY, "Couldn't find any tracks");
+						playlist.repopulate();
+	    			}
     			}
     		})();
 		}

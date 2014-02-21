@@ -73,7 +73,7 @@ $prefs = array( "mpd_host" => "localhost",
                 "search_limit_gmusic" => 0,
                 "scrolltocurrent" => "false",
                 // Minimum version of mopidy required
-                "mopidy_version" => "0.18",
+                "mopidy_version" => "0.18.3",
                 "debug_enabled" => 0,
                 "radiocountry" => "http://www.listenlive.eu/uk.html",
                 "mysql_host" => "localhost",

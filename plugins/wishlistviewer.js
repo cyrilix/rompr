@@ -110,7 +110,7 @@ var wishlistViewer = function() {
 		            wlv.slideToggle('fast', function() {
 			        	browser.goToPlugin("wlv");
 		            });
-		            $("#wishlist").find('.menu').addClass("infoclick plugclickable");
+		            $("#wishlistlist").find('.menu').addClass("infoclick plugclickable");
 	            });
 	        } else {
 	        	browser.goToPlugin("wlv");
