@@ -553,8 +553,6 @@ function playerController() {
     }
 
     this.onStop = function() {
-        self.clearProgressTimer();
-        playlist.checkSongIdAfterStop(player.status.songid);
         self.checkProgress();
     }
 

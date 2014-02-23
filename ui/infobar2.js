@@ -38,7 +38,7 @@ var infobar = function() {
     }();
 
     function setTheText(info) {
-        // debug.log("INFOBAR","Setting now playing info",info);
+        debug.log("INFOBAR","Setting now playing info");
         var doctitle = "RompR";
         var contents = "";
         if (info.title != "") {
@@ -197,6 +197,7 @@ var infobar = function() {
 
                 setState: function(s) {
                     if (s != state) {
+                        debug.log("INFOBAR","Setting Play Button State");
                         state = s;
                         switch (state) {
                             case "play":

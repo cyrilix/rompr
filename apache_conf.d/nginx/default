@@ -21,7 +21,7 @@ server {
                         include /etc/nginx/fastcgi_params;
                 }
                 error_page 404 = /rompr/404.php;
-                try_files $uri $uri/ /index/php =404;
+                try_files $uri $uri/ =404;
 		location ~ /rompr/albumart/* {
 			expires -1s;
 		}

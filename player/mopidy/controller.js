@@ -9,12 +9,148 @@ function playerController() {
 	var tltracksToAdd = new Array();
 	var collectionLoaded = false;
 	var timerTimer = null;
+	var stoptimer = null;
     var progresstimer = null;
     var tracknotfound = true;
     var consoleError = console.error.bind(console);
     var mopidy = null;
     var tlchangeTimer = null;
     var plstartpos = null;
+    var pladdpos = null;
+
+    function mopidyStateChange(data) {
+        debug.log("PLAYER","Mopidy State Change",data);
+        clearTimeout(stoptimer);
+        self.clearProgressTimer();
+        switch(data.new_state) {
+            case "playing":
+                player.status.state = "play";
+                // This has to be here (and not trackPlaybackStarted)
+                // or it doesn't work after pause
+		        checkPlaybackTime();
+                break;
+            case "stopped":
+                player.status.state = "stop";
+                stoptimer = setTimeout(checkEndOfList, 2000);
+                playlist.stop();
+                break;
+            case "paused":
+                player.status.state = "pause";
+                break;
+        }
+        infobar.updateWindowValues();
+    }
+
+    function trackPlaybackStarted(data) {
+        debug.log("PLAYER","Track Playback Started",data);
+        setStatusValues(data.tl_track);
+    	if (playlist.findCurrentTrack()) {
+    		onFoundTrack();
+    	} else {
+    		debug.log("PLAYER", "Current track NOT Found");
+    		tracknotfound = true;
+    	}
+    }
+
+	function onFoundTrack() {
+    	debug.log("PLAYER", "Current track Found",playlist.currentTrack);
+        nowplaying.newTrack(playlist.currentTrack);
+        tracknotfound = false;
+        // This is needed here so the infobar gets updated on page load
+        self.checkProgress();
+    }
+
+    function trackPlaybackEnded(data) {
+        debug.log("PLAYER","Track Playback Ended",data);
+        if (playlist.currentTrack && playlist.currentTrack.type == "podcast") {
+            debug.log("PLAYER", "Seeing if we need to mark a podcast as listened");
+            podcasts.checkMarkPodcastAsListened(playlist.currentTrack.location);
+        }
+    	if (player.status.single == 1) {
+    		mopidy.tracklist.setSingle(false);
+    		player.status.single = 0;
+    	}
+    }
+
+    function seeked(data) {
+        debug.log("PLAYER","Track Seeked",data);
+        player.status.elapsed = data.time_position/1000;
+        infobar.setStartTime(player.status.elapsed);
+        self.checkProgress();
+        infobar.updateWindowValues();
+	}
+
+	function tracklistChanged() {
+		// Don't repopulate immediately in case there are more coming
+		debug.log("PLAYER","Tracklist Changed");
+		clearTimeout(tlchangeTimer);
+		tlchangeTimer = setTimeout(playlist.repopulate, 200);
+	}
+
+	function checkPlaybackTime() {
+		clearTimeout(timerTimer);
+		mopidy.playback.getTimePosition().then(function(pos) {
+			debug.log("PLAYER","Playback position is",parseInt(pos));
+			if (player.status.state == "play") {
+				player.status.elapsed = parseInt(pos)/1000;
+				infobar.setStartTime(player.status.elapsed);
+	        	self.checkProgress();
+				if (player.status.elapsed == 0) {
+					timerTimer = setTimeout(checkPlaybackTime, 500);
+				}
+			}
+		});
+	}
+
+	function checkEndOfList() {
+		debug.log("PLAYER","Checking playlist state");
+    	mopidy.playback.getCurrentTlTrack().then( function(data) {
+			debug.log("PLAYER","Got Playlist State");
+    		// null means no track selected - we use this to detect
+    		// that we've reached the end of the playlist
+    		if (data === null) {
+    			debug.log("PLAYER","Current track is undefined");
+    			player.status.songid = undefined;
+    			player.status.elapsed = undefined;
+    			player.status.file = undefined;
+    	        nowplaying.newTrack(playlist.emptytrack);
+		        $(".playlistcurrentitem").removeClass('playlistcurrentitem').addClass('playlistitem');
+		        $(".playlistcurrenttitle").removeClass('playlistcurrenttitle').addClass('playlisttitle');
+    		}
+    	}, consoleError);
+    }
+
+	function enableMopidyEvents() {
+		if (!isReady) { return 0 }
+        mopidy.on("event:playlistsLoaded", reloadPlaylists);
+        mopidy.on("event:playbackStateChanged", mopidyStateChange);
+        mopidy.on("event:trackPlaybackStarted", trackPlaybackStarted);
+        mopidy.on("event:trackPlaybackEnded", trackPlaybackEnded);
+        mopidy.on("event:seeked", seeked);
+        watchTracklist();
+	}
+
+	function watchTracklist() {
+		mopidy.on("event:tracklistChanged", tracklistChanged);
+	}
+
+	function stopWatchingTracklist() {
+		mopidy.off("event:tracklistChanged", tracklistChanged);
+	}
+
+	function setStatusValues(tl_track) {
+		if (tl_track) {
+	        player.status.songid = tl_track.tlid;
+	        player.status.file = tl_track.track.uri;
+	        player.status.Date = tl_track.track.date;
+	        player.status.bitrate = tl_track.track.bitrate || 'None';
+	        player.status.Title = tl_track.track.name;
+	        player.status.performers = tl_track.track.performers;
+	        player.status.composers = tl_track.track.composers;
+	        player.status.Genre = tl_track.track.genre;
+	        player.status.Comment = tl_track.track.comment;
+	    }
+	}
 
     function playTlTrack(track) {
         debug.log("PLAYER","Playing Track",track);
@@ -35,97 +171,6 @@ function playerController() {
             return false;
         }
     }
-
-	function enableMopidyEvents() {
-		if (!isReady) { return 0 }
-
-        mopidy.on("event:playlistsLoaded", self.reloadPlaylists);
-
-        mopidy.on("event:playbackStateChanged", function(data) {
-            debug.log("PLAYER","Mopidy State Change",data);
-	        switch(data.new_state) {
-	            case "playing":
-	                player.status.state = "play";
-	                self.checkPlaybackTime();
-	                break;
-	            case "stopped":
-	                player.status.state = "stop";
-		        	mopidy.playback.getCurrentTlTrack().then( function(data) {
-		        		// undefined means no track selected - we use this to detect
-		        		// that we've reached the end of the playlist
-		        		if (data === null) {
-		        			debug.log("PLAYER","Current track is undefined");
-		        			player.status.songid = undefined;
-		        			player.status.elapsed = undefined;
-		        			player.status.file = undefined;
-			    	        nowplaying.newTrack(playlist.emptytrack);
-					        $(".playlistcurrentitem").removeClass('playlistcurrentitem').addClass('playlistitem');
-					        $(".playlistcurrenttitle").removeClass('playlistcurrenttitle').addClass('playlisttitle');
-		        		}
-		        	});
-	                playlist.stop();
-	                break;
-	            case "paused":
-	                player.status.state = "pause";
-	                self.clearProgressTimer();
-	                break;
-	        }
-	        infobar.updateWindowValues();
-        });
-
-        mopidy.on("event:trackPlaybackStarted", function(data) {
-            debug.log("PLAYER","Track Playback Started",data);
-            setStatusValues(data.tl_track);
-	        player.status.elapsed = 0;
-	        infobar.setStartTime(0);
-	        self.trackPlaybackStarted(data.tl_track);
-	        infobar.updateWindowValues();
-        });
-
-        mopidy.on("event:seeked", function(data) {
-            debug.log("PLAYER","Track Seeked",data);
-	        player.status.elapsed = data.time_position/1000;
-	        infobar.setStartTime(player.status.elapsed);
-	        self.checkProgress();
-	        infobar.updateWindowValues();
-        });
-
-
-        mopidy.on("event:trackPlaybackEnded", function(data) {
-        	self.trackPlaybackEnded();
-        	if (player.status.single == 1) {
-        		mopidy.tracklist.setSingle(false);
-        		player.status.single = 0;
-        	}
-            debug.log("PLAYER","Track Playback Ended",data);
-        });
-
-        watchTracklist();
-
-	}
-
-	function watchTracklist() {
-		mopidy.on("event:tracklistChanged", self.tlChange);
-	}
-
-	function stopWatchingTracklist() {
-		mopidy.off("event:tracklistChanged", self.tlChange);
-	}
-
-	function setStatusValues(tl_track) {
-		if (tl_track) {
-            //player.status.song = mopidy.tracklist.index(data);
-	        player.status.songid = tl_track.tlid;
-	        player.status.file = tl_track.track.uri;
-	        player.status.Date = tl_track.track.date;
-	        player.status.bitrate = tl_track.track.bitrate || 'None';
-	        player.status.Title = tl_track.track.name;
-	        player.status.performers = tl_track.track.performers;
-	        player.status.composers = tl_track.track.composers;
-	        player.status.Genre = tl_track.track.genre;
-	        player.status.Comment = tl_track.track.comment;
-	    }
-	}
 
 	function sortByAlbum(tracks) {
 		// Takes an array of unsorted mopidy.models.track and sorts them by albums
@@ -148,7 +193,6 @@ function playerController() {
 			}
 		}
 		return result;
-
 	}
 
 	function mopidyTooOld() {
@@ -172,13 +216,6 @@ function playerController() {
     		$("#outputbutton0").removeClass("togglebutton-0 togglebutton-1").addClass("togglebutton-"+i);
     	},consoleError);
 	}
-
-	function onFoundTrack() {
-    	debug.log("PLAYER", "Current track Found",playlist.currentTrack);
-        nowplaying.newTrack(playlist.currentTrack);
-        self.checkProgress();
-        tracknotfound = false;
-    }
 
 	function formatPlaylistInfo(data) {
 
@@ -223,26 +260,61 @@ function playerController() {
 
 	}
 
-	this.tlChange = function(data) {
-		// Don't repopulate immediately in case there are more coming
-		debug.log("PLAYER","Tracklist Changed");
-		clearTimeout(tlchangeTimer);
-		tlchangeTimer = setTimeout(playlist.repopulate, 250);
+	function startAddingTracks() {
+		var t = albumtracks.shift() || tracksToAdd.shift();
+		if (t) {
+    		switch (t.type) {
+    			case "uri":
+    				if (t.findexact) {
+    					// We use this for filtering items when we add a spotify:artist link.
+    					// The reason is that adding spotify:artist:whatever to the playlist
+    					// adds every *album* that artist is on, including compilations -
+    					// thus we get loads of tracks that *aren't* by that artist.
+    					debug.log("PLAYER","addTracks has a findexact filter to apply",t.findexact,t.filterdomain);
+    					mopidy.library.findExact(t.findexact, t.filterdomain).then(function(data) {
+    						if (data[0].tracks)	tltracksToAdd = tltracksToAdd.concat(sortByAlbum(data[0].tracks));
+    						startAddingTracks();
+    					}, consoleError);
+    				} else {
+			    		debug.log("PLAYER","addTracks Adding",t.name);
+			    		mopidy.library.lookup(t.name).then(function(tracks) {
+			    			tltracksToAdd = tltracksToAdd.concat(tracks);
+			    			startAddingTracks();
+			    		}, consoleError);
+		    		}
+	    			break;
+
+	    		case "item":
+		    		debug.log("PLAYER","addTracks Adding",t.name);
+	    			$.getJSON("getItems.php?item="+t.name, function(data) {
+	    				albumtracks = albumtracks.concat(data);
+	    				startAddingTracks();
+	    			});
+	    			break;
+
+	    		case "delete":
+		    		debug.log("PLAYER","addTracks Deleting ID",t.name);
+	    			mopidy.tracklist.remove({'tlid': [parseInt(t.name)]}).then( startAddingTracks );
+	    			break;
+
+    		}
+    		t = null;
+		} else {
+			debug.log("MOPIDY","TlTracks Array is",tltracksToAdd);
+			if (tltracksToAdd.length > 0) {
+				mopidy.tracklist.add(tltracksToAdd, pladdpos, null).then( function() {
+					tltracksToAdd = [];
+					pladdpos = null;
+				}, consoleError);
+			} else {
+				infobar.notify(infobar.NOTIFY, "Couldn't find any tracks");
+				playlist.repopulate();
+				pladdpos = null;
+			}
+		}
 	}
 
-    this.initialise = function() {
-        debug.log("PLAYER","Connecting to Mopidy HTTP frontend");
-        mopidy = new Mopidy({
-            webSocketUrl: "ws://"+prefs.mopidy_http_address+":"+prefs.mopidy_http_port+"/mopidy/ws/",
-            autoConnect:false
-        });
-        mopidy.on("state:online", self.connected);
-        mopidy.on("state:offline", self.disconnected);
-        mopidy.connect();
-	    self.mop = mopidy;
-	}
-
-	this.checkSearchDomains = function() {
+	function checkSearchDomains() {
 		if (isReady) {
             $("#mopidysearcher").find('.searchdomain').each( function() {
                 var v = $(this).attr("value");
@@ -253,7 +325,17 @@ function playerController() {
         }
     }
 
-	this.connected = function() {
+	function reloadPlaylists() {
+		if (isReady) {
+            debug.log("PLAYER","Retreiving Playlists from Mopidy");
+            mopidy.playlists.getPlaylists().then(function (data) {
+            	debug.log("PLAYER","Got Playlists from Mopidy",data);
+            	formatPlaylistInfo(data);
+            }, consoleError);
+        }
+	}
+
+	function connected() {
         debug.log("PLAYER","Connected to Mopidy");
         if ('getVersion' in mopidy) {
         	mopidy.getVersion().then(function(version){
@@ -296,13 +378,13 @@ function playerController() {
     			});
     		});
 		});
-		self.reloadPlaylists();
+		reloadPlaylists();
         mopidy.getUriSchemes().then( function(data) {
             for(var i =0; i < data.length; i++) {
             	debug.log("PLAYER","Mopidy URI Scheme : ",data[i]);
                 urischemes[data[i]] = true;
             }
-			self.checkSearchDomains();
+			checkSearchDomains();
 			if (!collectionLoaded) {
 				debug.log("PLAYER","Checking Collection");
 				collectionLoaded = true;
@@ -312,7 +394,7 @@ function playerController() {
         self.cancelSingle();
 	}
 
-	this.disconnected = function() {
+	function disconnected() {
         debug.warn("PLAYER","Mopidy Has Gone Offline");
         infobar.notify(infobar.ERROR, language.gettext("mopidy_down"));
         isReady = false;
@@ -324,32 +406,25 @@ function playerController() {
         stopWatchingTracklist();
 	}
 
-	this.isConnected = function() {
-		return isReady;
+    this.initialise = function() {
+        debug.log("PLAYER","Connecting to Mopidy HTTP frontend");
+        mopidy = new Mopidy({
+            webSocketUrl: "ws://"+prefs.mopidy_http_address+":"+prefs.mopidy_http_port+"/mopidy/ws/",
+            autoConnect:false
+        });
+        mopidy.on("state:online", connected);
+        mopidy.on("state:offline", disconnected);
+        mopidy.connect();
+	    self.mop = mopidy;
 	}
 
-	this.checkPlaybackTime = function() {
-		clearTimeout(timerTimer);
-		mopidy.playback.getTimePosition().then(function(pos) {
-			debug.log("PLAYER","Playback position is",parseInt(pos));
-			if (player.status.state == "play") {
-				player.status.elapsed = parseInt(pos)/1000;
-				infobar.setStartTime(player.status.elapsed);
-	        	self.checkProgress();
-				if (player.status.elapsed == 0) {
-					timerTimer = setTimeout(self.checkPlaybackTime, 1000);
-				}
-			}
-		});
+	this.isConnected = function() {
+		return isReady;
 	}
 
 	this.updateCollection = function(cmd) {
         prepareForLiftOff(language.gettext("label_updating"));
         debug.log("PLAYER","Updating collection with command", cmd);
-        // Running mopidy local scan and parsing the tag cache is no
-        // longer supported as it's impossible to make it work in all situations.
-        // Mopidy will soon support updating from a client, hopefully
-        // by adding it to this command.
         mopidy.library.refresh().then( function() {
         	debug.log("PLAYER", "Refresh Success");
         	checkPoll({data: 'dummy' })
@@ -361,21 +436,21 @@ function playerController() {
             mopidy.library.search({}).then( function(data) {
             	debug.log("PLAYER","Got Mopidy Library Response");
                 $.ajax({
-                        type: "POST",
-                        url: uri,
-                        data: JSON.stringify(data),
-                        contentType: "application/json",
-                        success: function(data) {
-                            $("#collection").html(data);
-                            data = null;
-                        },
-                        error: function(data) {
-                            $("#collection").empty();
-                            alert(language.gettext("label_update_error"));
-                        	debug.error("PLAYER","failed to generate albums list",data);
-                        }
-                    });
-            }, consoleError);
+                    type: "POST",
+                    url: uri,
+                    data: JSON.stringify(data),
+                    contentType: "application/json",
+                    success: function(data) {
+                        $("#collection").html(data);
+                        data = null;
+                    },
+                    error: function(data) {
+                        $("#collection").empty();
+                        alert(language.gettext("label_update_error"));
+                    	debug.error("PLAYER","failed to generate albums list",data);
+                    }
+                });
+	        }, consoleError);
         } else {
             debug.log("PLAYER","Loding",uri);
 	        $("#collection").load(uri);
@@ -420,16 +495,6 @@ function playerController() {
 
 	}
 
-	this.reloadPlaylists = function() {
-		if (isReady) {
-            debug.log("PLAYER","Retreiving Playlists from Mopidy");
-            mopidy.playlists.getPlaylists().then(function (data) {
-            	debug.log("PLAYER","Got Playlists from Mopidy",data);
-            	formatPlaylistInfo(data);
-            }, consoleError);
-        }
-	}
-
 	this.loadPlaylist = function(uri) {
 		mopidy.tracklist.clear().then( function() {
 			$.get("cleanPlaylists.php?command=clear");
@@ -463,14 +528,15 @@ function playerController() {
             	plstartpos = null;
             }
             $.ajax({
-                    type: "POST",
-                    url: "getplaylist.php",
-                    data: JSON.stringify(data),
-                    contentType: "application/json",
-                    dataType: "json",
-                    success: playlist.newXSPF,
-                    error: playlist.updateFailure
-                });
+                type: "POST",
+                url: "getplaylist.php",
+                data: JSON.stringify(data),
+                contentType: "application/json",
+                dataType: "json",
+                success: playlist.newXSPF,
+                error: playlist.updateFailure
+            });
+            data = null;
         }, consoleError);
 	}
 
@@ -547,25 +613,30 @@ function playerController() {
 	}
 
 	this.play = function() {
+		debug.log("PLAYER","Playing");
         mopidy.playback.play();
 	}
 
 	this.pause = function() {
+		debug.log("PLAYER","Pausing");
 		mopidy.playback.pause();
 	}
 
 	this.stop = function() {
+		debug.log("PLAYER","Stopping");
         mopidy.playback.stop();
 	}
 
 	this.next = function() {
 		if (player.status.state == 'play') {
+			debug.log("PLAYER","Nexting");
 			mopidy.playback.next();
 		}
 	}
 
 	this.previous = function() {
 		if (player.status.state == 'play') {
+			debug.log("PLAYER","Preving");
 			mopidy.playback.previous();
 		}
 	}
@@ -648,62 +719,11 @@ function playerController() {
 		// before the previous one has finished the tracks get muddled up
 		tracksToAdd = tracksToAdd.concat(tracks);
 		if (plstartpos == null || plstartpos == -1) plstartpos = playpos;
+		if (pladdpos == null || pladdpos == -1) pladdpos = at_pos;
 		if (tracks.length == tracksToAdd.length) {
-			debug.debug("PLAYER:","Creating track iterator");
-    		(function iterator() {
-    			var t = albumtracks.shift() || tracksToAdd.shift();
-    			if (t) {
-		    		switch (t.type) {
-		    			case "uri":
-		    				if (t.findexact) {
-		    					// We use this for filtering items when we add a spotify:artist link.
-		    					// The reason is that adding spotify:artist:whatever to the playlist
-		    					// adds every *album* that artist is on, including compilations -
-		    					// thus we get loads of tracks that *aren't* by that artist.
-		    					debug.log("PLAYER","addTracks has a findexact filter to apply",t.findexact,t.filterdomain);
-		    					mopidy.library.findExact(t.findexact, t.filterdomain).then(function(data) {
-		    						if (data[0].tracks)	tltracksToAdd = tltracksToAdd.concat(sortByAlbum(data[0].tracks));
-		    						iterator();
-		    					}, consoleError);
-		    				} else {
-					    		debug.log("PLAYER","addTracks Adding",t.name,"at",at_pos);
-					    		mopidy.library.lookup(t.name).then(function(tracks) {
-					    			tltracksToAdd = tltracksToAdd.concat(tracks);
-					    			iterator();
-					    		}, consoleError);
-				    		}
-			    			break;
-
-			    		case "item":
-				    		debug.log("PLAYER","addTracks Adding",t.name,"at",at_pos);
-			    			$.getJSON("getItems.php?item="+t.name, function(data) {
-			    				albumtracks = albumtracks.concat(data);
-			    				iterator();
-			    			});
-			    			break;
-
-			    		case "delete":
-				    		debug.log("PLAYER","addTracks Deleting ID",t.name);
-			    			mopidy.tracklist.remove({'tlid': [parseInt(t.name)]}).then( iterator );
-			    			break;
-
-		    		}
-		    		t = null;
-    			} else {
-    				debug.log("MOPIDY","TlTracks Array is",tltracksToAdd);
-    				if (tltracksToAdd.length > 0) {
-	    				mopidy.tracklist.add(tltracksToAdd, at_pos, null).then( function() {
-	    					tltracksToAdd = [];
-	    				}, consoleError);
-	    			} else {
-						infobar.notify(infobar.NOTIFY, "Couldn't find any tracks");
-						playlist.repopulate();
-	    			}
-    			}
-    		})();
+			startAddingTracks();
 		}
 		tracks = null;
-		at_pos = null;
 	}
 
 	this.move = function(first, number, moveto) {
@@ -754,28 +774,6 @@ function playerController() {
 		}
 	}
 
-	this.trackPlaybackEnded = function() {
-        self.clearProgressTimer();
-        if (playlist.currentTrack && playlist.currentTrack.type == "podcast") {
-            debug.log("PLAYLIST", "Seeing if we need to mark a podcast as listened");
-            podcasts.checkMarkPodcastAsListened(playlist.currentTrack.location);
-        }
-        debug.groupend();
-    }
-
-    this.trackPlaybackStarted = function(tl_track) {
-        debug.group("PLAYLIST","Track Playback Started",tl_track);
-        playlist.findCurrentTrack();
-        if (playlist.currentTrack) {
-        	onFoundTrack();
-        } else {
-        	debug.log("PLAYLIST", "Current track NOT Found",playlist.currentTrack);
-        	// Track won't be found IF we've started playback before adding all the tracks
-        	// which we do, for instance, almost all the time.
-        	tracknotfound = true;
-        }
-    }
-
     this.postLoadActions = function() {
     	if (tracknotfound || player.status.state == "stop") {
 	        if (playlist.currentTrack) {
@@ -792,8 +790,7 @@ function playerController() {
     }
 
     this.onStop = function() {
-        self.clearProgressTimer();
-        playlist.checkSongIdAfterStop(player.status.songid);
+        // self.clearProgressTimer();
     }
 
     this.checkProgress = function() {

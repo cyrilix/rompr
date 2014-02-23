@@ -5,8 +5,9 @@ var soundcloud = function() {
 
 	return {
 		getTrackInfo: function(mopidyURI, callback) {
-			// soundcloud:song;5674385
-			var tracknum = mopidyURI.substring(16, mopidyURI.length);
+			// "soundcloud:song/King Tubby meets Soul Rebel Uptown.92868852"
+			var a = mopidyURI.match(/(\d+)$/);
+			var tracknum = a[1];
 			debug.log("SOUNDCLOUD","Getting soundcloud info for track",tracknum);
 			$.jsonp( {
 				url: "https://api.soundcloud.com/tracks/"+tracknum+".json?client_id="+clientid+"&callback=?",
@@ -14,7 +15,7 @@ var soundcloud = function() {
 				success: callback,
 				error: function(data) { debug.warn("SOUNDCLOUD","SoundCloud Error",data);
 										callback(data);
-									}
+				}
 			});
 		},
 
@@ -26,7 +27,7 @@ var soundcloud = function() {
 				success: callback,
 				error: function(data) { debug.warn("SOUNDCLOUD","SoundCloud Error",data);
 										callback(data);
-									}
+				}
 			});
 
 		}

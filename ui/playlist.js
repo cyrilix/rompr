@@ -133,10 +133,10 @@ function Playlist() {
                     case "local":
                         if (track.compilation == "yes") {
                             var hidden = (self.rolledup["Various Artists"+track.album]) ? true : false;
-                            item = new playlist.Album("Various Artists", track.album, count, hidden);
+                            item = new Album("Various Artists", track.album, count, hidden);
                         } else {
                             var hidden = (self.rolledup[sortartist+track.album]) ? true : false;
-                            item = new playlist.Album(sortartist, track.album, count, hidden);
+                            item = new Album(sortartist, track.album, count, hidden);
                         }
                         tracklist[count] = item;
                         count++;
@@ -145,7 +145,7 @@ function Playlist() {
                     case "stream":
                         // Streams are hidden by default - hence we use the opposite logic for the flag
                         var hidden = (self.rolledup["StReAm"+track.album]) ? false : true;
-                        item = new playlist.Stream(count, track.album, hidden);
+                        item = new Stream(count, track.album, hidden);
                         tracklist[count] = item;
                         count++;
                         current_station = "";
@@ -153,7 +153,7 @@ function Playlist() {
                     case "lastfmradio":
                         if (track.station != current_station) {
                             var hidden = (self.rolledup[track.station]) ? true : false;
-                            item = new playlist.LastFMRadio(track.stationurl, track.station, count, hidden);
+                            item = new LastFMRadio(track.stationurl, track.station, count, hidden);
                             current_station = track.station;
                             tracklist[count] = item;
                             count++;
@@ -164,7 +164,7 @@ function Playlist() {
                         }
                         break;
                     default:
-                        item = new playlist.Album(sortartist, track.album, count);
+                        item = new Album(sortartist, track.album, count);
                         tracklist[count] = item;
                         count++;
                         current_station = "";
@@ -509,6 +509,7 @@ function Playlist() {
                 break;
             }
         }
+        return self.currentTrack;
     }
 
     this.checkProgress = function() {
@@ -518,6 +519,8 @@ function Playlist() {
     this.stop = function() {
         infobar.setProgress(0,-1,-1);
         player.controller.onStop();
+        debug.groupend();
+        playlist.checkSongIdAfterStop(player.status.songid);
     }
 
     this.stopafter = function() {
@@ -646,7 +649,7 @@ function Playlist() {
         return self.currentTrack[thing];
     }
 
-    this.Album = function(artist, album, index, rolledup) {
+    function Album(artist, album, index, rolledup) {
 
         var self = this;
         var tracks = [];
@@ -832,7 +835,7 @@ function Playlist() {
 
     }
 
-    this.Stream = function(index, album, rolledup) {
+    function Stream(index, album, rolledup) {
         var self = this;
         var tracks = [];
         this.index = index;
@@ -952,7 +955,7 @@ function Playlist() {
         }
     }
 
-    this.LastFMRadio = function(tuneurl, station, index, rolledup) {
+    function LastFMRadio(tuneurl, station, index, rolledup) {
         var self = this;
         var tracks = [];
         this.station = station;
