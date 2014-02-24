@@ -972,7 +972,7 @@ function check_sql_tables() {
 			"INDEX(Albumindex), ".
 			"INDEX(Title), ".
 			"INDEX(TrackNo), ".
-			"INDEX(Disc))"))
+			"INDEX(Disc)) ENGINE=InnoDB"))
 		{
 			debug_print("  Tracktable OK","MYSQL");
 		} else {
@@ -1000,7 +1000,7 @@ function check_sql_tables() {
 			"INDEX(Albumname), ".
 			"INDEX(AlbumArtistindex), ".
 			"INDEX(Domain), ".
-			"INDEX(ImgKey))"))
+			"INDEX(ImgKey)) ENGINE=InnoDB"))
 		{
 			debug_print("  Albumtable OK","MYSQL");
 		} else {
@@ -1014,7 +1014,7 @@ function check_sql_tables() {
 			"Artistindex INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE, ".
 			"PRIMARY KEY(Artistindex), ".
 			"Artistname VARCHAR(255), ".
-			"INDEX(Artistname))"))
+			"INDEX(Artistname)) ENGINE=InnoDB"))
 		{
 			debug_print("  Artisttable OK","MYSQL");
 		} else {
@@ -1027,7 +1027,7 @@ function check_sql_tables() {
 		if (generic_sql_query("CREATE TABLE IF NOT EXISTS Ratingtable(".
 			"TTindex INT UNSIGNED, ".
 			"PRIMARY KEY(TTindex), ".
-			"Rating TINYINT(1) UNSIGNED)"))
+			"Rating TINYINT(1) UNSIGNED) ENGINE=InnoDB"))
 		{
 			debug_print("  Ratingtable OK","MYSQL");
 		} else {
@@ -1040,7 +1040,7 @@ function check_sql_tables() {
 		if (generic_sql_query("CREATE TABLE IF NOT EXISTS Tagtable(".
 			"Tagindex INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE, ".
 			"PRIMARY KEY(Tagindex), ".
-			"Name VARCHAR(255))"))
+			"Name VARCHAR(255)) ENGINE=InnoDB"))
 		{
 			debug_print("  Tagtable OK","MYSQL");
 		} else {
@@ -1053,7 +1053,7 @@ function check_sql_tables() {
 		if (generic_sql_query("CREATE TABLE IF NOT EXISTS TagListtable(".
 			"Tagindex INT UNSIGNED NOT NULL REFERENCES Tagtable(Tagindex), ".
 			"TTindex INT UNSIGNED NOT NULL REFERENCES Tracktable(TTindex), ".
-			"PRIMARY KEY (Tagindex, TTindex))"))
+			"PRIMARY KEY (Tagindex, TTindex)) ENGINE=InnoDB"))
 		{
 			debug_print("  TagListtable OK","MYSQL");
 		} else {
@@ -1066,7 +1066,7 @@ function check_sql_tables() {
 		$result = mysqli_query($mysqlc, "SELECT * FROM information_schema.TABLES WHERE (TABLE_SCHEMA = 'romprdb') AND (TABLE_NAME = 'Statstable')");
 		if (mysqli_num_rows($result) == 0) {
 			debug_print("Statstable does not exist","MYSQL");
-			$q = "CREATE TABLE Statstable(Item CHAR(11), PRIMARY KEY(Item), Value INT UNSIGNED)";
+			$q = "CREATE TABLE Statstable(Item CHAR(11), PRIMARY KEY(Item), Value INT UNSIGNED) ENGINE=InnoDB";
 			if (mysqli_query($mysqlc,$q)) {
 				debug_print("Statstable created", "MYSQL");
 			} else {

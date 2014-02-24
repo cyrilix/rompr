@@ -169,6 +169,8 @@ if ($mobile != "no") {
 
 if ($prefs['player_backend'] == "mopidy") {
     print'<script type="text/javascript" src="http://'.$prefs['mopidy_http_address'].':'.$prefs['mopidy_http_port'].'/mopidy/mopidy.min.js"></script>'."\n";
+    // TODO PUT THIS BACK!
+    // print'<script type="text/javascript" src="prefs/mopidy.js"></script>'."\n";
 }
 print'<script type="text/javascript" src="player/'.$prefs['player_backend'].'/controller.js"></script>'."\n";
 if (file_exists("prefs/prefs.js")) {

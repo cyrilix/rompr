@@ -9,7 +9,6 @@ function Playlist() {
     var updatecounter = 0;
     var do_delayed_update = false;
     var scrollto = -1;
-    var searchedimages = [];
     var lastfmcleanuptimer = null;
     var updateErrorFlag = 0;
     var mode = null;
@@ -83,7 +82,6 @@ function Playlist() {
         var current_artist = "";
         var current_station = "";
         var current_type = "";
-        // var track;
         var expiresin = null;
         updateErrorFlag = 0;
         self.cleanupCleanupTimer();
@@ -110,7 +108,6 @@ function Playlist() {
         // ***********
 
         debug.log("PLAYLIST","Got Playlist from Apache",list);
-        self.clearProgressTimer();
         finaltrack = -1;
         currentalbum = -1;
         tracklist = [];
@@ -212,7 +209,6 @@ function Playlist() {
             debug.log("PLAYLIST","Playlist is empty");
             nowplaying.newTrack(self.emptytrack);
             infobar.setProgress(0,-1,-1);
-            debug.groupend();
         }
         player.controller.postLoadActions();
 
@@ -271,7 +267,6 @@ function Playlist() {
     }
 
     this.load = function(name) {
-        self.clearProgressTimer();
         self.cleanupCleanupTimer();
         $("#sortable").empty();
         makeFictionalCharacter();
@@ -287,7 +282,6 @@ function Playlist() {
     }
 
     this.loadSmart = function(name) {
-        self.clearProgressTimer();
         self.cleanupCleanupTimer();
         var action = "getplaylist";
         playlist.waiting();
@@ -356,6 +350,7 @@ function Playlist() {
             }
             return (parseInt(finaltrack))+1;
         })($(ui.item));
+
         if (ui.item.hasClass("draggable")) {
             // Something dragged from the albums list
             var tracks = new Array();
@@ -487,40 +482,45 @@ function Playlist() {
             self.currentTrack = tracklist[i].findcurrent(player.status.songid);
             if (self.currentTrack) {
                 currentalbum = i;
-                debug.debug("PLAYLIST",".. found it!");
-
-                if (prefs.scrolltocurrent &&
-                    $('.track[romprid="'+player.status.songid+'"]').offset()
-                    && scrollto === -1) {
-                    debug.log("PLAYLIST","Scrolling to",player.status.songid);
-                    if (mobile == "no") {
-                        $('#pscroller').mCustomScrollbar("scrollTo", $('div.track[romprid="'+player.status.songid+'"]').offset().top - $('#sortable').offset().top - $('#pscroller').height()/2, {scrollInertia:0});
-                    } else {
-                        $('#pscroller').animate({
-                           scrollTop: $('div.track[romprid="'+player.status.songid+'"]').offset().top - $('#sortable').offset().top - $('#pscroller').height()/2
-                        }, 500);
-                    }
-                }
-
+                scrollToCurrentTrack();
                 if (mode && self.currentTrack.playlistpos == finaltrack) {
                     self.loadSmart(mode);
                 }
-
                 break;
             }
         }
         return self.currentTrack;
     }
 
-    this.checkProgress = function() {
-        player.controller.checkProgress();
+    function scrollToCurrentTrack() {
+        if (prefs.scrolltocurrent &&
+            $('.track[romprid="'+player.status.songid+'"]').offset() &&
+                scrollto === -1) {
+            debug.log("PLAYLIST","Scrolling to",player.status.songid);
+            if (mobile == "no") {
+                $('#pscroller').mCustomScrollbar(
+                    "scrollTo",
+                    $('div.track[romprid="'+player.status.songid+'"]').offset().top - $('#sortable').offset().top - $('#pscroller').height()/2,
+                    { scrollInertia: 0 }
+                );
+            } else {
+                $('#pscroller').animate({
+                   scrollTop: $('div.track[romprid="'+player.status.songid+'"]').offset().top - $('#sortable').offset().top - $('#pscroller').height()/2
+                }, 500);
+            }
+        }
     }
 
-    this.stop = function() {
+    this.stopped = function() {
         infobar.setProgress(0,-1,-1);
-        player.controller.onStop();
-        debug.groupend();
-        playlist.checkSongIdAfterStop(player.status.songid);
+        self.checkSongIdAfterStop(player.status.songid);
+    }
+
+    this.trackchanged = function() {
+        if (self.currentTrack && self.currentTrack.type == "podcast") {
+            debug.log("PLAYLIST", "Seeing if we need to mark a podcast as listened");
+            podcasts.checkMarkPodcastAsListened(self.currentTrack.location);
+        }
     }
 
     this.stopafter = function() {
@@ -539,10 +539,6 @@ function Playlist() {
             }
 
         }
-    }
-
-    this.clearProgressTimer = function() {
-        player.controller.clearProgressTimer();
     }
 
     this.previous = function() {

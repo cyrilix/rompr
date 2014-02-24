@@ -45,7 +45,7 @@ var tagManager = function() {
 	        	tmg = browser.registerExtraPlugin("tmg", language.gettext("label_tagmanager"), tagManager);
 	        	if (prefs.apache_backend != 'sql') {
 		            $("#tmgfoldup").append('<h3 align="center">'+language.gettext("label_nosql")+'</h3>');
-		            // TODO add wiki link here
+		            $("#tmgfoldup").append('<h3 align="center"><a href="http://sourceforge.net/p/rompr/wiki/Enabling%20Rating%20and%20Tagging/" target="_blank">Read The Wiki</a></h3>');
 		            tmg.slideToggle('fast');
 		            return;
 	        	}

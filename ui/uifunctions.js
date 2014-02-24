@@ -1558,8 +1558,7 @@ var tagAdder = function() {
                 nowplaying.addTags(index, toadd);
                 $("#tagadder").slideToggle('fast');
             } else {
-                alert("This is not possible with your setup.");
-                // TODO add wiki link
+                alert(language.gettext('label_nosql')+'. Please Read http://sourceforge.net/p/rompr/wiki/Enabling%20Rating%20and%20Tagging/');
             }
         }
     }

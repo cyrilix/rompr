@@ -118,7 +118,7 @@ var lastfmImporter = function() {
 
 	        	if (prefs.apache_backend != 'sql') {
 		            $("#impufoldup").append('<h3 align="center">'+language.gettext("label_nosql")+'</h3>');
-		            // TODO add wiki link here
+		            $("#impufoldup").append('<h3 align="center"><a href="http://sourceforge.net/p/rompr/wiki/Enabling%20Rating%20and%20Tagging/" target="_blank">Read The Wiki</a></h3>');
 		            impu.slideToggle('fast');
 		            return;
 	        	}

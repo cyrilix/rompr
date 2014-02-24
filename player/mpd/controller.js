@@ -68,7 +68,7 @@ function playerController() {
     }
 
     function setTheClock(callback, timeout) {
-        self.clearProgressTimer();
+        clearProgressTimer();
         progresstimer = setTimeout(callback, timeout);
     }
 
@@ -81,7 +81,7 @@ function playerController() {
 
 	this.command = function(cmd, callback) {
         debug.debug("MPD","'"+cmd+"'");
-        self.clearProgressTimer();
+        clearProgressTimer();
         $.getJSON("ajaxcommand.php", cmd)
         .done(function(data) {
             debug.debug("MPD","Result for","'"+cmd+"'",data);
@@ -117,7 +117,7 @@ function playerController() {
 
 	this.do_command_list = function(list, callback) {
         debug.log("MPD","Command List",list);
-        self.clearProgressTimer();
+        clearProgressTimer();
         if (typeof list == "string") {
             data = list;
         } else {
@@ -233,7 +233,7 @@ function playerController() {
 	}
 
 	this.stop = function() {
-        self.command("command=stop", playlist.stop )
+        self.command("command=stop", self.onStop )
 	}
 
 	this.next = function() {
@@ -452,22 +452,17 @@ function playerController() {
 		self.checkProgress();
 	}
 
-    this.clearProgressTimer = function() {
+    function clearProgressTimer() {
         clearTimeout(progresstimer);
     }
 
     this.checkProgress = function() {
-        self.clearProgressTimer();
+        clearProgressTimer();
         // Track changes are detected based on the playlist id. This prevents us from repopulating
         // the browser every time the playlist gets repopulated.
         if (player.status.songid != previoussongid) {
-            debug.groupend();
-            debug.group("PLAYLIST","Track has changed");
-
-            if (playlist.currentTrack && playlist.currentTrack.type == "podcast") {
-                debug.log("NOWPLAYING", "Seeing if we need to mark a podcast as listened");
-                podcasts.checkMarkPodcastAsListened(playlist.currentTrack.location);
-            }
+            debug.mark("PLAYLIST","Track has changed");
+            playlist.trackchanged();
 
             playlist.findCurrentTrack();
 
@@ -542,17 +537,18 @@ function playerController() {
     }
 
     this.streamfunction = function() {
-        self.clearProgressTimer();
+        clearProgressTimer();
         self.command("", self.checkStream);
     }
 
     this.checkStream = function() {
-        self.clearProgressTimer();
+        clearProgressTimer();
         updateStreamInfo();
         self.checkProgress();
     }
 
     this.onStop = function() {
+        playlist.stopped();
         self.checkProgress();
     }
 

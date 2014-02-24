@@ -187,7 +187,7 @@ var info_file = function() {
 		    this.updateFileInformation = function() {
                 parent.playlistinfo.metadata.track.fileinfo = {beets: null, player: true};
 		    	parent.playlistinfo.metadata.track.lyrics = null;
-                playlist.checkProgress();
+                player.controller.checkProgress();
 		    	self.doBrowserUpdate();
 		    }
 

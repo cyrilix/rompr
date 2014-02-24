@@ -101,7 +101,7 @@ var wishlistViewer = function() {
 	        	wlv = browser.registerExtraPlugin("wlv", language.gettext("label_wishlist"), wishlistViewer);
 	        	if (prefs.apache_backend != 'sql') {
 		            $("#wlvfoldup").append('<h3 align="center">'+language.gettext("label_nosql")+'</h3>');
-		            // TODO add wiki link here
+		            $("#wlvfoldup").append('<h3 align="center"><a href="http://sourceforge.net/p/rompr/wiki/Enabling%20Rating%20and%20Tagging/" target="_blank">Read The Wiki</a></h3>');
 		            wlv.slideToggle('fast');
 		            return;
 	        	}

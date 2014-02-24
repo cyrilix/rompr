@@ -262,7 +262,6 @@ function onPlaylistClicked(event) {
         playlist.addFavourite(clickedElement.attr("name"));
     } else if (clickedElement.hasClass("clickremovelfmtrack")) {
         event.stopImmediatePropagation();
-        playlist.clearProgressTimer();
         playlist.checkSongIdAfterStop(clickedElement.attr("romprid"));
     }
 }

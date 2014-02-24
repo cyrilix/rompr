@@ -21,18 +21,15 @@ function playerController() {
     function mopidyStateChange(data) {
         debug.log("PLAYER","Mopidy State Change",data);
         clearTimeout(stoptimer);
-        self.clearProgressTimer();
+        clearTimeout(progresstimer);
         switch(data.new_state) {
             case "playing":
                 player.status.state = "play";
-                // This has to be here (and not trackPlaybackStarted)
-                // or it doesn't work after pause
-		        checkPlaybackTime();
                 break;
             case "stopped":
                 player.status.state = "stop";
                 stoptimer = setTimeout(checkEndOfList, 2000);
-                playlist.stop();
+                playlist.stopped();
                 break;
             case "paused":
                 player.status.state = "pause";
@@ -44,6 +41,9 @@ function playerController() {
     function trackPlaybackStarted(data) {
         debug.log("PLAYER","Track Playback Started",data);
         setStatusValues(data.tl_track);
+		player.status.elapsed = 0;
+		infobar.setStartTime(0);
+        checkPlaybackTime();
     	if (playlist.findCurrentTrack()) {
     		onFoundTrack();
     	} else {
@@ -56,20 +56,29 @@ function playerController() {
     	debug.log("PLAYER", "Current track Found",playlist.currentTrack);
         nowplaying.newTrack(playlist.currentTrack);
         tracknotfound = false;
-        // This is needed here so the infobar gets updated on page load
         self.checkProgress();
     }
 
     function trackPlaybackEnded(data) {
         debug.log("PLAYER","Track Playback Ended",data);
-        if (playlist.currentTrack && playlist.currentTrack.type == "podcast") {
-            debug.log("PLAYER", "Seeing if we need to mark a podcast as listened");
-            podcasts.checkMarkPodcastAsListened(playlist.currentTrack.location);
-        }
+        playlist.trackchanged();
     	if (player.status.single == 1) {
     		mopidy.tracklist.setSingle(false);
     		player.status.single = 0;
     	}
+    }
+
+    function trackPlaybackPaused(data) {
+        debug.log("PLAYER","Track Playback Paused",data);
+        player.status.elapsed = data.time_position/1000;
+        infobar.setStartTime(player.status.elapsed);
+    }
+
+    function trackPlaybackResumed(data) {
+        debug.log("PLAYER","Track Playback Resumed",data);
+        player.status.elapsed = data.time_position/1000;
+        infobar.setStartTime(player.status.elapsed);
+        self.checkProgress();
     }
 
     function seeked(data) {
@@ -94,7 +103,6 @@ function playerController() {
 			if (player.status.state == "play") {
 				player.status.elapsed = parseInt(pos)/1000;
 				infobar.setStartTime(player.status.elapsed);
-	        	self.checkProgress();
 				if (player.status.elapsed == 0) {
 					timerTimer = setTimeout(checkPlaybackTime, 500);
 				}
@@ -126,16 +134,10 @@ function playerController() {
         mopidy.on("event:playbackStateChanged", mopidyStateChange);
         mopidy.on("event:trackPlaybackStarted", trackPlaybackStarted);
         mopidy.on("event:trackPlaybackEnded", trackPlaybackEnded);
+        mopidy.on("event:trackPlaybackPaused", trackPlaybackPaused);
+        mopidy.on("event:trackPlaybackResumed", trackPlaybackResumed);
         mopidy.on("event:seeked", seeked);
-        watchTracklist();
-	}
-
-	function watchTracklist() {
 		mopidy.on("event:tracklistChanged", tracklistChanged);
-	}
-
-	function stopWatchingTracklist() {
-		mopidy.off("event:tracklistChanged", tracklistChanged);
 	}
 
 	function setStatusValues(tl_track) {
@@ -294,6 +296,12 @@ function playerController() {
 
 	    		case "delete":
 		    		debug.log("PLAYER","addTracks Deleting ID",t.name);
+		    		if (pladdpos !== null && pladdpos > 0) {
+		    			// Adjust the insert position. This will only be used for Last.FM
+		    			// so we know that the track being deleted is before pladdpos in
+		    			// the playlist. For other situations this'll need a rethink.
+		    			pladdpos--;
+		    		}
 	    			mopidy.tracklist.remove({'tlid': [parseInt(t.name)]}).then( startAddingTracks );
 	    			break;
 
@@ -403,7 +411,9 @@ function playerController() {
         mopidy.off("event:trackPlaybackStarted");
         mopidy.off("event:seeked");
         mopidy.off("event:trackPlaybackEnded");
-        stopWatchingTracklist();
+        mopidy.off("event:trackPlaybackPaused");
+        mopidy.off("event:trackPlaybackResumed");
+		mopidy.off("event:tracklistChanged");
 	}
 
     this.initialise = function() {
@@ -447,7 +457,7 @@ function playerController() {
                     error: function(data) {
                         $("#collection").empty();
                         alert(language.gettext("label_update_error"));
-                    	debug.error("PLAYER","failed to generate albums list",data);
+                    	debug.error("PLAYER","Failed to generate albums list",data);
                     }
                 });
 	        }, consoleError);
@@ -629,6 +639,7 @@ function playerController() {
 
 	this.next = function() {
 		if (player.status.state == 'play') {
+        	clearTimeout(progresstimer);
 			debug.log("PLAYER","Nexting");
 			mopidy.playback.next();
 		}
@@ -636,6 +647,7 @@ function playerController() {
 
 	this.previous = function() {
 		if (player.status.state == 'play') {
+        	clearTimeout(progresstimer);
 			debug.log("PLAYER","Preving");
 			mopidy.playback.previous();
 		}
@@ -649,6 +661,7 @@ function playerController() {
         debug.log("PLAYER","Playing ID",id);
         for(var i = 0; i < tracklist.length; i++) {
             if (tracklist[i].tlid == id) {
+        		clearTimeout(progresstimer);
                 playTlTrack(tracklist[i]);
                 break;
             }
@@ -657,6 +670,7 @@ function playerController() {
 
 	this.playByPosition = function(pos) {
         debug.log("PLAYER","Playing Position",pos);
+        clearTimeout(progresstimer);
         playTlTrack(tracklist[pos]);
 	}
 
@@ -785,16 +799,8 @@ function playerController() {
     	}
     }
 
-    this.clearProgressTimer = function() {
-        clearTimeout(progresstimer);
-    }
-
-    this.onStop = function() {
-        // self.clearProgressTimer();
-    }
-
     this.checkProgress = function() {
-    	self.clearProgressTimer();
+    	clearTimeout(progresstimer);
     	if (playlist.currentTrack) {
 	        progress = infobar.progress();
 	        duration = playlist.currentTrack.duration || 0;
@@ -805,7 +811,7 @@ function playerController() {
 	            	infobar.updateNowPlaying();
 	            if (percent >= prefs.scrobblepercent)
 	            	infobar.scrobble();
-				setTimeout(self.checkProgress, 1000);
+				progresstimer = setTimeout(self.checkProgress, 1000);
 			}
     	}
     }
