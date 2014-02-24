@@ -93,10 +93,14 @@ var lastfmImporter = function() {
 
 	function trackHtml(data) {
 		var html = "";
-		if (data.spotilink) {
+		var u = data.uri;
+		if (u.match(/spotify:/)) {
 			html = html + '<img height="12px" src="newimages/spotify-logo.png" style="margin-right:1em" />';
+		} else if (u.match(/soundcloud:/)) {
+			html = html + '<img height="12px" src="newimages/soundcloud-logo.png" style="margin-right:1em" />';
 		}
-		html = html + '<b>'+data.title+'</b><br><i>on </i>';
+		html = html + '<b>'+data.title+'</b><br><i>by </i>';
+		html = html + data.artist+'<br><i>on </i>';
 		html = html + data.album;
 		var arse = data.uri;
 		if (arse.indexOf(":") > 0) {
@@ -483,6 +487,8 @@ var lastfmImporter = function() {
 					            },
 					            error: function(rdata) {
 					                debug.log("LASTFM IMPORTER","Failure with",data.tags);
+					                data.ignore = true;
+									$("#trackrow"+data.key+' td:last').html('<img src="newimages/tick.png" />');
 									if (callback) {
 										setTimeout(callback, 1000);
 									}

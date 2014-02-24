@@ -200,11 +200,9 @@ var faveFinder = function() {
         },
 
         handleResults: function(data) {
-            debug.debug("FAVEFINDER","Search Results were",data);
             var f = false;
             var req = queue[0];
-            // First - prioritise local tracks
-            // Well, in fact, de-prioritise spotify tracks
+            // De-prioritise Spotify tracks - we prefer local tracks
             var spot = null;
             for (var i in data) {
                 var dom = data[i].uri;
@@ -215,8 +213,22 @@ var faveFinder = function() {
             }
             if (spot !== null) {
                 data.push(data.splice(spot, 1)[0]);
-                debug.debug("FAVEFINDER", "With spotify tracks last:",data);
             }
+            // De-prioritise soundcloud tracks
+            // I don't even know right now if it's worth even keeping these results
+            spot = null;
+            for (var i in data) {
+                var dom = data[i].uri;
+                if (dom.match(/^soundcloud:/)) {
+                    spot = i;
+                    break;
+                }
+            }
+            if (spot !== null) {
+                data.push(data.splice(spot, 1)[0]);
+            }
+            debug.debug("FAVEFINDER","Sorted Search Results are",data);
+
             var results = new Array();
             if (req.returnall) {
                 // Using $.each here creates too many closures and leaks.
@@ -230,7 +242,11 @@ var faveFinder = function() {
                             r.data.album = data[i].tracks[k].album.name;
                             r.data.title = data[i].tracks[k].name;
                             r.data.artist = mopidyDoesWierdThings(data[i].tracks[k].artists);
-                            r.data.albumartist = mopidyDoesWierdThings(data[i].tracks[k].album.artists);
+                            if (data[i].tracks[k].album.artists) {
+                                r.data.albumartist = mopidyDoesWierdThings(data[i].tracks[k].album.artists);
+                            } else {
+                                r.data.albumartist = r.data.artist;
+                            }
                             if (data[i].tracks[k].track_no) {
                                 r.data.trackno = data[i].tracks[k].track_no;
                             }
@@ -261,7 +277,11 @@ var faveFinder = function() {
                             req.data.album = data[i].tracks[k].album.name;
                             req.data.title = data[i].tracks[k].name;
                             req.data.artist = mopidyDoesWierdThings(data[i].tracks[k].artists);
-                            req.data.albumartist = mopidyDoesWierdThings(data[i].tracks[k].album.artists);
+                            if (data[i].tracks[k].album.artists) {
+                                req.data.albumartist = mopidyDoesWierdThings(data[i].tracks[k].album.artists);
+                            } else {
+                                req.data.albumartist = req.data.artist;
+                            }
                             if (data[i].tracks[k].track_no) {
                                 req.data.trackno = data[i].tracks[k].track_no;
                             }
