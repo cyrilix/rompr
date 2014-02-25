@@ -259,9 +259,6 @@ function showUpdateWindow() {
         $("#fnarkler").append('<p align="center">'+language.gettext("intro_basicmanual")+' <a href="https://sourceforge.net/p/rompr/wiki/Basic%20Manual/" target="_blank">http://sourceforge.net/p/rompr/wiki/Basic%20Manual/</a></p>');
         $("#fnarkler").append('<p align="center">'+language.gettext("intro_forum")+' <a href="https://sourceforge.net/p/rompr/discussion/" target="_blank">http://sourceforge.net/p/rompr/discussion/</a></p>');
         $("#fnarkler").append('<p align="center">RompR needs translators! If you want to get involved, please read <a href="https://sourceforge.net/p/rompr/wiki/Translating%20RompR/" target="_blank">this</a></p>');
-        if (!debinstall && prefs.shownupdatewindow < 0.41) {
-            $("#fnarkler").append('<p align="center"><b>IMPORTANT</b> The Apache configuration file has CHANGED. If you have upgraded from a version earlier than 0.40 please make sure you update your Apache configuration.</p>');
-        }
         $("#fnarkler").append('<p align="center"><b>'+language.gettext("intro_mopidy")+'</b></p>');
 <?php
         print '$("#fnarkler").append(\'<p align="center"><a href="https://sourceforge.net/p/rompr/wiki/Rompr%20and%20Mopidy/" target="_blank">'.get_int_text("intro_mopidywiki").'</a></p>\');'."\n";

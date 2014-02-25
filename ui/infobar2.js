@@ -68,6 +68,7 @@ var infobar = function() {
         ERROR: 1,
 
         biggerize: function() {
+            var wehaveapasty = false;
             if ($("#nptext").html() != "" && !itisbigger) {
                 var containersize = {
                     bottom: $("#nowplaying").offset().top + $("#nowplaying").height(),
@@ -85,6 +86,7 @@ var infobar = function() {
                     if (fontsize.toFixed(1) == '8.4') {
                         $("#pasty").remove();
                         $("#smokey").before('<br id="pasty" />');
+                        wehaveapsty = true;
                     }
                     $("#nowplaying").css("font-size", fontsize.toFixed(1)+"pt");
                 }
@@ -93,11 +95,15 @@ var infobar = function() {
                     if (fontsize.toFixed(1) == '8.4') {
                         $("#pasty").remove();
                         $("#smokey").before('<br id="pasty" />');
+                        wehaveapsty = true;
                     }
                     // debug.log("INFOBAR", "Font Size Too Wide",fontsize.toFixed(1));
                     $("#nowplaying").css("font-size", fontsize.toFixed(1)+"pt");
                 }
-
+                while ($("#nptext").outerWidth() < containersize.width && wehaveapasty) {
+                    fontsize += 0.2;
+                    $("#nowplaying").css("font-size", fontsize.toFixed(1)+"pt");
+                }
             }
         },
 
