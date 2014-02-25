@@ -617,7 +617,10 @@ function playerController() {
 	                    }
                     });
 	                data = null;
-	            }, consoleError);
+	            }, function() {
+                    $("#searchresultholder").empty();
+                    infobar.notify(infobar.ERROR,"Search Failed");
+                });
 	        }
         }
 	}

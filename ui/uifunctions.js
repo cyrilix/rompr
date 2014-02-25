@@ -1221,9 +1221,9 @@ function makeitbigger() {
     itisbigger = !itisbigger;
     $("#infobar").slideToggle('fast', function() {
         if (itisbigger) {
-            $("#bottompage").css('top', "36px");
+            $("#bottompage").css('top', "28px");
         } else {
-            $("#bottompage").css('top', "116px");
+            $("#bottompage").css('top', "112px");
         }
         setBottomPaneSize();
     });

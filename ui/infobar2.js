@@ -68,7 +68,7 @@ var infobar = function() {
         ERROR: 1,
 
         biggerize: function() {
-            if ($("#nptext").html() != "") {
+            if ($("#nptext").html() != "" && !itisbigger) {
                 var containersize = {
                     bottom: $("#nowplaying").offset().top + $("#nowplaying").height(),
                     width: $("#nowplaying").width() - $("#albumcover").outerWidth()

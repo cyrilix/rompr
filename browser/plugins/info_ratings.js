@@ -235,7 +235,7 @@ var faveFinder = function() {
                 for (var i in data) {
                     if (data[i].tracks) {
                         for (var k = 0; k < data[i].tracks.length; k++) {
-                            //debug.log("FAVEFINDER","Found Track",data[i].tracks[k]);
+                            debug.debug("FAVEFINDER","Found Track",data[i].tracks[k]);
                             f = true;
                             var r = cloneObject(req);
                             r.data.uri = data[i].tracks[k].uri;
@@ -256,9 +256,9 @@ var faveFinder = function() {
                             }
                             // Prioritise results with a matching album, unless that's
                             // already been done
-                            if (req.data.album &&
+                            if (req.data.album && r.data.album &&
                                     r.data.album.toLowerCase() == req.data.album.toLowerCase() &&
-                                    results[0] &&
+                                    results[0] && results[0].album &&
                                     results[0].album.toLowerCase() != req.data.album.toLowerCase()) {
                                 results.unshift(r.data);
                             } else {

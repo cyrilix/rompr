@@ -88,8 +88,7 @@ if ($prefs['player_backend'] == "mpd") {
                 print '<div class="expand">'.get_int_text('label_yourradio').'</div>';
 ?>
             </div>
-            <div id="yourradiolist" class="dropmenu">
-            </div>
+            <div id="yourradiolist" class="dropmenu"></div>
 
             <div class="containerbox menuitem noselection">
                 <div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="podcastslist"></div>
@@ -98,8 +97,7 @@ if ($prefs['player_backend'] == "mpd") {
                 print '<div class="expand">'.get_int_text('label_podcasts').'<span id="total_unlistened_podcasts"></span><span></span></div>';
 ?>
             </div>
-            <div id="podcastslist" class="dropmenu">
-            </div>
+            <div id="podcastslist" class="dropmenu"></div>
 
             <div class="containerbox menuitem noselection">
                 <div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" onclick="loadSomaFM()" name="somafmlist"></div>
@@ -109,8 +107,7 @@ if ($prefs['player_backend'] == "mpd") {
 ?>
                 <img id="somawait" height="14px" width="14px" src="newimages/transparent-32x32.png" />
             </div>
-            <div id="somafmlist" class="dropmenu">
-            </div>
+            <div id="somafmlist" class="dropmenu"></div>
 
             <div class="containerbox menuitem noselection">
                 <div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" onclick="loadBigRadio()" name="bbclist"></div>
@@ -120,8 +117,7 @@ if ($prefs['player_backend'] == "mpd") {
 ?>
                 <img id="bbcwait" height="14px" width="14px" src="newimages/transparent-32x32.png" />
             </div>
-            <div id="bbclist" class="dropmenu">
-            </div>
+            <div id="bbclist" class="dropmenu"></div>
 
             <div class="containerbox menuitem noselection">
                 <div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" onclick="refreshMyDrink()" name="icecastlist"></div>
@@ -131,8 +127,7 @@ if ($prefs['player_backend'] == "mpd") {
 ?>
                 <img id="icewait" height="14px" width="14px" src="newimages/transparent-32x32.png" />
             </div>
-            <div id="icecastlist" class="dropmenu">
-            </div>
+            <div id="icecastlist" class="dropmenu"></div>
 
         </div>
 

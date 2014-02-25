@@ -366,7 +366,7 @@ function LastFM(user) {
                 addSetOptions(options, "track.scrobble");
                 LastFMSignedRequest(
                     options,
-                    function() { infobar.notify(infobar.NOTIFY, language.gettext("label_scrobbled")+" "+options.track) },
+                    function() {  },
                     function() { infobar.notify(infobar.ERROR, language.gettext("label_scrobblefailed")+" "+options.track) }
                 );
             }

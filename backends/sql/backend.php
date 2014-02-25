@@ -260,16 +260,25 @@ function create_new_artist($artist, $upflag) {
 function check_album($album, $albumai, $spotilink, $image, $date, $isonefile, $searched, $imagekey, $mbid, $numdiscs, $domain, $directory) {
 	global $mysqlc;
 	$index = null;
+	$year = null;
+	$nd = null;
 	// debug_print("Checking for album ".$album." on ".$domain, "MYSQL");
-	if ($stmt = mysqli_prepare($mysqlc, "SELECT Albumindex FROM Albumtable WHERE STRCMP(Albumname, ?) = 0 AND AlbumArtistindex = ? AND Domain = ?")) {
+	if ($stmt = mysqli_prepare($mysqlc, "SELECT Albumindex, Year, Numdiscs FROM Albumtable WHERE STRCMP(Albumname, ?) = 0 AND AlbumArtistindex = ? AND Domain = ?")) {
 		mysqli_stmt_bind_param($stmt, "sis", $album, $albumai, $domain);
 		mysqli_stmt_execute($stmt);
-	    mysqli_stmt_bind_result($stmt, $index);
+	    mysqli_stmt_bind_result($stmt, $index, $year, $nd);
 	    mysqli_stmt_fetch($stmt);
 	    mysqli_stmt_close($stmt);
 	    if ($index) {
-	    	// TODO we probably ought to update the album details - at least date and numdiscs anyway
-			// debug_print("    Found Albumindex ".$index,"MYSQL");
+	    	if (($year == null && $date != null) || ($nd == null && $numdiscs != null)) {
+	    		debug_print("Updating Album Details","MYSQL");
+				if ($result = mysqli_query($mysqlc, "UPDATE Albumtable SET Year=".$date.", NumDiscs=".$numdiscs." WHERE Albumindex=".$index)) {
+					debug_print("Success","MYSQL");
+				} else {
+					debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+					return false;
+				}
+	    	}
 	    } else {
 			$index = create_new_album($album, $albumai, $spotilink, $image, $date, $isonefile, $searched, $imagekey, $mbid, $numdiscs, $domain, $directory);
 	    }
