@@ -449,22 +449,26 @@ function gotNoTopArtists(data) {
 }
 
 function toggleSearch() {
-    if (mobile == "no") {
-        if ($("#albumlist").is(':visible')) {
-            if (albumScrollOffset < 20) {
-                $("#search").slideToggle('fast');
-            } else {
-                $("#search").slideDown('fast');
-            }
+    if (mobile != "no") {
+        albumScrollOffset = $("#sources").scrollTop();
+    }
+    if ($("#albumlist").is(':visible')) {
+        if (albumScrollOffset < 20) {
+            $("#search").slideToggle('fast');
         } else {
-            sourcecontrol("albumlist");
             $("#search").slideDown('fast');
         }
-        $('#sources').mCustomScrollbar("scrollTo", 0, {scrollInertia:20});
-        albumScrollOffset = 0;
     } else {
-        $("#search").slideToggle('fast');
+        sourcecontrol("albumlist");
+        $("#search").slideDown('fast');
     }
+    if (mobile != "no") {
+        $("#sources").animate({scrollTop: 0}, 500);
+    } else {
+        $('#sources').mCustomScrollbar("scrollTo", 0, {scrollInertia:20});
+    }
+
+    albumScrollOffset = 0;
     return false;
 }
 
@@ -1792,7 +1796,7 @@ function playlistMenuHeader() {
 
         html = html + '<tr><td class="playlisticon" align="left">';
         html = html + '<img src="newimages/singlestar.png" height="12px" style="vertical-align:middle"></td>';
-        html = html + '<td align="left"><a href="#" onclick="playlist.loadSmart(\'4stars\')"><img src="newimages/4stars.png" height="12px" style="vertical-align:middle;margin-right:4px">'+language.gettext('playlist_xstar', ["5"])+'</a></td>';
+        html = html + '<td align="left"><a href="#" onclick="playlist.loadSmart(\'4stars\')"><img src="newimages/4stars.png" height="12px" style="vertical-align:middle;margin-right:4px">'+language.gettext('playlist_xstar', ["4"])+'</a></td>';
         html = html + '<td></td></tr>';
 
         html = html + '<tr><td class="playlisticon" align="left">';

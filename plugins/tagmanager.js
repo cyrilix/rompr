@@ -223,11 +223,6 @@ var tagManager = function() {
 			} else if (element.hasClass("tablerow")) {
 				if (element.hasClass('selected')) {
 					$("#tagmunger .selected").removeClass('selected');
-					$("#tagmunger").find('tr').fadeIn(50, function() {
-						if ($("#tagmunger").find(":animated").length === 0) {
-							tagManager.redoLayout();
-						}
-					});
 				} else {
 					var lookfor = $(element.children('td')[1]).html();
 					debug.log("TAGMANAGER","Clicked On",lookfor);
@@ -236,14 +231,6 @@ var tagManager = function() {
 						if (l == lookfor) return true;
 						return false;
 					}).addClass('selected');
-					$("#tagmunger").find('tr').filter(function() {
-						if (!$(this).hasClass('selected') && !$(this).hasClass('tagh')) return true;
-						return false;
-					}).fadeOut(100, function() {
-						if ($("#tagmunger").find(":animated").length === 0) {
-							tagManager.redoLayout();
-						}
-					});
 				}
 			}
 		},

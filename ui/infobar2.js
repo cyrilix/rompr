@@ -100,7 +100,9 @@ var infobar = function() {
                     // debug.log("INFOBAR", "Font Size Too Wide",fontsize.toFixed(1));
                     $("#nowplaying").css("font-size", fontsize.toFixed(1)+"pt");
                 }
-                while ($("#nptext").outerWidth() < containersize.width && wehaveapasty) {
+                while ($("#nptext").outerWidth() < containersize.width &&
+                        wehaveapasty &&
+                        $("#nptext").offset().top + $("#nptext").height() <= containersize.bottom) {
                     fontsize += 0.2;
                     $("#nowplaying").css("font-size", fontsize.toFixed(1)+"pt");
                 }

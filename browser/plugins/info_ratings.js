@@ -214,8 +214,10 @@ var faveFinder = function() {
             if (spot !== null) {
                 data.push(data.splice(spot, 1)[0]);
             }
-            // De-prioritise soundcloud tracks
-            // I don't even know right now if it's worth even keeping these results
+            // Soundcloud....
+            // Just occasionally, SoundCloud returns a result that is useful
+            // but mostly it returns a bunch of irrelevance (it can only search by title)
+            // So on weighing it up and trying it, the best thing to do is to ignore SoundCloud/
             spot = null;
             for (var i in data) {
                 var dom = data[i].uri;
@@ -225,7 +227,8 @@ var faveFinder = function() {
                 }
             }
             if (spot !== null) {
-                data.push(data.splice(spot, 1)[0]);
+                // data.push(data.splice(spot, 1)[0]);
+                data.splice(spot, 1);
             }
             debug.debug("FAVEFINDER","Sorted Search Results are",data);
 

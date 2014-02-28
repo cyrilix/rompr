@@ -123,6 +123,15 @@ h2
     padding-top:0px;
 }
 
+#ihatecss
+{
+    margin-top:0px;
+    margin-right:2px;
+    margin-left:4px;
+    padding-top:0px;
+    float:left;
+}
+
 .infotext
 {
 	font-size:8pt;

@@ -22,6 +22,9 @@
 
 <div id="headerbar" class="noborder fullwidth">
     <div id="controls" class="noborder fullwidth clearfix">
+        <div id="ihatecss">
+            <img onclick="toggleSearch()" height="20px" src="newimages/system-search.png" />
+        </div>
         <div id="stars" class="invisible">
             <img id="ratingimage" onclick="nowplaying.setRating(event)" height="20px" src="newimages/0stars.png" />
             <input type="hidden" value="-1" />
@@ -46,9 +49,6 @@
     <div id="sources" class="fullwdith noborder scroller">
 
         <div id="albumlist" class="invisible noborder">
-            <div style="padding-left:12px;padding-top:4px">
-                <a title="Search Music" href="#" onclick="toggleSearch()"><img class="topimg clickicon" height="20px" src="newimages/system-search.png"></a>
-            </div>
             <div id="search" class="invisible searchbox">
 <?php
 include("player/".$prefs['player_backend']."/search.php");
