@@ -138,8 +138,6 @@ print '<link rel="stylesheet" id="fontfamily" type="text/css" href="fonts/'.$pre
 <script type="text/javascript" src="jquery/jquery.scrollTo-1.4.3.1-min.js"></script>
 <!-- TipTip jQuery tooltip plugin : http://code.drewwilson.com/entry/tiptip-jquery-plugin -->
 <script type="text/javascript" src="tiptip/jquery.tipTip.js"></script>
-<!-- Custom scrollbar plugin : http://manos.malihu.gr/jquery-custom-content-scroller/ -->
-<script type="text/javascript" src="custom-scrollbar-plugin/js/jquery.mCustomScrollbar.concat.min.js"></script>
 <!-- MD5 hashing algorith : http://pajhome.org.uk/crypt/md5 -->
 <script type="text/javascript" src="jshash-2.2/md5-min.js"></script>
 <!-- Masonry layout engine : http://masonry.desandro.com/ -->
@@ -149,6 +147,8 @@ if ($mobile != "no") {
     // JQuery touchwipe plugin : http://www.netcu.de/jquery-touchwipe-iphone-ipad-library
     print '<script type="text/javascript" src="jquery/jquery.touchwipe.min.js"></script>'."\n";
 } else {
+    // Custom scrollbar plugin : http://manos.malihu.gr/jquery-custom-content-scroller/
+    print '<script type="text/javascript" src="custom-scrollbar-plugin/js/jquery.mCustomScrollbar.concat.min.js"></script>'."\n";
     // Keyboard shortcut helper : http://www.openjs.com/scripts/events/keyboard_shortcuts/
     print '<script type="text/javascript" src="ui/shortcut.js"></script>'."\n";
     // Keycode normaliser by Jonathan Tang : http://jonathan.tang.name/code/js_keycode
@@ -229,6 +229,8 @@ $(document).ready(function(){
 
     if (mobile == "no") {
         initDesktop();
+    } else {
+        initMobile();
     }
 
     browser.createButtons();
@@ -247,9 +249,6 @@ $(document).ready(function(){
 });
 
 $(window).load(function() {
-    if (mobile != "no") {
-        initMobile();
-    }
     setBottomPaneSize();
     $(window).bind('resize', function() {
         setBottomPaneSize();

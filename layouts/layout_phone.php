@@ -164,6 +164,7 @@ if ($prefs['player_backend'] == "mpd") {
         </div>
         <div id="prefsm" class="invisible noborder">
 <?php
+debug_print("Doing Prefs Panel","INIT");
 include("includes/prefspanel.php")
 ?>
         </div>
@@ -172,7 +173,7 @@ include("includes/prefspanel.php")
 <!-- playlistm is OUTSIDE of sources so that we can display in two colum mode -->
     <div id="playlistm" class="invisible fullwidth scroller">
 <?php
+debug_print("Doing Playlist","INIT");
 include("layouts/playlist.php");
 ?>
-</div>
 </div>

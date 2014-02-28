@@ -115,6 +115,9 @@ print '<button class="fixed" onclick="player.controller.search(\'search\')">'.ge
     <div id="searchresultholder" class="noselection fullwidth"></div>
 
 </div>
+<?php
+if ($mobile == "no") {
+?>
 <script type="text/javascript">
     $("#mopidysearcher input").keyup( function(event) {
         if (event.keyCode == 13) {
@@ -122,3 +125,6 @@ print '<button class="fixed" onclick="player.controller.search(\'search\')">'.ge
         }
     } );
 </script>
+<?php
+}
+?>
