@@ -212,8 +212,6 @@ $(document).ready(function(){
 
     if (mobile == "no") {
         initDesktop();
-    } else {
-        initMobile();
     }
 
     browser.createButtons();
@@ -232,6 +230,9 @@ $(document).ready(function(){
 });
 
 $(window).load(function() {
+    if (mobile != "no") {
+        initMobile();
+    }
     setBottomPaneSize();
     $(window).bind('resize', function() {
         setBottomPaneSize();

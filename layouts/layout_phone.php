@@ -175,3 +175,4 @@ include("includes/prefspanel.php")
 include("layouts/playlist.php");
 ?>
 </div>
+</div>
