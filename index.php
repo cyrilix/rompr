@@ -165,23 +165,6 @@ if ($mobile != "no") {
 <script type="text/javascript" src="ui/playlist.js"></script>
 <script type="text/javascript" src="ui/coverscraper.js"></script>
 <script type="text/javascript" src="ui/lastfmstation.js"></script>
-<script type="text/javascript" src="ui/podcasts.js"></script>
-<?php
-$inc = glob("browser/helpers/*.js");
-foreach($inc as $i) {
-    print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
-}
-$inc = glob("browser/plugins/*.js");
-ksort($inc);
-foreach($inc as $i) {
-    print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
-}
-$inc = glob("plugins/*.js");
-foreach($inc as $i) {
-    print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
-}
-?>
-<script type="text/javascript" src="browser/info.js"></script>
 <?php
 
 if ($prefs['player_backend'] == "mopidy") {
@@ -199,6 +182,23 @@ if (file_exists("prefs/prefs.js")) {
 <?php
 include('includes/globals.php');
 ?>
+<script type="text/javascript" src="ui/podcasts.js"></script>
+<?php
+$inc = glob("browser/helpers/*.js");
+foreach($inc as $i) {
+    print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
+}
+$inc = glob("browser/plugins/*.js");
+ksort($inc);
+foreach($inc as $i) {
+    print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
+}
+$inc = glob("plugins/*.js");
+foreach($inc as $i) {
+    print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
+}
+?>
+<script type="text/javascript" src="browser/info.js"></script>
 
 <script language="javascript">
 
