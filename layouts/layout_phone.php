@@ -177,3 +177,4 @@ debug_print("Doing Playlist","INIT");
 include("layouts/playlist.php");
 ?>
 </div>
+</div>

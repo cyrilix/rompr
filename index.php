@@ -182,23 +182,6 @@ if (file_exists("prefs/prefs.js")) {
 <?php
 include('includes/globals.php');
 ?>
-<script type="text/javascript" src="ui/podcasts.js"></script>
-<?php
-$inc = glob("browser/helpers/*.js");
-foreach($inc as $i) {
-    print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
-}
-$inc = glob("browser/plugins/*.js");
-ksort($inc);
-foreach($inc as $i) {
-    print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
-}
-$inc = glob("plugins/*.js");
-foreach($inc as $i) {
-    print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
-}
-?>
-<script type="text/javascript" src="browser/info.js"></script>
 
 <script language="javascript">
 
@@ -245,7 +228,6 @@ $(document).ready(function(){
     setPrefs();
     checkServerTimeOffset();
     sourcecontrol(prefs.chooser);
-    player.controller.initialise();
 });
 
 $(window).load(function() {
@@ -257,6 +239,7 @@ $(window).load(function() {
     if (!prefs.hide_radiolist) {
         podcasts.loadList();
     }
+    player.controller.initialise();
     $.get('cleancache.php');
 });
 
@@ -324,5 +307,22 @@ print get_int_text("button_add");
 </div>
 
 </body>
+<script type="text/javascript" src="ui/podcasts.js"></script>
+<?php
+$inc = glob("browser/helpers/*.js");
+foreach($inc as $i) {
+    print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
+}
+$inc = glob("browser/plugins/*.js");
+ksort($inc);
+foreach($inc as $i) {
+    print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
+}
+$inc = glob("plugins/*.js");
+foreach($inc as $i) {
+    print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
+}
+?>
+<script type="text/javascript" src="browser/info.js"></script>
 </html>
 
