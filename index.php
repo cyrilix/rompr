@@ -140,13 +140,13 @@ print '<link rel="stylesheet" id="fontfamily" type="text/css" href="fonts/'.$pre
 <script type="text/javascript" src="tiptip/jquery.tipTip.js"></script>
 <!-- MD5 hashing algorith : http://pajhome.org.uk/crypt/md5 -->
 <script type="text/javascript" src="jshash-2.2/md5-min.js"></script>
-<!-- Masonry layout engine : http://masonry.desandro.com/ -->
-<script type="text/javascript" src="jquery/masonry.pkgd.min.js"></script>
 <?php
 if ($mobile != "no") {
     // JQuery touchwipe plugin : http://www.netcu.de/jquery-touchwipe-iphone-ipad-library
     print '<script type="text/javascript" src="jquery/jquery.touchwipe.min.js"></script>'."\n";
 } else {
+    // Masonry layout engine : http://masonry.desandro.com/
+    print '<script type="text/javascript" src="jquery/masonry.pkgd.min.js"></script>'."\n";
     // Custom scrollbar plugin : http://manos.malihu.gr/jquery-custom-content-scroller/
     print '<script type="text/javascript" src="custom-scrollbar-plugin/js/jquery.mCustomScrollbar.concat.min.js"></script>'."\n";
     // Keyboard shortcut helper : http://www.openjs.com/scripts/events/keyboard_shortcuts/
@@ -169,13 +169,12 @@ if ($mobile != "no") {
 
 if ($prefs['player_backend'] == "mopidy") {
     print'<script type="text/javascript" src="http://'.$prefs['mopidy_http_address'].':'.$prefs['mopidy_http_port'].'/mopidy/mopidy.min.js"></script>'."\n";
-    // TODO PUT THIS BACK!
-    // print'<script type="text/javascript" src="prefs/mopidy.js"></script>'."\n";
 }
-print'<script type="text/javascript" src="player/'.$prefs['player_backend'].'/controller.js"></script>'."\n";
 if (file_exists("prefs/prefs.js")) {
     print '<script type="text/javascript" src="prefs/prefs.js"></script>'."\n";
 }
+print'<script type="text/javascript" src="player/'.$prefs['player_backend'].'/controller.js"></script>'."\n";
+
 ?>
 <script type="text/javascript" src="player/player.js"></script>
 
@@ -318,9 +317,11 @@ ksort($inc);
 foreach($inc as $i) {
     print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
 }
-$inc = glob("plugins/*.js");
-foreach($inc as $i) {
-    print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
+if ($mobile == "no") {
+    $inc = glob("plugins/*.js");
+    foreach($inc as $i) {
+        print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
+    }
 }
 ?>
 <script type="text/javascript" src="browser/info.js"></script>

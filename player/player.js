@@ -23,6 +23,8 @@ function multiProtocolController() {
     	Title: null,
     }
 
+    this.collectionLoaded = false;
+
     this.controller = new playerController();
 
 }

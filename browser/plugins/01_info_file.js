@@ -226,7 +226,8 @@ var info_file = function() {
                     html = html + '</table>';
                     html = html + '</td></tr>';
                 }
-                html = html + '</table></div>';
+                html = html + '</table>';
+                html = html + '</div>';
                 return html;
             }
 

@@ -1,12 +1,20 @@
 <?php
 
 $mysqlc = null;
-$mysqlc = mysqli_connect($prefs['mysql_host'],$prefs['mysql_user'],$prefs['mysql_password'],'romprdb');
-if (mysqli_connect_errno()) {
-	debug_print("Failed to connect to MySQL: ".mysqli_connect_error(), "MYSQL");
-	$mysqlc = null;
+if (function_exists('mysqli_connect')) {
+	try {
+		$mysqlc = @mysqli_connect($prefs['mysql_host'],$prefs['mysql_user'],$prefs['mysql_password'],'romprdb',$prefs['mysql_port']);
+		if (mysqli_connect_errno()) {
+			debug_print("Failed to connect to MySQL: ".mysqli_connect_error(), "SEARCH");
+			$mysqlc = null;
+		} else {
+			debug_print("Connected to MySQL","SEARCH");
+		}
+	} catch (Exception $e) {
+		debug_print("Database connect failure - ".$e,"SEARCH");
+	}
 } else {
-	debug_print("Connected to MySQL","MYSQL");
+	debug_print("PHP SQL driver is not installed","SEARCH");
 }
 
 function doCollection($terms, $domains) {
@@ -39,15 +47,46 @@ function doCollection($terms, $domains) {
 	} else {
 		$qstring .= "WHERE t.Uri IS NOT NULL ";
 	}
+
 	if (array_key_exists('artist', $terms)) {
-		$qstring .= "AND a1.Artistname LIKE '%".mysqli_real_escape_string($mysqlc, trim($terms['artist'][0]))."%' ";
+		$qstring .= "AND ";
+		if (array_key_exists('any', $terms)) {
+			$qstring .= "(";
+		}
+		$qstring .= "a1.Artistname LIKE '%".mysqli_real_escape_string($mysqlc, trim($terms['artist'][0]))."%' ";
+		if (array_key_exists('any', $terms)) {
+			$qstring .= "OR a1.Artistname LIKE '%".mysqli_real_escape_string($mysqlc, trim($terms['any'][0]))."%') ";
+		}
+	} else if (array_key_exists('any', $terms)) {
+		$qstring .= "OR a1.Artistname LIKE '%".mysqli_real_escape_string($mysqlc, trim($terms['any'][0]))."%' ";
 	}
+
 	if (array_key_exists('album', $terms)) {
-		$qstring .= "AND al.Albumname LIKE '%".mysqli_real_escape_string($mysqlc, trim($terms['album'][0]))."%' ";
+		$qstring .= "AND ";
+		if (array_key_exists('any', $terms)) {
+			$qstring .= "(";
+		}
+		$qstring .= "al.Albumname LIKE '%".mysqli_real_escape_string($mysqlc, trim($terms['album'][0]))."%' ";
+		if (array_key_exists('any', $terms)) {
+			$qstring .= "OR al.Albumname LIKE '%".mysqli_real_escape_string($mysqlc, trim($terms['any'][0]))."%') ";
+		}
+	} else if (array_key_exists('any', $terms)) {
+		$qstring .= "OR al.Albumname LIKE '%".mysqli_real_escape_string($mysqlc, trim($terms['any'][0]))."%' ";
 	}
+
 	if (array_key_exists('track_name', $terms)) {
-		$qstring .= "AND t.Title LIKE '%".mysqli_real_escape_string($mysqlc, trim($terms['track_name'][0]))."%' ";
+		$qstring .= "AND ";
+		if (array_key_exists('any', $terms)) {
+			$qstring .= "(";
+		}
+		$qstring .= "t.Title LIKE '%".mysqli_real_escape_string($mysqlc, trim($terms['track_name'][0]))."%' ";
+		if (array_key_exists('any', $terms)) {
+			$qstring .= "OR t.Title LIKE '%".mysqli_real_escape_string($mysqlc, trim($terms['any'][0]))."%') ";
+		}
+	} else if (array_key_exists('any', $terms)) {
+		$qstring .= "OR t.Title LIKE '%".mysqli_real_escape_string($mysqlc, trim($terms['any'][0]))."%' ";
 	}
+
 	if ($domains !== null) {
 		$qstring .= "AND (";
 		$domainterms = array();

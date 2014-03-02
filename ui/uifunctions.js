@@ -202,7 +202,9 @@ function setBottomPaneSize() {
     newheight = null;
     playlist.setHeight();
     infobar.rejigTheText();
-    tagManager.redoLayout();
+    if (tagManager) {
+        tagManager.redoLayout();
+    }
 }
 
 function togglePlaylistButtons() {
@@ -1551,7 +1553,11 @@ var tagAdder = function() {
         show: function(evt, idx) {
             index = idx;
             var position = getPosition(evt);
-            $("#tagadder").css({top: position.y+8, left: position.x+8});
+            if (mobile == "no") {
+                $("#tagadder").css({top: position.y+8, left: position.x+8});
+            } else {
+                $("#tagadder").css({top: position.y+8, left: 0, width: $("#bottompage").width()});
+            }
             $("#tagadder").slideToggle('fast');
         },
 

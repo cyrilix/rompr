@@ -74,8 +74,11 @@ function playerController() {
 
     this.initialise = function() {
     	self.command("", playlist.repopulate);
-    	debug.log("MPD", "Checking Collection");
-		checkCollection();
+		if (!player.collectionLoaded) {
+            debug.log("MPD", "Checking Collection");
+            player.collectionLoaded = true;
+            checkCollection();
+        }
 		self.reloadPlaylists();
     }
 

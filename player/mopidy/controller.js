@@ -7,7 +7,6 @@ function playerController() {
 	var tracksToAdd = new Array();
 	var albumtracks = new Array();
 	var tltracksToAdd = new Array();
-	var collectionLoaded = false;
 	var timerTimer = null;
 	var stoptimer = null;
     var progresstimer = null;
@@ -393,9 +392,9 @@ function playerController() {
                 urischemes[data[i]] = true;
             }
 			checkSearchDomains();
-			if (!collectionLoaded) {
+			if (!player.collectionLoaded) {
 				debug.log("PLAYER","Checking Collection");
-				collectionLoaded = true;
+				player.collectionLoaded = true;
 				checkCollection();
 			}
         });
@@ -414,6 +413,7 @@ function playerController() {
         mopidy.off("event:trackPlaybackPaused");
         mopidy.off("event:trackPlaybackResumed");
 		mopidy.off("event:tracklistChanged");
+		tracknotfound = true;
 	}
 
     this.initialise = function() {
