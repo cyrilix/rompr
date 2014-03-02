@@ -344,6 +344,7 @@ function playerController() {
 
 	function connected() {
         debug.log("PLAYER","Connected to Mopidy");
+        infobar.removenotify();
         if ('getVersion' in mopidy) {
         	mopidy.getVersion().then(function(version){
     			debug.log("PLAYER", "Mopidy Version is",version);
@@ -403,7 +404,7 @@ function playerController() {
 
 	function disconnected() {
         debug.warn("PLAYER","Mopidy Has Gone Offline");
-        infobar.notify(infobar.ERROR, language.gettext("mopidy_down"));
+        infobar.notify(infobar.PERMERROR, language.gettext("mopidy_down")+'<br><a href="#" onclick="player.controller.reConnect()">Click To Reconnect</a>');
         isReady = false;
         mopidy.off("event:playlistsLoaded");
         mopidy.off("event:playbackStateChanged");
@@ -426,6 +427,10 @@ function playerController() {
         mopidy.on("state:offline", disconnected);
         mopidy.connect();
 	    self.mop = mopidy;
+	}
+
+	this.reConnect = function() {
+		mopidy.connect();
 	}
 
 	this.isConnected = function() {

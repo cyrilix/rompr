@@ -66,6 +66,7 @@ var infobar = function() {
     return {
         NOTIFY: 0,
         ERROR: 1,
+        PERMERROR: 2,
 
         biggerize: function() {
             var wehaveapasty = false;
@@ -430,7 +431,7 @@ var infobar = function() {
             var html = '<div class="containerbox menuitem">';
             if (type == infobar.NOTIFY) {
                 html = html + '<img class="fixed" src="newimages/dialog-information.png" />';
-            } else if (type == infobar.ERROR) {
+            } else if (type == infobar.ERROR || type == infobar.PERMERROR) {
                 html = html + '<img class="fixed" src="newimages/dialog-error.png" />';
             }
             html = html + '<div class="expand indent">'+message+'</div></div>';
@@ -438,7 +439,9 @@ var infobar = function() {
             html = null;
             clearTimeout(notifytimer);
             $('#notifications').slideDown('slow');
-            notifytimer = setTimeout(this.removenotify, 5000);
+            if (type !== infobar.PERMERROR) {
+                notifytimer = setTimeout(this.removenotify, 5000);
+            }
         },
 
         removenotify: function() {
