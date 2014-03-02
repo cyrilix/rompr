@@ -259,6 +259,9 @@ function Playlist() {
         var newheight = $("#bottompage").height() - $("#horse").height();
         if ($("#playlistbuttons").is(":visible")) {
             newheight -= $("#playlistbuttons").height();
+            if (mobile != "no") {
+                newheight -= 2;
+            }
         }
         $("#pscroller").css("height", newheight.toString()+"px");
         if (mobile == "no") {
