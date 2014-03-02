@@ -430,6 +430,7 @@ function playerController() {
 	}
 
 	this.reConnect = function() {
+		mopidy.close();
 		mopidy.connect();
 	}
 
