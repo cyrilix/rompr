@@ -169,7 +169,7 @@ function setBottomPaneSize() {
         // resized volume control gets updated
         infobar.updateWindowValues();
         // Width of the nowplaying area
-        var gibbon = ws.x-160;
+        var gibbon = ws.x-164;
         $("#patrickmoore").css('width', gibbon.toString()+"px");
         // Hack for some themes that have a 1 pixel border on nowplaying
         // or the top of the albums list/info pane.
