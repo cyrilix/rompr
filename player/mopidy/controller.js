@@ -505,7 +505,7 @@ function playerController() {
 			$("#"+where).html(html);
 			if (where != "filecollection") {
             	$('#'+where).removeClass("notfilled");
-            	$('#'+where).slideToggle('fast');
+            	$('#'+where).menuReveal();
             }
 		},
 		consoleError );

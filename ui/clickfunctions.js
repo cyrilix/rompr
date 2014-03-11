@@ -286,10 +286,12 @@ function doMenu(event, element) {
     var menutoopen = element.attr("name");
     if (element.isClosed()) {
         element.toggleOpen();
+        $('#'+menutoopen).menuReveal();
     } else {
         element.toggleClosed();
+        $('#'+menutoopen).menuHide();
     }
-    $('#'+menutoopen).slideToggle('fast');
+    // $('#'+menutoopen).slideToggle('fast');
     return false;
 }
 
@@ -303,7 +305,7 @@ function doAlbumMenu(event, element, inbrowser) {
         if ($('#'+menutoopen).hasClass("notfilled")) {
             $('#'+menutoopen).load("albums.php?item="+menutoopen, function() {
                 $(this).removeClass("notfilled");
-                $(this).slideToggle('fast', function() {
+                $(this).menuReveal(function() {
                     $.each($(this).find("img").filter(function() {
                         return $(this).hasClass('notexist');
                     }), function() {
@@ -317,11 +319,11 @@ function doAlbumMenu(event, element, inbrowser) {
                 });
             });
         } else {
-            $('#'+menutoopen).slideToggle('fast');
+            $('#'+menutoopen).menuReveal();
         }
         element.toggleOpen();
     } else {
-        $('#'+menutoopen).slideToggle('fast');
+        $('#'+menutoopen).menuHide();
         element.toggleClosed();
     }
     return false;
@@ -341,15 +343,15 @@ function doFileMenu(event, element) {
             } else {
                 $('#'+menutoopen).load("dirbrowser.php?item="+menutoopen, function() {
                     $(this).removeClass("notfilled");
-                    $(this).slideToggle('fast');
+                    $(this).menuReveal();
                 });
             }
         } else {
-            $('#'+menutoopen).slideToggle('fast');
+            $('#'+menutoopen).menuReveal();
         }
         element.toggleOpen();
     } else {
-        $('#'+menutoopen).slideToggle('fast');
+        $('#'+menutoopen).menuHide();
         element.toggleClosed();
     }
     return false;

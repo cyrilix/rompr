@@ -118,6 +118,22 @@ jQuery.fn.toggleClosed = function() {
     this.attr('src', 'newimages/toggle-closed-new.png');
 }
 
+jQuery.fn.menuReveal = function(callback) {
+    if (mobile == "no") {
+        this.slideToggle('fast',callback);
+    } else {
+        this.show(callback);
+    }
+}
+
+jQuery.fn.menuHide = function() {
+    if (mobile == "no") {
+        this.slideToggle('fast');
+    } else {
+        this.hide();
+    }
+}
+
 jQuery.fn.removeInlineCss = function(property){
 
     if(property == null)
