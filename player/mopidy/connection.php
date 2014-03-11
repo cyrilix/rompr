@@ -14,10 +14,20 @@ function doCollection($command) {
 
 function parse_mopidy_json_data($collection, $jsondata) {
 
+    global $dbterms;
     $plpos = 0;
     foreach($jsondata as $searchresults) {
 
-        if ($searchresults->{'__model__'} == "SearchResult") {
+        if ($searchresults->{'__model__'} == "DBTerms") {
+
+            if (property_exists($searchresults, 'rating')) {
+                $dbterms['rating'] = $searchresults->rating;
+            }
+            if (property_exists($searchresults, 'tags')) {
+                $dbterms['tags'] = $searchresults->tags;
+            }
+
+        } else if ($searchresults->{'__model__'} == "SearchResult") {
 
             if (property_exists($searchresults, 'artists')) {
                 foreach ($searchresults->artists as $track) {

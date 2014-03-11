@@ -1,25 +1,39 @@
 <?php
 
 $mysqlc = null;
-if (function_exists('mysqli_connect')) {
-	try {
-		$mysqlc = @mysqli_connect($prefs['mysql_host'],$prefs['mysql_user'],$prefs['mysql_password'],'romprdb',$prefs['mysql_port']);
-		if (mysqli_connect_errno()) {
-			debug_print("Failed to connect to MySQL: ".mysqli_connect_error(), "SEARCH");
-			$mysqlc = null;
-		} else {
-			debug_print("Connected to MySQL","SEARCH");
+function connect_to_database() {
+	global $mysqlc;
+	global $prefs;
+	if (function_exists('mysqli_connect')) {
+		try {
+			$mysqlc = @mysqli_connect($prefs['mysql_host'],$prefs['mysql_user'],$prefs['mysql_password'],'romprdb',$prefs['mysql_port']);
+			if (mysqli_connect_errno()) {
+				debug_print("Failed to connect to MySQL: ".mysqli_connect_error(), "SEARCH");
+				$mysqlc = null;
+			} else {
+				debug_print("Connected to MySQL","SEARCH");
+			}
+		} catch (Exception $e) {
+			debug_print("Database connect failure - ".$e,"SEARCH");
 		}
-	} catch (Exception $e) {
-		debug_print("Database connect failure - ".$e,"SEARCH");
+	} else {
+		debug_print("PHP SQL driver is not installed","SEARCH");
 	}
-} else {
-	debug_print("PHP SQL driver is not installed","SEARCH");
 }
 
-function doCollection($terms, $domains) {
+function doDbCollection($terms, $domains) {
+
+	// This can actually be used to search the database for title, album, artist, anything, rating, and tag
+	// But it isn't because we let Mopidy/MPD search for anything they support because otherwise we
+	// have to duplicate their entire database, whcih is daft.
+	// This function was written before I realised that... :)
+	// It's still used for the wishlist, and for searches where we're only looking for tags and/or ratings
 
 	global $mysqlc;
+	if ($mysqlc === null) {
+		connect_to_database();
+	}
+
 	$collection = new musicCollection(null);
 
 	$qstring = "SELECT t.*, al.*, a1.*, a2.Artistname AS AlbumArtistName ";
@@ -147,4 +161,39 @@ function doCollection($terms, $domains) {
 
 }
 
+function check_url_against_database($url, $tags, $rating) {
+	global $mysqlc;
+	if ($mysqlc === null) {
+		connect_to_database();
+	}
+	$qstring = "SELECT t.TTindex FROM Tracktable AS t ";
+	if ($tags !== null) {
+		$qstring .= "JOIN (SELECT DISTINCT TTindex FROM TagListtable JOIN Tagtable AS tag USING (Tagindex) WHERE";
+		$tagterms = array();
+		foreach ($tags as $tag) {
+			array_push($tagterms, " tag.Name LIKE '".mysqli_real_escape_string($mysqlc, trim($tag))."'");
+		}
+		$qstring .= implode(" OR",$tagterms);
+		$qstring .=") AS j ON j.TTindex = t.TTindex ";
+	}
+	if ($rating !== null) {
+		$qstring .= "JOIN (SELECT * FROM Ratingtable WHERE Rating >= ".$rating.") AS rat ON rat.TTindex = t.TTindex ";
+	}
+	$qstring .= "WHERE t.Uri = '".mysqli_real_escape_string($mysqlc, $url)."'";
+	// debug_print("SQL Search String is ".$qstring,"SEARCH");
+	if ($result = mysqli_query($mysqlc, $qstring)) {
+		if (mysqli_num_rows($result) > 0) {
+			// debug_print("  DATABASE Match!","RESULT");
+			mysqli_free_result($result);
+			return true;
+		} else {
+			// debug_print("  DATABASE NOT Match!","RESULT");
+			mysqli_free_result($result);
+			return false;
+		}
+	} else {
+		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+		return false;
+	}
+}
 ?>

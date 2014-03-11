@@ -23,6 +23,8 @@ $count = 1;
 $divtype = "album1";
 $collection = null;
 
+$dbterms = array( 'tags' => null, 'rating' => null );
+
 class album {
     public function __construct($name, $artist, $domain) {
         global $numalbums;
@@ -486,9 +488,17 @@ function process_file($collection, $filedata) {
     global $totaltime;
     global $streamdomains;
     global $prefs;
+    global $dbterms;
 
     list ( $file, $domain, $type, $expires, $stationurl, $station, $stream, $origimage )
         = array ( $filedata['file'], getDomain($filedata['file']), "local", null, null, null, "", null );
+
+    if ($dbterms['tags'] !== null || $dbterms['rating'] !== null) {
+        // If this is a search and we have tags or ratings to search for, check them here.
+        if (check_url_against_database($file, $dbterms['tags'], $dbterms['rating']) == false) {
+            return false;
+        }
+    }
 
     $artist = (array_key_exists('Artist', $filedata)) ? $filedata['Artist'] : rawurldecode(basename(dirname(dirname($file))));
     $album = (array_key_exists('Album', $filedata)) ? $filedata['Album'] : rawurldecode(basename(dirname($file)));

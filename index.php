@@ -234,11 +234,11 @@ $(window).load(function() {
     $(window).bind('resize', function() {
         setBottomPaneSize();
     });
+    player.controller.initialise();
     showUpdateWindow();
     if (!prefs.hide_radiolist) {
         podcasts.loadList();
     }
-    player.controller.initialise();
     $.get('cleancache.php');
 });
 

@@ -415,7 +415,8 @@ function playerController() {
             doSomethingUseful('searchresultholder', language.gettext("label_searching"));
             debug.log("PLAYER","Doing Search:", terms);
             var st;
-            if (terms.tag || terms.rating) {
+            if ((termcount == 1 && (terms.tag || terms.rating)) ||
+                (termcount == 2 && (terms.tag && terms.rating))) {
                 st = {terms: terms};
             } else {
                 st = {mpdsearch: terms};

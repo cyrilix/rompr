@@ -404,7 +404,8 @@ function playerController() {
 
 	function disconnected() {
         debug.warn("PLAYER","Mopidy Has Gone Offline");
-        infobar.notify(infobar.PERMERROR, language.gettext("mopidy_down")+'<br><a href="#" onclick="player.controller.reConnect()">Click To Reconnect</a>');
+        infobar.notify(infobar.PERMERROR,
+        	language.gettext("mopidy_down")+'<br><a href="#" onclick="player.controller.reConnect()">Click To Reconnect</a>');
         isReady = false;
         mopidy.off("event:playlistsLoaded");
         mopidy.off("event:playbackStateChanged");
@@ -426,7 +427,7 @@ function playerController() {
         mopidy.on("state:online", connected);
         mopidy.on("state:offline", disconnected);
         mopidy.connect();
-	    self.mop = mopidy;
+	    // self.mop = mopidy;
 	}
 
 	this.reConnect = function() {
@@ -591,7 +592,11 @@ function playerController() {
             $("#searchresultholder").empty();
             doSomethingUseful('searchresultholder', language.gettext("label_searching"));
             debug.log("PLAYER","Doing Search:", terms, domains);
-            if (terms.tag || terms.rating) {
+            if ((termcount == 1 && (terms.tag || terms.rating)) ||
+            	(termcount == 2 && (terms.tag && terms.rating))) {
+            	debug.log("PLAYER","Doing Database Search");
+            	// We're only looking for a tag and/or a rating, so use the
+            	// database search engine
                 $.ajax({
                     type: "POST",
                     url: "albums.php",
@@ -606,7 +611,33 @@ function playerController() {
                     }
                 });
             } else {
+            	// If we're looking for anything else, let mopidy do the search
+            	// and the collectioniser will compare the results against the
+            	// database if we're looking for tags and/or ratings.
+            	// The allows us to keep the data in our database to a minimum -
+            	// i.e. we'd have to include genre, composer, performer etc if we
+            	// didn't do this. Also it means search results will always be
+            	// consistent because the same search engine is always being used.
+            	debug.log("PLAYER","Doing Mopidy Search");
+            	var dbterms = false;
+                if (terms.tag || terms.rating) {
+					dbterms = { '__model__': 'DBTerms'};
+					if (terms.tag) {
+						dbterms['tags'] = terms.tag;
+						delete terms.tag;
+					}
+					if (terms.rating) {
+						dbterms['rating'] = terms.rating;
+						delete terms.rating;
+					}
+                }
 	            mopidy.library[searchtype](terms, domains).then( function(data) {
+	            	if (dbterms) {
+	            		// Make sure the tags and rating search terms are the
+	            		// first in the list so the parser finds them before it
+	            		// starts collectionising the results.
+						data.unshift(dbterms);
+	            	}
 	                debug.log("PLAYER","Search Results",data);
 	                $.ajax({
                         type: "POST",
