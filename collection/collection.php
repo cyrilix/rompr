@@ -505,8 +505,8 @@ function process_file($collection, $filedata) {
     $albumartist = (array_key_exists('AlbumArtist', $filedata)) ? $filedata['AlbumArtist'] : null;
     $name = (array_key_exists('Title', $filedata)) ? $filedata['Title'] : rawurldecode(basename($file));
     $duration = (array_key_exists('Time', $filedata)) ? $filedata['Time'] : 0;
-    $number = (array_key_exists('Track', $filedata)) ? ltrim($filedata['Track'], '0') : format_tracknum(rawurldecode(basename($file)));
-    $disc = (array_key_exists('Disc', $filedata)) ? ltrim($filedata['Disc'], '0') : 0;
+    $number = (array_key_exists('Track', $filedata)) ? format_tracknum(ltrim($filedata['Track'], '0')) : format_tracknum(rawurldecode(basename($file)));
+    $disc = (array_key_exists('Disc', $filedata)) ? format_tracknum(ltrim($filedata['Disc'], '0')) : 0;
     $date = (array_key_exists('Date',$filedata)) ? $filedata['Date'] : null;
     $genre = (array_key_exists('Genre', $filedata)) ? $filedata['Genre'] : null;
     $image = (array_key_exists('Image', $filedata)) ? $filedata['Image'] : null;

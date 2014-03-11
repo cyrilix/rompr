@@ -27,9 +27,9 @@ if (array_key_exists('item', $_REQUEST)) {
     $cmd = "search";
     foreach ($_REQUEST['mpdsearch'] as $key => $term) {
         if ($key == "tag") {
-            $dbsearch['tags'] = $term;
+            $dbterms['tags'] = $term;
         } else if ($key == "rating") {
-            $dbsearch['rating'] = $term;
+            $dbterms['rating'] = $term;
         } else {
             $cmd .= " ".$key.' "'.format_for_mpd(html_entity_decode($term[0])).'"';
         }
