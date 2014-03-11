@@ -417,6 +417,8 @@ function playerController() {
             var st;
             if ((termcount == 1 && (terms.tag || terms.rating)) ||
                 (termcount == 2 && (terms.tag && terms.rating))) {
+                // Use the sql search engine if we're only looking for
+                // tags and/or ratings
                 st = {terms: terms};
             } else {
                 st = {mpdsearch: terms};
