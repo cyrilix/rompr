@@ -18,7 +18,7 @@ var info_lyrics = function() {
 				debug.log("LYRICS PLUGIN","Formatting Lyrics");
 				data = data.replace(/^(\w)/, '<font size="120%">$1</font>')
 				data = data.replace(/\n/g, '<br>');
-				return '<div class="lyrics"><h2>'+language.gettext("lyrics_lyrics")+'</h2><p>'+data+'</p></div>';
+				return '<div class="lyrics"><h2 align="center">'+language.gettext("lyrics_lyrics")+'</h2><p>'+data+'</p></div>';
 			}
 
 			this.displayData = function() {

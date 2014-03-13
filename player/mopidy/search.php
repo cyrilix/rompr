@@ -108,7 +108,7 @@ print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_ra
     </div>';
 }
 
-    print '<div class="indent containerbox padright">';
+    print '<div class="containerbox padright" style="padding-top:4px">';
     print '<input type="checkbox" id="limitsearch" value="1" onclick="weaselBurrow()"';
     if ($prefs['search_limit_limitsearch'] == 1) {
         print ' checked';

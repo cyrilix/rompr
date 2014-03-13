@@ -1996,6 +1996,12 @@ button:hover {
     width:180px;
 }
 
+div.lyrics
+{
+    width:95%;
+    margin:auto;
+}
+
 div.lyrics p
 {
     text-align:center;
