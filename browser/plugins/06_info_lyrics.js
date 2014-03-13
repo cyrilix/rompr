@@ -45,7 +45,7 @@ var info_lyrics = function() {
             }
 
             this.tryReadingTags = function() {
-            	$.get("getLyrics.php?file="+player.status.file)
+            	$.get("getLyrics.php?file="+encodeURIComponent(player.status.file))
             		.done(function(data) {
             			parent.playlistinfo.metadata.track.lyrics = data;
             			self.doBrowserUpdate();
