@@ -258,7 +258,16 @@ function check_album($album, $albumai, $spotilink, $image, $date, $isonefile, $s
 	    if ($index) {
 	    	if (($year == null && $date != null) || ($nd == null && $numdiscs != null)) {
 	    		debug_print("Updating Album Details","MYSQL");
-				if ($result = mysqli_query($mysqlc, "UPDATE Albumtable SET Year=".$date.", NumDiscs=".$numdiscs." WHERE Albumindex=".$index)) {
+	    		$qarray = array();
+	    		if ($date) {
+	    			array_push($qarray,"Year=".$date);
+	    		}
+	    		if ($numdiscs) {
+	    			array_push($qarray,"NumDiscs=".$numdiscs);
+	    		}
+	    		$qstring = "UPDATE Albumtable SET ".implode(", ", $qarray)." WHERE Albumindex=".$index;
+	    		debug_print($qstring,"MYSQL");
+				if ($result = mysqli_query($mysqlc, $qstring)) {
 					debug_print("Success","MYSQL");
 				} else {
 					debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
