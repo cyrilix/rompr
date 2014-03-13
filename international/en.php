@@ -64,7 +64,7 @@ $languages['en'] = array (
 	"config_langinfo" => "Last.FM and Wikipedia will fall back to English if information can't be found in your language",
 	"config_autoscroll" => "Auto-Scroll playlist to current track",
 	"config_autocovers" => "Automatically Download Covers",
-	"config_musicfolders" => "To use art from your music folders, enter the path to your music in this box:",
+	"config_musicfolders" => "To use art from your music folders or get lyrics from your files, enter the path to your music in this box:",
 	"config_crossfade" => "Crossfade Duration (seconds)",
 	"config_clicklabel" => "Music Selection Click Behaviour",
 	"config_doubleclick" => "Double-click to add, Click to select",
@@ -391,6 +391,7 @@ $languages['en'] = array (
 	"lyrics_lyrics" => "Lyrics",
 	"lyrics_nonefound" => "No Lyrics were found",
 	"lyrics_info" => "To use the lyrics viewer you need to ensure your local files are tagged with lyrics",
+	"lyrics_nopath" => "To use the lyrics viewer you need to ensure your local files are tagged with lyrics and set the music path in the preferences",
 
 	// For Discogs/Musicbrainz release tables. LABEL in this context means record label
 	// These are all section headers and so should all be UPPER CASE, unless there's a good linguistic

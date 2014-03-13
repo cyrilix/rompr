@@ -17,6 +17,7 @@ if (file_exists($fname)) {
 	debug_print("File Exists ".$fname,"LYRICS");
 	$tags = $getID3->analyze($fname);
 	getid3_lib::CopyTagsToComments($tags);
+
 	if (array_key_exists('comments', $tags) &&
 			array_key_exists('lyrics', $tags['comments'])) {
 		$output = $tags['comments']['lyrics'][0];
