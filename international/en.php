@@ -390,7 +390,7 @@ $languages['en'] = array (
 	"button_lyrics" => "Info Panel (Lyrics)",
 	"lyrics_lyrics" => "Lyrics",
 	"lyrics_nonefound" => "No Lyrics were found",
-	"lyrics_info" => "To use the lyrics viewer you need to use Mopidy with a Beets server and ensure your files are tagged with lyrics",
+	"lyrics_info" => "To use the lyrics viewer you need to ensure your local files are tagged with lyrics",
 
 	// For Discogs/Musicbrainz release tables. LABEL in this context means record label
 	// These are all section headers and so should all be UPPER CASE, unless there's a good linguistic

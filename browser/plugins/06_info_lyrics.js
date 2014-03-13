@@ -44,6 +44,14 @@ var info_lyrics = function() {
 
             }
 
+            this.tryReadingTags = function() {
+            	$.get("getLyrics.php?file="+player.status.file)
+            		.done(function(data) {
+            			parent.playlistinfo.metadata.track.lyrics = data;
+            			self.doBrowserUpdate();
+            		});
+            }
+
 			this.populate = function() {
 				if (parent.playlistinfo.metadata.track.lyrics === undefined) {
 					debug.log("LYRICS PLUGIN",parent.index,"No lyrics yet, trying again in 1 second");
@@ -51,9 +59,11 @@ var info_lyrics = function() {
 					return;
 				}
 				if (parent.playlistinfo.metadata.track.lyrics === null) {
-					parent.playlistinfo.metadata.track.lyrics = '<h3 align=center>'+language.gettext("lyrics_nonefound")+'</h3><p>'+language.gettext("lyrics_info")+'</p>';
+					self.tryReadingTags();
+				} else {
+					self.doBrowserUpdate();
 				}
-				self.doBrowserUpdate()
+
 		    }
 
 			this.doBrowserUpdate = function() {
@@ -75,6 +85,4 @@ var info_lyrics = function() {
 
 }();
 
-if (prefs.player_backend == "mopidy") {
-	nowplaying.registerPlugin("lyrics", info_lyrics, "newimages/lyrics.jpg", "button_lyrics");
-}
+nowplaying.registerPlugin("lyrics", info_lyrics, "newimages/lyrics.jpg", "button_lyrics");
