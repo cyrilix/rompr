@@ -170,9 +170,6 @@ if ($mobile != "no") {
 if ($prefs['player_backend'] == "mopidy") {
     print'<script type="text/javascript" src="http://'.$prefs['mopidy_http_address'].':'.$prefs['mopidy_http_port'].'/mopidy/mopidy.min.js"></script>'."\n";
 }
-if (file_exists("prefs/prefs.js")) {
-    print '<script type="text/javascript" src="prefs/prefs.js"></script>'."\n";
-}
 print'<script type="text/javascript" src="player/'.$prefs['player_backend'].'/controller.js"></script>'."\n";
 
 ?>
@@ -180,6 +177,11 @@ print'<script type="text/javascript" src="player/'.$prefs['player_backend'].'/co
 
 <?php
 include('includes/globals.php');
+if (file_exists("prefs/prefs.js") && $prefs['lastfm_session_key'] === "") {
+    print '<script type="text/javascript" src="prefs/prefs.js"></script>'."\n";
+} else if (file_exists("prefs/prefs.js") && $prefs['lastfm_session_key'] !== "") {
+    system('rm prefs/prefs.js');
+}
 ?>
 
 <script language="javascript">
@@ -195,6 +197,11 @@ var lastfm = new LastFM(prefs.lastfm_user);
 var coverscraper = new coverScraper(0, false, false, prefs.downloadart);
 
 $(document).ready(function(){
+
+    // Update the old-style lastfm_session_key variable
+    if (typeof lastfm_session_key !== 'undefined') {
+        prefs.save({lastfm_session_key: lastfm_session_key});
+    }
 
     if ("localStorage" in window && window["localStorage"] != null) {
         window.addEventListener("storage", onStorageChanged, false);

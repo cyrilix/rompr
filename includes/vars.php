@@ -13,11 +13,6 @@ $covernames = array("cover", "albumart", "thumb", "albumartsmall", "front");
 $mysqlc = null;
 $backend_in_use = "";
 
-// NOTE: sortbydate can be set to "true' to make the collection sort albums by date
-// - however mpd can only read the 'Date' ID3 tag, whereas the 'Original Release Date'
-//   tag is MUCH more useful. Beets is handy for setting the 'year' tag to the
-//   original release date.
-
 // Set unix_socket to a value to make rompr connect to mpd via a unix domain socket
 // (see mpd.conf). There's no real reason to do this, although it is marginally faster.
 // If unix_socket is set to anything then mpd_host will be ignored
@@ -61,6 +56,7 @@ $prefs = array( "mpd_host" => "localhost",
                 "hide_radiolist" => "false",
                 "fullbiobydefault" => "true",
                 "lastfmlang" => "default",
+                "lastfm_session_key" => "",
                 "user_lang" => "en",
                 "twocolumnsinlandscape" => "false",
                 "music_directory_albumart" => "",
@@ -136,7 +132,9 @@ function savePrefs() {
                 error_log("ERROR!              : Couldn't close the prefs file.");
             }
         } else {
-            error_log("ERROR!              : COULD NOT GET FILE LOCK ON PREFS FILE");
+            error_log("=================================================================");
+            error_log("ERROR!              : COULD NOT GET WRITE FILE LOCK ON PREFS FILE");
+            error_log("=================================================================");
         }
     }
 }
@@ -165,22 +163,22 @@ function loadPrefs() {
                         }
                     }
                 } else {
-                    error_log("================================");
+                    error_log("===============================================");
                     error_log("ERROR!              : COULD NOT READ PREFS FILE");
-                    error_log("================================");
+                    error_log("===============================================");
                     exit(1);
                 }
             } else {
-                error_log("================================");
-                error_log("ERROR!              : COULD NOT GET FILE LOCK ON PREFS FILE");
-                error_log("================================");
+                error_log("================================================================");
+                error_log("ERROR!              : COULD NOT GET READ FILE LOCK ON PREFS FILE");
+                error_log("================================================================");
                 fclose($fp);
                 exit(1);
             }
         } else {
-            error_log("================================");
+            error_log("=========================================================");
             error_log("ERROR!              : COULD NOT GET HANDLE FOR PREFS FILE");
-            error_log("================================");
+            error_log("=========================================================");
             exit(1);
         }
     }

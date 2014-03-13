@@ -8,7 +8,8 @@ include ("backends/sql/backend.php");
 
 $error = 0;
 $count = 1;
-$download_file = "";$divtype = "album1";
+$download_file = "";
+$divtype = "album1";
 $collection = null;
 $nodata = array (
 	'Rating' => 0,

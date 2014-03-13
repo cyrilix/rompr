@@ -1090,7 +1090,7 @@ function sourcecontrol(source) {
 
     if (mobile == "no") {
         sources = ["lastfmlist", "albumlist", "filelist", "radiolist"];
-    } else if (mobile == "phone") {
+    } else {
         if (landscape) {
             sources = ["lastfmlist", "albumlist", "filelist", "radiolist", "infopane", "chooser", "historypanel", "playlistman", "prefsm"];
         } else {
@@ -1170,7 +1170,6 @@ function hidePanel(panel) {
         }
     }
     if (new_state) {
-        //$("#choose_"+panel).fadeOut('fast');
         switch (panel) {
             case "lastfmlist":
                 $("#lastfmlist").empty();
@@ -1184,7 +1183,6 @@ function hidePanel(panel) {
             case "albumlist":
                 if (update_load_timer_running == false) {
                     $("#collection").empty();
-                    // $("#search").empty();
                 }
                 break;
             case "filelist":
@@ -1195,17 +1193,12 @@ function hidePanel(panel) {
                 break;
         }
     } else {
-        //$("#choose_"+panel).fadeIn('fast');
         switch (panel) {
             case "lastfmlist":
                 $("#lastfmlist").load("lastfmchooser.php");
                 break;
             case "radiolist":
-                //$("#bbclist").load("bbcradio.php");
-                //$("#somafmlist").load("somafm.php");
                 $("#yourradiolist").load("yourradio.php");
-                // $("#icecastlist").html('<div class="dirname"><h2 id="loadinglabel3">'+language.gettext("label_loadingstations")+'</h2></div>');
-                // refreshMyDrink('');
                 podcasts.loadList();
                 break;
             case "albumlist":

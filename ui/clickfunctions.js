@@ -291,7 +291,6 @@ function doMenu(event, element) {
         element.toggleClosed();
         $('#'+menutoopen).menuHide();
     }
-    // $('#'+menutoopen).slideToggle('fast');
     return false;
 }
 

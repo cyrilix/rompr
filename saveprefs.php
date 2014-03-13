@@ -3,15 +3,7 @@ include ("includes/vars.php");
 debug_print("Saving prefs");
 foreach($_POST as $key => $value) {
     debug_print($key."=".$value,"SAVEPREFS");
-    if ($key == "lastfm_session_key") {
-        $fp = fopen('prefs/prefs.js', 'w');
-        if($fp) {
-            fwrite($fp, 'var lastfm_session_key="'.$value.'";'."\n");
-            fclose($fp);
-        }
-    } else {
-        $prefs[$key] = $value;
-    }
+    $prefs[$key] = $value;
 }
 savePrefs();
 ?>

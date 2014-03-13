@@ -155,7 +155,6 @@ print "    on: '".get_int_text("label_on")."'\n";
 print "};\n";
 ?>
 var lastfm_api_key = "15f7532dff0b8d84635c757f9f18aaa3";
-var lastfm_session_key;
 var sources = new Array();
 var update_load_timer = 0;
 var update_load_timer_running = false;

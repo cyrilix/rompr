@@ -12,7 +12,7 @@ function LastFM(user) {
     var throttle = null;
     var throttleTime = 500;
 
-    if (typeof lastfm_session_key != "undefined") {
+    if (prefs.lastfm_session_key !== "" || typeof lastfm_session_key !== 'undefined') {
         logged_in = true;
     }
 
@@ -114,7 +114,7 @@ function LastFM(user) {
                 method: "auth.getSession"
             },
             function(data) {
-                lastfm_session_key = $(data).find("key").text();
+                var lastfm_session_key = $(data).find("key").text();
                 logged_in = true;
                 prefs.save({
                     lastfm_session_key: lastfm_session_key,
@@ -247,7 +247,7 @@ function LastFM(user) {
 
     function addSetOptions(options, method) {
         options.api_key = lastfm_api_key;
-        options.sk = lastfm_session_key;
+        options.sk = prefs.lastfm_session_key;
         options.method = method;
     }
 
@@ -373,7 +373,7 @@ function LastFM(user) {
         },
 
         getPlaylist: function(options, callback, failcallback) {
-            $.get("getlfmtrack.php?url="+options.url+"&sk="+lastfm_session_key)
+            $.get("getlfmtrack.php?url="+options.url+"&sk="+prefs.lastfm_session_key)
             .done( callback )
             .complete( function(data) {
                 playlist.saveTrackPlaylist(data.responseText)

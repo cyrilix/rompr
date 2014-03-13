@@ -120,9 +120,17 @@ jQuery.fn.toggleClosed = function() {
 
 jQuery.fn.menuReveal = function(callback) {
     if (mobile == "no") {
-        this.slideToggle('fast',callback);
+        if (callback) {
+            this.slideToggle('fast',callback);
+        } else {
+            this.slideToggle('fast');
+        }
     } else {
-        this.show(callback);
+        if (callback) {
+            this.show(callback);
+        } else {
+            this.show();
+        }
     }
 }
 
