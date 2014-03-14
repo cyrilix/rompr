@@ -53,7 +53,6 @@ function changeradiocountry() {
 }
 
 function setXfadeDur() {
-    // $("#configpanel").fadeOut(1000);
     prefs.save({crossfade_duration: $("#configpanel").find('input[name|="michaelbarrymore"]').attr("value")});
     debug.log("DEBUG","Setting xfade to ",prefs.crossfade_duration);
     if (player.status.xfade > 0) {
@@ -226,7 +225,6 @@ function gotTrackInfoForStream(data) {
     if (data && data.error) { lastFMTrackFailed(data); return false };
     var url = "lastfm://play/tracks/"+data.track.id;
     lastfm.track.getPlaylist({url: url}, playlist.newInternetRadioStation, lastFMTuneFailed);
-
 }
 
 function togglePref(pref) {
@@ -300,34 +298,6 @@ function gotNoTopTags(data) {
 function gotNoTopArtists(data) {
     stopWaitingIcon("topartistswait");
     infobar.notify(infobar.NOTIFY, language.gettext("label_noartists"));
-}
-
-function toggleSearch() {
-    if (mobile != "no") {
-        albumScrollOffset = $("#sources").scrollTop();
-    }
-    if (prefs.hide_albumlist) {
-        sourcecontrol("albumlist");
-        return false;
-    }
-    if ($("#albumlist").is(':visible')) {
-        if (albumScrollOffset < 20) {
-            $("#search").slideToggle('fast');
-        } else {
-            $("#search").slideDown('fast');
-        }
-    } else {
-        sourcecontrol("albumlist");
-        $("#search").slideDown('fast');
-    }
-    if (mobile != "no") {
-        $("#sources").animate({scrollTop: 0}, 500);
-    } else {
-        $('#sources').mCustomScrollbar("scrollTo", 0, {scrollInertia:20});
-    }
-
-    albumScrollOffset = 0;
-    return false;
 }
 
 function toggleFileSearch() {
@@ -535,7 +505,6 @@ var imagePopup=function(){
 }();
 
 function outputswitch(id) {
-    debug.log("GENERAL       : Output Switch for output",id);
     if ($('#outputbutton'+id).hasClass("togglebutton-0")) {
         $('#outputbutton'+id).removeClass("togglebutton-0").addClass("togglebutton-1");
         player.controller.doOutput(id, true);
@@ -686,7 +655,6 @@ function onStorageChanged(e) {
 }
 
 function saveRadioOrder() {
-
     debug.log("GENERAL","Saving Radio Order");
     var radioOrder = Array();
     $("#yourradiolist").find(".stname").each( function() {
@@ -697,7 +665,6 @@ function saveRadioOrder() {
             url: 'saveRadioOrder.php',
             data: {'order[]': radioOrder}
     });
-
 }
 
 function prepareForLiftOff(text) {

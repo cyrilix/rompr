@@ -347,7 +347,6 @@ var info_discogs = function() {
 
 			this.stopDisplaying = function(waitingon) {
 				displaying = false;
-				// pauseAllSlideShows();
 			}
 
 			this.handleClick = function(source, element, event) {
@@ -364,15 +363,9 @@ var info_discogs = function() {
 						var id = element.attr('name');
 		        		if (element.isOpen()) {
 		        			element.toggleClosed();
-		        			// targetdiv.find('.thumbslideshow').each(function() {
-		        			// 	parent.playlistinfo.metadata.artist.discogs[$(this).attr('id')].pause();
-		        			// });
 		        			targetdiv.removeClass('underline');
 		        		} else {
 		        			element.toggleOpen();
-		        			// targetdiv.find('.thumbslideshow').each(function() {
-		        			// 	parent.playlistinfo.metadata.artist.discogs[$(this).attr('id')].Go();
-		        			// });
 		        			targetdiv.addClass('underline');
 		        		}
 		        		targetdiv.slideToggle('fast');
@@ -417,7 +410,6 @@ var info_discogs = function() {
 					}
 				} else if (element.hasClass('clickexpandbox')) {
 					var id = element.attr('name');
-					// clearAllSlideShows();
 					var expandingframe = element.parent().parent().parent().parent();
 					var content = expandingframe.html();
 					content=content.replace(/<img class="clickexpandbox.*?>/, '');
@@ -456,67 +448,10 @@ var info_discogs = function() {
 										}
 									);
 									animator.remove();
-									// startAllSlideshows();
 								}
 							);
 						}
 					);
-				// } else if (element.hasClass('clickzoomslides')) {
-
-				// 	var n = element.attr("name");
-		  //       	var img = new Array();
-			 //        for (var i in parent.playlistinfo.metadata.artist.discogs['artist_'+n].data.images) {
-				//         img.push('getDiscogsImage.php?url='+parent.playlistinfo.metadata.artist.discogs['artist_'+n].data.images[i].uri);
-			 //        }
-	   //  			clearAllSlideShows();
-			 //        var expandingframe = element.parent().prev();
-			 //        var animator = expandingframe.clone();
-			 //        animator.attr('id', 'slideshow_'+n+'_big');
-			 //        animator.find('img').remove();
-			 //        var pos = expandingframe.offset();
-			 //        var targetpos = $("#infopane").offset();
-			 //        animator.css(
-			 //        	{
-			 //        		position: 'absolute',
-			 //        		top: pos.top+"px",
-			 //        		left: pos.left+"px",
-			 //        		width: expandingframe.width()+"px",
-			 //        		height: expandingframe.height()+"px",
-			 //        		margin: "0px",
-			 //        		padding: "0px"
-			 //    		}
-			 //    	);
-			 //    	animator.appendTo($('body'));
-			 //    	animator.animate(
-			 //    		{
-			 //    			top: (targetpos.top - $("#artistinformation").children('.infosection').height())+"px",
-			 //    			left: targetpos.left+"px",
-			 //    			width: ($("#infopane").width()-sbWidth)+"px",
-			 //    			height: ($("#infopane").height() - $("#artistinformation").children('.infosection').height())+"px"
-			 //    		},
-			 //    		'fast',
-			 //    		'swing',
-			 //    		function() {
-			 //    			$("#artistinformation").empty();
-			 //    			animator.detach().appendTo($("#artistinformation"));
-			 //    			animator.css({position: 'relative', top: 0, left: 0, width: "100%"});
-				// 			browser.speciaUpdate(
-				// 				me,
-				// 				'artist',
-				// 				{
-				// 					name: language.gettext("discogs_slideshow")+" - "+parent.playlistinfo.metadata.artist.discogs['artist_'+n].data.name,
-				// 					link: null,
-				// 					data: $("#artistinformation").html()
-				// 				}
-				// 			);
-				// 	        if (parent.playlistinfo.metadata.artist.discogs['slideshow_'+n+'_big'] === undefined) {
-				// 	        	parent.playlistinfo.metadata.artist.discogs['slideshow_'+n+'_big'] = new slideshow(img, "slideshow_"+n+'_big', true);
-				// 	        }
-				// 			animator.remove();
-				// 			startAllSlideshows();
-
-			 //    		}
-			 //    	);
 				}
 			}
 
@@ -543,12 +478,6 @@ var info_discogs = function() {
 						$(this).html(html);
 						$(this).addClass('full');
 					}
-					// if (!($(this).is(':hidden'))) {
-					// 	debug.debug("Finding Slideshows in",div);
-					// 	$(this).find('.thumbslideshow').each(function() {
-    	// 					parent.playlistinfo.metadata.artist.discogs[$(this).attr('id')].Go();
-    	// 				});
-					// }
 				});
 			}
 
@@ -593,24 +522,6 @@ var info_discogs = function() {
 			        html = html + '<div class="stumpy notbright">';
 			    }
 
-		     //    if (data.data.images) {
-		     //    	var img = new Array();
-			    //     for (var i in data.data.images) {
-			    //     	// getDiscogsImage caches remote Discogs images to reduce the load we put on
-			    //     	// their servers
-				   //      img.push("getDiscogsImage.php?url="+data.data.images[i].uri150);
-			    //     }
-			    //     var a = 1;
-			    //     while ($("#slideshow_"+data.data.id+"_"+a).length > 0) {
-			    //     	a++;
-			    //     }
-			    //     html = html + '<div class="infoslideshow thumbslideshow" id="slideshow_'+data.data.id+'_'+a+'"></div>';
-			    //     html = html + '<div class="infoslideshow thumbcontroller clearfix"><img class="tright infoclick clickzoomslides" name="'+data.data.id+'" height="16px" src="newimages/expand.png" /></div>';
-			    //     if (parent.playlistinfo.metadata.artist.discogs['slideshow_'+data.data.id+'_'+a] === undefined) {
-			    //     	parent.playlistinfo.metadata.artist.discogs['slideshow_'+data.data.id+'_'+a] = new slideshow(img, "slideshow_"+data.data.id+'_'+a, false);
-			    //     }
-			    // }
-
 			    if (data.data.realname && data.data.realname != "") {
 			        html = html + '<br><ul><li><b>'+language.gettext("discogs_realname")+'</b> '+data.data.realname+'</li>';
 			    }
@@ -647,12 +558,6 @@ var info_discogs = function() {
 		        if (expand) {
 					html = html + '<img class="clickexpandbox infoclick tleft" style="margin:1em" src="newimages/expand-up.png" height="16px" name="'+data.data.id+'">';
 				}
-
-		   //      if (mobile == "no" && data.data.images) {
-					// html = html + '<div class="infoclick clickzoomimage stright standout"><img width="250px" src="getDiscogsImage.php?url='+
-					// 			getPrimaryImage(data.data.images, 'uri')+'" /></div>';
-					// html = html + '<input type="hidden" value="getDiscogsImage.php?url='+getPrimaryImage(data.data.images, 'uri')+'" />';
-			  //   }
 
 		        if (data.data.profile) {
 			        var p = formatNotes(data.data.profile);
@@ -735,32 +640,6 @@ var info_discogs = function() {
                 }
                 return a;
             }
-
-   //          function startAllSlideshows() {
-			// 	$('.thumbslideshow').each(function() {
-			// 		if (!($(this).is(':hidden'))) {
-			// 			var tostart = $(this).attr("id");
-			// 			debug.log(medebug,parent.index,"Starting",tostart);
-			// 			parent.playlistinfo.metadata.artist.discogs[tostart].Go()
-			// 		}
-			// 	});
-   //          }
-
-   //          function clearAllSlideShows() {
-			// 	$('.thumbslideshow').each(function() {
-			// 		var tostart = $(this).attr("id");
-			// 		debug.log(medebug,parent.index,"Clearing",tostart);
-			// 		parent.playlistinfo.metadata.artist.discogs[tostart].teardown()
-			// 	});
-   //          }
-
-   //          function pauseAllSlideShows() {
-			// 	for (var i in parent.playlistinfo.metadata.artist.discogs) {
-			// 		if (i.match(/^slideshow_/)) {
-			// 			parent.playlistinfo.metadata.artist.discogs[i].pause();
-			// 		}
-			// 	}
-			// }
 
 			this.artist = function() {
 
@@ -992,7 +871,6 @@ var info_discogs = function() {
 													data: getArtistHTML(parent.playlistinfo.metadata.artist.discogs['artist_'+parent.playlistinfo.metadata.artist.discogs.artistid], false)
 												}
 								);
-								// startAllSlideshows();
 							}
 						}
 					}

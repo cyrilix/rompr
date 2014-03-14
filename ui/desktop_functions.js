@@ -13,6 +13,27 @@ function expandInfo(side) {
     return false;
 }
 
+function toggleSearch() {
+    if (prefs.hide_albumlist) {
+        sourcecontrol("albumlist");
+        $("#search").show();
+        return false;
+    }
+    if ($("#albumlist").is(':visible')) {
+        if (albumScrollOffset < 20) {
+            $("#search").slideToggle('fast');
+        } else {
+            $("#search").slideDown('fast');
+        }
+    } else {
+        sourcecontrol("albumlist");
+        $("#search").slideDown('fast');
+    }
+    $('#sources').mCustomScrollbar("scrollTo", 0, {scrollInertia:20});
+    albumScrollOffset = 0;
+    return false;
+}
+
 function doThatFunkyThang() {
     var sourcesweight = (prefs.sourceshidden) ? 0 : 1;
     var playlistweight = (prefs.playlisthidden) ? 0 : 1;

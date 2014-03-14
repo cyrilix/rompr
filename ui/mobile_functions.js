@@ -2,6 +2,27 @@ function doThatFunkyThang() {
 
 }
 
+function toggleSearch() {
+    if (prefs.hide_albumlist) {
+        sourcecontrol("albumlist");
+        $("#search").show();
+        return false;
+    }
+    albumScrollOffset = $("#sources").scrollTop();
+    if ($("#albumlist").is(':visible')) {
+        if (albumScrollOffset < 20) {
+            $("#search").slideToggle('fast');
+        } else {
+            $("#search").slideDown('fast');
+        }
+    } else {
+        sourcecontrol("albumlist");
+        $("#search").slideDown('fast');
+    }
+    $("#sources").animate({scrollTop: 0}, 500);
+    return false;
+}
+
 function setBottomPaneSize() {
     var ws = getWindowSize();
     if (itisbigger) {
@@ -106,27 +127,17 @@ function makeitbigger() {
 }
 
 function swipeyswipe(dir) {
-    var order = [];
-    order.push("albumlist")
-    if (!prefs.hide_filelist) {
-        order.push("filelist")
-    }
-    if (!prefs.hide_lastfmlist) {
-        order.push("lastfmlist")
-    }
-    if (!prefs.hide_radiolist) {
-        order.push("radiolist")
-    }
-    if (!prefs.hidebrowser) {
-        order.push("infopane");
-    }
-    if (landscape) {
-        if (!prefs.twocolumnsinlandscape) {
-            order.push("playlistm");
-        }
+    var order = ["chooser", "historypanel", "playlistman", "prefsm"];
+    if (landscape && !prefs.twocolumnsinlandscape) {
+        order.unshift("playlistm");
     } else {
-        order.push("playlistm");
+        order.unshift("playlistm");
     }
+    order.unshift("infopane");
+    if (!prefs.hide_radiolist) order.unshift("radiolist")
+    if (!prefs.hide_lastfmlist) order.unshift("lastfmlist")
+    if (!prefs.hide_filelist) order.unshift("filelist")
+    order.unshift("albumlist")
     for (var i in order) {
         if (order[i] == prefs.chooser) {
             var j = (i*1)+(dir*1);
