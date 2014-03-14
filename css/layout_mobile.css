@@ -231,29 +231,9 @@ h2
 	font-size:6pt;
 }
 
-.playlistitem
-{
-    font-size:9pt;
-}
-
-.playlisttitle
-{
-    font-size:10pt;
-}
-
-.playlistcurrenttitle
-{
-    font-size:10.5pt;
-}
-
-.playlistcurrentitem
-{
-    font-size:9.5pt;
-}
-
 .playlistrow2
 {
-    font-size:7pt;
+    font-size:80%;
 }
 
 #notifications
