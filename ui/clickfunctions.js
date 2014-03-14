@@ -302,12 +302,16 @@ function doAlbumMenu(event, element, inbrowser) {
     var menutoopen = element.attr("name");
     if (element.isClosed()) {
         if ($('#'+menutoopen).hasClass("notfilled")) {
+            debug.log("GOBLIN","Gribble");
             $('#'+menutoopen).load("albums.php?item="+menutoopen, function() {
                 $(this).removeClass("notfilled");
                 $(this).menuReveal(function() {
+                    debug.log("GOBLIN","The Sack Is On My Dollop!");
                     $.each($(this).find("img").filter(function() {
+                        debug.log("GOBLIN","There's an image");
                         return $(this).hasClass('notexist');
                     }), function() {
+                        debug.log("GOBLIN","  .. and we're goin gto to ferggugle it!");
                         coverscraper.GetNewAlbumArt($(this).attr('name'));
                     });
                     if (inbrowser) {

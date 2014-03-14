@@ -128,8 +128,10 @@ function makeitbigger() {
 
 function swipeyswipe(dir) {
     var order = ["historypanel", "playlistman", "prefsm"];
-    if (landscape && !prefs.twocolumnsinlandscape) {
-        order.unshift("playlistm");
+    if (landscape) {
+        if (!prefs.twocolumnsinlandscape) {
+            order.unshift("playlistm");
+        }
     } else {
         order.unshift("playlistm");
     }

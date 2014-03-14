@@ -119,27 +119,15 @@ jQuery.fn.toggleClosed = function() {
 }
 
 jQuery.fn.menuReveal = function(callback) {
-    if (mobile == "no") {
-        if (callback) {
-            this.slideToggle('fast',callback);
-        } else {
-            this.slideToggle('fast');
-        }
+    if (callback) {
+        this.slideToggle('fast',callback);
     } else {
-        if (callback) {
-            this.show(callback);
-        } else {
-            this.show();
-        }
+        this.slideToggle('fast');
     }
 }
 
 jQuery.fn.menuHide = function() {
-    if (mobile == "no") {
-        this.slideToggle('fast');
-    } else {
-        this.hide();
-    }
+    this.slideToggle('fast');
 }
 
 jQuery.fn.removeInlineCss = function(property){
