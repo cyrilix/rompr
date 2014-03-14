@@ -52,7 +52,6 @@ print '</select></div>';
 // Sources Panel Hiding
 print '<div class="pref">
 <div><input type="checkbox" onclick="hidePanel(\'albumlist\')" id="button_hide_albumlist">'.get_int_text('config_hidealbumlist').'</input></div>
-<div><input type="checkbox" onclick="keepsearchopen()" id="button_keep_search_open">'.get_int_text('config_keepsearch').'</input></div>
 </div>';
 print '<div class="pref">
 <input type="checkbox" onclick="hidePanel(\'filelist\')" id="button_hide_filelist">'.get_int_text('config_hidefileslist').'</input>

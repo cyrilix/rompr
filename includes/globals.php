@@ -4,7 +4,7 @@
 var prefsInLocalStorage = ["hidebrowser", "sourceshidden", "playlisthidden", "infosource", "playlistcontrolsvisible",
                             "sourceswidthpercent", "playlistwidthpercent", "downloadart", "clickmode", "chooser",
                             "hide_albumlist", "hide_filelist", "hide_lastfmlist", "hide_radiolist", "twocolumnsinlandscape",
-                            "shownupdatewindow", "keep_search_open", "showfileinfo", "scrolltocurrent",
+                            "shownupdatewindow", "showfileinfo", "scrolltocurrent",
                             "lastfmlang", "user_lang", "fontsize", "fontfamily", "alarmtime", "alarmon", "synctags",
                             "synclove", "synclovevalue"];
 

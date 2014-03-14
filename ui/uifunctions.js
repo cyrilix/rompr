@@ -90,123 +90,6 @@ function stopWaitingIcon(selector) {
     $("#"+selector).addClass("nospin");
 }
 
-function expandInfo(side) {
-    switch(side) {
-        case "left":
-            var p = !prefs.sourceshidden;
-            prefs.save({sourceshidden: p});
-            break;
-        case "right":
-            var p = !prefs.playlisthidden;
-            prefs.save({playlisthidden: p});
-            break;
-    }
-    doThatFunkyThang();
-    return false;
-
-}
-
-function doThatFunkyThang() {
-
-    if (mobile == "no") {
-        var sourcesweight = (prefs.sourceshidden) ? 0 : 1;
-        var playlistweight = (prefs.playlisthidden) ? 0 : 1;
-
-        var browserwidth = (100 - (prefs.playlistwidthpercent*playlistweight) - (prefs.sourceswidthpercent*sourcesweight));
-        var sourceswidth = (100 - (prefs.playlistwidthpercent*playlistweight) - browserwidth)*sourcesweight;
-        var playlistwidth = (100 - sourceswidth - browserwidth)*playlistweight;
-
-        $("#sources").css("width", sourceswidth.toString()+"%");
-        $("#albumcontrols").css("width", sourceswidth.toString()+"%");
-        $("#playlist").css("width", playlistwidth.toString()+"%");
-        $("#playlistcontrols").css("width", playlistwidth.toString()+"%");
-        $("#infopane").css("width", browserwidth.toString()+"%");
-        $("#infocontrols").css("width", browserwidth.toString()+"%");
-
-        if (prefs.sourceshidden != $("#sources").is(':hidden')) {
-            $("#sources").toggle("fast");
-            $("#albumcontrols").toggle("fast");
-        }
-
-        if (prefs.playlisthidden != $("#playlist").is(':hidden')) {
-            $("#playlist").toggle("fast");
-            $("#playlistcontrols").toggle("fast");
-        }
-
-        var i = (prefs.sourceshidden) ? "newimages/arrow-right-double.png" : "newimages/arrow-left-double.png";
-        $("#expandleft").attr("src", i);
-        i = (prefs.playlisthidden) ? "newimages/arrow-left-double.png" : "newimages/arrow-right-double.png";
-        $("#expandright").attr("src", i);
-        tagManager.redoLayout();
-    }
-}
-
-function setBottomPaneSize() {
-    var ws = getWindowSize();
-    if (mobile != "no") {
-        if (itisbigger) {
-            // The nowplaying area has ben hidden
-            var newheight = ws.y-28;
-        } else {
-            // The nowplaying area is visible
-            var newheight = ws.y - 112;
-        }
-        // 'landscape' determines whether we're showing 2 columns or one
-        var oldls = landscape;
-        if (ws.x > ws.y) {
-            landscape = prefs.twocolumnsinlandscape;
-        } else {
-            landscape = false;
-        }
-        if (oldls != landscape) {
-            switchColumnMode(landscape);
-            sourcecontrol(prefs.chooser);
-        }
-        // Set the height of the volume control bar
-        var v = newheight - 32;
-        $("#volumecontrol").css("height", v.toString()+"px");
-        // This is called here purely to make sure the 'progress bar' in the
-        // resized volume control gets updated
-        infobar.updateWindowValues();
-        // Width of the nowplaying area
-        var gibbon = ws.x-164;
-        $("#patrickmoore").css('width', gibbon.toString()+"px");
-        // Hack for some themes that have a 1 pixel border on nowplaying
-        // or the top of the albums list/info pane.
-        // This cuases it to overflow bottompage, and on a mobile device
-        // we get a second scrollbar because of it.
-        var cockfeature = newheight-2;
-        $("#infopane").css("height", cockfeature.toString()+"px");
-    } else {
-        // x-position of the notification rollup
-        var notpos = ws.x - 340;
-        $("#notifications").css("left", notpos.toString()+"px");
-        // Width of the nowplaying area
-        var lp = ws.x - 328;
-        $('#patrickmoore').css("width", lp.toString()+"px");
-        // Height of the bottom pane (chooser, info, playlist container)
-        var newheight = ws.y - 148;
-        // Make sure the dropdown menus don't overflow the window
-        // They have max-height as 500 in the css.
-        if (newheight < 500) {
-            $('ul.subnav').each(function() {
-                if ($(this).height() > newheight) {
-                    $(this).css('height', newheight.toString()+"px");
-                }
-            });
-        } else {
-            $('ul.subnav').css('height', "");
-        }
-    }
-    $("#bottompage").css("height", newheight.toString()+"px");
-    newheight = null;
-    playlist.setHeight();
-    infobar.rejigTheText();
-    if (tagManager) {
-        tagManager.redoLayout();
-    }
-}
-
 function togglePlaylistButtons() {
     if (!$("#playlistbuttons").is(":visible")) {
         // Make the playlist scroller shorter so the window doesn't get a vertical scrollbar
@@ -220,41 +103,11 @@ function togglePlaylistButtons() {
     return false;
 }
 
-function switchColumnMode(flag) {
-    if (flag) {
-        $("#sources").css({'width' : '50%', 'float' : 'left'});
-        $("#playlistm").css({'width' : '50%', 'float' : 'right'});
-        $("#playlistm").show();
-        $("#sources").show();
-        if (prefs.chooser == "playlistm") {
-            prefs.chooser = "albumlist";
-        }
-        $("#chooseplaylist").hide();
-    } else {
-        $("#sources").css({'width' : '100%', 'float' : 'none'});
-        $("#playlistm").css({'width' : '100%', 'float' : 'none'});
-        if (prefs.chooser == "playlistm") {
-            $("#playlistm").show();
-            $("#sources").hide();
-        } else {
-            $("#playlistm").hide();
-            $("#sources").show();
-        }
-        $("#chooseplaylist").show();
-    }
-}
-
 function lastfmlogin() {
     var user = $("#configpanel").find('input[name|="user"]').attr("value");
     lastfm.login(user);
     $("#configpanel").fadeOut(1000);
 }
-
-// function sethistorylength() {
-//     var length = parseInt($("#configpanel").find('input[name|="historylength"]').attr("value"));
-//     $("#configpanel").fadeOut(1000);
-//     prefs.save({historylength: length});
-// }
 
 function doInternetRadio(input) {
     getInternetPlaylist($("#"+input).attr("value"), null, null, null, true);
@@ -267,7 +120,6 @@ function getInternetPlaylist(url, image, station, creator, usersupplied) {
     if (image) { data.image = encodeURIComponent(image) }
     if (station) { data.station = encodeURIComponent(station) }
     if (creator) { data.creator = encodeURIComponent(creator) }
-    // if (usersupplied) { data.usersupplied = "true" }
 
     $.ajax( {
         type: "GET",
@@ -453,6 +305,10 @@ function gotNoTopArtists(data) {
 function toggleSearch() {
     if (mobile != "no") {
         albumScrollOffset = $("#sources").scrollTop();
+    }
+    if (prefs.hide_albumlist) {
+        sourcecontrol("albumlist");
+        return false;
     }
     if ($("#albumlist").is(':visible')) {
         if (albumScrollOffset < 20) {
@@ -678,61 +534,6 @@ var imagePopup=function(){
     }
 }();
 
-function loadKeyBindings() {
-    $.getJSON("getkeybindings.php")
-        .done(function(data) {
-            shortcut.add(getHotKey(data['nextrack']),   function(){ playlist.next() }, {'disable_in_input':true});
-            shortcut.add(getHotKey(data['prevtrack']),  function(){ playlist.previous() }, {'disable_in_input':true});
-            shortcut.add(getHotKey(data['stop']),       function(){ player.controller.stop() }, {'disable_in_input':true});
-            shortcut.add(getHotKey(data['play']),       function(){ infobar.playbutton.clicked() }, {'disable_in_input':true} );
-            shortcut.add(getHotKey(data['volumeup']),   function(){ infobar.volumeKey(5) }, {'disable_in_input':true} );
-            shortcut.add(getHotKey(data['volumedown']), function(){ infobar.volumeKey(-5) }, {'disable_in_input':true} );
-        })
-        .fail( function(data) {  });
-}
-
-function getHotKey(st) {
-    var bits = st.split("+++");
-    return bits[0];
-}
-
-function getHotKeyDisplay(st) {
-    var bits = st.split("+++");
-    return bits[1];
-}
-
-function editkeybindings() {
-
-    debug.log("GENERAL", "Editing Key Bindings");
-
-    $("#configpanel").slideToggle('fast');
-
-    $.getJSON("getkeybindings.php")
-        .done(function(data) {
-            var keybpu = popupWindow.create(500,300,"keybpu",true,language.gettext("title_keybindings"));
-            $("#popupcontents").append('<table align="center" cellpadding="4" id="keybindtable" width="80%"></table>');
-            $("#keybindtable").append('<tr><td width="35%" align="right">'+language.gettext("button_next")+'</td><td>'+format_keyinput('nextrack', data)+'</td></tr>');
-            $("#keybindtable").append('<tr><td width="35%" align="right">'+language.gettext("button_previous")+'</td><td>'+format_keyinput('prevtrack', data)+'</td></tr>');
-            $("#keybindtable").append('<tr><td width="35%" align="right">'+language.gettext("button_stop")+'</td><td>'+format_keyinput('stop', data)+'</td></tr>');
-            $("#keybindtable").append('<tr><td width="35%" align="right">'+language.gettext("button_play")+'</td><td>'+format_keyinput('play', data)+'</td></tr>');
-            $("#keybindtable").append('<tr><td width="35%" align="right">'+language.gettext("button_volup")+'</td><td>'+format_keyinput('volumeup', data)+'</td></tr>');
-            $("#keybindtable").append('<tr><td width="35%" align="right">'+language.gettext("button_voldown")+'</td><td>'+format_keyinput('volumedown', data)+'</td></tr>');
-
-            $("#keybindtable").append('<tr><td colspan="2"><button style="width:8em" class="tleft topformbutton" onclick="popupWindow.close()">'+language.gettext("button_cancel")+'</button>'+
-                                        '<button  style="width:8em" class="tright topformbutton" onclick="saveKeyBindings()">'+language.gettext("button_OK")+'</button></td></tr>');
-
-            $(".buttonchange").keydown( function(ev) { changeHotKey(ev) } );
-            popupWindow.open();
-        })
-        .fail( function() { alert("Failed To Read Key Bindings!") });
-
-}
-
-function format_keyinput(inpname, data) {
-    return '<input id="'+inpname+'" class="tleft sourceform buttonchange" type="text" size="10" value="'+getHotKeyDisplay(data[inpname])+'"></input>' +
-            '<input name="'+inpname+'" class="buttoncode" type="hidden" value="'+getHotKey(data[inpname])+'"></input>';
-}
-
 function outputswitch(id) {
     debug.log("GENERAL       : Output Switch for output",id);
     if ($('#outputbutton'+id).hasClass("togglebutton-0")) {
@@ -742,86 +543,6 @@ function outputswitch(id) {
         $('#outputbutton'+id).removeClass("togglebutton-1").addClass("togglebutton-0");
         player.controller.doOutput(id, false);
     }
-}
-
-function changeHotKey(ev) {
-
-    var key = ev.which;
-    // Ignore Shift, Ctrl, Alt, and Meta, and Esc
-    if (key == 17 || key == 18 || key == 19 || key == 27 || key == 224) {
-        return true;
-    }
-
-    ev.preventDefault();
-    ev.stopPropagation();
-    var source = $(ev.target).attr("id");
-
-    var special_keys = {
-        9: 'tab',
-        32: 'space',
-        13: 'return',
-        8: 'backspace',
-        145: 'scrolllock',
-        20: 'capslock',
-        144: 'numlock',
-        19: 'pause',
-        45: 'insert',
-        36: 'home',
-        46: 'delete',
-        35: 'end',
-        33: 'pageup',
-        34: 'pagedown',
-        37: 'left',
-        38: 'up',
-        39: 'right',
-        40: 'down',
-        112: 'f1',
-        113: 'f2',
-        114: 'f3',
-        115: 'f4',
-        116: 'f5',
-        117: 'f6',
-        118: 'f7',
-        119: 'f8',
-        120: 'f9',
-        121: 'f10',
-        122: 'f11',
-        123: 'f12'
-    }
-
-    var keystring = special_keys[key] || String.fromCharCode(key).toUpperCase();
-
-    if (ev.shiftKey) { keystring = "Shift+"+keystring };
-    if (ev.metaKey) { keystring = "Meta+"+keystring };
-    if (ev.ctrlKey) { keystring = "Ctrl+"+keystring };
-    if (ev.altKey) { keystring = "Alt+"+keystring };
-
-    var keydisplay = KeyCode.hot_key(KeyCode.translate_event(ev));
-
-    $("#"+source).attr("value", keydisplay);
-    $('input[name="'+source+'"]').attr("value", keystring);
-}
-
-function saveKeyBindings() {
-
-    var bindings = new Object;
-    $.getJSON("getkeybindings.php")
-        .done(function(data) {
-            debug.log("GENERAL","Clearing Key Bindings");
-            $.each(data, function(i, v) { shortcut.remove(v)});
-            $(".buttonchange").each( function(i) {
-                bindings[$(this).attr("id")] = $(this).attr("value");
-            });
-            $(".buttoncode").each( function(i) {
-                bindings[$(this).attr("name")] = $(this).attr("value")+"+++"+bindings[$(this).attr("name")];
-            });
-
-            $.post("savekeybindings.php", bindings, function() {
-                loadKeyBindings();
-                popupWindow.close();
-            });
-        })
-        .fail( function(data) {  });
 }
 
 var popupWindow = function() {
@@ -921,31 +642,6 @@ var popupWindow = function() {
     };
 }();
 
-function srDrag(event, ui) {
-    var size = getWindowSize();
-    if (ui.offset.left < 120) { ui.offset.left = 120; }
-    prefs.sourceswidthpercent = ((ui.offset.left+8)/size.x)*100;
-    doThatFunkyThang();
-    $(this).data('draggable').position.left = 0;
-}
-
-function srDragStop(event, ui) {
-    prefs.save({sourceswidthpercent: prefs.sourceswidthpercent});
-}
-
-function prDrag(event, ui) {
-    var size = getWindowSize();
-    if ((size.x - ui.offset.left) < 120) { ui.offset.left = size.x - 120; }
-    prefs.playlistwidthpercent = (((size.x - ui.offset.left))/size.x)*100;
-    doThatFunkyThang();
-    $(this).data('draggable').position.left = 0;
-}
-
-function prDragStop(event, ui) {
-    prefs.save({playlistwidthpercent: prefs.playlistwidthpercent})
-}
-
-
 function clearPlaylist() {
     playlist.clear();
     $("#clrplst").slideToggle('fast');
@@ -1039,10 +735,10 @@ function checkCollection() {
         if (prefs.hide_filelist && !prefs.hide_albumlist) {
             debug.log("GENERAL","Loading albums cache only");
             loadCollection('albums.php?item=aalbumroot', null);
-        } else if (prefs.hidealbumlist && !prefs.hide_filelist) {
+        } else if (prefs.hide_albumlist && !prefs.hide_filelist) {
             debug.log("GENERAL","Loading Files Cache Only");
             loadCollection(null, 'dirbrowser.php?item=adirroot');
-        } else if (!prefs.hidealbumlist && !prefs.hide_filelist) {
+        } else if (!prefs.hide_albumlist && !prefs.hide_filelist) {
             debug.log("GENERAL","Loading Both Caches");
             loadCollection('albums.php?item=aalbumroot', 'dirbrowser.php?item=adirroot');
         }
@@ -1105,44 +801,6 @@ function sourcecontrol(source) {
     }
     switchsource(source);
     return false;
-}
-
-function switchsource(source) {
-
-    var togo = sources.shift();
-    if (togo) {
-        if ($("#"+togo).is(':visible')) {
-            if (mobile == "no") {
-                $("#"+togo).fadeOut(200, function() { switchsource(source) });
-            } else {
-                $("#"+togo).hide();
-                switchsource(source);
-            }
-        } else {
-            switchsource(source);
-        }
-    } else {
-        prefs.save({chooser: source});
-        if (mobile == "no") {
-            $("#"+source).fadeIn(200);
-        } else {
-            $("#"+source).show();
-            if (landscape) {
-                switchColumnMode(source != "infopane");
-            } else {
-                if (source == "playlistm") {
-                    $("#sources").hide();
-                } else {
-                    $("#sources").show();
-                }
-            }
-            setBottomPaneSize();
-        }
-    }
-    if (prefs.keep_search_open) {
-        $("#search").show();
-    }
-
 }
 
 function hidePanel(panel) {
@@ -1216,53 +874,6 @@ function hidePanel(panel) {
     setChooserButtons();
 }
 
-function makeitbigger() {
-    itisbigger = !itisbigger;
-    $("#infobar").slideToggle('fast', function() {
-        if (itisbigger) {
-            $("#bottompage").css('top', "28px");
-        } else {
-            $("#bottompage").css('top', "112px");
-        }
-        setBottomPaneSize();
-    });
-}
-
-function swipeyswipe(dir) {
-    var order = [];
-    if (!prefs.hide_albumlist || (prefs.hide_albumlist && prefs.keep_search_open)) {
-        order.push("albumlist")
-    }
-    if (!prefs.hide_filelist) {
-        order.push("filelist")
-    }
-    if (!prefs.hide_lastfmlist) {
-        order.push("lastfmlist")
-    }
-    if (!prefs.hide_radiolist) {
-        order.push("radiolist")
-    }
-    if (!prefs.hidebrowser) {
-        order.push("infopane");
-    }
-    if (landscape) {
-        if (!prefs.twocolumnsinlandscape) {
-            order.push("playlistm");
-        }
-    } else {
-        order.push("playlistm");
-    }
-    for (var i in order) {
-        if (order[i] == prefs.chooser) {
-            var j = (i*1)+(dir*1);
-            if (j<0) { j=order.length-1; }
-            if (j>=order.length) { j = 0; }
-            sourcecontrol(order[j]);
-            break;
-        }
-    }
-}
-
 function doSomethingUseful(div,text) {
     var html = '<div class="containerbox bar">';
     html = html + '<div class="fixed" style="vertical-align:middle;padding-left:8px"><img height="32px" src="newimages/waiter.png" class="spinner"></div>';
@@ -1286,16 +897,14 @@ function refreshMyDrink(path) {
 }
 
 function setChooserButtons() {
-    var s = ["filelist", "lastfmlist", "radiolist"];
+    var s = ["albumlist", "filelist", "lastfmlist", "radiolist"];
     for (var i in s) {
         if (prefs["hide_"+s[i]]) {
-            debug.log("GENERAL",s[i],"is hidden");
             $("#choose_"+s[i]).fadeOut('fast');
         } else {
             $("#choose_"+s[i]).fadeIn('fast');
         }
     }
-    sortOutTheLogicalCraziness();
 }
 
 function getBuyHtml(data) {
@@ -1328,33 +937,6 @@ function doBuyTable(values) {
         html = html +'</li>';
     }
     return html;
-}
-
-function keepsearchopen() {
-    prefs.keep_search_open = !prefs.keep_search_open;
-    prefs.save({keep_search_open: prefs.keep_search_open});
-    sortOutTheLogicalCraziness();
-    if (prefs.keep_search_open) {
-        $("#search").show();
-    }
-}
-
-function sortOutTheLogicalCraziness() {
-    if (prefs.hide_albumlist) {
-        $("#choose_albumlist").fadeOut('fast');
-        if (!prefs.keep_search_open) {
-            $("#choose_searcher").fadeOut('fast');
-        } else {
-            $("#choose_searcher").fadeIn('fast');
-        }
-    } else {
-        $("#choose_albumlist").fadeIn('fast');
-        $("#choose_searcher").fadeIn('fast');
-    }
-}
-
-function showVolumeControl() {
-    $("#volumecontrol").slideToggle('fast');
 }
 
 function findImageInWindow(key) {
@@ -1449,23 +1031,6 @@ function scrollbarWidth() {
     var width2 = outer.clientWidth;
     $outer.remove();
     return (width1 - width2);
-}
-
-function addCustomScrollBar(value) {
-    if (mobile == "no") {
-        $(value).mCustomScrollbar({
-            theme: (prefs.theme == "Light.css" || prefs.theme == "BrushedAluminium.css" || prefs.theme == "Aqua.css") ? "dark-thick" : "light-thick",
-            scrollInertia: 80,
-            contentTouchScroll: true,
-            advanced: {
-                updateOnContentResize: true,
-                autoScrollOnFocus: false
-            },
-            callbacks: {
-                whileScrolling: function(){ playlistScrolled(this); }
-            }
-        });
-    }
 }
 
 function playlistScrolled(el) {
@@ -1582,134 +1147,6 @@ function chooseNewTag(event) {
     tb.val(currvalue);
 }
 
-function initDesktop() {
-    $("#sortable").disableSelection();
-    $("#sortable").sortable({
-        items: ".sortable",
-        axis: 'y',
-        containment: '#sortable',
-        scroll: true,
-        scrollSpeed: 10,
-        tolerance: 'pointer',
-        scrollparent: "#pscroller",
-        customscrollbars: true,
-        scrollSensitivity: 60,
-        start: function(event, ui) {
-            ui.item.css("background", "#555555");
-            ui.item.css("opacity", "0.7")
-        },
-        stop: playlist.dragstopped
-    });
-
-    $("#yourradiolist").sortable({
-        items: ".clickradio,.clickstream",
-        axis: "y",
-        containment: "#yourradiolist",
-        scroll: true,
-        scrollSpeed: 10,
-        tolerance: 'pointer',
-        stop: saveRadioOrder
-    });
-
-    setDraggable('collection');
-    setDraggable('filecollection');
-    setDraggable('search');
-    setDraggable('filesearch');
-
-    // Make the entire playlist area accept drops from the collection
-    $("#pscroller").droppable({
-        //accept: ".draggable",
-        addClasses: false,
-        greedy: true,
-        drop: playlist.draggedToEmpty,
-        hoverClass: "highlighted"
-    });
-
-    // We have to set the sortable as droppable, even though the draggables
-    // are connected to it. This means we can set the 'greedy' option.
-    // Otherwise the drop event bubbles up when we drop over the sortable
-    // and the pscroller event captures it first.
-    $("#sortable").droppable({
-        //accept: ".draggable",
-        addClasses: false,
-        greedy: true,
-        drop: function() {},
-    });
-
-    $("#sourcesresizer").draggable({
-        containment: '#headerbar',
-        axis: 'x'
-    });
-    $("#sourcesresizer").bind("drag", srDrag);
-    $("#sourcesresizer").bind("dragstop", srDragStop);
-    $("#playlistresizer").draggable({
-        containment: 'headerbar',
-        axis: 'x'
-    });
-    $("#playlistresizer").bind("drag", prDrag);
-    $("#playlistresizer").bind("dragstop", prDragStop);
-    doThatFunkyThang();
-    $("ul.topnav li a").click(function() {
-        $(this).parent().find("ul.subnav").slideToggle('fast', function() {
-            if ($(this).is(':visible')) {
-                $(this).mCustomScrollbar("update");
-                if ($(this).attr("id") == "hpscr") {
-                    $('#hpscr').mCustomScrollbar("scrollTo", '.current', {scrollInertia:0});
-                }
-            }
-        });
-        return false;
-    });
-
-    loadKeyBindings();
-    var obj = document.getElementById('volumecontrol');
-    obj.addEventListener('mousedown', function(event) {
-        event.preventDefault();
-        infobar.volumeTouch(event);
-    }, false);
-    obj.addEventListener('mousemove', function(event) {
-        event.preventDefault();
-        infobar.volumeMouseMove(event);
-    }, false);
-    obj.addEventListener('mouseup', function(event) {
-        infobar.volumeDragEnd(event);
-    }, false);
-    obj.addEventListener('mouseout', function(event) {
-        infobar.volumeTouchEnd(event);
-    }, false);
-    $(".enter").keyup( onKeyUp );
-    $(".lettuce,.tooltip").tipTip({delay: 1000, edgeOffset: 8});
-    $.each([ "#sources", "#infopane", "#pscroller", "#lpscr", "#configpanel", "#hpscr", "#searchscr", ".drop-box" ], function( index, value ) {
-        addCustomScrollBar(value);
-    });
-}
-
-function initMobile() {
-    var obj = document.getElementById('volumecontrol');
-    obj.addEventListener('touchstart', function(event) {
-        if (event.targetTouches.length == 1) {
-            infobar.volumeTouch(event.targetTouches[0]);
-
-        }
-    }, false);
-    obj.addEventListener('touchmove', function(event) {
-        event.preventDefault();
-        if (event.targetTouches.length == 1) {
-            infobar.volumeTouch(event.targetTouches[0]);
-        }
-    }, false);
-    obj.addEventListener('touchend', function(event) {
-        infobar.volumeTouchEnd();
-    }, false);
-    $(window).touchwipe({
-        wipeLeft: function() { swipeyswipe(1); },
-        wipeRight: function() { swipeyswipe(-1) },
-        min_move_x: 200,
-        min_move_y: 1000,
-        preventDefaultEvents: false
-    });
-}
-
 function setPrefs() {
     $("#fontsize").attr({href: "sizes/"+prefs.fontsize});
     $("#fontfamily").attr({href: "fonts/"+prefs.fontfamily});
@@ -1717,7 +1154,6 @@ function setPrefs() {
     $("#radioscrobbling").attr("checked", prefs.dontscrobbleradio);
     $("#autocorrect").attr("checked", prefs.lastfm_autocorrect);
     $("#button_hide_albumlist").attr("checked", prefs.hide_albumlist);
-    $("#button_keep_search_open").attr("checked", prefs.keep_search_open);
     $("#button_hide_filelist").attr("checked", prefs.hide_filelist);
     $("#button_hide_lastfmlist").attr("checked", prefs.hide_lastfmlist);
     $("#button_hide_radiolist").attr("checked", prefs.hide_radiolist);
@@ -1744,7 +1180,6 @@ function setPrefs() {
     $("#synclove").attr("checked", prefs.synclove);
     $("#synclovevalue").val(prefs.synclovevalue);
 }
-
 
 function playlistMenuHeader() {
     var html = "";

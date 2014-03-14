@@ -116,7 +116,6 @@ include ("includes/firstrun.php");
 <link rel="stylesheet" type="text/css" href="css/layout.css" />
 <link rel="stylesheet" type="text/css" href="tiptip/tipTip.css" />
 <link type="text/css" href="jqueryui1.8.16/css/start/jquery-ui-1.8.23.custom.css" rel="stylesheet" />
-<link type="text/css" href="custom-scrollbar-plugin/css/jquery.mCustomScrollbar.css" rel="stylesheet" />
 <?php
 if ($mobile != "no") {
     print '<link rel="stylesheet" type="text/css" href="css/layout_mobile.css" />'."\n";
@@ -144,15 +143,18 @@ print '<link rel="stylesheet" id="fontfamily" type="text/css" href="fonts/'.$pre
 if ($mobile != "no") {
     // JQuery touchwipe plugin : http://www.netcu.de/jquery-touchwipe-iphone-ipad-library
     print '<script type="text/javascript" src="jquery/jquery.touchwipe.min.js"></script>'."\n";
+    print '<script type="text/javascript" src="ui/mobile_functions.js"></script>'."\n";
 } else {
     // Masonry layout engine : http://masonry.desandro.com/
     print '<script type="text/javascript" src="jquery/masonry.pkgd.min.js"></script>'."\n";
     // Custom scrollbar plugin : http://manos.malihu.gr/jquery-custom-content-scroller/
+    print '<link type="text/css" href="custom-scrollbar-plugin/css/jquery.mCustomScrollbar.css" rel="stylesheet" />'."\n";
     print '<script type="text/javascript" src="custom-scrollbar-plugin/js/jquery.mCustomScrollbar.concat.min.js"></script>'."\n";
     // Keyboard shortcut helper : http://www.openjs.com/scripts/events/keyboard_shortcuts/
     print '<script type="text/javascript" src="ui/shortcut.js"></script>'."\n";
     // Keycode normaliser by Jonathan Tang : http://jonathan.tang.name/code/js_keycode
     print '<script type="text/javascript" src="ui/keycode.js"></script>'."\n";
+    print '<script type="text/javascript" src="ui/desktop_functions.js"></script>'."\n";
 }
 ?>
 <script type="text/javascript" src="ui/debug.js"></script>
@@ -215,22 +217,18 @@ $(document).ready(function(){
     infobar.createProgressBar();
     $("#progress").click( infobar.seek );
     sbWidth = scrollbarWidth();
-
-    if (mobile == "no") {
-        initDesktop();
-    } else {
-        initMobile();
-    }
-
+    initUI();
     browser.createButtons();
     setChooserButtons();
+    if (prefs.hide_albumlist) {
+        $("#search").show();
+    }
     if (!prefs.hide_lastfmlist) {
         $("#lastfmlist").load("lastfmchooser.php");
     }
     if (!prefs.hide_radiolist) {
         $("#yourradiolist").load("yourradio.php");
     }
-    //$("#tagslist").click(tagClicked);
     setPrefs();
     checkServerTimeOffset();
     sourcecontrol(prefs.chooser);

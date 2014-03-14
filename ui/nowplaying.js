@@ -130,6 +130,8 @@ var nowplaying = function() {
 
 		newTrack: function(playlistinfo) {
 
+		    var maxhistorylength = (mobile == "no") ? 25 : 5;
+
 			infobar.setNowPlayingInfo(playlistinfo);
 			if (playlistinfo == playlist.emptytrack) {
 				return;
@@ -186,9 +188,8 @@ var nowplaying = function() {
 	        playlistinfo.metadata = metadata;
 
 	        // Truncate our history if we've gone over the limit
-	        // the limit is configurable as prefs.historylength, but it's not in the UI
 	        // NOTE: history[0] is not used.
-	        if (currenttrack == prefs.historylength) {
+	        if (currenttrack == maxhistorylength) {
 	        	debug.log("NOWPLAYING","History is too long - truncating by one");
 	        	history.splice(1,1);
 	        	currenttrack--;
