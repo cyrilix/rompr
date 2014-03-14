@@ -105,7 +105,7 @@ var browser = function() {
         if (mobile == "no") {
             html = '<li class="wider"><b>'+language.gettext("menu_history")+'</b></li><li class="wider">';
         } else {
-            html = '<h3>'+language.gettext("menu_history")+'</h3>';
+            html = '<h3 align="center">'+language.gettext("menu_history")+'</h3>';
         }
         html = html + '<table class="histable" width="100%">';
         for (var i in history) {
