@@ -112,12 +112,13 @@ function switchsource(source) {
 function loadKeyBindings() {
     $.getJSON("getkeybindings.php")
         .done(function(data) {
-            shortcut.add(getHotKey(data['nextrack']),   function(){ playlist.next() }, {'disable_in_input':true});
-            shortcut.add(getHotKey(data['prevtrack']),  function(){ playlist.previous() }, {'disable_in_input':true});
-            shortcut.add(getHotKey(data['stop']),       function(){ player.controller.stop() }, {'disable_in_input':true});
-            shortcut.add(getHotKey(data['play']),       function(){ infobar.playbutton.clicked() }, {'disable_in_input':true} );
-            shortcut.add(getHotKey(data['volumeup']),   function(){ infobar.volumeKey(5) }, {'disable_in_input':true} );
-            shortcut.add(getHotKey(data['volumedown']), function(){ infobar.volumeKey(-5) }, {'disable_in_input':true} );
+            shortcut.add(getHotKey(data['nextrack']),    function(){ playlist.next() }, {'disable_in_input':true});
+            shortcut.add(getHotKey(data['prevtrack']),   function(){ playlist.previous() }, {'disable_in_input':true});
+            shortcut.add(getHotKey(data['stop']),        function(){ player.controller.stop() }, {'disable_in_input':true});
+            shortcut.add(getHotKey(data['play']),        function(){ infobar.playbutton.clicked() }, {'disable_in_input':true} );
+            shortcut.add(getHotKey(data['volumeup']),    function(){ infobar.volumeKey(5) }, {'disable_in_input':true} );
+            shortcut.add(getHotKey(data['volumedown']),  function(){ infobar.volumeKey(-5) }, {'disable_in_input':true} );
+            shortcut.add(getHotKey(data['closewindow']), function(){ window.open(location, '_self').close() }, {'disable_in_input':true} );
         })
         .fail( function(data) {  });
 }
@@ -140,7 +141,7 @@ function editkeybindings() {
 
     $.getJSON("getkeybindings.php")
         .done(function(data) {
-            var keybpu = popupWindow.create(500,300,"keybpu",true,language.gettext("title_keybindings"));
+            var keybpu = popupWindow.create(500,400,"keybpu",true,language.gettext("title_keybindings"));
             $("#popupcontents").append('<table align="center" cellpadding="4" id="keybindtable" width="80%"></table>');
             $("#keybindtable").append('<tr><td width="35%" align="right">'+language.gettext("button_next")+'</td><td>'+format_keyinput('nextrack', data)+'</td></tr>');
             $("#keybindtable").append('<tr><td width="35%" align="right">'+language.gettext("button_previous")+'</td><td>'+format_keyinput('prevtrack', data)+'</td></tr>');
@@ -148,6 +149,7 @@ function editkeybindings() {
             $("#keybindtable").append('<tr><td width="35%" align="right">'+language.gettext("button_play")+'</td><td>'+format_keyinput('play', data)+'</td></tr>');
             $("#keybindtable").append('<tr><td width="35%" align="right">'+language.gettext("button_volup")+'</td><td>'+format_keyinput('volumeup', data)+'</td></tr>');
             $("#keybindtable").append('<tr><td width="35%" align="right">'+language.gettext("button_voldown")+'</td><td>'+format_keyinput('volumedown', data)+'</td></tr>');
+            $("#keybindtable").append('<tr><td width="35%" align="right">'+language.gettext("button_closewindow")+'</td><td>'+format_keyinput('closewindow', data)+'</td></tr>');
 
             $("#keybindtable").append('<tr><td colspan="2"><button style="width:8em" class="tleft topformbutton" onclick="popupWindow.close()">'+language.gettext("button_cancel")+'</button>'+
                                         '<button  style="width:8em" class="tright topformbutton" onclick="saveKeyBindings()">'+language.gettext("button_OK")+'</button></td></tr>');
@@ -167,8 +169,9 @@ function format_keyinput(inpname, data) {
 function changeHotKey(ev) {
 
     var key = ev.which;
-    // Ignore Shift, Ctrl, Alt, and Meta, and Esc
-    if (key == 17 || key == 18 || key == 19 || key == 27 || key == 224) {
+    debug.log("HOTKEY", "pressed code was",key);
+    // Ignore Shift, Ctrl, Alt, and Meta
+    if (key == 17 || key == 18 || key == 19 || key == 224) {
         return true;
     }
 
@@ -206,7 +209,7 @@ function changeHotKey(ev) {
         120: 'f9',
         121: 'f10',
         122: 'f11',
-        123: 'f12'
+        123: 'f12',
     }
 
     var keystring = special_keys[key] || String.fromCharCode(key).toUpperCase();

@@ -6,7 +6,8 @@ $keys = array(  "nextrack" => "right+++right",
                 "stop" => "space+++space",
                 "play" => "P+++P",
                 "volumeup" => "A+++A",
-                "volumedown" => "Z+++Z"
+                "volumedown" => "Z+++Z",
+                "closewindow" => "+++Escape"
             );
 
 loadKeyBindings();

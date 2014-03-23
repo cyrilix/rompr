@@ -86,7 +86,8 @@ if (!$mopidy_detected) {
 // See if we can use the SQL backend
 //
 
-include ("backends/sql/backend.php");
+include( "backends/sql/connect.php");
+connect_to_database();
 if ($mysqlc) {
     $prefs["apache_backend"] = "sql";
     $backend_in_use = "sql";

@@ -39,6 +39,7 @@ $languages['en'] = array (
 	"button_love" => "Love this track",
 	"button_ban" => "Ban this track",
 	"button_volume" => "Drag to change volume",
+	"button_closewindow" => "Close Window",
 
 	// Titles for drop-down menus
 	"menu_history" => "HISTORY",
