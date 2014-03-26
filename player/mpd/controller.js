@@ -5,7 +5,6 @@ function playerController() {
     var progresstimer = null;
     var safetytimer = 500;
     var consumeflag = true;
-    var currentsong = -1;
     var previoussongid = null;
     var AlanPartridge = 0;
 
@@ -483,9 +482,7 @@ function playerController() {
             if (playlist.currentTrack) {
                 debug.log("PLAYLIST","Creating new track",playlist.currentTrack);
                 nowplaying.newTrack(playlist.currentTrack);
-                currentsong = playlist.currentTrack.playlistpos;
             } else {
-                currentsong = -1;
                 player.status.songid = undefined;
                 player.status.elapsed = undefined;
                 player.status.file = undefined;
@@ -494,8 +491,6 @@ function playerController() {
                 $(".playlistcurrentitem").removeClass('playlistcurrentitem').addClass('playlistitem');
                 $(".playlistcurrenttitle").removeClass('playlistcurrenttitle').addClass('playlisttitle');
             }
-
-            playlist.doLastFmStuff(currentsong, previoussongid);
 
             previoussongid = player.status.songid;
             consumeflag = true;

@@ -56,10 +56,7 @@ print '<div class="pref">
 print '<div class="pref">
 <input type="checkbox" onclick="hidePanel(\'filelist\')" id="button_hide_filelist">'.get_int_text('config_hidefileslist').'</input>
 </div>';
-print '<div class="pref">
-<input type="checkbox" onclick="hidePanel(\'lastfmlist\')" id="button_hide_lastfmlist">'.get_int_text('config_hidelastfm').'</input>
-</div>
-<div class="pref prefsection">
+print '<div class="pref prefsection">
 <input type="checkbox" onclick="hidePanel(\'radiolist\')" id="button_hide_radiolist">'.get_int_text('config_hideradio').'</input>
 </div>';
 

@@ -167,7 +167,6 @@ if ($mobile != "no") {
 <script type="text/javascript" src="ui/infobar2.js"></script>
 <script type="text/javascript" src="ui/playlist.js"></script>
 <script type="text/javascript" src="ui/coverscraper.js"></script>
-<script type="text/javascript" src="ui/lastfmstation.js"></script>
 <?php
 
 if ($prefs['player_backend'] == "mopidy") {
@@ -195,7 +194,6 @@ function aADownloadFinished() {
 
 var playlist = new Playlist();
 var player = new multiProtocolController();
-var lfmprovider = new lastFMprovider();
 var lastfm = new LastFM(prefs.lastfm_user);
 var coverscraper = new coverScraper(0, false, false, prefs.downloadart);
 
@@ -223,9 +221,6 @@ $(document).ready(function(){
     setChooserButtons();
     if (prefs.hide_albumlist) {
         $("#search").show();
-    }
-    if (!prefs.hide_lastfmlist) {
-        $("#lastfmlist").load("lastfmchooser.php");
     }
     if (!prefs.hide_radiolist) {
         $("#yourradiolist").load("yourradio.php");

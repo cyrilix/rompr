@@ -121,7 +121,6 @@ function LastFM(user) {
                     lastfm_user: username
                 });
                 popupWindow.close();
-                $("#lastfmlist").load("lastfmchooser.php");
             },
             function(data) {
                 popupWindow.close();

@@ -15,7 +15,6 @@ print '<img title="'.get_int_text('button_next').'" class="shiftleft4 clickicon 
         </div>
         <div id="progress"></div>
         <div id="playbackTime">
-        <!-- <span id="playbackTime"></span> -->
         </div>
     </div>
 
@@ -58,7 +57,6 @@ print '<img title="'.get_int_text('button_ban').'" class="clickicon lettuce" id=
 print '<img title="'.get_int_text('button_local_music').'" onclick="sourcecontrol(\'albumlist\')" id="choose_albumlist" class="tooltip topimg" height="24px" src="newimages/audio-x-generic.png">';
 print '<img title="'.get_int_text('button_searchmusic').'" onclick="toggleSearch()" id="choose_searcher" class="topimg tooltip" height="24px" src="newimages/system-search.png">';
 print '<img title="'.get_int_text('button_file_browser').'" onclick="sourcecontrol(\'filelist\')" id="choose_filelist" class="tooltip topimg" height="24px" src="newimages/folder.png">';
-print '<img title="'.get_int_text('button_lastfm').'" onclick="sourcecontrol(\'lastfmlist\')" id="choose_lastfmlist" class="tooltip topimg" height="24px" src="newimages/lastfm.png">';
 print '<img title="'.get_int_text('button_internet_radio').'" onclick="sourcecontrol(\'radiolist\')" id="choose_radiolist" class="tooltip topimg" height="24px" src="newimages/broadcast-24.png">';
 print '<a href="albumart.php" title="'.get_int_text('button_albumart').'" target="_blank" class="tooltip"><img class="topimg" src="newimages/cd_jewel_case.jpg" height="24px"></a>';
 ?>
@@ -194,9 +192,6 @@ if ($prefs['player_backend'] == "mpd") {
 }
 ?>
     <div id="filecollection" class="noborder"></div>
-    </div>
-
-    <div id="lastfmlist" class="invisible">
     </div>
 
     <div id="radiolist" class="invisible">

@@ -10,8 +10,6 @@ function setClickHandlers() {
     $("#search").unbind('dblclick');
     $("#filesearch").unbind('click');
     $("#filesearch").unbind('dblclick');
-    $("#lastfmlist").unbind('click');
-    $("#lastfmlist").unbind('dblclick');
     $("#radiolist").unbind('click');
     $("#radiolist").unbind('dblclick');
 
@@ -19,7 +17,6 @@ function setClickHandlers() {
     $("#filecollection").click(onFileCollectionClicked);
     $("#search").click(onCollectionClicked);
     $("#filesearch").click(onFileCollectionClicked);
-    $("#lastfmlist").click(onLastFMClicked);
     $("#radiolist").click(onRadioClicked);
 
     if (prefs.clickmode == "double") {
@@ -27,7 +24,6 @@ function setClickHandlers() {
         $("#filecollection").dblclick(onFileCollectionDoubleClicked);
         $("#search").dblclick(onCollectionDoubleClicked);
         $("#filesearch").dblclick(onCollectionDoubleClicked);
-        $("#lastfmlist").dblclick(onLastFMDoubleClicked);
         $("#radiolist").dblclick(onRadioDoubleClicked);
     }
 
@@ -39,7 +35,6 @@ function setClickHandlers() {
 }
 
 function onDropdownClicked(event) {
-    debug.log("BADGERS","Dropdown Clicked",event,this);
     var dropbox = $(this).prev().find('.drop-box');
     if (dropbox.is(':visible')) {
         dropbox.slideToggle('fast');
@@ -159,29 +154,6 @@ function onFileCollectionDoubleClicked(event) {
     }
 }
 
-function onLastFMClicked(event) {
-    var clickedElement = findClickableElement(event);
-    if (clickedElement.hasClass("menu")) {
-        doMenu(event, clickedElement);
-    } else if (clickedElement.hasClass("clicklfmuser")) {
-        event.stopImmediatePropagation();
-        window.open("http://www.last.fm/user/"+clickedElement.attr("name"), "_blank");
-    } else if (prefs.clickmode == "single") {
-        onLastFMDoubleClicked(event);
-    }
-}
-
-function onLastFMDoubleClicked(event) {
-    var clickedElement = findClickableElement(event);
-    if (clickedElement.hasClass("clicklfm")) {
-        event.stopImmediatePropagation();
-        doLastFM(clickedElement.attr("name"), lastfm.username());
-    } else if (clickedElement.hasClass("clicklfm2")) {
-        event.stopImmediatePropagation();
-        doLastFM(clickedElement.attr("name"), clickedElement.attr("username"));
-    }
-}
-
 function onRadioClicked(event) {
     var clickedElement = findClickableElement(event);
     if (clickedElement.hasClass("menu")) {
@@ -260,9 +232,6 @@ function onPlaylistClicked(event) {
     } else if (clickedElement.hasClass("clickaddfave")) {
         event.stopImmediatePropagation();
         playlist.addFavourite(clickedElement.attr("name"));
-    } else if (clickedElement.hasClass("clickremovelfmtrack")) {
-        event.stopImmediatePropagation();
-        playlist.checkSongIdAfterStop(clickedElement.attr("romprid"));
     }
 }
 

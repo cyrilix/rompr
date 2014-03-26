@@ -137,7 +137,6 @@ function swipeyswipe(dir) {
     }
     order.unshift("infopane");
     if (!prefs.hide_radiolist) order.unshift("radiolist")
-    if (!prefs.hide_lastfmlist) order.unshift("lastfmlist")
     if (!prefs.hide_filelist) order.unshift("filelist")
     order.unshift("albumlist")
     for (var i in order) {

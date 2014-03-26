@@ -69,9 +69,6 @@ if ($prefs['player_backend'] == "mpd") {
             <div id="filecollection" class="noborder"></div>
         </div>
 
-        <div id="lastfmlist" class="invisible noborder">
-        </div>
-
         <div id="infopane" class="invisible infowiki">
 <?php
             print '<div id="artistinformation" class="infotext"><h2 align="center">'.get_int_text('label_emptyinfo').'</h2></div>';
@@ -135,7 +132,6 @@ if ($prefs['player_backend'] == "mpd") {
 <?php
             print '<div id="choose_albumlist" class="chooser"><a href="#" onclick="sourcecontrol(\'albumlist\')">'.get_int_text('button_local_music').'</a></div>';
             print '<div id="choose_filelist" class="chooser"><a href="#" onclick="sourcecontrol(\'filelist\')">'.get_int_text('button_file_browser').'</a></div>';
-            print '<div id="choose_lastfmlist" class="chooser"><a href="#" onclick="sourcecontrol(\'lastfmlist\')">'.get_int_text('button_lastfm').'</a></div>';
             print '<div id="choose_radiolist" class="chooser"><a href="#" onclick="sourcecontrol(\'radiolist\')">'.get_int_text('button_internet_radio').'</a></div>';
             print '<div id="chooseplaylist" class="chooser"><a href="#" onclick="sourcecontrol(\'playlistm\')">'.get_int_text('button_playlist').'</a></div>';
             print '<div class="chooser"><a href="#" onclick="clearPlaylist()">'.get_int_text('button_clearplaylist').'</a></div>';

@@ -25,7 +25,6 @@ var info_lastfm = function() {
         html = html + '>';
         for(var i in taglist) {
             html = html + '<tr><td><a href="'+taglist[i].url+'" target="_blank">'+taglist[i].name+'</a></td>';
-            html = html + '<td align="right"><a href="#" title="'+language.gettext("lastfm_tagradiotooltip", [taglist[i].name])+'" onclick="doLastFM(\'lastfmglobaltag\', \''+taglist[i].name+'\')"><img style="vertical-align:middle" src="newimages/start.png" height="12px"></a></td></tr>';
         }
         html = html + '</table></li></ul>';
         return html;
@@ -91,7 +90,6 @@ var info_lastfm = function() {
     function appendTag(table, name, url) {
         var html = '<tr class="newtag"><td><a href="'+url+'" target="_blank">'+name+'</a></td>';
         html = html + '<td><img class="infoclick clickremovetag" title="'+language.gettext("lastfm_removetag")+'" style="vertical-align:middle" src="newimages/edit-delete.png" height="12px"></td>';
-        html = html + '<td align="right"><img class="clickicon" style="vertical-align:middle" title="'+language.gettext("lastfm_tagradiotooltip", [name])+'" onclick="doLastFM(\'lastfmglobaltag\', \''+name+'\')" src="newimages/start.png" height="12px"></td></tr>';
         $('table[name="'+table+'tagtable"]').append(html);
         $(".newtag").fadeIn('fast', function(){
             $(this).find('[title]').tipTip({delay: 1000, edgeOffset: 8});
@@ -117,8 +115,6 @@ var info_lastfm = function() {
                 }
             }
         }
-        html = html + '<br><li class="tiny">'+language.gettext("lastfm_similarradio", [lfmdata.name()])+'&nbsp;&nbsp;<a href="#" onclick="doLastFM(\'lastfmartist\', \''+lfmdata.name()+'\')"><img style="vertical-align:middle" src="newimages/start.png" height="12px"></a></li>';
-        html = html + '<br><li class="tiny">'+language.gettext("lastfm_radio_fan", [lfmdata.name()])+'&nbsp;&nbsp;<a href="#" onclick="doLastFM(\'lastfmfan\', \''+lfmdata.name()+'\')"><img style="vertical-align:middle" src="newimages/start.png" height="12px"></a></li>';
         html = html + '</ul><br>';
 
         html = html + doTags(lfmdata.tags());
@@ -156,7 +152,7 @@ var info_lastfm = function() {
             html = html + '<div class="simar">';
             html = html + '<table><tr><td align="center"><img class="infoclick clickzoomimage" src="getRemoteImage.php?url='+lfmdata.similarimage(i, "medium")+'"><input type="hidden" value="getRemoteImage.php?url='+lfmdata.similarimage(i, "mega")+'" /></td></tr>';
             html = html + '<tr><td align="center"><a href="'+similies[i].url+'" target="_blank">'+similies[i].name+'</a></td></tr>';
-            html = html + '<tr><td align="center"><a href="#" title="'+language.gettext("label_artistradio", [similies[i].name])+'" onclick="doLastFM(\'lastfmartist\', \''+similies[i].name+'\')"><img src="newimages/start.png" height="12px"></a></td></tr></table>';
+            html = html + '</table>';
             html = html + '</div>';
         }
         html = html + '</div></td></tr></table></div>';
@@ -202,14 +198,6 @@ var info_lastfm = function() {
             if (tracks[i]['@attr']) { html = html + tracks[i]['@attr'].rank+':'; }
             html = html + '</td><td>'+tracks[i].name+'</td><td>'+formatTimeString(tracks[i].duration)+'</td>';
             html = html + '<td align="right"><a target="_blank" title="'+language.gettext("lastfm_viewtrack")+'" href="'+tracks[i].url+'"><img src="newimages/lastfm.png" height="12px"></a></td><td align="right">';
-            if (tracks[i].streamable) {
-                if (tracks[i].streamable['#text'] == "1") {
-                    var tit = language.gettext("lastfm_playsample");
-                    if (tracks[i].streamable.fulltrack == "1") { tit = language.gettext("lastfm_playtrack"); }
-                    html = html + '<a href="#" title="'+tit+'" onclick="addLastFMTrack(\''+encodeURIComponent(lfmdata.artist())+'\', \''+
-                    encodeURIComponent(tracks[i].name)+'\')"><img src="newimages/start.png" height="12px"></a>';
-                }
-            }
             html = html + '</td></tr>';
         }
         html = html + '</table>';

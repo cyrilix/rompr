@@ -174,59 +174,6 @@ function removeUserStream(xspf) {
     } );
 }
 
-function doLastFM(station, value) {
-    if(typeof value == "undefined") {
-        value = $("#"+station).attr("value");
-    }
-    var url = "";
-    switch (station) {
-        case "lastfmuser":
-            url = "lastfm://user/"+value+"/";
-            break;
-        case "lastfmmix":
-            url = "lastfm://user/"+value+"/mix";
-            break;
-        case "lastfmrecommended":
-            url = "lastfm://user/"+value+"/recommended";
-            break;
-        case "lastfmneighbours":
-            url = "lastfm://user/"+value+"/neighbours";
-            break;
-        case "lastfmartist":
-            url = "lastfm://artist/"+value+"/similarartists";
-            break;
-        case "lastfmfan":
-            url = "lastfm://artist/"+value+"/fans";
-            break;
-        case "lastfmglobaltag":
-            url = "lastfm://globaltags/"+value;
-            break;
-        case "lastfmloved":
-            url = "lastfm://globaltags/"+$('input[name="taglovedwith"]').attr("value");
-            break;
-    }
-    playlist.waiting();
-    lfmprovider.getTracks(url, 5, -1, true, null);
-}
-
-function lastFMTrackFailed(data) {
-    playlist.repopulate();
-    infobar.notify(infobar.ERROR, language.gettext("label_tunefailed")+" : "+data.error);
-}
-
-function addLastFMTrack(artist, track) {
-    debug.log("Adding Last.FM track",track,"by",artist);
-    playlist.waiting();
-    lastfm.track.getInfo({track: decodeURIComponent(track), artist: decodeURIComponent(artist)}, gotTrackInfoForStream, lastFMTrackFailed);
-}
-
-function gotTrackInfoForStream(data) {
-    debug.log("Got Track Info For Stream",data);
-    if (data && data.error) { lastFMTrackFailed(data); return false };
-    var url = "lastfm://play/tracks/"+data.track.id;
-    lastfm.track.getPlaylist({url: url}, playlist.newInternetRadioStation, lastFMTuneFailed);
-}
-
 function togglePref(pref) {
     var prefobj = new Object;
     prefobj[pref] = ($("#"+pref).is(":checked"));
@@ -235,34 +182,6 @@ function togglePref(pref) {
         coverscraper.toggle($("#"+pref).is(":checked"));
     } else if (pref == 'twocolumnsinlandscape') {
         setBottomPaneSize();
-    }
-}
-
-function getNeighbours(event) {
-    if (!gotNeighbours) {
-        makeWaitingIcon("neighbourwait");
-        lastfm.user.getNeighbours({user: lastfm.username()}, gotNeighbourData, gotNoNeighbours);
-    }
-}
-
-function getFriends(event) {
-    if (!gotFriends) {
-        makeWaitingIcon("freindswait");
-        lastfm.user.getFriends({user: lastfm.username()}, gotFriendsData, gotNoFriends);
-    }
-}
-
-function getTopTags(event) {
-    if (!gotTopTags) {
-        makeWaitingIcon("toptagswait");
-        lastfm.user.getTopTags({user: lastfm.username()}, gotTopTagsData, gotNoTopTags);
-    }
-}
-
-function getTopArtists(event) {
-    if (!gotTopArtists) {
-        makeWaitingIcon("topartistswait");
-        lastfm.user.getTopArtists({user: lastfm.username()}, gotTopArtistsData, gotNoTopArtists);
     }
 }
 
@@ -280,112 +199,9 @@ function loadBigRadio() {
     }
 }
 
-function gotNoNeighbours(data) {
-    stopWaitingIcon("neighbourwait");
-    infobar.notify(infobar.NOTIFY, language.gettext("label_noneighbours"));
-}
-
-function gotNoFriends(data) {
-    stopWaitingIcon("freindswait");
-    infobar.notify(infobar.NOTIFY, language.gettext("label_nofreinds"));
-}
-
-function gotNoTopTags(data) {
-    stopWaitingIcon("toptagswait");
-    infobar.notify(infobar.NOTIFY, language.gettext("label_notags"));
-}
-
-function gotNoTopArtists(data) {
-    stopWaitingIcon("topartistswait");
-    infobar.notify(infobar.NOTIFY, language.gettext("label_noartists"));
-}
-
 function toggleFileSearch() {
     $("#filesearch").slideToggle('fast');
     return false;
-}
-
-function gotTopTagsData(data) {
-    gotTopTags = true;
-    stopWaitingIcon("toptagswait");
-    var tagdata = getArray(data.toptags.tag);
-    var html = "";
-    for (var i in tagdata) {
-        html = html + '<div class="clickable clicklfm2 indent containerbox padright menuitem" name="lastfmglobaltag" username="'+tagdata[i].name+'">';
-        html = html + '<div class="playlisticon fixed"><img width="16px" src="newimages/lastfm.png" /></div>';
-        html = html + '<div class="expand indent">'+tagdata[i].name+'&nbsp;('+tagdata[i].count+')</div>';
-        html = html + '</div>';
-    }
-    $("#lfmtoptags").html(html);
-    html = null;
-}
-
-function gotTopArtistsData(data) {
-    gotTopArtists = true;
-    stopWaitingIcon("topartistswait");
-    var artistdata = getArray(data.topartists.artist);
-    var html = "";
-    for (var i in artistdata) {
-        html = html + '<div class="clickable clicklfm2 indent containerbox padright menuitem" name="lastfmartist" username="'+artistdata[i].name+'">';
-        html = html + '<div class="playlisticon fixed"><img width="16px" src="newimages/lastfm.png" /></div>';
-        html = html + '<div class="expand indent">'+artistdata[i].name+'&nbsp;('+artistdata[i].playcount+' plays)</div>';
-        html = html + '</div>';
-    }
-    $("#lfmtopartists").html(html);
-    html = null;
-}
-
-function gotNeighbourData(data) {
-    gotNeighbours = true;
-    if (data.neighbours.user) {
-        var html = getLfmPeople(data.neighbours, "lfmn");
-        $('#lfmneighbours').html(html);
-        html = null;
-    }
-    stopWaitingIcon("neighbourwait");
-}
-
-function gotFriendsData(data) {
-    gotFriends = true;
-    if (data.friends.user) {
-        var html = getLfmPeople(data.friends, "lfmf");
-        $("#lfmfriends").html(html);
-        html = null;
-    }
-    stopWaitingIcon("freindswait");
-}
-
-function getLfmPeople(data, prefix) {
-    var userdata = getArray(data.user);
-    var html = "";
-    var count = 0;
-    for(var i in userdata) {
-        html = html + '<div class="containerbox menuitem">';
-        html = html + '<div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="'+prefix+count.toString()+'" /></div>';
-        if (userdata[i].image[0]['#text'] != "") {
-            html = html + '<div class="smallcover fixed"><img class="smallcover fixed clickable clickicon clicklfmuser" name="'+userdata[i].name+'" src="'+userdata[i].image[0]['#text']+'" /></div>';
-        } else {
-            html = html + '<div class="smallcover fixed"><img class="smallcover fixed clickable clickicon clicklfmuser" name="'+userdata[i].name+'" src="newimages/album-unknown-small.png" /></div>';
-        }
-        html = html + '<div class="expand">'+userdata[i].name+'</div>';
-        html = html + '</div>';
-        html = html + '<div id="'+prefix+count.toString()+'" class="dropmenu">';
-        html = html + '<div class="clickable clicklfm2 indent containerbox padright menuitem" name="lastfmuser" username="'+userdata[i].name+'">';
-        html = html + '<div class="expand">'+language.gettext("label_userlibrary", [userdata[i].name])+'</div>';
-        html = html + '</div>';
-        html = html + '<div class="clickable clicklfm2 indent containerbox padright menuitem" name="lastfmmix" username="'+userdata[i].name+'">';
-        html = html + '<div class="expand">'+language.gettext("label_usermix", [userdata[i].name])+'</div>';
-        html = html + '</div>';
-        html = html + '<div class="clickable clicklfm2 indent containerbox padright menuitem" name="lastfrecommended" username="'+userdata[i].name+'">';
-        html = html + '<div class="expand">'+language.gettext("label_userrecommended", [userdata[i].name])+'</div>';
-        html = html + '</div>';
-        html = html + '<div class="clickable clicklfm2 indent containerbox padright menuitem" name="lastfmneighbours" username="'+userdata[i].name+'">';
-        html = html + '<div class="expand">'+language.gettext("label_neighbourhood", [userdata[i].name])+'</div>';
-        html = html + '</div>';
-        html = html + '</div>';
-        count++;
-    }
-    return html;
 }
 
 var imagePopup=function(){
@@ -752,12 +568,12 @@ function pollAlbumList() {
 function sourcecontrol(source) {
 
     if (mobile == "no") {
-        sources = ["lastfmlist", "albumlist", "filelist", "radiolist"];
+        sources = ["albumlist", "filelist", "radiolist"];
     } else {
         if (landscape) {
-            sources = ["lastfmlist", "albumlist", "filelist", "radiolist", "infopane", "chooser", "historypanel", "playlistman", "prefsm"];
+            sources = ["albumlist", "filelist", "radiolist", "infopane", "chooser", "historypanel", "playlistman", "prefsm"];
         } else {
-            sources = ["lastfmlist", "albumlist", "filelist", "radiolist", "infopane", "playlistm", "chooser", "historypanel", "playlistman", "prefsm"];
+            sources = ["albumlist", "filelist", "radiolist", "infopane", "playlistm", "chooser", "historypanel", "playlistman", "prefsm"];
         }
     }
     for(var i in sources) {
@@ -781,7 +597,7 @@ function hidePanel(panel) {
         if (is_hidden != new_state) {
             if (new_state && prefs.chooser == panel) {
                 $("#"+panel).fadeOut('fast');
-                var s = ["albumlist", "filelist", "lastfmlist", "radiolist"];
+                var s = ["albumlist", "filelist", "radiolist"];
                 for (var i in s) {
                     if (s[i] != panel && !prefs["hide_"+s[i]]) {
                         switchsource(s[i]);
@@ -796,9 +612,6 @@ function hidePanel(panel) {
     }
     if (new_state) {
         switch (panel) {
-            case "lastfmlist":
-                $("#lastfmlist").empty();
-                break;
             case "radiolist":
                 $("#bbclist").empty();
                 $("#somafmlist").empty();
@@ -819,9 +632,6 @@ function hidePanel(panel) {
         }
     } else {
         switch (panel) {
-            case "lastfmlist":
-                $("#lastfmlist").load("lastfmchooser.php");
-                break;
             case "radiolist":
                 $("#yourradiolist").load("yourradio.php");
                 podcasts.loadList();
@@ -864,7 +674,7 @@ function refreshMyDrink(path) {
 }
 
 function setChooserButtons() {
-    var s = ["albumlist", "filelist", "lastfmlist", "radiolist"];
+    var s = ["albumlist", "filelist", "radiolist"];
     for (var i in s) {
         if (prefs["hide_"+s[i]]) {
             $("#choose_"+s[i]).fadeOut('fast');
@@ -1122,7 +932,6 @@ function setPrefs() {
     $("#autocorrect").attr("checked", prefs.lastfm_autocorrect);
     $("#button_hide_albumlist").attr("checked", prefs.hide_albumlist);
     $("#button_hide_filelist").attr("checked", prefs.hide_filelist);
-    $("#button_hide_lastfmlist").attr("checked", prefs.hide_lastfmlist);
     $("#button_hide_radiolist").attr("checked", prefs.hide_radiolist);
     $("#updateeverytime").attr("checked", prefs.updateeverytime);
     $("#downloadart").attr("checked", prefs.downloadart);
