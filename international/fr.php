@@ -12,7 +12,6 @@ $languages['fr'] = array (
 	// The Sources Chooser Button tooltips
 	"button_local_music" => "Musique",
 	"button_file_browser" => "Parcourir",
-	"button_lastfm" => "Radio Last.FM",
 	"button_internet_radio" => "Radios Internet et Podcasts",
 	"button_albumart" => "Gestion De Pochettes",
 
@@ -79,7 +78,6 @@ $languages['fr'] = array (
 	"config_lastfmusername" => "Utilisateur Last.FM",
 	"config_loginbutton" => "Connexion",
 	"config_scrobbling" => "Scrobbling Last.FM Activé",
-	"config_radioscrobbling" => "Ne Pas Scrobbler Les Pistes Radio",
 	"config_scrobblepercent" => "Pourcentage de pistes à jouer avec de scrobbler",
 	"config_autocorrect" => "Auto-correction Last.FM Activée",
 	"config_tagloved" => "Tagguer Pistes Aimées Avec:",
@@ -125,7 +123,7 @@ $languages['fr'] = array (
 	"button_search" => "Recherche",
 	"label_searchresults" => "Résultats",
 	"label_multiterms" => "Plusieurs termes peuvent être utilisés simultanément",
-	"label_limitsearch" => "Limite Des Recherches Spécifiques",
+	"label_limitsearch" => "Limite Des Recherches",
 	"label_filesearch" => "Recherche Des Fichiers Contenant",
 
 	// General multipurpose labels
@@ -154,6 +152,7 @@ $languages['fr'] = array (
 	"label_notags" => "Aucun tag trouvé",
 	"label_noartists" => "Aucun artiste trouvé",
 	"mopidy_tooold" => "Votre version de Mopidy est trop vieille. Merci de mettre à jour vers la version %s ou supérieure",
+	"button_playradio" => "Lecture",
 
 	// Playlist and Now Playing
 	"label_waitingforstation" => "Attente des informations de cette station...",
@@ -162,7 +161,7 @@ $languages['fr'] = array (
 	"label_addingtracks" => "Ajouter Des Pistes",
 	// Now Playing - [track name] by [artist] on [album]
 	"label_by" => "par",
-	"label_on" => "en",
+	"label_on" => "dans",
 	// Now playing - 1:45 of 6:50
 	"label_of" => "de",
 
@@ -218,30 +217,6 @@ $languages['fr'] = array (
 	"podcast_expired" => "Cet épisode a expiré",
 	// eg 2 days left to listen
 	"podcast_timeleft" => "%s jours restants pour écouter",
-
-	// Last.FM Chooser Panel
-	// Title - %s will be replaced with the value of label_lastfm
-	"label_lastfmradio" => "%s Radio Personnelle",
-	// Radio Stations, tags, and friends. %s will be replaced by the Last.FM User Name
-	"label_userlibrary" => "Bibliothèque Radio de %s",
-	"label_usermix" => "Mix Radio de %s",
-	"label_userrecommended" => "Radio des Recommandations de %s",
-	"label_neighbourhood" => "Radio de Voisinnage de %s",
-	"label_toptags" => "Top des Tags de %s",
-	"label_topartists" => "Top des Artistes de %s",
-	"label_freinds" => "Amis de %s",
-	"label_neighbours" => "Voisinnage de %s",
-	// Loved stations tag radio. %s will be replaced with the value of the
-	// config item for 'Tag Loved Tracks With'
-	"label_lovedtagradio" => "Pistes Tagguées Avec '%s'",
-	// Label for radio station text entry boxes. %s will be replaced with
-	// the value of label_lastfm
-	"label_artistradio" => "Radio Artiste %s",
-	"label_fanradio" => "Fan Radio Artiste %s",
-	"label_tagradio" => "Radio Tag Globale %s",
-	"button_playradio" => "Lecture",
-	"label_notloggedin" => "Merci de vous identifier à %s pour utiliser la radio %s",
-	"label_notloggedin2" => "Remarque: La radio %s nécessite un abonnement et n'est peut-être pas disponible dans votre pays",
 
 	// Soma FM Chooser Panel
 	"label_soma" => "Soma.FM est une radio musicale, non commerciale, diffusée depuis San Francisco exclusivement via internet",
@@ -352,7 +327,6 @@ $languages['fr'] = array (
 	"lastfm_plays" => "Lectures:",
 	"lastfm_yourplays" => "Vos Lectures:",
 	"lastfm_toptags" => "TOP TAGS:",
-	"lastfm_tagradiotooltip" => "Lecture De La Station De Radio %s",
 	"lastfm_readfullbio" => "Lire Biographie Complète",
 	"lastfm_addtags" => "AJOUT DE TAGS",
 	"lastfm_addtagslabel" => "Ajout de tags, séparés par des virgules",
@@ -360,15 +334,11 @@ $languages['fr'] = array (
 	"lastfm_yourtags" => "VOS TAGS:",
 	"lastfm_buyoncd" => "ACHETER EN CD:",
 	"lastfm_download" => "TÉLÉCHARGEMENT:",
-	"lastfm_similarradio" => "Ecouter des artistes proches de %s",
-	"lastfm_radio_fan" => "Ecouter ce que les fans de %s écoutent",
 	"lastfm_simar" => "Artistes Proches",
 	"lastfm_removetag" => "Supprimer Le Tag",
 	"lastfm_buyalbum" => "ACHETER CET ALBUM",
 	"lastfm_releasedate" => "Date De Sortie",
 	"lastfm_viewtrack" => "Voir la pise sur Last.FM",
-	"lastfm_playsample" => "Jouer Un Extrait",
-	"lastfm_playtrack" => "Jouer La Piste",
 	"lastfm_buytrack" => "ACHETER CETTE PISTE",
 	"lastfm_tagerror" => "Echec de modification des tags",
 	"lastfm_loved" => "Aimé",

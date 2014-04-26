@@ -12,7 +12,6 @@ $languages['pirate'] = array (
 	// The Sources Chooser Button tooltips
 	"button_local_music" => "Ye Onboard Shantys",
 	"button_file_browser" => "Ye view of ye disc",
-	"button_lastfm" => "Listen t' magic radio from t' red ball",
 	"button_internet_radio" => "Ye radio from t'int'net",
 	"button_albumart" => "Ye valuable paintings",
 
@@ -79,7 +78,6 @@ $languages['pirate'] = array (
 	"config_lastfmusername" => "Me name in t' red ball club",
 	"config_loginbutton" => "Arrrrrr",
 	"config_scrobbling" => "Avast! Scrobbling is witchcraft",
-	"config_radioscrobbling" => "T' wireless be not scrobbled",
 	"config_scrobblepercent" => "Afore ye scrobble, pipe this much shanty",
 	"config_autocorrect" => "Ye red ball corrects ye",
 	"config_tagloved" => "Ye beautys be marked wi'",
@@ -207,31 +205,6 @@ $languages['pirate'] = array (
 	"podcast_expired" => "This episode has expired",
 	// eg 2 days left to listen
 	"podcast_timeleft" => "%s left to listen",
-
-
-	// Last.FM Chooser Panel
-	// Title - %s will be replaced with the value of label_lastfm
-	"label_lastfmradio" => "%s wireless o' yer own",
-	// Radio Stations %s will be replaced by the Last.FM User Name
-	"label_userlibrary" => "Ye shanty library for %s",
-	"label_usermix" => "Ye mix of old and new for %s",
-	"label_userrecommended" => "What t' red ball thinks %s should be listenin' to",
-	"label_neighbourhood" => "What t' other cap'ns are listenin' to",
-	"label_toptags" => "Ye most used marks o' cap'n %s",
-	"label_topartists" => "Ye most regarded minstrels o' cap'n %s",
-	// Loved stations tag radio. %s will be replaced with the value of the
-	// config item for 'Tag Loved Tracks With'
-	"label_lovedtagradio" => "Ye Beauties marked wi' ye sign o' '%s'",
-	// Label for radio station text entry boxes. %s will be replced with
-	// the value of label_lastfm
-	"label_artistradio" => "Music o' minstrels from %s",
-	"label_fanradio" => "Admirers o' a minstrel from %s",
-	"label_tagradio" => "Shantys from %s wi ye mark o'",
-	"label_freinds" => "Cap'n %s's trusted cutlass bearers",
-	"label_neighbours" => "Cap'n %s's piratical associates",
-	"button_playradio" => "Arrrrr",
-	"label_notloggedin" => "Avast! Ye must cross the palm of %s to listen to %s minstrels",
-	"label_notloggedin2" => "%s may not travel for a lubber like you",
 
 	// Soma FM Chooser Panel
 	"label_soma" => "Soma.FM is a listener supported commercial-free radio station from San Francisco, which be somewhere o'er t'horizon",

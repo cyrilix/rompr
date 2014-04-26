@@ -287,11 +287,6 @@ var infobar = function() {
 
         scrobble: function() {
             if (!scrobbled && lastfm.isLoggedIn()) {
-                if (prefs.dontscrobbleradio && trackinfo.type != "local") {
-                    debug.log("INFOBAR","Not Scrobbling because track is not local");
-                    scrobbled = true;
-                    return 0;
-                }
                 if (trackinfo.title != "" && trackinfo.name != "") {
                     var options = {
                                     timestamp: parseInt(starttime.toString()),

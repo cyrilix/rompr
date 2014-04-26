@@ -114,7 +114,6 @@ var tagManager = function() {
 		},
 
 		redoLayout: function() {
-			debug.log("TAGMANAGER","Redo Layout");
 			if (tmg) {
 				var w = $("#infopane").width();
 				if (w < 500) {

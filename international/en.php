@@ -12,7 +12,6 @@ $languages['en'] = array (
 	// The Sources Chooser Button tooltips
 	"button_local_music" => "Music Collection",
 	"button_file_browser" => "File Browser",
-	"button_lastfm" => "Last.FM Radio",
 	"button_internet_radio" => "Internet Radio Stations and Podcasts",
 	"button_albumart" => "Album Art Manager",
 
@@ -81,7 +80,6 @@ $languages['en'] = array (
 	"config_lastfmusername" => "Last.FM Username",
 	"config_loginbutton" => "Login",
 	"config_scrobbling" => "Last.FM Scrobbling Enabled",
-	"config_radioscrobbling" => "Don't Scrobble Radio Tracks",
 	"config_scrobblepercent" => "Percentage of track to play before scrobbling",
 	"config_autocorrect" => "Last.FM Autocorrect Enabled",
 	"config_tagloved" => "Tag Loved Tracks With:",
@@ -164,6 +162,7 @@ $languages['en'] = array (
 	"label_notags" => "Did not find any tags",
 	"label_noartists" => "Did not find any top artists",
 	"mopidy_tooold" => "Your version of Mopidy is too old. Please update to version %s or later",
+	"button_playradio" => "Play",
 
 	// Playlist and Now Playing
 	"label_waitingforstation" => "Waiting for station info...",
@@ -228,30 +227,6 @@ $languages['en'] = array (
 	"podcast_expired" => "This episode has expired",
 	// eg 2 days left to listen
 	"podcast_timeleft" => "%s left to listen",
-
-	// Last.FM Chooser Panel
-	// Title - %s will be replaced with the value of label_lastfm
-	"label_lastfmradio" => "%s Personal Radio",
-	// Radio Stations, tags, and friends. %s will be replaced by the Last.FM User Name
-	"label_userlibrary" => "%s's Library Radio",
-	"label_usermix" => "%s's Mix Radio",
-	"label_userrecommended" => "%s's Recommended Radio",
-	"label_neighbourhood" => "%s's Neighbourhood Radio",
-	"label_toptags" => "%s's Top Tags",
-	"label_topartists" => "%s's Top Artists",
-	"label_freinds" => "%s's Freinds",
-	"label_neighbours" => "%s's Neighbours",
-	// Loved stations tag radio. %s will be replaced with the value of the
-	// config item for 'Tag Loved Tracks With'
-	"label_lovedtagradio" => "Tracks Tagged With '%s'",
-	// Label for radio station text entry boxes. %s will be replaced with
-	// the value of label_lastfm
-	"label_artistradio" => "%s Artist Radio",
-	"label_fanradio" => "%s Artist Fan Radio",
-	"label_tagradio" => "%s Global Tag Radio",
-	"button_playradio" => "Play",
-	"label_notloggedin" => "Please log in to %s to use %s radio",
-	"label_notloggedin2" => "Please Note: %s radio requires a subscription and may not be available in your country",
 
 	// Soma FM Chooser Panel
 	"label_soma" => "Soma.FM is a listener supported commercial-free radio station from San Francisco",
@@ -362,7 +337,6 @@ $languages['en'] = array (
 	"lastfm_plays" => "Plays:",
 	"lastfm_yourplays" => "Your Plays:",
 	"lastfm_toptags" => "TOP TAGS:",
-	"lastfm_tagradiotooltip" => "Play %s Radio Station",
 	"lastfm_readfullbio" => "Read Full Biography",
 	"lastfm_addtags" => "ADD TAGS",
 	"lastfm_addtagslabel" => "Add tags, comma separated",
@@ -370,15 +344,11 @@ $languages['en'] = array (
 	"lastfm_yourtags" => "YOUR TAGS:",
 	"lastfm_buyoncd" => "BUY ON CD:",
 	"lastfm_download" => "DOWNLOAD:",
-	"lastfm_similarradio" => "Hear artists similar to %s",
-	"lastfm_radio_fan" => "Play what fans of %s are listening to",
 	"lastfm_simar" => "Similar Artists",
 	"lastfm_removetag" => "Remove Tag",
 	"lastfm_buyalbum" => "BUY THIS ALBUM",
 	"lastfm_releasedate" => "Release Date",
 	"lastfm_viewtrack" => "View track on Last.FM",
-	"lastfm_playsample" => "Play Sample",
-	"lastfm_playtrack" => "Play Track",
 	"lastfm_buytrack" => "BUY THIS TRACK",
 	"lastfm_tagerror" => "Failed to modify tags",
 	"lastfm_loved" => "Loved",

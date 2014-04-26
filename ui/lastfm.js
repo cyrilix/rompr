@@ -41,8 +41,7 @@ function LastFM(user) {
 
     this.setscrobblestate = function() {
         prefs.save({ lastfm_scrobbling: $("#scrobbling").is(":checked"),
-                    lastfm_autocorrect: $("#autocorrect").is(":checked"),
-                    dontscrobbleradio: $("#radioscrobbling").is(":checked")}
+                    lastfm_autocorrect: $("#autocorrect").is(":checked")}
         );
     }
 

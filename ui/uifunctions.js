@@ -928,7 +928,6 @@ function setPrefs() {
     $("#fontsize").attr({href: "sizes/"+prefs.fontsize});
     $("#fontfamily").attr({href: "fonts/"+prefs.fontfamily});
     $("#scrobbling").attr("checked", prefs.lastfm_scrobbling);
-    $("#radioscrobbling").attr("checked", prefs.dontscrobbleradio);
     $("#autocorrect").attr("checked", prefs.lastfm_autocorrect);
     $("#button_hide_albumlist").attr("checked", prefs.hide_albumlist);
     $("#button_hide_filelist").attr("checked", prefs.hide_filelist);

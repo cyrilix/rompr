@@ -647,7 +647,6 @@ function process_file($collection, $filedata) {
 function getStuffFromXSPF($url) {
     global $xml;
     global $xspf_loaded;
-    global $lfm_xspfs;
     global $stream_xspfs;
     global $podcasts;
 
@@ -655,11 +654,6 @@ function getStuffFromXSPF($url) {
     // - saves time later as we don't have to read them in every time.
 
     if (!$xspf_loaded) {
-        $playlists = glob("prefs/LFMRADIO*.xspf");
-        foreach($playlists as $i => $file) {
-            $x = simplexml_load_file($file);
-            array_push($lfm_xspfs, $x);
-        }
         $playlists = glob("prefs/USERSTREAM*.xspf");
         foreach($playlists as $i => $file) {
             $x = simplexml_load_file($file);
@@ -678,38 +672,6 @@ function getStuffFromXSPF($url) {
             }
         }
         $xspf_loaded = true;
-    }
-
-    if (preg_match('/play\.last\.fm/', $url)) {
-        foreach($lfm_xspfs as $i => $x) {
-            foreach($x->playlist->trackList->track as $i => $track) {
-                if($track->location == $url) {
-                    $image = (string) $track->image;
-                    if (preg_match('/^http:/', $image)) {
-                        $image = "getRemoteImage.php?url=".$image;
-                    }
-                    return array (
-                        true,
-                        (string) $track->title,
-                        ($track->duration)/1000,
-                        null,
-                        null,
-                        null,
-                        (string) $track->creator,
-                        (string) $track->album,
-                        null,
-                        "lastfmradio",
-                        $image,
-                        (string) $track->expires,
-                        (string) $x->playlist->stationurl,
-                        (string) $x->playlist->title,
-                        null,
-                        (string) $track->creator
-                    );
-                }
-
-            }
-        }
     }
 
     foreach ($podcasts as $x) {
@@ -769,28 +731,6 @@ function getStuffFromXSPF($url) {
                 );
             }
         }
-    }
-
-    if (file_exists('prefs/'.md5($url).'.xspf')) {
-        $x = simplexml_load_file('prefs/'.md5($url).'.xspf');
-        return array (
-            true,
-            (string) $x->trackList->track->title,
-            ($x->trackList->track->duration)/1000,
-            null,
-            null,
-            null,
-            (string) $x->trackList->track->creator,
-            (string) $x->trackList->track->album,
-            null,
-            "local",
-            (string) $x->trackList->track->image,
-            null,
-            null,
-            null,
-            null,
-            (string) $x->trackList->track->creator
-        );
     }
 
     return array(

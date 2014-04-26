@@ -141,9 +141,6 @@ print '<div class="pref">
 <input type="checkbox" onclick="lastfm.setscrobblestate()" id="scrobbling">'.get_int_text('config_scrobbling').'</input>
 </div>
 <div class="pref">
-<input type="checkbox" onclick="lastfm.setscrobblestate()" id="radioscrobbling">'.get_int_text('config_radioscrobbling').'</input>
-</div>
-<div class="pref">
 <div>'.get_int_text('config_scrobblepercent').'</div>
 <div id="scrobwrangler"></div>
 </div>
