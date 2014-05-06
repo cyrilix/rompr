@@ -5,6 +5,8 @@ include ("includes/vars.php");
 include ("includes/functions.php");
 include ("international.php");
 
+set_time_limit(600);
+
 $player_backend = $prefs['player_backend'];
 $apache_backend = "xml";
 if (array_key_exists('rebuild', $_REQUEST) ||
