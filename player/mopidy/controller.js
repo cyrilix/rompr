@@ -456,6 +456,7 @@ function playerController() {
                     type: "POST",
                     url: uri,
                     data: JSON.stringify(data),
+                    timeout: 600000,
                     contentType: "application/json",
                     success: function(data) {
                         $("#collection").html(data);

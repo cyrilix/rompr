@@ -69,9 +69,6 @@ function close_player() {
 function doCollection($command) {
 
     global $connection;
-    global $is_connected;
-    global $COMPILATION_THRESHOLD;
-    global $prefs;
     $collection = new musicCollection($connection);
 
     debug_print("Starting Collection Scan ".$command, "MPD");
@@ -79,25 +76,27 @@ function doCollection($command) {
     $files = array();
     $filecount = 0;
     fputs($connection, $command."\n");
-    $firstline = null;
     $filedata = array();
     $parts = true;
+    $foundfile = false;
+
     while(!feof($connection) && $parts) {
         $parts = getline($connection);
         if (is_array($parts)) {
-            if ($parts[0] == $firstline) {
-                $filecount++;
-                process_file($collection, $filedata);
-                $filedata = array();
+            if ($parts[0] == "file") {
+                if (!$foundfile) {
+                    $foundfile = true;
+                } else {
+                    $filecount++;
+                    process_file($collection, $filedata);
+                    $filedata = array();
+                }
             }
             $value = is_array($parts[1]) ? $parts[1][0] : $parts[1];
             if ($parts[0] == "Last-Modified") {
                 $value = strtotime($value);
             }
             $filedata[$parts[0]] = $value;
-            if ($firstline == null) {
-                $firstline = $parts[0];
-            }
         }
     }
 
