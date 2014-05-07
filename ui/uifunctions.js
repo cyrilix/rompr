@@ -932,6 +932,7 @@ function setPrefs() {
     $("#button_hide_albumlist").attr("checked", prefs.hide_albumlist);
     $("#button_hide_filelist").attr("checked", prefs.hide_filelist);
     $("#button_hide_radiolist").attr("checked", prefs.hide_radiolist);
+    $("#button_hide_browser").attr("checked", prefs.hidebrowser);
     $("#updateeverytime").attr("checked", prefs.updateeverytime);
     $("#downloadart").attr("checked", prefs.downloadart);
     $("#fullbiobydefault").attr("checked", prefs.fullbiobydefault);

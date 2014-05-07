@@ -59,6 +59,11 @@ print '<div class="pref">
 print '<div class="pref prefsection">
 <input type="checkbox" onclick="hidePanel(\'radiolist\')" id="button_hide_radiolist">'.get_int_text('config_hideradio').'</input>
 </div>';
+if ($mobile == "no") {
+print '<div class="pref prefsection">
+<input type="checkbox" onclick="hideBrowser()" id="button_hide_browser">'.get_int_text('config_hidebrowser').'</input>
+</div>';
+}
 
 // Biography and Language
 print '<div class="pref">

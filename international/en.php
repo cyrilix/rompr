@@ -55,6 +55,7 @@ $languages['en'] = array (
 	"config_hidefileslist" => "Hide Files List",
 	"config_hidelastfm" => "Hide Last.FM Stations",
 	"config_hideradio" => "Hide Radio Stations",
+	"config_hidebrowser" => "Hide Info Panel",
 	"config_fullbio" => "Retrieve full artist biographies from Last.FM",
 	"config_lastfmlang" => "Language for Last.FM and Wikipedia",
 	"config_lastfmdefault" => "Default language (English)",

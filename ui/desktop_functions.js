@@ -37,8 +37,9 @@ function toggleSearch() {
 function doThatFunkyThang() {
     var sourcesweight = (prefs.sourceshidden) ? 0 : 1;
     var playlistweight = (prefs.playlisthidden) ? 0 : 1;
+    var browserweight = (prefs.hidebrowser) ? 0 : 1;
 
-    var browserwidth = (100 - (prefs.playlistwidthpercent*playlistweight) - (prefs.sourceswidthpercent*sourcesweight));
+    var browserwidth = (100 - (prefs.playlistwidthpercent*playlistweight) - (prefs.sourceswidthpercent*sourcesweight))*browserweight;
     var sourceswidth = (100 - (prefs.playlistwidthpercent*playlistweight) - browserwidth)*sourcesweight;
     var playlistwidth = (100 - sourceswidth - browserwidth)*playlistweight;
 
@@ -59,11 +60,29 @@ function doThatFunkyThang() {
         $("#playlistcontrols").toggle("fast");
     }
 
+    if (prefs.hidebrowser != $("#infopane").is(':hidden')) {
+        $("#infopane").toggle("fast");
+        $("#infocontrols").toggle("fast");
+        if (prefs.hidebrowser) {
+            $("#sourcesresizer").hide();
+        } else {
+            $("#sourcesresizer").show();
+        }
+    }
+
     var i = (prefs.sourceshidden) ? "newimages/arrow-right-double.png" : "newimages/arrow-left-double.png";
     $("#expandleft").attr("src", i);
     i = (prefs.playlisthidden) ? "newimages/arrow-left-double.png" : "newimages/arrow-right-double.png";
     $("#expandright").attr("src", i);
     tagManager.redoLayout();
+}
+
+function hideBrowser() {
+    if (prefs.hidebrowser) {
+        prefs.save({playlistwidthpercent: 25, sourceswidthpercent: 25});
+    }
+    prefs.save({hidebrowser: !prefs.hidebrowser});
+    doThatFunkyThang();
 }
 
 function setBottomPaneSize() {
