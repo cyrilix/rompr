@@ -430,6 +430,10 @@ var browser = function() {
         },
 
         registerExtraPlugin: function(id, name, parent) {
+            if (prefs.hidebrowser) {
+                hideBrowser();
+                $("#button_hide_browser").attr("checked", prefs.hidebrowser);
+            }
             var displayer = $('<div>', {id: id+"information", class: "infotext invisible"}).insertBefore('#artistinformation');
             displayer.html(banner({name: name}, id, false, false, true));
             panelclosed[id] = false;
