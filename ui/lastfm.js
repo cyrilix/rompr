@@ -513,45 +513,6 @@ function LastFM(user) {
 
     }
 
-    this.radio = {
-
-        tune: function(options, callback, failcallback) {
-            if (logged_in) {
-                if (options.station != self.tunedto) {
-                    debug.log("LAST FM","Last.FM: Tuning to", options.station);
-                    self.tunedto = "";
-                    addSetOptions(options, "radio.tune");
-                    LastFMSignedRequest(
-                        options,
-                        function(data) {
-                            self.tunedto = options.station;
-                            callback(data);
-                        },
-                        failcallback
-                    );
-                } else {
-                    callback();
-                }
-            }
-        },
-
-        getPlaylist: function(options, callback, failcallback) {
-            if (logged_in) {
-                addSetOptions(options, "radio.getPlaylist");
-                var keys = getKeys(options);
-                var it = "";
-                for(var key in keys) {
-                    it = it+keys[key]+options[keys[key]];
-                }
-                it = it+lastfm_secret;
-                options.api_sig = hex_md5(it);
-                $.post("http://ws.audioscrobbler.com/2.0/", options)
-                    .done(  callback )
-                    .fail(  failcallback );
-            }
-        }
-    }
-
     this.user = {
 
         getNeighbours: function(options, callback, failcallback) {
