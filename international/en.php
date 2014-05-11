@@ -501,7 +501,9 @@ $languages['en'] = array (
 	// Eg + 3 more
 	"label_moreresults" => "+ %s more",
 	"label_tagmanager" => "Tag Manager",
+	"label_ratingmanager" => "Rating Manager",
 	"label_tagmanagertop" => "Drag and Drop from the Music Collection to add tags to tracks",
+	"label_ratingmanagertop" => "Drag and Drop from the Music Collection to add ratings to tracks",
 	"button_createtag" => "CREATE TAG"
 
 

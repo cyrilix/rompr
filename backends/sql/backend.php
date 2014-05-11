@@ -466,6 +466,30 @@ function list_all_tag_data() {
 	return $tags;
 }
 
+function list_all_rating_data() {
+	global $mysqlc;
+	$ratings = array(
+		"1" => array(),
+		"2" => array(),
+		"3" => array(),
+		"4" => array(),
+		"5" => array()
+	);
+	if ($result = mysqli_query($mysqlc, "SELECT r.Rating, a.Artistname, tr.Title, al.Albumname, al.Image FROM Ratingtable AS r JOIN Tracktable AS tr USING (TTindex) JOIN Albumtable AS al USING (Albumindex) JOIN Artisttable AS a ON (tr.Artistindex = a.Artistindex) WHERE r.Rating > 0 ORDER BY r.Rating, a.Artistname, al.Albumname, tr.TrackNo")) {
+		while ($obj = mysqli_fetch_object($result)) {
+			array_push($ratings[$obj->Rating], array(
+				'Title' => $obj->Title,
+				'Album' => $obj->Albumname,
+				'Artist' => $obj->Artistname,
+				'Image' => $obj->Image
+			));
+		}
+	} else {
+		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+	}
+	return $ratings;
+}
+
 function remove_tag_from_db($tag) {
 	global $mysqlc;
 	$r = true;

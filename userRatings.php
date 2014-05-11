@@ -33,6 +33,7 @@ $album = array_key_exists('album', $_POST) ? $_POST['album'] : null;
 $uri = array_key_exists('uri', $_POST) ? $_POST['uri'] : null;
 $date = array_key_exists('date', $_POST) ? $_POST['date'] : null;
 $urionly = array_key_exists('urionly', $_POST) ? true : false;
+$forceupdate = array_key_exists('forceupdate', $_POST) ? true : false;
 
 switch ($_POST['action']) {
 
@@ -47,6 +48,10 @@ switch ($_POST['action']) {
 
 	case 'taglist':
 		print json_encode(list_all_tag_data());
+		break;
+
+	case 'ratlist':
+		print json_encode(list_all_rating_data());
 		break;
 
 	case 'deletetag':
@@ -112,9 +117,10 @@ switch ($_POST['action']) {
 		if ($ttid) {
 			update_track_stats();
 			if (set_attribute($ttid, $_POST['attribute'], $_POST['value'])) {
-				if ($uri) {
+				if ($uri || $forceupdate) {
 					// Don't tell the browser to add stuff to the collection
-					// if we didn't have a URI.
+					// if we didn't have a URI. Except if forceupdate is set -
+					// this is used by the rating manager in the wibbly wibbly world of cod.
 					send_list_updates($artist_created, $album_created, $ttid);
 				}
 			} else {

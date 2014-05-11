@@ -75,6 +75,7 @@ function doThatFunkyThang() {
     i = (prefs.playlisthidden) ? "newimages/arrow-left-double.png" : "newimages/arrow-right-double.png";
     $("#expandright").attr("src", i);
     tagManager.redoLayout();
+    ratingManager.redoLayout();
 }
 
 function hideBrowser() {
@@ -111,6 +112,7 @@ function setBottomPaneSize() {
     playlist.setHeight();
     infobar.rejigTheText();
     tagManager.redoLayout();
+    ratingManager.redoLayout();
 }
 
 function switchsource(source) {

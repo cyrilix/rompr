@@ -65,7 +65,7 @@ var info_ratings = function() {
                 if (parent.playlistinfo.type != "stream" && parent.playlistinfo.image) {
                     data.image = parent.playlistinfo.image;
                 }
-                if ((parent.playlistinfo.type == "local" || parent.playlistinfo.type == "lastfmradio" || parent.playlistinfo.type == "podcast") &&
+                if ((parent.playlistinfo.type == "local" || parent.playlistinfo.type == "podcast") &&
                     parent.playlistinfo.album) {
                     data.album = parent.playlistinfo.album;
                 }
@@ -360,6 +360,7 @@ function updateCollectionDisplay(rdata) {
     // (a) take a long time and
     // (b) cause any opened dropdowns to be mysteriously closed
     //      - which would just look shit.
+    debug.log("RATING PLUGIN","Update Display",rdata);
     if (rdata && rdata.hasOwnProperty('type') && rdata.hasOwnProperty('where') && rdata.hasOwnProperty('html')) {
         var el = "#"+rdata.where;
         switch (rdata.type) {
