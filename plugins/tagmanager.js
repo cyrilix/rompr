@@ -28,7 +28,7 @@ var tagManager = function() {
         	dataType: 'json',
         	success: function(data) {
         		putTracks(holders[tag], data[tag], tag);
-        		tagManager.redoLayout();
+        		browser.rePoint();
         	},
         	error: function() {
         		infobar.notify(infobar.ERROR, "Failed to get Taglist");
@@ -60,7 +60,7 @@ var tagManager = function() {
 					'<button class="fixed sourceform" onclick="tagManager.createTag()">'+language.gettext("button_createtag")+'</button>'+
     				'</div>');
 			    $("#tmgfoldup .enter").keyup( onKeyUp );
-			    $("#tmgfoldup").append('<div class="noselection fullwidth" id="tagmunger"></div>');
+			    $("#tmgfoldup").append('<div class="noselection fullwidth masonified" id="tagmunger"></div>');
 	            $.ajax({
 	            	url: 'userRatings.php',
 	            	type: "POST",
@@ -96,7 +96,7 @@ var tagManager = function() {
 	            	gutter: 0
 	            });
 	        	browser.goToPlugin("tmg");
-	            tagManager.redoLayout();
+	            browser.rePoint();
             });
 		},
 
@@ -110,25 +110,7 @@ var tagManager = function() {
 				hoverClass: 'tagman-hover'
 			});
 			$("#tagmunger").masonry('prepended', holders[tagname]);
-			tagManager.redoLayout();
-		},
-
-		redoLayout: function() {
-			if (tmg) {
-				var w = $("#infopane").width();
-				if (w < 500) {
-					$(".tagholder").css("width", "100%");
-				} else if (w > 500 && w <= 1000) {
-					$(".tagholder").css("width", "50%");
-				} else if (w > 1000 && w <= 1400) {
-					$(".tagholder").css("width", "33%");
-				} else if (w > 1400 && w <= 1600) {
-					$(".tagholder").css("width", "25%");
-				} else if (w > 1600) {
-					$(".tagholder").css("width", "20%");
-				}
-				$("#tagmunger").masonry();
-			}
+			browser.rePoint();
 		},
 
 		dropped: function(event, ui) {
@@ -213,7 +195,7 @@ var tagManager = function() {
         			success: function(rdata) {
         				$("#tagmunger").masonry('remove', holders[tag]);
         				holders[tag] = null;
-        				tagManager.redoLayout();
+        				browser.rePoint();
         			},
         			error: function() {
         				infobar.notify(infobar.ERROR, "Failed To Delete Tag");

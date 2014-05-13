@@ -452,6 +452,27 @@ var browser = function() {
             }
         },
 
+        rePoint: function() {
+
+            var h = $(".masonified");
+            if (h.length > 0) {
+                var w = $("#infopane").width();
+                if (w < 500) {
+                    $(".tagholder").css("width", "100%");
+                } else if (w > 500 && w <= 1000) {
+                    $(".tagholder").css("width", "50%");
+                } else if (w > 1000 && w <= 1400) {
+                    $(".tagholder").css("width", "33%");
+                } else if (w > 1400 && w <= 1600) {
+                    $(".tagholder").css("width", "25%");
+                } else if (w > 1600) {
+                    $(".tagholder").css("width", "20%");
+                }
+                h.masonry();
+            }
+
+        },
+
         dumpHistory: function() {
             for (var i in history) {
                 debug.log("HISTORY", history[i]);

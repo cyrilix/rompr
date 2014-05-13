@@ -28,7 +28,7 @@ var ratingManager = function() {
         	dataType: 'json',
         	success: function(data) {
         		putTracks(holders[rat], data[rat], rat);
-        		ratingManager.redoLayout();
+        		browser.rePoint();
         	},
         	error: function() {
         		infobar.notify(infobar.ERROR, "Failed to get Rating list");
@@ -53,7 +53,7 @@ var ratingManager = function() {
 	        	$("#rmgfoldup").append('<div class="containerbox padright">'+
 	        		'<div class="expand"><b>'+language.gettext("label_ratingmanagertop")+'</b></div>'+
 	        		'</div>');
-			    $("#rmgfoldup").append('<div class="noselection fullwidth" id="ratmunger"></div>');
+			    $("#rmgfoldup").append('<div class="noselection fullwidth masonified" id="ratmunger"></div>');
 	            $.ajax({
 	            	url: 'userRatings.php',
 	            	type: "POST",
@@ -89,26 +89,8 @@ var ratingManager = function() {
 	            	gutter: 0
 	            });
 	        	browser.goToPlugin("rmg");
-	            ratingManager.redoLayout();
+	            browser.rePoint();
             });
-		},
-
-		redoLayout: function() {
-			if (rmg) {
-				var w = $("#infopane").width();
-				if (w < 500) {
-					$(".tagholder").css("width", "100%");
-				} else if (w > 500 && w <= 1000) {
-					$(".tagholder").css("width", "50%");
-				} else if (w > 1000 && w <= 1400) {
-					$(".tagholder").css("width", "33%");
-				} else if (w > 1400 && w <= 1600) {
-					$(".tagholder").css("width", "25%");
-				} else if (w > 1600) {
-					$(".tagholder").css("width", "20%");
-				}
-				$("#ratmunger").masonry();
-			}
 		},
 
 		handleClick: function(element, event) {
