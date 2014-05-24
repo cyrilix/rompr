@@ -504,7 +504,10 @@ $languages['en'] = array (
 	"label_ratingmanager" => "Rating Manager",
 	"label_tagmanagertop" => "Drag and Drop from the Music Collection to add tags to tracks",
 	"label_ratingmanagertop" => "Drag and Drop from the Music Collection to add ratings to tracks",
-	"button_createtag" => "CREATE TAG"
+	"button_createtag" => "CREATE TAG",
+
+	//New in 0.52
+	"config_alarm_ramp" => "Fade In"
 
 
 );

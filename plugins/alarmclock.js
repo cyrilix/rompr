@@ -5,6 +5,9 @@ var alarm = function() {
 	var incamount = null;
 	var alarmtime = parseInt(prefs.alarmtime);
 	var alarmtimer = null;
+	var uservol = 100;
+	var volinc = 1;
+	var ramptimer = null;
 
 	return {
 
@@ -55,6 +58,11 @@ var alarm = function() {
 			var a = prefs.alarmon ? 1 : 0;
 			$("#button_alarm_on").removeClass("togglebutton-0 togglebutton-1").addClass("togglebutton-"+a);
 			$("#alarmclock").attr("src", "newimages/alarmclock_"+prefs.alarmon+".png");
+			$("#button_alarm_ramp").attr("checked", prefs.alarmramp);
+		},
+
+		toggleRamp: function() {
+			prefs.save({alarmramp: !prefs.alarmramp});
 		},
 
 		setAlarm: function() {
@@ -77,9 +85,29 @@ var alarm = function() {
 
 		Ding: function() {
 			debug.log("ALARM","WAKEY WAKEY!");
-			player.controller.play();
+			if (prefs.alarmramp) {
+				uservol = player.status.volume;
+				volinc = uservol/60;
+				player.controller.volume(0, player.controller.play);
+				ramptimer = setTimeout(alarm.volRamp, 2000);
+			} else {
+				player.controller.play();
+			}
 			infobar.notify(infobar.NOTIFY,'<img src="newimages/alarmclock_true.png" width="250px"/>');
 			alarm.setAlarm();
+		},
+
+		volRamp: function() {
+			clearTimeout(ramptimer);
+			var v = player.status.volume + volinc;
+			debug.log("ALARM","Setting volume to",v);
+			if (v >= uservol) {
+				v = uservol;
+				player.controller.volume(v,infobar.updateWindowValues);
+			} else {
+				player.controller.volume(v, infobar.updateWindowValues);
+				ramptimer = setTimeout(alarm.volRamp, 2000);
+			}
 		}
 
 	}

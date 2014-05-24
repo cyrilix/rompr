@@ -27,8 +27,13 @@
 
 <li>
 <?php
-print '<table align="center"><tr><td>';
+print '<table align="center"><tr><td align="center">';
 print '<div id="button_alarm_on" onclick="alarm.toggle()" class="togglebutton clickicon togglebuton-0" /></div>';
+if ($prefs['player_backend'] == "mopidy") {
+	// Volume ramping won't work with MPD because we can't set the volume
+	// to zero if playback is stopped. Duh.
+	print '</td></tr><tr><td><input type="checkbox" onclick="alarm.toggleRamp()" id="button_alarm_ramp">'.get_int_text('config_alarm_ramp').'</input>';
+}
 print '</td></tr></table>';
 ?>
 </li>
