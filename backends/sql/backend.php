@@ -808,7 +808,7 @@ function get_artist_tracks_from_database($index) {
         return $retarr;
 	}
 
-	$qstring = "SELECT Uri FROM Tracktable JOIN Albumtable ON Tracktable.Albumindex = AlbumTable.Albumindex WHERE Albumtable.AlbumArtistindex = '".$index."' AND Uri IS NOT NULL";
+	$qstring = "SELECT Uri FROM Tracktable JOIN Albumtable ON Tracktable.Albumindex = Albumtable.Albumindex WHERE Albumtable.AlbumArtistindex = '".$index."' AND Uri IS NOT NULL";
 	if ($prefs['sortbydate'] == "false" ||
 		($va && $prefs['notvabydate'] == "true")) {
 		$qstring .= ' ORDER BY LOWER(Albumname), Disc, TrackNo';
