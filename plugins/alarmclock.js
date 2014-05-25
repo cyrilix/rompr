@@ -35,7 +35,6 @@ var alarm = function() {
 		},
 
 		stopInc: function() {
-			debug.log("ALARM","Mouseup");
 			clearTimeout(inctimer);
 			prefs.save({alarmtime: alarmtime});
 			alarm.setAlarm();

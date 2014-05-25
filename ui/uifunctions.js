@@ -934,6 +934,7 @@ function setPrefs() {
     $("#button_hide_radiolist").attr("checked", prefs.hide_radiolist);
     $("#button_hide_browser").attr("checked", prefs.hidebrowser);
     $("#updateeverytime").attr("checked", prefs.updateeverytime);
+    $("#ignore_unplayable").attr("checked", prefs.ignore_unplayable);
     $("#downloadart").attr("checked", prefs.downloadart);
     $("#fullbiobydefault").attr("checked", prefs.fullbiobydefault);
     $("#scrolltocurrent").attr("checked", prefs.scrolltocurrent);

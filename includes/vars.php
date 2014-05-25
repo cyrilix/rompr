@@ -83,7 +83,8 @@ $prefs = array( "mpd_host" => "localhost",
                 "synclovevalue" => "5",
                 "proxy_host" => "",
                 "proxy_user" => "",
-                "proxy_password" => ""
+                "proxy_password" => "",
+                "ignore_unplayable" => "true"
                 );
 
 loadPrefs();

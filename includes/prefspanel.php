@@ -89,6 +89,10 @@ if ($prefs['player_backend'] == "mpd") {
     print '<div class="pref">
     <button onclick="player.controller.updateCollection(\'rescan\')">'.get_int_text('config_rescan').'</button>
     </div>';
+} else {
+print '<div class="pref">
+<input type="checkbox" onclick="togglePref(\'ignore_unplayable\')" id="ignore_unplayable">'.get_int_text('config_ignore_unplayable').'</input>
+</div>';
 }
 
 // Album Sorting

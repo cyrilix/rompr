@@ -507,7 +507,8 @@ $languages['en'] = array (
 	"button_createtag" => "CREATE TAG",
 
 	//New in 0.52
-	"config_alarm_ramp" => "Fade In"
+	"config_alarm_ramp" => "Fade In",
+	"config_ignore_unplayable" => "Ignore Unplayable Tracks"
 
 
 );

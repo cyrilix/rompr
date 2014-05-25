@@ -314,6 +314,10 @@ class musicCollection {
         global $current_domain;
         global $playlist;
 
+        if ($prefs['ignore_unplayable'] == "true" && substr($name, 0, 12) == "[unplayable]") {
+            return true;
+        }
+
         $sortartist = ($albumartist == null) ? $artist : $albumartist;
         $artistkey = strtolower(preg_replace('/^The /i', '', $sortartist));
         //Some discogs tags have 'Various' instead of 'Various Artists'
