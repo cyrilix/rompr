@@ -313,6 +313,7 @@ class musicCollection {
         global $abm;
         global $current_domain;
         global $playlist;
+        global $prefs;
 
         if ($prefs['ignore_unplayable'] == "true" && substr($name, 0, 12) == "[unplayable]") {
             return true;
