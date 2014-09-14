@@ -420,13 +420,17 @@ function playerController() {
 
     this.initialise = function() {
         debug.log("PLAYER","Connecting to Mopidy HTTP frontend");
+        debug.log("PLAYER","ws://"+prefs.mopidy_http_address+":"+prefs.mopidy_http_port+"/mopidy/ws/");
         mopidy = new Mopidy({
             webSocketUrl: "ws://"+prefs.mopidy_http_address+":"+prefs.mopidy_http_port+"/mopidy/ws/",
+            callingConvention: "by-position-only",
             autoConnect:false
         });
         mopidy.on("state:online", connected);
         mopidy.on("state:offline", disconnected);
+        debug.log("PLAYER","Calling Connect");
         mopidy.connect();
+        debug.log("PLAYER","Connect Called");
 	    // self.mop = mopidy;
 	}
 
@@ -487,18 +491,20 @@ function playerController() {
 				switch (ref.type) {
 					case "directory":
 						var menuid = hex_md5(ref.uri);
+						// Mopidy's SoundCloud plugin does some fucking awful shit with directory names.
+						var shit = decodeURIComponent(decodeURIComponent(ref.name));
 				        html = html + '<div class="containerbox menuitem">'+
 				        '<div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="'+menuid+'"></div>'+
 				        '<input type="hidden" name="'+ref.uri+'">'+
 				        '<div class="fixed playlisticon"><img width="16px" src="newimages/folder.png" /></div>'+
-				        '<div class="expand">'+ref.name+'</div>'+
+				        '<div class="expand">'+shit.replace('+',' ')+'</div>'+
 				        '</div>'+
 				        '<div id="'+menuid+'" class="dropmenu notfilled"></div>';
 				        break;
 				    case "track":
 				        html = html + '<div class="clickable clicktrack ninesix draggable indent containerbox padright line" name="'+encodeURIComponent(ref.uri)+'">'+
 				        '<div class="playlisticon fixed"><img height="16px" src="newimages/audio-x-generic.png" /></div>'+
-				        '<div class="expand">'+ref.name+'</div>'+
+				        '<div class="expand">'+decodeURIComponent(ref.name)+'</div>'+
 				        '</div>';
 				        break;
 				}

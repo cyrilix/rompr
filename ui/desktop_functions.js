@@ -148,6 +148,7 @@ function getHotKey(st) {
 }
 
 function getHotKeyDisplay(st) {
+    debug.log("HOTKEY","Display passed is ",st);
     var bits = st.split("+++");
     return bits[1];
 }
