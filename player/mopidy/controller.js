@@ -497,7 +497,7 @@ function playerController() {
 				        '<div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="'+menuid+'"></div>'+
 				        '<input type="hidden" name="'+ref.uri+'">'+
 				        '<div class="fixed playlisticon"><img width="16px" src="newimages/folder.png" /></div>'+
-				        '<div class="expand">'+shit.replace('+',' ')+'</div>'+
+				        '<div class="expand">'+shit.replace(/\+/g, ' ')+'</div>'+
 				        '</div>'+
 				        '<div id="'+menuid+'" class="dropmenu notfilled"></div>';
 				        break;
