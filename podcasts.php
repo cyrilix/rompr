@@ -50,7 +50,7 @@ if (array_key_exists('refresh', $_REQUEST)) {
     print '<div id="cocksausage">';
     print '<div class="containerbox"><div class="expand">'.get_int_text("podcast_entrybox").'</div></div>';
     print '<div class="containerbox"><div class="expand"><input class="enter sourceform" name="ginger" id="podcastsinput" type="text" /></div>';
-    print '<button class="fixed sourceform" onclick="podcasts.doPodcast(\'podcastsinput\')">Retreive</button></div>';
+    print '<button class="fixed sourceform" onclick="podcasts.doPodcast(\'podcastsinput\')">'.get_int_text("label_retrieve").'</button></div>';
     print '</div>';
 
     $channels = glob('prefs/podcasts/*');
