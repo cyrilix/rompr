@@ -93,7 +93,8 @@ $searchlimits = array(  "local" => "Local Files",
                         "spotify" => "Spotify",
                         "soundcloud" => "Soundcloud",
                         "beets" => "Beets",
-                        "gmusic" => "Google Play Music"
+                        "gmusic" => "Google Play Music",
+                        "youtube" => "YouTube"
                         // Can't include radio-de because prefs values with a - in them cause
                         // errors as in
                         // search_limit_radio-de: 1

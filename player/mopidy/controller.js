@@ -487,9 +487,11 @@ function playerController() {
 		debug.log("PLAYER","Browsing for",what,where);
 		mopidy.library.browse(what).then( function(data) {
 			var html = "";
+			debug.log("PLAYER","Browse result : ",data);
 			$.each(data, function(i,ref) {
 				switch (ref.type) {
 					case "directory":
+					case "album":
 						var menuid = hex_md5(ref.uri);
 						// Mopidy's SoundCloud plugin does some fucking awful shit with directory names.
 						var shit = decodeURIComponent(decodeURIComponent(ref.name));
@@ -502,6 +504,7 @@ function playerController() {
 				        '<div id="'+menuid+'" class="dropmenu notfilled"></div>';
 				        break;
 				    case "track":
+					case "playlist":
 				        html = html + '<div class="clickable clicktrack ninesix draggable indent containerbox padright line" name="'+encodeURIComponent(ref.uri)+'">'+
 				        '<div class="playlisticon fixed"><img height="16px" src="newimages/audio-x-generic.png" /></div>'+
 				        '<div class="expand">'+decodeURIComponent(ref.name)+'</div>'+

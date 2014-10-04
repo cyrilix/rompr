@@ -16,7 +16,7 @@ $current_artist = "";
 $current_album = "";
 $abm = false;
 $current_domain = "local";
-$streamdomains = array("http", "mms", "rtsp", "https", "rtmp", "rtmps", "dirble");
+$streamdomains = array("http", "mms", "rtsp", "https", "rtmp", "rtmps", "dirble", "tunein");
 $playlist = array();
 
 $count = 1;
@@ -100,6 +100,13 @@ class album {
         // If we have a backend-supplied album image
         if ($this->image) {
             $image = $this->image;
+        }
+        if ($this->artist == "Various Artists") {
+            if ($this->name == "Youtube") {
+                $image = "newimages/Youtube-logo.png";
+            } else if ($this->name == "SoundCloud") {
+                $image = "newimages/soundcloud-logo.png";
+            }
         }
         // If the track supplied an image
         if ($trackimage) {

@@ -232,7 +232,7 @@ function alistheader($nart, $nalb, $ntra, $tim) {
     '</div>';
 }
 
-function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duration, $lm) {
+function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duration, $lm, $image = "") {
     if ($artist || $rating > 0 || $lm === null) {
         print '<div class="clickable clicktrack ninesix draggable indent containerbox vertical padright" name="'.$url.'">';
         print '<div class="containerbox line">';
@@ -251,9 +251,21 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
     if (substr($url,0,7) == "spotify") {
         print '<div class="playlisticon fixed"><img height="12px" src="newimages/spotify-logo.png" /></div>';
     } else if (substr($url,0,10) == "soundcloud") {
+        if ($image !== "") {
+            print '<div class="smallcover fixed">';
+            print '<img class="smallcover fixed" src="'.$image.'" />';
+            print '</div>';
+        }
         print '<div class="playlisticon fixed"><img height="12px" src="newimages/soundcloud-logo.png" /></div>';
     } else if (substr($url,0,6) == "gmusic") {
         print '<div class="playlisticon fixed"><img height="12px" src="newimages/play-logo.png" /></div>';
+    } else if (substr($url,0,7) == "youtube") {
+        if ($image !== "") {
+            print '<div class="smallcover fixed">';
+            print '<img class="smallcover fixed" src="'.$image.'" />';
+            print '</div>';
+        }
+        print '<div class="playlisticon fixed"><img height="12px" src="newimages/Youtube-logo.png" /></div>';
     }
     print '<div class="expand">'.$name.'</div>';
     print '<div class="fixed playlistrow2">'.$duration.'</div>';

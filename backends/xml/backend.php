@@ -8,6 +8,8 @@ function dumpAlbums($which) {
     global $ARTIST;
     global $ALBUM;
 
+    debug_print("Generating output from XML","DUMPALBUMS");
+
     $headers =  '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'.
                 '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">'.
                 '<head>'.
@@ -71,6 +73,9 @@ function dumpAlbums($which) {
                                 $currdisc = $trackobj->disc;
                                 print '<div class="discnumber indent">Disc '.$currdisc.'</div>';
                             }
+
+                            debug_print("Tack Image is ".$trackobj->image,"DUMPALBUMS");
+
                             albumTrack(
                                 $trackobj->artist,
                                 -1,
@@ -79,7 +84,8 @@ function dumpAlbums($which) {
                                 $trackobj->number,
                                 $trackobj->name,
                                 $trackobj->duration,
-                                (string) $trackobj->lastmodified === "" ? null : (string) $trackobj->lastmodified
+                                (string) $trackobj->lastmodified === "" ? null : (string) $trackobj->lastmodified,
+                                $trackobj->image
                             );
                             $count++;
                         }
@@ -281,6 +287,7 @@ function do_albums_xml($artistkey, $compilations, $showartist, $prefix, $output)
                     $output->writeLine(xmlnode('number', $trackobj->number));
                     $output->writeLine(xmlnode('name', $trackobj->name));
                     $output->writeLine(xmlnode('duration', format_time($trackobj->duration)));
+                    $output->writeLine(xmlnode('image', $trackobj->image));
                     $output->writeLine(xmlnode('lastmodified', $trackobj->lastmodified));
                     if ($trackobj->playlist && count($album->tracks) == 1) {
                         // Don't include the cue sheet if the albums object has more than one track -
