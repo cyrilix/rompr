@@ -431,7 +431,7 @@ function playerController() {
         debug.log("PLAYER","Calling Connect");
         mopidy.connect();
         debug.log("PLAYER","Connect Called");
-	    // self.mop = mopidy;
+	    self.mop = mopidy;
 	}
 
 	this.reConnect = function() {
@@ -504,9 +504,14 @@ function playerController() {
 				        '<div id="'+menuid+'" class="dropmenu notfilled"></div>';
 				        break;
 				    case "track":
-					case "playlist":
 				        html = html + '<div class="clickable clicktrack ninesix draggable indent containerbox padright line" name="'+encodeURIComponent(ref.uri)+'">'+
 				        '<div class="playlisticon fixed"><img height="16px" src="newimages/audio-x-generic.png" /></div>'+
+				        '<div class="expand">'+decodeURIComponent(ref.name)+'</div>'+
+				        '</div>';
+				        break;
+					case "playlist":
+				        html = html + '<div class="clickable clickplaylist ninesix draggable indent containerbox padright line" name="'+encodeURIComponent(ref.uri)+'">'+
+				        '<div class="playlisticon fixed"><img height="16px" src="newimages/document-open-folder.png" /></div>'+
 				        '<div class="expand">'+decodeURIComponent(ref.name)+'</div>'+
 				        '</div>';
 				        break;
@@ -529,6 +534,19 @@ function playerController() {
                 debug.debug("PLAYER","Playlist : ",list);
                 mopidy.tracklist.add(list.tracks);
             });
+        });
+	}
+
+	this.loadSpecial = function(uri) {
+		// This is used for Spotify Browse functions - just looking up the playlist
+		// or simply adding it to the tracklist can often return lots of [loading] ..
+		// track names in our playlist. So we use our internal mechanism to add the tracks
+		// one by one by URI, which forces mopidy to look them up.
+		debug.log("MOPIDY","Looking up",uri);
+        mopidy.library.lookup(uri).then( function(list) {
+        	var tracks = new Array();
+        	$.each(list, function(i, e){ tracks.push({type: "uri", name: e.uri})});
+        	self.addTracks(tracks,playlist.playFromEnd(),null);
         });
 	}
 

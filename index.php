@@ -244,13 +244,13 @@ $(window).load(function() {
 });
 
 function showUpdateWindow() {
-    if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < 0.51) {
+    if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < 0.53) {
         var fnarkle = popupWindow.create(500,600,"fnarkle",true,language.gettext("intro_title"));
         $("#popupcontents").append('<div id="fnarkler" class="mw-headline"></div>');
         if (mobile != "no") {
             $("#fnarkler").addClass('tiny');
         }
-        $("#fnarkler").append('<p align="center">'+language.gettext("intro_welcome")+' 0.52</p>');
+        $("#fnarkler").append('<p align="center">'+language.gettext("intro_welcome")+' 0.53</p>');
         if (mobile != "no") {
             $("#fnarkler").append('<p align="center">'+language.gettext("intro_viewingmobile")+' <a href="/rompr/?mobile=no">/rompr/?mobile=no</a></p>');
         } else {
@@ -266,7 +266,7 @@ function showUpdateWindow() {
 ?>
         $("#fnarkler").append('<p><button style="width:8em" class="tright" onclick="popupWindow.close()">OK</button></p>');
         popupWindow.open();
-        prefs.save({shownupdatewindow: 0.52});
+        prefs.save({shownupdatewindow: 0.53});
     }
 }
 

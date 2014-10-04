@@ -251,7 +251,9 @@ function Playlist() {
         makeFictionalCharacter();
         playlist.waiting();
         if (mobile == "no") {
-           $("#lpscr").slideToggle('fast');
+            if ($("#lpscr").is(':visible')) {
+                $("#lpscr").slideToggle('fast');
+            }
         } else {
             sourcecontrol('playlistm');
         }

@@ -131,7 +131,8 @@ function onFileCollectionClicked(event) {
         if (clickedElement.hasClass("clickalbum")) {
             event.stopImmediatePropagation();
             albumSelect(event, clickedElement);
-        } else if (clickedElement.hasClass("clicktrack") || clickedElement.hasClass("clickcue")) {
+        } else if (clickedElement.hasClass("clicktrack") || clickedElement.hasClass("clickcue") ||
+            clickedElement.hasClass("clickplaylist")) {
             event.stopImmediatePropagation();
             trackSelect(event, clickedElement);
         }
@@ -151,6 +152,10 @@ function onFileCollectionDoubleClicked(event) {
     } else if (clickedElement.hasClass("clickcue")) {
         event.stopImmediatePropagation();
         playlist.addcue(clickedElement);
+    } else if (clickedElement.hasClass("clickplaylist")) {
+        event.stopImmediatePropagation();
+        debug.log("CLICKHANDLER","Playlist was clicked",decodeURIComponent(clickedElement.attr("name")));
+        player.controller.loadSpecial(decodeURIComponent(clickedElement.attr("name")));
     }
 }
 
