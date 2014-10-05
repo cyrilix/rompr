@@ -214,6 +214,10 @@ var info_file = function() {
             this.ratingsInfo = function() {
                 var html = "";
                 if (parent.playlistinfo.metadata.track.usermeta) {
+                    if (parent.playlistinfo.metadata.track.usermeta.Playcount) {
+                        html = html + '<tr><td class="fil">Play Count:</td><td>'+parent.playlistinfo.metadata.track.usermeta.Playcount;
+                        html = html + '</td></tr>';
+                    }
                     html = html + '<tr><td class="fil">Rating:</td><td><img class="infoclick clicksetrating" height="20px" src="newimages/'+parent.playlistinfo.metadata.track.usermeta.Rating+'stars.png" />';
                     html = html + '<input type="hidden" value="'+parent.index+'" />';
                     html = html + '</td></tr>';

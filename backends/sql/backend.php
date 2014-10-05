@@ -299,13 +299,44 @@ function create_new_album($album, $albumai, $spotilink, $image, $date, $isonefil
 	return $retval;
 }
 
+function increment_value($ttid, $attribute, $value) {
+
+	global $mysqlc;
+	debug_print("Incrementing ".$attribute." by ".$value." for TTID ".$ttid, "MYSQL");
+	if ($stmt = mysqli_prepare($mysqlc, "UPDATE ".$attribute."table SET ".$attribute."=".$attribute."+? WHERE TTindex=?")) {
+		mysqli_stmt_bind_param($stmt, "ii", $value, $ttid);
+		if (mysqli_stmt_execute($stmt)) {
+			if (mysqli_stmt_affected_rows($stmt) == 0) {
+				debug_print("  Update affected 0 rows, creating new value","MYSQL");
+			    mysqli_stmt_close($stmt);
+				if ($stmt = mysqli_prepare($mysqlc, "INSERT INTO ".$attribute."table (TTindex, ".$attribute.") VALUES (?, ?)")) {
+					mysqli_stmt_bind_param($stmt, "ii", $ttid, $value);
+					if (mysqli_stmt_execute($stmt)) {
+						debug_print("    New Value Created", "MYSQL");
+					} else {
+						debug_print("  Error Executing mySql", "MYSQL");
+					}
+				}
+			}
+		} else {
+			debug_print("  ERROR Executing mySql statement", "MYSQL");
+			return false;
+		}
+	} else {
+		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+		return false;
+	}
+	return true;
+
+}
+
 function set_attribute($ttid, $attribute, $value) {
 
 	// NOTE:
 	// This function can only be used for integers!
 	// It will set value for an EXISTING attribute to 0, but it will NOT create a NEW attribute
 	// when $value is 0. This is because 0 is meant to represent 'no attribute'
-	// and this keeps tha table size down and ALSO means import functions
+	// and this keeps the table size down and ALSO means import functions
 	// can cause new tracks to be added just by tring to set eg Rating to 0.
 
 	global $mysqlc;
@@ -529,6 +560,17 @@ function get_all_data($ttid) {
 		while ($obj = mysqli_fetch_object($result)) {
 			array_push($data['Tags'], $obj->Name);
 			debug_print("Got Tag ".$obj->Name,"MYSQL");
+		}
+		mysqli_free_result($result);
+	} else {
+		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+	}
+	if ($result = mysqli_query($mysqlc, "SELECT Playcount FROM Playcounttable WHERE TTindex = '".$ttid."'")) {
+		$num = mysqli_num_rows($result);
+		if ($num > 0) {
+			$obj = mysqli_fetch_object($result);
+			$data['Playcount'] = $obj->Playcount;
+			debug_print("Playcount is ".$data['Playcount'],"MYSQL");
 		}
 		mysqli_free_result($result);
 	} else {

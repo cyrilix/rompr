@@ -39,6 +39,7 @@ var lastfmImporter = function() {
 			tags = t.tags.join(', ');
 		}
 		row += '<td>'+tags+'</td>';
+		row += '<td align="center">'+t.Playcount+'</td>';
 		row += '<td align="center">';
 		if (t.loved) {
 			row += '<img src="newimages/lastfm-love.png" height="20px" />';
@@ -98,6 +99,12 @@ var lastfmImporter = function() {
 			html = html + '<img height="12px" src="newimages/spotify-logo.png" style="margin-right:1em" />';
 		} else if (u.match(/soundcloud:/)) {
 			html = html + '<img height="12px" src="newimages/soundcloud-logo.png" style="margin-right:1em" />';
+		} else if (u.match(/youtube:/)) {
+			html = html + '<img height="12px" src="newimages/Youtube-logo.png" style="margin-right:1em" />';
+		} else if (u.match(/leftasrain:/)) {
+			html = html + '<img height="12px" src="newimages/leftasrain.png" style="margin-right:1em" />';
+		} else if (u.match(/gmusic:/)) {
+			html = html + '<img height="12px" src="newimages/play-logo.png" style="margin-right:1em" />';
 		}
 		html = html + '<b>'+data.title+'</b><br><i>by </i>';
 		html = html + data.artist+'<br><i>on </i>';
@@ -168,7 +175,7 @@ var lastfmImporter = function() {
 
 				$("#goo").val(prefs.synclovevalue);
 	            $("#impufoldup").append('<table id="frankzappa" class="invisible" align="center" cellpadding="2" width="95%" style="border-collapse:collapse"></table>');
-	            $("#frankzappa").append('<tr><th></th><th>'+language.gettext("label_track")+'</th><th>'+language.gettext("label_tags")+'</th><th>'+language.gettext("lastfm_loved")+'</th><th>'+language.gettext("label_oneresult")+'</th></tr>');
+	            $("#frankzappa").append('<tr><th></th><th>'+language.gettext("label_track")+'</th><th>'+language.gettext("label_tags")+'</th><th>Plays</th><th>'+language.gettext("lastfm_loved")+'</th><th>'+language.gettext("label_oneresult")+'</th></tr>');
 
 	            progressbar = new progressBar("lfmprogress", "horizontal");
 	            spbar = new progressBar("searchprogress", "horizontal");
@@ -282,7 +289,7 @@ var lastfmImporter = function() {
 
 		gotTrackinfo: function(data, reqid) {
 			if (!stopped) {
-				debug.log("LASTFM IMPORTER","Got TrackInfo for",reqid);
+				debug.log("LASTFM IMPORTER","Got TrackInfo for",reqid,data);
 				databits[reqid].data[databits[reqid].index].loved = (data.track.userloved && data.track.userloved == "1") ? true : false;
 				// Since Last.FM requests are queued, we know that when we get this we've got all the data
 
@@ -297,6 +304,11 @@ var lastfmImporter = function() {
 						databits[reqid].data[databits[reqid].index].Rating = $("#goo").val();
 					} else {
 						databits[reqid].data[databits[reqid].index].Rating = 0;
+					}
+					if (data.track.userplaycount) {
+						databits[reqid].data[databits[reqid].index].Playcount = data.track.userplaycount;
+					} else {
+						databits[reqid].data[databits[reqid].index].Playcount = "1";
 					}
 					putRow(databits[reqid].data[databits[reqid].index]);
 					databits[reqid].data[databits[reqid].index].reqid = reqid;
@@ -345,7 +357,7 @@ var lastfmImporter = function() {
 				if (results.length > 1 && $("#reviewfirst").is(':checked')) {
 					html = html + '<br /><span class="clickicon tiny plugclickable dropchoices infoclick" name="'+data.key+'"> '+language.gettext("label_moreresults", [(results.length - 1)]);
 					html = html +'</span></div>';
-					html2 = '<tr><td></td><td></td><td></td><td></td><td><div id="choices'+data.key+'" class="invisible">';
+					html2 = '<tr><td></td><td></td><td></td><td></td><td></td><td><div id="choices'+data.key+'" class="invisible">';
 					for (var i = 1; i < results.length; i++) {
 						html2 = html2 + '<div class="backhi plugclickable infoclick choosenew" name="'+i+'" style="margin-bottom:4px">'+trackHtml(results[i])+'</div>';
 					}
@@ -429,6 +441,7 @@ var lastfmImporter = function() {
 			debug.log("LASTFM IMPORTER","Delete row",clickedElement);
 			var key = parseInt(clickedElement.replace('trackrow',''));
 			databits[key].data[databits[key].index].ignore = true;
+			$("#"+clickedElement).next().fadeOut('slow');
 			$("#"+clickedElement).fadeOut('slow');
 		},
 
@@ -456,6 +469,9 @@ var lastfmImporter = function() {
 				// of the track in the database would get matched.
 				data.urionly = 1;
 				debug.mark("LASTFM IMPORTER","Doing SQL Rating Stuff",data);
+
+				// Bloody hell this code is a mess
+
 		        $.ajax({
 		            url: "userRatings.php",
 		            type: "POST",
@@ -479,11 +495,32 @@ var lastfmImporter = function() {
 					            success: function(rdata) {
 					                debug.log("LASTFM IMPORTER","Success",rdata);
 					                updateCollectionDisplay(rdata);
-					                data.ignore = true;
-									$("#trackrow"+data.key+' td:last').html('<img src="newimages/tick.png" />');
-									if (callback) {
-										setTimeout(callback, 1000);
-									}
+					                data.attribute = "Playcount";
+					                data.value = data.Playcount;
+					                data.action = "inc";
+									debug.mark("LASTFM IMPORTER","Doing SQL Playcount Stuff",data);
+							        $.ajax({
+							            url: "userRatings.php",
+							            type: "POST",
+							            data: data,
+							            dataType: 'json',
+							            success: function(rdata) {
+							                debug.log("LASTFM IMPORTER","Success",rdata);
+							                data.ignore = true;
+											$("#trackrow"+data.key+' td:last').html('<img src="newimages/tick.png" />');
+											if (callback) {
+												setTimeout(callback, 1000);
+											}
+							            },
+							            error: function(rdata) {
+							                debug.log("LASTFM IMPORTER","Failure");
+							                data.ignore = true;
+											$("#trackrow"+data.key+' td:last').html('<img src="newimages/tick.png" />');
+											if (callback) {
+												setTimeout(callback, 1000);
+											}
+							            }
+							        });
 					            },
 					            error: function(rdata) {
 					                debug.log("LASTFM IMPORTER","Failure with",data.tags);
@@ -495,11 +532,32 @@ var lastfmImporter = function() {
 					            }
 					        });
 		                } else {
-		                	data.ignore = true;
-							$("#trackrow"+data.key+' td:last').html('<img src="newimages/tick.png" />');
-							if (callback) {
-								setTimeout(callback, 1000);
-							}
+			                data.attribute = "Playcount";
+			                data.value = data.Playcount;
+			                data.action = "inc";
+							debug.mark("LASTFM IMPORTER","Doing SQL Playcount Stuff",data);
+					        $.ajax({
+					            url: "userRatings.php",
+					            type: "POST",
+					            data: data,
+					            dataType: 'json',
+					            success: function(rdata) {
+					                debug.log("LASTFM IMPORTER","Success",rdata);
+					                data.ignore = true;
+									$("#trackrow"+data.key+' td:last').html('<img src="newimages/tick.png" />');
+									if (callback) {
+										setTimeout(callback, 1000);
+									}
+					            },
+					            error: function(rdata) {
+					                debug.log("LASTFM IMPORTER","Failure");
+					                data.ignore = true;
+									$("#trackrow"+data.key+' td:last').html('<img src="newimages/tick.png" />');
+									if (callback) {
+										setTimeout(callback, 1000);
+									}
+					            }
+					        });
 		                }
 		            },
 		            error: function(rdata) {

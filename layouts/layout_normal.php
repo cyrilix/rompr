@@ -42,6 +42,7 @@ print '<img title="'.get_int_text('button_love').'" class="clickicon lettuce" id
 print '<img title="'.get_int_text('button_ban').'" class="clickicon lettuce" id="ban" href="#" onclick="infobar.ban()" height="20px" src="newimages/lastfm-ban.png">';
 ?>
                 </div>
+                <div id="playcount"></div>
                 <div id="dbtags" class="invisible">
                 </div>
             </div>

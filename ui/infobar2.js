@@ -247,6 +247,7 @@ var infobar = function() {
             if (info.title != "") {
                 $("#stars").fadeIn('fast');
                 $("#dbtags").fadeIn('fast');
+                $("#playcount").fadeIn('fast');
             }
             if (info.type == "local") {
                 $("#progress").css("cursor", "pointer");
@@ -258,6 +259,7 @@ var infobar = function() {
                 $("#albumpicture").fadeOut('fast');
                 $("#stars").fadeOut('fast');
                 $("#dbtags").fadeOut('fast');
+                $("#playcount").fadeOut('fast');
                 infobar.albumImage.setSource({    image: "newimages/transparent-32x32.png",
                                                   origimage: "newimages/transparent-32x32.png"
                                             });
@@ -286,20 +288,27 @@ var infobar = function() {
         },
 
         scrobble: function() {
-            if (!scrobbled && lastfm.isLoggedIn()) {
-                if (trackinfo.title != "" && trackinfo.name != "") {
-                    var options = {
-                                    timestamp: parseInt(starttime.toString()),
-                                    track: (lfminfo.title === undefined) ? trackinfo.title : lfminfo.title,
-                                    artist: (lfminfo.creator === undefined) ? trackinfo.creator : lfminfo.creator,
-                                    album: (lfminfo.album === undefined) ? trackinfo.album : lfminfo.album
-                    };
-                    options.chosenByUser = (trackinfo.type == 'local') ? 1 : 0;
-                     if (trackinfo.albumartist && trackinfo.albumartist != "" && trackinfo.albumartist.toLowerCase() != trackinfo.creator.toLowerCase()) {
-                         options.albumArtist = trackinfo.albumartist;
-                     }
-                    debug.log("INFOBAR","Scrobbling", options);
-                    lastfm.track.scrobble( options );
+            if (!scrobbled) {
+                debug.log("INFOBAR","Track is not scrobbled");
+                if (lastfm.isLoggedIn()) {
+                    if (trackinfo.title != "" && trackinfo.name != "") {
+                        var options = {
+                                        timestamp: parseInt(starttime.toString()),
+                                        track: (lfminfo.title === undefined) ? trackinfo.title : lfminfo.title,
+                                        artist: (lfminfo.creator === undefined) ? trackinfo.creator : lfminfo.creator,
+                                        album: (lfminfo.album === undefined) ? trackinfo.album : lfminfo.album
+                        };
+                        options.chosenByUser = (trackinfo.type == 'local') ? 1 : 0;
+                         if (trackinfo.albumartist && trackinfo.albumartist != "" && trackinfo.albumartist.toLowerCase() != trackinfo.creator.toLowerCase()) {
+                             options.albumArtist = trackinfo.albumartist;
+                         }
+                        debug.log("INFOBAR","Scrobbling", options);
+                        lastfm.track.scrobble( options );
+                    }
+                }
+                if (prefs.apache_backend == 'sql') {
+                    debug.log("INFOBAR","Track playcount being updated");
+                    nowplaying.incPlaycount(null);
                 }
             }
             scrobbled = true;

@@ -304,6 +304,11 @@ var nowplaying = function() {
 			}
 		},
 
+		incPlaycount: function(index) {
+			if (!index) index = currenttrack;
+			history[index].setMeta('inc', 'Playcount', 1);
+		},
+
 		love: function() {
 			if (lastfm.isLoggedIn()) {
 				history[currenttrack].love();

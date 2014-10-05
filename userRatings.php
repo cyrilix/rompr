@@ -78,6 +78,27 @@ switch ($_POST['action']) {
 		}
 		break;
 
+	case 'inc':
+		if ($artist === null || $title === null ||
+			!array_key_exists('attribute', $_POST) ||
+			!array_key_exists('value', $_POST)) {
+			header('HTTP/1.0 403 Forbidden');
+			exit(0);
+		}
+		$ttid = find_item(	$uri,
+							$title,
+							$artist,
+							$album);
+		if ($ttid) {
+			debug_print("Doing an INCREMENT action - Found TTID ".$ttid,"USERRATING");
+			increment_value($ttid, $_POST['attribute'], $_POST['value']);
+			$returninfo['metadata'] = get_all_data($ttid);
+			print json_encode($returninfo);
+		} else {
+			debug_print("Doing an INCREMENT action - Found NOTHING","USERRATING");
+		}
+		break;
+
 	case 'set':
 		if ($artist === null ||
 			$title === null ||

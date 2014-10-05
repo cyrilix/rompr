@@ -16,6 +16,11 @@ var info_ratings = function() {
 
             function doThingsWithData() {
                 if (parent.isCurrentTrack()) {
+                    if (parent.playlistinfo.metadata.track.usermeta.Playcount) {
+                        $("#playcount").html("<b>PLAYS :</b>&nbsp;"+parent.playlistinfo.metadata.track.usermeta.Playcount);
+                    } else {
+                        $("#playcount").html("");
+                    }
                     $("#ratingimage").attr("src","newimages/"+parent.playlistinfo.metadata.track.usermeta.Rating+"stars.png");
                     $("#dbtags").html('<span style="margin-right:8px"><b>'+language.gettext("musicbrainz_tags")+'&nbsp;</b><a href="#" class="clicktext" onclick="tagAdder.show(event)">+</a></span>');
                     for(var i = 0; i < parent.playlistinfo.metadata.track.usermeta.Tags.length; i++) {
@@ -202,7 +207,10 @@ var faveFinder = function() {
         handleResults: function(data) {
             var f = false;
             var req = queue[0];
-            // De-prioritise Spotify tracks - we prefer local tracks
+
+            // Prioritize - local, gmusic, beets, spotify - in that order
+            // Everything else can take its chance
+
             var spot = null;
             for (var i in data) {
                 var dom = data[i].uri;
@@ -212,24 +220,45 @@ var faveFinder = function() {
                 }
             }
             if (spot !== null) {
-                data.push(data.splice(spot, 1)[0]);
+                data.unshift(data.splice(spot, 1)[0]);
             }
-            // Soundcloud....
-            // Just occasionally, SoundCloud returns a result that is useful
-            // but mostly it returns a bunch of irrelevance (it can only search by title)
-            // So on weighing it up and trying it, the best thing to do is to ignore SoundCloud/
+
             spot = null;
             for (var i in data) {
                 var dom = data[i].uri;
-                if (dom.match(/^soundcloud:/)) {
+                if (dom.match(/^beets:/)) {
                     spot = i;
                     break;
                 }
             }
             if (spot !== null) {
-                // data.push(data.splice(spot, 1)[0]);
-                data.splice(spot, 1);
+                data.unshift(data.splice(spot, 1)[0]);
             }
+
+            spot = null;
+            for (var i in data) {
+                var dom = data[i].uri;
+                if (dom.match(/^gmusic:/)) {
+                    spot = i;
+                    break;
+                }
+            }
+            if (spot !== null) {
+                data.unshift(data.splice(spot, 1)[0]);
+            }
+
+            spot = null;
+            for (var i in data) {
+                var dom = data[i].uri;
+                if (dom.match(/^local:/)) {
+                    spot = i;
+                    break;
+                }
+            }
+            if (spot !== null) {
+                data.unshift(data.splice(spot, 1)[0]);
+            }
+
             debug.debug("FAVEFINDER","Sorted Search Results are",data);
 
             var results = new Array();

@@ -151,6 +151,19 @@ function check_sql_tables() {
 			return false;
 		}
 
+		if (generic_sql_query("CREATE TABLE IF NOT EXISTS Playcounttable(".
+			"TTindex INT UNSIGNED NOT NULL REFERENCES Tracktable(TTindex), ".
+			"Playcount INT UNSIGNED NOT NULL, ".
+			"PRIMARY KEY (TTindex)) ENGINE=InnoDB"))
+		{
+			debug_print("  Playcounttable OK","MYSQL");
+		} else {
+			debug_print("Table Check/Create Error!", "MYSQL");
+			mysqli_close($mysqlc);
+			$mysqlc = null;
+			return false;
+		}
+
 		$result = mysqli_query($mysqlc, "SELECT * FROM information_schema.TABLES WHERE (TABLE_SCHEMA = 'romprdb') AND (TABLE_NAME = 'Statstable')");
 		if (mysqli_num_rows($result) == 0) {
 			debug_print("Statstable does not exist","MYSQL");

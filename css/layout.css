@@ -2128,6 +2128,18 @@ div.lyrics p
     line-height:22px;
 }
 
+#playcount
+{
+    float:left;
+    padding-top:0px;
+    padding-left:8px;
+    overflow:hidden;
+    opacity:0.9;
+    font-size:8pt;
+    height:22px;
+    line-height:22px;
+}
+
 .clicktext
 {
     font-size:7pt;
