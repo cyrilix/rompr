@@ -318,7 +318,7 @@ function Playlist() {
 
         event.stopImmediatePropagation();
         var moveto  = (function getMoveTo(i) {
-            debug.log("Drag Stopped",i.next());
+            debug.log("PLAYLIST", "Drag Stopped",i.next());
             if (i.next().hasClass('track')) {
                 return parseInt(i.next().attr("name"));
             }
@@ -616,7 +616,8 @@ function Playlist() {
                 html = html + '<div name="'+tracks[trackpointer].playlistpos+'" romprid="'+tracks[trackpointer].backendid+'" class="track clickable clickplaylist sortable containerbox playlistitem menuitem">';
                 var l = tracks[trackpointer].location;
                 if (l.substring(0,11) == "soundcloud:" ||
-                    l.substring(0,8) == "youtube:") {
+                    l.substring(0,8) == "youtube:" ||
+                    l.substring(0,3) == "yt:") {
                     html = html + '<div class="smallcover fixed"><img class="smallcover" src="'+tracks[trackpointer].image+'" /></div>';
                 } else if (tracks[trackpointer].type == "podcast") {
                     html = html + '<div class="tracknumbr fixed">';
@@ -658,7 +659,7 @@ function Playlist() {
             var l = tracks[0].location;
             if (l.substring(0,11) == "soundcloud:") {
                 html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="newimages/soundcloud-logo.png"/></div>';
-            } else if (l.substring(0,8) == "youtube:") {
+            } else if (l.substring(0,8) == "youtube:" || l.substring(0,3) == "yt:") {
                 html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="newimages/Youtube-logo.png"/></div>';
             } else {
                 if (tracks[0].image && tracks[0].image != "") {

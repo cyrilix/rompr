@@ -13,10 +13,6 @@ $covernames = array("cover", "albumart", "thumb", "albumartsmall", "front");
 $mysqlc = null;
 $backend_in_use = "";
 
-// Set unix_socket to a value to make rompr connect to mpd via a unix domain socket
-// (see mpd.conf). There's no real reason to do this, although it is marginally faster.
-// If unix_socket is set to anything then mpd_host will be ignored
-
 // Note that mpd_host is relative to the APACHE SERVER not the browser.
 
 $prefs = array( "mpd_host" => "localhost",
@@ -94,12 +90,14 @@ $searchlimits = array(  "local" => "Local Files",
                         "soundcloud" => "Soundcloud",
                         "beets" => "Beets",
                         "gmusic" => "Google Play Music",
-                        "youtube" => "YouTube"
-                        // Can't include radio-de because prefs values with a - in them cause
-                        // errors as in
-                        // search_limit_radio-de: 1
-                        // simply won't wash.
+                        "youtube" => "YouTube",
+                        "internetarchive" => "Internet Archive",
+                        "leftasrain" => "Left As Rain",
+                        "podcast" => "Podcasts"
                         // "radio-de" => "Radio.de"
+                        // BassDrive and Drible aren't yet searchable
+                        // "bassdrive" => "BassDrive",
+                        // "dirble" => "Dirble",
                         );
 
 function debug_print($out, $module = "") {

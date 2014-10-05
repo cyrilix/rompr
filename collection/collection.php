@@ -581,9 +581,11 @@ function process_file($collection, $filedata) {
     }
 
     if (in_array($domain, $streamdomains) &&
-        !preg_match('#/item/\d+/file$#', $file)) {
-        // domain will be http for anything being played through mopidy-beets.
-        // so we check the filename pattern too
+        !preg_match('#/item/\d+/file$#', $file) &&
+        !preg_match('#http://archives.bassdrivearchive.com/#', $file) &&
+        !preg_match('#http://leftasrain.com/#', $file)) {
+        // domain will be http for anything being played through mopidy-beets and various
+        // other mopidy extensions, annoyingly. So we check the filename pattern too
         list (  $track_found,
                 $name,
                 $duration,
