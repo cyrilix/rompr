@@ -222,6 +222,7 @@ var imagePopup=function(){
     return {
         create:function(element, event, source){
             debug.log("IMAGEPOPUP", "Creating new popup",source);
+            debug.log("IMAGEPOPUP", "Current popup source is",image.src);
             if(wikipopup == null){
                 wikipopup = $('<div>', { id: 'wikipopup', onclick: 'imagePopup.close()', class: 'dropshadow'}).appendTo($('body'));
                 imagecontainer = $('<img>', { id: 'imagecontainer', onclick: 'imagePopup.close()', src: ''}).appendTo($('body'));
@@ -244,6 +245,7 @@ var imagePopup=function(){
                 if (source == image.src) {
                     imagePopup.show();
                 } else {
+                    image.src = "";
                     image.src = source;
                 }
             }

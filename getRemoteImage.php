@@ -23,7 +23,18 @@ if (!$url) {
 		}
 	}
 
-	header('Content-type: image/'.end($ext));
+	$mime = 'image/'.end($ext);
+	$convert_path = find_executable("identify");
+	$o = array();
+	$r = exec($convert_path."identify -verbose ".$outfile." | grep Mime");
+	// debug_print("Checking MIME type : ".$r,"TOMATO");
+	if (preg_match('/Mime type:\s+(.*)$/', $r, $o)) {
+		if ($o[1]) {
+			$mime = $o[1];
+			// debug_print("Using MIME type : ".$mime,"TOMATO");
+		}
+	}
+	header('Content-type: '.$mime);
 	readfile($outfile);
 
 }

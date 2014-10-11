@@ -197,6 +197,13 @@ var player = new multiProtocolController();
 var lastfm = new LastFM(prefs.lastfm_user);
 var coverscraper = new coverScraper(0, false, false, prefs.downloadart);
 
+<?php
+if (array_key_exists('remote', $_REQUEST)) {
+    print "prefs.remote = true;\n";
+    print "prefs.clickmode = 'single'\n";
+}
+?>
+
 $(document).ready(function(){
 
     // Update the old-style lastfm_session_key variable
@@ -224,6 +231,9 @@ $(document).ready(function(){
     }
     if (!prefs.hide_radiolist) {
         $("#yourradiolist").load("yourradio.php");
+    }
+    if (prefs.remote) {
+        $("#clickpolicy").hide();
     }
     setPrefs();
     checkServerTimeOffset();

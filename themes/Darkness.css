@@ -14,6 +14,11 @@ h1,h2,h3,h4,h5,h6
     color:#eeeeee;
 }
 
+button
+{
+    margin:2px;
+}
+
 a:link
 {
     color:#dcdcff;
@@ -309,4 +314,15 @@ th.tlheader
 .backhi:hover {
     background-color:#454545;
     cursor:pointer;
+}
+
+.albumthing
+{
+    background-color:#202020;
+}
+
+.tagholder table tr th
+{
+    border-bottom:1px solid #cccccc;
+    background-color:#000000;
 }

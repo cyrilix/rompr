@@ -139,7 +139,7 @@ function LastFM(user) {
     }
 
     function LastFMGetRequest(options, success, fail, reqid) {
-         debug.debug("LASTFM","New Request");
+        debug.debug("LASTFM","New Request");
         options.format = "json";
         options.callback = "?";
         var url = "http://ws.audioscrobbler.com/2.0/";

@@ -80,7 +80,8 @@ $prefs = array( "mpd_host" => "localhost",
                 "proxy_host" => "",
                 "proxy_user" => "",
                 "proxy_password" => "",
-                "ignore_unplayable" => "true"
+                "ignore_unplayable" => "true",
+                "remote" => "false"
                 );
 
 loadPrefs();

@@ -283,20 +283,16 @@ function trySpotify() {
     $url = "http://open.spotify.com/album/".$spiffy;
     debug_print("      Getting ".$url,"GETALBUMCOVER");
     $content = url_get_contents($url);
-    $DOM = new DOMDocument;
-    // stop libmxl from spaffing error reports into the log
-    libxml_use_internal_errors(true);
     if ($content['contents'] && $content['contents'] != "") {
-        $DOM->loadHTML($content['contents']);
-        $stuff = $DOM->getElementById('big-cover');
-        if ($stuff) {
-            $image = $stuff->getAttribute('src');
-            if ($image && preg_match("/^http/", $image)) {
-                debug_print("    Returning result from Spotify : ".$image,"GETALBUMCOVER");
-            } else {
-                debug_print("    No valid image link found","GETALBUMCOVER");
-                $image = "";
-            }
+        $matches = array();
+        preg_match_all('/<div class=\"mo-image\" style=\"background-image: url\((.*?)\)/', $content['contents'], $matches, PREG_SET_ORDER);
+        if (count($matches) > 1) {
+
+
+            debug_print(print_r($matches, true),"FUCKITY");
+
+            $image = 'http:'.$matches[1][count($matches[1]) - 1];
+            debug_print("    Returning result from Spotify : ".$image,"GETALBUMCOVER");
         } else {
             debug_print("    No Spotify Image Found","GETALBUMCOVER");
         }

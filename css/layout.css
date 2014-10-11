@@ -2231,3 +2231,30 @@ div.lyrics p
 {
     background-color:#e1e4ea;
 }
+
+.currentremote
+{
+    background-color:#ff0000;
+}
+
+.albumthing
+{
+    background-color:#f9f9f9;
+    margin-top:0px;
+    margin-left:0px;
+    margin-bottom:0px;
+    margin-right:8px;
+    padding:8px;
+}
+
+.tagholder2
+{
+    margin-top: 12px;
+}
+
+.edged
+{
+    border-left:1px solid #dddddd;
+    border-right:1px solid #dddddd;
+    border-bottom:1px solid #dddddd;
+}

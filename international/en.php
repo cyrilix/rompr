@@ -509,7 +509,14 @@ $languages['en'] = array (
 	//New in 0.52
 	"config_alarm_ramp" => "Fade In",
 	"config_ignore_unplayable" => "Ignore Unplayable Tracks",
-	"label_retrieve" => "Retrieve"
+	"label_retrieve" => "Retrieve",
+
+	//Spotify Metadata
+	"spotify_error" => "No response from Spotify",
+	"musicbrainz_noinfo" => "Could not get information from Spotify",
+	"button_infospotify" => "Info Panel (Spotify)",
+	"spotify_not" => "This panel will only display information about music from Spotify",
+
 
 );
 

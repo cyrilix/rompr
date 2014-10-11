@@ -138,6 +138,7 @@ function loadKeyBindings() {
             shortcut.add(getHotKey(data['volumeup']),    function(){ infobar.volumeKey(5) }, {'disable_in_input':true} );
             shortcut.add(getHotKey(data['volumedown']),  function(){ infobar.volumeKey(-5) }, {'disable_in_input':true} );
             shortcut.add(getHotKey(data['closewindow']), function(){ window.open(location, '_self').close() }, {'disable_in_input':true} );
+
         })
         .fail( function(data) {  });
 }

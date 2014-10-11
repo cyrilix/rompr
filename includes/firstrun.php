@@ -20,6 +20,9 @@ if (!is_dir('prefs/jsoncache/wikipedia')) {
 if (!is_dir('prefs/jsoncache/lastfm')) {
 	mkdir('prefs/jsoncache/lastfm');
 }
+if (!is_dir('prefs/jsoncache/spotify')) {
+	mkdir('prefs/jsoncache/spotify');
+}
 
 if ($prefs['apache_backend'] == 'sql') {
 	check_sql_tables();

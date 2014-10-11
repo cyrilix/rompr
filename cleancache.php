@@ -12,6 +12,7 @@ clean_cache_dir('prefs/jsoncache/musicbrainz/', 2592000);
 clean_cache_dir('prefs/jsoncache/discogs/', 2592000);
 clean_cache_dir('prefs/jsoncache/wikipedia/', 2592000);
 clean_cache_dir('prefs/jsoncache/lastfm/', 259200);
+clean_cache_dir('prefs/jsoncache/spotify/', 259200);
 clean_cache_dir('prefs/imagecache/', 259200);
 
 ?>

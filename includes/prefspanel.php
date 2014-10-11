@@ -103,7 +103,7 @@ print '<div class="pref prefsection">
 </div>';
 
 // Click Policy
-print '<div class="pref prefsection">
+print '<div class="pref prefsection" id="clickpolicy">
 <div><b>'.get_int_text('config_clicklabel').'</b></div>
 <div><input type="radio" class="topcheck" onclick="changeClickPolicy()" name="clickselect" value="double">'.get_int_text('config_doubleclick').'</input></div>
 <div><input type="radio" class="topcheck" onclick="changeClickPolicy()" name="clickselect" value="single">'.get_int_text('config_singleclick').'</input></div>

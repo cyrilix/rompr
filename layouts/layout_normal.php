@@ -55,10 +55,10 @@ print '<img title="'.get_int_text('button_ban').'" class="clickicon lettuce" id=
 <div class="containerbox fullwidth">
 <div class="expand topbox leftbox">
 <?php
-print '<img title="'.get_int_text('button_local_music').'" onclick="sourcecontrol(\'albumlist\')" id="choose_albumlist" class="tooltip topimg" height="24px" src="newimages/audio-x-generic.png">';
-print '<img title="'.get_int_text('button_searchmusic').'" onclick="toggleSearch()" id="choose_searcher" class="topimg tooltip" height="24px" src="newimages/system-search.png">';
-print '<img title="'.get_int_text('button_file_browser').'" onclick="sourcecontrol(\'filelist\')" id="choose_filelist" class="tooltip topimg" height="24px" src="newimages/folder.png">';
-print '<img title="'.get_int_text('button_internet_radio').'" onclick="sourcecontrol(\'radiolist\')" id="choose_radiolist" class="tooltip topimg" height="24px" src="newimages/broadcast-24.png">';
+print '<img title="'.get_int_text('button_local_music').'" onclick="sourcecontrol(\'albumlist\')" id="choose_albumlist" class="tooltip topimg clickable" height="24px" src="newimages/audio-x-generic.png">';
+print '<img title="'.get_int_text('button_searchmusic').'" onclick="toggleSearch()" id="choose_searcher" class="topimg tooltip clickable" height="24px" src="newimages/system-search.png">';
+print '<img title="'.get_int_text('button_file_browser').'" onclick="sourcecontrol(\'filelist\')" id="choose_filelist" class="tooltip topimg clickable" height="24px" src="newimages/folder.png">';
+print '<img title="'.get_int_text('button_internet_radio').'" onclick="sourcecontrol(\'radiolist\')" id="choose_radiolist" class="tooltip topimg clickable" height="24px" src="newimages/broadcast-24.png">';
 print '<a href="albumart.php" title="'.get_int_text('button_albumart').'" target="_blank" class="tooltip"><img class="topimg" src="newimages/cd_jewel_case.jpg" height="24px"></a>';
 ?>
 </div>
