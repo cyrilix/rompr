@@ -7,7 +7,7 @@
         <!-- <div class="clearfix" style="margin-bottom:4px;overflow:hidden"> -->
             <div id="buttons">
 <?php
-            print '<img class="clickicon controlbutton" onclick="playlist.previous()" src="'.$ipath.'media-skip-backward.png"><img class="shiftleft clickicon controlbutton" onclick="infobar.playbutton.clicked()" id="playbuttonimg" src="'.$ipath.'media-playback-pause.png"><img class="shiftleft2 clickicon controlbutton" onclick="player.controller.stop()" src='.$ipath.'media-playback-stop.png"><img class="shiftleft3 clickicon controlbutton" onclick="playlist.stopafter()" id="stopafterbutton" src="'.$ipath.'stopafter.png"><img class="shiftleft4 clickicon controlbutton" onclick="playlist.next()" src="'.$ipath.'media-skip-forward.png">';
+            print '<img class="clickicon controlbutton" onclick="playlist.previous()" src="'.$ipath.'media-skip-backward.png"><img class="shiftleft clickicon controlbutton" onclick="infobar.playbutton.clicked()" id="playbuttonimg" src="'.$ipath.'media-playback-pause.png"><img class="shiftleft2 clickicon controlbutton" onclick="player.controller.stop()" src="'.$ipath.'media-playback-stop.png"><img class="shiftleft3 clickicon controlbutton" onclick="playlist.stopafter()" id="stopafterbutton" src="'.$ipath.'stopafter.png"><img class="shiftleft4 clickicon controlbutton" onclick="playlist.next()" src="'.$ipath.'media-skip-forward.png">';
 ?>
             </div>
             <div id="patrickmoore">
@@ -25,7 +25,9 @@
 <div id="headerbar" class="noborder fullwidth">
     <div id="controls" class="noborder fullwidth clearfix">
         <div id="ihatecss">
-            <img onclick="toggleSearch()" height="20px" src="newimages/system-search.png" />
+<?php
+            print '<img onclick="toggleSearch()" height="20px" src="'.$ipath.'system-search.png" />';
+?>
         </div>
         <div id="stars" class="invisible">
             <img id="ratingimage" onclick="nowplaying.setRating(event)" height="20px" src="newimages/0stars.png" />
