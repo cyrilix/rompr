@@ -140,14 +140,14 @@ print '<link rel="stylesheet" id="fontfamily" type="text/css" href="fonts/'.$pre
 <script type="text/javascript" src="tiptip/jquery.tipTip.js"></script>
 <!-- MD5 hashing algorith : http://pajhome.org.uk/crypt/md5 -->
 <script type="text/javascript" src="jshash-2.2/md5-min.js"></script>
-<!-- Masonry layout engine : http://masonry.desandro.com/ -->
-<script type="text/javascript" src="jquery/masonry.pkgd.min.js"></script>
 <?php
 if ($mobile != "no") {
     // JQuery touchwipe plugin : http://www.netcu.de/jquery-touchwipe-iphone-ipad-library
     print '<script type="text/javascript" src="jquery/jquery.touchwipe.min.js"></script>'."\n";
     print '<script type="text/javascript" src="ui/mobile_functions.js"></script>'."\n";
 } else {
+    // Masonry layout engine : http://masonry.desandro.com/
+    print '<script type="text/javascript" src="jquery/masonry.pkgd.min.js"></script>'."\n";
     // Custom scrollbar plugin : http://manos.malihu.gr/jquery-custom-content-scroller/
     print '<link type="text/css" href="custom-scrollbar-plugin/css/jquery.mCustomScrollbar.css" rel="stylesheet" />'."\n";
     print '<script type="text/javascript" src="custom-scrollbar-plugin/js/jquery.mCustomScrollbar.concat.min.js"></script>'."\n";
@@ -198,10 +198,11 @@ var lastfm = new LastFM(prefs.lastfm_user);
 var coverscraper = new coverScraper(0, false, false, prefs.downloadart);
 
 <?php
-if (array_key_exists('remote', $_REQUEST)) {
-    print "prefs.remote = true;\n";
-    print "prefs.clickmode = 'single'\n";
-}
+print 'var ipath = "'.$ipath.'";'."\n";
+// if (array_key_exists('remote', $_REQUEST)) {
+//     print "prefs.remote = true;\n";
+//     print "prefs.clickmode = 'single'\n";
+// }
 ?>
 
 $(document).ready(function(){
@@ -306,7 +307,9 @@ print get_int_text("lastfm_addtags").'<br></b>'.get_int_text("lastfm_addtagslabe
             </div>
         </div>
         <div class="fixed dropdown-button">
-            <img src="newimages/dropdown.png">
+<?php
+            print '<img src="'.$ipath.'dropdown.png">';
+?>
         </div>
         <button class="fixed" style="margin-left:8px" onclick="tagAdder.add()">
 <?php

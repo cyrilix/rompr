@@ -227,12 +227,12 @@ function playerController() {
 	        var protocol = uri.substr(0, uri.indexOf(":"));
 	        switch (protocol) {
 	            case "soundcloud":
-	                html = html + '<img src="newimages/soundcloud-logo.png" height="12px" style="vertical-align:middle"></td>';
+	                html = html + '<img src="'+ipath+'soundcloud-logo.png" height="12px" style="vertical-align:middle"></td>';
 	                html = html + '<td align="left"><a href="#" onclick="playlist.load(\''+this.uri+'\')">'+this.name+'</a></td>';
 	                html = html + '<td></td></tr>';
 	                break;
 	            case "spotify":
-	                html = html + '<img src="newimages/spotify-logo.png" height="12px" style="vertical-align:middle"></td>';
+	                html = html + '<img src="'+ipath+'spotify-logo.png" height="12px" style="vertical-align:middle"></td>';
 	                html = html + '<td align="left"><a href="#" onclick="playlist.load(\''+this.uri+'\')">'+this.name+'</a></td>';
 	                html = html + '<td></td></tr>';
 	                break;
@@ -242,14 +242,14 @@ function playerController() {
 	                html = html + '<td></td></tr>';
 	                break;
 	            case "radio-de":
-	                html = html + '<img src="newimages/broadcast-12.png" height="12px" style="vertical-align:middle"></td>';
+	                html = html + '<img src="'+ipath+'broadcast-12.png" height="12px" style="vertical-align:middle"></td>';
 	                html = html + '<td align="left"><a href="#" onclick="playlist.load(\''+this.uri+'\')">'+this.name+'</a></td>';
 	                html = html + '<td></td></tr>';
 	                break;
 	            default:
-	                html = html + '<img src="newimages/folder.png" width="12px" style="vertical-align:middle"></td>';
+	                html = html + '<img src="'+ipath+'folder.png" width="12px" style="vertical-align:middle"></td>';
 	                html = html + '<td align="left"><a href="#" onclick="playlist.load(\''+this.uri+'\')">'+this.name+'</a></td>';
-	                html = html + '<td class="playlisticon" align="right"><a href="#" onclick="player.controller.deletePlaylist(\''+escape(this.name)+'\')"><img src="newimages/edit-delete.png" style="vertical-align:middle"></a></td></tr>';
+	                html = html + '<td class="playlisticon" align="right"><a href="#" onclick="player.controller.deletePlaylist(\''+escape(this.name)+'\')"><img src="'+ipath+'/edit-delete.png" style="vertical-align:middle"></a></td></tr>';
 	                break;
 	        }
 	    });
@@ -500,22 +500,22 @@ function playerController() {
 						// Mopidy's SoundCloud plugin does some fucking awful shit with directory names.
 						var shit = decodeURIComponent(decodeURIComponent(ref.name));
 				        html = html + '<div class="containerbox menuitem">'+
-				        '<div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="'+menuid+'"></div>'+
+				        '<div class="mh fixed"><img src="'+ipath+'toggle-closed-new.png" class="menu fixed" name="'+menuid+'"></div>'+
 				        '<input type="hidden" name="'+ref.uri+'">'+
-				        '<div class="fixed playlisticon"><img width="16px" src="newimages/folder.png" /></div>'+
+				        '<div class="fixed playlisticon"><img width="16px" src="'+ipath+'folder.png" /></div>'+
 				        '<div class="expand">'+shit.replace(/\+/g, ' ')+'</div>'+
 				        '</div>'+
 				        '<div id="'+menuid+'" class="dropmenu notfilled"></div>';
 				        break;
 				    case "track":
 				        html = html + '<div class="clickable clicktrack ninesix indent containerbox padright line" name="'+encodeURIComponent(ref.uri)+'">'+
-				        '<div class="playlisticon fixed"><img height="16px" src="newimages/audio-x-generic.png" /></div>'+
+				        '<div class="playlisticon fixed"><img height="16px" src="'+ipath+'audio-x-generic.png" /></div>'+
 				        '<div class="expand">'+decodeURIComponent(ref.name)+'</div>'+
 				        '</div>';
 				        break;
 					case "playlist":
 				        html = html + '<div class="clickable clickplaylist ninesix indent containerbox padright line" name="'+encodeURIComponent(ref.uri)+'">'+
-				        '<div class="playlisticon fixed"><img height="16px" src="newimages/document-open-folder.png" /></div>'+
+				        '<div class="playlisticon fixed"><img height="16px" src="'+ipath+'document-open-folder.png" /></div>'+
 				        '<div class="expand">'+decodeURIComponent(ref.name)+'</div>'+
 				        '</div>';
 				        break;

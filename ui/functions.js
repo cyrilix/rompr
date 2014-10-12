@@ -103,19 +103,19 @@ jQuery.fn.reverse = [].reverse;
 // http://www.mail-archive.com/discuss@jquery.com/msg04261.html
 
 jQuery.fn.isOpen = function() {
-    return this.attr('src') == 'newimages/toggle-open-new.png';
+    return this.attr('src') == ipath+'toggle-open-new.png';
 }
 
 jQuery.fn.isClosed = function() {
-    return this.attr('src') == 'newimages/toggle-closed-new.png';
+    return this.attr('src') == ipath+'toggle-closed-new.png';
 }
 
 jQuery.fn.toggleOpen = function() {
-    this.attr('src', 'newimages/toggle-open-new.png');
+    this.attr('src', ipath+'toggle-open-new.png');
 }
 
 jQuery.fn.toggleClosed = function() {
-    this.attr('src', 'newimages/toggle-closed-new.png');
+    this.attr('src', ipath+'toggle-closed-new.png');
 }
 
 jQuery.fn.menuReveal = function(callback) {

@@ -6,7 +6,9 @@
     <div id="geoffreyboycott" class="infobarlayout bordered">
         <!-- <div class="clearfix" style="margin-bottom:4px;overflow:hidden"> -->
             <div id="buttons">
-            <img class="clickicon controlbutton" onclick="playlist.previous()" src="newimages/media-skip-backward.png"><img class="shiftleft clickicon controlbutton" onclick="infobar.playbutton.clicked()" id="playbuttonimg" src="newimages/media-playback-pause.png"><img class="shiftleft2 clickicon controlbutton" onclick="player.controller.stop()" src="newimages/media-playback-stop.png"><img class="shiftleft3 clickicon controlbutton" onclick="playlist.stopafter()" id="stopafterbutton" src="newimages/stopafter.png"><img class="shiftleft4 clickicon controlbutton" onclick="playlist.next()" src="newimages/media-skip-forward.png">
+<?php
+            print '<img class="clickicon controlbutton" onclick="playlist.previous()" src="'.$ipath.'media-skip-backward.png"><img class="shiftleft clickicon controlbutton" onclick="infobar.playbutton.clicked()" id="playbuttonimg" src="'.$ipath.'media-playback-pause.png"><img class="shiftleft2 clickicon controlbutton" onclick="player.controller.stop()" src='.$ipath.'media-playback-stop.png"><img class="shiftleft3 clickicon controlbutton" onclick="playlist.stopafter()" id="stopafterbutton" src="'.$ipath.'stopafter.png"><img class="shiftleft4 clickicon controlbutton" onclick="playlist.next()" src="'.$ipath.'media-skip-forward.png">';
+?>
             </div>
             <div id="patrickmoore">
                 <div id="albumcover">
@@ -30,13 +32,19 @@
             <input type="hidden" value="-1" />
         </div>
         <div id="lastfm" class="invisible">
-            <a id="love" href="#" onclick="nowplaying.love()"><img height="20px" src="newimages/lastfm-love.png"></a>
-            <a id="ban" href="#" onclick="infobar.ban()"><img height="20px" src="newimages/lastfm-ban.png"></a>
+<?php
+            print '<a id="love" href="#" onclick="nowplaying.love()"><img height="20px" src="'.$ipath.'lastfm-love.png"></a>';
+            print '<a id="ban" href="#" onclick="infobar.ban()"><img height="20px" src="'.$ipath.'lastfm-ban.png"></a>';
+?>
         </div>
-        <a href="#" onclick="sourcecontrol('chooser')"><img class="tright topimg" src="newimages/preferences.png" height="24px"></a>
-        <a href="#" onclick="makeitbigger()"><img class="tright topimg" src="newimages/pushbutton.png" height="24px"></a>
+<?php
+        print '<a href="#" onclick="sourcecontrol(\'chooser\')"><img class="tright topimg" src="'.$ipath.'preferences.png" height="24px"></a>';
+        print '<a href="#" onclick="makeitbigger()"><img class="tright topimg" src="'.$ipath.'pushbutton.png" height="24px"></a>';
+?>
         <div class="tright">
-            <a href="#" onclick="showVolumeControl()"><img class="topimg" src="newimages/volume.png" height="24px"></a>
+<?php
+            print '<a href="#" onclick="showVolumeControl()"><img class="topimg" src="'.$ipath.'volume.png" height="24px"></a>';
+?>
             <div id="volumecontrol">
                 <div id="volume"></div>
             </div>
@@ -61,7 +69,7 @@ include("player/".$prefs['player_backend']."/search.php");
 <?php
 if ($prefs['player_backend'] == "mpd") {
             print '<div style="padding-left:12px;padding-top:4px">
-                <a title="Search Files" href="#" onclick="toggleFileSearch()"><img class="topimg" height="20px" src="newimages/system-search.png"></a>
+                <a title="Search Files" href="#" onclick="toggleFileSearch()"><img class="topimg" height="20px" src="'.$ipath.'system-search.png"></a>
             </div>
             <div id="filesearch" class="invisible searchbox"></div>';
 }
@@ -79,27 +87,29 @@ if ($prefs['player_backend'] == "mpd") {
 
         <div id="radiolist" class="invisible">
             <div class="containerbox menuitem noselection">
-                <div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="yourradiolist"></div>
-                <div class="smallcover fixed"><img height="32px" width="32px" src="newimages/broadcast-32.png"></div>
 <?php
+                print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" name="yourradiolist"></div>';
+                print '<div class="smallcover fixed"><img height="32px" width="32px" src="'.$ipath.'broadcast-32.png"></div>';
                 print '<div class="expand">'.get_int_text('label_yourradio').'</div>';
 ?>
             </div>
             <div id="yourradiolist" class="dropmenu"></div>
 
             <div class="containerbox menuitem noselection">
-                <div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="podcastslist"></div>
-                <div class="smallcover fixed"><img height="32px" width="32px" src="newimages/Apple_Podcast_logo.png"></div>
 <?php
+                print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" name="podcastslist"></div>';
+                print '<div class="smallcover fixed"><img height="32px" width="32px" src="'.$ipath.'Apple_Podcast_logo.png"></div>';
                 print '<div class="expand">'.get_int_text('label_podcasts').'<span id="total_unlistened_podcasts"></span><span></span></div>';
 ?>
             </div>
             <div id="podcastslist" class="dropmenu"></div>
 
             <div class="containerbox menuitem noselection">
-                <div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" onclick="loadSomaFM()" name="somafmlist"></div>
-                <div class="smallcover fixed"><img height="32px" width="32px" src="newimages/somafm.png"></div>
 <?php
+                print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" onclick="loadSomaFM()" name="somafmlist"></div>';
+?>
+<?php
+                print '<div class="smallcover fixed"><img height="32px" width="32px" src="'.$ipath.'somafm.png"></div>';
                 print '<div class="expand">'.get_int_text('label_somafm').'</div>';
 ?>
                 <img id="somawait" height="14px" width="14px" src="newimages/transparent-32x32.png" />
@@ -107,9 +117,9 @@ if ($prefs['player_backend'] == "mpd") {
             <div id="somafmlist" class="dropmenu"></div>
 
             <div class="containerbox menuitem noselection">
-                <div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" onclick="loadBigRadio()" name="bbclist"></div>
-                <div class="smallcover fixed"><img height="32px" width="32px" src="newimages/broadcast-32.png"></div>
 <?php
+                print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" onclick="loadBigRadio()" name="bbclist"></div>';
+                print '<div class="smallcover fixed"><img height="32px" width="32px" src="'.$ipath.'broadcast-32.png"></div>';
                 print '<div class="expand">'.get_int_text('label_streamradio').'</div>';
 ?>
                 <img id="bbcwait" height="14px" width="14px" src="newimages/transparent-32x32.png" />
@@ -117,9 +127,11 @@ if ($prefs['player_backend'] == "mpd") {
             <div id="bbclist" class="dropmenu"></div>
 
             <div class="containerbox menuitem noselection">
-                <div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" onclick="refreshMyDrink()" name="icecastlist"></div>
-                <div class="smallcover fixed"><img height="32px" width="32px" src="newimages/icecast.png"></div>
 <?php
+                print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" onclick="refreshMyDrink()" name="icecastlist"></div>';
+?>
+<?php
+                print '<div class="smallcover fixed"><img height="32px" width="32px" src="'.$ipath.'icecast.png"></div>';
                 print '<div class="expand">'.get_int_text('label_icecast').'</div>';
 ?>
                 <img id="icewait" height="14px" width="14px" src="newimages/transparent-32x32.png" />

@@ -233,6 +233,7 @@ function alistheader($nart, $nalb, $ntra, $tim) {
 }
 
 function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duration, $lm, $image = "") {
+    global $ipath;
     if ($artist || $rating > 0 || $lm === null) {
         print '<div class="clickable clicktrack ninesix draggable indent containerbox vertical padright" name="'.$url.'">';
         print '<div class="containerbox line">';
@@ -249,14 +250,14 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
         print '></div>';
     }
     if (substr($url,0,7) == "spotify") {
-        print '<div class="playlisticon fixed"><img height="12px" src="newimages/spotify-logo.png" /></div>';
+        print '<div class="playlisticon fixed"><img height="12px" src="'.$ipath.'spotify-logo.png" /></div>';
     } else if (substr($url,0,10) == "soundcloud") {
         if ($image !== "") {
             print '<div class="smallcover fixed">';
             print '<img class="smallcover fixed" src="'.$image.'" />';
             print '</div>';
         }
-        print '<div class="playlisticon fixed"><img height="12px" src="newimages/soundcloud-logo.png" /></div>';
+        print '<div class="playlisticon fixed"><img height="12px" src="'.$ipath.'soundcloud-logo.png" /></div>';
     } else if (substr($url,0,6) == "gmusic") {
         print '<div class="playlisticon fixed"><img height="12px" src="newimages/play-logo.png" /></div>';
     } else if (substr($url,0,7) == "youtube") {
@@ -285,7 +286,7 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
         }
         print '</div>';
         if ($lm === null) {
-            print '<div class="playlisticon fixed clickable clickicon clickremdb"><img height="12px" src="newimages/edit-delete.png" /></div>';
+            print '<div class="playlisticon fixed clickable clickicon clickremdb"><img height="12px" src="'.$ipath.'edit-delete.png" /></div>';
         }
         print '</div>';
     }
@@ -299,12 +300,13 @@ function noAlbumTracks() {
 
 function artistHeader($id, $spotilink, $name) {
     global $divtype;
+    global $ipath;
     print '<div class="noselection fullwidth '.$divtype.'">';
     if ($spotilink) {
         print '<div class="clickable clicktrack draggable containerbox menuitem" name="'.$spotilink.'">';
-        print '<div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="'.$id.'"></div>';
+        print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" name="'.$id.'"></div>';
         if (preg_match('/^spotify/', $spotilink)) {
-            print '<div class="playlisticon fixed"><img height="12px" src="newimages/spotify-logo.png" /></div>';
+            print '<div class="playlisticon fixed"><img height="12px" src="'.$ipath.'spotify-logo.png" /></div>';
             print '<input type="hidden" value="needsfiltering" />';
         } else if (preg_match('/^gmusic/', $spotilink)) {
             print '<div class="playlisticon fixed"><img height="12px" src="newimages/play-logo.png" /></div>';
@@ -313,7 +315,7 @@ function artistHeader($id, $spotilink, $name) {
         print '</div>';
     } else {
         print '<div class="clickable clickalbum draggable containerbox menuitem" name="'.$id.'">';
-        print '<div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="'.$id.'"></div>';
+        print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" name="'.$id.'"></div>';
         print '<div class="expand">'.$name.'</div>';
         print '</div>';
     }
@@ -329,15 +331,16 @@ function noAlbumsHeader() {
 
 function albumHeader($name, $spotilink, $id, $isonefile, $exists, $searched, $imgname, $src, $date) {
     global $prefs;
+    global $ipath;
     if ($spotilink) {
         print '<div class="clickable clicktrack draggable containerbox menuitem" name="'.$spotilink.'">';
-        print '<div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="'.$id.'"></div>';
+        print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" name="'.$id.'"></div>';
     } else if ($isonefile) {
         print '<div class="clickable clickalbum onefile draggable containerbox menuitem" name="'.$id.'">';
-        print '<div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="'.$id.'"></div>';
+        print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" name="'.$id.'"></div>';
     } else {
         print '<div class="clickable clickalbum draggable containerbox menuitem" name="'.$id.'">';
-        print '<div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="'.$id.'"></div>';
+        print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" name="'.$id.'"></div>';
     }
     // For BLOODY FIREFOX only we have to wrap the image in a div of the same size,
     // because firefox won't squash the image horizontally if it's in a box-flex layout.
@@ -352,7 +355,7 @@ function albumHeader($name, $spotilink, $id, $isonefile, $exists, $searched, $im
     print '</div>';
     if ($spotilink) {
         if (preg_match('/^spotify/', $spotilink)) {
-            print '<div class="playlisticon fixed"><img height="12px" src="newimages/spotify-logo.png" /></div>';
+            print '<div class="playlisticon fixed"><img height="12px" src="'.$ipath.'spotify-logo.png" /></div>';
         } else if (preg_match('/^gmusic/', $spotilink)) {
             print '<div class="playlisticon fixed"><img height="12px" src="newimages/play-logo.png" /></div>';
         }

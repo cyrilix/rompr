@@ -217,12 +217,12 @@ function Playlist() {
         var html = "";
         if (m.match(/stars/)) {
             html = '<img src="newimages/'+m+'.png" height="14px" />';
-            html = html + '<img class="clickicon" height="14px" style="margin-left:8px" src="newimages/edit-delete.png" onclick="playlist.endSmartMode()" />';
+            html = html + '<img class="clickicon" height="14px" style="margin-left:8px" src="'+ipath+'edit-delete.png" onclick="playlist.endSmartMode()" />';
         } else if (m.match(/tag/)) {
             m = m.replace(/tag\+/,'');
             m = m.replace(/,/, ', ');
             html = '<img src="newimages/tag.png" height="14px" style="margin-right:4px;vertical-align:middle" />'+m;
-            html = html + '<img class="clickicon" height="14px" style="margin-left:8px;vertical-align:middle" src="newimages/edit-delete.png" onclick="playlist.endSmartMode()" />';
+            html = html + '<img class="clickicon" height="14px" style="margin-left:8px;vertical-align:middle" src="'+ipath+'edit-delete.png" onclick="playlist.endSmartMode()" />';
         }
         return html;
     }
@@ -621,7 +621,7 @@ function Playlist() {
                     html = html + '<div class="smallcover fixed"><img class="smallcover" src="'+tracks[trackpointer].image+'" /></div>';
                 } else if (tracks[trackpointer].type == "podcast") {
                     html = html + '<div class="tracknumbr fixed">';
-                    html = html + '<img src="newimages/Apple_Podcast_logo.png" height="16px" />';
+                    html = html + '<img src="'+ipath+'Apple_Podcast_logo.png" height="16px" />';
                     html = html + '</div>';
                 } else{
                     html = html + '<div class="tracknumbr fixed"';
@@ -632,7 +632,7 @@ function Playlist() {
                     html = html + '>'+format_tracknum(tracks[trackpointer].tracknumber)+'</div>';
                 }
                 if (l.substring(0, 7) == "spotify") {
-                    html = html + '<div class="playlisticon fixed"><img height="12px" src="newimages/spotify-logo.png" /></div>';
+                    html = html + '<div class="playlisticon fixed"><img height="12px" src="'+ipath+'spotify-logo.png" /></div>';
                 } else if (l.substring(0, 6) == "gmusic") {
                     html = html + '<div class="playlisticon fixed"><img height="12px" src="newimages/play-logo.png" /></div>';
                 }
@@ -645,7 +645,7 @@ function Playlist() {
                     html = html + '<div class="expand line">'+tracks[trackpointer].title+'</div>';
                 }
                 html = html + '<div class="tiny fixed">'+formatTimeString(tracks[trackpointer].duration)+'</div>';
-                html = html + '<div class="playlisticonr fixed clickable clickicon clickremovetrack" romprid="'+tracks[trackpointer].backendid+'"><img src="newimages/edit-delete.png" /></div>';
+                html = html + '<div class="playlisticonr fixed clickable clickicon clickremovetrack" romprid="'+tracks[trackpointer].backendid+'"><img src="'+ipath+'edit-delete.png" /></div>';
                 html = html + '</div>';
             }
             // Close the rollup div we added in the header
@@ -658,7 +658,7 @@ function Playlist() {
             html = html + '<div name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="item clickable clickplaylist sortable containerbox menuitem playlisttitle">';
             var l = tracks[0].location;
             if (l.substring(0,11) == "soundcloud:") {
-                html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="newimages/soundcloud-logo.png"/></div>';
+                html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="'+ipath+'soundcloud-logo.png"/></div>';
             } else if (l.substring(0,8) == "youtube:" || l.substring(0,3) == "yt:") {
                 html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="newimages/Youtube-logo.png"/></div>';
             } else {
@@ -688,7 +688,7 @@ function Playlist() {
             html = html + '<div class="line">'+self.artist+'</div>';
             html = html + '<div class="line">'+self.album+'</div>';
             html = html + '</div>';
-            html = html + '<div class="playlisticonr fixed clickable clickicon clickremovealbum" name="'+self.index+'"><img src="newimages/edit-delete.png" /></div>';
+            html = html + '<div class="playlisticonr fixed clickable clickicon clickremovealbum" name="'+self.index+'"><img src="'+ipath+'edit-delete.png" /></div>';
             html = html + '</div>';
             html = html + '<div class="trackgroup';
             if (rolledup) {
@@ -790,7 +790,7 @@ function Playlist() {
             var html = self.header();
             for (var trackpointer in tracks) {
                 html = html + '<div name="'+tracks[trackpointer].playlistpos+'" romprid="'+tracks[trackpointer].backendid+'" class="booger clickable clickplaylist containerbox playlistitem menuitem">';
-                html = html + '<div class="playlisticon fixed"><img height="12px" src="newimages/broadcast.png" /></div>';
+                html = html + '<div class="playlisticon fixed"><img height="12px" src="'+ipath+'broadcast.png" /></div>';
                 html = html + '<div class="containerbox vertical expand">';
                 html = html + '<div class="playlistrow2 line">'+tracks[trackpointer].stream+'</div>';
                 html = html + '<div class="tiny line">'+tracks[trackpointer].location+'</div>';
@@ -805,15 +805,15 @@ function Playlist() {
         this.header = function() {
             var html = "";
             html = html + '<div name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="item clickable clickplaylist sortable containerbox menuitem playlisttitle">';
-            var image = (tracks[0].image) ? tracks[0].image : "newimages/broadcast.png";
+            var image = (tracks[0].image) ? tracks[0].image : ipath+"broadcast.png";
             html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" name="'+tracks[0].key+'"" src="'+image+'"/></div>';
             html = html + '<div class="containerbox vertical expand">';
             html = html + '<div class="line">'+tracks[0].creator+'</div>';
             html = html + '<div class="line">'+tracks[0].album+'</div>';
             html = html + '</div>';
             html = html + '<div class="containerbox vertical fixed">';
-            html = html + '<div class="playlisticonr clickable clickicon clickaddfave" name="'+self.index+'"><img height="12px" width="12px" src="newimages/broadcast-12.png"></div>';
-            html = html + '<div class="playlisticonr clickable clickicon clickremovealbum" name="'+self.index+'"><img src="newimages/edit-delete.png"></div>';
+            html = html + '<div class="playlisticonr clickable clickicon clickaddfave" name="'+self.index+'"><img height="12px" width="12px" src="'+ipath+'broadcast-12.png"></div>';
+            html = html + '<div class="playlisticonr clickable clickicon clickremovealbum" name="'+self.index+'"><img src="'+ipath+'edit-delete.png"></div>';
             html = html + '</div>';
             html = html + '</div>';
             html = html + '<div class="trackgroup';

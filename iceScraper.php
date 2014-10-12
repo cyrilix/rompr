@@ -71,7 +71,7 @@ for ($i = 0; $i < $items->length; $i++) {
 		if ($link != "") {
 			$items->item($i)->nodeValue = "";
 			$f = $DOM->createDocumentFragment();
-			$f->appendXML('<p><img class="clickable clickicon clickstream" name="http://dir.xiph.org'.$link.'" streamimg="newimages/icecast.png" src="newimages/start.png" /></p>');
+			$f->appendXML('<p><img class="clickable clickicon clickstream" name="http://dir.xiph.org'.$link.'" streamimg="'.$ipath.'icecast.png" src="'.$ipath.'start.png" /></p>');
 			$items->item($i)->appendChild($f);
 		}
 	}

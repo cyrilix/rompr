@@ -56,7 +56,7 @@ var alarm = function() {
 		setButton: function() {
 			var a = prefs.alarmon ? 1 : 0;
 			$("#button_alarm_on").removeClass("togglebutton-0 togglebutton-1").addClass("togglebutton-"+a);
-			$("#alarmclock").attr("src", "newimages/alarmclock_"+prefs.alarmon+".png");
+			$("#alarmclock").attr("src", ipath+"alarmclock_"+prefs.alarmon+".png");
 			$("#button_alarm_ramp").attr("checked", prefs.alarmramp);
 		},
 
@@ -92,7 +92,7 @@ var alarm = function() {
 			} else {
 				player.controller.play();
 			}
-			infobar.notify(infobar.NOTIFY,'<img src="newimages/alarmclock_true.png" width="250px"/>');
+			infobar.notify(infobar.NOTIFY,'<img src="'+ipath+'alarmclock_true.png" width="250px"/>');
 			alarm.setAlarm();
 		},
 

@@ -424,4 +424,4 @@ var info_wikipedia = function() {
 
 }();
 
-nowplaying.registerPlugin("wikipedia", info_wikipedia, "newimages/Wikipedia-logo.png", "button_wikipedia");
+nowplaying.registerPlugin("wikipedia", info_wikipedia, ipath+"Wikipedia-logo.png", "button_wikipedia");

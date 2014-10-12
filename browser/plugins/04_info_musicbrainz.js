@@ -121,7 +121,7 @@ var info_musicbrainz = function() {
     	}
 
 		html = html + '<div class="mbbox underline">';
-	    html = html + '<img src="newimages/toggle-closed-new.png" class="menu infoclick clickdodiscography" name="'+data.id+'">';
+	    html = html + '<img src="'+ipath+'toggle-closed-new.png" class="menu infoclick clickdodiscography" name="'+data.id+'">';
 	    html = html + '<b>'+language.gettext("discogs_discography", [data.name.toUpperCase()])+'</b></div>';
 	    html = html + '<div name="discography_'+data.id+'" class="invisible">';
         html = html + '</div>';
@@ -143,7 +143,7 @@ var info_musicbrainz = function() {
     			// The already_done flag is just there because artist can appear multiple times in this data
     			// if they did multiple stints in the band.
 
-				html = html + '<img src="newimages/toggle-closed-new.png" class="menu infoclick clickdoartist" name="'+data[i].artist.id+'">';
+				html = html + '<img src="'+ipath+'toggle-closed-new.png" class="menu infoclick clickdoartist" name="'+data[i].artist.id+'">';
     			html = html + '<b>'+data[i].artist.name+'  </b>'+"AYEARS_"+data[i].artist.id;
     			ayears[data[i].artist.id] = doSpan(data[i]);
     			html = html + '</div>';
@@ -177,11 +177,11 @@ var info_musicbrainz = function() {
 			}
 			switch (relations[i].type) {
 				case "wikipedia":
-					html = html + '<li><img src="newimages/Wikipedia-logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Wikipedia ('+d[1]+')</a></li>';
+					html = html + '<li><img src="'+ipath+'Wikipedia-logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Wikipedia ('+d[1]+')</a></li>';
 					break;
 
 				case "wikidata":
-					html = html + '<li><img src="newimages/Wikipedia-logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Wikidata</a></li>';
+					html = html + '<li><img src="'+ipath+'Wikipedia-logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Wikidata</a></li>';
 					break;
 
 				case "discography":
@@ -201,7 +201,7 @@ var info_musicbrainz = function() {
 					break;
 
 				case "discogs":
-					html = html + '<li><img src="newimages/discogs-white-2.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Discogs</a></li>';
+					html = html + '<li><img src="'+ipath+'discogs-white-2.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Discogs</a></li>';
 					break;
 
 				case "official homepage":
@@ -226,7 +226,7 @@ var info_musicbrainz = function() {
 
 				case "social network":
 					if (u.match(/last\.fm/i)) {
-						html = html + '<li><img src="newimages/lastfm.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Last.FM</a></li>';
+						html = html + '<li><img src="'+ipath+'lastfm.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Last.FM</a></li>';
 					} else if (u.match(/facebook\.com/i)) {
 						html = html + '<li><img src="newimages/facebook-logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Facebook</a></li>';
 					} else {
@@ -1206,4 +1206,4 @@ var info_musicbrainz = function() {
 
 }();
 
-nowplaying.registerPlugin("musicbrainz", info_musicbrainz, "newimages/musicbrainz_logo.png", "button_musicbrainz");
+nowplaying.registerPlugin("musicbrainz", info_musicbrainz, ipath+"musicbrainz_logo.png", "button_musicbrainz");

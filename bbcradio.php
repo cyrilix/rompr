@@ -234,7 +234,7 @@ function getStationImage($name) {
             return 'resources/'.$nospaces.'.png';
         }
     }
-    return 'newimages/broadcast.png';
+    return $ipath."broadcast.png";
 
 }
 

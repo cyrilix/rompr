@@ -89,7 +89,7 @@ var info_lastfm = function() {
 
     function appendTag(table, name, url) {
         var html = '<tr class="newtag"><td><a href="'+url+'" target="_blank">'+name+'</a></td>';
-        html = html + '<td><img class="infoclick clickremovetag" title="'+language.gettext("lastfm_removetag")+'" style="vertical-align:middle" src="newimages/edit-delete.png" height="12px"></td>';
+        html = html + '<td><img class="infoclick clickremovetag" title="'+language.gettext("lastfm_removetag")+'" style="vertical-align:middle" src="'+ipath+'edit-delete.png" height="12px"></td>';
         $('table[name="'+table+'tagtable"]').append(html);
         $(".newtag").fadeIn('fast', function(){
             $(this).find('[title]').tipTip({delay: 1000, edgeOffset: 8});
@@ -161,7 +161,7 @@ var info_lastfm = function() {
 
     function getAlbumHTML(lfmdata) {
         var html = sectionHeader(lfmdata);
-        html = html + '<br><ul id="buyalbum"><li><b>'+language.gettext("lastfm_buyalbum")+'&nbsp;</b><img class="infoclick clickbuy" height="20px" id="buyalbumbutton" style="vertical-align:middle" src="newimages/cart.png"></li></ul>';
+        html = html + '<br><ul id="buyalbum"><li><b>'+language.gettext("lastfm_buyalbum")+'&nbsp;</b><img class="infoclick clickbuy" height="20px" id="buyalbumbutton" style="vertical-align:middle" src="'+ipath+'cart.png"></li></ul>';
         html = html + '</ul><br>';
 
         html = html + doTags(lfmdata.tags());
@@ -197,7 +197,7 @@ var info_lastfm = function() {
             html = html + '<tr><td>';
             if (tracks[i]['@attr']) { html = html + tracks[i]['@attr'].rank+':'; }
             html = html + '</td><td>'+tracks[i].name+'</td><td>'+formatTimeString(tracks[i].duration)+'</td>';
-            html = html + '<td align="right"><a target="_blank" title="'+language.gettext("lastfm_viewtrack")+'" href="'+tracks[i].url+'"><img src="newimages/lastfm.png" height="12px"></a></td><td align="right">';
+            html = html + '<td align="right"><a target="_blank" title="'+language.gettext("lastfm_viewtrack")+'" href="'+tracks[i].url+'"><img src="'+ipath+'lastfm.png" height="12px"></a></td><td align="right">';
             html = html + '</td></tr>';
         }
         html = html + '</table>';
@@ -211,7 +211,7 @@ var info_lastfm = function() {
         html = html + '<li name="userloved">';
         html = html +'</li>';
 
-        html = html + '<br><ul id="buytrack"><li><b>'+language.gettext("lastfm_buytrack")+'&nbsp;</b><img class="infoclick clickbuy" height="20px" id="buytrackbutton" style="vertical-align:middle" src="newimages/cart.png"></li></ul>';
+        html = html + '<br><ul id="buytrack"><li><b>'+language.gettext("lastfm_buytrack")+'&nbsp;</b><img class="infoclick clickbuy" height="20px" id="buytrackbutton" style="vertical-align:middle" src="'+ipath+'cart.png"></li></ul>';
         html = html + '</ul><br>';
 
         html = html + doTags(lfmdata.tags());
@@ -330,10 +330,10 @@ var info_lastfm = function() {
                 var html = "";
                 if (flag) {
                     html = html + '<b>'+language.gettext("lastfm_loved")+':</b> '+language.gettext("label_yes");
-                    html = html+'&nbsp;&nbsp;&nbsp;<a title="'+language.gettext("lastfm_unlove")+'" href="#" class="infoclick clickunlove"><img src="newimages/lastfm-unlove.png" height="12px"></a>';
+                    html = html+'&nbsp;&nbsp;&nbsp;<a title="'+language.gettext("lastfm_unlove")+'" href="#" class="infoclick clickunlove"><img src="'+ipath+'lastfm-unlove.png" height="12px"></a>';
                 } else {
                     html = html + '<li><b>'+language.gettext("lastfm_loved")+':</b> '+language.gettext("label_no");
-                    html = html+'&nbsp;&nbsp;&nbsp;<a title="'+language.gettext("lastfm_lovethis")+'" href="#" class="infoclick clicklove"><img src="newimages/lastfm-love.png" height="12px"></a>';
+                    html = html+'&nbsp;&nbsp;&nbsp;<a title="'+language.gettext("lastfm_lovethis")+'" href="#" class="infoclick clicklove"><img src="'+ipath+'lastfm-love.png" height="12px"></a>';
                 }
                 $('li[name="userloved"]').html(html);
                 $('li[name="userloved"]').find("[title]").tipTip({delay: 1000, edgeOffset: 8});
@@ -1106,4 +1106,4 @@ function lfmDataExtractor(data) {
 
 }
 
-nowplaying.registerPlugin("lastfm", info_lastfm, "newimages/lastfm.png", "button_infolastfm");
+nowplaying.registerPlugin("lastfm", info_lastfm, ipath+"lastfm.png", "button_infolastfm");

@@ -58,7 +58,7 @@ var browser = function() {
                             data.link + '" title="'+language.gettext("info_newtab")+'" target="_blank"><img height="32px" src="'+sources[source].icon+'"></a></div>';
             }
         } else if (close) {
-            html = html + '<div class="fixed" style="vertical-align:middle"><img class="infoclick clickicon tadpole" height="16px" src="newimages/edit-delete.png"></div>';
+            html = html + '<div class="fixed" style="vertical-align:middle"><img class="infoclick clickicon tadpole" height="16px" src="'+ipath+'edit-delete.png"></div>';
         }
         html = html + '</div>';
         html = html + '<div class="foldup" id="'+title+'foldup"';
@@ -86,19 +86,19 @@ var browser = function() {
 
         if (displaypointer == 0) {
             $("#backbutton").unbind('click');
-            $("#backbutton").attr("src", "newimages/backbutton_disabled.png");
+            $("#backbutton").attr("src", ipath+"backbutton_disabled.png");
         }
-        if (displaypointer > 0 && $("#backbutton").attr("src")=="newimages/backbutton_disabled.png") {
+        if (displaypointer > 0 && $("#backbutton").attr("src")==ipath+"backbutton_disabled.png") {
             $("#backbutton").click( browser.back );
-            $("#backbutton").attr("src", "newimages/backbutton.png");
+            $("#backbutton").attr("src", ipath+"backbutton.png");
         }
         if (displaypointer == (history.length)-1) {
             $("#forwardbutton").unbind('click');
-            $("#forwardbutton").attr("src", "newimages/forwardbutton_disabled.png");
+            $("#forwardbutton").attr("src", ipath+"forwardbutton_disabled.png");
         }
-        if (displaypointer < (history.length)-1 && $("#forwardbutton").attr("src")=="newimages/forwardbutton_disabled.png") {
+        if (displaypointer < (history.length)-1 && $("#forwardbutton").attr("src")==ipath+"forwardbutton_disabled.png") {
             $("#forwardbutton").click( browser.forward );
-            $("#forwardbutton").attr("src", "newimages/forwardbutton.png");
+            $("#forwardbutton").attr("src", ipath+"forwardbutton.png");
         }
 
         var html;

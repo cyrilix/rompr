@@ -121,7 +121,7 @@ var info_file = function() {
                 break;
 
             default:
-            	browser.setPluginIcon(me, "newimages/audio-x-generic.png");
+            	browser.setPluginIcon(me, ipath+"audio-x-generic.png");
             	break;
         }
     }
@@ -253,4 +253,4 @@ var info_file = function() {
 	}
 }();
 
-nowplaying.registerPlugin("file", info_file, "newimages/audio-x-generic.png", "button_fileinfo");
+nowplaying.registerPlugin("file", info_file, ipath+"audio-x-generic.png", "button_fileinfo");

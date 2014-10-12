@@ -276,30 +276,28 @@ function trySpotify() {
     }
     $image = "";
     debug_print("  Trying Spotify for ".$spotilink,"GETALBUMCOVER");
+
     // php strict prevents me from doing end(explode()) because
     // only variables can be passed by reference. Stupid php.
     $spaffy = explode(":", $spotilink);
     $spiffy = end($spaffy);
-    $url = "http://open.spotify.com/album/".$spiffy;
+    $url = 'https://api.spotify.com/v1/albums/'.$spiffy;
     debug_print("      Getting ".$url,"GETALBUMCOVER");
     $content = url_get_contents($url);
+
     if ($content['contents'] && $content['contents'] != "") {
-        $matches = array();
-        preg_match_all('/<div class=\"mo-image\" style=\"background-image: url\((.*?)\)/', $content['contents'], $matches, PREG_SET_ORDER);
-        if (count($matches) > 1) {
-
-
-            debug_print(print_r($matches, true),"FUCKITY");
-
-            $image = 'http:'.$matches[1][count($matches[1]) - 1];
+        $data = json_decode($content['contents']);
+        if (array_key_exists(0, $data->{'images'})) {
+            $image = $data->{'images'}[0]->{'url'};
             debug_print("    Returning result from Spotify : ".$image,"GETALBUMCOVER");
-        } else {
+       } else {
             debug_print("    No Spotify Image Found","GETALBUMCOVER");
-        }
+
+       }
     } else {
-        debug_print("    Spotify page not retrieved","GETALBUMCOVER");
+        debug_print("    Spotify API data not retrieved","GETALBUMCOVER");
     }
-    $delaytime = 500;
+    $delaytime = 1000;
     return $image;
 }
 

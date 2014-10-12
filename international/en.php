@@ -516,6 +516,7 @@ $languages['en'] = array (
 	"musicbrainz_noinfo" => "Could not get information from Spotify",
 	"button_infospotify" => "Info Panel (Spotify)",
 	"spotify_not" => "This panel will only display information about music from Spotify",
+	"config_icontheme" => "ICONS"
 
 
 );

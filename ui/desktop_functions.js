@@ -70,9 +70,9 @@ function doThatFunkyThang() {
         }
     }
 
-    var i = (prefs.sourceshidden) ? "newimages/arrow-right-double.png" : "newimages/arrow-left-double.png";
+    var i = (prefs.sourceshidden) ? ipath+"arrow-right-double.png" : ipath+"arrow-left-double.png";
     $("#expandleft").attr("src", i);
-    i = (prefs.playlisthidden) ? "newimages/arrow-left-double.png" : "newimages/arrow-right-double.png";
+    i = (prefs.playlisthidden) ? ipath+"arrow-left-double.png" : ipath+"arrow-right-double.png";
     $("#expandright").attr("src", i);
     browser.rePoint();
 }

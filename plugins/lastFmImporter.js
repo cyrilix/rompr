@@ -42,7 +42,7 @@ var lastfmImporter = function() {
 		row += '<td align="center">'+t.Playcount+'</td>';
 		row += '<td align="center">';
 		if (t.loved) {
-			row += '<img src="newimages/lastfm-love.png" height="20px" />';
+			row += '<img src="'+ipath+'lastfm-love.png" height="20px" />';
 		}
 		row += '</td>';
 		row += '<td id="trackfound'+t.key+'"></td>';
@@ -96,9 +96,9 @@ var lastfmImporter = function() {
 		var html = "";
 		var u = data.uri;
 		if (u.match(/spotify:/)) {
-			html = html + '<img height="12px" src="newimages/spotify-logo.png" style="margin-right:1em" />';
+			html = html + '<img height="12px" src="'+ipath+'spotify-logo.png" style="margin-right:1em" />';
 		} else if (u.match(/soundcloud:/)) {
-			html = html + '<img height="12px" src="newimages/soundcloud-logo.png" style="margin-right:1em" />';
+			html = html + '<img height="12px" src="'+ipath+'soundcloud-logo.png" style="margin-right:1em" />';
 		} else if (u.match(/youtube:/)) {
 			html = html + '<img height="12px" src="newimages/Youtube-logo.png" style="margin-right:1em" />';
 		} else if (u.match(/leftasrain:/)) {
@@ -376,7 +376,7 @@ var lastfmImporter = function() {
 				$("#trackrow"+data.key).append('<td align="center"></td>');
 				lastfmImporter.doSqlStuff(data, false);
 			} else {
-				$("#trackrow"+data.key).append('<td align="center" class="invisible"><img src="newimages/edit-delete.png" class="clickicon plugclickable infoclick removerow" /></td>').fadeIn('fast');
+				$("#trackrow"+data.key).append('<td align="center" class="invisible"><img src="'+ipath+'edit-delete.png" class="clickicon plugclickable infoclick removerow" /></td>').fadeIn('fast');
 				$("#trackrow"+data.key).append('<td align="center" class="invisible"><button class="plugclickable infoclick importrow">Import</button></td>').fadeIn('fast');
 				if (html2) {
 					$("#trackrow"+data.key).after(html2);

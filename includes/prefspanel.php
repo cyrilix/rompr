@@ -10,6 +10,9 @@ if (strlen(htmlspecialchars_decode(get_int_text("config_fontsize"), ENT_QUOTES))
 if (strlen(htmlspecialchars_decode(get_int_text("config_fontname"), ENT_QUOTES)) > $labia) {
     $labia = strlen(htmlspecialchars_decode(get_int_text("config_fontname"), ENT_QUOTES));
 }
+if (strlen(htmlspecialchars_decode(get_int_text("config_icontheme"), ENT_QUOTES)) > $labia) {
+    $labia = strlen(htmlspecialchars_decode(get_int_text("config_icontheme"), ENT_QUOTES));
+}
 $labia -= 2;
 // Language
 print '<div class="pref"><div style="display:inline-block;width:'.$labia.'em"><b>'.get_int_text('config_language').'</b></div><select id="langselector" class="topformbutton" onchange="changelanguage()">';
@@ -29,6 +32,14 @@ print '<div class="pref"><div style="display:inline-block;width:'.$labia.'em"><b
 $themes = glob("themes/*.css");
 foreach($themes as $theme) {
     print '<option value="'.basename($theme).'">'.preg_replace('/\.css$/', "", basename($theme)).'</option>';
+}
+print '</select></div>';
+
+// Icon Theme
+print '<div class="pref"><div style="display:inline-block;width:'.$labia.'em"><b>'.get_int_text('config_icontheme').'</b></div><select id="iconthemeselector" class="topformbutton" onchange="changeicontheme()">';
+$themes = glob("iconsets/*");
+foreach($themes as $theme) {
+    print '<option value="'.basename($theme).'">'.basename($theme).'</option>';
 }
 print '</select></div>';
 
@@ -141,7 +152,7 @@ print '</div>';
 
 // Last.FM
 print '<div class="pref">
-<img src="newimages/lastfm.png" height="24px" style="vertical-align:middle;margin-right:8px"/><b>'.get_int_text('label_lastfm').'</b>
+<img src="'.$ipath.'lastfm.png" height="24px" style="vertical-align:middle;margin-right:8px"/><b>'.get_int_text('label_lastfm').'</b>
 </div>
 <div class="pref">'.get_int_text('config_lastfmusername').'
 <input class="winkle" name="user" type="text" size="30" value="'.$prefs['lastfm_user'].'"/><button onclick="lastfmlogin()">'.get_int_text('config_loginbutton').'</button>

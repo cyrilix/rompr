@@ -331,5 +331,5 @@ var info_soundcloud = function() {
 }();
 
 if (prefs.player_backend == "mopidy") {
-	nowplaying.registerPlugin("soundcloud", info_soundcloud, "newimages/soundcloud-logo.png", "button_soundcloud");
+	nowplaying.registerPlugin("soundcloud", info_soundcloud, ipath+"soundcloud-logo.png", "button_soundcloud");
 }

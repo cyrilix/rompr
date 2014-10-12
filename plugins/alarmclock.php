@@ -2,9 +2,13 @@
 <li>
 	<table align="center">
 		<tr>
-			<td align="center"><img src="newimages/arrow-increase.png" width="42px" onmousedown="alarm.startInc(3600)" onmouseup="alarm.stopInc()" onmouseout="alarm.stopInc()" /></td>
+<?php
+			print '<td align="center"><img src="'.$ipath.'arrow-increase.png" width="42px" onmousedown="alarm.startInc(3600)" onmouseup="alarm.stopInc()" onmouseout="alarm.stopInc()" /></td>';
+?>
 			<td width="2%"></td>
-			<td align="center"><img src="newimages/arrow-increase.png" width="42px" onmousedown="alarm.startInc(60)" onmouseup="alarm.stopInc()" onmouseout="alarm.stopInc()" /></td>
+<?php
+			print '<td align="center"><img src="'.$ipath.'arrow-increase.png" width="42px" onmousedown="alarm.startInc(60)" onmouseup="alarm.stopInc()" onmouseout="alarm.stopInc()" /></td>';
+?>
 		</tr>
 		<tr>
 			<td align="center" class="alarmnumbers" id="alarmhours" style="color:#ffffff">12</td>
@@ -12,9 +16,13 @@
 			<td align="center" class="alarmnumbers" id="alarmmins" style="color:#ffffff">00</td>
 		</tr>
 		<tr>
-			<td align="center"><img src="newimages/arrow-decrease.png" width="42px" onmousedown="alarm.startInc(-3600)" onmouseup="alarm.stopInc()" onmouseout="alarm.stopInc()" /></td>
+<?php
+			print '<td align="center"><img src="'.$ipath.'arrow-decrease.png" width="42px" onmousedown="alarm.startInc(-3600)" onmouseup="alarm.stopInc()" onmouseout="alarm.stopInc()" /></td>';
+?>
 			<td width="2%"></td>
-			<td align="center"><img src="newimages/arrow-decrease.png" width="42px" onmousedown="alarm.startInc(-60)" onmouseup="alarm.stopInc()" onmouseout="alarm.stopInc()" /></td>
+<?php
+			print '<td align="center"><img src="'.$ipath.'arrow-decrease.png" width="42px" onmousedown="alarm.startInc(-60)" onmouseup="alarm.stopInc()" onmouseout="alarm.stopInc()" /></td>';
+?>
 		</tr>
 	</table>
 </li>

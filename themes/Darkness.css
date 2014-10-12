@@ -17,6 +17,12 @@ h1,h2,h3,h4,h5,h6
 button
 {
     margin:2px;
+    background-color:#202020 !important;
+    border:none !important;
+    background-image:none !important;
+    color:#dddddd !important;
+    font-weight:bold;
+    font-size:110%;
 }
 
 a:link

@@ -15,7 +15,7 @@ var info_discogs = function() {
 					u = 'http://'+u;
 				}
 				if (u.match(/wikipedia/i)) {
-					html = html + '<li><img src="newimages/Wikipedia-logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Wikipedia ('+d[1]+')</a></li>';
+					html = html + '<li><img src="'+ipath+'Wikipedia-logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Wikipedia ('+d[1]+')</a></li>';
 				} else if (u.match(/facebook/i)) {
 					html = html + '<li><img src="newimages/facebook-logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Facebook</a></li>';
 				} else {
@@ -608,7 +608,7 @@ var info_discogs = function() {
 			    }
 
 				html = html + '<div class="mbbox underline">';
-			    html = html + '<img src="newimages/toggle-closed-new.png" class="menu infoclick clickdodiscography" name="'+data.data.id+'">';
+			    html = html + '<img src="'+ipath+'toggle-closed-new.png" class="menu infoclick clickdodiscography" name="'+data.data.id+'">';
 			    html = html + '<b>'+language.gettext("discogs_discography", [data.data.name.toUpperCase()])+'</b></div>';
 			    html = html + '<div name="discography_'+data.data.id+'" class="invisible">';
 			    html = html + '</div>';
@@ -623,7 +623,7 @@ var info_discogs = function() {
 				var html = "";
 		    	for (var i in members) {
 		    		html = html + '<div class="mbbox">';
-        			html = html + '<img src="newimages/toggle-closed-new.png" class="menu infoclick clickdoartist" name="'+members[i].id+'">';
+        			html = html + '<img src="'+ipath+'toggle-closed-new.png" class="menu infoclick clickdoartist" name="'+members[i].id+'">';
         			var n = members[i].name;
         			n = n.replace(/ \(\d+\)$/, '');
         			html = html + '<b>'+n+'</b>';
@@ -1220,4 +1220,4 @@ var info_discogs = function() {
 
 }();
 
-nowplaying.registerPlugin("discogs", info_discogs, "newimages/discogs-white-2.png", "button_discogs");
+nowplaying.registerPlugin("discogs", info_discogs, ipath+"discogs-white-2.png", "button_discogs");

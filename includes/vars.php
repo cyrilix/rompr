@@ -81,10 +81,13 @@ $prefs = array( "mpd_host" => "localhost",
                 "proxy_user" => "",
                 "proxy_password" => "",
                 "ignore_unplayable" => "true",
-                "remote" => "false"
+                "remote" => "false",
+                "icontheme" => "Colourful"
                 );
 
 loadPrefs();
+
+$ipath = "iconsets/".$prefs['icontheme']."/";
 
 $searchlimits = array(  "local" => "Local Files",
                         "spotify" => "Spotify",

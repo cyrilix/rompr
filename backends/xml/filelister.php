@@ -75,19 +75,19 @@ class mpdlistthing {
 function doFileHTML($item) {
     if ($item->type == 'directory') {
         print '<div class="clickable clickalbum draggable containerbox menuitem" name="'.$item->id.'">';
-        print '<div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="'.$item->id.'"></div>';
-        print '<div class="fixed playlisticon"><img width="16px" src="newimages/folder.png" /></div>';
+        print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" name="'.$item->id.'"></div>';
+        print '<div class="fixed playlisticon"><img width="16px" src="'.$ipath.'folder.png" /></div>';
         print '<div class="expand">'.$item->name.'</div>';
         print '</div>';
         print '<div id="'.$item->id.'" class="dropmenu notfilled"></div>';
     } else if ($item->type == 'cue') {
         print '<div class="clickable clickcue ninesix draggable indent containerbox padright line" name="'.$item->url.'">';
-        print '<div class="playlisticon fixed"><img height="16px" src="newimages/audio-x-generic.png" /></div>';
+        print '<div class="playlisticon fixed"><img height="16px" src="'.$ipath.'audio-x-generic.png" /></div>';
         print '<div class="expand">'.$item->name.'</div>';
         print '</div>';
     } else {
         print '<div class="clickable clicktrack ninesix draggable indent containerbox padright line" name="'.$item->url.'">';
-        print '<div class="playlisticon fixed"><img height="16px" src="newimages/audio-x-generic.png" /></div>';
+        print '<div class="playlisticon fixed"><img height="16px" src="'.$ipath.'audio-x-generic.png" /></div>';
         print '<div class="expand">'.$item->name.'</div>';
         print '</div>';
     }

@@ -210,11 +210,11 @@ var infobar = function() {
                         state = s;
                         switch (state) {
                             case "play":
-                                $("#playbuttonimg").attr("src", "newimages/media-playback-pause.png");
+                                $("#playbuttonimg").attr("src", ipath+"media-playback-pause.png");
                                 break;
                             case "pause":
                             case "stop":
-                                $("#playbuttonimg").attr("src", "newimages/media-playback-start.png");
+                                $("#playbuttonimg").attr("src", ipath+"media-playback-start.png");
                                 break;
                         }
                     }
@@ -434,9 +434,9 @@ var infobar = function() {
         notify: function(type, message) {
             var html = '<div class="containerbox menuitem">';
             if (type == infobar.NOTIFY) {
-                html = html + '<img class="fixed" src="newimages/dialog-information.png" />';
+                html = html + '<img class="fixed" src="'+ipath+'dialog-information.png" />';
             } else if (type == infobar.ERROR || type == infobar.PERMERROR) {
-                html = html + '<img class="fixed" src="newimages/dialog-error.png" />';
+                html = html + '<img class="fixed" src="'+ipath+'dialog-error.png" />';
             }
             html = html + '<div class="expand indent">'+message+'</div></div>';
             $('#notifications').empty().html(html);

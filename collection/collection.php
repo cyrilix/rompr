@@ -94,6 +94,7 @@ class album {
     }
 
     public function getImage($size, $trackimage = null) {
+        global $ipath;
         // Return image for an album or track
         $image = "";
         $artname = $this->getKey();
@@ -105,7 +106,7 @@ class album {
             if ($this->name == "Youtube") {
                 $image = "newimages/Youtube-logo.png";
             } else if ($this->name == "SoundCloud") {
-                $image = "newimages/soundcloud-logo.png";
+                $image = $ipath."soundcloud-logo.png";
             }
         }
         // If the track supplied an image

@@ -3,6 +3,12 @@ function changetheme() {
     prefs.save({theme: $("#themeselector").val()});
 }
 
+function changeicontheme() {
+    prefs.save({icontheme: $("#iconthemeselector").val()}, function() {
+        location.reload(true);
+    });
+}
+
 function changefontsize() {
     debug.log("CHICKEN","Setting font size to ",$("#fontselector").val());
     $("#fontsize").attr({href: "sizes/"+$("#fontselector").val()});
@@ -310,7 +316,7 @@ var imagePopup=function(){
                                           src: image.src });
 
                     imagecontainer.fadeIn('slow');
-                    wikipopup.append($('<img>', {src: 'newimages/edit-delete.png', height: "12px", class: 'tright', style: 'margin-top:4px;margin-right:4px'}));
+                    wikipopup.append($('<img>', {src: ipath+'edit-delete.png', height: "12px", class: 'tright', style: 'margin-top:4px;margin-right:4px'}));
                 }
             );
         },
@@ -359,7 +365,7 @@ var popupWindow = function() {
             $(popup).append('<div id="cheese"></div>');
             $("#cheese").append('<table width="100%"><tr><td width="30px"></td><td align="center"><h2>'+title+
                 '</h2></td><td align="right" width="30px">'+
-                '<img class="clickicon" onclick="popupWindow.close()" src="newimages/edit-delete.png"></td></tr></table>');
+                '<img class="clickicon" onclick="popupWindow.close()" src="'+ipath+'edit-delete.png"></td></tr></table>');
             $(popup).append('<div id="popupcontents"></div>');
             var winsize=getWindowSize();
             var windowScroll = getScrollXY();
@@ -944,6 +950,7 @@ function setPrefs() {
     $("#sortbydate").attr("checked", prefs.sortbydate);
     $("#notvabydate").attr("checked", prefs.notvabydate);
     $("#themeselector").val(prefs.theme);
+    $("#iconthemeselector").val(prefs.icontheme);
     $("#langselector").val(interfaceLanguage);
     $("#countryselector").val(prefs.lastfm_country_code);
     $("[name=clickselect][value="+prefs.clickmode+"]").attr("checked", true);
@@ -979,7 +986,7 @@ function playlistMenuHeader() {
                         '</div>'+
                         '</div>'+
                         '<div class="fixed dropdown-button" id="poohbear">'+
-                        '<img src="newimages/dropdown.png">'+
+                        '<img src="'+ipath+'dropdown.png">'+
                         '</div>'+
                         '<button class="fixed" style="margin-left:8px" onclick="playlist.loadSmart(\'tag\')">'+language.gettext('button_playradio')+'</button>'+
                         '</div>';

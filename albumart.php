@@ -506,7 +506,7 @@ var imageEditor = function() {
                                             '<div id="u" class="tleft bleft bmid clickable bmenu">'+language.gettext("albumart_upload")+'</div>'+
                                             '<div class="tleft bleft bmid clickable"><a href="http://www.google.com/search?q='+phrase+'&hl=en&site=imghp&tbm=isch" target="_blank">'+language.gettext("albumart_newtab")+'</a></div>');
 
-                $("#editcontrols").append(  $('<img>', { class: "tright clickicon", onclick: "imageEditor.close()", src: "newimages/edit-delete.png", style: "height:16px"}));
+                $("#editcontrols").append(  $('<img>', { class: "tright clickicon", onclick: "imageEditor.close()", src: ipath+"edit-delete.png", style: "height:16px"}));
 
                 $("#"+current).addClass("bsel");
 
@@ -1045,8 +1045,8 @@ function do_radio_stations() {
                 if ($track->album) {
                     $artname = md5(" ".$track->album);
                     $class = "";
-                    $src = "newimages/broadcast.png";
-                    if ($track->image != "newimages/broadcast.png") {
+                    $src = $ipath."broadcast.png";
+                    if ($track->image != $ipath."broadcast.png") {
                         $src = $track->image;
                         if(($key = array_search($src, $allfiles)) !== false) {
                             unset($allfiles[$key]);

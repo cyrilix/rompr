@@ -19,7 +19,7 @@ if ($content['status'] == "200") {
 
         print '<div class="containerbox menuitem wibble">';
 
-        print '<div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="somafm'.$count.'"></div>';
+        print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" name="somafm'.$count.'"></div>';
         print '<div class="smallcover fixed"><img height="32px" width="32px" src="'.$channel->image.'" /></div>';
 
         print '<div class="expand"><span style="font-size:110%">'.utf8_encode($channel->title).'</span>';
@@ -76,9 +76,10 @@ if ($content['status'] == "200") {
 }
 
 function format_listenlink($c, $p, $label) {
+    global $ipath;
     print '<div class="clickable clickstream indent containerbox padright menuitem" name="'.(string) $p.'" streamimg="'.(string) $c->xlimage.'" streamname="'.$c->title.'">';
     print '<div class="fixed">'.$label.'&nbsp;</div>';
-    print '<div class="playlisticon fixed"><img height="12px" src="newimages/broadcast-12.png" /></div>';
+    print '<div class="playlisticon fixed"><img height="12px" src="'.$ipath.'broadcast-12.png" /></div>';
     switch ($p[0]['format']) {
         case 'mp3':
             print '<div class="expand">MP3</div>';

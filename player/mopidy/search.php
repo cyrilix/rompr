@@ -88,7 +88,9 @@ print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_ta
             </div>
         </div>
         <div class="fixed dropdown-button">
-            <img src="newimages/dropdown.png">
+<?php
+            print '<img src="'.$ipath.'dropdown.png">';
+?>
         </div>
     </div>
 

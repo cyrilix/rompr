@@ -75,7 +75,7 @@ var info_spotify = function() {
             h = h + '<td>'+data.tracks.items[i].track_number+'</td>';
             h = h + '<td>'+data.tracks.items[i].name+'</td>';
             h = h + '<td>'+formatTimeString(data.tracks.items[i].duration_ms/1000)+'</td>';
-            h = h + '<td align="right"><img class="infoclick clickaddtrack" src="newimages/start.png" name="'+data.tracks.items[i].uri+'"/></td>';
+            h = h + '<td align="right"><img class="infoclick clickaddtrack" src="'+ipath+'start.png" name="'+data.tracks.items[i].uri+'"/></td>';
             h = h + '</tr>';
         }
         h = h + '</table>';
@@ -94,13 +94,13 @@ var info_spotify = function() {
 
 			var self = this;
             var displaying = false;
+            var laidout = true;
             if (parent.playlistinfo.metadata.artist.spotify === undefined) {
-            	debug.log(medebug,"Bumhole 1");
             	parent.playlistinfo.metadata.artist.spotify = {};
             }
             if (parent.playlistinfo.metadata.artist.spotify.showing === undefined) {
-            	debug.log(medebug,"Bumhole 2");
             	parent.playlistinfo.metadata.artist.spotify.showing = "albums";
+            	laidout = false;
             }
 
             this.displayData = function() {
@@ -122,11 +122,11 @@ var info_spotify = function() {
                 	player.controller.addTracks([{type: 'uri', name: element.attr("name")}]);
                 } else if (element.hasClass('clickopenalbum')) {
                 	var id = element.parent().next().attr("id");
-                	if (element.attr("src") == "newimages/toggle-open-new.png") {
-	                	element.attr("src","newimages/toggle-closed-new.png");
+                	if (element.attr("src") == ipath+"toggle-open-new.png") {
+	                	element.attr("src",ipath+"toggle-closed-new.png");
             			element.parent().next().slideToggle('fast', browser.rePoint);
                 	} else {
-                		element.attr("src","newimages/toggle-open-new.png");
+                		element.attr("src",ipath+"toggle-open-new.png");
                 		if (element.parent().next().hasClass("filled")) {
                 			element.parent().next().slideToggle('fast', browser.rePoint);
                 		} else {
@@ -135,11 +135,11 @@ var info_spotify = function() {
             		}
                 } else if (element.hasClass('clickopenartist')) {
                 	var id = element.parent().next().attr("id");
-                	if (element.attr("src") == "newimages/toggle-open-new.png") {
-	                	element.attr("src","newimages/toggle-closed-new.png");
+                	if (element.attr("src") == ipath+"toggle-open-new.png") {
+	                	element.attr("src",ipath+"toggle-closed-new.png");
             			element.parent().next().slideToggle('fast', browser.rePoint);
                 	} else {
-                		element.attr("src","newimages/toggle-open-new.png");
+                		element.attr("src",ipath+"toggle-open-new.png");
                 		if (element.parent().next().hasClass("filled")) {
                 			element.parent().next().slideToggle('fast', browser.rePoint);
                 		} else {
@@ -186,15 +186,20 @@ var info_spotify = function() {
             	debug.log(medebug,parent.playlistinfo.metadata.artist.spotify.showing,displaying,data);
             	if (parent.playlistinfo.metadata.artist.spotify.showing == "albums" && displaying && data) {
 	            	debug.log(medebug,"Doing Albums For Artist",data);
-	            	$("#artistalbums").masonry('destroy');
+	            	if (laidout) $("#artistalbums").masonry('destroy');
 	            	$("#artistalbums").empty();
 	            	for (var i in data.items) {
 	            		var x = $('<div>', {class: 'tagholder2'}).appendTo($("#artistalbums"));
-	            		x.append('<img class="masochist infoclick clickaddtrack" src="getRemoteImage.php?url='+data.items[i].images[0].url+'" width="64" name="'+data.items[i].uri+'"/>');
-	            		x.append('<div class="tagh albumthing"><img class="menu infoclick clickopenalbum" src="newimages/toggle-closed-new.png"/>&nbsp;<span class="infoclick clickaddtrack" name="'+data.items[i].uri+'"><b>'+data.items[i].name+'</b></span></div>')
+	            		var img = '';
+	            		if (data.items[i].images[0]) {
+		            		img = 'getRemoteImage.php?url='+data.items[i].images[0].url
+	            		}
+	            		x.append('<img class="masochist infoclick clickaddtrack" src="'+img+'" width="64" name="'+data.items[i].uri+'"/>');
+	            		x.append('<div class="tagh albumthing"><img class="menu infoclick clickopenalbum" src="'+ipath+'toggle-closed-new.png"/>&nbsp;<span class="infoclick clickaddtrack" name="'+data.items[i].uri+'"><b>'+data.items[i].name+'</b></span></div>')
 	            		x.append('<div class="tagh albumthing invisible" id="'+data.items[i].id+'"></div>')
 	            	}
 	            	$("#artistalbums").masonry({ itemSelector: '.tagholder2', gutter: 0});
+	            	laidout = true;
 	            	browser.rePoint();
 	            }
             }
@@ -205,8 +210,12 @@ var info_spotify = function() {
             		var id = data.reqid;
 	            	for (var i in data.items) {
 	            		var x = $('<div>', {class: ''}).appendTo($("#"+id));
-	            		x.append('<img class="masochist2 infoclick clickaddtrack" src="getRemoteImage.php?url='+data.items[i].images[0].url+'" width="64" name="'+data.items[i].uri+'"/>');
-	            		x.append('<div class="tagh albumthing"><img class="menu infoclick clickopenalbum" src="newimages/toggle-closed-new.png"/>&nbsp;<span class="infoclick clickaddtrack" name="'+data.items[i].uri+'"><b>'+data.items[i].name+'</b></span></div>')
+	            		var img = '';
+	            		if (data.items[i].images[0]) {
+		            		img = 'getRemoteImage.php?url='+data.items[i].images[0].url
+	            		}
+	            		x.append('<img class="masochist2 infoclick clickaddtrack" src="'+img+'" width="64" name="'+data.items[i].uri+'"/>');
+	            		x.append('<div class="tagh albumthing"><img class="menu infoclick clickopenalbum" src="'+ipath+'toggle-closed-new.png"/>&nbsp;<span class="infoclick clickaddtrack" name="'+data.items[i].uri+'"><b>'+data.items[i].name+'</b></span></div>')
 	            		x.append('<div class="tagh albumthing invisible" id="'+data.items[i].id+'"></div>')
 	            	}
 	            	$("#"+id).slideToggle('fast', browser.rePoint)
@@ -222,7 +231,7 @@ var info_spotify = function() {
             	}
             	if (parent.playlistinfo.metadata.artist.spotify.showing == "artists" && displaying && data) {
 	            	debug.log(medebug,"Doing Related Artists",data);
-	            	$("#artistalbums").masonry('destroy');
+	            	if (laidout) $("#artistalbums").masonry('destroy');
 	            	$("#artistalbums").empty();
 	            	for (var i in data.artists) {
 	            		var x = $('<div>', {class: 'tagholder2'}).appendTo($("#artistalbums"));
@@ -231,10 +240,11 @@ var info_spotify = function() {
 		            		img = 'getRemoteImage.php?url='+data.artists[i].images[0].url
 	            		}
 	            		x.append('<img class="masochist infoclick clickaddtrack" src="'+img+'" width="64" name="'+data.artists[i].uri+'"/>');
-	            		x.append('<div class="tagh albumthing"><img class="menu infoclick clickopenartist" src="newimages/toggle-closed-new.png"/>&nbsp;<span class="infoclick clickaddtrack" name="'+data.artists[i].uri+'"><b>'+data.artists[i].name+'</b></span></div>')
+	            		x.append('<div class="tagh albumthing"><img class="menu infoclick clickopenartist" src="'+ipath+'toggle-closed-new.png"/>&nbsp;<span class="infoclick clickaddtrack" name="'+data.artists[i].uri+'"><b>'+data.artists[i].name+'</b></span></div>')
 	            		x.append('<div class="tagh albumthing invisible edged" id="'+data.artists[i].id+'"></div>')
 	            	}
 	            	$("#artistalbums").masonry({ itemSelector: '.tagholder2', gutter: 0});
+	            	laidout = true;
 	            	browser.rePoint();
 	            }
             }
@@ -394,4 +404,4 @@ var info_spotify = function() {
 
 }();
 
-nowplaying.registerPlugin("spotify", info_spotify, "newimages/spotify-logo-big.png", "button_infospotify");
+nowplaying.registerPlugin("spotify", info_spotify, ipath+"spotify-logo-big.png", "button_infospotify");

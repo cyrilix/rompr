@@ -286,7 +286,7 @@ function doAlbumMenu(event, element, inbrowser) {
                     if (inbrowser) {
                         $(this).find('.menu').addClass("infoclick plugclickable");
                         $(this).find('.playlisticon').addClass("infoclick plugclickable").removeClass('clickable')
-                            .prev().html('<img class="infoclick clickbuytrack plugclickable" height="20px" style="vertical-align:middle" src="newimages/cart.png">');
+                            .prev().html('<img class="infoclick clickbuytrack plugclickable" height="20px" style="vertical-align:middle" src="'+ipath+'cart.png">');
                     }
                 });
             });

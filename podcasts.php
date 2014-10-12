@@ -70,6 +70,7 @@ if (array_key_exists('refresh', $_REQUEST)) {
 }
 
 function getNewPodcast($url) {
+    global $ipath;
     debug_print("Getting podcast ".$url,"PODCASTS");
     // iTunes links normally link to the same XML feed as the RSS link, so fixup the protocol and hope
     $url = preg_replace('#^itpc://#', 'http://', $url);
@@ -136,7 +137,7 @@ function getNewPodcast($url) {
         $daysLive = $ppg->seriesDetails[0]->attributes()->daysLive;
     }
 
-    $image = "newimages/Apple_Podcast_logo.png";
+    $image = $ipath."Apple_Podcast_logo.png";
     $m = $feed->channel->children('itunes', TRUE);
     if ($feed->channel->image) {
         $image = $feed->channel->image->url;
@@ -333,6 +334,7 @@ function removePodcast($name) {
 }
 
 function doPodcast($c) {
+    global $ipath;
     $y = simplexml_load_file($c.'/info.xml');
     $pm = basename($c);
     $aa = $y->albumartist;
@@ -341,11 +343,11 @@ function doPodcast($c) {
     }
     print '<div class="whatdoicallthis">'.$y->description.'</div>';
     print '<div class="clearfix" style="padding-bottom:4px;">';
-    print '<img title="'.get_int_text("podcast_delete").'" class="clickable clickicon podremove tright fridge" name="podremove_'.$pm.'" src="newimages/edit-delete.png" height="16px" style="margin-right:4px">';
-    print '<img title="'.get_int_text("podcast_configure").'" class="clickable clickicon podconf tleft fridge" name="podconf_'.$pm.'" src="newimages/preferences.png" height="16px" style="margin-right:4px">';
-    print '<img title="'.get_int_text("podcast_refresh").'" class="clickable clickicon podrefresh tleft fridge" name="podrefresh_'.$pm.'" src="newimages/Refresh.png" height="16px" style="margin-right:4px">';
-    print '<img title="'.get_int_text("podcast_download_all").'" class="clickable clickicon podgroupload tleft fridge" name="podgroupload_'.$pm.'" src="newimages/download_icon.png" height="16px" style="margin-right:4px">';
-    print '<img title="'.get_int_text("podcast_mark_all").'" class="clickable clickicon podgrouplisten tleft fridge" name="podgrouplisten_'.$pm.'" src="newimages/listen.png" height="16px" style="margin-right:4px">';
+    print '<img title="'.get_int_text("podcast_delete").'" class="clickable clickicon podremove tright fridge" name="podremove_'.$pm.'" src="'.$ipath.'edit-delete.png" height="16px" style="margin-right:4px">';
+    print '<img title="'.get_int_text("podcast_configure").'" class="clickable clickicon podconf tleft fridge" name="podconf_'.$pm.'" src="'.$ipath.'preferences.png" height="16px" style="margin-right:4px">';
+    print '<img title="'.get_int_text("podcast_refresh").'" class="clickable clickicon podrefresh tleft fridge" name="podrefresh_'.$pm.'" src="'.$ipath.'Refresh.png" height="16px" style="margin-right:4px">';
+    print '<img title="'.get_int_text("podcast_download_all").'" class="clickable clickicon podgroupload tleft fridge" name="podgroupload_'.$pm.'" src="'.$ipath.'download_icon.png" height="16px" style="margin-right:4px">';
+    print '<img title="'.get_int_text("podcast_mark_all").'" class="clickable clickicon podgrouplisten tleft fridge" name="podgrouplisten_'.$pm.'" src="'.$ipath.'listen.png" height="16px" style="margin-right:4px">';
     print '</div>';
     print '<div class="dropmenu bordered" id="podconf_'.$pm.'" style="margin-bottom:4px;';
     if ((array_key_exists('channel', $_REQUEST) && $_REQUEST['channel'] == $pm) &&
@@ -471,9 +473,9 @@ function doPodcast($c) {
         print '<div class="clickable clicktrack item" name="'.htmlspecialchars_decode($item->link).'">';
         print '<div class="containerbox">';
         if ($item->new == "yes") {
-            print '<div class="fixed"><img title="'.get_int_text("podcast_tooltip_new").'" class="newpodicon fridge" src="newimages/icon_new.png" /></div>';
+            print '<div class="fixed"><img title="'.get_int_text("podcast_tooltip_new").'" class="newpodicon fridge" src="'.$ipath.'icon_new.png" /></div>';
         } else if ($item->listened == "no") {
-            print '<div class="fixed"><img title="'.get_int_text("podcast_tooltip_notnew").'" class="oldpodicon fridge" src="newimages/listen.png" /></div>';
+            print '<div class="fixed"><img title="'.get_int_text("podcast_tooltip_notnew").'" class="oldpodicon fridge" src="'.$ipath.'listen.png" /></div>';
         }
         print '<div class="podtitle expand">'.$item->title.'</div></div>';
         print '<div class="whatdoicallthis padright clearfix"><span class="tleft"><i>'.$item->pubdate.'</i></span>';
@@ -501,20 +503,21 @@ function doPodcast($c) {
         print '<div class="whatdoicallthis">'.$item->description.'</div>';
         print '<div class="clearfix" name="podcontrols_'.$pm.'" style="margin-bottom:4px">';
         if (is_dir('prefs/podcasts/'.$pm.'/'.$item->key)) {
-            print '<img class="tleft fridge" title="'.get_int_text("podcast_tooltip_downloaded").'" src="newimages/downloaded.png" height="16px" style="margin-right:4px">';
+            print '<img class="tleft fridge" title="'.get_int_text("podcast_tooltip_downloaded").'" src="'.$ipath.'downloaded.png" height="16px" style="margin-right:4px">';
         } else {
-            print '<img class="clickable clickicon tleft poddownload fridge" title="'.get_int_text("podcast_tooltip_download").'" name="poddownload_'.$item->key.'" src="newimages/download_icon.png" height="16px" style="margin-right:4px">';
+            print '<img class="clickable clickicon tleft poddownload fridge" title="'.get_int_text("podcast_tooltip_download").'" name="poddownload_'.$item->key.'" src="'.$ipath.'download_icon.png" height="16px" style="margin-right:4px">';
         }
         if ($item->listened == "no") {
-            print '<img class="clickable clickicon tleft podmarklistened fridge" title="'.get_int_text("podcast_tooltip_mark").'" name="podmarklistened_'.$item->key.'" src="newimages/listen.png" height="16px" style="margin-right:4px">';
+            print '<img class="clickable clickicon tleft podmarklistened fridge" title="'.get_int_text("podcast_tooltip_mark").'" name="podmarklistened_'.$item->key.'" src="'.$ipath.'listen.png" height="16px" style="margin-right:4px">';
         }
-        print '<img class="clickable clickicon tright podtrackremove fridge" title="'.get_int_text("podcast_tooltip_delepisode").'" name="podtrackremove_'.$item->key.'" src="newimages/edit-delete.png" height="16px" style="margin-right:4px">';
+        print '<img class="clickable clickicon tright podtrackremove fridge" title="'.get_int_text("podcast_tooltip_delepisode").'" name="podtrackremove_'.$item->key.'" src="'.$ipath.'edit-delete.png" height="16px" style="margin-right:4px">';
         print '</div>';
         print '</div>';
     }
 }
 
 function doPodcastHeader($c) {
+    global $ipath;
     $y = simplexml_load_file($c.'/info.xml');
     $pm = basename($c);
     $aa = $y->albumartist;
@@ -522,7 +525,7 @@ function doPodcastHeader($c) {
         $aa = $aa . ' - ';
     }
     print '<div class="containerbox menuitem wibble" style="margin-top:6px">';
-    print '<div class="mh fixed"><img src="newimages/toggle-closed-new.png" class="menu fixed" name="podcast_'.$pm.'"></div>';
+    print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" name="podcast_'.$pm.'"></div>';
     print '<div class="smallcover fixed"><img height="32px" width="32px" src="'.$y->image.'" /></div>';
     print '<div class="expand"><b>'.$aa.$y->album.'</b><span class="podnumber"></span><span></span></div>';
     print '</div>';

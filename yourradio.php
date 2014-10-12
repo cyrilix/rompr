@@ -42,7 +42,7 @@ foreach($playlists as $i => $file) {
         }
         print '<div class="playlisticon fixed"><img width="20px" height="20px" name="'.md5(" ".$track->album).'" src="'.$track->image.'" /></div>';
         print '<div class="expand stname" style="margin-left:4px">'.utf8_encode($track->album).'</div>';
-        print '<div class="playlisticon fixed clickable clickradioremove clickicon" name="'.$file.'"><img src="newimages/edit-delete.png"></div>';
+        print '<div class="playlisticon fixed clickable clickradioremove clickicon" name="'.$file.'"><img src="'.$ipath.'edit-delete.png"></div>';
         print '</div>';
     }
 }
