@@ -2,6 +2,7 @@ var info_spotify = function() {
 
 	var me = "spotify";
     var medebug = "SPOTIFY PLUGIN";
+    var maxwidth = 400;
 
     function getTrackHTML(data) {
 
@@ -193,6 +194,11 @@ var info_spotify = function() {
 	            		var img = '';
 	            		if (data.items[i].images[0]) {
 		            		img = 'getRemoteImage.php?url='+data.items[i].images[0].url
+		            		for (var j in data.items[i].images) {
+		            			if (data.items[i].images[j].width >= maxwidth) {
+		            				img = 'getRemoteImage.php?url='+data.items[i].images[j].url;
+		            			}
+		            		}
 	            		}
 	            		var w = 64;
 	            		if (mobile != "no") {
@@ -220,6 +226,11 @@ var info_spotify = function() {
 	            		var img = '';
 	            		if (data.items[i].images[0]) {
 		            		img = 'getRemoteImage.php?url='+data.items[i].images[0].url
+		            		for (var j in data.items[i].images) {
+		            			if (data.items[i].images[j].width >= maxwidth) {
+		            				img = 'getRemoteImage.php?url='+data.items[i].images[j].url;
+		            			}
+		            		}
 	            		}
 	            		var w = 64;
 	            		if (mobile != "no") {
@@ -248,8 +259,15 @@ var info_spotify = function() {
 	            	for (var i in data.artists) {
 	            		var x = $('<div>', {class: 'tagholder2'}).appendTo($("#artistalbums"));
 	            		var img = '';
+
 	            		if (data.artists[i].images[0]) {
-		            		img = 'getRemoteImage.php?url='+data.artists[i].images[0].url
+	            			// Choose the smallest useable image
+		            		img = 'getRemoteImage.php?url='+data.artists[i].images[0].url;
+		            		for (var j in data.artists[i].images) {
+		            			if (data.artists[i].images[j].width >= maxwidth) {
+		            				img = 'getRemoteImage.php?url='+data.artists[i].images[j].url;
+		            			}
+		            		}
 	            		}
 	            		var w = 64;
 	            		if (mobile != "no") {
