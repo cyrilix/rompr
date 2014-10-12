@@ -474,6 +474,7 @@ var browser = function() {
 
                 var h = $(".masonified2");
                 if (h.length > 0) {
+                    debug.log("REBUILD SHIT","Width is",w);
                     if (w < 350) {
                         $(".masochist").attr("width", (w-64));
                         $(".masochist").attr("height", (w-64));
@@ -505,9 +506,10 @@ var browser = function() {
                         $(".masochist2").attr("width", (w-128)/5);
                         $(".masochist2").attr("height", (w-128)/5);
                     } else if (w > 1600) {
+                        debug.log("REBUILD SHIT","Going for a row of 6");
                         $(".masochist").attr("width", (w-64)/6);
                         $(".masochist").attr("height", (w-64)/6);
-                        $(".tagholder2").css("width", "17%");
+                        $(".tagholder2").css("width", "16.6%");
                         $(".masochist2").attr("width", (w-128)/6);
                         $(".masochist2").attr("height", (w-128)/6);
                     }
