@@ -210,7 +210,8 @@ var info_spotify = function() {
 	            	}
 	            	if (mobile == "no") {
 	            		$("#artistalbums").masonry({ itemSelector: '.tagholder2', gutter: 0});
-		            	$("#artistalbums").imagesLoaded( browser.rePoint );
+		            	// $("#artistalbums").imagesLoaded( browser.rePoint );
+		            	$.each($('.tagholder2'), function() { $(this).imagesLoaded( browser.rePoint )});
 	            		laidout = true;
 	            		browser.rePoint();
 	            	}
@@ -222,7 +223,7 @@ var info_spotify = function() {
             	if (displaying) {
             		var id = data.reqid;
 	            	for (var i in data.items) {
-	            		var x = $('<div>', {class: ''}).appendTo($("#"+id));
+	            		var x = $('<div>', {class: 'tagholder3'}).appendTo($("#"+id));
 	            		var img = '';
 	            		if (data.items[i].images[0]) {
 		            		img = 'getRemoteImage.php?url='+data.items[i].images[0].url
@@ -241,7 +242,8 @@ var info_spotify = function() {
 	            		x.append('<div class="tagh albumthing invisible" id="'+data.items[i].id+'"></div>')
 	            	}
 	            	$("#"+id).slideToggle('fast', browser.rePoint);
-	            	$("#"+id).imagesLoaded( browser.rePoint );
+	            	$.each($('.tagholder3'), function() { $(this).imagesLoaded( browser.rePoint )});
+	            	// $("#"+id).imagesLoaded( browser.rePoint );
 	            	$("#"+id).addClass("filled");
             	}
             }
@@ -279,7 +281,8 @@ var info_spotify = function() {
 	            	}
 	            	if (mobile == "no") {
 		            	$("#artistalbums").masonry({ itemSelector: '.tagholder2', gutter: 0});
-		            	$("#artistalbums").imagesLoaded( browser.rePoint );
+		            	$.each($('.tagholder2'), function() { $(this).imagesLoaded( browser.rePoint )});
+		            	// $("#artistalbums").imagesLoaded( browser.rePoint );
 		            	laidout = true;
 		            	browser.rePoint();
 		            }
