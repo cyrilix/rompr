@@ -189,16 +189,6 @@ div.clickable.selected:hover
 
 /*-- Styles for drop-down menus --*/
 
-ul.topnav li a
-{
-    color:#12569a;
-}
-
-ul.subnav li a
-{
-    color:#ffffff;
-}
-
 ul.topnav li a:hover
 {
     color:#ff4800;

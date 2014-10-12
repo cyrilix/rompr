@@ -17,6 +17,7 @@ if (!$url) {
 		if ($aagh['status'] == "200") {
 			debug_print("Cached Image ".$outfile,"TOMATO");
 			file_put_contents($outfile, $aagh['contents']);
+
 		} else {
 	        header('HTTP/1.0 403 Forbidden');
 	        exit(0);

@@ -474,44 +474,42 @@ var browser = function() {
 
                 var h = $(".masonified2");
                 if (h.length > 0) {
-                    debug.log("REBUILD SHIT","Width is",w);
                     if (w < 350) {
                         $(".masochist").attr("width", (w-64));
-                        $(".masochist").attr("height", (w-64));
+                        // $(".masochist").attr("height", (w-64));
                         $(".masochist2").attr("width", (w-128));
-                        $(".masochist2").attr("height", (w-128));
+                        // $(".masochist2").attr("height", (w-128));
                         $(".tagholder2").css("width", "100%");
                     } else if (w > 350 && w < 500) {
                         $(".masochist").attr("width", (w-64)/2);
-                        $(".masochist").attr("height", (w-64)/2);
+                        // $(".masochist").attr("height", (w-64)/2);
                         $(".masochist2").attr("width", (w-128)/2);
-                        $(".masochist2").attr("height", (w-128)/2);
+                        // $(".masochist2").attr("height", (w-128)/2);
                         $(".tagholder2").css("width", "50%");
                     } else if (w > 500 && w <= 1000) {
                         $(".masochist").attr("width", (w-64)/3);
-                        $(".masochist").attr("height", (w-64)/3);
+                        // $(".masochist").attr("height", (w-64)/3);
                         $(".tagholder2").css("width", "33%");
                         $(".masochist2").attr("width", (w-128)/3);
-                        $(".masochist2").attr("height", (w-128)/3);
+                        // $(".masochist2").attr("height", (w-128)/3);
                     } else if (w > 1000 && w <= 1400) {
                         $(".masochist").attr("width", (w-64)/4);
-                        $(".masochist").attr("height", (w-64)/4);
+                        // $(".masochist").attr("height", (w-64)/4);
                         $(".tagholder2").css("width", "25%");
                         $(".masochist2").attr("width", (w-128)/4);
-                        $(".masochist2").attr("height", (w-128)/4);
+                        // $(".masochist2").attr("height", (w-128)/4);
                     } else if (w > 1400 && w <= 1600) {
                         $(".masochist").attr("width", (w-64)/5);
-                        $(".masochist").attr("height", (w-64)/5);
+                        // $(".masochist").attr("height", (w-64)/5);
                         $(".tagholder2").css("width", "20%");
                         $(".masochist2").attr("width", (w-128)/5);
-                        $(".masochist2").attr("height", (w-128)/5);
+                        // $(".masochist2").attr("height", (w-128)/5);
                     } else if (w > 1600) {
-                        debug.log("REBUILD SHIT","Going for a row of 6");
                         $(".masochist").attr("width", (w-64)/6);
-                        $(".masochist").attr("height", (w-64)/6);
+                        // $(".masochist").attr("height", (w-64)/6);
                         $(".tagholder2").css("width", "16.6%");
                         $(".masochist2").attr("width", (w-128)/6);
-                        $(".masochist2").attr("height", (w-128)/6);
+                        // $(".masochist2").attr("height", (w-128)/6);
                     }
                     h.masonry();
                 }

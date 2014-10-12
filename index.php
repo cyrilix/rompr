@@ -148,6 +148,7 @@ if ($mobile != "no") {
 } else {
     // Masonry layout engine : http://masonry.desandro.com/
     print '<script type="text/javascript" src="jquery/masonry.pkgd.min.js"></script>'."\n";
+    print '<script type="text/javascript" src="jquery/imagesloaded.pkgd.min.js"></script>'."\n";
     // Custom scrollbar plugin : http://manos.malihu.gr/jquery-custom-content-scroller/
     print '<link type="text/css" href="custom-scrollbar-plugin/css/jquery.mCustomScrollbar.css" rel="stylesheet" />'."\n";
     print '<script type="text/javascript" src="custom-scrollbar-plugin/js/jquery.mCustomScrollbar.concat.min.js"></script>'."\n";

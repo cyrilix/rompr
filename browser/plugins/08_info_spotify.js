@@ -204,6 +204,7 @@ var info_spotify = function() {
 	            	}
 	            	if (mobile == "no") {
 	            		$("#artistalbums").masonry({ itemSelector: '.tagholder2', gutter: 0});
+		            	$("#artistalbums").imagesLoaded( browser.rePoint );
 	            		laidout = true;
 	            		browser.rePoint();
 	            	}
@@ -228,7 +229,8 @@ var info_spotify = function() {
 	            		x.append('<div class="tagh albumthing"><img class="menu infoclick clickopenalbum" src="'+ipath+'toggle-closed-new.png"/>&nbsp;<span class="infoclick clickaddtrack" name="'+data.items[i].uri+'"><b>'+data.items[i].name+'</b></span></div>')
 	            		x.append('<div class="tagh albumthing invisible" id="'+data.items[i].id+'"></div>')
 	            	}
-	            	$("#"+id).slideToggle('fast', browser.rePoint)
+	            	$("#"+id).slideToggle('fast', browser.rePoint);
+	            	$("#"+id).imagesLoaded( browser.rePoint );
 	            	$("#"+id).addClass("filled");
             	}
             }
@@ -259,6 +261,7 @@ var info_spotify = function() {
 	            	}
 	            	if (mobile == "no") {
 		            	$("#artistalbums").masonry({ itemSelector: '.tagholder2', gutter: 0});
+		            	$("#artistalbums").imagesLoaded( browser.rePoint );
 		            	laidout = true;
 		            	browser.rePoint();
 		            }
