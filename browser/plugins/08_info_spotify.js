@@ -241,7 +241,7 @@ var info_spotify = function() {
             	}
             	if (parent.playlistinfo.metadata.artist.spotify.showing == "artists" && displaying && data) {
 	            	debug.log(medebug,"Doing Related Artists",data);
-	            	if (laidout) $("#artistalbums").masonry('destroy');
+	            	if (mobile == "no" && laidout) $("#artistalbums").masonry('destroy');
 	            	$("#artistalbums").empty();
 	            	for (var i in data.artists) {
 	            		var x = $('<div>', {class: 'tagholder2'}).appendTo($("#artistalbums"));
@@ -257,9 +257,11 @@ var info_spotify = function() {
 	            		x.append('<div class="tagh albumthing"><img class="menu infoclick clickopenartist" src="'+ipath+'toggle-closed-new.png"/>&nbsp;<span class="infoclick clickaddtrack" name="'+data.artists[i].uri+'"><b>'+data.artists[i].name+'</b></span></div>')
 	            		x.append('<div class="tagh albumthing invisible edged" id="'+data.artists[i].id+'"></div>')
 	            	}
-	            	$("#artistalbums").masonry({ itemSelector: '.tagholder2', gutter: 0});
-	            	laidout = true;
-	            	browser.rePoint();
+	            	if (mobile == "no") {
+		            	$("#artistalbums").masonry({ itemSelector: '.tagholder2', gutter: 0});
+		            	laidout = true;
+		            	browser.rePoint();
+		            }
 	            }
             }
 
