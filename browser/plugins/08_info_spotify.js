@@ -203,6 +203,7 @@ var info_spotify = function() {
 	            	debug.log(medebug,"Doing Albums For Artist",data);
 	            	if (laidout) $("#artistalbums").masonry('destroy');
 	            	$("#artistalbums").empty().hide();
+            		var w = browser.calcMWidth();;
 	            	for (var i in data.items) {
 	            		var x = $('<div>', {class: 'tagholder2'}).appendTo($("#artistalbums"));
 	            		var img = '';
@@ -214,7 +215,6 @@ var info_spotify = function() {
 		            			}
 		            		}
 	            		}
-	            		var w = browser.calcMWidth();;
 	            		x.append('<img class="masochist infoclick clickaddtrack" src="'+img+'" width="'+w+'" name="'+data.items[i].uri+'"/>');
 	            		x.append('<div class="tagh albumthing"><img class="menu infoclick clickopenalbum" src="'+ipath+'toggle-closed-new.png"/>&nbsp;<span class="infoclick clickaddtrack" name="'+data.items[i].uri+'"><b>'+data.items[i].name+'</b></span></div>')
 	            		x.append('<div class="tagh albumthing invisible" id="'+data.items[i].id+'"></div>')
@@ -234,6 +234,7 @@ var info_spotify = function() {
             	debug.log(medebug, "Got Related Artist Response",data);
             	if (displaying) {
             		var id = data.reqid;
+            		var w = browser.calcMWidth() - 24;
 	            	for (var i in data.items) {
 	            		var x = $('<div>', {class: 'tagholder3'}).appendTo($("#"+id));
 	            		var img = '';
@@ -244,10 +245,6 @@ var info_spotify = function() {
 		            				img = 'getRemoteImage.php?url='+data.items[i].images[j].url;
 		            			}
 		            		}
-	            		}
-	            		var w = 64;
-	            		if (mobile != "no") {
-	            			w = $("#artistalbums").width()-80;
 	            		}
 	            		x.append('<img class="masochist2 infoclick clickaddtrack" src="'+img+'" width="'+w+'" name="'+data.items[i].uri+'"/>');
 	            		x.append('<div class="tagh albumthing"><img class="menu infoclick clickopenalbum" src="'+ipath+'toggle-closed-new.png"/>&nbsp;<span class="infoclick clickaddtrack" name="'+data.items[i].uri+'"><b>'+data.items[i].name+'</b></span></div>')
@@ -264,12 +261,11 @@ var info_spotify = function() {
 	            	debug.log(medebug,"Doing Related Artists",data);
 	            	if (laidout) $("#artistalbums").masonry('destroy');
 	            	$("#artistalbums").empty().hide();
+            		var w = browser.calcMWidth();;
 	            	for (var i in data.artists) {
 	            		var x = $('<div>', {class: 'tagholder2'}).appendTo($("#artistalbums"));
 	            		var img = '';
-
 	            		if (data.artists[i].images[0]) {
-	            			// Choose the smallest useable image
 		            		img = 'getRemoteImage.php?url='+data.artists[i].images[0].url;
 		            		for (var j in data.artists[i].images) {
 		            			if (data.artists[i].images[j].width >= maxwidth) {
@@ -277,7 +273,6 @@ var info_spotify = function() {
 		            			}
 		            		}
 	            		}
-	            		var w = browser.calcMWidth();;
 	            		x.append('<img class="masochist infoclick clickaddtrack" src="'+img+'" width="'+w+'" name="'+data.artists[i].uri+'"/>');
 	            		x.append('<div class="tagh albumthing"><img class="menu infoclick clickopenartist" src="'+ipath+'toggle-closed-new.png"/>&nbsp;<span class="infoclick clickaddtrack" name="'+data.artists[i].uri+'"><b>'+data.artists[i].name+'</b></span></div>')
 	            		x.append('<div class="tagh albumthing invisible edged" id="'+data.artists[i].id+'"></div>')
