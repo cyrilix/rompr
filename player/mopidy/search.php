@@ -126,8 +126,10 @@ print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_ra
     foreach ($searchlimits as $domain => $text) {
         print '<div class="indent containerbox padright">';
         print '<input type="checkbox" class="searchdomain" value="'.$domain.'"';
-        if ($prefs['search_limit_'.$domain] == 1) {
-            print ' checked';
+        if (array_key_exists('search_limit_'.$domain, $prefs)) {
+            if ($prefs['search_limit_'.$domain] == 1) {
+                print ' checked';
+            }
         }
         print '>'.$text.'</input>';
         print '</div>';

@@ -529,6 +529,26 @@ var browser = function() {
 
         },
 
+        calcMWidth: function() {
+            var w = $("#infopane").width();
+            var retval = w-64;
+            if (w < 350) {
+                retval = w-64
+            } else if (w > 350 && w < 500) {
+                retval = retval / 2;
+            } else if (w > 500 && w <= 1000) {
+                retval = retval / 3;
+            } else if (w > 1000 && w <= 1400) {
+                retval = retval / 4;
+            } else if (w > 1400 && w <= 1600) {
+                retval = retval / 5;
+            } else if (w > 1600) {
+                retval = retval / 6;
+            }
+            return retval;
+
+        },
+
         dumpHistory: function() {
             for (var i in history) {
                 debug.log("HISTORY", history[i]);

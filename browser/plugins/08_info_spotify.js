@@ -64,7 +64,11 @@ var info_spotify = function() {
 
     	h = h + '<div id="spartistinfo"></div>';
     	h = h + '</div>';
-    	h = h + '<h3><span class="infoclick clickshowalbums bsel">Albums By This Artist</span>&nbsp;&nbsp;|&nbsp;&nbsp;<span class="infoclick clickshowartists">Related Artists</span></h3><div class="holdingcell masonified2" id="artistalbums"></div>';
+    	h = h + '<div class="containerbox"><div class="fixed"><h3><span class="infoclick clickshowalbums bsel">Albums By This Artist</span>' +
+    			'&nbsp;&nbsp;|&nbsp;&nbsp;' +
+    			'<span class="infoclick clickshowartists">Related Artists</span></h3></div>' +
+    			'<div class="fixed"><img id="hibbert" height="32px" src="newimages/waiter.png" class="invisible" /></div></div>' +
+    			'<div class="holdingcell masonified2" id="artistalbums"></div>';
     	return h;
 
     }
@@ -120,7 +124,10 @@ var info_spotify = function() {
                 if (element.hasClass('clickzoomimage')) {
                 	imagePopup.create(element, event, element.attr("src"));
                 } else if (element.hasClass('clickaddtrack')) {
-                	player.controller.addTracks([{type: 'uri', name: element.attr("name")}]);
+                	playlist.waiting();
+                	player.controller.addTracks([{type: 'uri', name: element.attr("name")}],
+                								playlist.playFromEnd(),
+                                    			null);
                 } else if (element.hasClass('clickopenalbum')) {
                 	var id = element.parent().next().attr("id");
                 	if (element.attr("src") == ipath+"toggle-open-new.png") {
@@ -151,44 +158,51 @@ var info_spotify = function() {
                 	parent.playlistinfo.metadata.artist.spotify.showing = "albums";
                 	$(".bsel").removeClass("bsel");
                 	element.addClass("bsel");
-                	self.doAlbums(null);
+                	self.getAlbums();
                 } else if (element.hasClass('clickshowartists') && parent.playlistinfo.metadata.artist.spotify.showing != "artists") {
                 	parent.playlistinfo.metadata.artist.spotify.showing = "artists";
                 	$(".bsel").removeClass("bsel");
                 	element.addClass("bsel");
-                	self.doArtists(null);
+                	self.getArtists();
                 }
             }
 
         	this.getAlbums = function() {
+        		$("#hibbert").addClass('spinner').removeClass('invisible');
 	        	if (parent.playlistinfo.metadata.artist.spotify.albums === undefined) {
 	        		debug.log(medebug, "Getting Artist Album Info");
-	        		spotify.artist.getAlbums(parent.playlistinfo.metadata.artist.spotify.ids[0], 'album,single', self.doAlbums, self.artist.spotifyError)
+	        		spotify.artist.getAlbums(parent.playlistinfo.metadata.artist.spotify.ids[0], 'album,single', self.storeAlbums, self.artist.spotifyError)
 	        	} else {
-	        		self.doAlbums(null);
+	        		self.doAlbums(parent.playlistinfo.metadata.artist.spotify.albums);
 	        	}
 	        }
 
 	        this.getArtists = function() {
+        		$("#hibbert").addClass('spinner').removeClass('invisible');
 	        	if (parent.playlistinfo.metadata.artist.spotify.related === undefined) {
 	        		debug.log(medebug, "Getting Artist Related Info");
-	        		spotify.artist.getRelatedArtists(parent.playlistinfo.metadata.artist.spotify.ids[0], self.doArtists, self.artist.spotifyError)
+	        		spotify.artist.getRelatedArtists(parent.playlistinfo.metadata.artist.spotify.ids[0], self.storeArtists, self.artist.spotifyError)
 	        	} else {
-	        		self.doArtists(null);
+	        		self.doArtists(parent.playlistinfo.metadata.artist.spotify.related);
 	        	}
 	        }
 
+	        this.storeAlbums = function(data) {
+	        	parent.playlistinfo.metadata.artist.spotify.albums = data;
+	        	self.doAlbums(data);
+	        }
+
+	        this.storeArtists = function(data) {
+	        	parent.playlistinfo.metadata.artist.spotify.related = data;
+	        	self.doArtists(data);
+	        }
+
             this.doAlbums = function(data) {
-            	if (data === null) {
-            		data = parent.playlistinfo.metadata.artist.spotify.albums;
-            	} else {
-	            	parent.playlistinfo.metadata.artist.spotify.albums = data;
-            	}
-            	debug.log(medebug,parent.playlistinfo.metadata.artist.spotify.showing,displaying,data);
+            	debug.log(medebug,"DoAlbums",parent.playlistinfo.metadata.artist.spotify.showing, displaying, data);
             	if (parent.playlistinfo.metadata.artist.spotify.showing == "albums" && displaying && data) {
 	            	debug.log(medebug,"Doing Albums For Artist",data);
-	            	if (mobile == "no" && laidout) $("#artistalbums").masonry('destroy');
-	            	$("#artistalbums").empty();
+	            	if (laidout) $("#artistalbums").masonry('destroy');
+	            	$("#artistalbums").empty().hide();
 	            	for (var i in data.items) {
 	            		var x = $('<div>', {class: 'tagholder2'}).appendTo($("#artistalbums"));
 	            		var img = '';
@@ -200,21 +214,19 @@ var info_spotify = function() {
 		            			}
 		            		}
 	            		}
-	            		var w = 64;
-	            		if (mobile != "no") {
-	            			w = $("#artistalbums").width()-64;
-	            		}
+	            		var w = browser.calcMWidth();;
 	            		x.append('<img class="masochist infoclick clickaddtrack" src="'+img+'" width="'+w+'" name="'+data.items[i].uri+'"/>');
 	            		x.append('<div class="tagh albumthing"><img class="menu infoclick clickopenalbum" src="'+ipath+'toggle-closed-new.png"/>&nbsp;<span class="infoclick clickaddtrack" name="'+data.items[i].uri+'"><b>'+data.items[i].name+'</b></span></div>')
 	            		x.append('<div class="tagh albumthing invisible" id="'+data.items[i].id+'"></div>')
 	            	}
-	            	if (mobile == "no") {
-	            		$("#artistalbums").masonry({ itemSelector: '.tagholder2', gutter: 0});
-		            	// $("#artistalbums").imagesLoaded( browser.rePoint );
-		            	$.each($('.tagholder2'), function() { $(this).imagesLoaded( browser.rePoint )});
-	            		laidout = true;
-	            		browser.rePoint();
-	            	}
+            		$("#artistalbums").imagesLoaded( function() {
+            			$("#artistalbums").slideToggle('fast', function() {
+            				$("#artistalbums").masonry({ itemSelector: '.tagholder2', gutter: 0});
+            				laidout = true;
+            				browser.rePoint();
+			        		$("#hibbert").addClass('invisible').removeClass('spinner');
+            			});
+            		});
 	            }
             }
 
@@ -243,21 +255,15 @@ var info_spotify = function() {
 	            	}
 	            	$("#"+id).slideToggle('fast', browser.rePoint);
 	            	$.each($('.tagholder3'), function() { $(this).imagesLoaded( browser.rePoint )});
-	            	// $("#"+id).imagesLoaded( browser.rePoint );
 	            	$("#"+id).addClass("filled");
             	}
             }
 
             this.doArtists = function(data) {
-            	if (data === null) {
-            		data = parent.playlistinfo.metadata.artist.spotify.related;
-            	} else {
-	            	parent.playlistinfo.metadata.artist.spotify.related = data;
-            	}
             	if (parent.playlistinfo.metadata.artist.spotify.showing == "artists" && displaying && data) {
 	            	debug.log(medebug,"Doing Related Artists",data);
-	            	if (mobile == "no" && laidout) $("#artistalbums").masonry('destroy');
-	            	$("#artistalbums").empty();
+	            	if (laidout) $("#artistalbums").masonry('destroy');
+	            	$("#artistalbums").empty().hide();
 	            	for (var i in data.artists) {
 	            		var x = $('<div>', {class: 'tagholder2'}).appendTo($("#artistalbums"));
 	            		var img = '';
@@ -271,21 +277,19 @@ var info_spotify = function() {
 		            			}
 		            		}
 	            		}
-	            		var w = 64;
-	            		if (mobile != "no") {
-	            			w = $("#artistalbums").width()-64;
-	            		}
+	            		var w = browser.calcMWidth();;
 	            		x.append('<img class="masochist infoclick clickaddtrack" src="'+img+'" width="'+w+'" name="'+data.artists[i].uri+'"/>');
 	            		x.append('<div class="tagh albumthing"><img class="menu infoclick clickopenartist" src="'+ipath+'toggle-closed-new.png"/>&nbsp;<span class="infoclick clickaddtrack" name="'+data.artists[i].uri+'"><b>'+data.artists[i].name+'</b></span></div>')
 	            		x.append('<div class="tagh albumthing invisible edged" id="'+data.artists[i].id+'"></div>')
 	            	}
-	            	if (mobile == "no") {
-		            	$("#artistalbums").masonry({ itemSelector: '.tagholder2', gutter: 0});
-		            	$.each($('.tagholder2'), function() { $(this).imagesLoaded( browser.rePoint )});
-		            	// $("#artistalbums").imagesLoaded( browser.rePoint );
-		            	laidout = true;
-		            	browser.rePoint();
-		            }
+            		$("#artistalbums").imagesLoaded( function() {
+            			$("#artistalbums").slideToggle('fast', function() {
+            				$("#artistalbums").masonry({ itemSelector: '.tagholder2', gutter: 0});
+            				laidout = true;
+            				browser.rePoint();
+			        		$("#hibbert").addClass('invisible').removeClass('spinner');
+            			});
+            		});
 	            }
             }
 
@@ -427,7 +431,6 @@ var info_spotify = function() {
                             			if (displaying) $("#spartistinfo").html("");
                             		});
 	                        	self.getAlbums();
-	                        	self.getArtists();
                             }
                         }
 
