@@ -178,12 +178,15 @@ function playerController() {
 
 	this.reloadPlaylists = function() {
         $.get("loadplaylists.php", function(data) {
-            var html = playlistMenuHeader()+data;
-            html = html + "</table>";
-            $("#playlistslist").html(html);
-            $("#playlistslist").find('.enter').keyup(onKeyUp);
-            $("#poohbear").click(onDropdownClicked);
-            addCustomScrollBar("#tigger");
+            var html = '';
+            if (mobile == "no") {
+                html = html + '<table width="100%">';
+            } else {
+                html = html + '<table width="90%">';
+            }
+            html = html + data + "</table>";
+            $("#storedplaylists").html(html);
+            // addCustomScrollBar("#tigger");
         });
 	}
 

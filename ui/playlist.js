@@ -172,7 +172,7 @@ function Playlist() {
         if (finaltrack > -1) {
             $("#pltracks").html((finaltrack+1).toString() +' '+language.gettext("label_tracks"));
             $("#pltime").html(language.gettext("label_duration")+' : '+formatTimeString(totaltime));
-            $("#plmode").html(modehtml(mode));
+            $("#plmode").html(modehtml());
         } else {
             $("#pltracks").html("");
             $("#pltime").html("");
@@ -212,22 +212,18 @@ function Playlist() {
         $("#sortable").append('<div id="waiter" class="containerbox"></div>');
     }
 
-    function modehtml(m) {
-        if (!m) return "";
-        var html = "";
-        if (m.match(/stars/)) {
-            html = '<img src="newimages/'+m+'.png" height="14px" />';
-            html = html + '<img class="clickicon" height="14px" style="margin-left:8px" src="'+ipath+'edit-delete.png" onclick="playlist.endSmartMode()" />';
-        } else if (m.match(/tag/)) {
-            m = m.replace(/tag\+/,'');
-            m = m.replace(/,/, ', ');
-            html = '<img src="newimages/tag.png" height="14px" style="margin-right:4px;vertical-align:middle" />'+m;
+    function modehtml() {
+        if (mode) {
+            var html = mode.modeHtml();;
             html = html + '<img class="clickicon" height="14px" style="margin-left:8px;vertical-align:middle" src="'+ipath+'edit-delete.png" onclick="playlist.endSmartMode()" />';
+            return html;
+        } else {
+            return '';
         }
-        return html;
     }
 
     this.endSmartMode = function() {
+        if (mode) mode.stop();
         mode = null;
         self.repopulate();
     }
@@ -258,50 +254,29 @@ function Playlist() {
             sourcecontrol('playlistm');
         }
         debug.log("PLAYLIST","Loading Playlist",name);
+        if (mode) mode.stop();
         mode = null;
         player.controller.loadPlaylist(name);
     }
 
-    this.loadSmart = function(name) {
-        var action = "getplaylist";
+    this.loadSmart = function(which, param, flag) {
         playlist.waiting();
-        if (name == "tag") {
-            name += "+" + $("#cynthia").val();
+        if (mode && mode != which) {
+            mode.stop();
         }
-        debug.log("PLAYLIST","Loading Playlist",name);
-        if (mode && mode == name) {
-            // We're already running this playlist
-            action = "repopulate";
+        mode = which;
+        which.populate(param);
+        if (mobile == "no") {
+            if (!flag) {
+                $("#lpscr").slideToggle('fast');
+            }
         } else {
-            if (mobile == "no") {
-               $("#lpscr").slideToggle('fast');
-            } else {
-                sourcecontrol('playlistm');
-            }
+            sourcecontrol('playlistm');
         }
-        mode = name;
-        $.ajax({
-            type: "POST",
-            dataType: "json",
-            data: { action: action, playlist: name },
-            url: "userRatings.php",
-            success: function(data) {
-                if (data.length > 0) {
-                    debug.log("SMARTPLAYLIST","Got tracks",data);
-                    player.controller.addTracks(data, null, null);
-                } else {
-                    mode = null;
-                    playlist.repopulate();
-                }
-            },
-            fail: function() {
-                infobar.notify(infobar.ERROR,"Failed to create Playlist");
-                playlist.repopulate();
-            }
-        });
     }
 
     this.clear = function() {
+        if (mode) mode.stop();
         mode = null;
         player.controller.clearPlaylist();
     }
@@ -459,7 +434,7 @@ function Playlist() {
                 currentalbum = i;
                 scrollToCurrentTrack();
                 if (mode && self.currentTrack.playlistpos == finaltrack) {
-                    self.loadSmart(mode);
+                    mode.populate();
                 }
                 break;
             }

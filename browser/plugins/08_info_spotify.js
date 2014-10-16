@@ -52,8 +52,11 @@ var info_spotify = function() {
     	}
 
     	var h = '<div class="holdingcell">';
-    	h = h + '<div class="standout stleft statsbox"><b>POPULARITY: </b>'+data.popularity+
-    			'</div>';
+    	h = h + '<div class="standout stleft statsbox"><b>POPULARITY: </b>'+data.popularity;
+        h = h + '<div class="containerbox menuitem infoclick clickstartradio"><div class="fixed"><img src="'+ipath+'broadcast-32.png" /></div>' +
+                '<div class="fixed">&nbsp;&nbsp;Start Artist Radio&nbsp;&nbsp;</div>' +
+                '</div>';
+    	h = h + '</div>';
     	if (data.images && data.images[0]) {
     		h = h + '<img class="stright standout shrinker infoclick clickzoomimage" src="getRemoteImage.php?url='+data.images[0].url+'" ';
     		var w = $("#infopane").width();
@@ -117,6 +120,8 @@ var info_spotify = function() {
 
             this.stopDisplaying = function() {
                 displaying = false;
+            	if (laidout) $("#artistalbums").masonry('destroy');
+            	laidout = false;
 			}
 
             this.handleClick = function(source, element, event) {
@@ -164,6 +169,8 @@ var info_spotify = function() {
                 	$(".bsel").removeClass("bsel");
                 	element.addClass("bsel");
                 	self.getArtists();
+                } else if (element.hasClass('clickstartradio')) {
+                    playlist.loadSmart(artistRadio, 'spotify:artist:'+parent.playlistinfo.metadata.artist.spotify.ids[0], true);
                 }
             }
 
@@ -301,15 +308,8 @@ var info_spotify = function() {
 					populate: function() {
                         if (parent.playlistinfo.metadata.track.spotify === undefined) {
 		            		parent.playlistinfo.metadata.track.spotify = {};
-                        	var t = parent.playlistinfo.location;
-			            	if (t.substring(0,8) !== 'spotify:') {
-				                browser.Update('album', me, parent.index, { name: "", data: null });
-				                browser.Update('artist', me, parent.index, { name: "", data: null });
-				                browser.Update('track', me, parent.index, { name: parent.playlistinfo.title, data: '<h3 align="center">'+language.gettext("spotify_not")+'</h3>' });
-			            	} else {
-			            		parent.playlistinfo.metadata.track.spotify.id = t.substr(14, t.length);
-		                		spotify.track.getInfo(parent.playlistinfo.metadata.track.spotify.id, self.track.spotifyResponse, self.track.spotifyError);
-			                }
+		            		parent.playlistinfo.metadata.track.spotify.id = t.substr(14, t.length);
+	                		spotify.track.getInfo(parent.playlistinfo.metadata.track.spotify.id, self.track.spotifyResponse, self.track.spotifyError);
 			            } else {
 			            	self.artist.populate();
 			            }
@@ -417,7 +417,7 @@ var info_spotify = function() {
                                                                                     data: getArtistHTML(parent.playlistinfo.metadata.artist.spotify.artist)
                                                                                 }
                             );
-                            if (accepted) {
+                            if (accepted && parent.playlistinfo.metadata.artist.spotify.artist.error == undefined) {
                             	$.get('getspotibio.php?url='+parent.playlistinfo.metadata.artist.spotify.artist.external_urls.spotify)
                             		.done( function(data) {
                             			if (displaying) $("#spartistinfo").html(data);
@@ -434,7 +434,26 @@ var info_spotify = function() {
 
 			}();
 
-			self.track.populate();
+        	var t = parent.playlistinfo.location;
+        	if (t.substring(0,8) !== 'spotify:') {
+        		parent.playlistinfo.metadata.artist.spotify = { artist: { 	error: '<h3 align="center">'+language.gettext("spotify_not")+'</h3>',
+        																 	name: parent.playlistinfo.creator,
+        																 	external_urls: { spotify: '' }
+        																 }
+        													};
+        		parent.playlistinfo.metadata.album.spotify = { album: { 	error: '<h3 align="center">'+language.gettext("spotify_not")+'</h3>',
+        																 	name: parent.playlistinfo.album,
+        																 	external_urls: { spotify: '' }
+        																 }
+        													};
+        		parent.playlistinfo.metadata.track.spotify = { track: { 	error: '<h3 align="center">'+language.gettext("spotify_not")+'</h3>',
+        																 	name: parent.playlistinfo.title,
+        																 	external_urls: { spotify: '' }
+        																 }
+        													};
+        	} else {
+				self.track.populate();
+			}
 
 		}
 

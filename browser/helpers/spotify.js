@@ -41,12 +41,14 @@ var spotify = function() {
 	                	}
 	                	req = queue.shift();
 	                	if (data === null) {
+		                	debug.warn("SPOTIFY","No data in response",req);
 	                		data = {error: language.gettext("spotify_error")};
 	                	}
 	                	if (req.reqid != '') {
 	                		data.reqid = req.reqid;
 	                	}
 		                if (data.error) {
+		                	debug.warn("SPOTIFY","Request failed",req,data);
 		                    req.fail(data);
 		                } else {
 		                    req.success(data);
@@ -81,6 +83,11 @@ var spotify = function() {
 
 			getInfo: function(id, success, fail) {
 				var url = baseURL + '/v1/albums/' + id;
+				spotify.request(id, url, success, fail);
+			},
+
+			getMultiInfo: function(ids, success, fail) {
+				var url = baseURL + '/v1/albums/?ids=' + ids.join();
 				spotify.request('', url, success, fail);
 			}
 

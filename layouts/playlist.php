@@ -1,7 +1,7 @@
 <div id="horse" class="fullwidth">
 <table width="100%"><tr><td align="left" style="width:17px">
 <?php
-print '<img onclick="togglePlaylistButtons()" title="'.get_int_text('button_playlistcontrols').'" class="clickicon lettuce" height="15px" src="'.$ipath.'dropdown.png" />';
+print '<img onclick="togglePlaylistButtons()" title="'.get_int_text('button_playlistcontrols').'" class="clickicon lettuce" height="15px" src="'.$ipath.'pushbutton.png" />';
 ?>
 </td>
 <td align="left" id="pltracks"></td>

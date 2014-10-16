@@ -169,7 +169,13 @@ if ($prefs['player_backend'] == "mpd") {
 ?>
             </div>
             <div class="pref">
-                <div id="playlistslist"></div>
+                <div id="playlistslist">
+<?php
+                    print '<h3>'.get_int_text("menu_playlists").'</h3>';
+                    print '<div class="containerbox vertical" id="pluginplaylists"></div>';
+                    print '<div id="storedplaylists"></div>';
+?>
+                </div>
             </div>
         </div>
         <div id="prefsm" class="invisible noborder">

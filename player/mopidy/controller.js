@@ -220,7 +220,12 @@ function playerController() {
 
 	function formatPlaylistInfo(data) {
 
-	    var html = playlistMenuHeader();;
+	    var html = '';
+	    if (mobile == "no") {
+	        html = html + '<table width="100%">';
+	    } else {
+	        html = html + '<table width="90%">';
+	    }
 	    $.each(data, function() {
 	        var uri = this.uri;
 	        html = html + '<tr><td class="playlisticon" align="left">';
@@ -254,10 +259,8 @@ function playerController() {
 	        }
 	    });
         html = html + '</table>';
-	    $("#playlistslist").html(html);
-	    $("#playlistslist").find('.enter').keyup(onKeyUp);
-	    $("#poohbear").click(onDropdownClicked);
-	    addCustomScrollBar("#tigger");
+	    $("#storedplaylists").html(html);
+	    // addCustomScrollBar("#tigger");
 
 	}
 
