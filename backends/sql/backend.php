@@ -963,10 +963,10 @@ function get_fave_artists() {
 	generic_sql_query("CREATE TEMPORARY TABLE aplaytable (playtotal INT UNSIGNED, Artistindex INT UNSIGNED NOT NULL UNIQUE)");
 	// Playcount > 5 in this query is totally arbitrary and may need tuning. Just trying to get the most popular artists by choosing anyone with an
 	// above average number of plays, but we don't want all the 'played them a few times' artists dragging the average down.
-	generic_sql_query("INSERT INTO aplaytable(playtotal, Artistindex) (SELECT SUM(Playcount) AS playtotal, Artistindex FROM (SELECT Playcount, Artistindex FROM PlaycountTable JOIN Tracktable USING (TTindex) WHERE Playcount > 5) AS derived GROUP BY Artistindex)");
+	generic_sql_query("INSERT INTO aplaytable(playtotal, Artistindex) (SELECT SUM(Playcount) AS playtotal, Artistindex FROM (SELECT Playcount, Artistindex FROM Playcounttable JOIN Tracktable USING (TTindex) WHERE Playcount > 5) AS derived GROUP BY Artistindex)");
 
 	$artists = array();
-	if ($result = mysqli_query($mysqlc, "SELECT playtot, Artistname FROM (SELECT SUM(Playcount) AS playtot, Artistindex FROM (SELECT Playcount, Artistindex FROM PlaycountTable JOIN Tracktable USING (TTindex)) AS derived GROUP BY Artistindex) AS alias JOIN Artisttable USING (Artistindex) WHERE playtot > (SELECT AVG(playtotal) FROM aplaytable) ORDER BY RAND()")) {
+	if ($result = mysqli_query($mysqlc, "SELECT playtot, Artistname FROM (SELECT SUM(Playcount) AS playtot, Artistindex FROM (SELECT Playcount, Artistindex FROM Playcounttable JOIN Tracktable USING (TTindex)) AS derived GROUP BY Artistindex) AS alias JOIN Artisttable USING (Artistindex) WHERE playtot > (SELECT AVG(playtotal) FROM aplaytable) ORDER BY RAND()")) {
 		while ($obj = mysqli_fetch_object($result)) {
 			array_push($artists, array( 'name' => $obj->Artistname, 'plays' => $obj->playtot));
 		}
