@@ -100,7 +100,6 @@ $languages['en'] = array (
 	"label_yourradio" => "Your Radio Stations",
 	"label_podcasts" => "Podcasts",
 	"label_somafm" => "Soma FM",
-	"label_bbcradio" => "Live BBC Radio",
 	"label_icecast" => "Icecast Radio",
 	"label_emptyinfo" => "This is the information panel. Interesting stuff will appear here when you play some music",
 	"button_playlistcontrols" => "Playlist Controls",
@@ -511,12 +510,22 @@ $languages['en'] = array (
 	"config_ignore_unplayable" => "Ignore Unplayable Tracks",
 	"label_retrieve" => "Retrieve",
 
-	//Spotify Metadata
+	// New in 0.53
 	"spotify_error" => "No response from Spotify",
 	"musicbrainz_noinfo" => "Could not get information from Spotify",
 	"button_infospotify" => "Info Panel (Spotify)",
 	"spotify_not" => "This panel will only display information about music from Spotify",
-	"config_icontheme" => "ICONS"
+	"config_icontheme" => "ICONS",
+	"menu_radios" => "ROMPRADIO",
+	"label_mostplayed" => "Most Played Tracks",
+	"label_radio" => "Radio",
+	"label_pop" => "POPULARITY",
+	"label_albumsby" => "Albums By This Artist",
+	"label_related" => "Related Artists",
+	"label_artistradio" => "Start Artist Radio",
+	"label_mostplayed" => "Most Played Tracks",
+	"label_radio_artist" => "Artist Radio",
+	"label_radio_fartist" => "Fave Artist Radio",
 
 
 );

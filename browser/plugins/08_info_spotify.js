@@ -12,7 +12,7 @@ var info_spotify = function() {
     	}
 
     	var h = '<div class="holdingcell">';
-    	h = h + '<div class="standout stleft statsbox"><b>POPULARITY: </b>'+data.popularity+'</div>';
+    	h = h + '<div class="standout stleft statsbox"><b>'+language.gettext("label_pop")+': </b>'+data.popularity+'</div>';
     	if (data.explicit) {
     		h = h + '<img class="stright standout" src="newimages/advisory.png" />';
     	}
@@ -27,7 +27,7 @@ var info_spotify = function() {
     		return '<h3 align="center">'+data.error+'</h3>';
     	}
     	var h = '<div class="holdingcell">';
-    	h = h + '<div class="standout stleft statsbox"><b>POPULARITY: </b>'+data.popularity+
+    	h = h + '<div class="standout stleft statsbox"><b>'+language.gettext("label_pop")+': </b>'+data.popularity+
     			'<br/><b>RELEASE DATE: </b>'+data.release_date+
     			'</div>';
     	if (data.images && data.images[0]) {
@@ -52,9 +52,9 @@ var info_spotify = function() {
     	}
 
     	var h = '<div class="holdingcell">';
-    	h = h + '<div class="standout stleft statsbox"><b>POPULARITY: </b>'+data.popularity;
+    	h = h + '<div class="standout stleft statsbox"><b>'+language.gettext("label_pop")+': </b>'+data.popularity;
         h = h + '<div class="containerbox menuitem infoclick clickstartradio"><div class="fixed"><img src="'+ipath+'broadcast-32.png" /></div>' +
-                '<div class="fixed">&nbsp;&nbsp;Start Artist Radio&nbsp;&nbsp;</div>' +
+                '<div class="fixed">&nbsp;&nbsp;'+language.gettext("label_artistradio")+'&nbsp;&nbsp;</div>' +
                 '</div>';
     	h = h + '</div>';
     	if (data.images && data.images[0]) {
@@ -67,9 +67,9 @@ var info_spotify = function() {
 
     	h = h + '<div id="spartistinfo"></div>';
     	h = h + '</div>';
-    	h = h + '<div class="containerbox"><div class="fixed"><h3><span class="infoclick clickshowalbums bsel">Albums By This Artist</span>' +
+    	h = h + '<div class="containerbox"><div class="fixed"><h3><span class="infoclick clickshowalbums bsel">'+language.gettext("label_albumsby")+'</span>' +
     			'&nbsp;&nbsp;|&nbsp;&nbsp;' +
-    			'<span class="infoclick clickshowartists">Related Artists</span></h3></div>' +
+    			'<span class="infoclick clickshowartists">'+language.gettext("label_related")+'</span></h3></div>' +
     			'<div class="fixed"><img id="hibbert" height="32px" src="newimages/waiter.png" class="invisible" /></div></div>' +
     			'<div class="holdingcell masonified2" id="artistalbums"></div>';
     	return h;
@@ -429,6 +429,39 @@ var info_spotify = function() {
                             }
                         }
 
+                    },
+
+                    search: function() {
+                    	debug.log(medebug, "Searching Spotify for artist",parent.playlistinfo.creator)
+                    	spotify.artist.search(parent.playlistinfo.creator, self.artist.searchResponse, self.artist.searchFail);
+                    },
+
+                    searchFail: function() {
+		        		parent.playlistinfo.metadata.artist.spotify = { artist: { 	error: '<h3 align="center">'+language.gettext("spotify_not")+'</h3>',
+		        																 	name: parent.playlistinfo.creator,
+		        																 	external_urls: { spotify: '' }
+		        																 }
+		        													};
+		        		self.artist.doBrowserUpdate();
+                    },
+
+                    searchResponse: function(data) {
+                    	debug.log(medebug,"Got Spotify Search Data",data);
+						var f = false;
+						for (var i in data.artists.items) {
+							if (data.artists.items[i].name.toLowerCase == parent.playlistinfo.creator.toLowerCase) {
+								f = true;
+								parent.playlistinfo.metadata.artist.spotify = {ids: [data.artists.items[i].id]};
+								parent.playlistinfo.metadata.artist.spotify.showing = "album";
+								break;
+							}
+						}
+						if (!f) {
+							self.artist.searchFail();
+						} else {
+							self.artist.populate();
+						}
+
                     }
 				}
 
@@ -436,11 +469,7 @@ var info_spotify = function() {
 
         	var t = parent.playlistinfo.location;
         	if (t.substring(0,8) !== 'spotify:') {
-        		parent.playlistinfo.metadata.artist.spotify = { artist: { 	error: '<h3 align="center">'+language.gettext("spotify_not")+'</h3>',
-        																 	name: parent.playlistinfo.creator,
-        																 	external_urls: { spotify: '' }
-        																 }
-        													};
+        		self.artist.search();
         		parent.playlistinfo.metadata.album.spotify = { album: { 	error: '<h3 align="center">'+language.gettext("spotify_not")+'</h3>',
         																 	name: parent.playlistinfo.album,
         																 	external_urls: { spotify: '' }

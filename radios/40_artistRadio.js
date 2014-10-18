@@ -4,6 +4,7 @@ var artistRadio = function() {
 	var gotAllAlbums = false
 	var artists = new Array();
 	var artistname;
+	var artistindex;
 
 	function getArtistName(id) {
 		spotify.artist.getInfo(id, artistRadio.gotArtistName, artistRadio.fail);
@@ -31,6 +32,10 @@ var artistRadio = function() {
 		} else {
 			debug.mark("We've got all albums");
 		}
+	}
+
+	function searchForArtist(name) {
+		spotify.artist.search(name, artistRadio.gotArtists, artistRadio.fail);
 	}
 
 	function sendTracks(num) {
@@ -97,8 +102,9 @@ var artistRadio = function() {
 				if (artist.substr(0,15) == "spotify:artist:") {
 					getArtistName(artist.substr(15,artist.length));
 				} else {
-					debug.error("ARTIST_RADIO","Not a spotify artist link!");
-					// getRelatedArtists(artist);
+					debug.log("ARTIST RADIO","Searching for artist",artist);
+					artistname = artist;
+					searchForArtist(artist);
 				}
 			} else {
 				debug.log("ARTIST RADIO", "Repopulating");
@@ -113,11 +119,26 @@ var artistRadio = function() {
 		},
 
 		modeHtml: function() {
-			return '<img src="'+ipath+'broadcast-12.png" style="vertical-align:middle"/>&nbsp;<span style="vertical-align:middle">'+artistname+'&nbsp;Radio</span>';
+			return '<img src="'+ipath+'broadcast-12.png" style="vertical-align:middle"/>&nbsp;<span style="vertical-align:middle">'+artistname+'&nbsp;'+language.gettext("label_radio")+'</span>';
 		},
 
 		stop: function() {
 			sending = 5;
+		},
+
+		gotArtists: function(data) {
+			var f = false;
+			for (var i in data.artists.items) {
+				if (data.artists.items[i].name.toLowerCase == artistname.toLowerCase) {
+					artistname = data.artists.items[i].name;
+					getRelatedArtists(data.artists.items[i].id);
+					f = true;
+					break;
+				}
+			}
+			if (!f) {
+				artistRadio.fail();
+			}
 		},
 
 		gotArtistName: function(data) {
@@ -190,9 +211,26 @@ var artistRadio = function() {
 
 		failQuiet: function(data) {
             debug.error("ARTIST RADIO","Spotify Failure!",data);
+		},
+
+		setup: function() {
+            var html = '<div class="fullwidth">';
+            html = html + '<div class="containerbox">';
+            html = html + '<div class="fixed"><img src="'+ipath+'spotify-logo.png" height="12px" style="vertical-align:middle"></div>';
+            html = html + '<div class="expand">&nbsp;&nbsp;&nbsp;<b>'+language.gettext('label_radio_artist')+'</b></div>';
+            html = html + '</div>';
+            html = html + '<div class="containerbox dropdown-container">';
+            html = html + '<div class="fixed playlisticon"><img src="'+ipath+'spotify-logo.png" height="12px" style="vertical-align:middle"></div>';
+            html = html + '<div class="expand dropdown-holder"><input class="searchterm enter sourceform" id="bubbles" type="text" style="width:100%;font-size:100%"/></div>';
+            html = html + '<button class="fixed" style="margin-left:8px" onclick="playlist.loadSmart(artistRadio, $(\'#bubbles\').val())">'+language.gettext('button_playradio')+'</button>';
+            html = html + '</div>';
+            html = html + '</div>';
+            $("#pluginplaylists").append(html);
+
 		}
 
 	}
 
 }();
 
+artistRadio.setup();

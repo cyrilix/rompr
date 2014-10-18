@@ -155,8 +155,9 @@ print '<button style="width:100%" class="topformbutton" onclick="clearPlaylist()
 <?php
 print '<a href="#" title="'.get_int_text('button_loadplaylist').'" class="tooltip"><img class="topimg" src="'.$ipath.'document-open-folder.png" height="24px"></a>';
 print '<ul id="lpscr" class="subnav wide dropshadow"><div id="playlistslist" class="clearfix">';
-print '<div class="containerbox"><div class="expand"><b>'.get_int_text("menu_playlists").'</b></div></div>';
+print '<div class="containerbox"><div class="expand"><b>'.get_int_text("menu_radios").'</b></div></div>';
 print '<div class="containerbox vertical" id="pluginplaylists"></div>';
+print '<div class="containerbox"><div class="expand"><b>'.get_int_text("menu_playlists").'</b></div></div>';
 print '<div id="storedplaylists"></div>';
 print '</div></ul>';
 print '</li>';

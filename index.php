@@ -332,6 +332,11 @@ ksort($inc);
 foreach($inc as $i) {
     print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
 }
+$inc = glob("radios/*.js");
+ksort($inc);
+foreach($inc as $i) {
+    print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
+}
 if ($mobile == "no") {
     $inc = glob("plugins/*.js");
     foreach($inc as $i) {

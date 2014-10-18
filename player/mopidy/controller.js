@@ -856,6 +856,16 @@ function playerController() {
 		});
 	}
 
+	this.rawfindexact = function(terms, callback) {
+		mopidy.library.findExact(terms).then( function(data) {
+			callback(data);
+		},
+		function() {
+			debug.error("MOPIDY","Find Exact failed");
+			callback([]);
+		});
+	}
+
 	this.command = function(cmd, callback) {
 		// For compatability
 		if (callback) {

@@ -205,6 +205,10 @@ switch ($_POST['action']) {
 		print json_encode(list_tags());
 		break;
 
+	case 'getfaveartists':
+		print json_encode(get_fave_artists());
+		break;
+
 }
 
 function preparePlaylist() {
@@ -231,6 +235,10 @@ function doPlaylist($playlist) {
 			break;
 		case "5stars":
 			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Rating > 4";
+			break;
+		case "mostplayed":
+			$avgplays = getAveragePlays();
+			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Playcounttable USING (TTindex) WHERE Uri IS NOT NULL AND Playcount > ".$avgplays;
 			break;
 		default:
 			if (preg_match('/tag\+(.*)/', $playlist, $matches)) {

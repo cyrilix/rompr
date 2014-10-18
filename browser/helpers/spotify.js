@@ -114,6 +114,11 @@ var spotify = function() {
 				//TODO - the market is required = we must somehow work it out!
 				var url = baseURL + '/v1/artists/'+id+'/albums?album_type='+types+'&market=GB&limit=50';
 				spotify.request(id, url, success, fail);
+			},
+
+			search: function(name, success, fail) {
+				var url = baseURL + '/v1/search?q='+name.replace(' ','+')+'&type=artist';
+				spotify.request('', url, success, fail);
 			}
 
 		}

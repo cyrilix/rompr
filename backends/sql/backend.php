@@ -958,6 +958,41 @@ function getAllURIs($sqlstring) {
 	return $uris;
 }
 
+function get_fave_artists() {
+	global $mysqlc;
+	generic_sql_query("CREATE TEMPORARY TABLE aplaytable (playtotal INT UNSIGNED, Artistindex INT UNSIGNED NOT NULL UNIQUE)");
+	// Playcount > 5 in this query is totally arbitrary and may need tuning. Just trying to get the most popular artists by choosing anyone with an
+	// above average number of plays, but we don't want all the 'played them a few times' artists dragging the average down.
+	generic_sql_query("INSERT INTO aplaytable(playtotal, Artistindex) (SELECT SUM(Playcount) AS playtotal, Artistindex FROM (SELECT Playcount, Artistindex FROM PlaycountTable JOIN Tracktable USING (TTindex) WHERE Playcount > 5) AS derived GROUP BY Artistindex)");
+
+	$artists = array();
+	if ($result = mysqli_query($mysqlc, "SELECT playtot, Artistname FROM (SELECT SUM(Playcount) AS playtot, Artistindex FROM (SELECT Playcount, Artistindex FROM PlaycountTable JOIN Tracktable USING (TTindex)) AS derived GROUP BY Artistindex) AS alias JOIN Artisttable USING (Artistindex) WHERE playtot > (SELECT AVG(playtotal) FROM aplaytable) ORDER BY RAND()")) {
+		while ($obj = mysqli_fetch_object($result)) {
+			array_push($artists, array( 'name' => $obj->Artistname, 'plays' => $obj->playtot));
+		}
+		mysqli_free_result($result);
+	} else {
+		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+	}
+	return $artists;
+}
+
+function getAveragePlays() {
+
+	global $mysqlc;
+	$avgplays = 0;
+	if ($result = mysqli_query($mysqlc, "SELECT avg(Playcount) as avgplays FROM Playcounttable")) {
+		while ($obj = mysqli_fetch_object($result)) {
+			$avgplays = $obj->avgplays;
+			debug_print("Average Plays is ".$avgplays, "SMART PLAYLIST");
+		}
+		mysqli_free_result($result);
+	} else {
+		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+	}
+	return round($avgplays, 0, PHP_ROUND_HALF_DOWN);
+}
+
 function find_artist_from_album($albumid) {
 	global $mysqlc;
 	$retval = null;

@@ -2258,3 +2258,10 @@ div.lyrics p
     border-right:1px solid #dddddd;
     border-bottom:1px solid #dddddd;
 }
+
+#pluginplaylists
+{
+    margin-bottom:4px;
+    padding-bottom:4px;
+    border-bottom:1px solid #999999;
+}
