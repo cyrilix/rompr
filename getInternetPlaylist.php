@@ -36,9 +36,9 @@ if ($url) {
 	$content = url_get_contents($url, $_SERVER['HTTP_USER_AGENT'], false, true, true);
 	debug_print("Playlist Is ".$content['status']." ".$content['contents'],"RADIO_PLAYLIST");
 
-	foreach($content['info'] as $e => $g) {
-		debug_print($e." = ".$g,"CURLINFO");
-	}
+	// foreach($content['info'] as $e => $g) {
+	// 	debug_print($e." = ".$g,"CURLINFO");
+	// }
 
 	$content_type = $content['info']['content_type'];
 	// To cope with charsets in the header...
