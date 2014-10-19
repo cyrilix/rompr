@@ -524,8 +524,8 @@ $languages['en'] = array (
 	"label_related" => "Related Artists",
 	"label_artistradio" => "Start Artist Radio",
 	"label_mostplayed" => "Most Played Tracks",
-	"label_radio_artist" => "Artist Radio",
 	"label_radio_fartist" => "Fave Artist Radio",
+	"label_pluginplaylists" => "Personalised Radio"
 
 
 );

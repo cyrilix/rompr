@@ -266,11 +266,7 @@ function Playlist() {
         }
         mode = which;
         which.populate(param);
-        if (mobile == "no") {
-            if (!flag) {
-                $("#lpscr").slideToggle('fast');
-            }
-        } else {
+        if (mobile == "phone") {
             sourcecontrol('playlistm');
         }
     }

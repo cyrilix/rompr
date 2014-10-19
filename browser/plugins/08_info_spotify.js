@@ -449,10 +449,10 @@ var info_spotify = function() {
                     	debug.log(medebug,"Got Spotify Search Data",data);
 						var f = false;
 						for (var i in data.artists.items) {
-							if (data.artists.items[i].name.toLowerCase == parent.playlistinfo.creator.toLowerCase) {
+							if (data.artists.items[i].name.toLowerCase() == parent.playlistinfo.creator.toLowerCase()) {
 								f = true;
 								parent.playlistinfo.metadata.artist.spotify = {ids: [data.artists.items[i].id]};
-								parent.playlistinfo.metadata.artist.spotify.showing = "album";
+								parent.playlistinfo.metadata.artist.spotify.showing = "albums";
 								break;
 							}
 						}

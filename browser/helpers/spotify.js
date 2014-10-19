@@ -117,7 +117,7 @@ var spotify = function() {
 			},
 
 			search: function(name, success, fail) {
-				var url = baseURL + '/v1/search?q='+name.replace(' ','+')+'&type=artist';
+				var url = baseURL + '/v1/search?q='+name.replace(/ /g,'+')+'&type=artist';
 				spotify.request('', url, success, fail);
 			}
 

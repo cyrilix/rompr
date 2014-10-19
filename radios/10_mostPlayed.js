@@ -53,7 +53,7 @@ var mostPlayed = function() {
 
         setup: function() {
 
-            var html = '<div class="fullwidth"><div class="containerbox">';
+            var html = '<div class="padright menuitem"><div class="containerbox">';
 
             html = html + '<div class="fixed">';
             html = html + '<img src="'+ipath+'document-open-folder.png" height="12px" style="vertical-align:middle"></div>';

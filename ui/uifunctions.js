@@ -974,6 +974,5 @@ function playlistMenuHeader() {
     } else {
         html = html + '<h3>'+language.gettext("menu_playlists")+'</h3>';
     }
-    html = html + '<div class="containerbox" id="pluginplaylists"></div>';
     return html;
 }

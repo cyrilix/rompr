@@ -4,6 +4,7 @@ var faveArtistRadio = function() {
 	var artists = new Array();
 	var artistindex;
 	var running = false;
+	var populating = false;
 
 	function getFaveArtists() {
         $.ajax({
@@ -67,6 +68,7 @@ var faveArtistRadio = function() {
 			}
 			c--;
 		}
+		if (sending == 5) populating = false;
 		if (t.length > 0) {
 			debug.mark("ARTIST RADIO","Sending tracks to playlist",t);
 			player.controller.addTracks(t, playlist.playFromEnd(), null);
@@ -78,17 +80,21 @@ var faveArtistRadio = function() {
 	return {
 
 		populate: function() {
-			if (!running) {
-				debug.log("FAVE ARTIST RADIO","Populating");
-				artists = new Array();
-				sending = 0;
-				running = true;
-				artistindex = 0;
-				getFaveArtists();
-			} else {
-				debug.log("FAVE ARTIST RADIO","RePopulating");
-				sending = 0;
-				sendTracks(5);
+			if (!populating) {
+				if (!running) {
+					debug.log("FAVE ARTIST RADIO","Populating");
+					artists = new Array();
+					sending = 0;
+					running = true;
+					artistindex = 0;
+					populating = true;
+					getFaveArtists();
+				} else {
+					debug.log("FAVE ARTIST RADIO","RePopulating");
+					sending = 0;
+					populating = true;
+					sendTracks(5);
+				}
 			}
 		},
 
@@ -108,7 +114,7 @@ var faveArtistRadio = function() {
 				}
 			}
 			sendTracks(1);
-			setTimeout(getTracksForNextArtist, 1000);
+			setTimeout(getTracksForNextArtist, 2000);
 
 		},
 
@@ -123,7 +129,7 @@ var faveArtistRadio = function() {
 
         setup: function() {
 
-            var html = '<div class="fullwidth"><div class="containerbox">';
+            var html = '<div class="padright menuitem"><div class="containerbox">';
 
             html = html + '<div class="fixed">';
             html = html + '<img src="'+ipath+'document-open-folder.png" height="12px" style="vertical-align:middle"></div>';
