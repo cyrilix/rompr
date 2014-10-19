@@ -71,7 +71,7 @@ var starRadios = function() {
                 });
                 html = html + '</table></div>';
                 html = html + '<div class="padright menuitem"><div class="containerbox dropdown-container">'+
-                                '<div class="fixed playlisticon"><img src="newimages/tag.png" height="12px" style="vertical-align:middle"></div>'+
+                                '<div class="fixed playlisticon"><img src="'+ipath+'tag.png" height="12px" style="vertical-align:middle"></div>'+
                                 '<div class="expand dropdown-holder">'+
                                 '<input class="searchterm enter sourceform" id="cynthia" type="text" style="width:100%;font-size:100%"/>'+
                                 '<div class="drop-box dropshadow tagmenu" id="tigger" style="width:100%">'+
