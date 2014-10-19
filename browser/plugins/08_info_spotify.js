@@ -318,6 +318,7 @@ var info_spotify = function() {
 				        													};
 				        		self.track.doBrowserUpdate();
 				        		self.artist.populate();
+				        		self.album.populate();
 				        	} else {
 			            		parent.playlistinfo.metadata.track.spotify = {};
 			            		parent.playlistinfo.metadata.track.spotify.id = parent.playlistinfo.location.substr(14, parent.playlistinfo.location.length);
