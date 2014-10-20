@@ -11,8 +11,11 @@ $fname = preg_replace('#file://#','',$fname);
 $fname = 'prefs/MusicFolders/'.$fname;
 
 $getID3 = new getID3;
-$output = '<h3 align=center>'.get_int_text("lyrics_nonefound").'</h3><p>'.get_int_text("lyrics_info").'</p>';
+$output = null;
 debug_print("Looking for lyrics in ".$fname,"LYRICS");
+debug_print("  Artist is ".$_REQUEST['artist'],"LYRICS");
+debug_print("  Song is ".$_REQUEST['song'],"LYRICS");
+
 if (file_exists($fname)) {
 	debug_print("File Exists ".$fname,"LYRICS");
 	$tags = $getID3->analyze($fname);
@@ -30,6 +33,36 @@ if (file_exists($fname)) {
 		read_apple_awfulness($tags['quicktime']['moov']['subatoms']);
 	}
 
+}
+
+if ($output == null) {
+	$uri = "http://lyrics.wikia.com/api.php?func=getSong&artist=".urlencode($_REQUEST['artist'])."&song=".urlencode($_REQUEST['song'])."&fmt=xml";
+	if (file_exists('prefs/jsoncache/lyrics/'.md5($uri))) {
+		$output = file_get_contents('prefs/jsoncache/lyrics/'.md5($uri));
+	} else {
+		debug_print("Getting ".$uri,"LYRICS");
+		$content = url_get_contents($uri);
+		if ($content['status'] == "200") {
+			$l = simplexml_load_string($content['contents']);
+			if ($l->url) {
+				debug_print("Getting ".$l->url,"LYRICS");
+				$webpage = url_get_contents($l->url);
+				if ($webpage['status'] == "200") {
+					debug_print("   Got something","LYRICS");
+					if (preg_match('/\<div class=\'lyricbox\'\>\<script\>.*?\<\/script\>(.*?)\<\!--/', $webpage['contents'], $matches)) {
+						$output = html_entity_decode($matches[1]);
+						file_put_contents('prefs/jsoncache/lyrics/'.md5($uri), $output);
+					} else {
+						debug_print("     preg didn't match","LYRICS");
+					}
+				}
+			}
+		}
+	}
+}
+
+if ($output == null) {
+	$output = '<h3 align=center>'.get_int_text("lyrics_nonefound").'</h3><p>'.get_int_text("lyrics_info").'</p>';
 }
 
 print $output;

@@ -1,7 +1,7 @@
 function playerController() {
 
 	var self = this;
-	var urischemes = new Object();
+	// var urischemes = new Object();
 	var tracklist = new Array();
 	var isReady = false;
 	var tracksToAdd = new Array();
@@ -332,7 +332,7 @@ function playerController() {
 		if (isReady) {
             $("#mopidysearcher").find('.searchdomain').each( function() {
                 var v = $(this).attr("value");
-                if (!urischemes.hasOwnProperty(v)) {
+                if (!player.canPlay(v)) {
                     $(this).parent().remove();
                 }
             });
@@ -397,7 +397,7 @@ function playerController() {
         mopidy.getUriSchemes().then( function(data) {
             for(var i =0; i < data.length; i++) {
             	debug.log("PLAYER","Mopidy URI Scheme : ",data[i]);
-                urischemes[data[i]] = true;
+                player.urischemes[data[i]] = true;
             }
 			checkSearchDomains();
 			if (!player.collectionLoaded) {

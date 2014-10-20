@@ -331,3 +331,7 @@ table.histable tr:hover {
     cursor:pointer;
 }
 
+tr.clickaddtrack:hover
+{
+    background-color:#cccccc;
+}

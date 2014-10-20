@@ -282,3 +282,8 @@ input.topformbutton
 {
     background-color:#000055;
 }
+
+tr.clickaddtrack:hover
+{
+    background-color:#171760;
+}

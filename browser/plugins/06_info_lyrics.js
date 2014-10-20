@@ -49,7 +49,7 @@ var info_lyrics = function() {
         			parent.playlistinfo.metadata.track.lyrics = '<h3 align=center>'+language.gettext("lyrics_nonefound")+'</h3><p>'+language.gettext("lyrics_nopath")+'</p>';
         			self.doBrowserUpdate();
             	} else {
-	            	$.get("getLyrics.php?file="+encodeURIComponent(player.status.file))
+	            	$.get("getLyrics.php?file="+encodeURIComponent(player.status.file)+"&artist="+encodeURIComponent(parent.playlistinfo.creator)+"&song="+encodeURIComponent(parent.playlistinfo.title))
 	            		.done(function(data) {
 	            			parent.playlistinfo.metadata.track.lyrics = data;
 	            			self.doBrowserUpdate();

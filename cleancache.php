@@ -8,12 +8,14 @@ include("includes/vars.php");
 include("includes/functions.php");
 
 debug_print("Starting Large Badger Process","CACHE CLEANER");
+// Everything is kept for one month, except lyrics which are kept for 6 months (approx)
 clean_cache_dir('prefs/jsoncache/musicbrainz/', 2592000);
 clean_cache_dir('prefs/jsoncache/discogs/', 2592000);
 clean_cache_dir('prefs/jsoncache/wikipedia/', 2592000);
-clean_cache_dir('prefs/jsoncache/lastfm/', 259200);
-clean_cache_dir('prefs/jsoncache/spotify/', 259200);
-clean_cache_dir('prefs/imagecache/', 259200);
+clean_cache_dir('prefs/jsoncache/lastfm/', 2592000);
+clean_cache_dir('prefs/jsoncache/spotify/', 2592000);
+clean_cache_dir('prefs/jsoncache/lyrics/', 15552000);
+clean_cache_dir('prefs/imagecache/', 2592000);
 
 ?>
 

@@ -283,3 +283,8 @@ table.histable tr:hover {
     background-color:#CC5500;
     cursor:pointer;
 }
+
+tr.clickaddtrack:hover
+{
+    background-color:#eeeeee;
+}

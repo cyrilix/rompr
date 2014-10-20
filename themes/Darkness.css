@@ -322,3 +322,8 @@ th.tlheader
     border-bottom:1px solid #cccccc;
     background-color:#000000;
 }
+
+tr.clickaddtrack:hover
+{
+    background-color:#353535;
+}

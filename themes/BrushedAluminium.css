@@ -287,3 +287,7 @@ table.histable tr:hover {
     cursor:pointer;
 }
 
+tr.clickaddtrack:hover
+{
+    background-image:url('../newimages/silver1.jpg');
+}

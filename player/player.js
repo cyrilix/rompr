@@ -23,8 +23,18 @@ function multiProtocolController() {
     	Title: null,
     }
 
+    this.urischemes = new Object();
+
     this.collectionLoaded = false;
 
     this.controller = new playerController();
+
+    this.canPlay = function(urischeme) {
+        if (self.urischemes.hasOwnProperty(urischeme)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 }

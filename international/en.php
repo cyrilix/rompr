@@ -512,19 +512,17 @@ $languages['en'] = array (
 
 	// New in 0.53
 	"spotify_error" => "No response from Spotify",
-	"musicbrainz_noinfo" => "Could not get information from Spotify",
+	"spotify_noinfo" => "Could not get information from Spotify",
 	"button_infospotify" => "Info Panel (Spotify)",
-	"spotify_not" => "This panel will only display information about music from Spotify",
 	"config_icontheme" => "ICONS",
-	"menu_radios" => "ROMPRADIO",
 	"label_mostplayed" => "Most Played Tracks",
 	"label_radio" => "Radio",
 	"label_pop" => "POPULARITY",
 	"label_albumsby" => "Albums By This Artist",
 	"label_related" => "Related Artists",
-	"label_artistradio" => "Start Artist Radio",
+	"label_artistradio" => "Artist Radio",
 	"label_mostplayed" => "Most Played Tracks",
-	"label_radio_fartist" => "Fave Artist Radio",
+	"label_radio_fartist" => "Favourite Artist Radio",
 	"label_pluginplaylists" => "Personalised Radio"
 
 
