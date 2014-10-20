@@ -21,7 +21,7 @@ $content = url_get_contents($base_url);
 $DOM = new DOMDocument;
 $DOM->loadHTML($content['contents']);
 $stuff = $DOM->getElementById('thetable');
-$links = $stuff->getElementsByTagName('a');
+$links = $stuff->getElementsByTagName('a');br
 foreach ($links as $l) {
     $p = $l->getAttribute('href');
     $n = DOMinnerHTML($l);
@@ -223,6 +223,7 @@ function DOMinnerHTML(DOMNode $element)
 }
 
 function getStationImage($name) {
+    global $ipath;
     $nospaces = preg_replace('/ /','_',$name);
     if (file_exists('prefs/userimages/'.$nospaces.'.png')) {
         return 'prefs/userimages/'.$nospaces.'.png';

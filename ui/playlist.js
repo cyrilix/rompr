@@ -223,9 +223,11 @@ function Playlist() {
     }
 
     this.endSmartMode = function() {
-        if (mode) mode.stop();
-        mode = null;
-        self.repopulate();
+        if (mode) {
+            mode.stop();
+            mode = null;
+            self.repopulate();
+        }
     }
 
     this.setHeight = function() {
@@ -254,12 +256,12 @@ function Playlist() {
             sourcecontrol('playlistm');
         }
         debug.log("PLAYLIST","Loading Playlist",name);
-        if (mode) mode.stop();
-        mode = null;
+        playlist.endSmartMode();
         player.controller.loadPlaylist(name);
     }
 
-    this.loadSmart = function(which, param, flag) {
+    this.loadSmart = function(which, param) {
+        debug.log("PLAYLIST","Loading Smart",which);
         playlist.waiting();
         if (mode && mode != which) {
             mode.stop();
@@ -272,8 +274,7 @@ function Playlist() {
     }
 
     this.clear = function() {
-        if (mode) mode.stop();
-        mode = null;
+        playlist.endSmartMode();
         player.controller.clearPlaylist();
     }
 

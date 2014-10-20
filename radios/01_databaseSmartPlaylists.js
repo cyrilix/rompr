@@ -18,24 +18,8 @@ var starRadios = function() {
             dataType: "json",
             data: { action: action, playlist: playlist },
             url: "userRatings.php",
-            success: function(data) {
-                if (data.length > 0) {
-                    debug.log("SMARTPLAYLIST","Got tracks",data);
-                    running = true;
-                    populating = false;
-                    player.controller.addTracks(data, null, null);
-                } else {
-                    populating = false;
-                    running = false;
-                    playlist.repopulate();
-                }
-            },
-            fail: function() {
-                populating = false;
-                running = false;
-                infobar.notify(infobar.ERROR,"Failed to create Playlist");
-                playlist.repopulate();
-            }
+            success: starRadios.Go,
+            fail: starRadios.Fail
         });
     }
 
@@ -44,7 +28,7 @@ var starRadios = function() {
 		populate: function(s) {
             if (s) selected = s;
             debug.log("STAR RADIOS", "Populating",selected);
-			getSmartPlaylistTracks(running ? "getplaylist" : "repopulate", selected);
+			getSmartPlaylistTracks(running ? "repopulate" : "getplaylist", selected);
 		},
 
         modeHtml: function() {
@@ -53,6 +37,26 @@ var starRadios = function() {
 
         stop: function() {
             running = false;
+        },
+
+        Go: function(data) {
+            if (data.length > 0) {
+                debug.log("SMARTPLAYLIST","Got tracks",data);
+                running = true;
+                populating = false;
+                player.controller.addTracks(data, playlist.playFromEnd(), null);
+            } else {
+                populating = false;
+                running = false;
+                playlist.repopulate();
+            }
+        },
+
+        Fail: function() {
+            populating = false;
+            running = false;
+            infobar.notify(infobar.ERROR,"Failed to create Playlist");
+            playlist.repopulate();
         },
 
         setup: function() {

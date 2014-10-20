@@ -16,6 +16,7 @@ function playerController() {
     var tlchangeTimer = null;
     var plstartpos = null;
     var pladdpos = null;
+    var att = null;
 
     function mopidyStateChange(data) {
         debug.log("PLAYER","Mopidy State Change",data);
@@ -128,7 +129,10 @@ function playerController() {
     }
 
 	function enableMopidyEvents() {
-		if (!isReady) { return 0 }
+		if (!isReady) {
+			debug.warn("MOPIDY","EnableEvents called when mopidy not ready");
+			return 0;
+		}
         mopidy.on("event:playlistsLoaded", reloadPlaylists);
         mopidy.on("event:playbackStateChanged", mopidyStateChange);
         mopidy.on("event:trackPlaybackStarted", trackPlaybackStarted);
@@ -264,7 +268,7 @@ function playerController() {
 
 	}
 
-	function startAddingTracks() {
+	this.startAddingTracks = function() {
 		var t = albumtracks.shift() || tracksToAdd.shift();
 		if (t) {
     		switch (t.type) {
@@ -277,13 +281,15 @@ function playerController() {
     					debug.log("PLAYER","addTracks has a findexact filter to apply",t.findexact,t.filterdomain);
     					mopidy.library.findExact(t.findexact, t.filterdomain).then(function(data) {
     						if (data[0].tracks)	tltracksToAdd = tltracksToAdd.concat(sortByAlbum(data[0].tracks));
-    						startAddingTracks();
+    						clearTimeout(att);
+    						att = setTimeout(self.startAddingTracks, 50);
     					}, consoleError);
     				} else {
 			    		debug.log("PLAYER","addTracks Adding",t.name);
 			    		mopidy.library.lookup(t.name).then(function(tracks) {
 			    			tltracksToAdd = tltracksToAdd.concat(tracks);
-			    			startAddingTracks();
+    						clearTimeout(att);
+    						att = setTimeout(self.startAddingTracks, 50);
 			    		}, consoleError);
 		    		}
 	    			break;
@@ -296,7 +302,8 @@ function playerController() {
 		    		debug.log("PLAYER","addTracks Adding",t.name);
 	    			$.getJSON("getItems.php?item="+t.name, function(data) {
 	    				albumtracks = albumtracks.concat(data);
-	    				startAddingTracks();
+						clearTimeout(att);
+						att = setTimeout(self.startAddingTracks, 50);
 	    			});
 	    			break;
 
@@ -308,7 +315,7 @@ function playerController() {
 		    			// the playlist. For other situations this'll need a rethink.
 		    			pladdpos--;
 		    		}
-	    			mopidy.tracklist.remove({'tlid': [parseInt(t.name)]}).then( startAddingTracks );
+	    			mopidy.tracklist.remove({'tlid': [parseInt(t.name)]}).then( self.startAddingTracks );
 	    			break;
 
     		}
@@ -438,7 +445,7 @@ function playerController() {
         debug.log("PLAYER","Calling Connect");
         mopidy.connect();
         debug.log("PLAYER","Connect Called");
-	    self.mop = mopidy;
+	    // self.mop = mopidy;
 	}
 
 	this.reConnect = function() {
@@ -810,7 +817,8 @@ function playerController() {
 		if (plstartpos == null || plstartpos == -1) plstartpos = playpos;
 		if (pladdpos == null || pladdpos == -1) pladdpos = at_pos;
 		if (tracks.length == tracksToAdd.length) {
-			startAddingTracks();
+			clearTimeout(att);
+			att = setTimeout(self.startAddingTracks, 50);
 		}
 		tracks = null;
 	}
