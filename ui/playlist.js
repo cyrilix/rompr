@@ -10,7 +10,6 @@ function Playlist() {
     var do_delayed_update = false;
     var scrollto = -1;
     var updateErrorFlag = 0;
-    var mode = null;
 
     this.emptytrack = {
         album: "",
@@ -172,12 +171,12 @@ function Playlist() {
         if (finaltrack > -1) {
             $("#pltracks").html((finaltrack+1).toString() +' '+language.gettext("label_tracks"));
             $("#pltime").html(language.gettext("label_duration")+' : '+formatTimeString(totaltime));
-            $("#plmode").html(modehtml());
         } else {
             $("#pltracks").html("");
             $("#pltime").html("");
-            $("#plmode").html("");
         }
+
+        playlist.radioManager.setHeader();
 
         for (var i in tracklist) {
             $("#sortable").append(tracklist[i].getHTML());
@@ -212,24 +211,6 @@ function Playlist() {
         $("#sortable").append('<div id="waiter" class="containerbox"></div>');
     }
 
-    function modehtml() {
-        if (mode) {
-            var html = mode.modeHtml();;
-            html = html + '<img class="clickicon" height="14px" style="margin-left:8px;vertical-align:middle" src="'+ipath+'edit-delete.png" onclick="playlist.endSmartMode()" />';
-            return html;
-        } else {
-            return '';
-        }
-    }
-
-    this.endSmartMode = function() {
-        if (mode) {
-            mode.stop();
-            mode = null;
-            self.repopulate();
-        }
-    }
-
     this.setHeight = function() {
         var newheight = $("#bottompage").height() - $("#horse").height();
         if ($("#playlistbuttons").is(":visible")) {
@@ -256,25 +237,12 @@ function Playlist() {
             sourcecontrol('playlistm');
         }
         debug.log("PLAYLIST","Loading Playlist",name);
-        playlist.endSmartMode();
+        playlist.radioManager.stop();
         player.controller.loadPlaylist(name);
     }
 
-    this.loadSmart = function(which, param) {
-        debug.log("PLAYLIST","Loading Smart",which);
-        playlist.waiting();
-        if (mode && mode != which) {
-            mode.stop();
-        }
-        mode = which;
-        which.populate(param);
-        if (mobile == "phone") {
-            sourcecontrol('playlistm');
-        }
-    }
-
     this.clear = function() {
-        playlist.endSmartMode();
+        playlist.radioManager.stop();
         player.controller.clearPlaylist();
     }
 
@@ -430,8 +398,8 @@ function Playlist() {
             if (self.currentTrack) {
                 currentalbum = i;
                 scrollToCurrentTrack();
-                if (mode && self.currentTrack.playlistpos == finaltrack) {
-                    mode.populate();
+                if (self.currentTrack.playlistpos == finaltrack) {
+                    playlist.radioManager.repopulate();
                 }
                 break;
             }
@@ -564,6 +532,71 @@ function Playlist() {
     this.getCurrent = function(thing) {
         return self.currentTrack[thing];
     }
+
+    this.radioManager = function() {
+
+        var mode = null;
+        var radios = new Object();
+
+        return {
+
+            register: function(name, fn) {
+                radios[name] = fn;
+            },
+
+            init: function() {
+                if (prefs.apache_backend == "sql") {
+                    for(var i in radios) {
+                        radios[i].setup();
+                        if (prefs.radiomode == i) {
+                            debug.mark("RADIOMANAGER","Found saved radio playlist state",prefs.radiomode, prefs.radioparam);
+                            radios[i].populate(prefs.radioparam);
+                            mode = prefs.radiomode;
+                        }
+                    }
+                }
+            },
+
+            load: function(which, param) {
+                debug.log("PLAYLIST","Loading Smart",which);
+                playlist.waiting();
+                if (mode && mode != which) {
+                    radios[mode].stop();
+                }
+                mode = which;
+                radios[which].populate(param);
+                prefs.save({radiomode: which, radioparam: param});
+                if (mobile == "phone") {
+                    sourcecontrol('playlistm');
+                }
+            },
+
+            repopulate: function() {
+                if (mode) {
+                    radios[mode].populate();
+                }
+            },
+
+            stop: function() {
+                if (mode) {
+                    radios[mode].stop();
+                    playlist.repopulate();
+                }
+                mode = null;
+                prefs.save({radiomode: '', radioparam: ''});
+            },
+
+            setHeader: function() {
+                var html = '';
+                if (mode) {
+                    html = radios[mode].modeHtml() +
+                        '<img class="clickicon" height="14px" style="margin-left:8px;vertical-align:middle" src="'+ipath+
+                        'edit-delete.png" onclick="playlist.radioManager.stop()" />';
+                }
+                $("#plmode").html(html);
+            }
+        }
+    }();
 
     function Album(artist, album, index, rolledup) {
 

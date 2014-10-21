@@ -19,7 +19,7 @@ var mostPlayed = function() {
                     debug.log("SMARTPLAYLIST","Got tracks",data);
                     running = true;
                     populating = false;
-                    player.controller.addTracks(data, null, null);
+                    player.controller.addTracks(data, playlist.playFromEnd(), null);
                 } else {
                     populating = false;
                     running = false;
@@ -57,7 +57,7 @@ var mostPlayed = function() {
 
             html = html + '<div class="fixed">';
             html = html + '<img src="'+ipath+'document-open-folder.png" height="12px" style="vertical-align:middle"></div>';
-            html = html + '<div class="expand"><a href="#" onclick="playlist.loadSmart(mostPlayed, null)">&nbsp;&nbsp;&nbsp;'+language.gettext('label_mostplayed')+'</a></div>';
+            html = html + '<div class="expand"><a href="#" onclick="playlist.radioManager.load(\'mostPlayed\', null)">&nbsp;&nbsp;&nbsp;'+language.gettext('label_mostplayed')+'</a></div>';
 
             html = html + '</div></div>';
             $("#pluginplaylists").append(html);
@@ -68,4 +68,4 @@ var mostPlayed = function() {
 
 }();
 
-mostPlayed.setup();
+playlist.radioManager.register("mostPlayed", mostPlayed);

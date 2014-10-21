@@ -412,6 +412,7 @@ function playerController() {
 				player.collectionLoaded = true;
 				checkCollection();
 			}
+			playlist.radioManager.init();
         });
         self.cancelSingle();
 	}

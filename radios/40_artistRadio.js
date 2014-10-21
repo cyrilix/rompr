@@ -219,7 +219,7 @@ var artistRadio = function() {
             html = html + '<div class="fixed playlisticon"><img src="'+ipath+'document-open-folder.png" height="12px" style="vertical-align:middle"></div>';
             html = html + '<div class="fixed padright"><span style="vertical-align:middle">'+language.gettext('label_artist')+'</span></div>';
             html = html + '<div class="expand dropdown-holder"><input class="searchterm enter sourceform" id="bubbles" type="text" style="width:100%;font-size:100%;vertical-align:middle"/></div>';
-            html = html + '<button class="fixed" style="margin-left:8px;vertical-align:middle" onclick="playlist.loadSmart(artistRadio, $(\'#bubbles\').val())">'+language.gettext('button_playradio')+'</button>';
+            html = html + '<button class="fixed" style="margin-left:8px;vertical-align:middle" onclick="playlist.radioManager.load(\'artistRadio\', $(\'#bubbles\').val())">'+language.gettext('button_playradio')+'</button>';
             html = html + '</div>';
             html = html + '</div>';
             $("#pluginplaylists").append(html);
@@ -230,4 +230,4 @@ var artistRadio = function() {
 
 }();
 
-artistRadio.setup();
+playlist.radioManager.register("artistRadio", artistRadio);

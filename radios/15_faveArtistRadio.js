@@ -129,14 +129,17 @@ var faveArtistRadio = function() {
 
         setup: function() {
 
-            var html = '<div class="padright menuitem"><div class="containerbox">';
+        	if (player.canPlay('spotify')) {
 
-            html = html + '<div class="fixed">';
-            html = html + '<img src="'+ipath+'document-open-folder.png" height="12px" style="vertical-align:middle"></div>';
-            html = html + '<div class="expand"><a href="#" onclick="playlist.loadSmart(faveArtistRadio, null)">&nbsp;&nbsp;&nbsp;'+language.gettext('label_radio_fartist')+'</a></div>';
+	            var html = '<div class="padright menuitem"><div class="containerbox">';
 
-            html = html + '</div></div>';
-            $("#pluginplaylists").append(html);
+	            html = html + '<div class="fixed">';
+	            html = html + '<img src="'+ipath+'document-open-folder.png" height="12px" style="vertical-align:middle"></div>';
+	            html = html + '<div class="expand"><a href="#" onclick="playlist.radioManager.load(\'faveArtistRadio\', null)">&nbsp;&nbsp;&nbsp;'+language.gettext('label_radio_fartist')+'</a></div>';
+
+	            html = html + '</div></div>';
+	            $("#pluginplaylists").append(html);
+	        }
 
         }
 
@@ -144,4 +147,4 @@ var faveArtistRadio = function() {
 
 }();
 
-faveArtistRadio.setup();
+playlist.radioManager.register("faveArtistRadio", faveArtistRadio);

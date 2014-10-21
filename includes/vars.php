@@ -82,7 +82,9 @@ $prefs = array( "mpd_host" => "localhost",
                 "proxy_password" => "",
                 "ignore_unplayable" => "true",
                 "remote" => "false",
-                "icontheme" => "Colourful"
+                "icontheme" => "Colourful",
+                "radiomode" => "",
+                "radioparam" => ""
                 );
 
 loadPrefs();

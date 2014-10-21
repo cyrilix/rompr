@@ -10,9 +10,6 @@ var starRadios = function() {
             return false;
         }
         populating = true;
-        if (playlist == 'tag') {
-            playlist += "+" + $("#cynthia").val();
-        }
         $.ajax({
             type: "POST",
             dataType: "json",
@@ -26,7 +23,22 @@ var starRadios = function() {
 	return {
 
 		populate: function(s) {
-            if (s) selected = s;
+            if (s) {
+                switch(s) {
+                    case '1stars':
+                    case '2stars':
+                    case '3stars':
+                    case '4stars':
+                    case '5stars':
+                        selected = s;
+                        break;
+
+                    default:
+                        selected = 'tag+'+s;
+                        break;
+                }
+
+            }
             debug.log("STAR RADIOS", "Populating",selected);
 			getSmartPlaylistTracks(running ? "repopulate" : "getplaylist", selected);
 		},
@@ -69,7 +81,7 @@ var starRadios = function() {
                 $.each(['1stars','2stars','3stars','4stars','5stars'], function(i, v) {
                     html = html + '<tr><td class="playlisticon" align="left">';
                     html = html + '<img src="newimages/singlestar.png" height="12px" style="vertical-align:middle"></td>';
-                    html = html + '<td align="left"><a href="#" onclick="playlist.loadSmart(starRadios, \''+v+'\')"><img src="newimages/'+v+'.png" height="12px" style="vertical-align:middle;margin-right:4px">'+language.gettext('playlist_xstar', [i+1])+'</a></td>';
+                    html = html + '<td align="left"><a href="#" onclick="playlist.radioManager.load(\'starRadios\', \''+v+'\')"><img src="newimages/'+v+'.png" height="12px" style="vertical-align:middle;margin-right:4px">'+language.gettext('playlist_xstar', [i+1])+'</a></td>';
                     html = html + '<td></td></tr>';
 
                 });
@@ -86,7 +98,7 @@ var starRadios = function() {
                                 '<div class="fixed dropdown-button" id="poohbear">'+
                                 '<img src="'+ipath+'dropdown.png">'+
                                 '</div>'+
-                                '<button class="fixed" style="margin-left:8px" onclick="playlist.loadSmart(starRadios, \'tag\')"><b>'+language.gettext('button_playradio')+'</b></button>'+
+                                '<button class="fixed" style="margin-left:8px" onclick="playlist.radioManager.load(\'starRadios\', $(\'#cynthia\').val())"><b>'+language.gettext('button_playradio')+'</b></button>'+
                                 '</div></div>';
                 $("#pluginplaylists").append(html);
             }
@@ -97,4 +109,4 @@ var starRadios = function() {
 
 }();
 
-starRadios.setup();
+playlist.radioManager.register("starRadios", starRadios);

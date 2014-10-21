@@ -79,6 +79,7 @@ function playerController() {
             checkCollection();
         }
 		self.reloadPlaylists();
+        playlist.radioManager.init();
     }
 
 	this.command = function(cmd, callback) {
