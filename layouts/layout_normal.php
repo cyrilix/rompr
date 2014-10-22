@@ -183,12 +183,12 @@ print '</li></ul></li>';
 <div id="sources" class="tleft column noborder">
 
     <div id="albumlist" class="invisible noborder">
-    <div id="search" class="invisible noborder">
+    <div id="search" class="invisible noborder selecotron">
 <?php
 include("player/".$prefs['player_backend']."/search.php");
 ?>
     </div>
-    <div id="collection" class="noborder"></div>
+    <div id="collection" class="noborder selecotron"></div>
     </div>
 
     <div id="filelist" class="invisible">
@@ -197,11 +197,11 @@ if ($prefs['player_backend'] == "mpd") {
     print '<div style="padding-left:12px;padding-top:4px">
 <img title="'.get_int_text('button_searchfiles').'" href="#" onclick="toggleFileSearch()" class="topimg clickicon lettuce" height="20px" src="'.$ipath.'system-search.png">
     </div>
-    <div id="filesearch" class="invisible searchbox">
+    <div id="filesearch" class="invisible searchbox selecotron">
     </div>';
 }
 ?>
-    <div id="filecollection" class="noborder"></div>
+    <div id="filecollection" class="noborder selecotron"></div>
     </div>
 
     <div id="radiolist" class="invisible">
@@ -275,9 +275,9 @@ print '<div class="expand">'.get_int_text('label_icecast').'</div>';
 
 <div id="infopane" class="tleft cmiddle noborder infowiki">
 <?php
-print '<div id="artistinformation" class="infotext"><h2 align="center">'.get_int_text('label_emptyinfo').'</h2></div>';
+print '<div id="artistinformation" class="infotext noselection"><h2 align="center">'.get_int_text('label_emptyinfo').'</h2></div>';
 ?>
-<div id="albuminformation" class="infotext"></div>
+<div id="albuminformation" class="infotext noselection"></div>
 <div id="trackinformation" class="infotext"></div>
 </div>
 

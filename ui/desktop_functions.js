@@ -340,6 +340,8 @@ function initUI() {
     setDraggable('filecollection');
     setDraggable('search');
     setDraggable('filesearch');
+    setDraggable('artistinformation');
+    setDraggable('albuminformation');
 
     // Make the entire playlist area accept drops from the collection
     $("#pscroller").droppable({

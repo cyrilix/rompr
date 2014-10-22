@@ -549,9 +549,13 @@ function Playlist() {
                     for(var i in radios) {
                         radios[i].setup();
                         if (prefs.radiomode == i) {
-                            debug.mark("RADIOMANAGER","Found saved radio playlist state",prefs.radiomode, prefs.radioparam);
-                            radios[i].populate(prefs.radioparam);
-                            mode = prefs.radiomode;
+                            if (playlist.getfinaltrack() > -1) {
+                                debug.mark("RADIOMANAGER","Found saved radio playlist state",prefs.radiomode, prefs.radioparam);
+                                radios[i].populate(prefs.radioparam);
+                                mode = prefs.radiomode;
+                            } else {
+                                prefs.save({radiomode: ''});
+                            }
                         }
                     }
                 }

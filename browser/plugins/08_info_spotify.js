@@ -26,22 +26,38 @@ var info_spotify = function() {
     	if (data.error) {
     		return '<h3 align="center">'+data.error+'</h3>';
     	}
-    	var h = '<div class="holdingcell">';
-    	h = h + '<div class="standout stleft statsbox"><b>'+language.gettext("label_pop")+': </b>'+data.popularity+
-    			'<br/><b>RELEASE DATE: </b>'+data.release_date+
-    			'</div>';
+        if (mobile == "no") {
+        	var html = '<div class="containerbox">';
+        	html = html + '<div class="fixed bright">';
+        } else {
+        	var html = '<div class="containerbox vertical">';
+        	html = html + '<div class="stumpy notbright">';
+        }
+        html = html + '<ul><li>'+language.gettext("label_pop")+': '+data.popularity+'</li></ul>'+
+        				'<ul><li>'+language.gettext("lastfm_releasedate")+': '+data.release_date+'</li></ul>'+
+        				'</div>';
+
+        if (mobile == "no") {
+	        html = html + '<div class="expand stumpy selecotron">';
+	    } else {
+	        html = html + '<div class="stumpy selecotron">';
+	    }
+	    html = html + trackListing(data)+'</div>';
+        if (mobile == "no") {
+	        html = html + '<div class="cleft fixed">';
+	    } else {
+	        html = html + '<div class="stumpy">';
+	    }
     	if (data.images && data.images[0]) {
-    		h = h + '<img class="stright standout shrinker infoclick clickzoomimage" src="getRemoteImage.php?url='+data.images[0].url+'" ';
+    		html = html + '<img class="shrinker infoclick clickzoomimage" src="getRemoteImage.php?url='+data.images[0].url+'" ';
     		var w = $("#artistinformation").width();
     		var imgwidth = data.images[0].width;
     		if (imgwidth > (w/4)) imgwidth = w/4;
-    		h = h + 'width="'+imgwidth+'" name="'+data.images[0].width+'" thing="4"/>';
+    		html = html + 'width="'+imgwidth+'" name="'+data.images[0].width+'" thing="4"/>';
     	}
-
-    	h = h + trackListing(data);
-    	h = h + '</div>';
-    	return h;
-
+    	html = html + '</div>';
+    	html = html + '</div>';
+    	return html;
     }
 
     function getArtistHTML(data, parent) {
@@ -54,11 +70,11 @@ var info_spotify = function() {
     	var h = '<div class="holdingcell">';
     	h = h + '<div class="standout stleft statsbox"><b>'+language.gettext("label_pop")+': </b>'+data.popularity;
     	if (player.canPlay('spotify')) {
-	        h = h + '<div class="containerbox menuitem infoclick clickstartradio"><div class="fixed"><img src="'+ipath+'broadcast-32.png" /></div>' +
-	                '<div class="fixed">&nbsp;&nbsp;'+language.gettext("label_artistradio")+'&nbsp;&nbsp;</div>' +
+	        h = h + '<div class="containerbox menuitem infoclick clickstartradio"><div class="fixed">'+language.gettext("label_artistradio")+
+	        		'&nbsp;&nbsp;</div><div class="fixed"><img src="'+ipath+'broadcast-24.png" /></div>' +
 	                '</div>';
-	    	h = h + '</div>';
 	    }
+    	h = h + '</div>';
     	if (data.images && data.images[0]) {
     		h = h + '<img class="stright standout shrinker infoclick clickzoomimage" src="getRemoteImage.php?url='+data.images[0].url+'" ';
     		var w = $("#infopane").width();
@@ -87,17 +103,22 @@ var info_spotify = function() {
     }
 
     function trackListing(data) {
-    	var h = '<table width="100%">';
+     	var h = '';
         for(var i in data.tracks.items) {
-            h = h + '<tr class="infoclick clickaddtrack" name="'+data.tracks.items[i].uri+'">';
-            h = h + '<td>'+data.tracks.items[i].track_number+'</td>';
-            h = h + '<td>'+data.tracks.items[i].name+'</td>';
-            h = h + '<td>'+formatTimeString(data.tracks.items[i].duration_ms/1000)+'</td>';
-            h = h + '</tr>';
-        }
-        h = h + '</table>';
-        return h;
-      }
+        	if (player.canPlay('spotify')) {
+	     		h = h + '<div class="infoclick draggable clickable clicktrack fullwidth" name="'+data.tracks.items[i].uri+'">';
+	     	} else {
+	     		h = h + '<div class="fullwidth clickaddtrack">';
+	     	}
+	     	h = h + '<div class="containerbox line">'+
+	     			'<div class="tracknumber fixed">'+data.tracks.items[i].track_number+'</div>'+
+	     			'<div class="expand">'+data.tracks.items[i].name+'</div>'+
+	     			'<div class="fixed playlistrow2">'+formatTimeString(data.tracks.items[i].duration_ms/1000)+'</div>'+
+	     			'</div>'+
+	     			'</div>';
+	    }
+     	return h;
+    }
 
 	return {
 
@@ -133,11 +154,6 @@ var info_spotify = function() {
                 debug.log(medebug,parent.index,source,"is handling a click event");
                 if (element.hasClass('clickzoomimage')) {
                 	imagePopup.create(element, event, element.attr("src"));
-                } else if (element.hasClass('clickaddtrack')) {
-                	playlist.waiting();
-                	player.controller.addTracks([{type: 'uri', name: element.attr("name")}],
-                								playlist.playFromEnd(),
-                                    			null);
                 } else if (element.hasClass('clickopenalbum')) {
                 	var id = element.parent().next().attr("id");
                 	if (element.attr("src") == ipath+"toggle-open-new.png") {
@@ -177,7 +193,7 @@ var info_spotify = function() {
                 	$("#artistalbums").masonry('destroy');
                 	self.getArtists();
                 } else if (element.hasClass('clickstartradio')) {
-                    playlist.radioManager.load(artistRadio, 'spotify:artist:'+parent.playlistinfo.metadata.artist.spotify.ids[0]);
+                    playlist.radioManager.load("artistRadio", 'spotify:artist:'+parent.playlistinfo.metadata.artist.spotify.ids[0]);
                 }
             }
 
@@ -218,7 +234,7 @@ var info_spotify = function() {
 	            	$("#artistalbums").empty().hide();
             		var w = browser.calcMWidth();;
 	            	for (var i in data.items) {
-	            		var x = $('<div>', {class: 'tagholder2'}).appendTo($("#artistalbums"));
+	            		var x = $('<div>', {class: 'tagholder2 selecotron'}).appendTo($("#artistalbums"));
 	            		if (mobile != "phone") {
 		            		var img = '';
 		            		if (data.items[i].images[0]) {
@@ -302,7 +318,7 @@ var info_spotify = function() {
 		            		x.append('<img class="masochist infoclick clickaddtrack" src="'+img+'" width="'+w+'" name="'+data.artists[i].uri+'"/>');
 		            	}
 	            		x.append('<div class="tagh albumthing"><img class="menu infoclick clickopenartist" src="'+ipath+'toggle-closed-new.png"/>&nbsp;<span class="infoclick clickaddtrack" name="'+data.artists[i].uri+'"><b>'+data.artists[i].name+'</b></span></div>')
-	            		x.append('<div class="tagh albumthing invisible edged" id="'+data.artists[i].id+'"></div>')
+	            		x.append('<div class="tagh albumthing invisible edged selecotron" id="'+data.artists[i].id+'"></div>')
 	            	}
 	            	if (mobile != "phone") {
 	            		$("#artistalbums").imagesLoaded( function() {

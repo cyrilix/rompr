@@ -264,6 +264,12 @@ var browser = function() {
                 removeSection(source);
             } else if (element.hasClass('plugclickable')) {
                 extraPlugins[source].parent.handleClick(element, event);
+            } else if (element.hasClass('draggable')) {
+                if (prefs.clickmode == "double") {
+                    trackSelect(event, element);
+                } else {
+                    playlist.addtrack(element);
+                }
             } else {
                 nowplaying.clickPassThrough(
                     history[displaypointer].nowplayingindex,

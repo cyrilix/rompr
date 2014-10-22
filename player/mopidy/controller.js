@@ -282,14 +282,14 @@ function playerController() {
     					mopidy.library.findExact(t.findexact, t.filterdomain).then(function(data) {
     						if (data[0].tracks)	tltracksToAdd = tltracksToAdd.concat(sortByAlbum(data[0].tracks));
     						clearTimeout(att);
-    						att = setTimeout(self.startAddingTracks, 50);
+    						att = setTimeout(self.startAddingTracks, 20);
     					}, consoleError);
     				} else {
 			    		debug.log("PLAYER","addTracks Adding",t.name);
 			    		mopidy.library.lookup(t.name).then(function(tracks) {
 			    			tltracksToAdd = tltracksToAdd.concat(tracks);
     						clearTimeout(att);
-    						att = setTimeout(self.startAddingTracks, 50);
+    						att = setTimeout(self.startAddingTracks, 20);
 			    		}, consoleError);
 		    		}
 	    			break;
@@ -303,7 +303,7 @@ function playerController() {
 	    			$.getJSON("getItems.php?item="+t.name, function(data) {
 	    				albumtracks = albumtracks.concat(data);
 						clearTimeout(att);
-						att = setTimeout(self.startAddingTracks, 50);
+						att = setTimeout(self.startAddingTracks, 20);
 	    			});
 	    			break;
 

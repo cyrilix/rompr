@@ -209,7 +209,7 @@ function joinEmTogether(flag) {
     });
 
     $(".getridofit").remove();
-    // Annoylingly, javascript permits you to bind the same event multiple times,
+    // Annoyingly, javascript permits you to bind the same event multiple times,
     // so we have to unbind it before we rebind it. Duh.
     $('.droppable').unbind('dragenter');
     $('.droppable').unbind('dragover');

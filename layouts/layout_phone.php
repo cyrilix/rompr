@@ -59,12 +59,12 @@
     <div id="sources" class="fullwdith noborder scroller">
 
         <div id="albumlist" class="invisible noborder">
-            <div id="search" class="invisible searchbox">
+            <div id="search" class="invisible searchbox selecotron">
 <?php
 include("player/".$prefs['player_backend']."/search.php");
 ?>
             </div>
-            <div id="collection" class="noborder"></div>
+            <div id="collection" class="noborder selecotron"></div>
         </div>
 
         <div id="filelist" class="invisible noborder">
@@ -73,10 +73,10 @@ if ($prefs['player_backend'] == "mpd") {
             print '<div style="padding-left:12px;padding-top:4px">
                 <a title="Search Files" href="#" onclick="toggleFileSearch()"><img class="topimg" height="20px" src="'.$ipath.'system-search.png"></a>
             </div>
-            <div id="filesearch" class="invisible searchbox"></div>';
+            <div id="filesearch" class="invisible searchbox selecotron"></div>';
 }
 ?>
-            <div id="filecollection" class="noborder"></div>
+            <div id="filecollection" class="noborder selecotron"></div>
         </div>
 
         <div id="infopane" class="invisible infowiki">

@@ -30,6 +30,9 @@ function setClickHandlers() {
     $('.infotext').unbind('click');
     $('.infotext').click(onBrowserClicked);
 
+    $('.infotext').unbind('dblclick');
+    $('.infotext').dblclick(onBrowserDoubleClicked);
+
     $(".dropdown-button").unbind('click');
     $(".dropdown-button").click(onDropdownClicked);
 }
@@ -66,9 +69,7 @@ function onDropdownClicked(event) {
 }
 
 function onBrowserClicked(event) {
-
     var clickedElement = findClickableBrowserElement(event);
-
     if (clickedElement.hasClass("infoclick")) {
         var parentElement = $(event.currentTarget.id).selector;
         var source = parentElement.replace('information', '');
@@ -79,7 +80,17 @@ function onBrowserClicked(event) {
     } else {
         return true;
     }
+};
 
+function onBrowserDoubleClicked(event) {
+    var clickedElement = findClickableBrowserElement(event);
+    if (clickedElement.hasClass("draggable") && prefs.clickmode == "double") {
+        event.preventDefault();
+        playlist.addtrack(clickedElement);
+        return false;
+    } else {
+        return true;
+    }
 };
 
 function findClickableBrowserElement(event) {
@@ -440,16 +451,16 @@ function selectRange(first, last) {
     debug.log("GENERAL","Selecting a range between:",first.attr("name")," and ",last.attr("name"));
 
     // Which list are we selecting from?
-    var list = first.attr('id');
+    // var list = first.attr('id');
     var it = first;
-    while(list != "collection" && list != "search" && list != "filecollection" && list != "filesearch") {
+    while(!it.hasClass('selecotron')) {
         it = it.parent();
-        list = it.attr("id");
+        // list = it.attr("id");
     }
 
     var target = null;
     var done = false;
-    $.each($('#'+list+' .clickable'), function() {
+    $.each(it.find('.clickable'), function() {
         if ($(this).attr("name") == first.attr("name") && target === null) {
             target = last;
         }
