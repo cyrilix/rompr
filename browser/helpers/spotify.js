@@ -112,7 +112,7 @@ var spotify = function() {
 
 			getAlbums: function(id, types, success, fail) {
 				//TODO - the market is required = we must somehow work it out!
-				var url = baseURL + '/v1/artists/'+id+'/albums?album_type='+types+'&market=GB&limit=50';
+				var url = baseURL + '/v1/artists/'+id+'/albums?album_type='+types+'&market='+prefs.lastfm_country_code+'&limit=50';
 				spotify.request(id, url, success, fail);
 			},
 

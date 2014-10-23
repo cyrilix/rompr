@@ -181,4 +181,4 @@ var ratingManager = function() {
 
 }();
 
-$("#specialplugins").append('<button onclick="ratingManager.open()">'+language.gettext("label_ratingmanager")+'</button>');
+$("#specialplugins").append('<div class="fullwidth"><button onclick="ratingManager.open()">'+language.gettext("label_ratingmanager")+'</button></div>');

@@ -476,7 +476,7 @@ function find_executable($prog) {
             $c = "PATH=/usr/local/bin:\$PATH PYTHONPATH=/usr/local/lib/python2.7/site-packages /usr/local/bin/";
         }
     }
-    debug_print("  Executable path is ".$c);
+    // debug_print("  Executable path is ".$c);
     return $c;
 
 }

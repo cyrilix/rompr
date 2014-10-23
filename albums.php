@@ -3,12 +3,14 @@
 
 include ("includes/vars.php");
 include ("includes/functions.php");
+include ("utils/imagefunctions.php");
 include ("international.php");
 
 set_time_limit(600);
 
 $player_backend = $prefs['player_backend'];
 $apache_backend = "xml";
+$error = 0;
 if (array_key_exists('rebuild', $_REQUEST) ||
     (array_key_exists('item', $_REQUEST) && substr($_REQUEST['item'],0,1) == "a")) {
     // At the moment, the sql backend only does the main collection. Search is still XML

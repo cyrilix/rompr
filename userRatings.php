@@ -282,11 +282,11 @@ function send_list_updates($artist_created, $album_created, $ttid) {
 		debug_print("Artist was created","USER RATING");
 		// We had to create a new albumartist, so we send back the artist HTML header
 		// We need to know the artist details and where in the list it is supposed to go.
-		archive_image();
+		// archive_image();
 		$returninfo = do_artists_from_database($artist_created);
 	} else if ($album_created !== false) {
 		debug_print("Album was created","USER RATING");
-		archive_image();
+		// archive_image();
 		// Find the artist
 		$artistid = find_artist_from_album($album_created);
 		if ($artistid === null) {
@@ -311,33 +311,33 @@ function send_list_updates($artist_created, $album_created, $ttid) {
 	print json_encode($returninfo);
 }
 
-function archive_image() {
-	global $image;
-	global $convert_path;
-	global $error;
-	global $download_file;
-	global $albumartist;
-	global $album;
-	$key = md5($albumartist." ".$album);
-	if (!preg_match('/^albumart/', $image)) {
-		debug_print("Archiving Image For Album","USER RATING");
-		if (preg_match('#prefs/imagecache/#', $image)) {
-            $image = preg_replace('#_small\.jpg|_original\.jpg#', '', $image);
-			system( 'cp '.$image.'_small.jpg albumart/small/'.$key.'.jpg');
-			system( 'cp '.$image.'_original.jpg albumart/original/'.$key.'.jpg');
-			system( 'cp '.$image.'_asdownloaded.jpg albumart/asdownloaded/'.$key.'.jpg');
-			update_image_db($key, 0, 'albumart/small/'.$key.'.jpg');
-		} else {
-			$convert_path = find_executable("convert");
-			$image = preg_replace('#getRemoteImage.php\?url=#', '', $image);
-			$download_file = download_file($image, $key, $convert_path);
-			if ($error == 0) {
-				list ($small_file, $main_file, $big_file) = saveImage($key, true, '');
-				update_image_db($key, $error, $small_file);
-			}
-		}
-	}
+// function archive_image() {
+// 	global $image;
+// 	global $convert_path;
+// 	global $error;
+// 	global $download_file;
+// 	global $albumartist;
+// 	global $album;
+// 	$key = md5($albumartist." ".$album);
+// 	if (!preg_match('/^albumart/', $image)) {
+// 		debug_print("Archiving Image For Album","USER RATING");
+// 		if (preg_match('#prefs/imagecache/#', $image)) {
+//             $image = preg_replace('#_small\.jpg|_original\.jpg#', '', $image);
+// 			system( 'cp '.$image.'_small.jpg albumart/small/'.$key.'.jpg');
+// 			system( 'cp '.$image.'_original.jpg albumart/original/'.$key.'.jpg');
+// 			system( 'cp '.$image.'_asdownloaded.jpg albumart/asdownloaded/'.$key.'.jpg');
+// 			update_image_db($key, 0, 'albumart/small/'.$key.'.jpg');
+// 		} else {
+// 			$convert_path = find_executable("convert");
+// 			$image = preg_replace('#getRemoteImage.php\?url=#', '', $image);
+// 			$download_file = download_file($image, $key, $convert_path);
+// 			if ($error == 0) {
+// 				list ($small_file, $main_file, $big_file) = saveImage($key, true, '');
+// 				update_image_db($key, $error, $small_file);
+// 			}
+// 		}
+// 	}
 
-}
+// }
 
 ?>

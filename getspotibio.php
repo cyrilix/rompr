@@ -22,17 +22,14 @@ function get_spotify_page($url) {
             $html = preg_replace('/<br \/>/', '', $html);
             $matches = array();
             preg_match('/<div class=\"bio-wrapper col-sm-12\">(.*?)<\/div>/', $html, $matches);
+            $r = "";
             if (array_key_exists(1, $matches)) {
                 $r = preg_replace('/<button id=\"btn-reveal\".*?<\/button>/', '', $matches[1]);
-                /*
                 $r = preg_replace('/<a .*?>/', '', $r);
                 $r = preg_replace('/<\/a>/', '', $r);
-                */
-                file_put_contents('prefs/jsoncache/spotify/'.md5($url), '<p>'.$r.'</p>');
-                print "<p>".$r."</p>";
-            } else {
-                header('HTTP/1.1 400 Bad Request');
             }
+            file_put_contents('prefs/jsoncache/spotify/'.md5($url), '<p>'.$r.'</p>');
+            print "<p>".$r."</p>";
         } else {
             header('HTTP/1.1 400 Bad Request');
         }

@@ -284,7 +284,32 @@ function check_album($album, $albumai, $spotilink, $image, $date, $isonefile, $s
 function create_new_album($album, $albumai, $spotilink, $image, $date, $isonefile, $searched, $imagekey, $mbid, $numdiscs, $domain, $directory) {
 	global $mysqlc;
 	global $album_created;
+	global $error;
 	$retval = null;
+
+	// See if the image needs to be archived
+	if (!preg_match('/^albumart/', $image)) {
+		debug_print("Archiving Image For Album","USER RATING");
+		if (preg_match('#prefs/imagecache/#', $image)) {
+			debug_print("... moving it from image cache","USER RATING");
+            $image = preg_replace('#_small\.jpg|_original\.jpg#', '', $image);
+			system( 'cp '.$image.'_small.jpg albumart/small/'.$imagekey.'.jpg');
+			system( 'cp '.$image.'_original.jpg albumart/original/'.$imagekey.'.jpg');
+			system( 'cp '.$image.'_asdownloaded.jpg albumart/asdownloaded/'.$imagekey.'.jpg');
+			$image = 'albumart/small/'.$imagekey.'.jpg';
+		} else if ($image != '') {
+			debug_print("... downloading remote image ".$image,"USER RATING");
+			$convert_path = find_executable("convert");
+			$image = preg_replace('#getRemoteImage.php\?url=#', '', $image);
+			debug_print("... which leaves us with ".$image,"USER RATING");
+			$download_file = download_file($image, $imagekey, $convert_path);
+			if ($error == 0) {
+				list ($small_file, $main_file, $big_file) = saveImage($imagekey, true, '');
+				$image = $small_file;
+			}
+		}
+	}
+
 	if ($stmt = mysqli_prepare($mysqlc, "INSERT INTO Albumtable (Albumname, AlbumArtistindex, Spotilink, Image, Year, IsOneFile, Searched, ImgKey, mbid, NumDiscs, Domain, Directory) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
 		mysqli_stmt_bind_param($stmt, "sissiiississ", $album, $albumai, $spotilink, $image, $date, $isonefile, $searched, $imagekey, $mbid, $numdiscs, $domain, $directory);
 		if (mysqli_stmt_execute($stmt)) {
@@ -624,6 +649,7 @@ function get_imagesearch_info($key) {
 function update_image_db($key, $notfound, $imagefile) {
 	global $mysqlc;
 	$val = ($notfound == 0) ? $imagefile : null;
+	debug_print("Updating Image DB - key is ".$key." and image is ".$imagefile,"SQL");
 	if ($stmt = mysqli_prepare($mysqlc, "UPDATE Albumtable SET Image=?, Searched = 1 WHERE ImgKey=?")) {
 		mysqli_stmt_bind_param($stmt, "ss", $val, $key);
 		if (mysqli_stmt_execute($stmt)) {

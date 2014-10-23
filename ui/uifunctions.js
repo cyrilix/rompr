@@ -28,7 +28,8 @@ function changelanguage() {
 }
 
 function changecountry() {
-    prefs.save({lastfm_country_code: $("#countryselector").val()});
+    prefs.save({lastfm_country_code: $("#countryselector").val(),
+                country_userset: true});
 }
 
 function changeClickPolicy() {

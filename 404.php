@@ -4,8 +4,9 @@
 include('includes/vars.php');
 include("includes/functions.php");
 $request = $_SERVER['REQUEST_URI'];
-// Custom redirect for small album covers that don't exist.
-if (preg_match('/albumart\/small\//', $request)) {
+// Custom redirect for album covers that don't exist.
+if (preg_match('/albumart\/small\//', $request) ||
+    preg_match('/prefs\/imagecache\//', $request)) {
     header("HTTP/1.1 301 Moved Permanently");
 	header("Cache-Control: no-cache, must-revalidate");
 	header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");

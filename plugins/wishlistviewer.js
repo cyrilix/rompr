@@ -136,4 +136,4 @@ var wishlistViewer = function() {
 
 }();
 
-$("#specialplugins").append('<button onclick="wishlistViewer.open()">'+language.gettext("label_viewwishlist")+'</button>');
+$("#specialplugins").append('<div class="fullwidth"><button onclick="wishlistViewer.open()">'+language.gettext("label_viewwishlist")+'</button></div>');

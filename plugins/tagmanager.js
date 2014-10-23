@@ -230,4 +230,4 @@ var tagManager = function() {
 
 }();
 
-$("#specialplugins").append('<button onclick="tagManager.open()">'+language.gettext("label_tagmanager")+'</button>');
+$("#specialplugins").append('<div class="fullwidth"><button onclick="tagManager.open()">'+language.gettext("label_tagmanager")+'</button></div>');

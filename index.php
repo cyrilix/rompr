@@ -52,7 +52,8 @@ if (array_key_exists('mobile', $_REQUEST)) {
 }
 
 //
-// Find mopidy's HTTP interface, if present
+// Find mopidy's HTTP interface, if present or ignore this check
+// if the user has specified it in URL eg http://hostname/rompr?mopdiy=mopidyhost:mopidyport
 //
 
 if (array_key_exists('mopidy', $_REQUEST)) {
@@ -66,6 +67,7 @@ if (array_key_exists('mopidy', $_REQUEST)) {
     $mopidy_detected = detect_mopidy();
     $prefs['mopidy_detected'] = $mopidy_detected == true ? "true" : "false";
 }
+
 //
 // If we didn't find mopidy, try and connect to mpd and ask for
 // setup values if we couldn't
@@ -228,6 +230,15 @@ $(document).ready(function(){
     if (prefs.playlistcontrolsvisible) {
         $("#playlistbuttons").slideToggle('fast', setBottomPaneSize);
     }
+
+    if (prefs.country_userset == false) {
+        $.getJSON("http://freegeoip.net/json/", function(result){
+            debug.shout("CHECKING", 'Country: ' + result.country_name + '\n' + 'Code: ' + result.country_code);
+            $("#countryselector").val(prefs.lastfm_country_code);
+            prefs.save({lastfm_country_code: result.country_code});
+        });
+    }
+
     setClickHandlers();
     $("#sortable").click(onPlaylistClicked);
     infobar.createProgressBar();

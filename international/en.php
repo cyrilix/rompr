@@ -84,7 +84,6 @@ $languages['en'] = array (
 	"config_scrobblepercent" => "Percentage of track to play before scrobbling",
 	"config_autocorrect" => "Last.FM Autocorrect Enabled",
 	"config_tagloved" => "Tag Loved Tracks With:",
-	"config_country" => "COUNTRY (for Last.FM)",
 	"config_fontsize" => "FONT SIZE",
 	"config_fontname" => "FONT STYLE",
 	"config_alarm_on" => "Alarm Clock Enabled",
@@ -523,8 +522,10 @@ $languages['en'] = array (
 	"label_artistradio" => "Artist Radio",
 	"label_mostplayed" => "Most Played Tracks",
 	"label_radio_fartist" => "Favourite Artist Radio",
-	"label_pluginplaylists" => "Personalised Radio"
+	"label_pluginplaylists" => "Personalised Radio",
 
+	//CHANGED in 0.53
+	"config_country" => "COUNTRY (for Last.FM and Spotify)"
 
 );
 

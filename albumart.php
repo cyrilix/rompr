@@ -39,6 +39,7 @@ if ($prefs['debug_enabled'] == 1) {
 } else {
     print "debug.setLevel(0);\n";
 }
+print 'var ipath = "'.$ipath.'";'."\n";
 ?>
 
 var mobile = "no";
@@ -1027,6 +1028,8 @@ function do_radio_stations() {
     global $count;
     global $albums_without_cover;
     global $allfiles;
+    global $ipath;
+
     $playlists = glob("prefs/USERSTREAM*.xspf");
     if (count($playlists) > 0) {
         print '<div class="cheesegrater" name="radio">';

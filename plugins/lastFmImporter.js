@@ -607,4 +607,4 @@ var lastfmImporter = function() {
 
 }();
 
-$("#specialplugins").append('<button onclick="lastfmImporter.open()">'+language.gettext("lastfm_import")+'</button>');
+$("#specialplugins").append('<div class="fullwidth"><button onclick="lastfmImporter.open()">'+language.gettext("lastfm_import")+'</button></div>');

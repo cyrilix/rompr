@@ -25,4 +25,4 @@ var aboutRompr = function() {
 
 }();
 
-$("#specialplugins").append('<button onclick="aboutRompr.open()">'+language.gettext("button_about")+'</button>');
+$("#specialplugins").append('<div class="fullwidth"><button onclick="aboutRompr.open()">'+language.gettext("button_about")+'</button></div>');

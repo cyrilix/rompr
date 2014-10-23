@@ -271,7 +271,7 @@ function tryLocal() {
 function trySpotify() {
     global $spotilink;
     global $delaytime;
-    if ($spotilink == "") {
+    if ($spotilink == "" || substr($spotilink, 0, 8) != 'spotify:') {
         return "";
     }
     $image = "";

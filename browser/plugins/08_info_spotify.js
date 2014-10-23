@@ -489,13 +489,16 @@ var info_spotify = function() {
                             );
                             if (accepted && parent.playlistinfo.metadata.artist.spotify.artist.error == undefined) {
                             	debug.debug(medebug,"Update was accepted by browser");
-                            	$.get('getspotibio.php?url='+parent.playlistinfo.metadata.artist.spotify.artist.external_urls.spotify)
-                            		.done( function(data) {
-                            			if (displaying) $("#spartistinfo").html(data);
-                            		})
-                            		.fail( function() {
-                            			if (displaying) $("#spartistinfo").html("");
-                            		});
+                            	if (parent.playlistinfo.metadata.artist.spotify.artist.external_urls &&
+                            		parent.playlistinfo.metadata.artist.spotify.artist.external_urls.spotify) {
+	                            	$.get('getspotibio.php?url='+parent.playlistinfo.metadata.artist.spotify.artist.external_urls.spotify)
+	                            		.done( function(data) {
+	                            			if (displaying) $("#spartistinfo").html(data);
+	                            		})
+	                            		.fail( function() {
+	                            			if (displaying) $("#spartistinfo").html("");
+	                            		});
+	                            	}
                             	if (parent.playlistinfo.metadata.artist.spotify.showing == "albums") {
 	                        		self.getAlbums();
 	                        	} else {

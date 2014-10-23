@@ -445,6 +445,7 @@ var browser = function() {
             panelclosed[id] = false;
             displayer.unbind('click');
             displayer.click(onBrowserClicked);
+            displayer.dblclick(onBrowserDoubleClicked);
             extraPlugins[id] = { div: displayer, parent: parent };
             return displayer;
         },
