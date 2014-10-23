@@ -19,7 +19,7 @@ function playerController() {
     var att = null;
 
     function mopidyStateChange(data) {
-        debug.log("PLAYER","Mopidy State Change",data);
+        debug.shout("PLAYER","Mopidy State Change",data);
         clearTimeout(stoptimer);
         clearTimeout(progresstimer);
         switch(data.new_state) {
@@ -39,7 +39,7 @@ function playerController() {
     }
 
     function trackPlaybackStarted(data) {
-        debug.log("PLAYER","Track Playback Started",data);
+        debug.shout("PLAYER","Track Playback Started",data);
         setStatusValues(data.tl_track);
 		player.status.elapsed = 0;
 		infobar.setStartTime(0);
@@ -53,14 +53,14 @@ function playerController() {
     }
 
 	function onFoundTrack() {
-    	debug.log("PLAYER", "Current track Found",playlist.currentTrack);
+    	debug.shout("PLAYER", "Current track Found",playlist.currentTrack);
         nowplaying.newTrack(playlist.currentTrack);
         tracknotfound = false;
         self.checkProgress();
     }
 
     function trackPlaybackEnded(data) {
-        debug.log("PLAYER","Track Playback Ended",data);
+        debug.shout("PLAYER","Track Playback Ended",data);
         playlist.trackchanged();
     	if (player.status.single == 1) {
     		mopidy.tracklist.setSingle(false);
@@ -69,20 +69,20 @@ function playerController() {
     }
 
     function trackPlaybackPaused(data) {
-        debug.log("PLAYER","Track Playback Paused",data);
+        debug.shout("PLAYER","Track Playback Paused",data);
         player.status.elapsed = data.time_position/1000;
         infobar.setStartTime(player.status.elapsed);
     }
 
     function trackPlaybackResumed(data) {
-        debug.log("PLAYER","Track Playback Resumed",data);
+        debug.shout("PLAYER","Track Playback Resumed",data);
         player.status.elapsed = data.time_position/1000;
         infobar.setStartTime(player.status.elapsed);
         self.checkProgress();
     }
 
     function seeked(data) {
-        debug.log("PLAYER","Track Seeked",data);
+        debug.shout("PLAYER","Track Seeked",data);
         player.status.elapsed = data.time_position/1000;
         infobar.setStartTime(player.status.elapsed);
         self.checkProgress();
@@ -91,9 +91,9 @@ function playerController() {
 
 	function tracklistChanged() {
 		// Don't repopulate immediately in case there are more coming
-		debug.log("PLAYER","Tracklist Changed");
+		debug.shout("PLAYER","Tracklist Changed");
 		clearTimeout(tlchangeTimer);
-		tlchangeTimer = setTimeout(playlist.repopulate, 200);
+		tlchangeTimer = setTimeout(playlist.repopulate, 400);
 	}
 
 	function checkPlaybackTime() {
@@ -434,7 +434,7 @@ function playerController() {
 	}
 
     this.initialise = function() {
-        debug.log("PLAYER","Connecting to Mopidy HTTP frontend");
+        debug.shout("PLAYER","Connecting to Mopidy HTTP frontend");
         debug.log("PLAYER","ws://"+prefs.mopidy_http_address+":"+prefs.mopidy_http_port+"/mopidy/ws/");
         mopidy = new Mopidy({
             webSocketUrl: "ws://"+prefs.mopidy_http_address+":"+prefs.mopidy_http_port+"/mopidy/ws/",
@@ -443,9 +443,7 @@ function playerController() {
         });
         mopidy.on("state:online", connected);
         mopidy.on("state:offline", disconnected);
-        debug.log("PLAYER","Calling Connect");
         mopidy.connect();
-        debug.log("PLAYER","Connect Called");
 	    // self.mop = mopidy;
 	}
 

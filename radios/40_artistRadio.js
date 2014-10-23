@@ -12,7 +12,7 @@ var artistRadio = function() {
 
 	function getRelatedArtists(spotid) {
 		artists.push({id :spotid});
-		debug.log("ARTIST RADIO","Getting related artists for",spotid);
+		debug.shout("ARTIST RADIO","Getting related artists for",spotid);
 		spotify.artist.getRelatedArtists(spotid, artistRadio.gotRelatedArtists, artistRadio.fail);
 	}
 
@@ -22,7 +22,7 @@ var artistRadio = function() {
 			for (var i in artists) {
 				if (artists[i].albums === undefined) {
 					id = artists[i].id;
-					debug.log("ARTIST RADIO","Getting Albums for artist index",i,id);
+					debug.shout("ARTIST RADIO","Getting Albums for artist index",i,id);
 					break find;
 				}
 			}
@@ -40,8 +40,8 @@ var artistRadio = function() {
 
 	function sendTracks(num) {
 		var t = new Array();
-		debug.log("ARTIST RADIO","Asked to send",num,"tracks, flag is",sending);
-		debug.log("ARTIST RADIO", "Artistindex is",artistindex);
+		debug.debug("ARTIST RADIO","Asked to send",num,"tracks, flag is",sending);
+		debug.debug("ARTIST RADIO", "Artistindex is",artistindex);
 		// Safety counter just in case
 		var c = 100;
 		while (num > 0 && sending < 5 && c > 0) {
@@ -52,7 +52,7 @@ var artistRadio = function() {
 				sending++;
 				num--;
 			} else {
-				debug.log("ARTIST RADIO","...something was undefined");
+				debug.warn("ARTIST RADIO","...something was undefined");
 			}
 			if (artists[artistindex].albums !== undefined &&
 				artists[artistindex].albums[artists[artistindex].albumindex] !== undefined &&
@@ -94,7 +94,7 @@ var artistRadio = function() {
 
 		populate: function(artist) {
 			if (artist) {
-				debug.log("ARTIST RADIO","Populating with",artist);
+				debug.shout("ARTIST RADIO","Populating with",artist);
 				artists = new Array();
 				sending = 0;
 				artistindex = 0;
@@ -102,7 +102,7 @@ var artistRadio = function() {
 				if (artist.substr(0,15) == "spotify:artist:") {
 					getArtistName(artist.substr(15,artist.length));
 				} else {
-					debug.log("ARTIST RADIO","Searching for artist",artist);
+					debug.shout("ARTIST RADIO","Searching for artist",artist);
 					artistname = artist;
 					searchForArtist(artist);
 				}

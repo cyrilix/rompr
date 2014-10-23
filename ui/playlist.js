@@ -51,7 +51,7 @@ function Playlist() {
     */
 
     this.repopulate = function() {
-        debug.log("PLAYLIST","Repopulating....");
+        debug.shout("PLAYLIST","Repopulating....");
         updatecounter++;
         player.controller.getPlaylist();
         coverscraper.clearCallbacks();
@@ -95,7 +95,7 @@ function Playlist() {
             // (because we can't be sure which order they will have come back in),
             // do one more of our own, and use that one
             do_delayed_update = false;
-            debug.log("PLAYLIST","Doing delayed playlist update");
+            debug.shout("PLAYLIST","Doing delayed playlist update");
             self.repopulate();
             return 0;
         }
@@ -372,10 +372,10 @@ function Playlist() {
 
     this.playFromEnd = function() {
         if (player.status.state == "stop") {
-            debug.log("PLAYLIST","Playfromend",finaltrack+1);
+            debug.debug("PLAYLIST","Playfromend",finaltrack+1);
             return finaltrack+1;
         } else {
-            debug.log("PLAYLIST","Disabling auto-play");
+            debug.debug("PLAYLIST","Disabling auto-play");
             return -1;
         }
     }
@@ -389,7 +389,7 @@ function Playlist() {
     }
 
     this.findCurrentTrack = function() {
-        debug.log("PLAYLIST","Looking For Current Track",player.status.songid);
+        debug.debug("PLAYLIST","Looking For Current Track",player.status.songid);
         self.currentTrack = null;
         $(".playlistcurrentitem").removeClass('playlistcurrentitem').addClass('playlistitem');
         $(".playlistcurrenttitle").removeClass('playlistcurrenttitle').addClass('playlisttitle');
@@ -411,7 +411,7 @@ function Playlist() {
         if (prefs.scrolltocurrent &&
             $('.track[romprid="'+player.status.songid+'"]').offset() &&
                 scrollto === -1) {
-            debug.log("PLAYLIST","Scrolling to",player.status.songid);
+            debug.debug("PLAYLIST","Scrolling to",player.status.songid);
             if (mobile == "no") {
                 $('#pscroller').mCustomScrollbar(
                     "scrollTo",
@@ -545,17 +545,18 @@ function Playlist() {
             },
 
             init: function() {
+                $("#pluginplaylists").empty();
                 if (prefs.apache_backend == "sql") {
                     for(var i in radios) {
                         radios[i].setup();
                         if (prefs.radiomode == i) {
-                            if (playlist.getfinaltrack() > -1) {
+                            // if (playlist.getfinaltrack() > -1) {
                                 debug.mark("RADIOMANAGER","Found saved radio playlist state",prefs.radiomode, prefs.radioparam);
                                 radios[i].populate(prefs.radioparam);
                                 mode = prefs.radiomode;
-                            } else {
-                                prefs.save({radiomode: ''});
-                            }
+                            // } else {
+                            //     prefs.save({radiomode: ''});
+                            // }
                         }
                     }
                 }

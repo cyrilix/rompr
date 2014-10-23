@@ -14,7 +14,7 @@ var faveArtistRadio = function() {
             url: "userRatings.php",
             success: function(data) {
                 if (data.length > 0) {
-                    debug.log("SMARTPLAYLIST","Got artists",data);
+                    debug.debug("SMARTPLAYLIST","Got artists",data);
                     artists = data;
                     getTracksForNextArtist();
                 } else {
@@ -31,7 +31,7 @@ var faveArtistRadio = function() {
 	function getTracksForNextArtist() {
 		for (var i in artists) {
 			if (artists[i].tracks === undefined) {
-				debug.log("FAVE ARTIST RADIO","Searching for tracks for",artists[i].name);
+				debug.shout("FAVE ARTIST RADIO","Searching for tracks for",artists[i].name);
 				player.controller.rawfindexact({artist: [artists[i].name]}, faveArtistRadio.gotTracksForArtist);
 				break;
 			}
@@ -48,8 +48,8 @@ var faveArtistRadio = function() {
 
 	function sendTracks(num) {
 		var t = new Array();
-		debug.log("ARTIST RADIO","Asked to send",num,"tracks, flag is",sending);
-		debug.log("ARTIST RADIO", "Artistindex is",artistindex);
+		debug.debug("ARTIST RADIO","Asked to send",num,"tracks, flag is",sending);
+		debug.debug("ARTIST RADIO", "Artistindex is",artistindex);
 		// Safety counter just in case
 		var c = 100;
 		while (num > 0 && sending < 5 && c > 0) {
@@ -82,7 +82,7 @@ var faveArtistRadio = function() {
 		populate: function() {
 			if (!populating) {
 				if (!running) {
-					debug.log("FAVE ARTIST RADIO","Populating");
+					debug.shout("FAVE ARTIST RADIO","Populating");
 					artists = new Array();
 					sending = 0;
 					running = true;

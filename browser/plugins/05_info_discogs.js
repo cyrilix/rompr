@@ -671,7 +671,7 @@ var info_discogs = function() {
 						if (parent.playlistinfo.metadata.artist.discogs.artistinfo === undefined &&
 							(parent.playlistinfo.metadata.artist.discogs.artistid === undefined || parent.playlistinfo.metadata.artist.discogs.artistid === null)) {
 							if (parent.playlistinfo.metadata.artist.discogs.artistlink === undefined) {
-								debug.log(medebug,parent.index,"Artist asked to populate but no link yet");
+								debug.shout(medebug,parent.index,"Artist asked to populate but no link yet");
 								retries--;
 								if (retries == 0) {
 									debug.warn(medebug,parent.index,"Artist giving up waiting for bloody musicbrainz");
@@ -906,7 +906,7 @@ var info_discogs = function() {
 								return;
 							}
 							if (parent.playlistinfo.metadata.album.discogs.albumlink === undefined) {
-								debug.log(medebug,parent.index,"Album asked to populate but no link yet");
+								debug.shout(medebug,parent.index,"Album asked to populate but no link yet");
 								retries--;
 								if (retries == 0) {
 									debug.warn(medebug,parent.index,"Album giving up waiting for bloody musicbrainz");
@@ -1020,7 +1020,7 @@ var info_discogs = function() {
 										for(var i in data.data.results) {
 											var comp2 = sanitizeDiscogsResult(data.data.results[i].title);
 											if (compartist == comp2) {
-												debug.log(medebug,parent.index,"Search has found a result!",data.data.results[i].uri);
+												debug.shout(medebug,parent.index,"Search has found a result!",data.data.results[i].uri);
 												parent.playlistinfo.metadata.album.discogs.albumlink = data.data.results[i].uri;
 												self.album.populate();
 												return;
@@ -1163,7 +1163,7 @@ var info_discogs = function() {
 										for (var i in data.data.results) {
 											var comp2 = sanitizeDiscogsResult(data.data.results[i].title);
 											if (comp2 == compartist) {
-												debug.log(medebug,parent.index,"Track search has found a result!",data.data.results[i].uri);
+												debug.shout(medebug,parent.index,"Track search has found a result!",data.data.results[i].uri);
 												parent.playlistinfo.metadata.track.discogs.tracklink = data.data.results[0].uri;
 												self.track.populate();
 												return;

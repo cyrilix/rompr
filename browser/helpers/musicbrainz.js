@@ -85,7 +85,7 @@ var musicbrainz = function() {
 				(function getAllReleaseGroups() {
 					var url = baseURL+'release-group?artist='+mbid+'&limit=100&fmt=json&inc=artist-credits+tags+ratings+url-rels+annotation&offset='+result['release-groups'].length;
 					musicbrainz.request(reqid, url, function(data) {
-						debug.log("MUSICBRAINZ","Release group data:",data);
+						debug.debug("MUSICBRAINZ","Release group data:",data);
 						if (data.error) {
 							if (result['release-groups'].length > 0) {
 								success(result);

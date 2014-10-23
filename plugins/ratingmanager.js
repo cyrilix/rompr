@@ -6,7 +6,7 @@ var ratingManager = function() {
 	function putTracks(holder, tracks, title) {
 		var html = '<table align="center" style="border-collapse:collapse;width:96%"><tr class="tagh"><th colspan="3" align="center"><img height="16px" src="newimages/'+title+'stars.png" /></th></tr>';
 		for (var i in tracks) {
-			html = html + '<tr><td width="40px"><img class="smallcover" src="';
+			html = html + '<tr class="infoclick draggable clickable clicktrack" name="'+encodeURIComponent(tracks[i].Uri)+'"><td width="40px"><img class="smallcover" src="';
 			if (tracks[i].Image) {
 				html = html + tracks[i].Image;
 			} else {
@@ -59,7 +59,12 @@ var ratingManager = function() {
 	            	type: "POST",
 	            	data: {action: 'ratlist'},
 	            	dataType: 'json',
-	            	success: ratingManager.doMainLayout,
+	            	success: function(data) {
+	            		if (mobile != "phone") {
+	            			setDraggable('rmgfoldup');
+	            		}
+	            		ratingManager.doMainLayout(data);
+	            	},
 	            	error: function() {
 	            		infobar.notify(infobar.ERROR, "Failed to get Rating list");
 	            		rmg.slideToggle('fast');
@@ -75,7 +80,7 @@ var ratingManager = function() {
 			debug.log("RATINGMANAGER","Got data",data);
 			for (var i in data) {
 				debug.log("RATMANAGER",i);
-				holders[i] = $('<div>', {class: 'tagholder', id: 'ratman_'+i}).appendTo($("#ratmunger"));
+				holders[i] = $('<div>', {class: 'tagholder selecotron noselection', id: 'ratman_'+i}).appendTo($("#ratmunger"));
 				putTracks(holders[i], data[i], i);
 				holders[i].droppable({
 					addClasses: false,

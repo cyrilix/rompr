@@ -39,7 +39,7 @@ var starRadios = function() {
                 }
 
             }
-            debug.log("STAR RADIOS", "Populating",selected);
+            debug.shout("STAR RADIOS", "Populating",selected);
 			getSmartPlaylistTracks(running ? "repopulate" : "getplaylist", selected);
 		},
 
@@ -53,7 +53,7 @@ var starRadios = function() {
 
         Go: function(data) {
             if (data.length > 0) {
-                debug.log("SMARTPLAYLIST","Got tracks",data);
+                debug.debug("SMARTPLAYLIST","Got tracks",data);
                 running = true;
                 populating = false;
                 player.controller.addTracks(data, playlist.playFromEnd(), null);

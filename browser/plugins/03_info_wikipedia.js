@@ -146,10 +146,10 @@ var info_wikipedia = function() {
 						}
 						if (parent.playlistinfo.metadata.artist.wikipedia.artistinfo === undefined) {
 							if (parent.playlistinfo.metadata.artist.wikipedia.artistlink === undefined) {
-								debug.log("WIKI PLUGIN",parent.index,"Artist asked to populate but no link yet");
+								debug.shout("WIKI PLUGIN",parent.index,"Artist asked to populate but no link yet");
 								retries--;
 								if (retries == 0) {
-									debug.log("WIKI PLUGIN",parent.index,"Artist giving up waiting for poxy musicbrainz");
+									debug.shout("WIKI PLUGIN",parent.index,"Artist giving up waiting for poxy musicbrainz");
 									parent.playlistinfo.metadata.artist.wikipedia.artistlink = null;
 									setTimeout(self.artist.populate, 200);
 								} else {
@@ -158,7 +158,7 @@ var info_wikipedia = function() {
 								return;
 							}
 							if (parent.playlistinfo.metadata.artist.wikipedia.artistlink === null) {
-								debug.log("WIKI PLUGIN",parent.index,"Artist asked to populate but no link could be found. Trying a search");
+								debug.shout("WIKI PLUGIN",parent.index,"Artist asked to populate but no link could be found. Trying a search");
 								wikipedia.search({	artist: parent.playlistinfo.creator,
 													disambiguation: parent.playlistinfo.metadata.artist.disambiguation || ""
 												},
@@ -232,10 +232,10 @@ var info_wikipedia = function() {
 						}
 						if (parent.playlistinfo.metadata.album.wikipedia.albumdata === undefined) {
 							if (parent.playlistinfo.metadata.album.wikipedia.albumlink === undefined) {
-								debug.log("WIKI PLUGIN",parent.index,"Album asked to populate but no link yet");
+								debug.shout("WIKI PLUGIN",parent.index,"Album asked to populate but no link yet");
 								retries--;
 								if (retries == 0) {
-									debug.log("WIKI PLUGIN",parent.index,"Album giving up waiting for poxy musicbrainz");
+									debug.shout("WIKI PLUGIN",parent.index,"Album giving up waiting for poxy musicbrainz");
 									parent.playlistinfo.metadata.album.wikipedia.albumlink = null;
 									setTimeout(self.album.populate, 200);
 								} else {
@@ -244,7 +244,7 @@ var info_wikipedia = function() {
 								return;
 							}
 							if (parent.playlistinfo.metadata.album.wikipedia.albumlink === null) {
-								debug.log("WIKI PLUGIN",parent.index,"Album asked to populate but no link could be found");
+								debug.shout("WIKI PLUGIN",parent.index,"Album asked to populate but no link could be found");
 								if (parent.playlistinfo.musicbrainz.album_releasegroupid !== null) {
 									debug.log("WIKI PLUGIN",parent.index," ... trying the album release group");
 									musicbrainz.releasegroup.getInfo(parent.playlistinfo.musicbrainz.album_releasegroupid, '', self.album.mbRgHandler, self.album.mbRgHandler);
@@ -344,10 +344,10 @@ var info_wikipedia = function() {
 						}
 						if (parent.playlistinfo.metadata.track.wikipedia.trackdata === undefined) {
 							if (parent.playlistinfo.metadata.track.wikipedia.tracklink === undefined) {
-								debug.log("WIKI PLUGIN",parent.index,"track asked to populate but no link yet");
+								debug.shout("WIKI PLUGIN",parent.index,"track asked to populate but no link yet");
 								retries--;
 								if (retries == 0) {
-									debug.log("WIKI PLUGIN",parent.index,"Track giving up waiting for poxy musicbrainz");
+									debug.shout("WIKI PLUGIN",parent.index,"Track giving up waiting for poxy musicbrainz");
 									parent.playlistinfo.metadata.track.wikipedia.tracklink = null;
 									setTimeout(self.track.populate, 200);
 								} else {
@@ -356,8 +356,8 @@ var info_wikipedia = function() {
 								return;
 							}
 							if (parent.playlistinfo.metadata.track.wikipedia.tracklink === null) {
-								debug.log("WIKI PLUGIN",parent.index,"track asked to populate but no link could be found");
-								debug.log("WIKI PLUGIN",parent.index,"... trying a search");
+								debug.shout("WIKI PLUGIN",parent.index,"track asked to populate but no link could be found");
+								debug.shout("WIKI PLUGIN",parent.index,"... trying a search");
 								wikipedia.search({track: parent.playlistinfo.title, trackartist: parent.playlistinfo.creator}, self.track.wikiResponseHandler, self.track.wikiResponseHandler);
 								return;
 							}

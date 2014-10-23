@@ -149,14 +149,14 @@ var nowplaying = function() {
 	        for (var i = currenttrack; i > 0; i--) {
 	            if (playlistinfo.creator == history[i].playlistinfo.creator) {
 	                if (metadata.artist === null) {
-	                    debug.log("NOWPLAYING","Copying Artist data from index",i);
+	                    debug.debug("NOWPLAYING","Copying Artist data from index",i);
 	                    metadata.artist = history[i].playlistinfo.metadata.artist;
 	                }
 	                if (playlistinfo.musicbrainz.artistid == "") {
 	                	playlistinfo.musicbrainz.artistid = history[i].playlistinfo.musicbrainz.artistid;
 	                }
 	                if (playlistinfo.title != "" && playlistinfo.title == history[i].playlistinfo.title && metadata.track === null) {
-	                    debug.log("NOWPLAYING","Copying Track data from index",i);
+	                    debug.debug("NOWPLAYING","Copying Track data from index",i);
 	                    metadata.track = history[i].playlistinfo.metadata.track;
 		                if (playlistinfo.musicbrainz.trackid == "") {
 		                	playlistinfo.musicbrainz.trackid = history[i].playlistinfo.musicbrainz.trackid;
@@ -168,7 +168,7 @@ var nowplaying = function() {
 	            var albumartist = (history[i].playlistinfo.albumartist == "") ? history[i].playlistinfo.creator : history[i].playlistinfo.albumartist;
 	            if (albumartist == newalbumartist) {
 	                if (playlistinfo.album == history[i].playlistinfo.album && metadata.album === null) {
-	                    debug.log("NOWPLAYING","Copying Album data from index",i);
+	                    debug.debug("NOWPLAYING","Copying Album data from index",i);
 	                    metadata.album = history[i].playlistinfo.metadata.album;
 		                if (playlistinfo.musicbrainz.albumid == "") {
 		                	playlistinfo.musicbrainz.albumid = history[i].playlistinfo.musicbrainz.albumid;
@@ -190,7 +190,7 @@ var nowplaying = function() {
 	        // Truncate our history if we've gone over the limit
 	        // NOTE: history[0] is not used.
 	        if (currenttrack == maxhistorylength) {
-	        	debug.log("NOWPLAYING","History is too long - truncating by one");
+	        	debug.shout("NOWPLAYING","History is too long - truncating by one");
 	        	history.splice(1,1);
 	        	currenttrack--;
 	        	for(var i in history) {

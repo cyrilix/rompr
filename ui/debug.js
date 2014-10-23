@@ -80,6 +80,17 @@ window.debug = (function() {
 			}
 		},
 
+		// Level 6
+		shout: function() {
+			if (level > 5) {
+				var args = Array.prototype.slice.call(arguments);
+				var module = args.shift();
+				var colour = '#996d00';
+				if (colours[module]) { colour = colours[module] }
+				doTheLogging("color:"+colour, module, 'log', args);
+			}
+		},
+
 		// Level 3
 		fail: function() {
 			if (level > 2) {

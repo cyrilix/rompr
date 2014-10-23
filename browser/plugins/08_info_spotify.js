@@ -6,7 +6,7 @@ var info_spotify = function() {
 
     function getTrackHTML(data) {
 
-    	debug.log(medebug,"Making Track Info From",data);
+    	debug.debug(medebug,"Making Track Info From",data);
     	if (data.error) {
     		return '<h3 align="center">'+data.error+'</h3>';
     	}
@@ -22,7 +22,7 @@ var info_spotify = function() {
 
     function getAlbumHTML(data) {
 
-    	debug.log(medebug,"Making Album Info From",data);
+    	debug.debug(medebug,"Making Album Info From",data);
     	if (data.error) {
     		return '<h3 align="center">'+data.error+'</h3>';
     	}
@@ -62,7 +62,7 @@ var info_spotify = function() {
 
     function getArtistHTML(data, parent) {
 
-    	debug.log(medebug,"Making Artist Info From",data);
+    	debug.debug(medebug,"Making Artist Info From",data);
     	if (data.error) {
     		return '<h3 align="center">'+data.error+'</h3>';
     	}
@@ -378,7 +378,7 @@ var info_spotify = function() {
                     	for(var i in data.artists) {
                     		parent.playlistinfo.metadata.artist.spotify.ids.push(data.artists[i].id);
                     	}
-                    	debug.log(medebug,"Spotify Data now looks like",parent.playlistinfo.metadata);
+                    	debug.debug(medebug,"Spotify Data now looks like",parent.playlistinfo.metadata);
                     	self.track.doBrowserUpdate();
                     	self.artist.populate();
                     },
@@ -488,7 +488,7 @@ var info_spotify = function() {
                                                                                 }
                             );
                             if (accepted && parent.playlistinfo.metadata.artist.spotify.artist.error == undefined) {
-                            	debug.log(medebug,"Update was accepted by browser");
+                            	debug.debug(medebug,"Update was accepted by browser");
                             	$.get('getspotibio.php?url='+parent.playlistinfo.metadata.artist.spotify.artist.external_urls.spotify)
                             		.done( function(data) {
                             			if (displaying) $("#spartistinfo").html(data);
@@ -507,7 +507,7 @@ var info_spotify = function() {
                     },
 
                     search: function() {
-                    	debug.log(medebug, "Searching Spotify for artist",parent.playlistinfo.creator)
+                    	debug.shout(medebug, "Searching Spotify for artist",parent.playlistinfo.creator)
                     	spotify.artist.search(parent.playlistinfo.creator, self.artist.searchResponse, self.artist.searchFail);
                     },
 

@@ -382,7 +382,7 @@ var info_lastfm = function() {
                             } catch(err) {
                                 mbid = null;
                             }
-		                	debug.log(medebug,parent.index,"has found a musicbrainz artist ID",mbid);
+		                	debug.shout(medebug,parent.index,"has found a musicbrainz artist ID",mbid);
 		                	parent.updateData({musicbrainz: {artistid: mbid }}, null);
 		                }
                         self.album.populate();
@@ -570,7 +570,7 @@ var info_lastfm = function() {
                             } catch(err) {
                                 mbid = null;
                             }
-                            debug.log(medebug,parent.index,"has found a musicbrainz album ID",mbid);
+                            debug.shout(medebug,parent.index,"has found a musicbrainz album ID",mbid);
                             parent.updateData({musicbrainz: {albumid: mbid }}, null);
                         }
                         self.track.populate();
@@ -735,7 +735,7 @@ var info_lastfm = function() {
                             } catch(err) {
                                 mbid = null;
                             }
-                            debug.log(medebug,parent.index,"has found a musicbrainz track ID",mbid);
+                            debug.shout(medebug,parent.index,"has found a musicbrainz track ID",mbid);
                             parent.updateData({musicbrainz: {trackid: mbid }}, null);
                         }
 
@@ -842,7 +842,7 @@ var info_lastfm = function() {
                                                 self.tagAddFailed
                             );
                         } else {
-                            debug.log(medebug, "Tag",tags,"not found on track");
+                            debug.warn(medebug, "Tag",tags,"not found on track");
                         }
                     },
 

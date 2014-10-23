@@ -55,9 +55,17 @@ if (array_key_exists('mobile', $_REQUEST)) {
 // Find mopidy's HTTP interface, if present
 //
 
-$mopidy_detected = detect_mopidy();
-$prefs['mopidy_detected'] = $mopidy_detected == true ? "true" : "false";
-
+if (array_key_exists('mopidy', $_REQUEST)) {
+    $mopidy_detected = true;
+    $prefs['mopidy_detected'] = "true";
+    $a = explode(':', $_REQUEST['mopidy']);
+    $prefs['mopidy_http_address'] = $a[0];
+    $prefs['mopidy_http_port'] = $a[1];
+    debug_print("User Specified Mopidy Connection As ".$prefs['mopidy_http_address'].":".$prefs['mopidy_http_port'],"INDEX");
+} else {
+    $mopidy_detected = detect_mopidy();
+    $prefs['mopidy_detected'] = $mopidy_detected == true ? "true" : "false";
+}
 //
 // If we didn't find mopidy, try and connect to mpd and ask for
 // setup values if we couldn't

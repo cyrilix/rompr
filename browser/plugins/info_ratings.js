@@ -106,7 +106,7 @@ var info_ratings = function() {
                                 doThingsWithData();
                             },
                             error: function(data) {
-                                debug.log("RATING PLUGIN","Failure");
+                                debug.fail("RATING PLUGIN","Failure");
                                 parent.playlistinfo.metadata.track.usermeta = null;
                                 hideTheInputs();
 

@@ -540,7 +540,7 @@ var info_musicbrainz = function() {
 					var pos = expandingframe.offset();
 					var target = $("#artistfoldup").length == 0 ? "musicbrainz" : "artist";
 					var targetpos = $("#"+target+"foldup").offset();
-					debug.log("MUSICBRAINZ","1. targetpos is",targetpos);
+					debug.debug("MUSICBRAINZ","1. targetpos is",targetpos);
 					var animator = expandingframe.clone();
 					animator.css('position', 'absolute');
 					animator.css('top', pos.top+"px");
@@ -766,7 +766,7 @@ var info_musicbrainz = function() {
 							parent.playlistinfo.metadata.artist.musicbrainz = {};
 						}
 						if (parent.playlistinfo.musicbrainz.artistid == "") {
-							debug.log(medebug,parent.index,"Artist asked to populate but no MBID, trying again in 2 seonds");
+							debug.shout(medebug,parent.index,"Artist asked to populate but no MBID, trying again in 2 seonds");
 							setTimeout(self.artist.populate, 2000);
 							return;
 						}
@@ -946,7 +946,7 @@ var info_musicbrainz = function() {
 								return;
 							}
 							if (parent.playlistinfo.musicbrainz.albumid == "") {
-								debug.log(medebug,parent.index,"Album asked to populate but no MBID, trying again in 2 seonds");
+								debug.shout(medebug,parent.index,"Album asked to populate but no MBID, trying again in 2 seonds");
 								setTimeout(self.album.populate, 2000);
 								return;
 							}
@@ -1097,7 +1097,7 @@ var info_musicbrainz = function() {
 						}
 						if (parent.playlistinfo.metadata.track.musicbrainz.track === undefined) {
 							if (parent.playlistinfo.musicbrainz.trackid == "") {
-								debug.log(medebug,parent.index,"Track asked to populate but no MBID, trying again in 2 seonds");
+								debug.shout(medebug,parent.index,"Track asked to populate but no MBID, trying again in 2 seonds");
 								setTimeout(self.track.populate, 2000);
 								return;
 							}

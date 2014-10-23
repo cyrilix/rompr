@@ -16,7 +16,7 @@ var mostPlayed = function() {
             url: "userRatings.php",
             success: function(data) {
                 if (data.length > 0) {
-                    debug.log("SMARTPLAYLIST","Got tracks",data);
+                    debug.debug("SMARTPLAYLIST","Got tracks",data);
                     running = true;
                     populating = false;
                     player.controller.addTracks(data, playlist.playFromEnd(), null);
@@ -39,7 +39,7 @@ var mostPlayed = function() {
 
 		populate: function(s) {
             if (s) selected = s;
-            debug.log("MOST PLAYED", "Populating");
+            debug.shout("MOST PLAYED", "Populating");
 			getSmartPlaylistTracks(running ? "getplaylist" : "repopulate");
 		},
 

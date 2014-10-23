@@ -17,7 +17,6 @@ var infobar = function() {
         volume = 0;
         return {
             setState: function(v) {
-                // debug.log("INFOBAR","Setting Volume Slider to",v);
                 if (v > 0) {
                     volume = v;
                     volumecontrol.setProgress(parseInt(volume));
@@ -77,13 +76,11 @@ var infobar = function() {
                 };
                 while ($("#nptext").offset().top + $("#nptext").height() <= containersize.bottom) {
                     fontsize += 0.2;
-                    // debug.log("INFOBAR", "Font Size Too Small",fontsize.toFixed(1));
                     $("#pasty").remove();
                     $("#nowplaying").css("font-size", fontsize.toFixed(1)+"pt");
                 }
                 while ($("#nptext").offset().top + $("#nptext").height() > containersize.bottom && fontsize >= 6) {
                     fontsize -= 0.2;
-                    // debug.log("INFOBAR", "Font Size Too Big",fontsize.toFixed(1));
                     if (fontsize.toFixed(1) == '8.4') {
                         $("#pasty").remove();
                         $("#smokey").before('<br id="pasty" />');
@@ -98,7 +95,6 @@ var infobar = function() {
                         $("#smokey").before('<br id="pasty" />');
                         wehaveapsty = true;
                     }
-                    // debug.log("INFOBAR", "Font Size Too Wide",fontsize.toFixed(1));
                     $("#nowplaying").css("font-size", fontsize.toFixed(1)+"pt");
                 }
                 while ($("#nptext").outerWidth() < containersize.width &&
@@ -289,7 +285,7 @@ var infobar = function() {
 
         scrobble: function() {
             if (!scrobbled) {
-                debug.log("INFOBAR","Track is not scrobbled");
+                debug.debug("INFOBAR","Track is not scrobbled");
                 if (lastfm.isLoggedIn()) {
                     if (trackinfo.title != "" && trackinfo.name != "") {
                         var options = {
@@ -322,7 +318,7 @@ var infobar = function() {
                         artist: (lfminfo.creator === undefined) ? trackinfo.creator : lfminfo.creator,
                         album: (lfminfo.album === undefined) ? trackinfo.album : lfminfo.album
                     };
-                    debug.log("INFOBAR","is updating nowplaying",opts);
+                    debug.debug("INFOBAR","is updating nowplaying",opts);
                     lastfm.track.updateNowPlaying(opts);
                     nowplaying_updated = true;
                 }

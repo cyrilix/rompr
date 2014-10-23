@@ -478,7 +478,7 @@ function list_tags() {
 function list_all_tag_data() {
 	global $mysqlc;
 	$tags = array();
-	if ($result = mysqli_query($mysqlc, "SELECT t.Name, a.Artistname, tr.Title, al.Albumname, al.Image FROM Tagtable AS t JOIN TagListtable AS tl USING (Tagindex) JOIN Tracktable AS tr USING (TTindex) JOIN Albumtable AS al USING (Albumindex) JOIN Artisttable AS a ON (tr.Artistindex = a.Artistindex) ORDER BY t.Name, a.Artistname, al.Albumname, tr.TrackNo
+	if ($result = mysqli_query($mysqlc, "SELECT t.Name, a.Artistname, tr.Title, al.Albumname, al.Image, tr.Uri FROM Tagtable AS t JOIN TagListtable AS tl USING (Tagindex) JOIN Tracktable AS tr USING (TTindex) JOIN Albumtable AS al USING (Albumindex) JOIN Artisttable AS a ON (tr.Artistindex = a.Artistindex) ORDER BY t.Name, a.Artistname, al.Albumname, tr.TrackNo
 ")) {
 		while ($obj = mysqli_fetch_object($result)) {
 			if (!array_key_exists($obj->Name, $tags)) {
@@ -488,7 +488,8 @@ function list_all_tag_data() {
 				'Title' => $obj->Title,
 				'Album' => $obj->Albumname,
 				'Artist' => $obj->Artistname,
-				'Image' => $obj->Image
+				'Image' => $obj->Image,
+				'Uri' => $obj->Uri
 			));
 		}
 	} else {
@@ -506,13 +507,14 @@ function list_all_rating_data() {
 		"4" => array(),
 		"5" => array()
 	);
-	if ($result = mysqli_query($mysqlc, "SELECT r.Rating, a.Artistname, tr.Title, al.Albumname, al.Image FROM Ratingtable AS r JOIN Tracktable AS tr USING (TTindex) JOIN Albumtable AS al USING (Albumindex) JOIN Artisttable AS a ON (tr.Artistindex = a.Artistindex) WHERE r.Rating > 0 ORDER BY r.Rating, a.Artistname, al.Albumname, tr.TrackNo")) {
+	if ($result = mysqli_query($mysqlc, "SELECT r.Rating, a.Artistname, tr.Title, al.Albumname, al.Image, tr.Uri FROM Ratingtable AS r JOIN Tracktable AS tr USING (TTindex) JOIN Albumtable AS al USING (Albumindex) JOIN Artisttable AS a ON (tr.Artistindex = a.Artistindex) WHERE r.Rating > 0 ORDER BY r.Rating, a.Artistname, al.Albumname, tr.TrackNo")) {
 		while ($obj = mysqli_fetch_object($result)) {
 			array_push($ratings[$obj->Rating], array(
 				'Title' => $obj->Title,
 				'Album' => $obj->Albumname,
 				'Artist' => $obj->Artistname,
-				'Image' => $obj->Image
+				'Image' => $obj->Image,
+				'Uri' => $obj->Uri
 			));
 		}
 	} else {
