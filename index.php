@@ -216,7 +216,7 @@ print 'var ipath = "'.$ipath.'";'."\n";
 // }
 ?>
 
-$(document).ready(function(){
+$(window).ready(function(){
 
     // Update the old-style lastfm_session_key variable
     if (typeof lastfm_session_key !== 'undefined') {

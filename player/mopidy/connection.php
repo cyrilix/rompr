@@ -157,7 +157,7 @@ function parseTrack($collection, $track, $plpos = null, $plid = null) {
                     $im = $i;
                 }
             }
-            debug_print("Track Image set to ".$im,"COLLECTION");
+            // debug_print("Track Image set to ".$im,"COLLECTION");
             $trackdata['Image'] = $im;
         }
         if (property_exists($track->{'album'}, 'uri') && substr($track->{'album'}->{'uri'},0,8) == "spotify:") {
