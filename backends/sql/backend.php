@@ -282,6 +282,9 @@ function check_album($album, $albumai, $spotilink, $image, $date, $isonefile, $s
 }
 
 function create_new_album($album, $albumai, $spotilink, $image, $date, $isonefile, $searched, $imagekey, $mbid, $numdiscs, $domain, $directory) {
+
+	// Note that we're still passing 'directory' around even though it's not used any more. I hope it's not used any more. That would be bad.
+
 	global $mysqlc;
 	global $album_created;
 	global $error;
@@ -310,8 +313,8 @@ function create_new_album($album, $albumai, $spotilink, $image, $date, $isonefil
 		}
 	}
 
-	if ($stmt = mysqli_prepare($mysqlc, "INSERT INTO Albumtable (Albumname, AlbumArtistindex, Spotilink, Image, Year, IsOneFile, Searched, ImgKey, mbid, NumDiscs, Domain, Directory) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-		mysqli_stmt_bind_param($stmt, "sissiiississ", $album, $albumai, $spotilink, $image, $date, $isonefile, $searched, $imagekey, $mbid, $numdiscs, $domain, $directory);
+	if ($stmt = mysqli_prepare($mysqlc, "INSERT INTO Albumtable (Albumname, AlbumArtistindex, Spotilink, Image, Year, IsOneFile, Searched, ImgKey, mbid, NumDiscs, Domain) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+		mysqli_stmt_bind_param($stmt, "sissiiissis", $album, $albumai, $spotilink, $image, $date, $isonefile, $searched, $imagekey, $mbid, $numdiscs, $domain);
 		if (mysqli_stmt_execute($stmt)) {
 			$retval = mysqli_insert_id($mysqlc);
 			debug_print("Created Album with Albumindex ".$retval,"MYSQL");
@@ -613,7 +616,8 @@ function get_imagesearch_info($key) {
 
 	global $mysqlc;
 	$retval = array(false, null, null, null, null, null, false);
-	if ($result = mysqli_query($mysqlc, "SELECT Artistname, Albumname, mbid, Directory, Spotilink FROM Albumtable JOIN Artisttable ON AlbumArtistindex = Artistindex WHERE ImgKey = '".$key."'")) {
+	//if ($result = mysqli_query($mysqlc, "SELECT Artistname, Albumname, mbid, Directory, Spotilink FROM Albumtable JOIN Artisttable ON AlbumArtistindex = Artistindex WHERE ImgKey = '".$key."'")) {
+	if ($result = mysqli_query($mysqlc, "SELECT Artistname, Albumname, mbid, Albumindex, Spotilink FROM Albumtable JOIN Artisttable ON AlbumArtistindex = Artistindex WHERE ImgKey = '".$key."'")) {
 		// This can come back with multiple results if we have the same album on multiple backends
 		// Need to make sure we put appropriate values in the return list
 		while ($obj = mysqli_fetch_object($result)) {
@@ -627,10 +631,16 @@ function get_imagesearch_info($key) {
 				$retval[3] = $obj->mbid;
 			}
 			if ($retval[4] == null) {
-				$p = $obj->Directory;
-				// Make sure it's not a spotify/gmusic/whatever
-				if (!preg_match('/\w+?:album/', $p)) {
-					$retval[4] = $p;
+				if (!preg_match('/\w+?:album/', $obj->Spotilink)) {
+					// Get album directory by using the Uri of one of its tracks
+					if ($result2 = mysqli_query($mysqlc, "SELECT Uri FROM Tracktable WHERE Albumindex = ".$obj->Albumindex." LIMIT 1")) {
+						while ($obj2 = mysqli_fetch_object($result2)) {
+							$p = dirname($obj2->Uri);
+				            $p = preg_replace('#^local:track:#', '', $p);
+				            $retval[4] = $p;
+				            debug_print("Got album directory using track Uri - ".$p,"SQL");
+						}
+					}
 				}
 			}
 			if ($retval[5] == null || $retval[5] == "") {
@@ -1003,6 +1013,48 @@ function get_fave_artists() {
 		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 	return $artists;
+}
+
+function get_artist_charts() {
+	global $mysqlc;
+	$artists = array();
+	if ($result = mysqli_query($mysqlc, "SELECT playtot, Artistname FROM (SELECT SUM(Playcount) AS playtot, Artistindex FROM (SELECT Playcount, Artistindex FROM Tracktable JOIN Playcounttable USING (TTindex)) AS arse GROUP BY Artistindex) AS cheese JOIN Artisttable USING (Artistindex) ORDER BY playtot DESC LIMIT 40")) {
+		while ($obj = mysqli_fetch_object($result)) {
+			array_push($artists, array( 'label_artist' => $obj->Artistname, 'soundcloud_plays' => $obj->playtot));
+		}
+		mysqli_free_result($result);
+	} else {
+		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+	}
+	return $artists;
+}
+
+function get_album_charts() {
+	global $mysqlc;
+	$albums = array();
+	if ($result = mysqli_query($mysqlc, "SELECT playtot, Albumname, Artistname FROM (SELECT SUM(Playcount) AS playtot, Albumindex FROM (SELECT Playcount, Albumindex FROM Tracktable JOIN Playcounttable USING (TTindex)) AS arse GROUP BY Albumindex) AS cheese JOIN Albumtable USING (Albumindex) JOIN Artisttable ON (Albumtable.AlbumArtistIndex = Artisttable.Artistindex) ORDER BY playtot DESC LIMIT 40")) {
+		while ($obj = mysqli_fetch_object($result)) {
+			array_push($albums, array( 'label_artist' => $obj->Artistname, 'label_album' => $obj->Albumname, 'soundcloud_plays' => $obj->playtot));
+		}
+		mysqli_free_result($result);
+	} else {
+		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+	}
+	return $albums;
+}
+
+function get_track_charts() {
+	global $mysqlc;
+	$tracks = array();
+	if ($result = mysqli_query($mysqlc, "SELECT Title, Playcount, Artistname FROM Tracktable JOIN Playcounttable USING (TTIndex) JOIN Artisttable USING (Artistindex) ORDER BY Playcount DESC LIMIT 40")) {
+		while ($obj = mysqli_fetch_object($result)) {
+			array_push($tracks, array( 'label_artist' => $obj->Artistname, 'label_track' => $obj->Title, 'soundcloud_plays' => $obj->Playcount));
+		}
+		mysqli_free_result($result);
+	} else {
+		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+	}
+	return $tracks;
 }
 
 function getAveragePlays() {

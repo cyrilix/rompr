@@ -262,9 +262,7 @@ $languages['en'] = array (
 	"setup_connectfail" => "Rompr could not connect to an mpd or mopidy server",
 	"setup_connecterror" => "There was an error when communicating with your mpd or mopidy server : ",
 	"setup_request" => "You requested the setup page",
-	"setup_labeladdresses" => "Please enter the IP address and port of your mpd server in this form",
 	"setup_addressnote" => "Note: localhost in this context means the computer running the apache server",
-	"setup_ipaddress" => "IP Address or hostname",
 	"setup_port" => "Port",
 	"setup_advanced" => "Advanced options",
 	"setup_leaveblank" => "Leave these blank unless you know you need them",
@@ -523,9 +521,13 @@ $languages['en'] = array (
 	"label_mostplayed" => "Most Played Tracks",
 	"label_radio_fartist" => "Favourite Artist Radio",
 	"label_pluginplaylists" => "Personalised Radio",
+	"setup_mpd" => "MPD-specific Settings",
 
 	//CHANGED in 0.53
-	"config_country" => "COUNTRY (for Last.FM and Spotify)"
+	"config_country" => "COUNTRY (for Last.FM and Spotify)",
+	"setup_labeladdresses" => "If you are having connection issues, try using an IP address instead of 'localhost'",
+	"setup_ipaddress" => "Mopidy or mpd server",
+	"label_charts" => "Your Top 40",
 
 );
 

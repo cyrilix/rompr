@@ -456,6 +456,10 @@ function playerController() {
         });
     }
 
+    this.rawfindexact = function(terms, callback) {
+        // MPD doesn't suuport findexact so search will have to do
+        player.controller.rawsearch(terms, callback);
+    }
 
 	this.postLoadActions = function() {
 		self.checkProgress();

@@ -44,6 +44,9 @@ function check_sql_tables() {
 	// Check all our tables exist and create them if necessary
 
 	global $mysqlc;
+
+	$current_schema_version = 2;
+
 	if ($mysqlc) {
 
 		if (generic_sql_query("CREATE TABLE IF NOT EXISTS Tracktable(".
@@ -74,7 +77,7 @@ function check_sql_tables() {
 			"Albumindex INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE, ".
 			"PRIMARY KEY(Albumindex), ".
 			"Albumname VARCHAR(255), ".
-			"Directory VARCHAR(255), ".
+			// "Directory VARCHAR(255), ".
 			"AlbumArtistindex INT UNSIGNED, ".
 			"Image VARCHAR(255), ".
 			"Spotilink VARCHAR(255), ".
@@ -181,9 +184,33 @@ function check_sql_tables() {
 			generic_sql_query("INSERT INTO Statstable (Item, Value) VALUES ('AlbumCount', '0')");
 			generic_sql_query("INSERT INTO Statstable (Item, Value) VALUES ('TrackCount', '0')");
 			generic_sql_query("INSERT INTO Statstable (Item, Value) VALUES ('TotalTime', '0')");
-			generic_sql_query("INSERT INTO Statstable (Item, Value) VALUES ('SchemaVer', '1')");
+			generic_sql_query("INSERT INTO Statstable (Item, Value) VALUES ('SchemaVer', '".$current_schema_version."')");
 		} else {
-			debug_print("Statstable OK","MYSQL");
+			debug_print("Statstable Exists","MYSQL");
+			// Check schema version and update tables as necessary
+			if ($result = mysqli_query($mysqlc, "SELECT Value FROM Statstable WHERE Item = 'SchemaVer'")) {
+				$sv = 0;
+				while ($obj = mysqli_fetch_object($result)) {
+					$sv = $obj->Value;
+				}
+				while ($sv < $current_schema_version) {
+					switch ($sv) {
+						case 0:
+							debug_print("BIG ERROR! No Schema Version found!!","SQL");
+							break;
+
+						case 1:
+							// Update table schema from version 1 to version 2
+							debug_print("Updating FROM Schema version 1 TO Schema version 2","SQL");
+							generic_sql_query("ALTER TABLE Albumtable DROP Directory");
+							generic_sql_query("UPDATE Statstable SET Value = 2 WHERE Item = 'SchemaVer'");
+							break;
+					}
+					$sv++;
+				}
+			} else {
+				debug_print("Error querying Schema Version: ".mysqli_error($mysqlc), "MYSQL");
+			}
 		}
 
 	}

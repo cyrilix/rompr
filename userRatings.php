@@ -209,6 +209,14 @@ switch ($_POST['action']) {
 		print json_encode(get_fave_artists());
 		break;
 
+	case 'getcharts':
+		$charts = array();
+		$charts['Artists'] = get_artist_charts();
+		$charts['Albums'] = get_album_charts();
+		$charts['Tracks'] = get_track_charts();
+		print json_encode($charts);
+		break;
+
 }
 
 function preparePlaylist() {

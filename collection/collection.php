@@ -102,13 +102,13 @@ class album {
         if ($this->image) {
             $image = $this->image;
         }
-        if ($this->artist == "Various Artists") {
+        // if ($this->artist == "Various Artists") {
             if ($this->name == "Youtube") {
                 $image = "newimages/Youtube-logo.png";
             } else if ($this->name == "SoundCloud") {
                 $image = $ipath."soundcloud-logo.png";
             }
-        }
+        // }
         // If the track supplied an image
         if ($trackimage) {
             $image = $trackimage;

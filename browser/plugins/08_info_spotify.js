@@ -245,9 +245,9 @@ var info_spotify = function() {
 			            			}
 			            		}
 		            		}
-		            		x.append('<img class="masochist infoclick clickaddtrack" src="'+img+'" width="'+w+'" name="'+data.items[i].uri+'"/>');
+		            		x.append('<img class="masochist infoclick clickable draggable clicktrack" src="'+img+'" width="'+w+'" name="'+data.items[i].uri+'"/>');
 		            	}
-	            		x.append('<div class="tagh albumthing"><img class="menu infoclick clickopenalbum" src="'+ipath+'toggle-closed-new.png"/>&nbsp;<span class="infoclick clickaddtrack" name="'+data.items[i].uri+'"><b>'+data.items[i].name+'</b></span></div>')
+	            		x.append('<div class="tagh albumthing"><img class="menu infoclick clickopenalbum" src="'+ipath+'toggle-closed-new.png"/>&nbsp;<span class="infoclick draggable clickable clicktrack" name="'+data.items[i].uri+'"><b>'+data.items[i].name+'</b></span></div>')
 	            		x.append('<div class="tagh albumthing invisible" id="'+data.items[i].id+'"></div>')
 	            	}
             		if (mobile != "phone") {
@@ -285,9 +285,9 @@ var info_spotify = function() {
 			            			}
 			            		}
 		            		}
-		            		x.append('<img class="masochist2 infoclick clickaddtrack" src="'+img+'" width="'+w+'" name="'+data.items[i].uri+'"/>');
+		            		x.append('<img class="masochist2 infoclick clickable draggable clicktrack" src="'+img+'" width="'+w+'" name="'+data.items[i].uri+'"/>');
 		            	}
-	            		x.append('<div class="tagh albumthing"><img class="menu infoclick clickopenalbum" src="'+ipath+'toggle-closed-new.png"/>&nbsp;<span class="infoclick clickaddtrack" name="'+data.items[i].uri+'"><b>'+data.items[i].name+'</b></span></div>')
+	            		x.append('<div class="tagh albumthing"><img class="menu infoclick clickopenalbum" src="'+ipath+'toggle-closed-new.png"/>&nbsp;<span class="infoclick clickable draggable clicktrack" name="'+data.items[i].uri+'"><b>'+data.items[i].name+'</b></span></div>')
 	            		x.append('<div class="tagh albumthing invisible" id="'+data.items[i].id+'"></div>')
 	            	}
 	            	$("#"+id).slideToggle('fast', browser.rePoint);

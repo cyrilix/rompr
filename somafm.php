@@ -77,7 +77,14 @@ if ($content['status'] == "200") {
 
 function format_listenlink($c, $p, $label) {
     global $ipath;
-    print '<div class="clickable clickstream indent containerbox padright menuitem" name="'.(string) $p.'" streamimg="'.(string) $c->xlimage.'" streamname="'.$c->title.'">';
+    $img = (string) $c->xlimage;
+    if (!$img) {
+        $img = (string) $c->largeimage;
+    }
+    if (!$img) {
+        $img = (string) $c->image;
+    }
+    print '<div class="clickable clickstream indent containerbox padright menuitem" name="'.(string) $p.'" streamimg="'.$img.'" streamname="'.$c->title.'">';
     print '<div class="fixed">'.$label.'&nbsp;</div>';
     print '<div class="playlisticon fixed"><img height="12px" src="'.$ipath.'broadcast-12.png" /></div>';
     switch ($p[0]['format']) {
