@@ -57,6 +57,9 @@ var info_ratings = function() {
                 if (parent.playlistinfo.duration) {
                     data.duration = parent.playlistinfo.duration;
                 }
+                if (parent.playlistinfo.disc) {
+                    data.disc = parent.playlistinfo.disc;
+                }
                 if (parent.playlistinfo.albumartist && parent.playlistinfo.album != "SoundCloud") {
                     data.albumartist = parent.playlistinfo.albumartist;
                 } else {
@@ -129,7 +132,7 @@ var info_ratings = function() {
                     if (data.uri) {
                         self.updateDatabase(data);
                     } else {
-                        faveFinder.findThisOne(data, self, true, false);
+                        faveFinder.findThisOne(data, self, true, false, []);
                     }
                 }
             }
@@ -172,7 +175,6 @@ var faveFinder = function() {
 
     // faveFinder is used to find tracks which have just been tagged or rated but don't have a URI.
     // These would be tracks from a radio station
-    // (including Last.FM radio because last.fm URIs are only useful once)
 
     var queue = new Array();
     var throttle = null;
@@ -194,8 +196,8 @@ var faveFinder = function() {
                 withalbum = false;
             }
         }
-        debug.log("FAVEFINDER","Performing search",st);
-        player.controller.rawsearch(st, faveFinder.handleResults);
+        debug.log("FAVEFINDER","Performing search",st,req.sources);
+        player.controller.rawsearch(st, req.sources, faveFinder.handleResults);
     }
 
     return {
@@ -282,9 +284,19 @@ var faveFinder = function() {
                             if (data[i].tracks[k].track_no) {
                                 r.data.trackno = data[i].tracks[k].track_no;
                             }
+                            if (data[i].tracks[k].disc_no) {
+                                r.data.disc = data[i].tracks[k].disc_no;
+                            }
                             var u = ""+data[i].tracks[k].album.uri;
                             if (u.match(/^spotify:album:/)) {
                                 r.data.spotilink = u;
+                            }
+                            if (data[i].tracks[k].album.images &&
+                                data[i].tracks[k].album.images[0]) {
+                                r.data.image = data[i].tracks[k].album.images[0];
+                                if (r.data.image.substr(0,4) == "http") {
+                                    r.data.image = "getRemoteImage.php?url="+r.data.image;
+                                }
                             }
                             // Prioritise results with a matching album, unless that's
                             // already been done
@@ -320,6 +332,13 @@ var faveFinder = function() {
                             var u = ""+data[i].tracks[k].album.uri;
                             if (u.match(/^spotify:album:/)) {
                                 req.data.spotilink = u;
+                            }
+                            if (data[i].tracks[k].album.images &&
+                                data[i].tracks[k].album.images[0]) {
+                                req.data.image = data[i].tracks[k].album.images[0];
+                                if (req.data.image.substr(0,4) == "http") {
+                                    req.data.image = "getRemoteImage.php?url="+r.data.image;
+                                }
                             }
                             break;
                         }
@@ -359,9 +378,9 @@ var faveFinder = function() {
             }
         },
 
-        findThisOne: function(data, host, withalbum, returnall) {
+        findThisOne: function(data, host, withalbum, returnall, sources) {
             debug.log("FAVEFINDER","New thing to look for",data);
-            queue.push({data: data, host: host, withalbum: withalbum, returnall: returnall});
+            queue.push({data: data, host: host, withalbum: withalbum, returnall: returnall, sources: sources});
             if (throttle == null && queue.length == 1) {
                 faveFinder.next();
             }
@@ -390,30 +409,61 @@ function updateCollectionDisplay(rdata) {
     // (b) cause any opened dropdowns to be mysteriously closed
     //      - which would just look shit.
     debug.log("RATING PLUGIN","Update Display",rdata);
-    if (rdata && rdata.hasOwnProperty('type') && rdata.hasOwnProperty('where') && rdata.hasOwnProperty('html')) {
-        var el = "#"+rdata.where;
-        switch (rdata.type) {
-            case 'insertAfter':
-                debug.log("RATING PLUGIN", "insertAfter",el);
-                if (el.match(/aartist/)) {
-                    var d = $(el).parent();
-                    $(rdata.html).insertAfter(d);
-                } else {
-                    $(rdata.html).insertAfter(el);
-                }
-                break;
+    if (rdata && rdata.hasOwnProperty('inserts')) {
+        for (var i in rdata.inserts) {
+            var el = "#"+rdata.inserts[i].where;
+            switch (rdata.inserts[i].type) {
+                case 'insertAfter':
+                    debug.log("RATING PLUGIN", "insertAfter",el);
+                    if (el.match(/aartist/)) {
+                        var d = $(el).parent();
+                        $(rdata.inserts[i].html).insertAfter(d);
+                    } else {
+                        $(rdata.inserts[i].html).insertAfter(el);
+                    }
+                    break;
 
-            case 'insertInto':
-                debug.log("RATING PLUGIN", "insertInto",el);
-                if (!$(el).hasClass('notfilled')) {
-                    $(el).html(rdata.html);
-                }
-                break;
+                case 'insertInto':
+                    debug.log("RATING PLUGIN", "insertInto",el);
+                    if (!$(el).hasClass('notfilled')) {
+                        $(el).html(rdata.inserts[i].html);
+                    }
+                    break;
 
-            case 'insertAtStart':
-                debug.log("RATING PLUGIN", "insertAtStart",el);
-                $(rdata.html).prependTo(el);
-                break;
+                case 'insertAtStart':
+                    debug.log("RATING PLUGIN", "insertAtStart",el);
+                    $(rdata.inserts[i].html).prependTo(el);
+                    break;
+            }
+            $(rdata.inserts[i].html).find('img[src="newimages/album-unknown-small.png"]').each(function() {
+                debug.log("Getting Image for new album");
+                coverscraper.GetNewAlbumArt($(this).attr('name'));
+            });
+        }
+    }
+    if (rdata && rdata.hasOwnProperty('deletedtracks')) {
+        debug.log("DELETED TRACKS",rdata.deletedtracks);
+        for (var i in rdata.deletedtracks) {
+            debug.log("REMOVING",rdata.deletedtracks[i]);
+            $('div[name="'+rdata.deletedtracks[i]+'"]').remove();
+        }
+    }
+    if (rdata && rdata.hasOwnProperty('deletedalbums')) {
+        debug.log("DELETED ALBUMS",rdata.deletedalbums);
+        for (var i in rdata.deletedalbums) {
+            debug.log("REMOVING",rdata.deletedalbums[i]);
+            var d = $("#"+rdata.deletedalbums[i]);
+            if (d.length > 0) {
+                d.prev().remove();
+                d.remove();
+            }
+        }
+    }
+    if (rdata && rdata.hasOwnProperty('deletedartists')) {
+        debug.log("DELETED ARTISTS",rdata.deletedartists);
+        for (var i in rdata.deletedartists) {
+            debug.log("REMOVING",rdata.deletedartists[i]);
+            $("#"+rdata.deletedartists[i]).parent().remove();
         }
     }
     if (rdata && rdata.hasOwnProperty('stats')) {

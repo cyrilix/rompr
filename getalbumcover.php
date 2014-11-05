@@ -104,8 +104,20 @@ if ($file != "") {
         }
     }
     if ($src == "") {
-        $error = 1;
-        debug_print("  No art was found. Try the Tate Modern","GETALBUMCOVER");
+        switch (strtolower($album)) {
+            case "soundcloud":
+                $download_file = download_file(get_base_url().'/newimages/soundcloud-logo.png', $fname, $convert_path);
+                break;
+            case "youtube":
+                $download_file = download_file(get_base_url().'/newimages/youtube-logo.png', $fname, $convert_path);
+                break;
+            case "leftasrain":
+                $download_file = download_file(get_base_url().'/newimages/leftasrain.png', $fname, $convert_path);
+                break;
+            default:
+                $error = 1;
+                debug_print("  No art was found. Try the Tate Modern","GETALBUMCOVER");
+        }
     }
 }
 

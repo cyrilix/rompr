@@ -68,12 +68,17 @@ if (array_key_exists('mopidy', $_REQUEST)) {
     $prefs['mopidy_detected'] = $mopidy_detected == true ? "true" : "false";
 }
 
-//
-// If we didn't find mopidy, try and connect to mpd and ask for
-// setup values if we couldn't
-//
+if ($mopidy_detected) {
 
-if (!$mopidy_detected) {
+    $prefs["player_backend"] = "mopidy";
+
+} else {
+
+    //
+    // If we didn't find mopidy, try and connect to mpd and ask for
+    // setup values if we couldn't
+    //
+
     include("player/mpd/connection.php");
     if (!$is_connected) {
         debug_print("MPD Connection Failed","INDEX");
@@ -88,8 +93,6 @@ if (!$mopidy_detected) {
     }
     close_mpd($connection);
     $prefs['player_backend'] = "mpd";
-} else {
-    $prefs["player_backend"] = "mopidy";
 }
 
 //
@@ -252,9 +255,6 @@ $(window).ready(function(){
     }
     if (!prefs.hide_radiolist) {
         $("#yourradiolist").load("yourradio.php");
-    }
-    if (prefs.remote) {
-        $("#clickpolicy").hide();
     }
     setPrefs();
     checkServerTimeOffset();

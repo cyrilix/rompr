@@ -164,17 +164,16 @@ var tagManager = function() {
 			if (element.hasClass('clickremtag')) {
 		        var tag = element.parent().parent().parent().parent().parent().attr("id");
 		        tag = tag.replace(/tagman_/,'');
-		        debug.log("TAGMANAGER","Removing Tag",tag);
-		        var details = element.parent().prev().html();
-		        debug.log("TAGMANAGER","From",details);
-		        var matches = details.match(/<b>(.*?)<\/b><br><i>by<\/i> <b>(.*?)<\/b><br><i>on<\/i> <b>(.*?)<\/b>/);
+		        var uri = decodeURIComponent(element.parent().parent().attr('name'));
+		        debug.log("TAGMANAGER","Removing Tag",tag,"From",uri);
         		$.ajax({
         			url: "userRatings.php",
         			type: "POST",
         			data: {
-        				artist: unescapeHtml(matches[2]),
-        				album: unescapeHtml(matches[3]),
-        				title: unescapeHtml(matches[1]),
+        				artist: 'dummy',
+        				title: 'dummy',
+        				uri: uri,
+        				urionly: 'true',
         				action: 'remove',
         				value: tag
         			},
@@ -206,18 +205,6 @@ var tagManager = function() {
         				infobar.notify(infobar.ERROR, "Failed To Delete Tag");
         			}
         		});
-			// } else if (element.hasClass("tablerow")) {
-			// 	if (element.hasClass('selected')) {
-			// 		$("#tagmunger .selected").removeClass('selected');
-			// 	} else {
-			// 		var lookfor = $(element.children('td')[1]).html();
-			// 		debug.log("TAGMANAGER","Clicked On",lookfor);
-			// 		$("#tagmunger").find('tr').filter(function() {
-			// 			var l = $($(this).children('td')[1]).html();
-			// 			if (l == lookfor) return true;
-			// 			return false;
-			// 		}).addClass('selected');
-			// 	}
 			}
 		},
 
@@ -230,4 +217,4 @@ var tagManager = function() {
 
 }();
 
-$("#specialplugins").append('<div class="fullwidth"><button onclick="tagManager.open()">'+language.gettext("label_tagmanager")+'</button></div>');
+addPlugin(language.gettext("label_tagmanager"), "tagManager.open()");

@@ -580,9 +580,9 @@ function sourcecontrol(source) {
         sources = ["albumlist", "filelist", "radiolist"];
     } else {
         if (landscape) {
-            sources = ["albumlist", "filelist", "radiolist", "infopane", "chooser", "historypanel", "playlistman", "prefsm"];
+            sources = ["albumlist", "filelist", "radiolist", "infopane", "chooser", "historypanel", "pluginplaylists", "playlistman", "prefsm"];
         } else {
-            sources = ["albumlist", "filelist", "radiolist", "infopane", "playlistm", "chooser", "historypanel", "playlistman", "prefsm"];
+            sources = ["albumlist", "filelist", "radiolist", "infopane", "playlistm", "pluginplaylists", "chooser", "historypanel", "playlistman", "prefsm"];
         }
     }
     for(var i in sources) {
@@ -861,23 +861,7 @@ function removeTrackFromDb(element) {
                             });
                         }
                     });
-                    // Run a cleanup on the database to remove empty albums and artists.
-                    // We Don't run this on removing the track - where it would slow down
-                    // response of the GUI - because it's rather slow.
-                    $.ajax({
-                        url: "userRatings.php",
-                        type: "POST",
-                        data: { action: 'cleanup' },
-                        dataType: 'json',
-                        success: function(rdata) {
-                            if (rdata && rdata.hasOwnProperty('stats')) {
-                                $("#fothergill").html(rdata.stats);
-                            }
-                        },
-                        error: function() {
-                            debug.log("DB TRACKS", "Failed to run cleanup!");
-                        }
-                    });
+                    doDbCleanup();
                 }
             });
 
@@ -885,6 +869,26 @@ function removeTrackFromDb(element) {
         error: function() {
             debug.log("DB TRACKS", "Failed to remove track");
             infobar.notify(infobar.ERROR, "Failed to remove track!");
+        }
+    });
+}
+
+function doDbCleanup() {
+    // Run a cleanup on the database to remove empty albums and artists.
+    // We Don't run this on removing the track - where it would slow down
+    // response of the GUI - because it's rather slow.
+    $.ajax({
+        url: "userRatings.php",
+        type: "POST",
+        data: { action: 'cleanup' },
+        dataType: 'json',
+        success: function(rdata) {
+            if (rdata && rdata.hasOwnProperty('stats')) {
+                $("#fothergill").html(rdata.stats);
+            }
+        },
+        error: function() {
+            debug.log("DB TRACKS", "Failed to run cleanup!");
         }
     });
 }
@@ -936,20 +940,6 @@ function chooseNewTag(event) {
 function setPrefs() {
     $("#fontsize").attr({href: "sizes/"+prefs.fontsize});
     $("#fontfamily").attr({href: "fonts/"+prefs.fontfamily});
-    $("#scrobbling").attr("checked", prefs.lastfm_scrobbling);
-    $("#autocorrect").attr("checked", prefs.lastfm_autocorrect);
-    $("#button_hide_albumlist").attr("checked", prefs.hide_albumlist);
-    $("#button_hide_filelist").attr("checked", prefs.hide_filelist);
-    $("#button_hide_radiolist").attr("checked", prefs.hide_radiolist);
-    $("#button_hide_browser").attr("checked", prefs.hidebrowser);
-    $("#updateeverytime").attr("checked", prefs.updateeverytime);
-    $("#ignore_unplayable").attr("checked", prefs.ignore_unplayable);
-    $("#downloadart").attr("checked", prefs.downloadart);
-    $("#fullbiobydefault").attr("checked", prefs.fullbiobydefault);
-    $("#scrolltocurrent").attr("checked", prefs.scrolltocurrent);
-    $("#scrolltocurrent").attr("checked", prefs.scrolltocurrent);
-    $("#sortbydate").attr("checked", prefs.sortbydate);
-    $("#notvabydate").attr("checked", prefs.notvabydate);
     $("#themeselector").val(prefs.theme);
     $("#iconthemeselector").val(prefs.icontheme);
     $("#langselector").val(interfaceLanguage);
@@ -957,15 +947,23 @@ function setPrefs() {
     $("[name=clickselect][value="+prefs.clickmode+"]").attr("checked", true);
     $("[name=clicklfmlang][value="+prefs.lastfmlang+"]").attr("checked", true);
     $("[name=userlanguage]").val(prefs.user_lang);
-    $("#twocolumnsinlandscape").attr("checked", prefs.twocolumnsinlandscape);
     $("#fontselector").val(prefs.fontsize);
     $("#fontfamselector").val(prefs.fontfamily);
     scrobwrangler = new progressBar('scrobwrangler', 'horizontal');
     scrobwrangler.setProgress(parseInt(prefs.scrobblepercent.toString()));
     $("#scrobwrangler").click( setscrob );
-    $("#synctags").attr("checked", prefs.synctags);
-    $("#synclove").attr("checked", prefs.synclove);
     $("#synclovevalue").val(prefs.synclovevalue);
+
+    $.each(["synctags", "synclove", "onthefly", "lastfm_scrobbling",
+            "lastfm_autocorrect", "hide_albumlist", "hide_filelist", "hide_radiolist",
+            "hidebrowser", "updateeverytime", "ignore_unplayable", "downloadart",
+            "fullbiobydefault", "scrolltocurrent", "sortbydate", "notvabydate",
+            "twocolumnsinlandscape"],
+            function(i,v) {
+                $("#"+v).attr("checked", prefs[v]);
+            }
+    );
+
 }
 
 function playlistMenuHeader() {
@@ -976,4 +974,8 @@ function playlistMenuHeader() {
         html = html + '<h3>'+language.gettext("menu_playlists")+'</h3>';
     }
     return html;
+}
+
+function addPlugin(label, action) {
+    $("#specialplugins").append('<div class="fullwidth backhi clickicon noselection menuitem dragsort" onclick="'+action+'">'+label+'</div>');
 }

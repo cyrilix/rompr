@@ -541,6 +541,7 @@ function Playlist() {
         return {
 
             register: function(name, fn) {
+                debug.log("RADIO MANAGER","Registering Plugin",name);
                 radios[name] = fn;
             },
 
@@ -548,15 +549,12 @@ function Playlist() {
                 $("#pluginplaylists").empty();
                 if (prefs.apache_backend == "sql") {
                     for(var i in radios) {
+                        debug.log("RADIO MANAGER","Activating Plugin",i);
                         radios[i].setup();
                         if (prefs.radiomode == i) {
-                            // if (playlist.getfinaltrack() > -1) {
-                                debug.mark("RADIOMANAGER","Found saved radio playlist state",prefs.radiomode, prefs.radioparam);
-                                radios[i].populate(prefs.radioparam);
-                                mode = prefs.radiomode;
-                            // } else {
-                            //     prefs.save({radiomode: ''});
-                            // }
+                            debug.mark("RADIOMANAGER","Found saved radio playlist state",prefs.radiomode, prefs.radioparam);
+                            radios[i].populate(prefs.radioparam, true);
+                            mode = prefs.radiomode;
                         }
                     }
                 }
@@ -569,10 +567,14 @@ function Playlist() {
                     radios[mode].stop();
                 }
                 mode = which;
-                radios[which].populate(param);
+                radios[which].populate(param, false);
                 prefs.save({radiomode: which, radioparam: param});
                 if (mobile == "phone") {
                     sourcecontrol('playlistm');
+                } else {
+                    if ($("#ppscr").is(':visible')) {
+                        $("#ppscr").slideToggle('fast');
+                    }
                 }
             },
 
@@ -644,7 +646,7 @@ function Playlist() {
                 if (l.substring(0, 7) == "spotify") {
                     html = html + '<div class="playlisticon fixed"><img height="12px" src="'+ipath+'spotify-logo.png" /></div>';
                 } else if (l.substring(0, 6) == "gmusic") {
-                    html = html + '<div class="playlisticon fixed"><img height="12px" src="newimages/play-logo.png" /></div>';
+                    html = html + '<div class="playlisticon fixed"><img height="12px" src="newimages/gmusic-logo.png" /></div>';
                 }
                 if (showartist) {
                     html = html + '<div class="containerbox vertical expand">';
@@ -670,7 +672,7 @@ function Playlist() {
             if (l.substring(0,11) == "soundcloud:") {
                 html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="'+ipath+'soundcloud-logo.png"/></div>';
             } else if (l.substring(0,8) == "youtube:" || l.substring(0,3) == "yt:") {
-                html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="newimages/Youtube-logo.png"/></div>';
+                html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="newimages/youtube-logo.png"/></div>';
             } else {
                 if (tracks[0].image && tracks[0].image != "") {
                     // An image was supplied - either a local one or supplied by the backend

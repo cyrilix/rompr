@@ -19,7 +19,11 @@ if (!$url) {
 			file_put_contents($outfile, $aagh['contents']);
 
 		} else {
-	        header('HTTP/1.0 403 Forbidden');
+			debug_print("Failed to download - status was ".$aagh['status'],"TOMATO");
+	        // header('HTTP/1.0 403 Forbidden');
+	        // exit(0);
+	        header('Content-type: image/png');
+	        readfile('newimages/album-unknown-small.png');
 	        exit(0);
 		}
 	}

@@ -103,7 +103,7 @@ function doDbCollection($terms, $domains) {
 				'file' => $obj->Uri,
 				'Title' => $obj->Title,
 				'Track' => $obj->TrackNo,
-				'Image' => $obj->Image,
+				'Image' => imagePath($obj->ImgKey),
 				'Time' => $obj->Duration,
 				'SpotiAlbum' => $obj->Spotilink,
 				'Date' => $obj->Year,
@@ -136,7 +136,6 @@ function doDbCollection($terms, $domains) {
 			debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 		}
 	}
-
 
 	return $collection;
 

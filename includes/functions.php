@@ -249,24 +249,22 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
     } else {
         print '></div>';
     }
-    if (substr($url,0,7) == "spotify") {
-        print '<div class="playlisticon fixed"><img height="12px" src="'.$ipath.'spotify-logo.png" /></div>';
-    } else if (substr($url,0,10) == "soundcloud") {
-        if ($image !== "") {
+    $d = getDomain(urldecode($url));
+    debug_print("Track domain is ".$d." from ".$url,"POTATO");
+    switch ($d) {
+        case "spotify":
+        case "gmusic":
+            print '<div class="playlisticon fixed"><img height="12px" src="'.$ipath.$d.'-logo.png" /></div>';
+            break;
+
+        case "soundcloud":
+        case "youtube":
+            if ($image == "" || $image === null) $image = "newimages/album-unknown-small.png";
             print '<div class="smallcover fixed">';
             print '<img class="smallcover fixed" src="'.$image.'" />';
             print '</div>';
-        }
-        print '<div class="playlisticon fixed"><img height="12px" src="'.$ipath.'soundcloud-logo.png" /></div>';
-    } else if (substr($url,0,6) == "gmusic") {
-        print '<div class="playlisticon fixed"><img height="12px" src="newimages/play-logo.png" /></div>';
-    } else if (substr($url,0,7) == "youtube") {
-        if ($image !== "") {
-            print '<div class="smallcover fixed">';
-            print '<img class="smallcover fixed" src="'.$image.'" />';
-            print '</div>';
-        }
-        print '<div class="playlisticon fixed"><img height="12px" src="newimages/Youtube-logo.png" /></div>';
+            print '<div class="playlisticon fixed"><img height="12px" src="'.$ipath.$d.'-logo.png" /></div>';
+            break;
     }
     print '<div class="expand">'.$name.'</div>';
     print '<div class="fixed playlistrow2">'.$duration.'</div>';
@@ -298,18 +296,23 @@ function noAlbumTracks() {
     print '<div class="playlistrow2" style="padding-left:64px">'.get_int_text("label_notracks").'</div>';
 }
 
-function artistHeader($id, $spotilink, $name) {
+function artistHeader($id, $spotilink, $name, $numalbums = null) {
     global $divtype;
     global $ipath;
+    $browseable = "";
+    // Browsing doesn't work for spotify artists :(
+    // if ($numalbums === 0) {
+    //     $browseable = " browseable";
+    // }
     print '<div class="noselection fullwidth '.$divtype.'">';
     if ($spotilink) {
-        print '<div class="clickable clicktrack draggable containerbox menuitem" name="'.$spotilink.'">';
+        print '<div class="clickable clicktrack draggable containerbox menuitem'.$browseable.'" name="'.$spotilink.'">';
         print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" name="'.$id.'"></div>';
         if (preg_match('/^spotify/', $spotilink)) {
             print '<div class="playlisticon fixed"><img height="12px" src="'.$ipath.'spotify-logo.png" /></div>';
             print '<input type="hidden" value="needsfiltering" />';
         } else if (preg_match('/^gmusic/', $spotilink)) {
-            print '<div class="playlisticon fixed"><img height="12px" src="newimages/play-logo.png" /></div>';
+            print '<div class="playlisticon fixed"><img height="12px" src="newimages/gmusic-logo.png" /></div>';
         }
         print '<div class="expand saname">'.$name.'</div>';
         print '</div>';
@@ -329,11 +332,16 @@ function noAlbumsHeader() {
     print '<div class="playlistrow2" style="padding-left:64px">'.get_int_text("label_noalbums").'</div>';
 }
 
-function albumHeader($name, $spotilink, $id, $isonefile, $exists, $searched, $imgname, $src, $date) {
+function albumHeader($name, $spotilink, $id, $isonefile, $exists, $searched, $imgname, $src, $date, $numtracks = null) {
     global $prefs;
     global $ipath;
+    $browseable = "";
+    debug_print("Numtracks is ".$numtracks, "ALBUMHEADER");
+    if ($numtracks === 0) {
+        $browseable = " browseable";
+    }
     if ($spotilink) {
-        print '<div class="clickable clicktrack draggable containerbox menuitem" name="'.$spotilink.'">';
+        print '<div class="clickable clicktrack draggable containerbox menuitem'.$browseable.'" name="'.$spotilink.'">';
         print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" name="'.$id.'"></div>';
     } else if ($isonefile) {
         print '<div class="clickable clickalbum onefile draggable containerbox menuitem" name="'.$id.'">';
@@ -342,6 +350,7 @@ function albumHeader($name, $spotilink, $id, $isonefile, $exists, $searched, $im
         print '<div class="clickable clickalbum draggable containerbox menuitem" name="'.$id.'">';
         print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" name="'.$id.'"></div>';
     }
+
     // For BLOODY FIREFOX only we have to wrap the image in a div of the same size,
     // because firefox won't squash the image horizontally if it's in a box-flex layout.
     print '<div class="smallcover fixed">';
@@ -357,7 +366,7 @@ function albumHeader($name, $spotilink, $id, $isonefile, $exists, $searched, $im
         if (preg_match('/^spotify/', $spotilink)) {
             print '<div class="playlisticon fixed"><img height="12px" src="'.$ipath.'spotify-logo.png" /></div>';
         } else if (preg_match('/^gmusic/', $spotilink)) {
-            print '<div class="playlisticon fixed"><img height="12px" src="newimages/play-logo.png" /></div>';
+            print '<div class="playlisticon fixed"><img height="12px" src="newimages/gmusic-logo.png" /></div>';
         }
     }
 
@@ -650,10 +659,14 @@ print'        <p><input type="submit" class="winkle" value="OK" /></p>
 print "\n";
 }
 
-function update_stream_playlist($url, $name, $image="newimages/broadcast.png", $creator = "", $title = "", $type = "stream") {
+function update_stream_playlist($url, $name, $image=null, $creator = "", $title = "", $type = "stream") {
+
+    global $ipath;
+
     $file = "";
     $found = false;
     $x = null;
+    if ($image === null) $image = $ipath."broadcast.png";
 
     $playlists = glob("prefs/*STREAM*.xspf");
     foreach($playlists as $i => $file) {
@@ -702,6 +715,53 @@ function update_stream_playlist($url, $name, $image="newimages/broadcast.png", $
         }
         fclose($fp);
     }
+}
+
+function imagePath($key) {
+    return (file_exists('albumart/small/'.$key.'.jpg')) ? 'albumart/small/'.$key.'.jpg' : 'newimages/album-unknown-small.png';
+}
+
+function munge_filedata($filedata, $file) {
+    $name = (array_key_exists('Title', $filedata)) ? $filedata['Title'] : rawurldecode(basename($file));
+    $artist = (array_key_exists('Artist', $filedata)) ? $filedata['Artist'] : rawurldecode(basename(dirname(dirname($file))));
+    $number = (array_key_exists('Track', $filedata)) ? format_tracknum(ltrim($filedata['Track'], '0')) : format_tracknum(rawurldecode(basename($file)));
+    $duration = (array_key_exists('Time', $filedata)) ? $filedata['Time'] : 0;
+    $albumartist = (array_key_exists('AlbumArtist', $filedata)) ? $filedata['AlbumArtist'] : null;
+    $spotialbum = (array_key_exists('SpotiAlbum',$filedata)) ? $filedata['SpotiAlbum'] : null;
+    $image = (array_key_exists('Image', $filedata)) ? $filedata['Image'] : null;
+    $album = (array_key_exists('Album', $filedata)) ? $filedata['Album'] : rawurldecode(basename(dirname($file)));
+    $date = (array_key_exists('Date',$filedata)) ? $filedata['Date'] : null;
+    $lastmodified = (array_key_exists('Last-Modified',$filedata)) ? $filedata['Last-Modified'] : 0;
+    $disc = (array_key_exists('Disc', $filedata)) ? format_tracknum(ltrim($filedata['Disc'], '0')) : 1;
+    $mbalbum = (array_key_exists('MUSICBRAINZ_ALBUMID', $filedata)) ? $filedata['MUSICBRAINZ_ALBUMID'] : "";
+
+    // Capture tracks where the basename/dirname route didn't work
+    // Fixups for various mopidy backends
+
+
+    debug_print("Artist : '".$artist."' file : '".$file."'", "THING");
+
+    if ($artist == "." || $artist == "") {
+        if (preg_match('/^internetarchive\:/', $file)) {
+            $artist = "Internet Archive";
+        } else {
+            $artist = '[Unknown]';
+        }
+    }
+    if ($album == ".") {
+        $album = '[Unknown]';
+    }
+
+    $artist = preg_replace('/local:track:/', '', $artist);
+    $album = preg_replace('/local:track:/', '', $album);
+
+    if (preg_match('/^podcast\:/', $artist)) {
+        $artist = "Uncategorised Podcasts";
+    }
+
+    return array($name, $artist, $number, $duration, $albumartist, $spotialbum,
+                    $image, $album, $date, $lastmodified, $disc, $mbalbum);
+
 }
 
 ?>

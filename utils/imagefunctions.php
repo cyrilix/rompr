@@ -35,9 +35,9 @@ function download_file($src, $fname, $convert_path) {
 }
 
 function saveImage($fname, $in_collection, $stream) {
-    debug_print("  Saving Image","GETALBUMCOVER");
     global $convert_path;
     global $download_file;
+    debug_print("  Saving Image ".$download_file,"GETALBUMCOVER");
     $main_file = null;
     $small_file = null;
     $anglofile = null;

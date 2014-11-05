@@ -92,7 +92,7 @@ var artistRadio = function() {
 
 	return {
 
-		populate: function(artist) {
+		populate: function(artist, flag) {
 			if (artist) {
 				debug.shout("ARTIST RADIO","Populating with",artist);
 				artists = new Array();
@@ -214,16 +214,16 @@ var artistRadio = function() {
 		},
 
 		setup: function() {
-            var html = '<div class="padright menuitem">';
-            html = html + '<div class="containerbox dropdown-container">';
-            html = html + '<div class="fixed playlisticon"><img src="'+ipath+'document-open-folder.png" height="12px" style="vertical-align:middle"></div>';
-            html = html + '<div class="fixed padright"><span style="vertical-align:middle">'+language.gettext('label_artist')+'</span></div>';
-            html = html + '<div class="expand dropdown-holder"><input class="searchterm enter sourceform" id="bubbles" type="text" style="width:100%;font-size:100%;vertical-align:middle"/></div>';
-            html = html + '<button class="fixed" style="margin-left:8px;vertical-align:middle" onclick="playlist.radioManager.load(\'artistRadio\', $(\'#bubbles\').val())">'+language.gettext('button_playradio')+'</button>';
-            html = html + '</div>';
-            html = html + '</div>';
-            $("#pluginplaylists").append(html);
-
+			if (player.canPlay('spotify')) {
+	            var html = '<div class="containerbox dropdown-container spacer">';
+	            html = html + '<div class="fixed playlisticon"><img src="'+ipath+'spotify-logo.png" height="12px" style="vertical-align:middle"></div>';
+	            html = html + '<div class="fixed padright"><span style="vertical-align:middle">'+language.gettext('label_artist')+'</span></div>';
+	            html = html + '<div class="expand dropdown-holder"><input class="searchterm enter sourceform" id="bubbles" type="text" style="width:100%;font-size:100%;vertical-align:middle"/></div>';
+	            html = html + '<button class="fixed" style="margin-left:8px;vertical-align:middle" onclick="playlist.radioManager.load(\'artistRadio\', $(\'#bubbles\').val())">'+language.gettext('button_playradio')+'</button>';
+	            html = html + '</div>';
+	            html = html + '</div>';
+	            $("#pluginplaylists").append(html);
+	        }
 		}
 
 	}

@@ -43,12 +43,12 @@ function parse_mopidy_json_data($collection, $jsondata) {
 
             if (property_exists($searchresults, 'tracks')) {
                 foreach ($searchresults->tracks as $track) {
-                    parseTrack($collection, $track);
+                    process_file($collection, parseTrack($track));
                 }
             }
 
         } else if ($searchresults->{'__model__'} == "TlTrack") {
-            parseTrack($collection, $searchresults->track, $plpos, $searchresults->{'tlid'});
+            process_file($collection, parseTrack($searchresults->track, $plpos, $searchresults->{'tlid'}));
         }
         $plpos++;
     }
@@ -77,6 +77,9 @@ function parseAlbum($collection, $track) {
     }
     if (property_exists($track, 'images')) {
         $trackdata['Image'] = $track->{'images'}[0];
+        if (substr($trackdata['Image'],0,4) == "http") {
+           $trackdata['Image'] = "getRemoteImage.php?url=".$trackdata['Image'];
+        }
     }
     if (property_exists($track, 'date')) {
         $trackdata['Date'] = $track->{'date'};
@@ -95,7 +98,7 @@ function parseAlbum($collection, $track) {
     process_file($collection, $trackdata);
 }
 
-function parseTrack($collection, $track, $plpos = null, $plid = null) {
+function parseTrack($track, $plpos = null, $plid = null) {
 
     $trackdata = array();
     $trackdata['Pos'] = $plpos;
@@ -112,12 +115,18 @@ function parseTrack($collection, $track, $plpos = null, $plid = null) {
     }
     if (property_exists($track, 'length')) {
         $trackdata['Time'] = $track->{'length'}/1000;
+    } else {
+        $trackdata['Time'] = 0;
     }
     if (property_exists($track, 'track_no')) {
         $trackdata['Track'] = $track->{'track_no'};
+    } else {
+        $trackdata['Track'] = 0;
     }
     if (property_exists($track, 'disc_no')) {
         $trackdata['Disc'] = $track->{'disc_no'};
+    } else {
+        $trackdata['Disc'] = 1;
     }
     if (property_exists($track, 'date')) {
         $trackdata['Date'] = $track->{'date'};
@@ -157,7 +166,9 @@ function parseTrack($collection, $track, $plpos = null, $plid = null) {
                     $im = $i;
                 }
             }
-            // debug_print("Track Image set to ".$im,"COLLECTION");
+            if (substr($im,0,4) == "http") {
+                $im = "getRemoteImage.php?url=".$im;
+            }
             $trackdata['Image'] = $im;
         }
         if (property_exists($track->{'album'}, 'uri') && substr($track->{'album'}->{'uri'},0,8) == "spotify:") {
@@ -176,7 +187,7 @@ function parseTrack($collection, $track, $plpos = null, $plid = null) {
         }
     }
 
-    process_file($collection, $trackdata);
+    return $trackdata;
 
 }
 

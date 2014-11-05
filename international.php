@@ -9,11 +9,9 @@ $translations = $languages['en'];
 
 $browser_language = get_browser_language();
 $interface_language = array_key_exists("language", $prefs) ? $prefs["language"] : $browser_language;
-debug_print("Interface language is ".$interface_language,"INTERNATIONAL");
 
 if ($interface_language != "en") {
 	if (file_exists('international/'.$interface_language.'.php')) {
-		debug_print("Using translation ".$interface_language,"INTERNATIONAL");
 		include ('international/'.$interface_language.'.php');
 		$translations = array_merge($languages['en'], $languages[$interface_language]);
 	} else {

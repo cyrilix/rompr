@@ -327,3 +327,15 @@ tr.clickaddtrack:hover
 {
     background-color:#353535;
 }
+
+.drop-box
+{
+    background-color:#090909;
+    color:#fefefe;
+}
+
+.tagman-hover
+{
+    border: 1px solid #fe6500;
+    background-color: #181818 !important;
+}

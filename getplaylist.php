@@ -6,7 +6,7 @@ include ("collection/collection.php");
 include ("player/".$prefs['player_backend']."/connection.php");
 include ("backends/".$prefs['apache_backend']."/backend.php");
 
-header('Content-Type: text/xml; charset=utf-8');
+header('Content-Type: application/json; charset=utf-8');
 
 $collection = doCollection("playlistinfo");
 debug_print("Collection scan playlistinfo finished","GETPLAYLIST");
@@ -21,7 +21,6 @@ function outputPlaylist() {
     $output = array();
 
     foreach ($playlist as $track) {
-
         array_push($output, array(
             "title" => $track->name,
             "album" => $track->album,
@@ -35,6 +34,7 @@ function outputPlaylist() {
             "expires" => $track->expires,
             "stationurl" => $track->stationurl,
             "station" => $track->station,
+            "disc" => $track->disc,
             "location" => $track->url,
             "backendid" => $track->backendid,
             "dir" => rawurlencode($track->albumobject->folder),

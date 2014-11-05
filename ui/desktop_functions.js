@@ -342,6 +342,7 @@ function initUI() {
     setDraggable('filesearch');
     setDraggable('artistinformation');
     setDraggable('albuminformation');
+    setDraggable('storedplaylists');
 
     // Make the entire playlist area accept drops from the collection
     $("#pscroller").droppable({
@@ -406,7 +407,15 @@ function initUI() {
     }, false);
     $(".enter").keyup( onKeyUp );
     $(".lettuce,.tooltip").tipTip({delay: 1000, edgeOffset: 8});
-    $.each([ "#sources", "#infopane", "#pscroller", "#lpscr", "#configpanel", "#hpscr", "#searchscr", ".drop-box" ], function( index, value ) {
+    $.each([ "#sources", "#infopane", "#pscroller", "#lpscr", "#configpanel", "#hpscr", "#searchscr", ".drop-box", "#plscr", "#ppscr" ], function( index, value ) {
         addCustomScrollBar(value);
     });
+
+    $("#mopidysearcher input").keyup( function(event) {
+        if (event.keyCode == 13) {
+            debug.log("SEARCH","Keyup");
+            player.controller.search('search');
+        }
+    } );
+
 }

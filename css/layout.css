@@ -1026,7 +1026,7 @@ ul.topnav li
 {
     float:left;
     position:relative;
-    width:36px;
+    width:32px;
     z-index:1000;
 }
 
@@ -2263,5 +2263,22 @@ div.lyrics p
 {
     margin-bottom:4px;
     padding-bottom:4px;
-    border-bottom:1px solid #999999;
+}
+
+.spacer
+{
+    padding-bottom:4px;
+    padding-top:4px;
+}
+
+.masochist
+{
+    margin-right:auto;
+    margin-left:auto;
+    display:block;
+}
+
+.albumthing
+{
+    text-align:center;
 }

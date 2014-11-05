@@ -8,9 +8,9 @@ include ("backends/sql/backend.php");
 
 $error = 0;
 $count = 1;
-$download_file = "";
 $divtype = "album1";
 $collection = null;
+$returninfo = array();
 $nodata = array (
 	'Rating' => 0,
 	'Tags' => array()
@@ -33,7 +33,10 @@ $album = array_key_exists('album', $_POST) ? $_POST['album'] : null;
 $uri = array_key_exists('uri', $_POST) ? $_POST['uri'] : null;
 $date = array_key_exists('date', $_POST) ? $_POST['date'] : null;
 $urionly = array_key_exists('urionly', $_POST) ? true : false;
-$forceupdate = array_key_exists('forceupdate', $_POST) ? true : false;
+$disc = array_key_exists('disc', $_POST) ? $_POST['disc'] : 1;
+if (substr($image,0,4) == "http") {
+	$image = "getRemoteImage.php?url=".$image;
+}
 
 switch ($_POST['action']) {
 
@@ -70,7 +73,8 @@ switch ($_POST['action']) {
 		$ttid = find_item(	$uri,
 							$title,
 							$artist,
-							$album);
+							$album,
+							false);
 		if ($ttid) {
 			print json_encode(get_all_data($ttid));
 		} else {
@@ -88,14 +92,37 @@ switch ($_POST['action']) {
 		$ttid = find_item(	$uri,
 							$title,
 							$artist,
-							$album);
+							$album,
+							false);
+
+		if ($ttid == null) {
+			debug_print("Doing an INCREMENT action - Found NOTHING so creating hidden track","USERRATING");
+			// So we need to create a new hidden track
+			$ttid = create_new_track(	$title,
+										$artist,
+										$trackno,
+										$duration,
+										$albumartist,
+										$spotilink,
+										$image,
+										$album,
+										$date,
+										$uri,
+										null, null, null, null, null,
+										md5($albumartist." ".$album),
+										null,
+										$disc,
+										null, null,
+										$uri === null ? "local" : getDomain($uri),
+										1);
+
+		}
+
 		if ($ttid) {
 			debug_print("Doing an INCREMENT action - Found TTID ".$ttid,"USERRATING");
 			increment_value($ttid, $_POST['attribute'], $_POST['value']);
 			$returninfo['metadata'] = get_all_data($ttid);
 			print json_encode($returninfo);
-		} else {
-			debug_print("Doing an INCREMENT action - Found NOTHING","USERRATING");
 		}
 		break;
 
@@ -113,6 +140,7 @@ switch ($_POST['action']) {
 							$artist,
 							$album,
 							$urionly);
+
 		if ($ttid == null) {
 
 			// NOTE: This is adding new tracks without putting them through the collectioniser.
@@ -131,17 +159,20 @@ switch ($_POST['action']) {
 										$date,
 										$uri,
 										null, null, null, null, null,
-										md5($artist." ".$album),
-										null, null, null, null,
-										$uri === null ? "local" : getDomain($uri));
+										md5($albumartist." ".$album),
+										null,
+										$disc,
+										null, null,
+										$uri === null ? "local" : getDomain($uri),
+										0);
 		}
 		if ($ttid) {
-			update_track_stats();
 			if (set_attribute($ttid, $_POST['attribute'], $_POST['value'])) {
-				if ($uri || $forceupdate) {
+				update_track_stats();
+				if ($uri) {
 					// Don't tell the browser to add stuff to the collection
-					// if we didn't have a URI. Except if forceupdate is set -
-					// this is used by the rating manager in the wibbly wibbly world of cod.
+					// if we didn't have a URI. I can't remember why we would be here without
+					// a URI though. Probably wishlist tracks.
 					send_list_updates($artist_created, $album_created, $ttid);
 				}
 			} else {
@@ -162,7 +193,8 @@ switch ($_POST['action']) {
 		$ttid = find_item(	$uri,
 							$title,
 							$artist,
-							$album);
+							$album,
+							false);
 		if ($ttid) {
 			if (remove_tag($ttid, trim($_POST['value']))) {
 				send_list_updates($artist_created, $album_created, $ttid);
@@ -176,7 +208,7 @@ switch ($_POST['action']) {
 
 
 	case 'delete':
-		$ttid = find_item($uri, null, null, null);
+		$ttid = find_item($uri, null, null, null, false);
 		if ($ttid == null) {
 			header('HTTP/1.0 403 Forbidden');
 		} else {
@@ -230,23 +262,28 @@ function doPlaylist($playlist) {
 	$sqlstring = "";
 	switch($playlist) {
 		case "1stars":
-			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Rating > 0";
+			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden=0 AND Rating > 0";
 			break;
 		case "2stars":
-			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Rating > 1";
+			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden=0 AND Rating > 1";
 			break;
 		case "3stars":
-			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Rating > 2";
+			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden=0 AND Rating > 2";
 			break;
 		case "4stars":
-			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Rating > 3";
+			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden=0 AND Rating > 3";
 			break;
 		case "5stars":
-			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Rating > 4";
+			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden=0 AND Rating > 4";
 			break;
 		case "mostplayed":
 			$avgplays = getAveragePlays();
-			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Playcounttable USING (TTindex) WHERE Uri IS NOT NULL AND Playcount > ".$avgplays;
+			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Playcounttable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden=0 AND Playcount > ".$avgplays;
+			break;
+		case "neverplayed":
+			// Slightly wierd syntax but this does in fact give us all rows in Tracktable that do not have a JOIN with Ratingtable
+			// http://dev.mysql.com/doc/refman/5.0/en/join.html
+			$sqlstring = "SELECT Tracktable.TTindex FROM Tracktable LEFT JOIN Ratingtable ON Tracktable.TTindex = Ratingtable.TTindex WHERE Ratingtable.TTindex IS NULL";
 			break;
 		default:
 			if (preg_match('/tag\+(.*)/', $playlist, $matches)) {
@@ -260,7 +297,7 @@ function doPlaylist($playlist) {
 					$sqlstring .=  "Tagtable.Name = '".mysqli_real_escape_string($mysqlc, trim($tag))."'";
 
 				}
-				$sqlstring .= ") AND Tracktable.Uri IS NOT NULL";
+				$sqlstring .= ") AND Tracktable.Uri IS NOT NULL AND Tracktable.Hidden=0 ";
 			}
 			break;
 	}
@@ -283,69 +320,5 @@ function delete_track($ttid) {
 	}
 }
 
-function send_list_updates($artist_created, $album_created, $ttid) {
-	global $mysqlc;
-	$returninfo = array();
-	if ($artist_created !== false) {
-		debug_print("Artist was created","USER RATING");
-		// We had to create a new albumartist, so we send back the artist HTML header
-		// We need to know the artist details and where in the list it is supposed to go.
-		// archive_image();
-		$returninfo = do_artists_from_database($artist_created);
-	} else if ($album_created !== false) {
-		debug_print("Album was created","USER RATING");
-		// archive_image();
-		// Find the artist
-		$artistid = find_artist_from_album($album_created);
-		if ($artistid === null) {
-			debug_print("ERROR - no artistID found!","USER RATING");
-		} else {
-			$returninfo = do_albums_from_database('aartist'.$artistid, $album_created);
-		}
-	}  else {
-		debug_print("A Track was modified","USER RATING");
-		$albumid = find_album_from_track($ttid);
-		if ($albumid === null) {
-			debug_print("ERROR - no albumID found!","USER RATING");
-		} else {
-			$returninfo['type'] = 'insertInto';
-			$returninfo['where'] = 'aalbum'.$albumid;
-			$returninfo['html'] = printHeaders().do_tracks_from_database($returninfo['where'], true).printTrailers();
-		}
-
-	}
-	$returninfo['stats'] = alistheader(get_stat('ArtistCount'), get_stat('AlbumCount'), get_stat('TrackCount'), format_time(get_stat('TotalTime')));
-	$returninfo['metadata'] = get_all_data($ttid);
-	print json_encode($returninfo);
-}
-
-// function archive_image() {
-// 	global $image;
-// 	global $convert_path;
-// 	global $error;
-// 	global $download_file;
-// 	global $albumartist;
-// 	global $album;
-// 	$key = md5($albumartist." ".$album);
-// 	if (!preg_match('/^albumart/', $image)) {
-// 		debug_print("Archiving Image For Album","USER RATING");
-// 		if (preg_match('#prefs/imagecache/#', $image)) {
-//             $image = preg_replace('#_small\.jpg|_original\.jpg#', '', $image);
-// 			system( 'cp '.$image.'_small.jpg albumart/small/'.$key.'.jpg');
-// 			system( 'cp '.$image.'_original.jpg albumart/original/'.$key.'.jpg');
-// 			system( 'cp '.$image.'_asdownloaded.jpg albumart/asdownloaded/'.$key.'.jpg');
-// 			update_image_db($key, 0, 'albumart/small/'.$key.'.jpg');
-// 		} else {
-// 			$convert_path = find_executable("convert");
-// 			$image = preg_replace('#getRemoteImage.php\?url=#', '', $image);
-// 			$download_file = download_file($image, $key, $convert_path);
-// 			if ($error == 0) {
-// 				list ($small_file, $main_file, $big_file) = saveImage($key, true, '');
-// 				update_image_db($key, $error, $small_file);
-// 			}
-// 		}
-// 	}
-
-// }
 
 ?>

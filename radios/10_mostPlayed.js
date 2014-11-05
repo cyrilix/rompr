@@ -37,8 +37,9 @@ var mostPlayed = function() {
 
 	return {
 
-		populate: function(s) {
+		populate: function(s, flag) {
             if (s) selected = s;
+            if (flag) running = flag;
             debug.shout("MOST PLAYED", "Populating");
 			getSmartPlaylistTracks(running ? "getplaylist" : "repopulate");
 		},
@@ -53,13 +54,11 @@ var mostPlayed = function() {
 
         setup: function() {
 
-            var html = '<div class="padright menuitem"><div class="containerbox">';
-
+            var html = '<div class="containerbox spacer backhi" onclick="playlist.radioManager.load(\'mostPlayed\', null)">';
             html = html + '<div class="fixed">';
             html = html + '<img src="'+ipath+'document-open-folder.png" height="12px" style="vertical-align:middle"></div>';
-            html = html + '<div class="expand"><a href="#" onclick="playlist.radioManager.load(\'mostPlayed\', null)">&nbsp;&nbsp;&nbsp;'+language.gettext('label_mostplayed')+'</a></div>';
-
-            html = html + '</div></div>';
+            html = html + '<div class="expand">&nbsp;&nbsp;&nbsp;'+language.gettext('label_mostplayed')+'</div>';
+            html = html + '</div>';
             $("#pluginplaylists").append(html);
 
         }

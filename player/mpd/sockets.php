@@ -1,4 +1,3 @@
-
 <?php
 
 function open_mpd_connection() {

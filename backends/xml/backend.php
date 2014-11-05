@@ -40,7 +40,7 @@ function dumpAlbums($which) {
                 print alistheader($x->artists->numartists, $x->artists->numalbums, $x->artists->numtracks, $x->artists->duration);
 
                 foreach($x->artists->artist as $i => $artist) {
-                    artistHeader($artist['id'], $artist->spotilink, $artist->name);
+                    artistHeader($artist['id'], $artist->spotilink, $artist->name, count($artist->albums->children()));
                     $divtype = ($divtype == "album1") ? "album2" : "album1";
                 }
             } else {
@@ -57,7 +57,9 @@ function dumpAlbums($which) {
                             $album->image->searched,
                             $album->image->name,
                             $album->image->src,
-                            $album->date);
+                            $album->date,
+                            count($album->tracks->children())
+                        );
                         $count++;
                     }
                     if ($count == 0) {

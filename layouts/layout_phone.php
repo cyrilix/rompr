@@ -89,16 +89,6 @@ if ($prefs['player_backend'] == "mpd") {
 
         <div id="radiolist" class="invisible">
 
-    <div class="containerbox menuitem noselection">
-<?php
-print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" name="pluginplaylists"></div>';
-print '<div class="smallcover fixed"><img height="32px" width="32px" src="'.$ipath.'broadcast-32.png"></div>';
-print '<div class="expand">'.get_int_text('label_pluginplaylists').'</div>';
-?>
-    </div>
-    <div id="pluginplaylists" class="dropmenu">
-    </div>
-
             <div class="containerbox menuitem noselection">
 <?php
                 print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" name="yourradiolist"></div>';
@@ -161,12 +151,16 @@ print '<div class="expand">'.get_int_text('label_pluginplaylists').'</div>';
             print '<div id="chooseplaylist" class="chooser"><a href="#" onclick="sourcecontrol(\'playlistm\')">'.get_int_text('button_playlist').'</a></div>';
             print '<div class="chooser"><a href="#" onclick="clearPlaylist()">'.get_int_text('button_clearplaylist').'</a></div>';
             print '<div class="chooser"><a href="#" onclick="sourcecontrol(\'playlistman\')">'.get_int_text('button_playman').'</a></div>';
+            print '<div class="chooser"><a href="#" onclick="sourcecontrol(\'pluginplaylists\')">'.get_int_text('label_pluginplaylists').'</a></div>';
             print '<div class="chooser"><a href="#" onclick="sourcecontrol(\'prefsm\')">'.get_int_text('button_prefs').'</a></div>';
             print '<div class="chooser penbehindtheear"><a href="#" onclick="sourcecontrol(\'historypanel\')">'.get_int_text('button_mob_history').'</a></div>';
 ?>
         </div>
 
         <div id="historypanel" class="invisible noborder">
+        </div>
+
+        <div id="pluginplaylists" class="invisible noborder containerbox vertical">
         </div>
 
         <div id="playlistman" class="invisible noborder">

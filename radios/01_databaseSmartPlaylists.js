@@ -22,7 +22,8 @@ var starRadios = function() {
 
 	return {
 
-		populate: function(s) {
+		populate: function(s, flag) {
+            debug.log("STARRADIOS","Populate Called with ",s,running);
             if (s) {
                 switch(s) {
                     case '1stars':
@@ -30,6 +31,7 @@ var starRadios = function() {
                     case '3stars':
                     case '4stars':
                     case '5stars':
+                    case 'neverplayed':
                         selected = s;
                         break;
 
@@ -39,12 +41,19 @@ var starRadios = function() {
                 }
 
             }
+            if (flag) running = flag;
             debug.shout("STAR RADIOS", "Populating",selected);
 			getSmartPlaylistTracks(running ? "repopulate" : "getplaylist", selected);
 		},
 
         modeHtml: function() {
-            return '<img src="newimages/'+selected+'.png" height="14px" style="vertical-align:middle"/>';
+            if (selected.match(/^\dstars/)) {
+                return '<img src="newimages/'+selected+'.png" height="14px" style="vertical-align:middle"/>';
+            } else if (selected.match(/^tag/)){
+                return '<img src="'+ipath+'tag.png" height="14px" style="vertical-align:middle"/><span style="vertical-align:middle">&nbsp;&nbsp;'+selected.replace(/^tag\+/,'')+'</span>';
+            } else {
+                return '<img src="'+ipath+'document-open-folder.png" height="14px" style="vertical-align:middle"/><span style="vertical-align:middle">&nbsp;&nbsp;'+language.gettext('label_'+selected)+'</span>';
+            }
         },
 
         stop: function() {
@@ -53,11 +62,14 @@ var starRadios = function() {
 
         Go: function(data) {
             if (data.length > 0) {
-                debug.debug("SMARTPLAYLIST","Got tracks",data);
+                debug.log("SMARTPLAYLIST","Got tracks",data);
                 running = true;
                 populating = false;
                 player.controller.addTracks(data, playlist.playFromEnd(), null);
             } else {
+                // What happens if we get no tracks is that it means we've run out.
+                // Setting running to false will cuase everything to reset and start all over again.
+                debug.warn("SMARTPLAYLIST","Got NO tracks",data);
                 populating = false;
                 running = false;
                 playlist.repopulate();
@@ -76,31 +88,39 @@ var starRadios = function() {
             var html = '';
 
             if (prefs.apache_backend == "sql") {
-                html = html + '<div class="padright menuitem">';
-                html = html + '<table width="100%">';
                 $.each(['1stars','2stars','3stars','4stars','5stars'], function(i, v) {
-                    html = html + '<tr><td class="playlisticon" align="left">';
-                    html = html + '<img src="newimages/singlestar.png" height="12px" style="vertical-align:middle"></td>';
-                    html = html + '<td align="left"><a href="#" onclick="playlist.radioManager.load(\'starRadios\', \''+v+'\')"><img src="newimages/'+v+'.png" height="12px" style="vertical-align:middle;margin-right:4px">'+language.gettext('playlist_xstar', [i+1])+'</a></td>';
-                    html = html + '<td></td></tr>';
+                    html = html + '<div class="containerbox backhi spacer" onclick="playlist.radioManager.load(\'starRadios\', \''+v+'\')">'+
+                                    '<div class="fixed"><img src="newimages/singlestar.png" height="12px" style="vertical-align:middle"></div>'+
+                                    '<div class="fixed"><img src="newimages/'+v+'.png" height="12px" style="vertical-align:middle;margin-left:8px"></div>'+
+                                    '<div class="expand" style="margin-left:8px">'+language.gettext('playlist_xstar', [i+1])+'</div>'+
+                                    '</div>';
 
                 });
-                html = html + '</table></div>';
-                html = html + '<div class="padright menuitem"><div class="containerbox dropdown-container">'+
-                                '<div class="fixed playlisticon"><img src="'+ipath+'tag.png" height="12px" style="vertical-align:middle"></div>'+
+                html = html + '<div class="containerbox spacer"><div class="containerbox expand">'+
+                                '<div class="fixed playlisticon"><img src="'+ipath+'tag.png" height="12px" style="vertical-align:middle;padding-top:6px"></div>'+
                                 '<div class="expand dropdown-holder">'+
-                                '<input class="searchterm enter sourceform" id="cynthia" type="text" style="width:100%;font-size:100%"/>'+
-                                '<div class="drop-box dropshadow tagmenu" id="tigger" style="width:100%">'+
+                                '<input class="searchterm enter sourceform" id="cynthia" type="text" style="font-size:100%;width:100%"/>'+
+                                '<div class="drop-box dropshadow tagmenu" id="tigger" style="width:100%;position:relative">'+
                                 '<div class="tagmenu-contents">'+
                                 '</div>'+
                                 '</div>'+
                                 '</div>'+
-                                '<div class="fixed dropdown-button" id="poohbear">'+
+                                '<div class="fixed dropdown-button" id="poohbear" style="padding-top:6px">'+
                                 '<img src="'+ipath+'dropdown.png">'+
                                 '</div>'+
                                 '<button class="fixed" style="margin-left:8px" onclick="playlist.radioManager.load(\'starRadios\', $(\'#cynthia\').val())"><b>'+language.gettext('button_playradio')+'</b></button>'+
                                 '</div></div>';
+
+                html = html + '<div class="containerbox backhi spacer" onclick="playlist.radioManager.load(\'starRadios\', \'neverplayed\')">'+
+                                '<div class="fixed"><img src="'+ipath+'document-open-folder.png" height="12px" style="vertical-align:middle"></div>'+
+                                '<div class="expand">&nbsp;&nbsp;&nbsp;'+language.gettext('label_neverplayed')+'</div>'+
+                                '</div>';
+
                 $("#pluginplaylists").append(html);
+                $("#poohbear").click(onDropdownClicked);
+                if (mobile == "no") {
+                    addCustomScrollBar("#tigger");
+                }
             }
 
         }

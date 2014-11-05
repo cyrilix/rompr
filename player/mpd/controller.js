@@ -439,7 +439,7 @@ function playerController() {
 
     }
 
-    this.rawsearch = function(terms, callback) {
+    this.rawsearch = function(terms, ,sources, callback) {
         $.ajax({
                 type: "POST",
                 url: "albums.php",
@@ -458,7 +458,7 @@ function playerController() {
 
     this.rawfindexact = function(terms, callback) {
         // MPD doesn't suuport findexact so search will have to do
-        player.controller.rawsearch(terms, callback);
+        player.controller.rawsearch(terms, [], callback);
     }
 
 	this.postLoadActions = function() {

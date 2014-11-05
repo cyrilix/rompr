@@ -40,23 +40,7 @@ var wishlistViewer = function() {
 	                            });
 	                        }
 	                    });
-	                    // Run a cleanup on the database to remove empty albums and artists.
-	                    // We Don't run this on removing the track - where it would slow down
-	                    // response of the GUI - because it's rather slow.
-	                    $.ajax({
-	                        url: "userRatings.php",
-	                        type: "POST",
-	                        data: { action: 'cleanup' },
-	                        dataType: 'json',
-	                        success: function(rdata) {
-	                            if (rdata && rdata.hasOwnProperty('stats')) {
-	                                $("#fothergill").html(rdata.stats);
-	                            }
-	                        },
-	                        error: function() {
-	                            debug.log("DB TRACKS", "Failed to run cleanup!");
-	                        }
-	                    });
+	                    doDbCleanup();
 	                }
 	            });
 
@@ -135,5 +119,4 @@ var wishlistViewer = function() {
 	}
 
 }();
-
-$("#specialplugins").append('<div class="fullwidth"><button onclick="wishlistViewer.open()">'+language.gettext("label_viewwishlist")+'</button></div>');
+addPlugin(language.gettext("label_viewwishlist"), "wishlistViewer.open()");

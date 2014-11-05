@@ -519,15 +519,24 @@ $languages['en'] = array (
 	"label_related" => "Related Artists",
 	"label_artistradio" => "Artist Radio",
 	"label_mostplayed" => "Most Played Tracks",
+	"label_neverplayed" => "Never Played Tracks",
 	"label_radio_fartist" => "Favourite Artist Radio",
 	"label_pluginplaylists" => "Personalised Radio",
+	"label_recentlyadded_random" => "Recently Added Tracks (Random)",
+	"label_recentlyadded_byalbum" => "Recently Added Tracks (By Album)",
 	"setup_mpd" => "MPD-specific Settings",
+	"settings_appearance" => "Appearance",
+	"settings_panels" => "Panels",
+	"settings_language" => "Language",
+	"settings_interface" => "Interface",
+	"label_charts" => "Your Top 40",
+	"label_choosedomains" => "Search these sources:",
+	"config_onthefly" => "Update Collection In The Background (for backends that support it)",
 
 	//CHANGED in 0.53
 	"config_country" => "COUNTRY (for Last.FM and Spotify)",
 	"setup_labeladdresses" => "If you are having connection issues, try using an IP address instead of 'localhost'",
-	"setup_ipaddress" => "Mopidy or mpd server",
-	"label_charts" => "Your Top 40",
+	"setup_ipaddress" => "Mopidy or mpd server"
 
 );
 

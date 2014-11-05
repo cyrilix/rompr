@@ -102,19 +102,18 @@ var ratingManager = function() {
 			if (element.hasClass('clickremrat')) {
 		        var rat = element.parent().parent().parent().parent().parent().attr("id");
 		        rat = rat.replace(/ratman_/,'');
-		        var details = element.parent().prev().html();
-		        debug.log("RATMANAGER","Removing Rating From",details," current value is ",rat);
-		        var matches = details.match(/<b>(.*?)<\/b><br><i>by<\/i> <b>(.*?)<\/b><br><i>on<\/i> <b>(.*?)<\/b>/);
+		        var uri = decodeURIComponent(element.parent().parent().attr('name'));
+		        debug.log("RATMANAGER","Removing Rating From",uri," current value is ",rat);
         		$.ajax({
         			url: "userRatings.php",
         			type: "POST",
         			data: {
-        				artist: unescapeHtml(matches[2]),
-        				album: unescapeHtml(matches[3]),
-        				title: unescapeHtml(matches[1]),
+        				artist: 'dummy',
+        				title: 'dummy',
+        				uri: uri,
+        				urionly: 'true',
         				action: 'set',
         				attribute: 'Rating',
-        				forceupdate: "true",
         				value: "0"
         			},
         			dataType: 'json',
@@ -181,4 +180,4 @@ var ratingManager = function() {
 
 }();
 
-$("#specialplugins").append('<div class="fullwidth"><button onclick="ratingManager.open()">'+language.gettext("label_ratingmanager")+'</button></div>');
+addPlugin(language.gettext("label_ratingmanager"), "ratingManager.open()");

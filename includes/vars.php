@@ -85,7 +85,8 @@ $prefs = array( "mpd_host" => "localhost",
                 "remote" => "false",
                 "icontheme" => "Colourful",
                 "radiomode" => "",
-                "radioparam" => ""
+                "radioparam" => "",
+                "onthefly" => "true"
                 );
 
 loadPrefs();
@@ -100,8 +101,9 @@ $searchlimits = array(  "local" => "Local Files",
                         "youtube" => "YouTube",
                         "internetarchive" => "Internet Archive",
                         "leftasrain" => "Left As Rain",
-                        "podcast" => "Podcasts"
-                        // "radio-de" => "Radio.de"
+                        "podcast" => "Podcasts",
+                        "tunein" => "Tunein Radio",
+                        "radio_de" => "Radio.de"
                         // BassDrive and Drible aren't yet searchable
                         // "bassdrive" => "BassDrive",
                         // "dirble" => "Dirble",

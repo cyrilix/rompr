@@ -12,12 +12,15 @@ function setClickHandlers() {
     $("#filesearch").unbind('dblclick');
     $("#radiolist").unbind('click');
     $("#radiolist").unbind('dblclick');
+    $("#storedplaylists").unbind('click');
+    $("#storedplaylists").unbind('dblclick');
 
     $("#collection").click(onCollectionClicked);
     $("#filecollection").click(onFileCollectionClicked);
     $("#search").click(onCollectionClicked);
     $("#filesearch").click(onFileCollectionClicked);
     $("#radiolist").click(onRadioClicked);
+    $("#storedplaylists").click(onFileCollectionClicked);
 
     if (prefs.clickmode == "double") {
         $("#collection").dblclick(onCollectionDoubleClicked);
@@ -25,6 +28,7 @@ function setClickHandlers() {
         $("#search").dblclick(onCollectionDoubleClicked);
         $("#filesearch").dblclick(onCollectionDoubleClicked);
         $("#radiolist").dblclick(onRadioDoubleClicked);
+        $("#storedplaylists").dblclick(onFileCollectionDoubleClicked);
     }
 
     $('.infotext').unbind('click');
@@ -39,8 +43,13 @@ function setClickHandlers() {
 
 function onDropdownClicked(event) {
     var dropbox = $(this).prev().find('.drop-box');
+    var where = $(this).attr("id");
     if (dropbox.is(':visible')) {
-        dropbox.slideToggle('fast');
+        dropbox.slideToggle('fast', function() {
+            if (mobile == "no" && where == "poohbear") {
+                $("#ppscr").mCustomScrollbar("update");
+            }
+        });
     } else {
         $(".tagmenu-contents").empty();
         $.ajax({
@@ -56,6 +65,9 @@ function onDropdownClicked(event) {
                 dropbox.slideToggle('fast', function() {
                     if (mobile == "no") {
                         dropbox.mCustomScrollbar("update");
+                        if (where == "poohbear") {
+                            $("#ppscr").mCustomScrollbar("update");
+                        }
                     }
 
                 });
@@ -108,7 +120,11 @@ function findClickableBrowserElement(event) {
 function onCollectionClicked(event) {
     var clickedElement = findClickableElement(event);
     if (clickedElement.hasClass("menu")) {
-        doAlbumMenu(event, clickedElement, false);
+        if (clickedElement.parent().parent().hasClass('browseable')) {
+            doFileMenu(event, clickedElement);
+        } else {
+            doAlbumMenu(event, clickedElement, false);
+        }
     } else if (clickedElement.hasClass("clickremdb")) {
         event.stopImmediatePropagation();
         removeTrackFromDb(clickedElement);
@@ -150,7 +166,7 @@ function onFileCollectionClicked(event) {
             trackSelect(event, clickedElement);
         }
     } else {
-        onCollectionDoubleClicked(event);
+        onFileCollectionDoubleClicked(event);
     }
 }
 
@@ -168,6 +184,9 @@ function onFileCollectionDoubleClicked(event) {
     } else if (clickedElement.hasClass("clickplaylist")) {
         event.stopImmediatePropagation();
         player.controller.loadSpecial(decodeURIComponent(clickedElement.attr("name")), playlist.playFromEnd(), null);
+    } else if (clickedElement.hasClass("clickloadplaylist")) {
+        event.stopImmediatePropagation();
+        playlist.load(clickedElement.prev().prev().attr('name'));
     }
 }
 
@@ -323,7 +342,13 @@ function doFileMenu(event, element) {
     if (element.isClosed()) {
         if ($('#'+menutoopen).hasClass("notfilled")) {
             if (prefs.player_backend == "mopidy") {
-                player.controller.browse(element.parent().next().attr("name"), menutoopen);
+                element.addClass('spinner');
+                // Hack for browsing in search results
+                var l = element.parent().next().attr("name");
+                if (l === undefined) {
+                    l = decodeURIComponent(element.parent().parent().attr("name"))
+                }
+                player.controller.browse(l, menutoopen, element);
             } else {
                 $('#'+menutoopen).load("dirbrowser.php?item="+menutoopen, function() {
                     $(this).removeClass("notfilled");

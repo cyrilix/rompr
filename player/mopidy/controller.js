@@ -17,6 +17,8 @@ function playerController() {
     var plstartpos = null;
     var pladdpos = null;
     var att = null;
+    var updatePlTimer = null;
+    var doingPlUpdate = false;
 
     function mopidyStateChange(data) {
         debug.shout("PLAYER","Mopidy State Change",data);
@@ -133,7 +135,7 @@ function playerController() {
 			debug.warn("MOPIDY","EnableEvents called when mopidy not ready");
 			return 0;
 		}
-        mopidy.on("event:playlistsLoaded", reloadPlaylists);
+        mopidy.on("event:playlistsLoaded", self.reloadPlaylists);
         mopidy.on("event:playbackStateChanged", mopidyStateChange);
         mopidy.on("event:trackPlaybackStarted", trackPlaybackStarted);
         mopidy.on("event:trackPlaybackEnded", trackPlaybackEnded);
@@ -225,46 +227,58 @@ function playerController() {
 	function formatPlaylistInfo(data) {
 
 	    var html = '';
-	    if (mobile == "no") {
-	        html = html + '<table width="100%">';
-	    } else {
-	        html = html + '<table width="90%">';
-	    }
-	    $.each(data, function() {
-	        var uri = this.uri;
-	        html = html + '<tr><td class="playlisticon" align="left">';
-	        var protocol = uri.substr(0, uri.indexOf(":"));
-	        switch (protocol) {
-	            case "soundcloud":
-	                html = html + '<img src="'+ipath+'soundcloud-logo.png" height="12px" style="vertical-align:middle"></td>';
-	                html = html + '<td align="left"><a href="#" onclick="playlist.load(\''+this.uri+'\')">'+this.name+'</a></td>';
-	                html = html + '<td></td></tr>';
-	                break;
-	            case "spotify":
-	                html = html + '<img src="'+ipath+'spotify-logo.png" height="12px" style="vertical-align:middle"></td>';
-	                html = html + '<td align="left"><a href="#" onclick="playlist.load(\''+this.uri+'\')">'+this.name+'</a></td>';
-	                html = html + '<td></td></tr>';
-	                break;
-	            case "somafm":
-	                html = html + '<img src="newimages/somafm-icon.png" height="18px" style="vertical-align:middle"></td>';
-	                html = html + '<td align="left"><a href="#" onclick="playlist.load(\''+this.uri+'\')">'+this.name+'</a></td>';
-	                html = html + '<td></td></tr>';
-	                break;
-	            case "radio-de":
-	                html = html + '<img src="'+ipath+'broadcast-12.png" height="12px" style="vertical-align:middle"></td>';
-	                html = html + '<td align="left"><a href="#" onclick="playlist.load(\''+this.uri+'\')">'+this.name+'</a></td>';
-	                html = html + '<td></td></tr>';
-	                break;
-	            default:
-	                html = html + '<img src="'+ipath+'folder.png" width="12px" style="vertical-align:middle"></td>';
-	                html = html + '<td align="left"><a href="#" onclick="playlist.load(\''+this.uri+'\')">'+this.name+'</a></td>';
-	                html = html + '<td class="playlisticon" align="right"><a href="#" onclick="player.controller.deletePlaylist(\''+escape(this.name)+'\')"><img src="'+ipath+'/edit-delete.png" style="vertical-align:middle"></a></td></tr>';
-	                break;
-	        }
-	    });
-        html = html + '</table>';
+     	var c = 0;
+     	$.each(data, function() {
+     		var protocol = this.uri.substr(0, this.uri.indexOf(":"));
+     		switch (protocol) {
+     			case "spotify":
+                    html = html + '<div class="containerbox menuitem">';
+     				html = html + '<div class="mh fixed"><img src="'+ipath+'toggle-closed-new.png" class="menu fixed" name="pholder'+c+'"></div>'+
+						        '<input type="hidden" name="'+this.uri+'">'+
+        				        '<div class="fixed playlisticon"><img height="12px" src="'+ipath+'spotify-logo.png" /></div>'+
+						        '<div class="expand clickable clickloadplaylist">'+this.name+'</div>'+
+						        '</div>'+
+						        '<div id="pholder'+c+'" class="dropmenu notfilled"></div>';
+						        break;
+                case "radio-de":
+                   html = html + '<div class="containerbox menuitem clickable clicktrack" name="'+this.uri+'">'+
+                                '<div class="fixed playlisticon"><img height="12px" src="'+ipath+'broadcast-12.png" /></div>'+
+                                '<div class="expand">'+this.name+'</div>'+
+                                '</div>';
+                                break;
+				default:
+		           html = html + '<div class="containerbox menuitem clickable clicktrack" name="'+this.uri+'">'+
+								'<div class="fixed playlisticon"><img height="12px" src="'+ipath+'document-open-folder.png" /></div>'+
+						        '<div class="expand">'+this.name+'</div>'+
+						        '</div>';
+						        break;
+     		}
+     		c++;
+     	});
+
 	    $("#storedplaylists").html(html);
-	    // addCustomScrollBar("#tigger");
+	}
+
+	// This is the beginning of our ability to update the collection on the fly
+	// - because mopidy is good :)
+	function checkTracksAgainstDatabase(data) {
+    	debug.log("PLAYER","Seeing if we need to add new tracks to the database");
+        $.ajax({
+            type: "POST",
+            url: "onthefly.php",
+            data: JSON.stringify(data),
+            dataType: "json",
+            timeout: 600000,
+            success: function(data) {
+            	debug.log("PLAYER","Checktracks has returned");
+            	updateCollectionDisplay(data);
+                doingPlUpdate = false;
+            },
+            error: function(data) {
+            	debug.error("PLAYER","Checktracks Failed",data);
+                doingPlUpdate = false;
+            }
+        });
 
 	}
 
@@ -339,22 +353,15 @@ function playerController() {
 		if (isReady) {
             $("#mopidysearcher").find('.searchdomain').each( function() {
                 var v = $(this).attr("value");
+                if (v == "radio_de") {
+                    v = "radio-de";
+                }
                 if (!player.canPlay(v)) {
                     $(this).parent().remove();
                 }
             });
         }
     }
-
-	function reloadPlaylists() {
-		if (isReady) {
-            debug.log("PLAYER","Retreiving Playlists from Mopidy");
-            mopidy.playlists.getPlaylists().then(function (data) {
-            	debug.log("PLAYER","Got Playlists from Mopidy",data);
-            	formatPlaylistInfo(data);
-            }, consoleError);
-        }
-	}
 
 	function connected() {
         debug.log("PLAYER","Connected to Mopidy");
@@ -400,7 +407,6 @@ function playerController() {
     			});
     		});
 		});
-		reloadPlaylists();
         mopidy.getUriSchemes().then( function(data) {
             for(var i =0; i < data.length; i++) {
             	debug.log("PLAYER","Mopidy URI Scheme : ",data[i]);
@@ -409,9 +415,10 @@ function playerController() {
 			checkSearchDomains();
 			if (!player.collectionLoaded) {
 				debug.log("PLAYER","Checking Collection");
-				player.collectionLoaded = true;
 				checkCollection();
-			}
+			} else {
+                self.reloadPlaylists();
+            }
 			playlist.radioManager.init();
         });
         self.cancelSingle();
@@ -444,7 +451,7 @@ function playerController() {
         mopidy.on("state:online", connected);
         mopidy.on("state:offline", disconnected);
         mopidy.connect();
-	    // self.mop = mopidy;
+	    self.mop = mopidy;
 	}
 
 	this.reConnect = function() {
@@ -478,6 +485,8 @@ function playerController() {
                     success: function(data) {
                         $("#collection").html(data);
                         data = null;
+                        player.collectionLoaded = true;
+                        self.reloadPlaylists();
                     },
                     error: function(data) {
                         $("#collection").empty();
@@ -487,8 +496,11 @@ function playerController() {
                 });
 	        }, consoleError);
         } else {
-            debug.log("PLAYER","Loding",uri);
-	        $("#collection").load(uri);
+            debug.log("PLAYER","Loading",uri);
+	        $("#collection").load(uri, function() {
+                player.collectionLoaded = true;
+	        	self.reloadPlaylists();
+	        });
         }
 	}
 
@@ -496,44 +508,74 @@ function playerController() {
 		self.browse(null, "filecollection");
 	}
 
-	this.browse = function(what, where) {
+	this.reloadPlaylists = function() {
+        clearTimeout(updatePlTimer);
+		if (isReady) {
+            if (doingPlUpdate) {
+                // Prevent simultaneous updates from running
+                debug.shout("PLAYER","Request to update playlists when already doing so");
+                updatePlTimer = setTimeout(self.reloadPlaylists, 2000);
+            } else {
+                debug.log("PLAYER","Retreiving Playlists from Mopidy");
+                doingPlUpdate = true;
+                mopidy.playlists.getPlaylists().then(function (data) {
+                	debug.log("PLAYER","Got Playlists from Mopidy",data);
+                	formatPlaylistInfo(data);
+                    if (prefs.apache_backend == "sql" && data.length > 0 && player.collectionLoaded && prefs.onthefly) {
+                        checkTracksAgainstDatabase(data);
+                    } else {
+                        doingPlUpdate = false;
+                    }
+                }, consoleError);
+            }
+        }
+	}
+
+	this.browse = function(what, where,element) {
 		debug.log("PLAYER","Browsing for",what,where);
 		mopidy.library.browse(what).then( function(data) {
 			var html = "";
 			debug.log("PLAYER","Browse result : ",data);
-			$.each(data, function(i,ref) {
-				switch (ref.type) {
-					case "directory":
-					case "album":
-						var menuid = hex_md5(ref.uri);
-						// Mopidy's SoundCloud plugin does some fucking awful shit with directory names.
-						var shit = decodeURIComponent(decodeURIComponent(ref.name));
-				        html = html + '<div class="containerbox menuitem">'+
-				        '<div class="mh fixed"><img src="'+ipath+'toggle-closed-new.png" class="menu fixed" name="'+menuid+'"></div>'+
-				        '<input type="hidden" name="'+ref.uri+'">'+
-				        '<div class="fixed playlisticon"><img width="16px" src="'+ipath+'folder.png" /></div>'+
-				        '<div class="expand">'+shit.replace(/\+/g, ' ')+'</div>'+
-				        '</div>'+
-				        '<div id="'+menuid+'" class="dropmenu notfilled"></div>';
-				        break;
-				    case "track":
-				        html = html + '<div class="clickable clicktrack ninesix indent containerbox padright line" name="'+encodeURIComponent(ref.uri)+'">'+
-				        '<div class="playlisticon fixed"><img height="16px" src="'+ipath+'audio-x-generic.png" /></div>'+
-				        '<div class="expand">'+decodeURIComponent(ref.name)+'</div>'+
-				        '</div>';
-				        break;
-					case "playlist":
-				        html = html + '<div class="clickable clickplaylist ninesix indent containerbox padright line" name="'+encodeURIComponent(ref.uri)+'">'+
-				        '<div class="playlisticon fixed"><img height="16px" src="'+ipath+'document-open-folder.png" /></div>'+
-				        '<div class="expand">'+decodeURIComponent(ref.name)+'</div>'+
-				        '</div>';
-				        break;
-				}
-			});
+            if (data) {
+    			$.each(data, function(i,ref) {
+    				switch (ref.type) {
+    					case "directory":
+    					case "album":
+    						var menuid = hex_md5(ref.uri);
+    						// Mopidy's SoundCloud plugin does some fucking awful shit with directory names.
+    						var shit = decodeURIComponent(decodeURIComponent(ref.name));
+    				        html = html + '<div class="containerbox menuitem">'+
+    				        '<div class="mh fixed"><img src="'+ipath+'toggle-closed-new.png" class="menu fixed" name="'+menuid+'"></div>'+
+    				        '<input type="hidden" name="'+ref.uri+'">'+
+    				        '<div class="fixed playlisticon"><img width="16px" src="'+ipath+'folder.png" /></div>'+
+    				        '<div class="expand">'+shit.replace(/\+/g, ' ')+'</div>'+
+    				        '</div>'+
+    				        '<div id="'+menuid+'" class="dropmenu notfilled"></div>';
+    				        break;
+    				    case "track":
+                            if (!ref.name.match(/\[unplayable\]/)) {
+        				        html = html + '<div class="clickable clicktrack ninesix indent containerbox padright line" name="'+encodeURIComponent(ref.uri)+'">'+
+        				        '<div class="playlisticon fixed"><img height="16px" src="'+ipath+'audio-x-generic.png" /></div>'+
+        				        '<div class="expand">'+decodeURIComponent(ref.name)+'</div>'+
+        				        '</div>';
+                            }
+    				        break;
+    					case "playlist":
+    				        html = html + '<div class="clickable clickplaylist ninesix indent containerbox padright line" name="'+encodeURIComponent(ref.uri)+'">'+
+    				        '<div class="playlisticon fixed"><img height="16px" src="'+ipath+'document-open-folder.png" /></div>'+
+    				        '<div class="expand">'+decodeURIComponent(ref.name)+'</div>'+
+    				        '</div>';
+    				        break;
+    				}
+    			});
+            } else {
+                html = '<div class="indent padright line">Nothing found</div>';
+            }
 			$("#"+where).html(html);
 			if (where != "filecollection") {
             	$('#'+where).removeClass("notfilled");
             	$('#'+where).menuReveal();
+                element.removeClass('spinner');
             }
 		},
 		consoleError );
@@ -592,13 +634,19 @@ function playerController() {
                 contentType: "application/json",
                 dataType: "json",
                 success: playlist.newXSPF,
-                error: playlist.updateFailure
+                error: function(j, e, s) {
+                    debug.error("PLAYLIST",j);
+                    debug.error("PLAYLIST",e);
+                    debug.error("PLAYLIST",s);
+                    playlist.updateFailure();
+                }
             });
             data = null;
         }, consoleError);
 	}
 
 	this.search = function(searchtype) {
+        debug.shout("MOPIDY","Doing Search",searchtype);
         var terms = {};
         var termcount = 0;
         $("#mopidysearcher").find('.searchterm').each( function() {
@@ -623,7 +671,12 @@ function playerController() {
         $("#mopidysearcher").find('.searchdomain').each( function() {
             if (checkDomain(this)) {
                 debug.log("PLAYER","Search Type", $(this).attr("value"));
-                domains.push($(this).attr("value")+":");
+                var d = $(this).attr("value");
+                if (d == "radio_de") {
+                    // We can't have a pref value with a - in it; javascript interprets it as a math function
+                    d = "radio-de";
+                }
+                domains.push(d+":");
                 fanny++;
             }
             prefssave['search_limit_'+$(this).attr("value")] = $(this).is(':checked') ? 1 : 0;
@@ -853,14 +906,24 @@ function playerController() {
 		}
 	}
 
-	this.rawsearch = function(terms, callback) {
-		mopidy.library.search(terms).then( function(data) {
-			callback(data);
-		},
-		function() {
-			debug.error("MOPIDY","Raw Search Failed");
-			callback([]);
-		});
+	this.rawsearch = function(terms, sources, callback) {
+        if (sources.length > 0) {
+            mopidy.library.search(terms, sources).then( function(data) {
+                callback(data);
+            },
+            function() {
+                debug.error("MOPIDY","Raw Search Failed");
+                callback([]);
+            });
+        } else {
+    		mopidy.library.search(terms).then( function(data) {
+    			callback(data);
+    		},
+    		function() {
+    			debug.error("MOPIDY","Raw Search Failed");
+    			callback([]);
+    		});
+        }
 	}
 
 	this.rawfindexact = function(terms, callback) {

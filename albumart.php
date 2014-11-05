@@ -987,22 +987,17 @@ function do_covers_db_style() {
 
             $class = "clickable clickicon clickalbumcover droppable";
             $src = "";
-            if ($album['Image'] == null || $album['Image'] == "") {
+            if (file_exists('albumart/original/'.$album['ImgKey'].'.jpg')) {
+                $src = 'albumart/original/'.$album['ImgKey'].'.jpg';
+                if(($key = array_search($src, $allfiles)) !== false) {
+                    unset($allfiles[$key]);
+                }
+            } else {
                 $class = $class . " notexist";
                 $albums_without_cover++;
                 $src = "newimages/album-unknown.png";
-            } else {
-                $src = $album['Image'];
-                if (dirname($src) == "albumart/small") {
-                    $src = "albumart/original/".basename($src);
-                    if(($key = array_search($src, $allfiles)) !== false) {
-                        unset($allfiles[$key]);
-                    }
-                } else if (dirname($src) == "prefs/imagecache") {
-                    $src = preg_replace('/_small/', '_original', $src);
-                }
             }
-            print '<input type="hidden" value="'.$album['Directory'].'" />';
+            print '<input type="hidden" value="'.get_album_directory($album['Albumindex'], $album['Spotilink']).'" />';
             print '<input type="hidden" value="'.rawurlencode($artist['Artistname']." ".munge_album_name($album['Albumname'])).'" />';
             print '<img class="'.$class.'" name="'.$album['ImgKey'].'" height="82px" width="82px" src="'.$src.'" />';
 

@@ -14,11 +14,26 @@ var lastfmImporter = function() {
 	var throttleBackReset = null;
 	var searchcount = 0;
 
+	var sources_not_to_not_choose = {
+		bassdrive: 1,
+		dirble: 1,
+		file: 1,
+		http: 1,
+		https: 1,
+		mms: 1,
+		rtsp: 1,
+		somafm: 1,
+		spotifytunigo: 1,
+		tunein: 1
+	};
+
+	var chosensources = new Array();
+
 	function putRow(t) {
 
 		var fancy = $('<tr>', { class: "invisible", id: "trackrow"+t.key,  style: "border-top:1px solid #454545" });
 
-		var row = '<td><img class="smallcover" src="';
+		var row = '<td><img id="imgfound'+t.key+'" class="smallcover" src="';
 		if (t.image) {
 			row = row + t.image;
 		} else {
@@ -65,7 +80,7 @@ var lastfmImporter = function() {
 		// Note : totalpages = eg 57 but totaltracks/perpage might give eg 56.2 if the last page has only 20 tracks
 		// and perpage is 100. Using that for the % calculation prevents the progress bar skipping backwards
 		var p = (currpage/(totaltracks/perpage))*100;
-		debug.mark("LASTM IMPORTER","doNextBatch. Progress is",p.toFixed(2),currpage,totalpages);
+		debug.shout("LASTM IMPORTER","doNextBatch. Progress is",p.toFixed(2),currpage,totalpages);
 		progressbar.setProgress(p.toFixed(2));
 		if (faveFinder.queueLength() == 0) {
 			spbar.setProgress(p.toFixed(2));
@@ -75,7 +90,7 @@ var lastfmImporter = function() {
 			debug.mark("LASTFM IMPORTER","Getting page",currpage);
 			lastfmImporter.go();
 		} else {
-			debug.mark("LASTFM IMPORTER","Finished");
+			debug.shout("LASTFM IMPORTER","Finished");
 			progressbar.setProgress(100);
 			finished = true;
 			lastfm.setThrottling(500);
@@ -100,11 +115,11 @@ var lastfmImporter = function() {
 		} else if (u.match(/soundcloud:/)) {
 			html = html + '<img height="12px" src="'+ipath+'soundcloud-logo.png" style="margin-right:1em" />';
 		} else if (u.match(/youtube:/)) {
-			html = html + '<img height="12px" src="newimages/Youtube-logo.png" style="margin-right:1em" />';
+			html = html + '<img height="12px" src="newimages/youtube-logo.png" style="margin-right:1em" />';
 		} else if (u.match(/leftasrain:/)) {
 			html = html + '<img height="12px" src="newimages/leftasrain.png" style="margin-right:1em" />';
 		} else if (u.match(/gmusic:/)) {
-			html = html + '<img height="12px" src="newimages/play-logo.png" style="margin-right:1em" />';
+			html = html + '<img height="12px" src="newimages/gmusic-logo.png" style="margin-right:1em" />';
 		}
 		html = html + '<b>'+data.title+'</b><br><i>by </i>';
 		html = html + data.artist+'<br><i>on </i>';
@@ -169,10 +184,22 @@ var lastfmImporter = function() {
 	            	'<input type="checkbox" class="topcheck" id="reviewfirst">'+language.gettext("label_review")+'</input><br>'+
 	            	'<input type="checkbox" class="topcheck" id="wishlist">'+language.gettext("label_addtowish")+'</input>'+
 	            	'</div>'+
-
+	            	'<div id="domchooser" class="expand"></div>'+
 	            	'<button class="fixed topformbutton" onclick="lastfmImporter.go()" id="importgo">GO</button>'+
 	            	'</div>');
 
+				if (prefs.player_backend == "mopidy") {
+					$("#domchooser").append(language.gettext("label_choosedomains")+'<br>');
+					for (var i in player.urischemes) {
+						if (!sources_not_to_not_choose.hasOwnProperty(i)) {
+							$("#domchooser").append('<input type="checkbox" class="topcheck" id="'+i+'_import_domain">'+i+'</input><br>');
+						}
+					}
+					$("#local_import_domain").attr("checked", true);
+					$("#spotify_import_domain").attr("checked", true);
+				} else {
+					$("#domchooser").remove();
+				}
 				$("#goo").val(prefs.synclovevalue);
 	            $("#impufoldup").append('<table id="frankzappa" class="invisible" align="center" cellpadding="2" width="95%" style="border-collapse:collapse"></table>');
 	            $("#frankzappa").append('<tr><th></th><th>'+language.gettext("label_track")+'</th><th>'+language.gettext("label_tags")+'</th><th>Plays</th><th>'+language.gettext("lastfm_loved")+'</th><th>'+language.gettext("label_oneresult")+'</th></tr>');
@@ -198,6 +225,15 @@ var lastfmImporter = function() {
 
 		go: function() {
 			if (!stopped) {
+				chosensources = new Array();
+				$("#domchooser").find('.topcheck').each( function() {
+					if ($(this).is(':checked')) {
+						var n = $(this).attr("id");
+						chosensources.push(n.substr(0, n.indexOf('_'))+':');
+						debug.log("LASTFM IMPORTER","Chosen domains: ",chosensources);
+					}
+				});
+
 				if ($("#hoobajoob").is(':visible')) {
 					$("#hoobajoob").slideToggle(500);
 					$('[name="beefheart"]').slideToggle(600, function() {
@@ -312,7 +348,7 @@ var lastfmImporter = function() {
 					}
 					putRow(databits[reqid].data[databits[reqid].index]);
 					databits[reqid].data[databits[reqid].index].reqid = reqid;
-					faveFinder.findThisOne(databits[reqid].data[databits[reqid].index], lastfmImporter, false, true);
+					faveFinder.findThisOne(databits[reqid].data[databits[reqid].index], lastfmImporter, false, true, chosensources);
 					searchcount++;
 				}
 				var p = (reqid/totaltracks)*100;
@@ -348,7 +384,7 @@ var lastfmImporter = function() {
 			spbar.setProgress(p.toFixed(2));
 
 			var html = '<div>';
-			var html2 = null;
+			var html2 = '<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>';
 			if (data.uri) {
 				$.each(databits[data.reqid].data, function(i,r) {
 					r.ignore = false;
@@ -378,9 +414,7 @@ var lastfmImporter = function() {
 			} else {
 				$("#trackrow"+data.key).append('<td align="center" class="invisible"><img src="'+ipath+'edit-delete.png" class="clickicon plugclickable infoclick removerow" /></td>').fadeIn('fast');
 				$("#trackrow"+data.key).append('<td align="center" class="invisible"><button class="plugclickable infoclick importrow">Import</button></td>').fadeIn('fast');
-				if (html2) {
-					$("#trackrow"+data.key).after(html2);
-				}
+				$("#trackrow"+data.key).after(html2);
 				$("#trackrow"+data.key+' td:last').fadeIn('fast');
 				$("#trackrow"+data.key+' td:last').prev().fadeIn('fast');
 			}
@@ -414,6 +448,7 @@ var lastfmImporter = function() {
 			'<br /><span class="clickicon tiny plugclickable dropchoices infoclick" name="'+key+'"> '+language.gettext("label_moreresults", [(databits[key].data.length - 1)]);
 			html = html +'</span></div>';
 			$("#trackfound"+key).html(html);
+			$("#imgfound"+key).attr("src", databits[key].data[index].image);
 			clickedElement.parent().slideToggle('fast');
 		},
 
@@ -607,4 +642,4 @@ var lastfmImporter = function() {
 
 }();
 
-$("#specialplugins").append('<div class="fullwidth"><button onclick="lastfmImporter.open()">'+language.gettext("lastfm_import")+'</button></div>');
+addPlugin(language.gettext("lastfm_import"), "lastfmImporter.open()");

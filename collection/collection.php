@@ -8,7 +8,6 @@ $numartists = 0;
 $totaltime = 0;
 
 $xspf_loaded = false;
-$lfm_xspfs = array();
 $stream_xspfs = array();
 $podcasts = array();
 
@@ -16,7 +15,7 @@ $current_artist = "";
 $current_album = "";
 $abm = false;
 $current_domain = "local";
-$streamdomains = array("http", "mms", "rtsp", "https", "rtmp", "rtmps", "dirble", "tunein");
+$streamdomains = array("http", "mms", "rtsp", "https", "rtmp", "rtmps", "dirble", "tunein", "radio-de");
 $playlist = array();
 
 $count = 1;
@@ -40,6 +39,7 @@ class album {
         $this->image = null;
         $this->artistobject = null;
         $this->numOfDiscs = -1;
+        $this->numOfTrackOnes = 0;
         $numalbums++;
     }
 
@@ -57,6 +57,9 @@ class album {
         }
         if ($this->numOfDiscs < $object->disc) {
             $this->numOfDiscs = $object->disc;
+        }
+        if ($object->number == 1) {
+            $this->numOfTrackOnes++;
         }
         $object->setAlbumObject($this);
     }
@@ -98,17 +101,22 @@ class album {
         // Return image for an album or track
         $image = "";
         $artname = $this->getKey();
-        // If we have a backend-supplied album image
+        // Fixups for various mopidy backends
+        if (preg_match('/^podcast\:/', $this->spotilink)) {
+            $image = $ipath."Apple_Podcast_logo.png";
+        }
+        if (preg_match('/^internetarchive\:/', $this->spotilink)) {
+            $image = "newimages/internetarchive.png";
+        }
+        if ($this->name == "Youtube") {
+            $image = "newimages/Youtube-logo.png";
+        }
+        if ($this->name == "SoundCloud") {
+            $image = "newimages/soundcloud-logo.png";
+        }
         if ($this->image) {
             $image = $this->image;
         }
-        // if ($this->artist == "Various Artists") {
-            if ($this->name == "Youtube") {
-                $image = "newimages/Youtube-logo.png";
-            } else if ($this->name == "SoundCloud") {
-                $image = $ipath."soundcloud-logo.png";
-            }
-        // }
         // If the track supplied an image
         if ($trackimage) {
             $image = $trackimage;
@@ -142,8 +150,16 @@ class album {
     public function sortTracks() {
         global $backend_in_use;
         if ($backend_in_use == "sql") {
-            return $this->numOfDiscs === 0 ? 1 : $this->numOfDiscs;
+            // Mopidy-Spotify doesn't send disc numbers. If we're using the sql backend
+            // we don't really need to pre-sort tracks because we can do it on the fly.
+            // However, when there are no disc numbers multi-disc albums don't sort properly.
+            // Hence we do a little check that we have have the same number of 'Track 1's
+            // as discs and only do the sort of they're not the same. This'll also
+            // sort out badly tagged local files.
+            if ($this->numOfTrackOnes == $this->numOfDiscs) return $this->numOfDiscs;
         }
+
+        // For XML we have to do the sort every time, since we need the tracks to be in order
 
         $discs = array();
         $number = 1;
@@ -165,6 +181,7 @@ class album {
                 }
             }
             $discs[$discno][$track_no] = $ob;
+            $ob->updateDiscNo($discno);
             $number++;
         }
         $numdiscs = count($discs);
@@ -175,6 +192,7 @@ class album {
             ksort($disc, SORT_NUMERIC);
             $this->tracks = array_merge($this->tracks, $disc);
         }
+        $this->numOfDiscs = $numdiscs;
         return $numdiscs;
     }
 
@@ -272,6 +290,10 @@ class track {
     public function setAlbumObject($object) {
         $this->albumobject = $object;
         $object->musicbrainz_albumid = $this->musicbrainz_albumid;
+    }
+
+    public function updateDiscNo($disc) {
+        $this->disc = $disc;
     }
 }
 
@@ -502,6 +524,7 @@ function process_file($collection, $filedata) {
     global $streamdomains;
     global $prefs;
     global $dbterms;
+    global $ipath;
 
     list ( $file, $domain, $type, $expires, $stationurl, $station, $stream, $origimage )
         = array ( $filedata['file'], getDomain($filedata['file']), "local", null, null, null, "", null );
@@ -513,27 +536,18 @@ function process_file($collection, $filedata) {
         }
     }
 
-    $artist = (array_key_exists('Artist', $filedata)) ? $filedata['Artist'] : rawurldecode(basename(dirname(dirname($file))));
-    $album = (array_key_exists('Album', $filedata)) ? $filedata['Album'] : rawurldecode(basename(dirname($file)));
-    $albumartist = (array_key_exists('AlbumArtist', $filedata)) ? $filedata['AlbumArtist'] : null;
-    $name = (array_key_exists('Title', $filedata)) ? $filedata['Title'] : rawurldecode(basename($file));
-    $duration = (array_key_exists('Time', $filedata)) ? $filedata['Time'] : 0;
-    $number = (array_key_exists('Track', $filedata)) ? format_tracknum(ltrim($filedata['Track'], '0')) : format_tracknum(rawurldecode(basename($file)));
-    $disc = (array_key_exists('Disc', $filedata)) ? format_tracknum(ltrim($filedata['Disc'], '0')) : 0;
-    $date = (array_key_exists('Date',$filedata)) ? $filedata['Date'] : null;
+    list($name, $artist, $number, $duration, $albumartist, $spotialbum,
+            $image, $album, $date, $lastmodified, $disc, $mbalbum) = munge_filedata($filedata, $file);
+
     $genre = (array_key_exists('Genre', $filedata)) ? $filedata['Genre'] : null;
-    $image = (array_key_exists('Image', $filedata)) ? $filedata['Image'] : null;
     $mbartist = (array_key_exists('MUSICBRAINZ_ARTISTID', $filedata)) ? $filedata['MUSICBRAINZ_ARTISTID'] : "";
-    $mbalbum = (array_key_exists('MUSICBRAINZ_ALBUMID', $filedata)) ? $filedata['MUSICBRAINZ_ALBUMID'] : "";
     $mbalbumartist = (array_key_exists('MUSICBRAINZ_ALBUMARTISTID', $filedata)) ? $filedata['MUSICBRAINZ_ALBUMARTISTID'] : "";
     $mbtrack = (array_key_exists('MUSICBRAINZ_TRACKID', $filedata)) ? $filedata['MUSICBRAINZ_TRACKID'] : "";
     $backendid = (array_key_exists('Id',$filedata)) ? $filedata['Id'] : null;
     $playlistpos = (array_key_exists('Pos',$filedata)) ? $filedata['Pos'] : null;
-    $spotialbum = (array_key_exists('SpotiAlbum',$filedata)) ? $filedata['SpotiAlbum'] : null;
     $spotiartist = (array_key_exists('SpotiArtist',$filedata)) ? $filedata['SpotiArtist'] : null;
     // 'playlist' is how mpd handles flac/cue files (either embedded cue or external cue).
     $playlist = (array_key_exists('playlist',$filedata)) ? $filedata['playlist'] : null;
-    $lastmodified = (array_key_exists('Last-Modified',$filedata)) ? $filedata['Last-Modified'] : 0;
     if (!array_key_exists('linktype', $filedata)) {
         if (preg_match('/^.*?:artist:/', $file)) {
             $linktype = "artist";
@@ -547,17 +561,6 @@ function process_file($collection, $filedata) {
         $linktype = $filedata['linktype'];
     }
 
-    // Capture tracks where the basename/dirname route didn't work
-    if ($artist == ".") {
-        $artist = '[Unknown]';
-    }
-    if ($album == ".") {
-        $album = '[Unknown]';
-    }
-    // Fix up mopidy URIs for untagged files
-    $artist = preg_replace('/local:track:/', '', $artist);
-    $album = preg_replace('/local:track:/', '', $album);
-
     switch($domain) {
         case "soundcloud":
             $folder = "soundcloud";
@@ -567,13 +570,13 @@ function process_file($collection, $filedata) {
             $folder = ($spotialbum == null) ? $file : $spotialbum;
             break;
 
-        case "radio-de":
-            $folder = "radio-de";
-            $album = "radio-de";
-            $artist = "Radio-De";
-            $image = "newimages/broadcast.png";
-            $number = null;
-            break;
+        // case "radio-de":
+        //     $folder = "radio-de";
+        //     $album = "radio-de";
+        //     $artist = "Radio-De";
+        //     $image = $ipath."broadcast.png";
+        //     $number = null;
+        //     break;
 
         default:
             $folder = dirname($file);
@@ -602,11 +605,14 @@ function process_file($collection, $filedata) {
                 $stationurl,
                 $station,
                 $stream,
-                $albumartist) = getStuffFromXSPF($file);
+                $albumartist) = getStuffFromXSPF($file, $artist);
 
         // Streams added to Mopidy by various backends return some useful metadata
 
+        debug_print("Donkey Molester Data : ".$artist,"THING");
+
         if (!$track_found || preg_match("/Unknown Internet Stream/", $album)) {
+
             if ($prefs['player_backend'] == "mopidy") {
                 if (array_key_exists('Title', $filedata) &&
                     !array_key_exists('Album', $filedata) &&
@@ -659,11 +665,12 @@ function process_file($collection, $filedata) {
     $totaltime += $duration;
 }
 
-function getStuffFromXSPF($url) {
+function getStuffFromXSPF($url, $artist) {
     global $xml;
     global $xspf_loaded;
     global $stream_xspfs;
     global $podcasts;
+    global $ipath;
 
     // Preload all the stream and lastfm playlists (on the first time we need them)
     // - saves time later as we don't have to read them in every time.
@@ -718,6 +725,7 @@ function getStuffFromXSPF($url) {
     foreach($stream_xspfs as $i => $x) {
         foreach($x->trackList->track as $i => $track) {
             if($track->location == $url) {
+                debug_print("FOUND STATION ".$url,"THING");
                 $image = (string) $track->image;
                 if (preg_match('/^http:/', $image)) {
                     $image = "getRemoteImage.php?url=".$image;
@@ -759,7 +767,7 @@ function getStuffFromXSPF($url) {
         "Unknown Internet Stream",
         "streamish",
         "stream",
-        "newimages/broadcast.png",
+        $ipath."broadcast.png",
         null,
         null,
         null,

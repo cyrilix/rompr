@@ -45,7 +45,7 @@ function check_sql_tables() {
 
 	global $mysqlc;
 
-	$current_schema_version = 2;
+	$current_schema_version = 6;
 
 	if ($mysqlc) {
 
@@ -60,10 +60,10 @@ function check_sql_tables() {
 			"Disc TINYINT(3) UNSIGNED, ".
 			"Uri VARCHAR(2000) ,".
 			"LastModified INT UNSIGNED, ".
+			"Hidden TINYINT(1) UNSIGNED DEFAULT 0, ".
 			"INDEX(Albumindex), ".
 			"INDEX(Title), ".
-			"INDEX(TrackNo), ".
-			"INDEX(Disc)) ENGINE=InnoDB"))
+			"INDEX(TrackNo)) ENGINE=InnoDB"))
 		{
 			debug_print("  Tracktable OK","MYSQL");
 		} else {
@@ -77,9 +77,7 @@ function check_sql_tables() {
 			"Albumindex INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE, ".
 			"PRIMARY KEY(Albumindex), ".
 			"Albumname VARCHAR(255), ".
-			// "Directory VARCHAR(255), ".
 			"AlbumArtistindex INT UNSIGNED, ".
-			"Image VARCHAR(255), ".
 			"Spotilink VARCHAR(255), ".
 			"Year YEAR, ".
 			"IsOneFile TINYINT(1) UNSIGNED, ".
@@ -200,11 +198,33 @@ function check_sql_tables() {
 							break;
 
 						case 1:
-							// Update table schema from version 1 to version 2
 							debug_print("Updating FROM Schema version 1 TO Schema version 2","SQL");
 							generic_sql_query("ALTER TABLE Albumtable DROP Directory");
 							generic_sql_query("UPDATE Statstable SET Value = 2 WHERE Item = 'SchemaVer'");
 							break;
+
+						case 2:
+							debug_print("Updating FROM Schema version 2 TO Schema version 3","SQL");
+							generic_sql_query("ALTER TABLE Tracktable ADD Hidden TINYINT(1) UNSIGNED DEFAULT 0");
+							generic_sql_query("UPDATE Statstable SET Value = 3 WHERE Item = 'SchemaVer'");
+							break;
+
+						case 3:
+							debug_print("Updating FROM Schema version 3 TO Schema version 4","SQL");
+							generic_sql_query("UPDATE Tracktable SET Disc = 1 WHERE Disc IS NULL OR Disc = 0");
+							generic_sql_query("UPDATE Statstable SET Value = 4 WHERE Item = 'SchemaVer'");
+							break;
+
+						case 4:
+							debug_print("Updating FROM Schema version 4 TO Schema version 5","SQL");
+							generic_sql_query("UPDATE Albumtable SET Searched = 0 WHERE Image NOT LIKE 'albumart%'");
+							generic_sql_query("ALTER TABLE Albumtable DROP Image");
+							generic_sql_query("UPDATE Statstable SET Value = 5 WHERE Item = 'SchemaVer'");
+
+						case 5:
+							debug_print("Updating FROM Schema version 5 TO Schema version 6","SQL");
+							generic_sql_query("DROP INDEX Disc on Tracktable");
+							generic_sql_query("UPDATE Statstable SET Value = 6 WHERE Item = 'SchemaVer'");
 					}
 					$sv++;
 				}

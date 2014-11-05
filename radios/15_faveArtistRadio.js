@@ -79,7 +79,7 @@ var faveArtistRadio = function() {
 
 	return {
 
-		populate: function() {
+		populate: function(p, flag) {
 			if (!populating) {
 				if (!running) {
 					debug.shout("FAVE ARTIST RADIO","Populating");
@@ -129,17 +129,14 @@ var faveArtistRadio = function() {
 
         setup: function() {
 
-        	if (player.canPlay('spotify')) {
+            var html = '<div class="containerbox spacer backhi" onclick="playlist.radioManager.load(\'faveArtistRadio\', null)">';
 
-	            var html = '<div class="padright menuitem"><div class="containerbox">';
+            html = html + '<div class="fixed">';
+            html = html + '<img src="'+ipath+'document-open-folder.png" height="12px" style="vertical-align:middle"></div>';
+            html = html + '<div class="expand">&nbsp;&nbsp;&nbsp;'+language.gettext('label_radio_fartist')+'</div>';
 
-	            html = html + '<div class="fixed">';
-	            html = html + '<img src="'+ipath+'document-open-folder.png" height="12px" style="vertical-align:middle"></div>';
-	            html = html + '<div class="expand"><a href="#" onclick="playlist.radioManager.load(\'faveArtistRadio\', null)">&nbsp;&nbsp;&nbsp;'+language.gettext('label_radio_fartist')+'</a></div>';
-
-	            html = html + '</div></div>';
-	            $("#pluginplaylists").append(html);
-	        }
+            html = html + '</div>';
+            $("#pluginplaylists").append(html);
 
         }
 

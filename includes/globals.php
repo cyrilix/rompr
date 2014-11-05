@@ -6,7 +6,7 @@ var prefsInLocalStorage = ["sourceshidden", "playlisthidden", "infosource", "pla
                             "hide_albumlist", "hide_filelist", "hide_radiolist", "twocolumnsinlandscape", "hidebrowser",
                             "shownupdatewindow", "showfileinfo", "scrolltocurrent", "remote",
                             "lastfmlang", "user_lang", "fontsize", "fontfamily", "alarmtime", "alarmon", "synctags",
-                            "synclove", "synclovevalue", "alarmramp", "radiomode", "radioparam"];
+                            "synclove", "synclovevalue", "alarmramp", "radiomode", "radioparam", "onthefly'"];
 
 var prefs = function() {
 

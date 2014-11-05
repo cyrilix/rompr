@@ -70,8 +70,8 @@ var info_spotify = function() {
     	var h = '<div class="holdingcell">';
     	h = h + '<div class="standout stleft statsbox"><b>'+language.gettext("label_pop")+': </b>'+data.popularity;
     	if (player.canPlay('spotify')) {
-	        h = h + '<div class="containerbox menuitem infoclick clickstartradio"><div class="fixed">'+language.gettext("label_artistradio")+
-	        		'&nbsp;&nbsp;</div><div class="fixed"><img src="'+ipath+'broadcast-24.png" /></div>' +
+	        h = h + '<div class="containerbox menuitem infoclick clickstartradio" style="padding-left:0px"><div class="fixed">'+language.gettext("label_artistradio")+
+	        		'&nbsp;&nbsp;</div><div class="fixed smallcover"><img src="'+ipath+'smartradio.png" /></div>' +
 	                '</div>';
 	    }
     	h = h + '</div>';
@@ -79,8 +79,13 @@ var info_spotify = function() {
     		h = h + '<img class="stright standout shrinker infoclick clickzoomimage" src="getRemoteImage.php?url='+data.images[0].url+'" ';
     		var w = $("#infopane").width();
     		var imgwidth = data.images[0].width;
-    		if (imgwidth > (w/3)) imgwidth = w/3;
-    		h = h + 'width="'+imgwidth+'" name="'+data.images[0].width+'" thing="3"/>';
+    		if (mobile == "no") {
+    			if (imgwidth > (w/3)) imgwidth = w/3;
+    			h = h + 'width="'+imgwidth+'" name="'+data.images[0].width+'" thing="3"/>';
+    		} else {
+    			if (imgwidth > (w/2)) imgwidth = w/2;
+    			h = h + 'width="'+imgwidth+'" name="'+data.images[0].width+'" thing="2"/>';
+    		}
     	}
 
     	h = h + '<div id="spartistinfo"></div>';

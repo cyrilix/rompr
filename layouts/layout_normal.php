@@ -79,6 +79,18 @@ print '<img id="sourcesresizer" height="24px" src="'.$ipath.'resize2.png" style=
 </div>
 <div class="expand containerbox center topbox">
 <div id="chooserbuttons" class="noborder fixed">
+<ul class="topnav">
+    <li>
+<?php
+print '<a href="#"><img src="'.$ipath.'pushbutton.png" class="topimg" height="24px"></a>';
+?>
+        <ul id="plscr" class="subnav widel dropshadow">
+            <div id="specialplugins" class="clearfix">
+            <li class="wide"></li>
+            </div>
+        </ul>
+    </li>
+</ul>
 <?php
 print '<img title="'.get_int_text('button_back').'" id="backbutton" class="topimg tooltip" height="24px" src="'.$ipath.'backbutton_disabled.png">';
 ?>
@@ -151,14 +163,20 @@ print '<button style="width:100%" class="topformbutton" onclick="clearPlaylist()
             </li>
         </ul>
     </li>
+
     <li>
 <?php
+print '<a href="#" title="'.get_int_text('label_pluginplaylists').'" class="tooltip"><img class="topimg" src="'.$ipath.'smartradio.png" height="24px"></a>';
+print '<ul id="ppscr" class="subnav wide dropshadow"><div class="clearfix containerbox vertical" id="pluginplaylists" style="width:324px">';
+// print '<div class="containerbox"><div class="expand"><b>'.get_int_text("label_pluginplaylists").'</b></div></div>';
+print '</div></ul>';
+print '</li>';
+
+print '<li>';
 print '<a href="#" title="'.get_int_text('button_loadplaylist').'" class="tooltip"><img class="topimg" src="'.$ipath.'document-open-folder.png" height="24px"></a>';
 print '<ul id="lpscr" class="subnav wide dropshadow"><div id="playlistslist" class="clearfix">';
-// print '<div class="containerbox"><div class="expand"><b>'.get_int_text("menu_radios").'</b></div></div>';
-// print '<div class="containerbox vertical" id="pluginplaylists"></div>';
 print '<div class="containerbox"><div class="expand"><b>'.get_int_text("menu_playlists").'</b></div></div>';
-print '<div id="storedplaylists"></div>';
+print '<div id="storedplaylists" class="noborder selecotron"></div>';
 print '</div></ul>';
 print '</li>';
 
@@ -205,16 +223,6 @@ if ($prefs['player_backend'] == "mpd") {
     </div>
 
     <div id="radiolist" class="invisible">
-
-    <div class="containerbox menuitem noselection">
-<?php
-print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" name="pluginplaylists"></div>';
-print '<div class="smallcover fixed"><img height="32px" width="32px" src="'.$ipath.'broadcast-32.png"></div>';
-print '<div class="expand">'.get_int_text('label_pluginplaylists').'</div>';
-?>
-    </div>
-    <div id="pluginplaylists" class="dropmenu">
-    </div>
 
     <div class="containerbox menuitem noselection">
 <?php

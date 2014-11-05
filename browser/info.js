@@ -452,7 +452,7 @@ var browser = function() {
 
         goToPlugin: function(id) {
             if (mobile == "no") {
-                $("#configpanel").slideToggle('fast');
+                $("#plscr").slideToggle('fast');
                 $("#infopane").mCustomScrollbar("scrollTo", "#"+id+"information");
             } else {
                 sourcecontrol("infopane");
@@ -464,35 +464,37 @@ var browser = function() {
             var w = $("#infopane").width();
             var h = $(".masonified");
             if (h.length > 0) {
-                if (w < 500) {
-                    $(".tagholder").css("width", "100%");
-                } else if (w > 500 && w <= 1000) {
-                    $(".tagholder").css("width", "50%");
-                } else if (w > 1000 && w <= 1400) {
-                    $(".tagholder").css("width", "33%");
-                } else if (w > 1400 && w <= 1600) {
-                    $(".tagholder").css("width", "25%");
+                var t = $(".tagholder");
+                if (t.length == 1 || w < 500) {
+                    t.css("width", "100%");
+                } else if (t.length == 2 || w > 500 && w <= 1000) {
+                    t.css("width", "50%");
+                } else if (t.length == 3 || w > 1000 && w <= 1400) {
+                    t.css("width", "33%");
+                } else if (t.length == 4 || w > 1400 && w <= 1600) {
+                    t.css("width", "25%");
                 } else if (w > 1600) {
-                    $(".tagholder").css("width", "20%");
+                    t.css("width", "20%");
                 }
                 h.masonry();
             }
 
             var h = $(".masonified2");
             if (h.length > 0) {
+                var t = $(".tagholder2");
                 var b = browser.calcMWidth();
-                if (w < 350) {
-                    $(".tagholder2").css("width", "100%");
-                } else if (w > 350 && w < 500) {
-                    $(".tagholder2").css("width", "50%");
-                } else if (w > 500 && w <= 1000) {
-                    $(".tagholder2").css("width", "33%");
-                } else if (w > 1000 && w <= 1400) {
-                    $(".tagholder2").css("width", "25%");
-                } else if (w > 1400 && w <= 1600) {
-                    $(".tagholder2").css("width", "20%");
+                if (t.length == 1 || w < 350) {
+                    t.css("width", "100%");
+                } else if (t.length == 2 || w > 350 && w < 500) {
+                    t.css("width", "50%");
+                } else if (t.length == 3 || w > 500 && w <= 1000) {
+                    t.css("width", "33%");
+                } else if (t.length == 4 || w > 1000 && w <= 1400) {
+                    t.css("width", "25%");
+                } else if (t.length == 5 || w > 1400 && w <= 1600) {
+                    t.css("width", "20%");
                 } else if (w > 1600) {
-                    $(".tagholder2").css("width", "16.6%");
+                    t.css("width", "16.6%");
                 }
                 $(".masochist").attr("width", b);
                 $(".masochist2").attr("width", b-24);

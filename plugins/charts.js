@@ -7,13 +7,21 @@ var charts = function() {
 		var html = '<table align="center" style="border-collapse:collapse;width:96%"><tr class="tagh"><th colspan="3" align="center">'+title+'</th></tr>';
 		html = html + '<tr>';
 		for (var i in data[0]) {
-			html = html + '<td><b>'+language.gettext(i)+'</b></td>';
+			if (i != 'uri') {
+				html = html + '<td><b>'+language.gettext(i)+'</b></td>';
+			}
 		}
 		html = html + '</tr>';
 		for (var i in data) {
-			html = html + '<tr>';
+			if (data[i].uri) {
+				html = html + '<tr class="infoclick draggable clickable clicktrack backhi" name="'+encodeURIComponent(data[i].uri)+'">';
+			} else {
+				html = html + '<tr>';
+			}
 			for (var j in data[i]) {
-				html = html + '<td>'+data[i][j]+'</td>';
+				if (j != "uri") {
+					html = html + '<td>'+data[i][j]+'</td>';
+				}
 			}
 		}
 		html = html + '</tr></table>';
@@ -40,6 +48,9 @@ var charts = function() {
 	            	data: {action: 'getcharts'},
 	            	dataType: 'json',
 	            	success: function(data) {
+	            		if (mobile != "phone") {
+	            			setDraggable('chafoldup');
+	            		}
 	            		charts.doMainLayout(data);
 	            	},
 	            	error: function() {
@@ -57,7 +68,7 @@ var charts = function() {
 			debug.log("CHARTS","Got data",data);
 			for (var i in data) {
 				debug.log("CHARTS",i);
-				holders[i] = $('<div>', {class: 'tagholder noselection', id: 'chaman_'+i}).appendTo($("#chamunger"));
+				holders[i] = $('<div>', {class: 'tagholder selecotron noselection', id: 'chaman_'+i}).appendTo($("#chamunger"));
 				putItems(holders[i], data[i], i);
 			}
             cha.slideToggle('fast', function() {
@@ -79,4 +90,4 @@ var charts = function() {
 
 }();
 
-$("#specialplugins").append('<div class="fullwidth"><button onclick="charts.open()">'+language.gettext("label_charts")+'</button></div>');
+addPlugin(language.gettext("label_charts"), "charts.open()");

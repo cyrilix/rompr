@@ -16,7 +16,7 @@ clean_cache_dir('prefs/jsoncache/lastfm/', 2592000);
 clean_cache_dir('prefs/jsoncache/spotify/', 2592000);
 clean_cache_dir('prefs/jsoncache/lyrics/', 15552000);
 clean_cache_dir('prefs/imagecache/', 2592000);
-
+system('rm prefs/albumart/*');
 ?>
 
 <html></html>
