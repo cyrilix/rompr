@@ -119,7 +119,7 @@ var lastfmImporter = function() {
 		} else if (u.match(/leftasrain:/)) {
 			html = html + '<img height="12px" src="newimages/leftasrain.png" style="margin-right:1em" />';
 		} else if (u.match(/gmusic:/)) {
-			html = html + '<img height="12px" src="newimages/gmusic-logo.png" style="margin-right:1em" />';
+			html = html + '<img height="12px" src="'+ipath+'gmusic-logo.png" style="margin-right:1em" />';
 		}
 		html = html + '<b>'+data.title+'</b><br><i>by </i>';
 		html = html + data.artist+'<br><i>on </i>';

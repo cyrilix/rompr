@@ -96,35 +96,33 @@ class album {
         return md5($this->artist." ".$this->name);
     }
 
-    public function getImage($size, $trackimage = null) {
+    public function getImage($size) {
         global $ipath;
         // Return image for an album or track
         $image = "";
         $artname = $this->getKey();
-        // Fixups for various mopidy backends
-        if (preg_match('/^podcast\:/', $this->spotilink)) {
-            $image = $ipath."Apple_Podcast_logo.png";
-        }
-        if (preg_match('/^internetarchive\:/', $this->spotilink)) {
-            $image = "newimages/internetarchive.png";
-        }
-        if ($this->name == "Youtube") {
-            $image = "newimages/Youtube-logo.png";
-        }
-        if ($this->name == "SoundCloud") {
-            $image = "newimages/soundcloud-logo.png";
-        }
         if ($this->image) {
             $image = $this->image;
-        }
-        // If the track supplied an image
-        if ($trackimage) {
-            $image = $trackimage;
         }
         if (file_exists("prefs/imagecache/".$artname."_".$size.".jpg")) {
             $image = "prefs/imagecache/".$artname."_".$size.".jpg";
         }
-        // Finally, if there's a local image this overrides everything else
+        switch ($this->domain) {
+            case "podcast":
+                if ($image == "") $image = $ipath."podcast-logo.png";
+                break;
+            case "internetarchive":
+                $image = $ipath."internetarchive-logo.png";
+                break;
+            case "youtube":
+            case "yt":
+                $image = "newimages/Youtube-logo.png";
+                break;
+            case "soundcloud":
+                $image = "newimages/soundcloud-logo.png";
+                break;
+        }
+        // If there's a local image this overrides everything else
         if (file_exists("albumart/".$size."/".$artname.".jpg")) {
             $image = "albumart/".$size."/".$artname.".jpg";
         }
@@ -156,7 +154,7 @@ class album {
             // Hence we do a little check that we have have the same number of 'Track 1's
             // as discs and only do the sort of they're not the same. This'll also
             // sort out badly tagged local files.
-            if ($this->numOfTrackOnes == $this->numOfDiscs) return $this->numOfDiscs;
+            if ($this->numOfTrackOnes <= 1 || $this->numOfTrackOnes == $this->numOfDiscs) return $this->numOfDiscs;
         }
 
         // For XML we have to do the sort every time, since we need the tracks to be in order
@@ -260,6 +258,7 @@ class track {
         $this->playlist = $playlist;
         $this->lastmodified = $lastmodified;
         $this->image = $image;
+        $this->needsupdate = false;
         // Only used by playlist
         $this->albumobject = null;
         $this->type = $type;
@@ -275,11 +274,21 @@ class track {
         $this->musicbrainz_trackid = $mbtrack;
     }
 
-    public function getImage($size) {
-        if ($size == "asdownloaded") {
-            return ($this->albumobject->getImage($size, $this->original_image));
-        } else {
-            return ($this->albumobject->getImage($size, $this->image));
+    public function getImage() {
+        $d = getDomain(urldecode($this->url));
+        switch ($d) {
+            case "soundcloud":
+            case "youtube":
+            case "yt":
+                if ($this->image) {
+                    return $this->image;
+                } else {
+                    return "newimages/album-unknown-small.png";
+                }
+                break;
+
+            default:
+                return null;
         }
     }
 
@@ -293,7 +302,9 @@ class track {
     }
 
     public function updateDiscNo($disc) {
+        debug_print("Track ".$this->name." being set to disc number ".$disc,"POOP");
         $this->disc = $disc;
+        $this->needsupdate = true;
     }
 }
 
@@ -551,7 +562,7 @@ function process_file($collection, $filedata) {
     if (!array_key_exists('linktype', $filedata)) {
         if (preg_match('/^.*?:artist:/', $file)) {
             $linktype = "artist";
-            $apotiartist = $file;
+            $spotiartist = $file;
         } else if (preg_match('/^.*?:album:/', $file)) {
             $linktype = "album";
         } else {
@@ -569,14 +580,6 @@ function process_file($collection, $filedata) {
         case "spotify":
             $folder = ($spotialbum == null) ? $file : $spotialbum;
             break;
-
-        // case "radio-de":
-        //     $folder = "radio-de";
-        //     $album = "radio-de";
-        //     $artist = "Radio-De";
-        //     $image = $ipath."broadcast.png";
-        //     $number = null;
-        //     break;
 
         default:
             $folder = dirname($file);
@@ -608,8 +611,6 @@ function process_file($collection, $filedata) {
                 $albumartist) = getStuffFromXSPF($file, $artist);
 
         // Streams added to Mopidy by various backends return some useful metadata
-
-        debug_print("Donkey Molester Data : ".$artist,"THING");
 
         if (!$track_found || preg_match("/Unknown Internet Stream/", $album)) {
 

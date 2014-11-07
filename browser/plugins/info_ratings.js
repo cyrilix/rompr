@@ -73,6 +73,9 @@ var info_ratings = function() {
                 if (parent.playlistinfo.type != "stream" && parent.playlistinfo.image) {
                     data.image = parent.playlistinfo.image;
                 }
+                if (parent.playlistinfo.trackimage) {
+                    data.trackimage = parent.playlistinfo.trackimage;
+                }
                 if ((parent.playlistinfo.type == "local" || parent.playlistinfo.type == "podcast") &&
                     parent.playlistinfo.album) {
                     data.album = parent.playlistinfo.album;

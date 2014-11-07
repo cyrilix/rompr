@@ -232,7 +232,7 @@ function alistheader($nart, $nalb, $ntra, $tim) {
     '</div>';
 }
 
-function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duration, $lm, $image = "") {
+function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duration, $lm, $image) {
     global $ipath;
     if ($artist || $rating > 0 || $lm === null) {
         print '<div class="clickable clicktrack ninesix draggable indent containerbox vertical padright" name="'.$url.'">';
@@ -240,17 +240,18 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
     } else {
         print '<div class="clickable clicktrack ninesix draggable indent containerbox padright line" name="'.$url.'">';
     }
-    print '<div class="tracknumber fixed"';
-    if ($numtracks > 99 || $number > 99) {
-        print ' style="width:3em"';
-    }
-    if ($number > 0) {
-        print '>'.$number.'</div>';
-    } else {
-        print '></div>';
+    if ($number) {
+        print '<div class="tracknumber fixed"';
+        if ($numtracks > 99 || $number > 99) {
+            print ' style="width:3em"';
+        }
+        if ($number > 0) {
+            print '>'.$number.'</div>';
+        } else {
+            print '></div>';
+        }
     }
     $d = getDomain(urldecode($url));
-    debug_print("Track domain is ".$d." from ".$url,"POTATO");
     switch ($d) {
         case "spotify":
         case "gmusic":
@@ -259,10 +260,12 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
 
         case "soundcloud":
         case "youtube":
-            if ($image == "" || $image === null) $image = "newimages/album-unknown-small.png";
-            print '<div class="smallcover fixed">';
-            print '<img class="smallcover fixed" src="'.$image.'" />';
-            print '</div>';
+            if ($image == "") $image = "newimages/album-unknown-small.png";
+            if ($image !== null) {
+                print '<div class="smallcover fixed">';
+                print '<img class="smallcover fixed" src="'.$image.'" />';
+                print '</div>';
+            }
             print '<div class="playlisticon fixed"><img height="12px" src="'.$ipath.$d.'-logo.png" /></div>';
             break;
     }
@@ -308,11 +311,19 @@ function artistHeader($id, $spotilink, $name, $numalbums = null) {
     if ($spotilink) {
         print '<div class="clickable clicktrack draggable containerbox menuitem'.$browseable.'" name="'.$spotilink.'">';
         print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" name="'.$id.'"></div>';
-        if (preg_match('/^spotify/', $spotilink)) {
-            print '<div class="playlisticon fixed"><img height="12px" src="'.$ipath.'spotify-logo.png" /></div>';
-            print '<input type="hidden" value="needsfiltering" />';
-        } else if (preg_match('/^gmusic/', $spotilink)) {
-            print '<div class="playlisticon fixed"><img height="12px" src="newimages/gmusic-logo.png" /></div>';
+        $d = getDomain(urldecode($spotilink));
+        switch ($d) {
+            case "spotify":
+                print '<div class="playlisticon fixed"><img height="12px" src="'.$ipath.'spotify-logo.png" /></div>';
+                print '<input type="hidden" value="needsfiltering" />';
+                break;
+
+            case "gmusic":
+            case "podcast":
+            case "internetarchive":
+                print '<div class="playlisticon fixed"><img height="12px" src="'.$ipath.$d.'-logo.png" /></div>';
+                break;
+
         }
         print '<div class="expand saname">'.$name.'</div>';
         print '</div>';
@@ -366,7 +377,7 @@ function albumHeader($name, $spotilink, $id, $isonefile, $exists, $searched, $im
         if (preg_match('/^spotify/', $spotilink)) {
             print '<div class="playlisticon fixed"><img height="12px" src="'.$ipath.'spotify-logo.png" /></div>';
         } else if (preg_match('/^gmusic/', $spotilink)) {
-            print '<div class="playlisticon fixed"><img height="12px" src="newimages/gmusic-logo.png" /></div>';
+            print '<div class="playlisticon fixed"><img height="12px" src="'.$ipath.'gmusic-logo.png" /></div>';
         }
     }
 
@@ -736,17 +747,13 @@ function munge_filedata($filedata, $file) {
     $mbalbum = (array_key_exists('MUSICBRAINZ_ALBUMID', $filedata)) ? $filedata['MUSICBRAINZ_ALBUMID'] : "";
 
     // Capture tracks where the basename/dirname route didn't work
-    // Fixups for various mopidy backends
-
-
-    debug_print("Artist : '".$artist."' file : '".$file."'", "THING");
-
-    if ($artist == "." || $artist == "") {
-        if (preg_match('/^internetarchive\:/', $file)) {
-            $artist = "Internet Archive";
-        } else {
-            $artist = '[Unknown]';
-        }
+    if ($artist == "." || $artist == "" || $artist == " & ") {
+        // if (preg_match('/^internetarchive\:/', $file)) {
+        //     $artist = "Internet Archive";
+        // } else {
+        //     $artist = '[Unknown]';
+        // }
+        $artist = ucfirst(getDomain(urldecode($file)));
     }
     if ($album == ".") {
         $album = '[Unknown]';
@@ -754,10 +761,6 @@ function munge_filedata($filedata, $file) {
 
     $artist = preg_replace('/local:track:/', '', $artist);
     $album = preg_replace('/local:track:/', '', $album);
-
-    if (preg_match('/^podcast\:/', $artist)) {
-        $artist = "Uncategorised Podcasts";
-    }
 
     return array($name, $artist, $number, $duration, $albumartist, $spotialbum,
                     $image, $album, $date, $lastmodified, $disc, $mbalbum);

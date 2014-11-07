@@ -34,6 +34,7 @@ $uri = array_key_exists('uri', $_POST) ? $_POST['uri'] : null;
 $date = array_key_exists('date', $_POST) ? $_POST['date'] : null;
 $urionly = array_key_exists('urionly', $_POST) ? true : false;
 $disc = array_key_exists('disc', $_POST) ? $_POST['disc'] : 1;
+$trackimage = array_key_exists('trackimage', $_POST) ? $_POST['trackimage'] : null;
 if (substr($image,0,4) == "http") {
 	$image = "getRemoteImage.php?url=".$image;
 }
@@ -114,7 +115,8 @@ switch ($_POST['action']) {
 										$disc,
 										null, null,
 										$uri === null ? "local" : getDomain($uri),
-										1);
+										1,
+										$trackimage);
 
 		}
 
@@ -164,7 +166,8 @@ switch ($_POST['action']) {
 										$disc,
 										null, null,
 										$uri === null ? "local" : getDomain($uri),
-										0);
+										0,
+										$trackimage);
 		}
 		if ($ttid) {
 			if (set_attribute($ttid, $_POST['attribute'], $_POST['value'])) {

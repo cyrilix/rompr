@@ -75,9 +75,6 @@ function dumpAlbums($which) {
                                 $currdisc = $trackobj->disc;
                                 print '<div class="discnumber indent">Disc '.$currdisc.'</div>';
                             }
-
-                            debug_print("Tack Image is ".$trackobj->image,"DUMPALBUMS");
-
                             albumTrack(
                                 $trackobj->artist,
                                 -1,

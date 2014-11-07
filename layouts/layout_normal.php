@@ -237,7 +237,7 @@ print '<div class="expand">'.get_int_text('label_yourradio').'</div>';
     <div class="containerbox menuitem noselection">
 <?php
 print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" name="podcastslist"></div>';
-print '<div class="smallcover fixed"><img height="32px" width="32px" src="'.$ipath.'Apple_Podcast_logo.png"></div>';
+print '<div class="smallcover fixed"><img height="32px" width="32px" src="'.$ipath.'podcast-logo.png"></div>';
 print '<div class="expand">'.get_int_text('label_podcasts').'<span id="total_unlistened_podcasts"></span><span></span></div>';
 ?>
     </div>

@@ -71,9 +71,11 @@ function parseArtist($collection, $track) {
 
 function parseAlbum($collection, $track) {
     $trackdata = array();
+    $domain = null;
     $trackdata['linktype'] = 'album';
     if (property_exists($track, 'uri')) {
         $trackdata['file'] = $track->{'uri'};
+        $domain = getDomain($track->{'uri'});
     }
     if (property_exists($track, 'images')) {
         $trackdata['Image'] = $track->{'images'}[0];
@@ -90,11 +92,15 @@ function parseAlbum($collection, $track) {
     }
     if (property_exists($track, 'artists')) {
         $trackdata['Artist'] = mopidyDoesWierdThings($track->{'artists'});
-        if (property_exists($track->{'artists'}[0], 'uri') && substr($track->{'artists'}[0]->{'uri'},0,8) == "spotify:") {
+        if (property_exists($track->{'artists'}[0], 'uri')) {
             $trackdata['SpotiArtist'] = $track->{'artists'}[0]->{'uri'};
         }
 
     }
+    if ($domain == "podcast" && !array_key_exists('Artist', $trackdata)) {
+        $trackdata['Artist'] = "Podcasts";
+    }
+
     process_file($collection, $trackdata);
 }
 
@@ -103,8 +109,11 @@ function parseTrack($track, $plpos = null, $plid = null) {
     $trackdata = array();
     $trackdata['Pos'] = $plpos;
     $trackdata['Id'] = $plid;
+    $domain = null;
     if (property_exists($track, 'uri')) {
         $trackdata['file'] = $track->{'uri'};
+        $domain = getDomain($track->{'uri'});
+        debug_print("Domain is ".$domain,"FUCK");
     } else {
         $trackdata['file'] = "Broken Track!";
         $trackdata['Artist'] = "[Unknown]";
@@ -171,7 +180,7 @@ function parseTrack($track, $plpos = null, $plid = null) {
             }
             $trackdata['Image'] = $im;
         }
-        if (property_exists($track->{'album'}, 'uri') && substr($track->{'album'}->{'uri'},0,8) == "spotify:") {
+        if (property_exists($track->{'album'}, 'uri')) {
             $trackdata['SpotiAlbum'] = $track->{'album'}->{'uri'};
         }
         if (property_exists($track->{'album'}, 'artists')) {
@@ -181,10 +190,18 @@ function parseTrack($track, $plpos = null, $plid = null) {
             if (property_exists($track->{'album'}->{'artists'}[0], 'musicbrainz_id')) {
                 $trackdata['MUSICBRAINZ_ALBUMARTISTID'] = $track->{'album'}->{'artists'}[0]->{'musicbrainz_id'};
             }
-            if (property_exists($track->{'album'}->{'artists'}[0], 'uri') && substr($track->{'album'}->{'artists'}[0]->{'uri'},0,8) == "spotify:") {
+            if (property_exists($track->{'album'}->{'artists'}[0], 'uri')) {
                 $trackdata['SpotiArtist'] = $track->{'album'}->{'artists'}[0]->{'uri'};
             }
         }
+    }
+
+    if ($domain == "podcast" && !array_key_exists('Album', $trackdata)) {
+        $trackdata['Album'] = "Podcasts";
+    }
+
+    if ($domain == "podcast" && !array_key_exists('Artist', $trackdata)) {
+        $trackdata['Artist'] = "Podcasts";
     }
 
     return $trackdata;

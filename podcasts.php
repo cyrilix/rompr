@@ -137,7 +137,7 @@ function getNewPodcast($url) {
         $daysLive = $ppg->seriesDetails[0]->attributes()->daysLive;
     }
 
-    $image = $ipath."Apple_Podcast_logo.png";
+    $image = $ipath."podcast-logo.png";
     $m = $feed->channel->children('itunes', TRUE);
     if ($feed->channel->image) {
         $image = $feed->channel->image->url;

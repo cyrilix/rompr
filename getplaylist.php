@@ -39,8 +39,9 @@ function outputPlaylist() {
             "backendid" => $track->backendid,
             "dir" => rawurlencode($track->albumobject->folder),
             "key" => $track->albumobject->getKey(),
-            "image" => $track->getImage('original'),
-            "origimage" => $track->getImage('asdownloaded'),
+            "image" => $track->albumobject->getImage('original'),
+            "origimage" => $track->albumobject->getImage('asdownloaded'),
+            "trackimage" => $track->getImage(),
             "stream" => $track->stream,
             "playlistpos" => $track->playlistpos,
             "spotify" => array (

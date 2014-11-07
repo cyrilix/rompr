@@ -19,6 +19,7 @@ function playerController() {
     var att = null;
     var updatePlTimer = null;
     var doingPlUpdate = false;
+    var timecheckcounter = 0;
 
     function mopidyStateChange(data) {
         debug.shout("PLAYER","Mopidy State Change",data);
@@ -45,6 +46,7 @@ function playerController() {
         setStatusValues(data.tl_track);
 		player.status.elapsed = 0;
 		infobar.setStartTime(0);
+        timecheckcounter = 0;
         checkPlaybackTime();
     	if (playlist.findCurrentTrack()) {
     		onFoundTrack();
@@ -106,8 +108,16 @@ function playerController() {
 				player.status.elapsed = parseInt(pos)/1000;
 				infobar.setStartTime(player.status.elapsed);
 				if (player.status.elapsed == 0) {
-					timerTimer = setTimeout(checkPlaybackTime, 500);
-				}
+                    // Playback has not started - perhaps a stream is being buffered
+                    // or a hard disc is spinning up. Keep checking.
+					timerTimer = setTimeout(checkPlaybackTime, 1000);
+				} else if (timecheckcounter < 2) {
+                    // Mopidy seems to report an incorrect playback time sometimes
+                    // near the start of playback, so we just check a few times
+                    // to be sure.
+                    timecheckcounter++;
+                    timerTimer = setTimeout(checkPlaybackTime, 2000);
+                }
 			}
 		});
 	}
@@ -521,8 +531,14 @@ function playerController() {
                 mopidy.playlists.getPlaylists().then(function (data) {
                 	debug.log("PLAYER","Got Playlists from Mopidy",data);
                 	formatPlaylistInfo(data);
-                    if (prefs.apache_backend == "sql" && data.length > 0 && player.collectionLoaded && prefs.onthefly) {
-                        checkTracksAgainstDatabase(data);
+                    if (prefs.apache_backend == "sql" && player.collectionLoaded && prefs.onthefly) {
+                        for (var i in data) {
+                            // Make sure we've got some Spotify playlists
+                            if (data[i].uri.match(/^spotify/)) {
+                                checkTracksAgainstDatabase(data);
+                                break;
+                            }
+                        }
                     } else {
                         doingPlUpdate = false;
                     }

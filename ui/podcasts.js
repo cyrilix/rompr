@@ -151,10 +151,11 @@ var podcasts = function() {
 		        success: function(data) {
 		            $("#podcastslist").html(data);
 		            $("#podcastslist").find('.fridge').tipTip({edgeOffset: 8});
+		            infobar.notify(infobar.NOTIFY, "Subscribed to Podcast");
 		            podcasts.doNewCount();
 		        },
 		        error: function(data, status) {
-		            alert("Failed To Retreive RSS feed");
+		            infobar.notify(infobar.ERROR, "Failed to Subscribe to Podcast");
 		        }
 		    } );
 		},

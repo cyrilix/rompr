@@ -30,6 +30,7 @@ function Playlist() {
             trackid: ""
         },
         origimage: "",
+        trackimage: "",
         playlistpos: "",
         spotify: {
             album: ""
@@ -626,16 +627,11 @@ function Playlist() {
                     showartist = true;
                 }
                 html = html + '<div name="'+tracks[trackpointer].playlistpos+'" romprid="'+tracks[trackpointer].backendid+'" class="track clickable clickplaylist sortable containerbox playlistitem menuitem">';
+                if (tracks[trackpointer].trackimage) {
+                    html = html + '<div class="smallcover fixed"><img class="smallcover" src="'+tracks[trackpointer].trackimage+'" /></div>';
+                }
                 var l = tracks[trackpointer].location;
-                if (l.substring(0,11) == "soundcloud:" ||
-                    l.substring(0,8) == "youtube:" ||
-                    l.substring(0,3) == "yt:") {
-                    html = html + '<div class="smallcover fixed"><img class="smallcover" src="'+tracks[trackpointer].image+'" /></div>';
-                } else if (tracks[trackpointer].type == "podcast") {
-                    html = html + '<div class="tracknumbr fixed">';
-                    html = html + '<img src="'+ipath+'Apple_Podcast_logo.png" height="16px" />';
-                    html = html + '</div>';
-                } else{
+                if (tracks[trackpointer].tracknumber) {
                     html = html + '<div class="tracknumbr fixed"';
                     if (tracks.length > 99 ||
                         tracks[trackpointer].tracknumber > 99) {
@@ -646,7 +642,7 @@ function Playlist() {
                 if (l.substring(0, 7) == "spotify") {
                     html = html + '<div class="playlisticon fixed"><img height="12px" src="'+ipath+'spotify-logo.png" /></div>';
                 } else if (l.substring(0, 6) == "gmusic") {
-                    html = html + '<div class="playlisticon fixed"><img height="12px" src="newimages/gmusic-logo.png" /></div>';
+                    html = html + '<div class="playlisticon fixed"><img height="12px" src="'+ipath+'gmusic-logo.png" /></div>';
                 }
                 if (showartist) {
                     html = html + '<div class="containerbox vertical expand">';
@@ -668,32 +664,25 @@ function Playlist() {
         this.header = function() {
             var html = "";
             html = html + '<div name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="item clickable clickplaylist sortable containerbox menuitem playlisttitle">';
-            var l = tracks[0].location;
-            if (l.substring(0,11) == "soundcloud:") {
-                html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="'+ipath+'soundcloud-logo.png"/></div>';
-            } else if (l.substring(0,8) == "youtube:" || l.substring(0,3) == "yt:") {
-                html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" src="newimages/youtube-logo.png"/></div>';
+            if (tracks[0].image && tracks[0].image != "") {
+                // An image was supplied - either a local one or supplied by the backend
+                html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover fixed" name="'+tracks[0].key+'" src="'+tracks[0].image+'"/></div>';
             } else {
-                if (tracks[0].image && tracks[0].image != "") {
-                    // An image was supplied - either a local one or supplied by the backend
-                    html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover fixed" name="'+tracks[0].key+'" src="'+tracks[0].image+'"/></div>';
+                // This is so we can get albumart when we're playing spotify
+                // Once mopidy starts supplying us with images, we can dump this code
+                // Note - this is reuired for when we load a spotify playlist because the albums won't be
+                // present in the window anywhere else
+                var i = findImageInWindow(tracks[0].key);
+                if (i !== false) {
+                    debug.log("PLAYLIST","Playlist using image already in window");
+                    this.updateImages(i);
+                    html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover fixed" name="'+tracks[0].key+'" src="'+i+'"/></div>';
                 } else {
-                    // This is so we can get albumart when we're playing spotify
-                    // Once mopidy starts supplying us with images, we can dump this code
-                    // Note - this is reuired for when we load a spotify playlist because the albums won't be
-                    // present in the window anywhere else
-                    var i = findImageInWindow(tracks[0].key);
-                    if (i !== false) {
-                        debug.log("PLAYLIST","Playlist using image already in window");
-                        this.updateImages(i);
-                        html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover fixed" name="'+tracks[0].key+'" src="'+i+'"/></div>';
-                    } else {
-                        html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index
-                                    + '"><img class="smallcover updateable notexist fixed clickable clickicon clickrollup" romprname="'+self.index
-                                    +'" name="'+tracks[0].key+'" src=""/></div>';
-                        coverscraper.setCallback(this.updateImages, tracks[0].key);
-                        coverscraper.GetNewAlbumArt(tracks[0].key);
-                    }
+                    html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index
+                                + '"><img class="smallcover updateable notexist fixed clickable clickicon clickrollup" romprname="'+self.index
+                                +'" name="'+tracks[0].key+'" src=""/></div>';
+                    coverscraper.setCallback(this.updateImages, tracks[0].key);
+                    coverscraper.GetNewAlbumArt(tracks[0].key);
                 }
             }
             html = html + '<div class="containerbox vertical expand">';

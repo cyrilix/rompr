@@ -262,9 +262,16 @@ var infobar = function() {
                 return 0;
             }
             infobar.albumImage.setKey(info.key);
-            infobar.albumImage.setSource({    image: info.image,
-                                              origimage: info.origimage == "" ? info.image : info.origimage
-                                        });
+            if (info.trackimage) {
+                infobar.albumImage.setSource({    image: info.trackimage,
+                                                  origimage: info.trackimage
+                                            });
+
+            } else {
+                infobar.albumImage.setSource({    image: info.image,
+                                                  origimage: info.origimage == "" ? info.image : info.origimage
+                                            });
+            }
         },
 
         setLastFMCorrections: function(info) {

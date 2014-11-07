@@ -19,7 +19,7 @@ $convert_path = find_executable("convert");
 // is in response to searches of Spotify or youtube etc.
 
 function find_item($uri,$title,$artist,$album,$urionly) {
-	debug_print("Looking for item","MYSQL");
+	debug_print("Looking for item ".$title,"MYSQL");
 	global $mysqlc;
 
 	$ttid = null;
@@ -149,9 +149,8 @@ function find_wishlist_item($artist, $album, $title) {
 }
 
 function create_new_track($title, $artist, $trackno, $duration, $albumartist, $spotilink, $image, $album, $date, $uri,
-						  $trackai = null, $albumai = null, $albumi = null, $isonefile = null, $searched = null,
-						  $imagekey = null, $lastmodified = null, $disc = null, $ambid = null, $numdiscs = null, $domain = null,
-						  $hidden = 0) {
+						  $trackai, $albumai, $albumi, $isonefile, $searched, $imagekey, $lastmodified, $disc, $ambid,
+						  $numdiscs, $domain, $hidden, $trackimage) {
 	debug_print("Adding New Track ".$title." No: ".$trackno." Hidden: ".$hidden,"MYSQL");
 	global $mysqlc;
 	global $artist_created;
@@ -221,6 +220,20 @@ function create_new_track($title, $artist, $trackno, $duration, $albumartist, $s
 	    mysqli_stmt_close($stmt);
 	} else {
 		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+	}
+
+	if ($retval && $trackimage) {
+		if ($stmt = mysqli_prepare($mysqlc, "INSERT INTO Trackimagetable (TTindex, Image) VALUES (?, ?)")) {
+			mysqli_stmt_bind_param($stmt, "is", $retval, $trackimage);
+			if (mysqli_stmt_execute($stmt)) {
+				debug_print("Added Image for track","MYSQL");
+			} else {
+				debug_print("    MYSQL Error on track creation: ".mysqli_error($mysqlc),"MYSQL");
+			}
+		    mysqli_stmt_close($stmt);
+		} else {
+			debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+		}
 	}
 
 	return $retval;
@@ -308,6 +321,7 @@ function create_new_album($album, $albumai, $spotilink, $image, $date, $isonefil
 	global $error;
 	global $download_file;
 	global $convert_path;
+	global $ipath;
 	$retval = null;
 
 	// See if the image needs to be archived. The SQL database no longer stores image URLs.
@@ -872,7 +886,6 @@ function do_albums_from_database($which, $fragment = false) {
 					rawurlencode($obj->Spotilink),
 					"aalbum".$obj->Albumindex,
 					$obj->IsOneFile,
-					// $obj->Image == null ? "no" : "yes",
 					(file_exists('albumart/small/'.$obj->ImgKey.'.jpg')) ? "yes" : "no",
 					$obj->Searched == 1 ? "yes" : "no",
 					$obj->ImgKey,
@@ -997,7 +1010,7 @@ function do_tracks_from_database($which, $fragment = false) {
         print '<h3>'.get_int_text("label_general_error").'</h3>';
 	} else {
 		debug_print("Looking for albumID ".$matches[1],"DUMPALBUMS");
-		$qstring = "SELECT t.*, a.Artistname, b.AlbumArtistindex, b.NumDiscs, r.Rating FROM Tracktable AS t JOIN Artisttable AS a ON t.Artistindex = a.Artistindex JOIN Albumtable AS b ON t.Albumindex = b.Albumindex LEFT JOIN Ratingtable AS r ON r.TTindex = t.TTindex WHERE t.Albumindex = '".$matches[1]."' AND Uri IS NOT NULL AND Hidden=0 ORDER BY t.Disc, t.TrackNo";
+		$qstring = "SELECT t.*, a.Artistname, b.AlbumArtistindex, b.NumDiscs, r.Rating, ti.Image FROM Tracktable AS t JOIN Artisttable AS a ON t.Artistindex = a.Artistindex JOIN Albumtable AS b ON t.Albumindex = b.Albumindex LEFT JOIN Ratingtable AS r ON r.TTindex = t.TTindex LEFT JOIN Trackimagetable AS ti ON ti.TTindex = t.TTindex WHERE t.Albumindex = '".$matches[1]."' AND Uri IS NOT NULL AND Hidden=0 ORDER BY t.Disc, t.TrackNo";
 		if ($result = mysqli_query($mysqlc, $qstring)) {
 			$numtracks = mysqli_num_rows($result);
 			$currdisc = -1;
@@ -1016,7 +1029,8 @@ function do_tracks_from_database($which, $fragment = false) {
 						$obj->TrackNo,
 						$obj->Title,
 						format_time($obj->Duration),
-						$obj->LastModified
+						$obj->LastModified,
+						$obj->Image
 					);
 					$count++;
 				}
@@ -1345,6 +1359,7 @@ function remove_cruft() {
 	generic_sql_query("DELETE FROM Tagtable WHERE Tagindex NOT IN (SELECT Tagindex FROM TagListtable)");
 	generic_sql_query("DELETE FROM Playcounttable WHERE Playcount = '0'");
 	generic_sql_query("DELETE FROM Playcounttable WHERE TTindex NOT IN (SELECT TTindex FROM Tracktable)");
+	generic_sql_query("DELETE FROM Trackimagetable WHERE TTindex NOT IN (SELECT TTindex FROM Tracktable)");
 }
 
 function do_artist_database_stuff($artistkey, $now) {
@@ -1431,7 +1446,10 @@ function do_artist_database_stuff($artistkey, $now) {
 	        }
 
 		    if ($ttid) {
-		    	if ($lastmodified === null || $trackobj->lastmodified != $lastmodified || $hidden == 1) {
+		    	if ($lastmodified === null ||
+		    		$trackobj->lastmodified != $lastmodified ||
+		    		$hidden == 1 ||
+		    		$trackobj->needsupdate) {
 			    	debug_print("  Updating track with ttid ".$ttid,"MYSQL");
 					mysqli_stmt_bind_param($stmt, "iiiisii", $trackobj->number, $trackobj->duration, $trackobj->lastmodified, $trackobj->disc, $trackobj->url, $albumindex, $ttid);
 					if (mysqli_stmt_execute($stmt)) {
@@ -1480,7 +1498,8 @@ function do_artist_database_stuff($artistkey, $now) {
                     null,
                     null,
                     null,
-                    0
+                    0,
+                    null
                 );
 
 		    }

@@ -20,6 +20,12 @@ var info_file = function() {
         }
         html = html + '<div class="indent"><table><tr><td class="fil">'+language.gettext("info_file")+'</td><td>'+file;
         if (file.match(/^http:\/\/.*item\/\d+\/file/)) html = html + ' <i>'+language.gettext("info_from_beets")+'</i>';
+        var f = player.status.file.match(/^podcast\:(http.*?)\#/);
+        if (f && f[1]) {
+            html = html + '<button class="sourceform" onclick="podcasts.doPodcast(\'filepodiput\')">Subscribe</button>'+
+                            '<input type="hidden" id="filepodiput" value="'+f[1]+'" />';
+        }
+        html = html + '</td></tr>';
         if (filetype != "") {
             html = html + '<tr><td class="fil">'+language.gettext("info_format")+'</td><td>'+filetype+'</td></tr>';
         }
