@@ -6,7 +6,6 @@ var info_file = function() {
 
         var html = "";
         var file = unescape(player.status.file);
-        if (!file) { return "" }
         file = file.replace(/^file:\/\//, '');
         var filetype = "";
         if (file) {
@@ -15,15 +14,16 @@ var info_file = function() {
                 filetype = n[n.length-1];
                 filetype = filetype.toLowerCase();
             }
-        } else {
-            return "";
         }
+        if (file == "null") file = "";
         html = html + '<div class="indent"><table><tr><td class="fil">'+language.gettext("info_file")+'</td><td>'+file;
         if (file.match(/^http:\/\/.*item\/\d+\/file/)) html = html + ' <i>'+language.gettext("info_from_beets")+'</i>';
-        var f = player.status.file.match(/^podcast\:(http.*?)\#/);
-        if (f && f[1]) {
-            html = html + '<button class="sourceform" onclick="podcasts.doPodcast(\'filepodiput\')">Subscribe</button>'+
-                            '<input type="hidden" id="filepodiput" value="'+f[1]+'" />';
+        if (player.status.file) {
+            var f = player.status.file.match(/^podcast\:(http.*?)\#/);
+            if (f && f[1]) {
+                html = html + '<button class="sourceform" onclick="podcasts.doPodcast(\'filepodiput\')">Subscribe</button>'+
+                                '<input type="hidden" id="filepodiput" value="'+f[1]+'" />';
+            }
         }
         html = html + '</td></tr>';
         if (filetype != "") {

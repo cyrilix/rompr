@@ -98,7 +98,7 @@ function check_tracks_against_db($json) {
 
 						// We've only checked by Uri. Need to find_wishlist_item first
 						$ttid = find_wishlist_item($track['Artist'],$track['Album'],$track['Title']);
-						if ($ttid !== null) {
+						if ($ttid) {
 							debug_print(" ... found in wishlist. Removing that one.","MYSQL");
 							generic_sql_query("DELETE FROM Tracktable WHERE TTindex=".$ttid);
 						}

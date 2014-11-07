@@ -113,7 +113,6 @@ function parseTrack($track, $plpos = null, $plid = null) {
     if (property_exists($track, 'uri')) {
         $trackdata['file'] = $track->{'uri'};
         $domain = getDomain($track->{'uri'});
-        debug_print("Domain is ".$domain,"FUCK");
     } else {
         $trackdata['file'] = "Broken Track!";
         $trackdata['Artist'] = "[Unknown]";
