@@ -269,6 +269,7 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
             print '<div class="playlisticon fixed"><img height="12px" src="'.$ipath.$d.'-logo.png" /></div>';
             break;
     }
+    if ((string) $name == "") $name = urldecode($url);
     print '<div class="expand">'.$name.'</div>';
     print '<div class="fixed playlistrow2">'.$duration.'</div>';
     if ($artist) {
@@ -347,7 +348,6 @@ function albumHeader($name, $spotilink, $id, $isonefile, $exists, $searched, $im
     global $prefs;
     global $ipath;
     $browseable = "";
-    debug_print("Numtracks is ".$numtracks, "ALBUMHEADER");
     if ($numtracks === 0) {
         $browseable = " browseable";
     }
@@ -670,7 +670,7 @@ print'        <p><input type="submit" class="winkle" value="OK" /></p>
 print "\n";
 }
 
-function update_stream_playlist($url, $name, $image=null, $creator = "", $title = "", $type = "stream") {
+function update_stream_playlist($url, $name, $image, $creator, $title, $type, $fname) {
 
     global $ipath;
 
@@ -720,7 +720,7 @@ function update_stream_playlist($url, $name, $image=null, $creator = "", $title 
 
         debug_print("Creating new playlist for stream ".$url);
 
-        $fp = fopen('prefs/STREAM_'.md5($url).'.xspf', 'w');
+        $fp = fopen('prefs/'.$fname.'_'.md5($url).'.xspf', 'w');
         if ($fp) {
           fwrite($fp, $xml);
         }
@@ -748,11 +748,6 @@ function munge_filedata($filedata, $file) {
 
     // Capture tracks where the basename/dirname route didn't work
     if ($artist == "." || $artist == "" || $artist == " & ") {
-        // if (preg_match('/^internetarchive\:/', $file)) {
-        //     $artist = "Internet Archive";
-        // } else {
-        //     $artist = '[Unknown]';
-        // }
         $artist = ucfirst(getDomain(urldecode($file)));
     }
     if ($album == ".") {

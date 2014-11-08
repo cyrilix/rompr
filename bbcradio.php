@@ -21,7 +21,7 @@ $content = url_get_contents($base_url);
 $DOM = new DOMDocument;
 $DOM->loadHTML($content['contents']);
 $stuff = $DOM->getElementById('thetable');
-$links = $stuff->getElementsByTagName('a');br
+$links = $stuff->getElementsByTagName('a');
 foreach ($links as $l) {
     $p = $l->getAttribute('href');
     $n = DOMinnerHTML($l);

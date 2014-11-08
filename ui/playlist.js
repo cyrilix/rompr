@@ -518,7 +518,7 @@ function Playlist() {
 
     this.addFavourite = function(index) {
         debug.log("PLAYLIST","Adding Fave Station, index",index, tracklist[index].album);
-        var data = { station: tracklist[index].getFnackle() };
+        var data = tracklist[index].getFnackle();
         if (self.currentTrack) {
             data.uri = self.currentTrack.location;
         }
@@ -700,7 +700,10 @@ function Playlist() {
         }
 
         this.getFnackle = function() {
-            return tracks[0].album;
+            return { station: tracks[0].album,
+                     image: tracks[0].origimage,
+                     location: tracks[0].location
+            };
         }
 
         this.rollUp = function() {
@@ -826,7 +829,10 @@ function Playlist() {
         }
 
         this.getFnackle = function() {
-            return tracks[0].album;
+            return { station: tracks[0].album,
+                     image: tracks[0].origimage,
+                     location: tracks[0].location
+            };
         }
 
         this.rollUp = function() {

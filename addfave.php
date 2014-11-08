@@ -1,6 +1,7 @@
 <?php
 
 include ("includes/vars.php");
+include ("includes/functions.php");
 $station = $_POST['station'];
 debug_print("Looking for ".$_POST['station'],"ADDFAVE");
 $uri = null;
@@ -11,6 +12,7 @@ if (array_key_exists('uri', $_POST)) {
 
 $playlisturl = "";
 $output = "";
+$found = false;
 
 $playlists = glob("prefs/STREAM*.xspf");
 foreach($playlists as $i => $file) {
@@ -24,6 +26,7 @@ foreach($playlists as $i => $file) {
 		}
     	if($track->album == $station) {
 	        debug_print("Found Station in ".$file, "ADDFAVE");
+	        $found = true;
 	        if ($uri && $track->location == $uri) {
 	        	// Make the currently playing track the first one in the playlist
 	        	// Note that this only makes any difference when we don't have a playlisturl
@@ -43,17 +46,21 @@ foreach($playlists as $i => $file) {
     }
 }
 
-$output = '<?xml version="1.0" encoding="utf-8"?>'."\n".
-          "<playlist>\n".
-          "<playlisturl>".htmlspecialchars($playlisturl)."</playlisturl>\n".
-          "<addedbyrompr>true</addedbyrompr>\n".
-		  "<trackList>\n".
-		  $output.
-		  "</trackList>\n".
-		  "</playlist>\n";
+if (!$found) {
+	update_stream_playlist($_POST['location'], $_POST['station'], $_POST['image'], "", "", "stream", "USERSTREAM");
+} else {
+	$output = '<?xml version="1.0" encoding="utf-8"?>'."\n".
+	          "<playlist>\n".
+	          "<playlisturl>".htmlspecialchars($playlisturl)."</playlisturl>\n".
+	          "<addedbyrompr>true</addedbyrompr>\n".
+			  "<trackList>\n".
+			  $output.
+			  "</trackList>\n".
+			  "</playlist>\n";
 
-$newname = "prefs/USERSTREAM_".md5($station).".xspf";
-file_put_contents($newname, $output);
+	$newname = "prefs/USERSTREAM_".md5($station).".xspf";
+	file_put_contents($newname, $output);
+}
 
 ?>
 

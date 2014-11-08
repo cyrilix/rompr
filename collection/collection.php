@@ -115,11 +115,10 @@ class album {
                 $image = $ipath."internetarchive-logo.png";
                 break;
             case "youtube":
-            case "yt":
-                $image = "newimages/Youtube-logo.png";
-                break;
             case "soundcloud":
-                $image = "newimages/soundcloud-logo.png";
+            case "tunein":
+            case "radio-de":
+                $image = "newimages/".$this->domain."-logo.png";
                 break;
         }
         // If there's a local image this overrides everything else
@@ -302,7 +301,6 @@ class track {
     }
 
     public function updateDiscNo($disc) {
-        debug_print("Track ".$this->name." being set to disc number ".$disc,"POOP");
         $this->disc = $disc;
         $this->needsupdate = true;
     }
@@ -356,11 +354,18 @@ class musicCollection {
         global $playlist;
         global $prefs;
 
+        // debug_print("New Track ".$name." ".$file." ".$album." ".$domain." ".$directory,"COLLECTION");
+
         if ($prefs['ignore_unplayable'] == "true" && substr($name, 0, 12) == "[unplayable]") {
             return true;
         }
 
         $sortartist = ($albumartist == null) ? $artist : $albumartist;
+        // For sorting internet streams from mopidy backends that don't
+        // supply an artist
+        if ($sortartist == null && $station !== null) {
+            $sortartist = $station;
+        }
         $artistkey = strtolower(preg_replace('/^The /i', '', $sortartist));
         //Some discogs tags have 'Various' instead of 'Various Artists'
         if ($artistkey == "various") {
@@ -559,6 +564,7 @@ function process_file($collection, $filedata) {
     $spotiartist = (array_key_exists('SpotiArtist',$filedata)) ? $filedata['SpotiArtist'] : null;
     // 'playlist' is how mpd handles flac/cue files (either embedded cue or external cue).
     $playlist = (array_key_exists('playlist',$filedata)) ? $filedata['playlist'] : null;
+
     if (!array_key_exists('linktype', $filedata)) {
         if (preg_match('/^.*?:artist:/', $file)) {
             $linktype = "artist";
@@ -573,8 +579,12 @@ function process_file($collection, $filedata) {
     }
 
     switch($domain) {
+        // The collectioniser will sort things into compilations based on folders
+        // Some backends don't report folders and will therefore all be grouped under
+        // Various Artists. Prevent this by making sure it's something meaningful and unique
         case "soundcloud":
-            $folder = "soundcloud";
+        case "youtube":
+            $folder = $artist;
             break;
 
         case "spotify":
@@ -608,7 +618,7 @@ function process_file($collection, $filedata) {
                 $stationurl,
                 $station,
                 $stream,
-                $albumartist) = getStuffFromXSPF($file, $artist);
+                $albumartist) = getStuffFromXSPF($file);
 
         // Streams added to Mopidy by various backends return some useful metadata
 
@@ -638,15 +648,9 @@ function process_file($collection, $filedata) {
             }
             $image = (array_key_exists('Image', $filedata)) ? $filedata['Image'] : $image;
             $duration = (array_key_exists('Time', $filedata) && $filedata['Time'] != 0) ? $filedata['Time'] : $duration;
-            if (!($track_found && preg_match("/Unknown Internet Stream/", $album))) {
-                // If we've found an album name, or we didn't find a stream playlist
-                // update it, or create one so it can be added to favourites
-                update_stream_playlist($filedata['file'], $album, $image, $artist, $name, $type);
-            }
-
         }
 
-        $domain = $type;
+        // $domain = $type;
         if ($origimage == null && preg_match('#^albumart/original/#',$image)) {
             $origimage = "albumart/asdownloaded/".basename($image);
         }
@@ -666,7 +670,7 @@ function process_file($collection, $filedata) {
     $totaltime += $duration;
 }
 
-function getStuffFromXSPF($url, $artist) {
+function getStuffFromXSPF($url) {
     global $xml;
     global $xspf_loaded;
     global $stream_xspfs;
@@ -744,12 +748,12 @@ function getStuffFromXSPF($url, $artist) {
                     null,
                     (string) $track->creator,
                     (string) $track->album,
-                    null,
+                    getStreamFolder($url),
                     $type,
                     $image,
                     null,
                     null,
-                    null,
+                    getDummyStation($url),
                     (string) $track->stream,
                     ""
                 );
@@ -766,16 +770,40 @@ function getStuffFromXSPF($url, $artist) {
         null,
         "",
         "Unknown Internet Stream",
-        "streamish",
+        getStreamFolder($url),
         "stream",
         $ipath."broadcast.png",
         null,
         null,
-        null,
+        getDummyStation($url),
         "",
         ""
     );
 
+}
+
+function getStreamFolder($url) {
+    $f = dirname($url);
+    if ($f == "." || $f == "") $f = $url;
+    return $f;
+}
+
+function getDummyStation($url) {
+    $f = getDomain(urldecode($url));
+    switch ($f) {
+        case "http":
+        case "mms":
+        case "rtsp":
+        case "https":
+        case "rtmp":
+        case "rtmps":
+            return "Radio";
+            break;
+
+        default:
+            return ucfirst($f);
+            break;
+    }
 }
 
 ?>

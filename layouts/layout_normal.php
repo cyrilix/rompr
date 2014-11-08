@@ -246,9 +246,7 @@ print '<div class="expand">'.get_int_text('label_podcasts').'<span id="total_unl
 
     <div class="containerbox menuitem noselection">
 <?php
-print '<div class="mh fixed"><img src="'.$ipath.'/toggle-closed-new.png" class="menu fixed" onclick="loadSomaFM()" name="somafmlist"></div>';
-?>
-<?php
+print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" onclick="loadSomaFM()" name="somafmlist"></div>';
 print '<div class="smallcover fixed"><img height="32px" width="32px" src="'.$ipath.'somafm.png"></div>';
 print '<div class="expand">'.get_int_text('label_somafm').'</div>';
 ?>
