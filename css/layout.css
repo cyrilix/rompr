@@ -2245,6 +2245,7 @@ div.lyrics p
     margin-bottom:0px;
     margin-right:8px;
     padding:8px;
+    text-align:center;
 }
 
 .tagholder2
@@ -2276,9 +2277,4 @@ div.lyrics p
     margin-right:auto;
     margin-left:auto;
     display:block;
-}
-
-.albumthing
-{
-    text-align:center;
 }

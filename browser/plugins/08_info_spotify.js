@@ -2,7 +2,7 @@ var info_spotify = function() {
 
 	var me = "spotify";
     var medebug = "SPOTIFY PLUGIN";
-    var maxwidth = 400;
+    var maxwidth = (mobile == "no") ? 1200 : 480;
 
     function getTrackHTML(data) {
 
@@ -52,8 +52,9 @@ var info_spotify = function() {
     		html = html + '<img class="shrinker infoclick clickzoomimage" src="getRemoteImage.php?url='+data.images[0].url+'" ';
     		var w = $("#artistinformation").width();
     		var imgwidth = data.images[0].width;
-    		if (imgwidth > (w/4)) imgwidth = w/4;
-    		html = html + 'width="'+imgwidth+'" name="'+data.images[0].width+'" thing="4"/>';
+    		var i = (mobile == "no") ? 4 : 1.2;
+    		if (imgwidth > (w/i)) imgwidth = w/i;
+    		html = html + 'width="'+imgwidth+'" name="'+data.images[0].width+'" thing="'+i+'"/>';
     	}
     	html = html + '</div>';
     	html = html + '</div>';
@@ -76,15 +77,14 @@ var info_spotify = function() {
 	    }
     	h = h + '</div>';
     	if (data.images && data.images[0]) {
-    		h = h + '<img class="stright standout shrinker infoclick clickzoomimage" src="getRemoteImage.php?url='+data.images[0].url+'" ';
-    		var w = $("#infopane").width();
+    		var w = $("#artistinformation").width();
     		var imgwidth = data.images[0].width;
     		if (mobile == "no") {
     			if (imgwidth > (w/3)) imgwidth = w/3;
-    			h = h + 'width="'+imgwidth+'" name="'+data.images[0].width+'" thing="3"/>';
+    			h = h + '<img class="stright standout shrinker infoclick clickzoomimage" src="getRemoteImage.php?url='+data.images[0].url+'" width="'+imgwidth+'" name="'+data.images[0].width+'" thing="3"/>';
     		} else {
-    			if (imgwidth > (w/2)) imgwidth = w/2;
-    			h = h + 'width="'+imgwidth+'" name="'+data.images[0].width+'" thing="2"/>';
+    			if (imgwidth > (w/1.2)) imgwidth = w/1.2;
+    			h = h + '<img class="shrinker infoclick clickzoomimage" src="getRemoteImage.php?url='+data.images[0].url+'" width="'+imgwidth+'" name="'+data.images[0].width+'" thing="1.2"/>';
     		}
     	}
 
@@ -240,36 +240,27 @@ var info_spotify = function() {
             		var w = browser.calcMWidth();;
 	            	for (var i in data.items) {
 	            		var x = $('<div>', {class: 'tagholder2 selecotron'}).appendTo($("#artistalbums"));
-	            		if (mobile != "phone") {
-		            		var img = '';
-		            		if (data.items[i].images[0]) {
-			            		img = 'getRemoteImage.php?url='+data.items[i].images[0].url
-			            		for (var j in data.items[i].images) {
-			            			if (data.items[i].images[j].width >= maxwidth) {
-			            				img = 'getRemoteImage.php?url='+data.items[i].images[j].url;
-			            			}
-			            		}
+	            		var img = '';
+	            		if (data.items[i].images[0]) {
+		            		img = 'getRemoteImage.php?url='+data.items[i].images[0].url
+		            		for (var j in data.items[i].images) {
+		            			if (data.items[i].images[j].width <= maxwidth) {
+		            				img = 'getRemoteImage.php?url='+data.items[i].images[j].url;
+		            				break;
+		            			}
 		            		}
-		            		x.append('<img class="masochist infoclick clickable draggable clicktrack" src="'+img+'" width="'+w+'" name="'+data.items[i].uri+'"/>');
-		            	}
+	            		}
+	            		x.append('<img class="masochist infoclick clickable draggable clicktrack" src="'+img+'" width="'+w+'" name="'+data.items[i].uri+'"/>');
 	            		x.append('<div class="tagh albumthing"><img class="menu infoclick clickopenalbum" src="'+ipath+'toggle-closed-new.png"/>&nbsp;<span class="infoclick draggable clickable clicktrack" name="'+data.items[i].uri+'"><b>'+data.items[i].name+'</b></span></div>')
 	            		x.append('<div class="tagh albumthing invisible" id="'+data.items[i].id+'"></div>')
 	            	}
-            		if (mobile != "phone") {
-	            		$("#artistalbums").imagesLoaded( function() {
-	            			$("#artistalbums").slideToggle('fast', function() {
-	            				$("#artistalbums").masonry({ itemSelector: '.tagholder2', gutter: 0});
-	            				browser.rePoint();
-				        		$("#hibbert").addClass('invisible').removeClass('spinner');
-	            			});
-	            		});
-	            	} else {
+            		$("#artistalbums").imagesLoaded( function() {
             			$("#artistalbums").slideToggle('fast', function() {
             				$("#artistalbums").masonry({ itemSelector: '.tagholder2', gutter: 0});
             				browser.rePoint();
 			        		$("#hibbert").addClass('invisible').removeClass('spinner');
             			});
-	            	}
+            		});
 	            }
             }
 
@@ -280,26 +271,23 @@ var info_spotify = function() {
             		var w = browser.calcMWidth() - 24;
 	            	for (var i in data.items) {
 	            		var x = $('<div>', {class: 'tagholder3'}).appendTo($("#"+id));
-	            		if (mobile != 'phone') {
-		            		var img = '';
-		            		if (data.items[i].images[0]) {
-			            		img = 'getRemoteImage.php?url='+data.items[i].images[0].url
-			            		for (var j in data.items[i].images) {
-			            			if (data.items[i].images[j].width >= maxwidth) {
-			            				img = 'getRemoteImage.php?url='+data.items[i].images[j].url;
-			            			}
-			            		}
+	            		var img = '';
+	            		if (data.items[i].images[0]) {
+		            		img = 'getRemoteImage.php?url='+data.items[i].images[0].url
+		            		for (var j in data.items[i].images) {
+		            			if (data.items[i].images[j].width <= maxwidth) {
+		            				img = 'getRemoteImage.php?url='+data.items[i].images[j].url;
+		            				break;
+		            			}
 		            		}
-		            		x.append('<img class="masochist2 infoclick clickable draggable clicktrack" src="'+img+'" width="'+w+'" name="'+data.items[i].uri+'"/>');
-		            	}
+	            		}
+	            		x.append('<img class="masochist2 infoclick clickable draggable clicktrack" src="'+img+'" width="'+w+'" name="'+data.items[i].uri+'"/>');
 	            		x.append('<div class="tagh albumthing"><img class="menu infoclick clickopenalbum" src="'+ipath+'toggle-closed-new.png"/>&nbsp;<span class="infoclick clickable draggable clicktrack" name="'+data.items[i].uri+'"><b>'+data.items[i].name+'</b></span></div>')
 	            		x.append('<div class="tagh albumthing invisible" id="'+data.items[i].id+'"></div>')
 	            	}
 	            	$("#"+id).slideToggle('fast', browser.rePoint);
 	            	$("#"+id).addClass("filled");
-	            	if (mobile != "phone") {
-	            		$.each($('.tagholder3'), function() { $(this).imagesLoaded( browser.rePoint )});
-	            	}
+            		$.each($('.tagholder3'), function() { $(this).imagesLoaded( browser.rePoint )});
             	}
             }
 
@@ -310,38 +298,28 @@ var info_spotify = function() {
             		var w = browser.calcMWidth();;
 	            	for (var i in data.artists) {
 	            		var x = $('<div>', {class: 'tagholder2'}).appendTo($("#artistalbums"));
-	            		if (mobile != "phone") {
-		            		var img = '';
-		            		if (data.artists[i].images[0]) {
-			            		img = 'getRemoteImage.php?url='+data.artists[i].images[0].url;
-			            		for (var j in data.artists[i].images) {
-			            			if (data.artists[i].images[j].width >= maxwidth) {
-			            				img = 'getRemoteImage.php?url='+data.artists[i].images[j].url;
-			            			}
-			            		}
+	            		var img = '';
+	            		if (data.artists[i].images[0]) {
+		            		img = 'getRemoteImage.php?url='+data.artists[i].images[0].url;
+		            		for (var j in data.artists[i].images) {
+		            			if (data.artists[i].images[j].width <= maxwidth) {
+		            				img = 'getRemoteImage.php?url='+data.artists[i].images[j].url;
+		            				break;
+		            			}
 		            		}
-		            		x.append('<img class="masochist infoclick clickaddtrack" src="'+img+'" width="'+w+'" name="'+data.artists[i].uri+'"/>');
-		            	}
+	            		}
+	            		x.append('<img class="masochist infoclick clickaddtrack" src="'+img+'" width="'+w+'" name="'+data.artists[i].uri+'"/>');
 	            		x.append('<div class="tagh albumthing"><img class="menu infoclick clickopenartist" src="'+ipath+'toggle-closed-new.png"/>&nbsp;<span class="infoclick clickaddtrack" name="'+data.artists[i].uri+'"><b>'+data.artists[i].name+'</b></span></div>')
 	            		x.append('<div class="tagh albumthing invisible edged selecotron" id="'+data.artists[i].id+'"></div>')
 	            	}
-	            	if (mobile != "phone") {
-	            		$("#artistalbums").imagesLoaded( function() {
-	            			$("#artistalbums").slideToggle('fast', function() {
-	            				$("#artistalbums").masonry({ itemSelector: '.tagholder2', gutter: 0});
-	            				laidout = true;
-	            				browser.rePoint();
-				        		$("#hibbert").addClass('invisible').removeClass('spinner');
-	            			});
-	            		});
-	            	} else {
+            		$("#artistalbums").imagesLoaded( function() {
             			$("#artistalbums").slideToggle('fast', function() {
             				$("#artistalbums").masonry({ itemSelector: '.tagholder2', gutter: 0});
             				laidout = true;
             				browser.rePoint();
 			        		$("#hibbert").addClass('invisible').removeClass('spinner');
             			});
-	            	}
+            		});
 	            }
             }
 

@@ -62,6 +62,7 @@ function setBottomPaneSize() {
     newheight = null;
     playlist.setHeight();
     infobar.rejigTheText();
+    browser.rePoint();
 }
 
 function switchColumnMode(flag) {
@@ -111,6 +112,7 @@ function switchsource(source) {
             }
         }
         setBottomPaneSize();
+        browser.rePoint();
     }
 }
 
