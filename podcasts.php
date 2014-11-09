@@ -83,6 +83,7 @@ function getNewPodcast($url) {
         debug_print("COULD NOT OPEN FILE FOR FEED!","PODCASTS");
         header('HTTP/1.0 404 Not Found');
         debug_print("Failed to get ".$url,"PODCASTS");
+        fclose($fp);
         if (file_exists('prefs/podcasts/'.$fname.'/feed.xml')) {
             unlink('prefs/podcasts/'.$fname.'/feed.xml');
         }
@@ -206,7 +207,9 @@ function getNewPodcast($url) {
             $artist = $albumartist;
         }
         $pubdate = (string) $item->pubDate;
-        $filesize = $item->enclosure->attributes()->length;
+        if ($item->enclosure && $item->enclosure->attributes()) {
+            $filesize = $item->enclosure->attributes()->length;
+        }
         $description = (string) $item->description;
         if ($description == "" && $m && $m->summary) {
             $description = (string) $m->summary;
@@ -500,7 +503,10 @@ function doPodcast($c) {
                 print '<div><b>'.get_int_text("podcast_timeleft", array($timeleft))."</b></div>";
             }
         }
-        print '<div class="whatdoicallthis">'.$item->description.'</div>';
+        $d = (string) $item->description;
+        $d = preg_replace('/(<a href=.*?)>/', '$1 target="_blank">', $d);
+        $d = preg_replace('/(<a rel="nofollow" href=.*?)>/', '$1 target="_blank">', $d);
+        print '<div class="whatdoicallthis">'.$d.'</div>';
         print '<div class="clearfix" name="podcontrols_'.$pm.'" style="margin-bottom:4px">';
         if (is_dir('prefs/podcasts/'.$pm.'/'.$item->key)) {
             print '<img class="tleft fridge" title="'.get_int_text("podcast_tooltip_downloaded").'" src="'.$ipath.'downloaded.png" height="16px" style="margin-right:4px">';

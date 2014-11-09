@@ -64,9 +64,9 @@ function saveImage($fname, $in_collection, $stream) {
     // Ohhhhhh imagemagick is just... wow.
     // This resizes the images into a square box while adding padding to preserve the apsect ratio
     $o = array();
-    $r = exec( $convert_path."convert \"".$download_file."\" -resize 82x82 -background none -gravity center -extent 82x82 \"".$main_file."\" 2>&1", $o);
-    $r = exec( $convert_path."convert \"".$download_file."\" -resize 32x32 -background none -gravity center -extent 32x32 \"".$small_file."\" 2>&1", $o);
-    $r = exec( $convert_path."convert \"".$download_file."\" \"".$anglofile."\" 2>&1", $o);
+    $r = exec( $convert_path."convert \"".$download_file."\" -resize 82x82 -background black -alpha remove -gravity center -extent 82x82 \"".$main_file."\" 2>&1", $o);
+    $r = exec( $convert_path."convert \"".$download_file."\" -resize 32x32 -background black -alpha remove -gravity center -extent 32x32 \"".$small_file."\" 2>&1", $o);
+    $r = exec( $convert_path."convert \"".$download_file."\" -background black -alpha remove \"".$anglofile."\" 2>&1", $o);
 
     return array($small_file, $main_file, $anglofile);
 }

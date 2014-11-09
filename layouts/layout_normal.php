@@ -32,6 +32,12 @@ print '<div title="'.get_int_text('button_volume').'" id="volumecontrol" class="
                 <div id="nptext"></div>
             </div>
             <div id="amontobin" class="clearfix">
+                <div id="subscribe" class="invisible">
+<?php
+print '<img title="'.get_int_text('button_subscribe').'" class="clickicon lettuce" onclick="podcasts.doPodcast(\'nppodiput\')" src="newimages/rss.png">';
+?>
+                    <input type="hidden" id="nppodiput" value="" />
+                </div>
                 <div id="stars" class="invisible">
                     <img id="ratingimage" onclick="nowplaying.setRating(event)" height="20px" src="newimages/0stars.png">
                     <input type="hidden" value="-1" />

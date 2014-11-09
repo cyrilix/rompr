@@ -156,6 +156,7 @@ var podcasts = function() {
 		        },
 		        error: function(data, status) {
 		            infobar.notify(infobar.ERROR, "Failed to Subscribe to Podcast");
+		            podcasts.loadlist();
 		        }
 		    } );
 		},

@@ -461,7 +461,7 @@ function playerController() {
         mopidy.on("state:online", connected);
         mopidy.on("state:offline", disconnected);
         mopidy.connect();
-	    self.mop = mopidy;
+	    // self.mop = mopidy;
 	}
 
 	this.reConnect = function() {
@@ -527,7 +527,6 @@ function playerController() {
                 updatePlTimer = setTimeout(self.reloadPlaylists, 2000);
             } else {
                 debug.log("PLAYER","Retreiving Playlists from Mopidy");
-                doingPlUpdate = true;
                 mopidy.playlists.getPlaylists().then(function (data) {
                 	debug.log("PLAYER","Got Playlists from Mopidy",data);
                 	formatPlaylistInfo(data);
@@ -535,6 +534,7 @@ function playerController() {
                         for (var i in data) {
                             // Make sure we've got some Spotify playlists
                             if (data[i].uri.match(/^spotify/)) {
+                                doingPlUpdate = true;
                                 checkTracksAgainstDatabase(data);
                                 break;
                             }
@@ -552,19 +552,17 @@ function playerController() {
 		mopidy.library.browse(what).then( function(data) {
 			var html = "";
 			debug.log("PLAYER","Browse result : ",data);
-            if (data) {
+            if (data && data.length > 0) {
     			$.each(data, function(i,ref) {
     				switch (ref.type) {
     					case "directory":
     					case "album":
     						var menuid = hex_md5(ref.uri);
-    						// Mopidy's SoundCloud plugin does some fucking awful shit with directory names.
-    						var shit = decodeURIComponent(decodeURIComponent(ref.name));
     				        html = html + '<div class="containerbox menuitem">'+
     				        '<div class="mh fixed"><img src="'+ipath+'toggle-closed-new.png" class="menu fixed" name="'+menuid+'"></div>'+
     				        '<input type="hidden" name="'+ref.uri+'">'+
     				        '<div class="fixed playlisticon"><img width="16px" src="'+ipath+'folder.png" /></div>'+
-    				        '<div class="expand">'+shit.replace(/\+/g, ' ')+'</div>'+
+                            '<div class="expand">'+ref.name+'</div>'+
     				        '</div>'+
     				        '<div id="'+menuid+'" class="dropmenu notfilled"></div>';
     				        break;
@@ -577,10 +575,16 @@ function playerController() {
                             }
     				        break;
     					case "playlist":
-    				        html = html + '<div class="clickable clickplaylist ninesix indent containerbox padright line" name="'+encodeURIComponent(ref.uri)+'">'+
-    				        '<div class="playlisticon fixed"><img height="16px" src="'+ipath+'document-open-folder.png" /></div>'+
+                            var menuid = hex_md5(ref.uri);
+                            html = html + '<div class="containerbox menuitem">'+
+                            '<div class="mh fixed"><img src="'+ipath+'toggle-closed-new.png" class="menu fixed" name="'+menuid+'"></div>'+
+                            '<input type="hidden" name="'+ref.uri+'">'+
+                            '<div class="fixed playlisticon"><img width="16px" src="'+ipath+'document-open-folder.png" /></div>'+
+    				        '<div class="clickable clickplaylist containerbox padright line expand" name="'+encodeURIComponent(ref.uri)+'">'+
     				        '<div class="expand">'+decodeURIComponent(ref.name)+'</div>'+
-    				        '</div>';
+    				        '</div>'+
+                            '</div>'+
+                            '<div id="'+menuid+'" class="dropmenu notfilled"></div>';
     				        break;
     				}
     			});

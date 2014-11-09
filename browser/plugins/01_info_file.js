@@ -21,7 +21,7 @@ var info_file = function() {
         if (player.status.file) {
             var f = player.status.file.match(/^podcast\:(http.*?)\#/);
             if (f && f[1]) {
-                html = html + '<button class="sourceform" onclick="podcasts.doPodcast(\'filepodiput\')">Subscribe</button>'+
+                html = html + '<button class="sourceform" onclick="podcasts.doPodcast(\'filepodiput\')">'+language.gettext('button_subscribe')+'</button>'+
                                 '<input type="hidden" id="filepodiput" value="'+f[1]+'" />';
             }
         }

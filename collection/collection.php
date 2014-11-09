@@ -111,13 +111,13 @@ class album {
             case "podcast":
                 if ($image == "") $image = $ipath."podcast-logo.png";
                 break;
-            case "internetarchive":
-                $image = $ipath."internetarchive-logo.png";
-                break;
             case "youtube":
             case "soundcloud":
             case "tunein":
             case "radio-de":
+            case "dirble":
+            case "bassdrive":
+            case "internetarchive":
                 $image = "newimages/".$this->domain."-logo.png";
                 break;
         }
@@ -578,6 +578,13 @@ function process_file($collection, $filedata) {
         $linktype = $filedata['linktype'];
     }
 
+    // Sometimes the file domain can be http but the album domain is correct
+    // this is true eg for bassdrive
+    if ($linktype == "file" && array_key_exists('SpotiAlbum',$filedata) &&
+        getDomain($filedata['SpotiAlbum']) != getDomain($filedata['file'])) {
+        $domain = getDomain($filedata['SpotiAlbum']);
+    }
+
     switch($domain) {
         // The collectioniser will sort things into compilations based on folders
         // Some backends don't report folders and will therefore all be grouped under
@@ -599,7 +606,7 @@ function process_file($collection, $filedata) {
 
     if (in_array($domain, $streamdomains) &&
         !preg_match('#/item/\d+/file$#', $file) &&
-        !preg_match('#http://archives.bassdrivearchive.com/#', $file) &&
+        // !preg_match('#http://archives.bassdrivearchive.com/#', $file) &&
         !preg_match('#http://leftasrain.com/#', $file)) {
         // domain will be http for anything being played through mopidy-beets and various
         // other mopidy extensions, annoyingly. So we check the filename pattern too
@@ -677,7 +684,7 @@ function getStuffFromXSPF($url) {
     global $podcasts;
     global $ipath;
 
-    // Preload all the stream and lastfm playlists (on the first time we need them)
+    // Preload all the stream and podcast playlists (on the first time we need them)
     // - saves time later as we don't have to read them in every time.
 
     if (!$xspf_loaded) {

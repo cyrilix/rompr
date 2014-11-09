@@ -2098,6 +2098,13 @@ div.lyrics p
     padding-top:1px;
 }
 
+#subscribe
+{
+    float:left;
+    margin-right:8px;
+    padding-top:1px;
+}
+
 #lastfm img
 {
     margin-right:4px;

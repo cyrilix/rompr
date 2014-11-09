@@ -532,6 +532,7 @@ $languages['en'] = array (
 	"label_charts" => "Your Top 40",
 	"label_choosedomains" => "Search these sources:",
 	"config_onthefly" => "Update Collection In The Background (for backends that support it)",
+	"button_subscribe" => "Subscribe",
 
 	//CHANGED in 0.53
 	"config_country" => "COUNTRY (for Last.FM and Spotify)",

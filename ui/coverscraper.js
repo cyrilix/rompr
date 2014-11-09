@@ -18,6 +18,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
     var albumpath = null;
     var spotilink = null;
     var covertimer = null;
+    var oimg = "";
     var callbacks = new Array();
 
     // I need to try and limit the number of lookups per second I do to last.fm
@@ -103,6 +104,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
             if (stream == "") {
                 stream = $(this).attr('romprstream') || "";
             }
+            oimg = $(this).attr("src");
             $(this).attr('src', waitingicon[size]);
         });
         debug.log("COVERSCRAPER","Stream is", stream);
@@ -174,7 +176,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
         stopAnimation();
         debug.log("COVERSCRAPER","No Cover Found. Reverting to the blank icon");
         $.each($('img[name="'+name+'"]'), function() {
-            $(this).attr("src", blankicon[size]);
+            $(this).attr("src", oimg);
             // Remove this class to prevent it being searched again
             $(this).removeClass("notexist");
             $(this).removeClass("notfound").addClass("notfound");

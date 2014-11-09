@@ -234,6 +234,7 @@ var infobar = function() {
 
         setNowPlayingInfo: function(info) {
             //Now playing info
+            debug.log("INFOBAR","NPinfo",info);
             trackinfo = info;
             lfminfo = {};
             scrobbled = false;
@@ -250,12 +251,22 @@ var infobar = function() {
             } else {
                 $("#progress").css("cursor", "default");
             }
+            if (info.location != "") {
+                var f = info.location.match(/^podcast\:(http.*?)\#/);
+                if (f && f[1]) {
+                    $("#nppodiput").attr("value", f[1]);
+                    $("#subscribe").fadeIn('fast');
+                } else {
+                    $("#subscribe").fadeOut('fast');
+                }
+            }
             if (info == playlist.emptytrack) {
                 debug.log("INFOBAR","Fading out Album Picture")
                 $("#albumpicture").fadeOut('fast');
                 $("#stars").fadeOut('fast');
                 $("#dbtags").fadeOut('fast');
                 $("#playcount").fadeOut('fast');
+                $("#subscribe").fadeOut('fast');
                 infobar.albumImage.setSource({    image: "newimages/transparent-32x32.png",
                                                   origimage: "newimages/transparent-32x32.png"
                                             });

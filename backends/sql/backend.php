@@ -351,6 +351,13 @@ function create_new_album($album, $albumai, $spotilink, $image, $date, $isonefil
 		if ($error == 0) {
 			list ($small_file, $main_file, $big_file) = saveImage($imagekey, true, '');
 		}
+	} else if (preg_match('#^newimages/#', $image)) {
+		$convert_path = find_executable('convert');
+		debug_print("Archiving Image For Album ... saving local generic image ".$image,"NEW ALBUM");
+		$download_file = download_file(get_base_url()."/".$image, $imagekey, $convert_path);
+		if ($error == 0) {
+			list ($small_file, $main_file, $big_file) = saveImage($imagekey, true, '');
+		}
 	}
 
 	if ($stmt = mysqli_prepare($mysqlc, "INSERT INTO Albumtable (Albumname, AlbumArtistindex, Spotilink, Year, IsOneFile, Searched, ImgKey, mbid, NumDiscs, Domain) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
@@ -903,7 +910,6 @@ function do_albums_from_database($which, $fragment = false) {
 						rawurlencode($obj->Spotilink),
 						"aalbum".$obj->Albumindex,
 						$obj->IsOneFile,
-						// $obj->Image == null ? "no" : "yes",
 						(file_exists('albumart/small/'.$obj->ImgKey.'.jpg')) ? "yes" : "no",
 						$obj->Searched == 1 ? "yes" : "no",
 						$obj->ImgKey,
