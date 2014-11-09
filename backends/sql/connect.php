@@ -45,7 +45,7 @@ function check_sql_tables() {
 
 	global $mysqlc;
 
-	$current_schema_version = 6;
+	$current_schema_version = 7;
 
 	if ($mysqlc) {
 
@@ -61,6 +61,7 @@ function check_sql_tables() {
 			"Uri VARCHAR(2000) ,".
 			"LastModified INT UNSIGNED, ".
 			"Hidden TINYINT(1) UNSIGNED DEFAULT 0, ".
+			"DateAdded DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, ".
 			"INDEX(Albumindex), ".
 			"INDEX(Title), ".
 			"INDEX(TrackNo)) ENGINE=InnoDB"))
@@ -238,6 +239,12 @@ function check_sql_tables() {
 							debug_print("Updating FROM Schema version 5 TO Schema version 6","SQL");
 							generic_sql_query("DROP INDEX Disc on Tracktable");
 							generic_sql_query("UPDATE Statstable SET Value = 6 WHERE Item = 'SchemaVer'");
+
+						case 6:
+							debug_print("Updating FROM Schema version 6 TO Schema version 7","SQL");
+							generic_sql_query("ALTER TABLE Tracktable ADD DateAdded DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+							generic_sql_query("UPDATE Tracktable SET DateAdded = FROM_UNIXTIME(LastModified)");
+							generic_sql_query("UPDATE Statstable SET Value = 7 WHERE Item = 'SchemaVer'");
 					}
 					$sv++;
 				}

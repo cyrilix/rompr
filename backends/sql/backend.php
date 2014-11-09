@@ -326,12 +326,15 @@ function create_new_album($album, $albumai, $spotilink, $image, $date, $isonefil
 
 	// See if the image needs to be archived. The SQL database no longer stores image URLs.
 	// Images for albums are expected to be in albumart.
-	// Some mopidy backends (eg beets) provide album images, so this archives stuff that:
-	//   i)  is currently in prefs/imagecache - these have come from coverscraper/getAlbumCover
-	//       for albums that are in the search or playlist.
+	// This archives stuff that:
+	//   i)   is currently in prefs/imagecache - these have come from coverscraper/getAlbumCover
+	//        for albums that are in the search or playlist.
 	//   OR
-	//   ii) begin with getRemoteImage.php - these will be albums in the collection for which
-	//       a mopidy backend has passed us an image.
+	//   ii)  begin with getRemoteImage.php - these will be albums in the collection for which
+	//        a mopidy backend has passed us an image.
+	//   OR
+	//   iii) begin with newimages/ - these are things like podcasts, soundcloud, youtube etc
+	// 	      tracks from mopidy searches or browse
 	// That should cover everything.
 	// (The trouble with leaving stuff in prefs/imagecache is that it eventually gets purged,
 	//  and the mechanism I had for dealing with that didn't bloody work)
