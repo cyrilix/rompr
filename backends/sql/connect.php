@@ -244,6 +244,7 @@ function check_sql_tables() {
 
 						case 6:
 							debug_print("Updating FROM Schema version 6 TO Schema version 7","SQL");
+							// This was going to be a nice datestamp but newer versions of mysql don't work that way
 							generic_sql_query("ALTER TABLE Tracktable ADD DateAdded TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
 							generic_sql_query("UPDATE Tracktable SET DateAdded = FROM_UNIXTIME(LastModified) WHERE LastModified IS NOT NULL AND LastModified > 0");
 							generic_sql_query("UPDATE Statstable SET Value = 7 WHERE Item = 'SchemaVer'");
