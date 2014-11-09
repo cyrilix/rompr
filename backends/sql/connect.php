@@ -61,7 +61,7 @@ function check_sql_tables() {
 			"Uri VARCHAR(2000) ,".
 			"LastModified INT UNSIGNED, ".
 			"Hidden TINYINT(1) UNSIGNED DEFAULT 0, ".
-			"DateAdded DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, ".
+			"DateAdded TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, ".
 			"INDEX(Albumindex), ".
 			"INDEX(Title), ".
 			"INDEX(TrackNo)) ENGINE=InnoDB"))
@@ -234,17 +234,20 @@ function check_sql_tables() {
 							generic_sql_query("UPDATE Albumtable SET Searched = 0 WHERE Image NOT LIKE 'albumart%'");
 							generic_sql_query("ALTER TABLE Albumtable DROP Image");
 							generic_sql_query("UPDATE Statstable SET Value = 5 WHERE Item = 'SchemaVer'");
+							break;
 
 						case 5:
 							debug_print("Updating FROM Schema version 5 TO Schema version 6","SQL");
 							generic_sql_query("DROP INDEX Disc on Tracktable");
 							generic_sql_query("UPDATE Statstable SET Value = 6 WHERE Item = 'SchemaVer'");
+							break;
 
 						case 6:
 							debug_print("Updating FROM Schema version 6 TO Schema version 7","SQL");
-							generic_sql_query("ALTER TABLE Tracktable ADD DateAdded DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
-							generic_sql_query("UPDATE Tracktable SET DateAdded = FROM_UNIXTIME(LastModified)");
+							generic_sql_query("ALTER TABLE Tracktable ADD DateAdded TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+							generic_sql_query("UPDATE Tracktable SET DateAdded = FROM_UNIXTIME(LastModified) WHERE LastModified IS NOT NULL AND LastModified > 0");
 							generic_sql_query("UPDATE Statstable SET Value = 7 WHERE Item = 'SchemaVer'");
+							break;
 					}
 					$sv++;
 				}
