@@ -599,7 +599,6 @@ function check_mopidy_http($addr) {
 
 function get_browser_language() {
     // TODO - this method is not good enough.
-    debug_print("Browser Language is ".$_SERVER['HTTP_ACCEPT_LANGUAGE'],"INTERNATIONAL");
     return substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
 }
 
@@ -745,7 +744,7 @@ function munge_filedata($filedata, $file) {
     $lastmodified = (array_key_exists('Last-Modified',$filedata)) ? $filedata['Last-Modified'] : 0;
     $disc = (array_key_exists('Disc', $filedata)) ? format_tracknum(ltrim($filedata['Disc'], '0')) : 1;
     $mbalbum = (array_key_exists('MUSICBRAINZ_ALBUMID', $filedata)) ? $filedata['MUSICBRAINZ_ALBUMID'] : "";
-
+    $composer = (array_key_exists('Composer', $filedata)) ? $filedata['Composer'] : null;
     // Capture tracks where the basename/dirname route didn't work
     if ($artist == "." || $artist == "" || $artist == " & ") {
         $artist = ucfirst(getDomain(urldecode($file)));
@@ -758,7 +757,7 @@ function munge_filedata($filedata, $file) {
     $album = preg_replace('/local:track:/', '', $album);
 
     return array($name, $artist, $number, $duration, $albumartist, $spotialbum,
-                    $image, $album, $date, $lastmodified, $disc, $mbalbum);
+                    $image, $album, $date, $lastmodified, $disc, $mbalbum, $composer);
 
 }
 

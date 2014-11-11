@@ -958,7 +958,7 @@ function setPrefs() {
             "lastfm_autocorrect", "hide_albumlist", "hide_filelist", "hide_radiolist",
             "hidebrowser", "updateeverytime", "ignore_unplayable", "downloadart",
             "fullbiobydefault", "scrolltocurrent", "sortbydate", "notvabydate",
-            "twocolumnsinlandscape"],
+            "twocolumnsinlandscape", "sortbycomposer", "composergenre", "displaycomposer"],
             function(i,v) {
                 $("#"+v).attr("checked", prefs[v]);
             }
@@ -978,4 +978,33 @@ function playlistMenuHeader() {
 
 function addPlugin(label, action) {
     $("#specialplugins").append('<div class="fullwidth backhi clickicon noselection menuitem dragsort" onclick="'+action+'">'+label+'</div>');
+}
+
+function joinartists(ob) {
+
+    // NOTE : This function is duplicated in the php side. It's important the two stay in sync
+    // See player/mopidy/connection.php
+
+    if (typeof(ob) != "object") {
+        return ob;
+    } else {
+        var t = new Array();
+        for (var i in ob) {
+            var flub = ""+ob[i].name;
+            // This might be a problem in Mopidy BUT Spotify tracks are coming back with eg
+            // artist[0] = King Tubby, artist[1] = Johnny Clarke, artist[2] = King Tubby & Johnny Clarke
+            if (flub.match(/ & /) || flub.match(/ and /i)) {
+                return flub;
+            }
+            t.push(flub);
+        }
+        if (t.length == 1) {
+            return t[0];
+        } else if (t.length == 2) {
+            return t.join(" & ");
+        } else {
+            var f = t.slice(0, t.length-1);
+            return f.join(", ") + " & " + t[t.length-1];
+        }
+    }
 }

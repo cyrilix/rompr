@@ -91,7 +91,7 @@ function parseAlbum($collection, $track) {
         $trackdata['Title'] = "Album:".$track->{'name'};
     }
     if (property_exists($track, 'artists')) {
-        $trackdata['Artist'] = mopidyDoesWierdThings($track->{'artists'});
+        $trackdata['Artist'] = joinartists($track->{'artists'});
         if (property_exists($track->{'artists'}[0], 'uri')) {
             $trackdata['SpotiArtist'] = $track->{'artists'}[0]->{'uri'};
         }
@@ -151,10 +151,13 @@ function parseTrack($track, $plpos = null, $plid = null) {
         $trackdata['MUSICBRAINZ_TRACKID'] = $track->{'musicbrainz_id'};
     }
     if (property_exists($track, 'artists')) {
-        $trackdata['Artist'] = mopidyDoesWierdThings($track->{'artists'});
+        $trackdata['Artist'] = joinartists($track->{'artists'});
         if (property_exists($track->{'artists'}[0], 'musicbrainz_id')) {
             $trackdata['MUSICBRAINZ_ARTISTID'] = $track->{'artists'}[0]->{'musicbrainz_id'};
         }
+    }
+    if (property_exists($track, 'composers')) {
+        $trackdata['Composer'] = joinartists($track->{'composers'});
     }
     if (property_exists($track, 'album')) {
         if (property_exists($track->{'album'}, 'musicbrainz_id')) {
@@ -183,9 +186,7 @@ function parseTrack($track, $plpos = null, $plid = null) {
             $trackdata['SpotiAlbum'] = $track->{'album'}->{'uri'};
         }
         if (property_exists($track->{'album'}, 'artists')) {
-            if (property_exists($track->{'album'}->{'artists'}[0], 'name')) {
-                $trackdata['AlbumArtist'] = $track->{'album'}->{'artists'}[0]->{'name'};
-            }
+            $trackdata['AlbumArtist'] = joinartists($track->{'album'}->{'artists'});
             if (property_exists($track->{'album'}->{'artists'}[0], 'musicbrainz_id')) {
                 $trackdata['MUSICBRAINZ_ALBUMARTISTID'] = $track->{'album'}->{'artists'}[0]->{'musicbrainz_id'};
             }
@@ -207,12 +208,16 @@ function parseTrack($track, $plpos = null, $plid = null) {
 
 }
 
-function mopidyDoesWierdThings($artists) {
+function joinartists($artists) {
+
+    // NOTE : This function is duplicated in the javascript side. It's important the two stay in sync
+    // See uifunctions.js
+
     $art = array();
     foreach($artists as $a) {
         if (property_exists($a, 'name')) {
-            if (preg_match('/ & /', $a->{'name'})) {
-                // This might be a problem in Mopidy BUT Spotify tracks are coming back with
+            if (preg_match('/ & /', $a->{'name'}) || preg_match('/ and /i', $a->{'name'})) {
+                // This might be a problem in Mopidy BUT Spotify tracks are coming back with eg
                 // artist[0] = King Tubby, artist[1] = Johnny Clarke, artist[2] = King Tubby & Johnny Clarke
                 $art = array( $a->name );
                 break;
@@ -221,7 +226,14 @@ function mopidyDoesWierdThings($artists) {
             }
         }
     }
-    return implode(' & ',$art);
+    if (count($art) == 1) {
+        return $art[0];
+    } else if (count($art) == 2) {
+        return implode(' & ',$art);
+    } else {
+        $f = array_slice($art, 0, count($art) - 1);
+        return implode($f, ", ")." & ".$art[count($art) - 1];
+    }
 }
 
 function close_player() {

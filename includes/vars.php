@@ -86,7 +86,11 @@ $prefs = array( "mpd_host" => "localhost",
                 "icontheme" => "Colourful",
                 "radiomode" => "",
                 "radioparam" => "",
-                "onthefly" => "true"
+                "onthefly" => "true",
+                "sortbycomposer" => "false",
+                "composergenre" => "false",
+                "composergenrename" => "Classical",
+                "displaycomposer" => "true"
                 );
 
 loadPrefs();

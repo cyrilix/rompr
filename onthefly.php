@@ -105,7 +105,7 @@ function check_tracks_against_db($json) {
 						$artist_created = false;
 						$album_created = false;
 					    list($name, $artist, $number, $duration, $albumartist, $spotialbum,
-					            $image, $album, $date, $lastmodified, $disc, $mbalbum) = munge_filedata($track, $track['file']);
+					            $image, $album, $date, $lastmodified, $disc, $mbalbum, $composer) = munge_filedata($track, $track['file']);
 
 						$ttid = create_new_track(
 							$name,

@@ -533,11 +533,15 @@ $languages['en'] = array (
 	"label_choosedomains" => "Search these sources:",
 	"config_onthefly" => "Update Collection In The Background (for backends that support it)",
 	"button_subscribe" => "Subscribe",
+	"config_sortbycomposer" => "Sort Artists using Composer",
+	"config_composergenre" => " .. only if Genre is:",
+	"config_displaycomposer" => ".. Display Composer/Performer Info instead of Artist",
 
 	//CHANGED in 0.53
 	"config_country" => "COUNTRY (for Last.FM and Spotify)",
 	"setup_labeladdresses" => "If you are having connection issues, try using an IP address instead of 'localhost'",
-	"setup_ipaddress" => "Mopidy or mpd server"
+	"setup_ipaddress" => "Mopidy or mpd server",
+	"config_dateinfo" => "You must update your music collection after changing collection settings",
 
 );
 

@@ -118,7 +118,7 @@ class album {
             case "dirble":
             case "bassdrive":
             case "internetarchive":
-                $image = "newimages/".$this->domain."-logo.png";
+                if ($image == "") $image = "newimages/".$this->domain."-logo.png";
                 break;
         }
         // If there's a local image this overrides everything else
@@ -234,6 +234,14 @@ class artist {
         }
     }
 
+    public function trackCount() {
+        $count = 0;
+        foreach($this->albums as $album) {
+            $count += $album->trackCount();
+        }
+        return $count;
+    }
+
 }
 
 class track {
@@ -345,7 +353,8 @@ class musicCollection {
     public function newTrack($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
                                 $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station,
                                 $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack,
-                                $origimage, $spotialbum, $spotiartist, $domain, $cuefile, $lastmodified, $linktype) {
+                                $origimage, $spotialbum, $spotiartist, $domain, $cuefile, $lastmodified,
+                                $linktype, $composer) {
 
         global $current_album;
         global $current_artist;
@@ -366,6 +375,15 @@ class musicCollection {
         if ($sortartist == null && $station !== null) {
             $sortartist = $station;
         }
+
+        if ($prefs['sortbycomposer'] && $composer !== null) {
+            if ($prefs['composergenre'] && $genre && strtolower($genre) == strtolower($prefs['composergenrename'])) {
+                $sortartist = $composer;
+            } else if (!$prefs['composergenre']) {
+                $sortartist = $composer;
+            }
+        }
+
         $artistkey = strtolower(preg_replace('/^The /i', '', $sortartist));
         //Some discogs tags have 'Various' instead of 'Various Artists'
         if ($artistkey == "various") {
@@ -485,6 +503,10 @@ class musicCollection {
         return $this->artists[$artist]->name;
     }
 
+    public function artistNumTracks($artist) {
+        return $this->artists[$artist]->trackCount();
+    }
+
     public function getAlbumList($artist, $ignore_compilations) {
         global $prefs;
         global $backend_in_use;
@@ -553,7 +575,7 @@ function process_file($collection, $filedata) {
     }
 
     list($name, $artist, $number, $duration, $albumartist, $spotialbum,
-            $image, $album, $date, $lastmodified, $disc, $mbalbum) = munge_filedata($filedata, $file);
+            $image, $album, $date, $lastmodified, $disc, $mbalbum, $composer) = munge_filedata($filedata, $file);
 
     $genre = (array_key_exists('Genre', $filedata)) ? $filedata['Genre'] : null;
     $mbartist = (array_key_exists('MUSICBRAINZ_ARTISTID', $filedata)) ? $filedata['MUSICBRAINZ_ARTISTID'] : "";
@@ -671,7 +693,8 @@ function process_file($collection, $filedata) {
     $collection->newTrack(  $name, $file, $duration, $number, $date, $genre, $artist, $album, $folder,
                             $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station,
                             $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack,
-                            $origimage, $spotialbum, $spotiartist, $domain, $playlist, $lastmodified, $linktype);
+                            $origimage, $spotialbum, $spotiartist, $domain, $playlist, $lastmodified,
+                            $linktype, $composer);
 
     $numtracks++;
     $totaltime += $duration;

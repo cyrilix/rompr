@@ -1375,6 +1375,17 @@ function do_artist_database_stuff($artistkey, $now) {
     global $collection;
     global $mysqlc;
     $artistname = $collection->artistName($artistkey);
+
+    // CHECK. This prevents us creating artists when those artists have no albums with tracks.
+    // These MIGHT BE artists who appear only on compilations. Need to make sure a new database
+    // works when we do this - the track artist should get checked lower down so we're probably OK.
+    // It speeds things up a bit and stops us unnecessarily creating artists when certain backends
+    // return only albums.
+    if ($collection->artistNumTracks($artistkey) == 0) {
+    	debug_print("Artist ".$artistname." has no tracks. Ignoring him or her or it","MYSQL");
+    	return false;
+    }
+
     $albumlist = array();
     $showartist = false;
     if ($artistkey == "various artists") {
@@ -1407,6 +1418,17 @@ function do_artist_database_stuff($artistkey, $now) {
     }
 
     foreach($albumlist as $album) {
+
+    	if ($album->trackCount() == 0) {
+    		// This is nother of those things that can happen with some mopidy backends
+    		// that return search results as an album only. Internet Archive is one such
+    		// and many radio backends are also the same. We don't want these in the database;
+    		// they don't get added even without this check because there are no tracks BUT
+    		// the album does get created and then remove_cruft has to delete it again).
+    		debug_print("Album ".$album->name." has no tracks. Ignoring it","MYSQL");
+    		continue;
+    	}
+
         $albumindex = check_album(
             $album->name,
             $artistindex,
@@ -1420,9 +1442,10 @@ function do_artist_database_stuff($artistkey, $now) {
             $album->sortTracks(),
             $album->domain
         );
+
         if ($albumindex == null) {
         	debug_print("ERROR! Album index is still null!","MYSQL");
-            return false;
+    		continue;
         }
 
         foreach($album->tracks as $trackobj) {

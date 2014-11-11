@@ -50,26 +50,10 @@ var info_file = function() {
         if (player.status.Genre) html = html + '<tr><td class="fil">'+language.gettext("info_genre")+'</td><td>'+player.status.Genre+'</td></tr>';
 
         if (player.status.performers) {
-            var text = player.status.performers;
-            if (typeof(player.status.performers) == "object") {
-                var t = new Array();
-                for (var i in player.status.performers) {
-                    t.push(player.status.performers[i].name);
-                }
-                text = t.join(' & ');
-            }
-            html = html + '<tr><td class="fil">'+language.gettext("info_performers")+'</td><td>'+text+'</td></tr>';
+            html = html + '<tr><td class="fil">'+language.gettext("info_performers")+'</td><td>'+joinartists(player.status.performers)+'</td></tr>';
         }
         if (player.status.composers) {
-            var text = player.status.composers;
-            if (typeof(player.status.composers) == "object") {
-                var t = new Array();
-                for (var i in player.status.composers) {
-                    t.push(player.status.composers[i].name);
-                }
-                text = t.join(' & ');
-            }
-            html = html + '<tr><td class="fil">'+language.gettext("info_composers")+'</td><td>'+text+'</td></tr>';
+            html = html + '<tr><td class="fil">'+language.gettext("info_composers")+'</td><td>'+joinartists(player.status.composers)+'</td></tr>';
         }
         if (player.status.Comment) html = html + '<tr><td class="fil">'+language.gettext("info_comment")+'</td><td>'+player.status.Comment+'</td></tr>';
         setBrowserIcon(filetype);

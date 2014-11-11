@@ -133,6 +133,7 @@ function playerController() {
     			player.status.songid = undefined;
     			player.status.elapsed = undefined;
     			player.status.file = undefined;
+                player.status.Genre = undefined;
     	        nowplaying.newTrack(playlist.emptytrack);
 		        $(".playlistcurrentitem").removeClass('playlistcurrentitem').addClass('playlistitem');
 		        $(".playlistcurrenttitle").removeClass('playlistcurrenttitle').addClass('playlisttitle');

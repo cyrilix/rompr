@@ -44,8 +44,34 @@ var infobar = function() {
             contents = '<span class="npinfo" style="font-size:130%"><b>'+info.title+'</b></span>';
             doctitle = info.title;
         }
+        if (prefs.displaycomposer &&
+            ((prefs.composergenre && player.status.Genre && player.status.Genre.toLowerCase() == prefs.composergenrename.toLowerCase()) ||
+            !prefs.composergenre)) {
+            var c = null;
+            var p = null;
+            var t = null;
+            if (player.status.composers) {
+                c = joinartists(player.status.composers);
+            }
+            if (player.status.performers) {
+                p = joinartists(player.status.performers);
+            }
+            if (c && p) {
+                t = c +  " ("+language.gettext('label_composer')+"), " + p;
+            } else if (c) {
+                t = c + " ("+language.gettext('label_composer')+")";
+            } else if (p) {
+                t = p;
+            }
+            if (t) {
+                contents = contents+'<br /><span class="npinfo"><i>'+frequentLabels.by+'</i> <b>'+t+'</b></span>';
+            } else if (info.creator) {
+                contents = contents+'<br /><span class="npinfo"><i>'+frequentLabels.by+'</i> <b>'+info.creator+'</b></span>';
+            }
+        } else if (info.creator) {
+            contents = contents+'<br /><span class="npinfo"><i>'+frequentLabels.by+'</i> <b>'+info.creator+'</b></span>';
+        }
         if (info.creator) {
-            contents=contents+'<br /><span class="npinfo"><i>'+frequentLabels.by+'</i> <b>'+info.creator+'</b></span>';
             doctitle = doctitle + " - " + info.creator;
         }
         if (info.album) {

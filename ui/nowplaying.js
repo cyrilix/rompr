@@ -218,7 +218,6 @@ var nowplaying = function() {
 			history[index].youWereClicked(plugin, source, element, event);
 		},
 
-
 		setLastFMCorrections: function(index, updates) {
 			debug.log("NOWPLAYING","Recieved last.fm corrections for index",index);
 			if (index == currenttrack) {
@@ -235,9 +234,6 @@ var nowplaying = function() {
 	    	var t = history[index].playlistinfo.location;
         	if (t.substring(0,11) == 'soundcloud:') {
 				if (history[index].playlistinfo.creator == null) {
-					// We have to update this, or nowplaying won't realise the artist has changed
-					// Really, someone should fix the SoundCloud plugin for Mopidy so it doesn't
-					// return null as an artist name... I don't like python so I ain't doin' it.
 					history[index].playlistinfo.creator = updates.creator;
 				}
 				if (index == currenttrack) {
@@ -321,12 +317,6 @@ var nowplaying = function() {
 
 		isThisCurrent: function(index) {
 			return (index == currenttrack);
-		},
-
-		dumpHistory: function() {
-			for (var i in history) {
-				debug.log("NOWPLAYING", "History index",i,history[i]);
-			}
 		}
 
 	}

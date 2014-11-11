@@ -45,7 +45,7 @@ function check_sql_tables() {
 
 	global $mysqlc;
 
-	$current_schema_version = 7;
+	$current_schema_version = 8;
 
 	if ($mysqlc) {
 
@@ -248,6 +248,34 @@ function check_sql_tables() {
 							generic_sql_query("ALTER TABLE Tracktable ADD DateAdded TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
 							generic_sql_query("UPDATE Tracktable SET DateAdded = FROM_UNIXTIME(LastModified) WHERE LastModified IS NOT NULL AND LastModified > 0");
 							generic_sql_query("UPDATE Statstable SET Value = 7 WHERE Item = 'SchemaVer'");
+							break;
+
+						case 7:
+							debug_print("Updating FROM Schema version 7 TO Schema version 8","SQL");
+							// Since we've changed the way we're joining artist names together,
+							// rather than force the database to be recreated and screw up everyone's
+							// tags and rating, just mopidy the artist data.
+							$stmt = mysqli_prepare($mysqlc, "UPDATE Artisttable SET Artistname = ? WHERE Artistindex = ?");
+							if ($result = mysqli_query($mysqlc, "SELECT * FROM Artisttable")) {
+								while ($obj = mysqli_fetch_object($result)) {
+									$artist = (string) $obj->Artistname;
+									$art = explode(' & ', $artist);
+									if (count($art) > 2) {
+									    $f = array_slice($art, 0, count($art) - 1);
+									    $newname = implode($f, ", ")." & ".$art[count($art) - 1];
+									    debug_print("Updating artist name from ".$artist." to ".$newname);
+									    mysqli_stmt_bind_param($stmt, "si", $newname, $obj->Artistindex);
+									    if (mysqli_stmt_execute($stmt)) {
+
+									    } else {
+							                debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+									    }
+									}
+								}
+								generic_sql_query("UPDATE Statstable SET Value = 8 WHERE Item = 'SchemaVer'");
+							} else {
+								debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+							}
 							break;
 					}
 					$sv++;

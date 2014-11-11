@@ -278,9 +278,9 @@ var faveFinder = function() {
                             r.data.uri = data[i].tracks[k].uri;
                             r.data.album = data[i].tracks[k].album.name;
                             r.data.title = data[i].tracks[k].name;
-                            r.data.artist = mopidyDoesWierdThings(data[i].tracks[k].artists);
+                            r.data.artist = joinartists(data[i].tracks[k].artists);
                             if (data[i].tracks[k].album.artists) {
-                                r.data.albumartist = mopidyDoesWierdThings(data[i].tracks[k].album.artists);
+                                r.data.albumartist = joinartists(data[i].tracks[k].album.artists);
                             } else {
                                 r.data.albumartist = r.data.artist;
                             }
@@ -323,9 +323,9 @@ var faveFinder = function() {
                             req.data.uri = data[i].tracks[k].uri;
                             req.data.album = data[i].tracks[k].album.name;
                             req.data.title = data[i].tracks[k].name;
-                            req.data.artist = mopidyDoesWierdThings(data[i].tracks[k].artists);
+                            req.data.artist = joinartists(data[i].tracks[k].artists);
                             if (data[i].tracks[k].album.artists) {
-                                req.data.albumartist = mopidyDoesWierdThings(data[i].tracks[k].album.artists);
+                                req.data.albumartist = joinartists(data[i].tracks[k].album.artists);
                             } else {
                                 req.data.albumartist = req.data.artist;
                             }
@@ -474,18 +474,4 @@ function updateCollectionDisplay(rdata) {
         // statistics box at the top of the collection
         $("#fothergill").html(rdata.stats);
     }
-}
-
-function mopidyDoesWierdThings(artists) {
-    var a = [];
-    for (var i in artists) {
-        var flub = ""+artists[i].name;
-        if (flub.match(/ & /)) {
-            a = [artists[i].name];
-            break;
-        } else {
-            a.push(artists[i].name);
-        }
-    }
-    return a.join(' & ');
 }
