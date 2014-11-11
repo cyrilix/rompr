@@ -501,10 +501,10 @@ function playerController() {
 
 	this.updateCollection = function(cmd) {
         prepareForLiftOff(language.gettext("label_updating"));
-        if (prefs.apache_backend == "sql") {
-            $("#collection").append('<div id="colprog" style="font-size:12pt"></div>');
-            colprog = new progressBar('colprog', 'horizontal');
-        }
+        // if (prefs.apache_backend == "sql") {
+        //     $("#collection").append('<div id="colprog" style="font-size:12pt"></div>');
+        //     colprog = new progressBar('colprog', 'horizontal');
+        // }
         debug.log("PLAYER","Updating collection with command", cmd);
         mopidy.library.refresh().then( function() {
         	debug.log("PLAYER", "Refresh Success");
@@ -516,7 +516,7 @@ function playerController() {
         if (uri.match(/rebuild/)) {
             mopidy.library.search({}).then( function(data) {
             	debug.log("PLAYER","Got Mopidy Library Response");
-                colprogtimer = setTimeout(checkCollectionProgress, 1000);
+                // colprogtimer = setTimeout(checkCollectionProgress, 1000);
                 $.ajax({
                     type: "POST",
                     url: uri,

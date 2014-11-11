@@ -16,24 +16,24 @@ function parse_mopidy_json_data($collection, $jsondata) {
 
     global $dbterms;
     $plpos = 0;
-    $numresults = 0;
-    foreach($jsondata as $searchresults) {
-        if ($searchresults->{'__model__'} == "SearchResult") {
+    // $numresults = 0;
+    // foreach($jsondata as $searchresults) {
+    //     if ($searchresults->{'__model__'} == "SearchResult") {
 
-            if (property_exists($searchresults, 'artists')) {
-                $numresults += count($searchresults->artists);
-            }
+    //         if (property_exists($searchresults, 'artists')) {
+    //             $numresults += count($searchresults->artists);
+    //         }
 
-            if (property_exists($searchresults, 'albums')) {
-                $numresults += count($searchresults->albums);
-            }
+    //         if (property_exists($searchresults, 'albums')) {
+    //             $numresults += count($searchresults->albums);
+    //         }
 
-            if (property_exists($searchresults, 'tracks')) {
-                $numresults += count($searchresults->tracks);
-            }
-        }
-    }
-    $numprocessed = 0;
+    //         if (property_exists($searchresults, 'tracks')) {
+    //             $numresults += count($searchresults->tracks);
+    //         }
+    //     }
+    // }
+    // $numprocessed = 0;
     foreach($jsondata as $searchresults) {
 
         if ($searchresults->{'__model__'} == "DBTerms") {
@@ -50,24 +50,24 @@ function parse_mopidy_json_data($collection, $jsondata) {
             if (property_exists($searchresults, 'artists')) {
                 foreach ($searchresults->artists as $track) {
                     parseArtist($collection, $track);
-                    $numprocessed++;
-                    put_progress(($numprocessed/$numresults)*50);
+                    // $numprocessed++;
+                    // put_progress(($numprocessed/$numresults)*50);
                 }
             }
 
             if (property_exists($searchresults, 'albums')) {
                 foreach ($searchresults->albums as $track) {
                     parseAlbum($collection, $track);
-                    $numprocessed++;
-                    put_progress(($numprocessed/$numresults)*50);
+                    // $numprocessed++;
+                    // put_progress(($numprocessed/$numresults)*50);
                 }
             }
 
             if (property_exists($searchresults, 'tracks')) {
                 foreach ($searchresults->tracks as $track) {
                     process_file($collection, parseTrack($track));
-                    $numprocessed++;
-                    put_progress(($numprocessed/$numresults)*50);
+                    // $numprocessed++;
+                    // put_progress(($numprocessed/$numresults)*50);
                 }
             }
 

@@ -1331,11 +1331,11 @@ function doDatabaseMagic() {
 	generic_sql_query("CREATE TEMPORARY TABLE Foundtracks(TTindex INT UNSIGNED NOT NULL UNIQUE, PRIMARY KEY(TTindex)) ENGINE MEMORY");
 
     $artistlist = $collection->getSortedArtistList();
-    $ac = 0;
+    // $ac = 0;
     foreach($artistlist as $artistkey) {
         do_artist_database_stuff($artistkey, $now);
-        $ac++;
-        put_progress((($ac/count($artistlist))*50)+50);
+        //$ac++;
+        //put_progress((($ac/count($artistlist))*50)+50);
     }
 
     // Find tracks that have been removed
