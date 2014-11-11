@@ -24,6 +24,10 @@ $collection = null;
 
 $dbterms = array( 'tags' => null, 'rating' => null );
 
+if (file_exists('prefs/colprog.xml')) {
+    unlink('prefs/colprog.xml');
+}
+
 class album {
     public function __construct($name, $artist, $domain) {
         global $numalbums;

@@ -20,6 +20,8 @@ function playerController() {
     var updatePlTimer = null;
     var doingPlUpdate = false;
     var timecheckcounter = 0;
+    var colprog = null;
+    var colprogtimer = null;
 
     function mopidyStateChange(data) {
         debug.shout("PLAYER","Mopidy State Change",data);
@@ -293,6 +295,27 @@ function playerController() {
 
 	}
 
+    function checkCollectionProgress() {
+        clearTimeout(colprogtimer);
+        if (colprog) {
+            $.ajax( {
+                type: "GET",
+                url: "checkcolprog.php",
+                cache: false,
+                dataType: "json",
+                success: function(data) {
+                    colprog.setProgress(data.percent[0]);
+                    debug.log("PLAYER","Collection status is",data);
+                    colprogtimer = setTimeout(checkCollectionProgress, 1000);
+                },
+                error: function() {
+                    colprogtimer = setTimeout(checkCollectionProgress, 1000);
+                    debug.warn("PLAYER", "Something went wrong checking the collection progress!");
+                }
+            });
+        }
+    }
+
 	this.startAddingTracks = function() {
 		var t = albumtracks.shift() || tracksToAdd.shift();
 		if (t) {
@@ -476,6 +499,10 @@ function playerController() {
 
 	this.updateCollection = function(cmd) {
         prepareForLiftOff(language.gettext("label_updating"));
+        if (prefs.apache_backend == "sql") {
+            $("#collection").append('<div id="colprog" style="font-size:12pt"></div>');
+            colprog = new progressBar('colprog', 'horizontal');
+        }
         debug.log("PLAYER","Updating collection with command", cmd);
         mopidy.library.refresh().then( function() {
         	debug.log("PLAYER", "Refresh Success");
@@ -487,6 +514,7 @@ function playerController() {
         if (uri.match(/rebuild/)) {
             mopidy.library.search({}).then( function(data) {
             	debug.log("PLAYER","Got Mopidy Library Response");
+                colprogtimer = setTimeout(checkCollectionProgress, 1000);
                 $.ajax({
                     type: "POST",
                     url: uri,
@@ -497,11 +525,13 @@ function playerController() {
                         $("#collection").html(data);
                         data = null;
                         player.collectionLoaded = true;
+                        colprog = null;
                         self.reloadPlaylists();
                     },
                     error: function(data) {
                         $("#collection").empty();
                         alert(language.gettext("label_update_error"));
+                        colprog = null;
                     	debug.error("PLAYER","Failed to generate albums list",data);
                     }
                 });

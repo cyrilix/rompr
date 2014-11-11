@@ -430,5 +430,8 @@ function update_image_db($fname, $notfound, $imagefile) {
 
 }
 
+function putprogress($f) {
+
+}
 
 ?>
