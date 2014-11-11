@@ -281,7 +281,7 @@ function playerController() {
             url: "onthefly.php",
             data: JSON.stringify(data),
             dataType: "json",
-            timeout: 600000,
+            timeout: 1000000,
             success: function(data) {
             	debug.log("PLAYER","Checktracks has returned");
             	updateCollectionDisplay(data);
@@ -304,8 +304,10 @@ function playerController() {
                 cache: false,
                 dataType: "json",
                 success: function(data) {
-                    colprog.setProgress(data.percent[0]);
-                    debug.log("PLAYER","Collection status is",data);
+                    if (data && data.percent) {
+                        colprog.setProgress(data.percent[0]);
+                        debug.log("PLAYER","Collection status is",data);
+                    }
                     colprogtimer = setTimeout(checkCollectionProgress, 1000);
                 },
                 error: function() {

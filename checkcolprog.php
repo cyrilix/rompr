@@ -5,7 +5,6 @@ include ("includes/functions.php");
 $status = array( 'percent' => 0 );
 
 function error_handler($a, $b) {
-	print json_encode($status);
 	exit(0);
 }
 
