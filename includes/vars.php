@@ -61,7 +61,6 @@ $prefs = array( "mpd_host" => "localhost",
                 "search_limit_beets" => 0,
                 "search_limit_gmusic" => 0,
                 "scrolltocurrent" => "false",
-                // Minimum version of mopidy required
                 "mopidy_version" => "0.18.3",
                 "debug_enabled" => 0,
                 "radiocountry" => "http://www.listenlive.eu/uk.html",
@@ -90,7 +89,8 @@ $prefs = array( "mpd_host" => "localhost",
                 "sortbycomposer" => "false",
                 "composergenre" => "false",
                 "composergenrename" => "Classical",
-                "displaycomposer" => "true"
+                "displaycomposer" => "true",
+                "custom_logfile" => ""
                 );
 
 loadPrefs();
@@ -113,16 +113,24 @@ $searchlimits = array(  "local" => "Local Files",
                         // "dirble" => "Dirble",
                         );
 
-function debug_print($out, $module = "") {
-    global $prefs;
-    if ($prefs['debug_enabled'] == 1) {
+if ($prefs['debug_enabled'] == 1) {
+    function debug_print($out, $module = "") {
+        global $prefs;
         $indent = 20 - strlen($module);
         $in = "";
         while ($indent > 0) {
             $in .= " ";
             $indent--;
         }
-        error_log($module.$in.": ".$out,0);
+        if ($prefs['custom_logfile'] != "") {
+            error_log($module.$in.": ".$out."\n",3,$prefs['custom_logfile']);
+        } else {
+            error_log($module.$in.": ".$out,0);
+        }
+    }
+} else {
+    function debug_print($a, $b) {
+
     }
 }
 

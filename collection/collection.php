@@ -24,10 +24,6 @@ $collection = null;
 
 $dbterms = array( 'tags' => null, 'rating' => null );
 
-// if (file_exists('prefs/colprog.xml')) {
-//     unlink('prefs/colprog.xml');
-// }
-
 class album {
     public function __construct($name, $artist, $domain) {
         global $numalbums;
@@ -109,6 +105,7 @@ class album {
             $image = $this->image;
         }
         if (file_exists("prefs/imagecache/".$artname."_".$size.".jpg")) {
+            debug_print("Image from image cache","ALBUM");
             $image = "prefs/imagecache/".$artname."_".$size.".jpg";
         }
         switch ($this->domain) {
@@ -122,7 +119,7 @@ class album {
             case "dirble":
             case "bassdrive":
             case "internetarchive":
-                if ($image == "") $image = "newimages/".$this->domain."-logo.png";
+                $image = "newimages/".$this->domain."-logo.png";
                 break;
         }
         // If there's a local image this overrides everything else
@@ -286,7 +283,7 @@ class track {
     }
 
     public function getImage() {
-        $d = getDomain(urldecode($this->url));
+        $d = getDomain($this->url);
         switch ($d) {
             case "soundcloud":
             case "youtube":
@@ -823,7 +820,7 @@ function getStreamFolder($url) {
 }
 
 function getDummyStation($url) {
-    $f = getDomain(urldecode($url));
+    $f = getDomain($url);
     switch ($f) {
         case "http":
         case "mms":

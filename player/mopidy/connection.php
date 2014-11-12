@@ -16,24 +16,7 @@ function parse_mopidy_json_data($collection, $jsondata) {
 
     global $dbterms;
     $plpos = 0;
-    // $numresults = 0;
-    // foreach($jsondata as $searchresults) {
-    //     if ($searchresults->{'__model__'} == "SearchResult") {
 
-    //         if (property_exists($searchresults, 'artists')) {
-    //             $numresults += count($searchresults->artists);
-    //         }
-
-    //         if (property_exists($searchresults, 'albums')) {
-    //             $numresults += count($searchresults->albums);
-    //         }
-
-    //         if (property_exists($searchresults, 'tracks')) {
-    //             $numresults += count($searchresults->tracks);
-    //         }
-    //     }
-    // }
-    // $numprocessed = 0;
     foreach($jsondata as $searchresults) {
 
         if ($searchresults->{'__model__'} == "DBTerms") {
@@ -50,24 +33,18 @@ function parse_mopidy_json_data($collection, $jsondata) {
             if (property_exists($searchresults, 'artists')) {
                 foreach ($searchresults->artists as $track) {
                     parseArtist($collection, $track);
-                    // $numprocessed++;
-                    // put_progress(($numprocessed/$numresults)*50);
                 }
             }
 
             if (property_exists($searchresults, 'albums')) {
                 foreach ($searchresults->albums as $track) {
                     parseAlbum($collection, $track);
-                    // $numprocessed++;
-                    // put_progress(($numprocessed/$numresults)*50);
                 }
             }
 
             if (property_exists($searchresults, 'tracks')) {
                 foreach ($searchresults->tracks as $track) {
                     process_file($collection, parseTrack($track));
-                    // $numprocessed++;
-                    // put_progress(($numprocessed/$numresults)*50);
                 }
             }
 
@@ -102,9 +79,13 @@ function parseAlbum($collection, $track) {
         $domain = getDomain($track->{'uri'});
     }
     if (property_exists($track, 'images')) {
-        $trackdata['Image'] = $track->{'images'}[0];
-        if (substr($trackdata['Image'],0,4) == "http") {
-           $trackdata['Image'] = "getRemoteImage.php?url=".$trackdata['Image'];
+        foreach($track->{'images'} as $image) {
+            if ($image != "") {
+                $trackdata['Image'] = $image;
+                if (substr($image,0,4) == "http") {
+                   $trackdata['Image'] = "getRemoteImage.php?url=".$trackdata['Image'];
+                }
+            }
         }
     }
     if (property_exists($track, 'date')) {
@@ -195,16 +176,17 @@ function parseTrack($track, $plpos = null, $plid = null) {
             $trackdata['Album'] = $track->{'album'}->{'name'};
         }
         if (property_exists($track->{'album'}, 'images')) {
-            $im = "";
-            foreach ($track->{'album'}->{'images'} as $i) {
-                if ($im === "") {
-                    $im = $i;
+
+            foreach($track->{'album'}->{'images'} as $image) {
+                if ($image != "") {
+                    $trackdata['Image'] = $image;
+                    if (substr($image,0,4) == "http") {
+                       $trackdata['Image'] = "getRemoteImage.php?url=".$trackdata['Image'];
+                    }
+                    debug_print("Parsing album and setting image to ".$image,"PARSE");
                 }
             }
-            if (substr($im,0,4) == "http") {
-                $im = "getRemoteImage.php?url=".$im;
-            }
-            $trackdata['Image'] = $im;
+
         }
         if (property_exists($track->{'album'}, 'uri')) {
             $trackdata['SpotiAlbum'] = $track->{'album'}->{'uri'};

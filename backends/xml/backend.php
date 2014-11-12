@@ -30,7 +30,6 @@ function dumpAlbums($which) {
         if (flock($fp, LOCK_EX, $crap)) {
             $x = simplexml_load_file($fname);
             flock($fp, LOCK_UN);
-            // if ($which == 'aalbumroot' || $which == 'balbumroot') {
             if (preg_match('/albumroot/', $which)) {
                 if ($which == 'aalbumroot') {
                     print '<div class="menuitem"><h3>'.get_int_text("button_local_music").'</h3></div>';
@@ -427,10 +426,6 @@ function update_image_db($fname, $notfound, $imagefile) {
         }
         fclose($fp);
     }
-
-}
-
-function putprogress($f) {
 
 }
 

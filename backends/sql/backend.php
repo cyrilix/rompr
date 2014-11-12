@@ -1306,21 +1306,6 @@ function get_stat($item) {
 // Stuff to do with creating the database from a music collection (collection.php)
 //
 
-function put_progress($f) {
-    $xml = '<?xml version="1.0" encoding="utf-8"?><progress><percent>';
-    $xml = $xml . $f;
-    $xml = $xml . '</percent></progress>';
-    $fp = fopen('prefs/colprog.xml', 'w');
-    if ($fp) {
-    	$crap = true;
-    	if (flock($fp, LOCK_EX, $crap)) {
-		    fwrite($fp, $xml);
-		    flock($fp, LOCK_UN);
-    	}
-    }
-    fclose($fp);
-}
-
 function doDatabaseMagic() {
     global $collection;
     global $LISTVERSION;
@@ -1331,11 +1316,8 @@ function doDatabaseMagic() {
 	generic_sql_query("CREATE TEMPORARY TABLE Foundtracks(TTindex INT UNSIGNED NOT NULL UNIQUE, PRIMARY KEY(TTindex)) ENGINE MEMORY");
 
     $artistlist = $collection->getSortedArtistList();
-    // $ac = 0;
     foreach($artistlist as $artistkey) {
         do_artist_database_stuff($artistkey, $now);
-        //$ac++;
-        //put_progress((($ac/count($artistlist))*50)+50);
     }
 
     // Find tracks that have been removed
