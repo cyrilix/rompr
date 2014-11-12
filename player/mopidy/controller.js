@@ -165,8 +165,16 @@ function playerController() {
 	        player.status.Date = tl_track.track.date;
 	        player.status.bitrate = tl_track.track.bitrate || 'None';
 	        player.status.Title = tl_track.track.name;
-	        player.status.performers = tl_track.track.performers;
-	        player.status.composers = tl_track.track.composers;
+            if (tl_track.track.performers) {
+	           player.status.performers = tl_track.track.performers;
+            } else {
+                player.status.performers = null;
+            }
+            if (tl_track.track.composers) {
+               player.status.composers = tl_track.track.composers;
+            } else {
+                player.status.composers = null;
+            }
 	        player.status.Genre = tl_track.track.genre;
 	        player.status.Comment = tl_track.track.comment;
 	    }
