@@ -1,6 +1,6 @@
 <?php
 
-set_time_limit(240);
+set_time_limit(600);
 $COMPILATION_THRESHOLD = 6;
 $numtracks = 0;
 $numalbums = 0;
@@ -98,32 +98,57 @@ class album {
 
     public function getImage($size) {
         global $ipath;
+
         // Return image for an album or track
+
+        // NOTE: For me, because this keeps befuddling me.
+        // This sets the image when the collection is created ONLY.
+        // SQL and XML backends work differently. Which is silly, but true.
+        // The image returned here is archived to albumart when we use SQL
+        // even if it's a local image. It's stored in the XML when we use XML.
+        // When we create the album listing from SQL we simply check if the
+        // archived image exists.
+
         $image = "";
         $artname = $this->getKey();
         if ($this->image) {
             $image = $this->image;
         }
+
         if (file_exists("prefs/imagecache/".$artname."_".$size.".jpg")) {
-            debug_print("Image from image cache","ALBUM");
+            // This will happen if we're playing a track from Spotify that
+            // isn't in the collection. The archving process just copies it
+            // which is mucg batter than re-downloading it.
             $image = "prefs/imagecache/".$artname."_".$size.".jpg";
         }
+
         switch ($this->domain) {
+            // These are mopidy domains
             case "podcast":
+                // Some podcasts return album images, which will be $this->image
+                // But not all of them do so we need a fallback.
                 if ($image == "") $image = $ipath."podcast-logo.png";
                 break;
             case "youtube":
             case "soundcloud":
+                // Youtube and SoundCloud return album images, but it makes more
+                // sense to use them as track images. This is handled in the track
+                // object BUT $this->image will also be set to the same image because
+                // mopidy returns it as an album image, so this is a kind of hacky thing.
             case "tunein":
             case "radio-de":
             case "dirble":
             case "bassdrive":
             case "internetarchive":
+                // All of these don't return images so we display something nicer than
+                // a blank silvery CD.
                 $image = "newimages/".$this->domain."-logo.png";
                 break;
         }
-        // If there's a local image this overrides everything else
+
         if (file_exists("albumart/".$size."/".$artname.".jpg")) {
+            // If there's a local image this overrides everything else because it might
+            // be something the user has downloaded
             $image = "albumart/".$size."/".$artname.".jpg";
         }
         return $image;
