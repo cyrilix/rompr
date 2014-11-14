@@ -17,7 +17,6 @@ if (!$url) {
 		if ($aagh['status'] == "200") {
 			debug_print("Cached Image ".$outfile,"TOMATO");
 			file_put_contents($outfile, $aagh['contents']);
-
 		} else {
 			debug_print("Failed to download - status was ".$aagh['status'],"TOMATO");
 	        // header('HTTP/1.0 403 Forbidden');
@@ -37,6 +36,15 @@ if (!$url) {
 		if ($o[1]) {
 			$mime = $o[1];
 			// debug_print("Using MIME type : ".$mime,"TOMATO");
+		}
+	} else {
+		$r = exec($convert_path."identify -verbose ".$outfile." | grep Format");
+		// debug_print("Checking MIME type again : ".$r,"TOMATO");
+		if (preg_match('/Format:\s+(.*?) /', $r, $o)) {
+			if ($o[1]) {
+				$mime = 'image/'.strtolower($o[1]);
+				// debug_print("Using MIME type : ".$mime,"TOMATO");
+			}
 		}
 	}
 	header('Content-type: '.$mime);

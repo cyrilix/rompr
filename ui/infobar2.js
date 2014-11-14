@@ -44,17 +44,20 @@ var infobar = function() {
             contents = '<span class="npinfo" style="font-size:130%"><b>'+info.title+'</b></span>';
             doctitle = info.title;
         }
-        if (prefs.displaycomposer &&
+        // We use player.status here because
+        //  a) It prevents Last.FM corrections overriding our preference and
+        //  b) It's easier.
+        if (info != playlist.emptytrack && prefs.displaycomposer &&
             ((prefs.composergenre && player.status.Genre && player.status.Genre.toLowerCase() == prefs.composergenrename.toLowerCase()) ||
             !prefs.composergenre)) {
             var c = null;
             var p = null;
             var t = null;
-            if (player.status.composers) {
-                c = joinartists(player.status.composers);
+            if (player.status.Composer) {
+                c = joinartists(player.status.Composer);
             }
-            if (player.status.performers) {
-                p = joinartists(player.status.performers);
+            if (player.status.Performer) {
+                p = joinartists(player.status.Performer);
             }
             if (c && p) {
                 t = c +  " ("+language.gettext('label_composer')+"), " + p;
@@ -305,6 +308,7 @@ var infobar = function() {
                                             });
 
             } else {
+                debug.log("INFOBAR","Setting Album Image to",info.image);
                 infobar.albumImage.setSource({    image: info.image,
                                                   origimage: info.origimage == "" ? info.image : info.origimage
                                             });

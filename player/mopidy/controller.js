@@ -134,6 +134,8 @@ function playerController() {
     			player.status.elapsed = undefined;
     			player.status.file = undefined;
                 player.status.Genre = undefined;
+                player.status.Performer = null;
+                player.status.Composer = null;
     	        nowplaying.newTrack(playlist.emptytrack);
 		        $(".playlistcurrentitem").removeClass('playlistcurrentitem').addClass('playlistitem');
 		        $(".playlistcurrenttitle").removeClass('playlistcurrenttitle').addClass('playlisttitle');
@@ -163,17 +165,9 @@ function playerController() {
 	        player.status.Date = tl_track.track.date;
 	        player.status.bitrate = tl_track.track.bitrate || 'None';
 	        player.status.Title = tl_track.track.name;
-            if (tl_track.track.performers) {
-	           player.status.performers = tl_track.track.performers;
-            } else {
-                player.status.performers = null;
-            }
-            if (tl_track.track.composers) {
-               player.status.composers = tl_track.track.composers;
-            } else {
-                player.status.composers = null;
-            }
-	        player.status.Genre = tl_track.track.genre;
+            player.status.Performer = tl_track.track.performers;
+            player.status.Composer = tl_track.track.composers;
+ 	        player.status.Genre = tl_track.track.genre;
 	        player.status.Comment = tl_track.track.comment;
 	    }
 	}

@@ -96,11 +96,8 @@ function parseAlbum($collection, $track) {
         $trackdata['Title'] = "Album:".$track->{'name'};
     }
     if (property_exists($track, 'artists')) {
-        $trackdata['Artist'] = joinartists($track->{'artists'});
-        if (property_exists($track->{'artists'}[0], 'uri')) {
-            $trackdata['SpotiArtist'] = $track->{'artists'}[0]->{'uri'};
-        }
-
+        $trackdata['Artist'] = joinartists($track->{'artists'}, 'name');
+        $trackdata['SpotiArtist'] = joinartists($track->{'artists'}, 'uri');
     }
     if ($domain == "podcast" && !array_key_exists('Artist', $trackdata)) {
         $trackdata['Artist'] = "Podcasts";
@@ -156,13 +153,14 @@ function parseTrack($track, $plpos = null, $plid = null) {
         $trackdata['MUSICBRAINZ_TRACKID'] = $track->{'musicbrainz_id'};
     }
     if (property_exists($track, 'artists')) {
-        $trackdata['Artist'] = joinartists($track->{'artists'});
-        if (property_exists($track->{'artists'}[0], 'musicbrainz_id')) {
-            $trackdata['MUSICBRAINZ_ARTISTID'] = $track->{'artists'}[0]->{'musicbrainz_id'};
-        }
+        $trackdata['Artist'] = joinartists($track->{'artists'}, 'name');
+        $trackdata['MUSICBRAINZ_ARTISTID'] = joinartists($track->{'artists'}, 'musicbrainz_id');
     }
     if (property_exists($track, 'composers')) {
-        $trackdata['Composer'] = joinartists($track->{'composers'});
+        $trackdata['Composer'] = joinartists($track->{'composers'}, 'name');
+    }
+    if (property_exists($track, 'performers')) {
+        $trackdata['Performer'] = joinartists($track->{'performers'}, 'name');
     }
     if (property_exists($track, 'album')) {
         if (property_exists($track->{'album'}, 'musicbrainz_id')) {
@@ -176,29 +174,22 @@ function parseTrack($track, $plpos = null, $plid = null) {
             $trackdata['Album'] = $track->{'album'}->{'name'};
         }
         if (property_exists($track->{'album'}, 'images')) {
-
             foreach($track->{'album'}->{'images'} as $image) {
                 if ($image != "") {
                     $trackdata['Image'] = $image;
                     if (substr($image,0,4) == "http") {
                        $trackdata['Image'] = "getRemoteImage.php?url=".$trackdata['Image'];
                     }
-                    debug_print("Parsing album and setting image to ".$image,"PARSE");
                 }
             }
-
         }
         if (property_exists($track->{'album'}, 'uri')) {
             $trackdata['SpotiAlbum'] = $track->{'album'}->{'uri'};
         }
         if (property_exists($track->{'album'}, 'artists')) {
-            $trackdata['AlbumArtist'] = joinartists($track->{'album'}->{'artists'});
-            if (property_exists($track->{'album'}->{'artists'}[0], 'musicbrainz_id')) {
-                $trackdata['MUSICBRAINZ_ALBUMARTISTID'] = $track->{'album'}->{'artists'}[0]->{'musicbrainz_id'};
-            }
-            if (property_exists($track->{'album'}->{'artists'}[0], 'uri')) {
-                $trackdata['SpotiArtist'] = $track->{'album'}->{'artists'}[0]->{'uri'};
-            }
+            $trackdata['AlbumArtist'] = joinartists($track->{'album'}->{'artists'}, 'name');
+            $trackdata['MUSICBRAINZ_ALBUMARTISTID'] = joinartists($track->{'album'}->{'artists'}, 'musicbrainz_id');
+            $trackdata['SpotiArtist'] = joinartists($track->{'album'}->{'artists'}, 'uri');
         }
     }
 
@@ -214,32 +205,27 @@ function parseTrack($track, $plpos = null, $plid = null) {
 
 }
 
-function joinartists($artists) {
+function joinartists($artists, $key) {
 
     // NOTE : This function is duplicated in the javascript side. It's important the two stay in sync
     // See uifunctions.js
 
     $art = array();
     foreach($artists as $a) {
-        if (property_exists($a, 'name')) {
-            if (preg_match('/ & /', $a->{'name'}) || preg_match('/ and /i', $a->{'name'})) {
+        if (property_exists($a, $key)) {
+            if (preg_match('/ & /', $a->{$key}) || preg_match('/ and /i', $a->{$key})) {
                 // This might be a problem in Mopidy BUT Spotify tracks are coming back with eg
                 // artist[0] = King Tubby, artist[1] = Johnny Clarke, artist[2] = King Tubby & Johnny Clarke
-                $art = array( $a->name );
+                $art = array( $a->{$key} );
                 break;
             } else {
-                array_push($art, $a->{'name'});
+                array_push($art, $a->{$key});
             }
+        } else {
+            array_push($art, "");
         }
     }
-    if (count($art) == 1) {
-        return $art[0];
-    } else if (count($art) == 2) {
-        return implode(' & ',$art);
-    } else {
-        $f = array_slice($art, 0, count($art) - 1);
-        return implode($f, ", ")." & ".$art[count($art) - 1];
-    }
+    return $art;
 }
 
 function close_player() {

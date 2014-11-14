@@ -743,19 +743,36 @@ function imagePath($key) {
 }
 
 function munge_filedata($filedata, $file) {
-    $name = (array_key_exists('Title', $filedata)) ? $filedata['Title'] : rawurldecode(basename($file));
+
+    // Track Name
+    $name = (array_key_exists('Title', $filedata)) ? unwanted_array($filedata['Title']) : rawurldecode(basename($file));
+    // Track Artist(s)
     $artist = (array_key_exists('Artist', $filedata)) ? $filedata['Artist'] : rawurldecode(basename(dirname(dirname($file))));
-    $number = (array_key_exists('Track', $filedata)) ? format_tracknum(ltrim($filedata['Track'], '0')) : format_tracknum(rawurldecode(basename($file)));
-    $duration = (array_key_exists('Time', $filedata)) ? $filedata['Time'] : 0;
+    // Track Number
+    $number = (array_key_exists('Track', $filedata)) ? format_tracknum(ltrim(unwanted_array($filedata['Track']), '0')) : format_tracknum(rawurldecode(basename($file)));
+    // Track Duration
+    $duration = (array_key_exists('Time', $filedata)) ? unwanted_array($filedata['Time']) : 0;
+    // Album Artist(s)
     $albumartist = (array_key_exists('AlbumArtist', $filedata)) ? $filedata['AlbumArtist'] : null;
+    // External Album URI (mopidy only)
     $spotialbum = (array_key_exists('SpotiAlbum',$filedata)) ? $filedata['SpotiAlbum'] : null;
+    // Album Image
     $image = (array_key_exists('Image', $filedata)) ? $filedata['Image'] : null;
-    $album = (array_key_exists('Album', $filedata)) ? $filedata['Album'] : rawurldecode(basename(dirname($file)));
-    $date = (array_key_exists('Date',$filedata)) ? $filedata['Date'] : null;
-    $lastmodified = (array_key_exists('Last-Modified',$filedata)) ? $filedata['Last-Modified'] : 0;
-    $disc = (array_key_exists('Disc', $filedata)) ? format_tracknum(ltrim($filedata['Disc'], '0')) : 1;
-    $mbalbum = (array_key_exists('MUSICBRAINZ_ALBUMID', $filedata)) ? $filedata['MUSICBRAINZ_ALBUMID'] : "";
+    // Album Name
+    $album = (array_key_exists('Album', $filedata)) ? unwanted_array($filedata['Album']) : rawurldecode(basename(dirname($file)));
+    // Date
+    $date = (array_key_exists('Date',$filedata)) ? unwanted_array($filedata['Date']) : null;
+    // Backend-Supplied LastModified Date
+    $lastmodified = (array_key_exists('Last-Modified',$filedata)) ? unwanted_array($filedata['Last-Modified']) : 0;
+    // Disc Number
+    $disc = (array_key_exists('Disc', $filedata)) ? format_tracknum(ltrim(unwanted_array($filedata['Disc']), '0')) : 1;
+    // Musicbrainz Album ID
+    $mbalbum = (array_key_exists('MUSICBRAINZ_ALBUMID', $filedata)) ? unwanted_array($filedata['MUSICBRAINZ_ALBUMID']) : "";
+    // Composer(s)
     $composer = (array_key_exists('Composer', $filedata)) ? $filedata['Composer'] : null;
+    // Performer(s)
+    $performers = (array_key_exists('Performer', $filedata)) ? $filedata['Performer'] : null;
+
     // Capture tracks where the basename/dirname route didn't work
     if ($artist == "." || $artist == "" || $artist == " & ") {
         $artist = ucfirst(getDomain(urldecode($file)));
@@ -768,8 +785,36 @@ function munge_filedata($filedata, $file) {
     $album = preg_replace('/local:track:/', '', $album);
 
     return array($name, $artist, $number, $duration, $albumartist, $spotialbum,
-                    $image, $album, $date, $lastmodified, $disc, $mbalbum, $composer);
+                    $image, $album, $date, $lastmodified, $disc, $mbalbum, $composer, $performers);
 
+}
+
+function concatenate_artist_names($art) {
+    if (!is_array($art)) {
+        return $art;
+    }
+    if (count($art) == 1) {
+        return $art[0];
+    } else if (count($art) == 2) {
+        return implode(' & ',$art);
+    } else {
+        $f = array_slice($art, 0, count($art) - 1);
+        return implode($f, ", ")." & ".$art[count($art) - 1];
+    }
+}
+
+function unwanted_array($a) {
+
+    // Have seen stuff coming in from mpd as multiple values
+    // when they shouldn't be - i.e track number etc.
+    // doCollection does mostly handle this by discarding most
+    // duplicate values.
+
+    if (is_array($a)) {
+        return $a[0];
+    } else {
+        return $a;
+    }
 }
 
 ?>

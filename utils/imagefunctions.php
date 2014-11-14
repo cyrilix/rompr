@@ -63,6 +63,8 @@ function saveImage($fname, $in_collection, $stream) {
     }
     // Ohhhhhh imagemagick is just... wow.
     // This resizes the images into a square box while adding padding to preserve the apsect ratio
+    // -alpha remove removes the alpha (transparency) channel if it exists - JPEG doesn't have one of these and
+    // trying to resize PNGs with alpha channels and save them as JPEGs gives horrid results with convert
     $o = array();
     $r = exec( $convert_path."convert \"".$download_file."\" -resize 82x82 -background black -alpha remove -gravity center -extent 82x82 \"".$main_file."\" 2>&1", $o);
     $r = exec( $convert_path."convert \"".$download_file."\" -resize 32x32 -background black -alpha remove -gravity center -extent 32x32 \"".$small_file."\" 2>&1", $o);

@@ -97,7 +97,7 @@ function check_tracks_against_db($json) {
 						// Add new tracks here and call send_list_updates every time,
 
 						// We've only checked by Uri. Need to find_wishlist_item first
-						$ttid = find_wishlist_item($track['Artist'],$track['Album'],$track['Title']);
+						$ttid = find_wishlist_item(concatenate_artist_names($track['Artist']),$track['Album'],$track['Title']);
 						if ($ttid) {
 							debug_print(" ... found in wishlist. Removing that one.","MYSQL");
 							generic_sql_query("DELETE FROM Tracktable WHERE TTindex=".$ttid);
@@ -109,10 +109,10 @@ function check_tracks_against_db($json) {
 
 						$ttid = create_new_track(
 							$name,
-							$artist,
+							concatenate_artist_names($artist),
 						    $number,
 							$duration,
-							$albumartist,
+							concatenate_artist_names($albumartist),
 							$spotialbum,
 							$image,
 							$album,
@@ -123,7 +123,7 @@ function check_tracks_against_db($json) {
 							null,
 							null,
 							null,
-							md5($track['AlbumArtist']." ".$track['Album']),
+							md5(concatenate_artist_names($albumartist)." ".$album),
 							$lastmodified,
 							$disc,
 							$mbalbum,

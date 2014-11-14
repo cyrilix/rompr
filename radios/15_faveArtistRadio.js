@@ -18,6 +18,8 @@ var faveArtistRadio = function() {
                     artists = data;
                     getTracksForNextArtist();
                 } else {
+	                infobar.notify(infobar.ERROR,"No artists returned. Play some more music!");
+                	debug.debug("SMARTPLAYLIST", "Failed to get artists", data);
                     playlist.repopulate();
                 }
             },
@@ -121,6 +123,7 @@ var faveArtistRadio = function() {
 		stop: function() {
 			sending = 5;
 			running = false;
+			populating = false;
 		},
 
 		modeHtml: function() {

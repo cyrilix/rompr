@@ -49,11 +49,11 @@ var info_file = function() {
 
         if (player.status.Genre) html = html + '<tr><td class="fil">'+language.gettext("info_genre")+'</td><td>'+player.status.Genre+'</td></tr>';
 
-        if (player.status.performers) {
-            html = html + '<tr><td class="fil">'+language.gettext("info_performers")+'</td><td>'+joinartists(player.status.performers)+'</td></tr>';
+        if (player.status.Performer) {
+            html = html + '<tr><td class="fil">'+language.gettext("info_performers")+'</td><td>'+joinartists(player.status.Performer)+'</td></tr>';
         }
-        if (player.status.composers) {
-            html = html + '<tr><td class="fil">'+language.gettext("info_composers")+'</td><td>'+joinartists(player.status.composers)+'</td></tr>';
+        if (player.status.Composer) {
+            html = html + '<tr><td class="fil">'+language.gettext("info_composers")+'</td><td>'+joinartists(player.status.Composer)+'</td></tr>';
         }
         if (player.status.Comment) html = html + '<tr><td class="fil">'+language.gettext("info_comment")+'</td><td>'+player.status.Comment+'</td></tr>';
         setBrowserIcon(filetype);

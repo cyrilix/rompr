@@ -1,7 +1,7 @@
 <?php
 include("includes/vars.php");
 
-debug_print("");
+debug_print("","HERE WE GO!");
 debug_print("=================****==================","STARTING UP");
 
 include("includes/functions.php");
@@ -133,6 +133,8 @@ include ("includes/firstrun.php");
 <?php
 if ($mobile != "no") {
     print '<link rel="stylesheet" type="text/css" href="css/layout_mobile.css" />'."\n";
+} else {
+    print '<link type="text/css" href="custom-scrollbar-plugin/css/jquery.mCustomScrollbar.css" rel="stylesheet" />'."\n";
 }
 print '<link id="theme" rel="stylesheet" type="text/css" href="themes/'.$prefs['theme'].'" />'."\n";
 print '<link rel="stylesheet" id="fontsize" type="text/css" href="sizes/'.$prefs['fontsize'].'" />'."\n";
@@ -163,7 +165,6 @@ if ($mobile != "no") {
     print '<script type="text/javascript" src="ui/mobile_functions.js"></script>'."\n";
 } else {
     // Custom scrollbar plugin : http://manos.malihu.gr/jquery-custom-content-scroller/
-    print '<link type="text/css" href="custom-scrollbar-plugin/css/jquery.mCustomScrollbar.css" rel="stylesheet" />'."\n";
     print '<script type="text/javascript" src="custom-scrollbar-plugin/js/jquery.mCustomScrollbar.concat.min.js"></script>'."\n";
     // Keyboard shortcut helper : http://www.openjs.com/scripts/events/keyboard_shortcuts/
     print '<script type="text/javascript" src="ui/shortcut.js"></script>'."\n";
@@ -213,10 +214,6 @@ var coverscraper = new coverScraper(0, false, false, prefs.downloadart);
 
 <?php
 print 'var ipath = "'.$ipath.'";'."\n";
-// if (array_key_exists('remote', $_REQUEST)) {
-//     print "prefs.remote = true;\n";
-//     print "prefs.clickmode = 'single'\n";
-// }
 ?>
 
 $(window).ready(function(){
@@ -235,8 +232,9 @@ $(window).ready(function(){
     }
 
     if (prefs.country_userset == false) {
-        $.getJSON("http://freegeoip.net/json/", function(result){
-            debug.shout("CHECKING", 'Country: ' + result.country_name + '\n' + 'Code: ' + result.country_code);
+        // Have to pull this data in via the webserver as it's cross-domain
+        $.getJSON("getgeoip.php", function(result){
+            debug.shout("CHECKING", 'Country: ' + result.country_name + ' Code: ' + result.country_code);
             $("#countryselector").val(prefs.lastfm_country_code);
             prefs.save({lastfm_country_code: result.country_code});
         });

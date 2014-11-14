@@ -274,7 +274,7 @@ class track {
     public function __construct($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
                                 $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station,
                                 $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack,
-                                $origimage, $playlist, $lastmodified) {
+                                $origimage, $playlist, $lastmodified, $composer, $performers) {
 
         $this->artist = $artist;
         $this->album = $album;
@@ -305,6 +305,8 @@ class track {
         $this->musicbrainz_albumid = $mbalbum;
         $this->musicbrainz_albumartistid = $mbalbumartist;
         $this->musicbrainz_trackid = $mbtrack;
+        $this->composer = $composer;
+        $this->performers = $performers;
     }
 
     public function getImage() {
@@ -337,6 +339,10 @@ class track {
     public function updateDiscNo($disc) {
         $this->disc = $disc;
         $this->needsupdate = true;
+    }
+
+    public function get_artist_string() {
+        return concatenate_artist_names($this->artist);
     }
 }
 
@@ -380,7 +386,7 @@ class musicCollection {
                                 $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station,
                                 $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack,
                                 $origimage, $spotialbum, $spotiartist, $domain, $cuefile, $lastmodified,
-                                $linktype, $composer) {
+                                $linktype, $composer, $performers) {
 
         global $current_album;
         global $current_artist;
@@ -409,6 +415,10 @@ class musicCollection {
                 $sortartist = $composer;
             }
         }
+
+        // All of the above possibilites (except $station) can come in from either backend
+        // as an array of strings. For sorting the collection we want one string.
+        $sortartist = concatenate_artist_names($sortartist);
 
         $artistkey = strtolower(preg_replace('/^The /i', '', $sortartist));
         //Some discogs tags have 'Various' instead of 'Various Artists'
@@ -460,7 +470,7 @@ class musicCollection {
         $t = new track($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
                         $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station,
                         $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist,
-                        $mbtrack, $origimage, $cuefile, $lastmodified);
+                        $mbtrack, $origimage, $cuefile, $lastmodified, $composer, $performers);
 
         // Albums are not indexed by name, since we may have 2 or more albums with the same name by multiple artists
 
@@ -601,15 +611,22 @@ function process_file($collection, $filedata) {
     }
 
     list($name, $artist, $number, $duration, $albumartist, $spotialbum,
-            $image, $album, $date, $lastmodified, $disc, $mbalbum, $composer) = munge_filedata($filedata, $file);
+            $image, $album, $date, $lastmodified, $disc, $mbalbum, $composer, $performers) = munge_filedata($filedata, $file);
 
-    $genre = (array_key_exists('Genre', $filedata)) ? $filedata['Genre'] : null;
+    // Genre
+    $genre = (array_key_exists('Genre', $filedata)) ? unwanted_array($filedata['Genre']) : null;
+    // Musicbrainz Track Artist ID(s)
     $mbartist = (array_key_exists('MUSICBRAINZ_ARTISTID', $filedata)) ? $filedata['MUSICBRAINZ_ARTISTID'] : "";
+    // Musicbrainz Album Artist ID(s)
     $mbalbumartist = (array_key_exists('MUSICBRAINZ_ALBUMARTISTID', $filedata)) ? $filedata['MUSICBRAINZ_ALBUMARTISTID'] : "";
-    $mbtrack = (array_key_exists('MUSICBRAINZ_TRACKID', $filedata)) ? $filedata['MUSICBRAINZ_TRACKID'] : "";
-    $backendid = (array_key_exists('Id',$filedata)) ? $filedata['Id'] : null;
-    $playlistpos = (array_key_exists('Pos',$filedata)) ? $filedata['Pos'] : null;
-    $spotiartist = (array_key_exists('SpotiArtist',$filedata)) ? $filedata['SpotiArtist'] : null;
+    // Musicbrainz Track ID
+    $mbtrack = (array_key_exists('MUSICBRAINZ_TRACKID', $filedata)) ? unwanted_array($filedata['MUSICBRAINZ_TRACKID']) : "";
+    // Backend-Supplied playlist ID
+    $backendid = (array_key_exists('Id',$filedata)) ? unwanted_array($filedata['Id']) : null;
+    // Backend-supplied playlist position
+    $playlistpos = (array_key_exists('Pos',$filedata)) ? unwanted_array($filedata['Pos']) : null;
+    // External Album Artist Link(s) (mopidy only)
+    $spotiartist = (array_key_exists('SpotiArtist',$filedata)) ? unwanted_array($filedata['SpotiArtist']) : null;
     // 'playlist' is how mpd handles flac/cue files (either embedded cue or external cue).
     $playlist = (array_key_exists('playlist',$filedata)) ? $filedata['playlist'] : null;
 
@@ -628,9 +645,9 @@ function process_file($collection, $filedata) {
 
     // Sometimes the file domain can be http but the album domain is correct
     // this is true eg for bassdrive
-    if ($linktype == "file" && array_key_exists('SpotiAlbum',$filedata) &&
-        getDomain($filedata['SpotiAlbum']) != getDomain($filedata['file'])) {
-        $domain = getDomain($filedata['SpotiAlbum']);
+    if ($linktype == "file" && $spotialbum !== null &&
+        getDomain($spotialbum) != getDomain($file)) {
+        $domain = getDomain($spotialbum);
     }
 
     switch($domain) {
@@ -720,7 +737,7 @@ function process_file($collection, $filedata) {
                             $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station,
                             $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack,
                             $origimage, $spotialbum, $spotiartist, $domain, $playlist, $lastmodified,
-                            $linktype, $composer);
+                            $linktype, $composer, $performers);
 
     $numtracks++;
     $totaltime += $duration;

@@ -124,19 +124,20 @@ if ($prefs['player_backend'] == "mpd") {
         <input type="checkbox" onclick="togglePref(\'onthefly\')" id="onthefly">'.get_int_text('config_onthefly').'</input>
         </div>';
     }
-    print '<div class="pref">
-    <input type="checkbox" onclick="togglePref(\'sortbycomposer\')" id="sortbycomposer">'.get_int_text('config_sortbycomposer').'</input>
-    </div>';
-    print '<div class="pref">
-    <input type="checkbox" onclick="togglePref(\'composergenre\')" id="composergenre">'.get_int_text('config_composergenre').'</input>
-    </div>';
-    print '<div class="pref">
-    <input class="winkle" name="composergenrename" onkeyup="saveTextBoxes()" type="text" size="40" value="'.$prefs['composergenrename'].'"/>
-    </div>';
-    print '<div class="pref">
-    <input type="checkbox" onclick="togglePref(\'displaycomposer\')" id="displaycomposer">'.get_int_text('config_displaycomposer').'</input>
-    </div>';
 }
+
+print '<div class="pref">
+<input type="checkbox" onclick="togglePref(\'sortbycomposer\')" id="sortbycomposer">'.get_int_text('config_sortbycomposer').'</input>
+</div>';
+print '<div class="pref">
+<input type="checkbox" onclick="togglePref(\'composergenre\')" id="composergenre">'.get_int_text('config_composergenre').'</input>
+</div>';
+print '<div class="pref">
+<input class="winkle" name="composergenrename" onkeyup="saveTextBoxes()" type="text" size="40" value="'.$prefs['composergenrename'].'"/>
+</div>';
+print '<div class="pref">
+<input type="checkbox" onclick="togglePref(\'displaycomposer\')" id="displaycomposer">'.get_int_text('config_displaycomposer').'</input>
+</div>';
 
 // Album Sorting
 print '<div class="pref prefsection">

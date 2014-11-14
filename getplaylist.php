@@ -24,7 +24,9 @@ function outputPlaylist() {
         array_push($output, array(
             "title" => $track->name,
             "album" => $track->album,
-            "creator" => $track->artist,
+            // Track artists are held in the track object possibly as an array
+            "creator" => $track->get_artist_string(),
+            // Albumartist is always stored as a string, since the metadata bit doesn't really use it
             "albumartist" => $track->albumobject->artist,
             "compilation" => $track->albumobject->isCompilation() ? "yes" : "no",
             "duration" => $track->duration,
@@ -44,15 +46,18 @@ function outputPlaylist() {
             "trackimage" => $track->getImage(),
             "stream" => $track->stream,
             "playlistpos" => $track->playlistpos,
+            "composer" => $track->composer,
+            "performers" => $track->performers,
+            "genre" => $track->genre,
             "spotify" => array (
                 "album" => $track->getSpotiAlbum()
             ),
             // Sending null in any of these values is very, very bad as it prevents plugins
             // waiting on lastfm to find an ID
             "musicbrainz" => array (
-                "artistid" => $track->musicbrainz_artistid,
+                "artistid" => unwanted_array($track->musicbrainz_artistid),
                 "albumid" => $track->musicbrainz_albumid,
-                "albumartistid" => $track->musicbrainz_albumartistid,
+                "albumartistid" => unwanted_array($track->musicbrainz_albumartistid),
                 "trackid" => $track->musicbrainz_trackid
             )
         ));

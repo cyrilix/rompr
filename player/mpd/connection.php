@@ -96,7 +96,24 @@ function doCollection($command) {
             if ($parts[0] == "Last-Modified") {
                 $value = strtotime($value);
             }
-            $filedata[$parts[0]] = $value;
+
+            // Things like Performer can come back with multiple lines
+            // (in fact this could happen with any tag!)
+
+            if (array_key_exists($parts[0], $filedata)) {
+                if (is_array($filedata[$parts[0]])) {
+                    array_push($filedata[$parts[0]], $value);
+                } else {
+                    // Prevent unwanted multiple occurrences of the same value
+                    // (seemd to be an mpd bug - am getting Disc, Track and Albumartist
+                    // twice for several tracks).
+                    if ($value != $filedata[$parts[0]]) {
+                        $filedata[$parts[0]] = array($filedata[$parts[0]], $value);
+                    }
+                }
+            } else {
+                $filedata[$parts[0]] = $value;
+            }
         }
     }
 

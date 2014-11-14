@@ -439,7 +439,7 @@ function playerController() {
 
     }
 
-    this.rawsearch = function(terms, ,sources, callback) {
+    this.rawsearch = function(terms, sources, callback) {
         $.ajax({
                 type: "POST",
                 url: "albums.php",

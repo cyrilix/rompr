@@ -983,28 +983,37 @@ function addPlugin(label, action) {
 function joinartists(ob) {
 
     // NOTE : This function is duplicated in the php side. It's important the two stay in sync
-    // See player/mopidy/connection.php
+    // See player/mopidy/connection.php and includes/functions.php
 
     if (typeof(ob) != "object") {
         return ob;
     } else {
-        var t = new Array();
-        for (var i in ob) {
-            var flub = ""+ob[i].name;
-            // This might be a problem in Mopidy BUT Spotify tracks are coming back with eg
-            // artist[0] = King Tubby, artist[1] = Johnny Clarke, artist[2] = King Tubby & Johnny Clarke
-            if (flub.match(/ & /) || flub.match(/ and /i)) {
-                return flub;
-            }
-            t.push(flub);
-        }
-        if (t.length == 1) {
-            return t[0];
-        } else if (t.length == 2) {
-            return t.join(" & ");
+        if (typeof(ob[0]) == "string") {
+            // As returned by MPD in its Status ie for Performer
+            return concatenate_artist_names(ob);
         } else {
-            var f = t.slice(0, t.length-1);
-            return f.join(", ") + " & " + t[t.length-1];
+            var t = new Array();
+            for (var i in ob) {
+                var flub = ""+ob[i].name;
+                // This might be a problem in Mopidy BUT Spotify tracks are coming back with eg
+                // artist[0] = King Tubby, artist[1] = Johnny Clarke, artist[2] = King Tubby & Johnny Clarke
+                if (flub.match(/ & /) || flub.match(/ and /i)) {
+                    return flub;
+                }
+                t.push(flub);
+            }
+            return concatenate_artist_names(t);
         }
+    }
+}
+
+function concatenate_artist_names(t) {
+    if (t.length == 1) {
+        return t[0];
+    } else if (t.length == 2) {
+        return t.join(" & ");
+    } else {
+        var f = t.slice(0, t.length-1);
+        return f.join(", ") + " & " + t[t.length-1];
     }
 }
