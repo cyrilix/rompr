@@ -656,7 +656,7 @@ function process_file($collection, $filedata) {
         // Various Artists. Prevent this by making sure it's something meaningful and unique
         case "soundcloud":
         case "youtube":
-            $folder = $artist;
+            $folder = concatenate_artist_names($artist);
             break;
 
         case "spotify":

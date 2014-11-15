@@ -76,6 +76,7 @@ var recentlyaddedtracks = function() {
 
         stop: function() {
             running = false;
+            tracks = new Array();
         },
 
         setup: function() {
