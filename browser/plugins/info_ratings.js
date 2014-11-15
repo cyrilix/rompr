@@ -203,6 +203,20 @@ var faveFinder = function() {
         player.controller.rawsearch(st, req.sources, faveFinder.handleResults);
     }
 
+    function getImageUrl(list) {
+        var im = null;
+        for (var i in list) {
+            if (list[i] != "") {
+                im = list[i];
+                break;
+            }
+        }
+        if (im && im.substr(0,4) == "http") {
+            im = "getRemoteImage.php?url="+im;
+        }
+        return im;
+    }
+
     return {
 
         queueLength: function() {
@@ -294,11 +308,16 @@ var faveFinder = function() {
                             if (u.match(/^spotify:album:/)) {
                                 r.data.spotilink = u;
                             }
-                            if (data[i].tracks[k].album.images &&
-                                data[i].tracks[k].album.images[0]) {
-                                r.data.image = data[i].tracks[k].album.images[0];
-                                if (r.data.image.substr(0,4) == "http") {
-                                    r.data.image = "getRemoteImage.php?url="+r.data.image;
+                            if (data[i].tracks[k].album.images) {
+                                var u = ""+data[i].tracks[k].uri;
+                                if (u.match(/^soundcloud:/)) {
+                                    r.data.trackimage = getImageUrl(data[i].tracks[k].album.images);
+                                    r.data.image = "newimages/soundcloud-logo.png";
+                                } else if (u.match(/^youtube:/)) {
+                                    r.data.trackimage = getImageUrl(data[i].tracks[k].album.images);
+                                    r.data.image = "newimages/youtube-logo.png";
+                                } else {
+                                    r.data.image = getImageUrl(data[i].tracks[k].album.images);
                                 }
                             }
                             // Prioritise results with a matching album, unless that's
@@ -336,11 +355,16 @@ var faveFinder = function() {
                             if (u.match(/^spotify:album:/)) {
                                 req.data.spotilink = u;
                             }
-                            if (data[i].tracks[k].album.images &&
-                                data[i].tracks[k].album.images[0]) {
-                                req.data.image = data[i].tracks[k].album.images[0];
-                                if (req.data.image.substr(0,4) == "http") {
-                                    req.data.image = "getRemoteImage.php?url="+r.data.image;
+                            if (data[i].tracks[k].album.images) {
+                                var u = ""+data[i].tracks[k].uri;
+                                if (u.match(/^soundcloud:/)) {
+                                    req.data.trackimage = getImageUrl(data[i].tracks[k].album.images);
+                                    req.data.image = "newimages/soundcloud-logo.png";
+                                } else if (u.match(/^youtube:/)) {
+                                    req.data.trackimage = getImageUrl(data[i].tracks[k].album.images);
+                                    req.data.image = "newimages/youtube-logo.png";
+                                } else {
+                                   req.data.image = getImageUrl(data[i].tracks[k].album.images);
                                 }
                             }
                             break;

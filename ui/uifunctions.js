@@ -62,7 +62,7 @@ function changeradiocountry() {
 function setXfadeDur() {
     prefs.save({crossfade_duration: $("#configpanel").find('input[name|="michaelbarrymore"]').attr("value")});
     debug.log("DEBUG","Setting xfade to ",prefs.crossfade_duration);
-    if (player.status.xfade > 0) {
+    if (player.status.xfade !== undefined && player.status.xfade !== null && player.status.xfade > 0) {
         player.controller.setCrossfade($("#configpanel").find('input[name|="michaelbarrymore"]').attr("value"));
     }
 }
@@ -442,7 +442,7 @@ function clearPlaylist() {
 }
 
 function setPlaylistButtons() {
-    c = (player.status.xfade == 0) ? 0 : 1;
+    c = (player.status.xfade === undefined || player.status.xfade === null || player.status.xfade == 0) ? 0 : 1;
     $("#crossfade").removeClass("togglebutton-0 togglebutton-1").addClass("togglebutton-"+c);
     $.each(['random', 'repeat', 'consume'], function(i,v) {
         $("#"+v).removeClass("togglebutton-0 togglebutton-1").addClass("togglebutton-"+player.status[v]);

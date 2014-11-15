@@ -32,7 +32,6 @@ if (file_exists($fname)) {
 				array_key_exists('subatoms', $tags['quicktime']['moov'])) {
 		read_apple_awfulness($tags['quicktime']['moov']['subatoms']);
 	}
-
 }
 
 if ($output == null) {
@@ -46,7 +45,7 @@ if ($output == null) {
 			$l = simplexml_load_string($content['contents']);
 			if ($l->url) {
 				debug_print("Getting ".$l->url,"LYRICS");
-				$webpage = url_get_contents($l->url);
+				$webpage = url_get_contents(urldecode($l->url));
 				if ($webpage['status'] == "200") {
 					debug_print("   Got something","LYRICS");
 					if (preg_match('/\<div class=\'lyricbox\'\>\<script\>.*?\<\/script\>(.*?)\<\!--/', $webpage['contents'], $matches)) {
@@ -59,6 +58,8 @@ if ($output == null) {
 			}
 		}
 	}
+} else {
+	debug_print("  Got lyrics from file","LYRICS");
 }
 
 if ($output == null) {
@@ -83,7 +84,6 @@ function read_apple_awfulness($a) {
 			read_apple_awfulness($atom['subatoms']);
 		}
 	}
-
 }
 
 ?>

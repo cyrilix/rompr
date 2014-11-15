@@ -114,7 +114,7 @@ function mopidyfy($collection) {
         if (count($albumlist) > 0) {
             foreach($albumlist as $album) {
                 foreach($album->tracks as $trackobj) {
-                    $trackartist = ($trackobj->artist != null && $trackobj->artist != '.') ? $trackobj->artist : $albumartist;
+                    $trackartist = ($trackobj->get_artist_string() != null && $trackobj->get_artist_string() != '.') ? $trackobj->get_artist_string() : $albumartist;
                     $track = array(
                         "album" => array(
                             "artists" => array(

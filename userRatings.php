@@ -22,6 +22,8 @@ if ($mysqlc == null) {
 	exit(0);
 }
 
+debug_print("--------------------------START---------------------","USERRATING");
+
 $title = array_key_exists('title', $_POST) ? $_POST['title'] : null;
 $artist = array_key_exists('artist', $_POST) ? $_POST['artist'] : null;;
 $trackno = array_key_exists('trackno', $_POST) ? $_POST['trackno'] : null;
@@ -253,6 +255,8 @@ switch ($_POST['action']) {
 		break;
 
 }
+
+debug_print("---------------------------END----------------------","USERRATING");
 
 function preparePlaylist() {
 	generic_sql_query("DROP TABLE IF EXISTS pltable");

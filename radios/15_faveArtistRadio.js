@@ -14,12 +14,12 @@ var faveArtistRadio = function() {
             url: "userRatings.php",
             success: function(data) {
                 if (data.length > 0) {
-                    debug.debug("SMARTPLAYLIST","Got artists",data);
+                    debug.debug("FAVE ARTIST RADIO","Got artists",data);
                     artists = data;
                     getTracksForNextArtist();
                 } else {
 	                infobar.notify(infobar.ERROR,"No artists returned. Play some more music!");
-                	debug.debug("SMARTPLAYLIST", "Failed to get artists", data);
+                	debug.debug("FAVE ARTIST RADIO", "Failed to get artists", data);
                     playlist.repopulate();
                 }
             },
@@ -42,8 +42,8 @@ var faveArtistRadio = function() {
 
 	function sendTracks(num) {
 		var t = new Array();
-		debug.debug("ARTIST RADIO","Asked to send",num,"tracks, flag is",sending);
-		debug.debug("ARTIST RADIO", "Artistindex is",artistindex);
+		debug.debug("FAVE ARTIST RADIO","Asked to send",num,"tracks, flag is",sending);
+		debug.debug("FAVE ARTIST RADIO", "Artistindex is",artistindex);
 		// Safety counter just in case
 		var c = 100;
 		while (num > 0 && sending < 5 && c > 0) {
@@ -64,10 +64,10 @@ var faveArtistRadio = function() {
 		}
 		if (sending == 5) populating = false;
 		if (t.length > 0) {
-			debug.mark("ARTIST RADIO","Sending tracks to playlist",t);
+			debug.mark("FAVE ARTIST RADIO","Sending tracks to playlist",t);
 			player.controller.addTracks(t, playlist.playFromEnd(), null);
 		} else {
-			debug.log("ARTIST RADIO","No tracks to send",num,sending,c);
+			debug.log("FAVE ARTIST RADIO","No tracks to send",num,sending,c);
 		}
 	}
 
@@ -93,6 +93,7 @@ var faveArtistRadio = function() {
 		},
 
 		gotTracksForArtist: function(data) {
+			debug.debug("FAVE ARTIST RADIO","Got Tracks",data);
 			for (var i in artists) {
 				if (artists[i].tracks === undefined) {
 					artists[i].tracks = new Array();

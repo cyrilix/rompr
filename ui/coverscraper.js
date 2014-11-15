@@ -107,7 +107,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
         });
         debug.log("COVERSCRAPER","Stream is", stream);
         // Causes a wierd hang in Chrome if you type into the album image search box - WTF??
-        //animateWaiting();
+        animateWaiting();
 
         var options = { key: name,
                         stream: stream };

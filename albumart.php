@@ -987,8 +987,12 @@ function do_covers_db_style() {
 
             $class = "clickable clickicon clickalbumcover droppable";
             $src = "";
-            if (file_exists('albumart/original/'.$album['ImgKey'].'.jpg')) {
-                $src = 'albumart/original/'.$album['ImgKey'].'.jpg';
+            if ($album['Image'] && $album['Image'] !== "") {
+                if (substr($album['Image'],0,8) == "albumart") {
+                    $src = 'albumart/original/'.$album['ImgKey'].'.jpg';
+                } else {
+                    $src = $album['Image'];
+                }
                 if(($key = array_search($src, $allfiles)) !== false) {
                     unset($allfiles[$key]);
                 }

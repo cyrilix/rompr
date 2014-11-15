@@ -324,22 +324,10 @@ function create_new_album($album, $albumai, $spotilink, $image, $date, $isonefil
 	global $ipath;
 	$retval = null;
 
-	// See if the image needs to be archived. The SQL database no longer stores image URLs.
-	// Images for albums are expected to be in albumart.
-	// This archives stuff that:
-	//   i)   is currently in prefs/imagecache - these have come from coverscraper/getAlbumCover
-	//        for albums that are in the search or playlist.
-	//   OR
-	//   ii)  begin with getRemoteImage.php - these will be albums in the collection for which
-	//        a mopidy backend has passed us an image.
-	//   OR
-	//   iii) begin with newimages/ - these are things like podcasts, soundcloud, youtube etc
-	// 	      tracks from mopidy searches or browse
-	// That should cover everything.
-	// (The trouble with leaving stuff in prefs/imagecache is that it eventually gets purged,
-	//  and the mechanism I had for dealing with that didn't bloody work)
-	// This might slow things down a bit but mostly it should just be moving stuff from one
-	// cache to another.
+	// See if the image needs to be archived.
+	// This archives stuff that is currently in prefs/imagecache - these have come from coverscraper/getAlbumCover
+	// for albums that are in the search or playlist. We can't use images from prefs/imagecache because they will eventually
+	// get removed.
 
 	if (preg_match('#^prefs/imagecache/#', $image)) {
 		debug_print("Archiving Image For Album ... copying it from image cache","NEW ALBUM");
@@ -347,24 +335,11 @@ function create_new_album($album, $albumai, $spotilink, $image, $date, $isonefil
 		system( 'cp '.$image.'_small.jpg albumart/small/'.$imagekey.'.jpg');
 		system( 'cp '.$image.'_original.jpg albumart/original/'.$imagekey.'.jpg');
 		system( 'cp '.$image.'_asdownloaded.jpg albumart/asdownloaded/'.$imagekey.'.jpg');
-	} else if (preg_match('#^getRemoteImage.php\?url=#', $image)) {
-		$convert_path = find_executable('convert');
-		debug_print("Archiving Image For Album ... downloading remote image ".$image,"NEW ALBUM");
-		$download_file = download_file(get_base_url()."/".$image, $imagekey, $convert_path);
-		if ($error == 0) {
-			list ($small_file, $main_file, $big_file) = saveImage($imagekey, true, '');
-		}
-	} else if (preg_match('#^newimages/#', $image)) {
-		$convert_path = find_executable('convert');
-		debug_print("Archiving Image For Album ... saving local generic image ".$image,"NEW ALBUM");
-		$download_file = download_file(get_base_url()."/".$image, $imagekey, $convert_path);
-		if ($error == 0) {
-			list ($small_file, $main_file, $big_file) = saveImage($imagekey, true, '');
-		}
+		$image = 'albumart/small/'.$imagekey.'.jpg';
 	}
 
-	if ($stmt = mysqli_prepare($mysqlc, "INSERT INTO Albumtable (Albumname, AlbumArtistindex, Spotilink, Year, IsOneFile, Searched, ImgKey, mbid, NumDiscs, Domain) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-		mysqli_stmt_bind_param($stmt, "sisiiissis", $album, $albumai, $spotilink, $date, $isonefile, checkImage($imagekey), $imagekey, $mbid, $numdiscs, $domain);
+	if ($stmt = mysqli_prepare($mysqlc, "INSERT INTO Albumtable (Albumname, AlbumArtistindex, Spotilink, Year, IsOneFile, Searched, ImgKey, mbid, NumDiscs, Domain, Image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+		mysqli_stmt_bind_param($stmt, "sisiiississ", $album, $albumai, $spotilink, $date, $isonefile, checkImage($imagekey), $imagekey, $mbid, $numdiscs, $domain, $image);
 		if (mysqli_stmt_execute($stmt)) {
 			$retval = mysqli_insert_id($mysqlc);
 			debug_print("Created Album ".$album." with Albumindex ".$retval,"MYSQL");
@@ -616,7 +591,7 @@ function list_tags() {
 function list_all_tag_data() {
 	global $mysqlc;
 	$tags = array();
-	if ($result = mysqli_query($mysqlc, "SELECT t.Name, a.Artistname, tr.Title, al.Albumname, al.ImgKey, tr.Uri FROM Tagtable AS t JOIN TagListtable AS tl USING (Tagindex) JOIN Tracktable AS tr USING (TTindex) JOIN Albumtable AS al USING (Albumindex) JOIN Artisttable AS a ON (tr.Artistindex = a.Artistindex) ORDER BY t.Name, a.Artistname, al.Albumname, tr.TrackNo
+	if ($result = mysqli_query($mysqlc, "SELECT t.Name, a.Artistname, tr.Title, al.Albumname, al.Image, tr.Uri FROM Tagtable AS t JOIN TagListtable AS tl USING (Tagindex) JOIN Tracktable AS tr USING (TTindex) JOIN Albumtable AS al USING (Albumindex) JOIN Artisttable AS a ON (tr.Artistindex = a.Artistindex) ORDER BY t.Name, a.Artistname, al.Albumname, tr.TrackNo
 ")) {
 		while ($obj = mysqli_fetch_object($result)) {
 			if (!array_key_exists($obj->Name, $tags)) {
@@ -626,7 +601,7 @@ function list_all_tag_data() {
 				'Title' => $obj->Title,
 				'Album' => $obj->Albumname,
 				'Artist' => $obj->Artistname,
-				'Image' => imagePath($obj->ImgKey),
+				'Image' => imagePath($obj->Image),
 				'Uri' => $obj->Uri
 			));
 		}
@@ -645,13 +620,13 @@ function list_all_rating_data() {
 		"4" => array(),
 		"5" => array()
 	);
-	if ($result = mysqli_query($mysqlc, "SELECT r.Rating, a.Artistname, tr.Title, al.Albumname, al.ImgKey, tr.Uri FROM Ratingtable AS r JOIN Tracktable AS tr USING (TTindex) JOIN Albumtable AS al USING (Albumindex) JOIN Artisttable AS a ON (tr.Artistindex = a.Artistindex) WHERE r.Rating > 0 ORDER BY r.Rating, a.Artistname, al.Albumname, tr.TrackNo")) {
+	if ($result = mysqli_query($mysqlc, "SELECT r.Rating, a.Artistname, tr.Title, al.Albumname, al.Image, tr.Uri FROM Ratingtable AS r JOIN Tracktable AS tr USING (TTindex) JOIN Albumtable AS al USING (Albumindex) JOIN Artisttable AS a ON (tr.Artistindex = a.Artistindex) WHERE r.Rating > 0 ORDER BY r.Rating, a.Artistname, al.Albumname, tr.TrackNo")) {
 		while ($obj = mysqli_fetch_object($result)) {
 			array_push($ratings[$obj->Rating], array(
 				'Title' => $obj->Title,
 				'Album' => $obj->Albumname,
 				'Artist' => $obj->Artistname,
-				'Image' => imagePath($obj->ImgKey),
+				'Image' => imagePath($obj->Image),
 				'Uri' => $obj->Uri
 			));
 		}
@@ -774,7 +749,20 @@ function get_album_directory($albumindex, $uri) {
 }
 
 function update_image_db($key, $notfound, $imagefile) {
-	generic_sql_query("UPDATE Albumtable SET Searched = 1 WHERE ImgKey = '".$key."'");
+	global $mysqlc;
+	$val = ($notfound == 0) ? $imagefile : "";
+	if ($stmt = mysqli_prepare($mysqlc, "UPDATE Albumtable SET Image=?, Searched = 1 WHERE ImgKey=?")) {
+		mysqli_stmt_bind_param($stmt, "ss", $val, $key);
+		if (mysqli_stmt_execute($stmt)) {
+			debug_print("    Database Image URL Updated","MYSQL");
+		} else {
+	        debug_print("    MYSQL Execution Error: ".mysqli_error($mysqlc),"MYSQL");
+
+		}
+	    mysqli_stmt_close($stmt);
+	} else {
+        debug_print("    MYSQL Statement Error: ".mysqli_error($mysqlc),"MYSQL");
+	}
 }
 
 function do_artists_from_database($which) {
@@ -896,10 +884,10 @@ function do_albums_from_database($which, $fragment = false) {
 					rawurlencode($obj->Spotilink),
 					"aalbum".$obj->Albumindex,
 					$obj->IsOneFile,
-					(file_exists('albumart/small/'.$obj->ImgKey.'.jpg')) ? "yes" : "no",
+					($obj->Image && $obj->Image !== "") ? "yes" : "no",
 					$obj->Searched == 1 ? "yes" : "no",
 					$obj->ImgKey,
-					'albumart/small/'.$obj->ImgKey.'.jpg',
+					$obj->Image,
 					$obj->Year
 				);
 			} else {
@@ -913,10 +901,10 @@ function do_albums_from_database($which, $fragment = false) {
 						rawurlencode($obj->Spotilink),
 						"aalbum".$obj->Albumindex,
 						$obj->IsOneFile,
-						(file_exists('albumart/small/'.$obj->ImgKey.'.jpg')) ? "yes" : "no",
+						($obj->Image && $obj->Image !== "") ? "yes" : "no",
 						$obj->Searched == 1 ? "yes" : "no",
 						$obj->ImgKey,
-						'albumart/small/'.$obj->ImgKey.'.jpg',
+						$obj->Image,
 						$obj->Year
 					);
 					$singleheader['html'] = printHeaders().ob_get_contents().printTrailers();

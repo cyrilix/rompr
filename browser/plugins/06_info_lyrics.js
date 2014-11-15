@@ -53,6 +53,7 @@ var info_lyrics = function() {
             	} else {
 	            	$.get("getLyrics.php?file="+encodeURIComponent(player.status.file)+"&artist="+encodeURIComponent(parent.playlistinfo.creator)+"&song="+encodeURIComponent(parent.playlistinfo.title))
 	            		.done(function(data) {
+	            			debug.log("LYRICS",data);
 	            			parent.playlistinfo.metadata.track.lyrics = data;
 	            			self.doBrowserUpdate();
 	            		});
@@ -74,7 +75,7 @@ var info_lyrics = function() {
 		    }
 
 			this.doBrowserUpdate = function() {
-				if (displaying && parent.playlistinfo.metadata.track.lyrics !== undefined) {
+				if (displaying && parent.playlistinfo.metadata.track.lyrics !== undefined && parent.playlistinfo.metadata.track.lyrics !== null) {
 	                browser.Update('track', me, parent.index, { name: parent.playlistinfo.title,
 	                    					link: "",
 	                    					data: formatLyrics(parent.playlistinfo.metadata.track.lyrics)

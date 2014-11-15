@@ -19,7 +19,7 @@ if ($mode == "random") {
 	$qstring = "SELECT Uri FROM Tracktable WHERE DATE_SUB(CURDATE(),INTERVAL 30 DAY) <= DateAdded AND Hidden = 0 ORDER BY RAND()";
 } else {
 	// This rather cumbersome query gives us albums in a random order but tracks in the correct order.
-	$qstring = "SELECT Uri FROM ((SELECT DISTINCT Albumindex FROM Tracktable WHERE DATE_SUB(CURDATE(),INTERVAL 30 DAY) <= DateAdded AND Hidden = 0 ORDER BY RAND()) as x JOIN (SELECT Uri, Albumindex FROM Tracktable ORDER BY Disc, Trackno) AS y USING (Albumindex))";
+	$qstring = "SELECT Uri FROM Tracktable JOIN (SELECT DISTINCT Albumindex FROM Tracktable WHERE DATE_SUB(CURDATE(),INTERVAL 30 DAY) <= DateAdded AND Hidden = 0 ORDER BY RAND()) AS x USING (Albumindex)";
 }
 if ($result = mysqli_query($mysqlc, $qstring)) {
 	while ($obj = mysqli_fetch_object($result)) {

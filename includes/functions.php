@@ -539,12 +539,13 @@ function clean_cache_dir($dir, $time) {
     $cache = glob($dir."*");
     $now = time();
     foreach($cache as $file) {
-        if($now - filemtime($file) > $time) {
-            debug_print("Removing file ".$file,"CACHE CLEANER");
-            @unlink ($file);
+        if (!is_dir($file)) {
+            if($now - filemtime($file) > $time) {
+                debug_print("Removing file ".$file,"CACHE CLEANER");
+                @unlink ($file);
+            }
         }
     }
-
 }
 
 function detect_mopidy() {
@@ -738,8 +739,8 @@ function update_stream_playlist($url, $name, $image, $creator, $title, $type, $f
     }
 }
 
-function imagePath($key) {
-    return (file_exists('albumart/small/'.$key.'.jpg')) ? 'albumart/small/'.$key.'.jpg' : 'newimages/album-unknown-small.png';
+function imagePath($image) {
+    return ($image && $image !== "") ? $image : 'newimages/album-unknown-small.png';
 }
 
 function munge_filedata($filedata, $file) {

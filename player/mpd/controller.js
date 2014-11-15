@@ -298,10 +298,7 @@ function playerController() {
 	}
 
 	this.toggleCrossfade = function() {
-	    var new_value = (player.status.xfade == 0) ? 1 : 0;
-	    if (new_value == 1) {
-	        new_value = prefs.crossfade_duration;
-	    }
+	    var new_value = (player.status.xfade === undefined || player.status.xfade === null || player.status.xfade == 0) ? prefs.crossfade_duration : 0;
 	    self.command("command=crossfade&arg="+new_value);
 	}
 

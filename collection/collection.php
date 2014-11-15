@@ -99,15 +99,14 @@ class album {
     public function getImage($size) {
         global $ipath;
 
-        // Return image for an album or track
+        // Return image for an album
 
-        // NOTE: For me, because this keeps befuddling me.
-        // This sets the image when the collection is created ONLY.
-        // SQL and XML backends work differently. Which is silly, but true.
-        // The image returned here is archived to albumart when we use SQL
-        // even if it's a local image. It's stored in the XML when we use XML.
-        // When we create the album listing from SQL we simply check if the
-        // archived image exists.
+        // This is used in two places:
+        // 1. When the database is created
+        // 2. When the playlist is read
+
+        // It is NOT used when creating the collection display - the images are read from
+        // the database in that case.
 
         $image = "";
         $artname = $this->getKey();
@@ -117,8 +116,8 @@ class album {
 
         if (file_exists("prefs/imagecache/".$artname."_".$size.".jpg")) {
             // This will happen if we're playing a track from Spotify that
-            // isn't in the collection. The archving process just copies it
-            // which is mucg batter than re-downloading it.
+            // isn't in the collection. coverscraper will have saved the image
+            // to the image cache and the playlist needs to know about it.
             $image = "prefs/imagecache/".$artname."_".$size.".jpg";
         }
 

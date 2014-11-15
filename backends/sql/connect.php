@@ -45,7 +45,7 @@ function check_sql_tables() {
 
 	global $mysqlc;
 
-	$current_schema_version = 8;
+	$current_schema_version = 9;
 
 	if ($mysqlc) {
 
@@ -87,6 +87,7 @@ function check_sql_tables() {
 			"mbid CHAR(40), ".
 			"NumDiscs TINYINT(2), ".
 			"Domain CHAR(32), ".
+			"Image VARCHAR(255), ".
 			"INDEX(Albumname), ".
 			"INDEX(AlbumArtistindex), ".
 			"INDEX(Domain), ".
@@ -254,7 +255,7 @@ function check_sql_tables() {
 							debug_print("Updating FROM Schema version 7 TO Schema version 8","SQL");
 							// Since we've changed the way we're joining artist names together,
 							// rather than force the database to be recreated and screw up everyone's
-							// tags and rating, just mopidy the artist data.
+							// tags and rating, just modify the artist data.
 							$stmt = mysqli_prepare($mysqlc, "UPDATE Artisttable SET Artistname = ? WHERE Artistindex = ?");
 							if ($result = mysqli_query($mysqlc, "SELECT * FROM Artisttable")) {
 								while ($obj = mysqli_fetch_object($result)) {
@@ -277,6 +278,26 @@ function check_sql_tables() {
 								debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 							}
 							break;
+
+						case 8:
+							debug_print("Updating FROM Schema version 7 TO Schema version 8","SQL");
+							// We removed the image column earlier, but I've decided we need it again
+							// because some mopidy backends supply images and archiving them all makes
+							// creating the collection take waaaaay too long.
+							generic_sql_query("ALTER TABLE Albumtable ADD Image VARCHAR(255)");
+							// So we now need to recreate the image database
+							if ($result = mysqli_query($mysqlc, "SELECT Albumindex, ImgKey FROM Albumtable")) {
+								while ($obj = mysqli_fetch_object($result)) {
+									if (file_exists('albumart/small/'.$obj->ImgKey.'.jpg')) {
+										generic_sql_query("UPDATE Albumtable SET Image = 'albumart/small/".$obj->ImgKey.".jpg', Searched = 1 WHERE Albumindex = ".$obj->Albumindex);
+									} else {
+										generic_sql_query("UPDATE Albumtable SET Image = '', Searched = 0 WHERE Albumindex = ".$obj->Albumindex);
+									}
+								}
+						    } else {
+				                debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+						    }
+							generic_sql_query("UPDATE Statstable SET Value = 9 WHERE Item = 'SchemaVer'");
 					}
 					$sv++;
 				}
