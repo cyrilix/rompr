@@ -46,8 +46,6 @@ function outputPlaylist() {
             "trackimage" => $track->getImage(),
             "stream" => $track->stream,
             "playlistpos" => $track->playlistpos,
-            "composer" => $track->composer,
-            "performers" => $track->performers,
             "genre" => $track->genre,
             "spotify" => array (
                 "album" => $track->getSpotiAlbum()

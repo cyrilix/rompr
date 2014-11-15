@@ -1017,3 +1017,11 @@ function concatenate_artist_names(t) {
         return f.join(", ") + " & " + t[t.length-1];
     }
 }
+
+function randomsort(a,b) {
+    if (Math.random() > 0.5) {
+        return 1;
+    } else {
+        return -1;
+    }
+}

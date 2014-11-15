@@ -71,7 +71,7 @@ function check_tracks_against_db($json) {
 				if (array_key_exists($track['file'], $tracks_in_db)) {
 					debug_print("Track ".$track['file']." ".$track['Title']." already exists","MYSQL");
 			        if ($prefs['ignore_unplayable'] == "true" && substr($track['Title'], 0, 12) == "[unplayable]") {
-						// debug_print("Track ".$track['file']." is unplayable, needs to be removed","MYSQL");
+						debug_print("Track ".$track['file']." is unplayable, needs to be removed","MYSQL");
 					} else {
 						if ($track['Track'] 		!= $tracks_in_db[$track['file']]['trackno'] ||
 							$track['Last-Modified'] != $tracks_in_db[$track['file']]['lastmodified'] ||
@@ -89,9 +89,9 @@ function check_tracks_against_db($json) {
 					}
 				} else {
 			        if ($prefs['ignore_unplayable'] == "true" && substr($track['Title'], 0, 12) == "[unplayable]") {
-						// debug_print("Track ".$track['file']." is new but unplayable","MYSQL");
-					} else if (substr($track['file'],0,9) == "[loading]") {
-						debug_print("Track ".$track['file']." is loading. Must ignore it","MYSQL");
+						debug_print("Track ".$track['file']." is new but unplayable","MYSQL");
+					} else if (substr($track['Title'],0,9) == "[loading]") {
+						debug_print("Track ".$track['Title']." is loading. Must ignore it","MYSQL");
         			} else {
 						debug_print("Track ".$track['file']." ".$track['Title']." is a new track","MYSQL");
 						// Add new tracks here and call send_list_updates every time,
@@ -105,7 +105,7 @@ function check_tracks_against_db($json) {
 						$artist_created = false;
 						$album_created = false;
 					    list($name, $artist, $number, $duration, $albumartist, $spotialbum,
-					            $image, $album, $date, $lastmodified, $disc, $mbalbum, $composer) = munge_filedata($track, $track['file']);
+					            $image, $album, $date, $lastmodified, $disc, $mbalbum, $composer, $performers) = munge_filedata($track, $track['file']);
 
 						$ttid = create_new_track(
 							$name,

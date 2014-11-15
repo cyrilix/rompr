@@ -40,14 +40,6 @@ var faveArtistRadio = function() {
 		}
 	}
 
-	function randomiseartists(a,b) {
-		if (Math.random() > 0.5) {
-			return 1;
-		} else {
-			return -1;
-		}
-	}
-
 	function sendTracks(num) {
 		var t = new Array();
 		debug.debug("ARTIST RADIO","Asked to send",num,"tracks, flag is",sending);
@@ -109,7 +101,7 @@ var faveArtistRadio = function() {
 							artists[i].tracks = artists[i].tracks.concat(data[j].tracks);
 						}
 					}
-					artists[i].tracks = artists[i].tracks.sort(randomiseartists);
+					artists[i].tracks = artists[i].tracks.sort(randomsort);
 					artists[i].trackpointer = 0;
 					debug.log("FAVE ARTIST RADIO","Got Tracks For",artists[i].name);
 					break;
@@ -127,7 +119,7 @@ var faveArtistRadio = function() {
 		},
 
 		modeHtml: function() {
-			return '<img src="'+ipath+'broadcast-12.png" style="vertical-align:middle"/>&nbsp;<span style="vertical-align:middle">'+language.gettext("label_radio_fartist")+'</span>';
+			return '<img src="'+ipath+'smartradio.png" style="vertical-align:middle"/>&nbsp;<span style="vertical-align:middle">'+language.gettext("label_radio_fartist")+'</span>';
 		},
 
         setup: function() {
@@ -135,7 +127,7 @@ var faveArtistRadio = function() {
             var html = '<div class="containerbox spacer backhi" onclick="playlist.radioManager.load(\'faveArtistRadio\', null)">';
 
             html = html + '<div class="fixed">';
-            html = html + '<img src="'+ipath+'document-open-folder.png" height="12px" style="vertical-align:middle"></div>';
+            html = html + '<img src="'+ipath+'smartradio.png" height="12px" style="vertical-align:middle"></div>';
             html = html + '<div class="expand">&nbsp;&nbsp;&nbsp;'+language.gettext('label_radio_fartist')+'</div>';
 
             html = html + '</div>';

@@ -82,14 +82,6 @@ var artistRadio = function() {
 		}
 	}
 
-	function randomiseartists(a,b) {
-		if (Math.random() > 0.5) {
-			return 1;
-		} else {
-			return -1;
-		}
-	}
-
 	return {
 
 		populate: function(artist, flag) {
@@ -119,7 +111,7 @@ var artistRadio = function() {
 		},
 
 		modeHtml: function() {
-			return '<img src="'+ipath+'broadcast-12.png" style="vertical-align:middle"/>&nbsp;<span style="vertical-align:middle">'+artistname+'&nbsp;'+language.gettext("label_radio")+'</span>';
+			return '<img src="'+ipath+'smartradio.png" style="vertical-align:middle"/>&nbsp;<span style="vertical-align:middle">'+artistname+'&nbsp;'+language.gettext("label_radio")+'</span>';
 		},
 
 		stop: function() {
@@ -150,7 +142,7 @@ var artistRadio = function() {
 			for (var i in data.artists) {
 				artists.push({id: data.artists[i].id});
 			}
-			artists.sort(randomiseartists);
+			artists.sort(randomsort);
 			debug.log("ARTIST RADIO","Got related artists",artists);
 			getAlbumsForNextArtist();
 		},
@@ -163,7 +155,7 @@ var artistRadio = function() {
 				albums.push({id: data.items[i].id});
 				ids.push(data.items[i].id);
 			}
-			albums.sort(randomiseartists);
+			albums.sort(randomsort);
 			for (var i in artists) {
 				if (artists[i].id == data.reqid) {
 					artists[i].albums = albums;
@@ -188,7 +180,7 @@ var artistRadio = function() {
 				for (var j in data.albums[i].tracks.items) {
 					tracks.push({type: 'uri', name : data.albums[i].tracks.items[j].uri});
 				}
-				tracks.sort(randomiseartists);
+				tracks.sort(randomsort);
 				var reqid = data.albums[i].id;
 				for (var k in artists) {
 					for (var l in artists[k].albums) {

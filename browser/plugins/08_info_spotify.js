@@ -335,12 +335,8 @@ var info_spotify = function() {
 
 					populate: function() {
                         if (parent.playlistinfo.metadata.track.spotify === undefined) {
-				        	if (parent.playlistinfo.location.substring(0,8) !== 'spotify:') {
-				                browser.Update('track', me, parent.index, { name: "",
-				                    					link: "",
-				                    					data: null
-				                						}
-								);
+                        	if (parent.playlistinfo.location.substring(0,8) !== 'spotify:') {
+				        		self.track.doBrowserUpdate()
 				        		self.artist.populate();
 				        		self.album.populate();
 				        	} else {
@@ -379,8 +375,13 @@ var info_spotify = function() {
                                                                                     data: getTrackHTML(parent.playlistinfo.metadata.track.spotify.track)
                                                                                 }
                             );
-                        }
-
+                        } else if (parent.playlistinfo.location.substring(0,8) !== 'spotify:') {
+			                browser.Update('track', me, parent.index, { name: "",
+			                    					link: "",
+			                    					data: null
+			                						}
+							);
+				        }
                     }
 				}
 
@@ -394,12 +395,7 @@ var info_spotify = function() {
                         if (parent.playlistinfo.metadata.album.spotify === undefined ||
                         	parent.playlistinfo.metadata.album.spotify.album === undefined) {
 				        	if (parent.playlistinfo.location.substring(0,8) !== 'spotify:') {
-				                browser.Update('album', me, parent.index, { name: "",
-				                    					link: "",
-				                    					data: null
-				                						}
-								);
-
+				        		self.album.doBrowserUpdate();
 				        	} else {
 	                			spotify.album.getInfo(parent.playlistinfo.metadata.album.spotify.id, self.album.spotifyResponse, self.album.spotifyError);
 	                		}
@@ -425,8 +421,13 @@ var info_spotify = function() {
                                                                                     data: getAlbumHTML(parent.playlistinfo.metadata.album.spotify.album)
                                                                                 }
                             );
-                        }
-
+                        } else if (parent.playlistinfo.location.substring(0,8) !== 'spotify:') {
+			                browser.Update('album', me, parent.index, { name: "",
+			                    					link: "",
+			                    					data: null
+			                						}
+							);
+						}
                     }
 
 				}

@@ -32,8 +32,6 @@ function Playlist() {
         origimage: "",
         trackimage: "",
         playlistpos: "",
-        composer: "",
-        performers: "",
         genre: "",
         spotify: {
             album: ""
