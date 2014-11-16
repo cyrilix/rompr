@@ -1076,7 +1076,7 @@ function getAllURIs($sqlstring) {
 function get_fave_artists() {
 	global $mysqlc;
 	generic_sql_query("CREATE TEMPORARY TABLE aplaytable (playtotal INT UNSIGNED, Artistindex INT UNSIGNED NOT NULL UNIQUE)");
-	// Playcount > 5 in this query is totally arbitrary and may need tuning. Just trying to get the most popular artists by choosing anyone with an
+	// Playcount > 3 in this query is totally arbitrary and may need tuning. Just trying to get the most popular artists by choosing anyone with an
 	// above average number of plays, but we don't want all the 'played them a few times' artists dragging the average down.
 	generic_sql_query("INSERT INTO aplaytable(playtotal, Artistindex) (SELECT SUM(Playcount) AS playtotal, Artistindex FROM (SELECT Playcount, Artistindex FROM Playcounttable JOIN Tracktable USING (TTindex) WHERE Playcount > 3) AS derived GROUP BY Artistindex)");
 
@@ -1312,6 +1312,7 @@ function doDatabaseMagic() {
 }
 
 function remove_cruft() {
+
     debug_print("Removing orphaned albums","MYSQL");
     // NOTE - the Albumindex IS NOT NULL is essential - if any albumindex is NULL the entire () expression returns NULL
     generic_sql_query("DELETE FROM Albumtable WHERE Albumindex NOT IN (SELECT DISTINCT Albumindex FROM Tracktable WHERE Albumindex IS NOT NULL)");

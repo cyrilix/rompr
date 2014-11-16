@@ -118,13 +118,11 @@ print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_ra
     print '>'.get_int_text("label_limitsearch").'</input>';
     print '</div>';
 
-    print '<div class="dropmenu" id="mopidysearchdomains" style="margin-top:4px';
-    if ($prefs['search_limit_limitsearch'] == 1) {
-        print ';display:block';
-    }
-    print '">';
+    print '<div class="dropmenu" id="mopidysearchdomains" style="margin-top:4px">';
     foreach ($searchlimits as $domain => $text) {
-        print '<div class="indent containerbox padright">';
+        // Need 'fullwidth' for bloody stupid firefox.
+        // divs are SUPPOSED to fill the width of their container, fuckwits.
+        print '<div class="indent containerbox padright fullwidth">';
         print '<input type="checkbox" class="searchdomain" value="'.$domain.'"';
         if (array_key_exists('search_limit_'.$domain, $prefs)) {
             if ($prefs['search_limit_'.$domain] == 1) {

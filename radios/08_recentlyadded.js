@@ -71,7 +71,7 @@ var recentlyaddedtracks = function() {
 		},
 
         modeHtml: function() {
-            return '<img src="'+ipath+'document-open-folder.png" height="12px" style="vertical-align:middle">&nbsp;<span style="vertical-align:middle">'+language.gettext("label_recentlyadded_"+mode)+'</span>&nbsp;';
+            return '<img src="'+ipath+'document-open-folder.png" class="modeimg"><span class="modespan">'+language.gettext("label_recentlyadded_"+mode)+'</span>&nbsp;';
         },
 
         stop: function() {

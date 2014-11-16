@@ -17,6 +17,7 @@ function toggleSearch() {
     if (prefs.hide_albumlist) {
         sourcecontrol("albumlist");
         $("#search").show();
+        ihatefirefox();
         return false;
     }
     if ($("#albumlist").is(':visible')) {
@@ -31,7 +32,16 @@ function toggleSearch() {
     }
     $('#sources').mCustomScrollbar("scrollTo", 0, {scrollInertia:20});
     albumScrollOffset = 0;
+    ihatefirefox();
     return false;
+}
+
+function ihatefirefox() {
+    if (prefs.search_limit_limitsearch == 1) {
+        $("#mopidysearchdomains").show();
+    } else {
+        $("#mopidysearchdomains").hide();
+    }
 }
 
 function doThatFunkyThang() {

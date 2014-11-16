@@ -48,11 +48,11 @@ var starRadios = function() {
 
         modeHtml: function() {
             if (selected.match(/^\dstars/)) {
-                return '<img src="newimages/'+selected+'.png" height="14px" style="vertical-align:middle"/>';
+                return '<img src="newimages/'+selected+'.png" class="modeimg"/>';
             } else if (selected.match(/^tag/)){
-                return '<img src="'+ipath+'tag.png" height="14px" style="vertical-align:middle"/><span style="vertical-align:middle">&nbsp;&nbsp;'+selected.replace(/^tag\+/,'')+'</span>';
+                return '<img src="'+ipath+'tag.png" class="modeimg"/><span class="modespan">'+selected.replace(/^tag\+/,'')+'</span>';
             } else {
-                return '<img src="'+ipath+'document-open-folder.png" height="14px" style="vertical-align:middle"/><span style="vertical-align:middle">&nbsp;&nbsp;'+language.gettext('label_'+selected)+'</span>';
+                return '<img src="'+ipath+'document-open-folder.png" class="modeimg"/><span class="modespan">'+language.gettext('label_'+selected)+'</span>';
             }
         },
 

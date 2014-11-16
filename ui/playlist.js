@@ -59,6 +59,10 @@ function Playlist() {
         coverscraper.clearCallbacks();
     }
 
+    this.connectionbuggered = function() {
+        updatecounter = 0;
+    }
+
     this.updateFailure = function() {
         debug.error("PLAYLIST","Got notified that an update FAILED");
         infobar.notify(infobar.ERROR, language.gettext("label_playlisterror"));

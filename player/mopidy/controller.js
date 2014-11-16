@@ -439,6 +439,7 @@ function playerController() {
 
 	function disconnected() {
         debug.warn("PLAYER","Mopidy Has Gone Offline");
+        playlist.connectionbuggered();
         infobar.notify(infobar.PERMERROR,
         	language.gettext("mopidy_down")+'<br><a href="#" onclick="player.controller.reConnect()">Click To Reconnect</a>');
         isReady = false;

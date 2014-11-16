@@ -120,7 +120,7 @@ var faveArtistRadio = function() {
 		},
 
 		modeHtml: function() {
-			return '<img src="'+ipath+'smartradio.png" style="vertical-align:middle"/>&nbsp;<span style="vertical-align:middle">'+language.gettext("label_radio_fartist")+'</span>';
+			return '<img src="'+ipath+'smartradio.png" class="modeimg"/><span class="modespan">'+language.gettext("label_radio_fartist")+'</span>';
 		},
 
         setup: function() {

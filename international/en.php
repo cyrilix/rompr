@@ -507,7 +507,7 @@ $languages['en'] = array (
 	"config_ignore_unplayable" => "Ignore Unplayable Tracks",
 	"label_retrieve" => "Retrieve",
 
-	// New in 0.53
+	// New in 0.60
 	"spotify_error" => "No response from Spotify",
 	"spotify_noinfo" => "Could not get information from Spotify",
 	"button_infospotify" => "Info Panel (Spotify)",
@@ -536,8 +536,9 @@ $languages['en'] = array (
 	"config_sortbycomposer" => "Sort Artists using Composer",
 	"config_composergenre" => " .. only if Genre is:",
 	"config_displaycomposer" => ".. Display Composer/Performer Info instead of Artist",
+	"label_radio_mix" => "Mix Radio",
 
-	//CHANGED in 0.53
+	//CHANGED in 0.60
 	"config_country" => "COUNTRY (for Last.FM and Spotify)",
 	"setup_labeladdresses" => "If you are having connection issues, try using an IP address instead of 'localhost'",
 	"setup_ipaddress" => "Mopidy or mpd server",

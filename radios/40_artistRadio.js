@@ -111,7 +111,7 @@ var artistRadio = function() {
 		},
 
 		modeHtml: function() {
-			return '<img src="'+ipath+'smartradio.png" style="vertical-align:middle"/>&nbsp;<span style="vertical-align:middle">'+artistname+'&nbsp;'+language.gettext("label_radio")+'</span>';
+			return '<img src="'+ipath+'smartradio.png" class="modeimg"/><span class="modespan">'+artistname+'&nbsp;'+language.gettext("label_radio")+'</span>';
 		},
 
 		stop: function() {
@@ -121,7 +121,7 @@ var artistRadio = function() {
 		gotArtists: function(data) {
 			var f = false;
 			for (var i in data.artists.items) {
-				if (data.artists.items[i].name.toLowerCase == artistname.toLowerCase) {
+				if (data.artists.items[i].name.toLowerCase() == artistname.toLowerCase()) {
 					artistname = data.artists.items[i].name;
 					getRelatedArtists(data.artists.items[i].id);
 					f = true;
@@ -178,7 +178,7 @@ var artistRadio = function() {
 			for (var i in data.albums) {
 				var tracks = new Array();
 				for (var j in data.albums[i].tracks.items) {
-					tracks.push({type: 'uri', name : data.albums[i].tracks.items[j].uri});
+					tracks.push({type: 'uri', name: data.albums[i].tracks.items[j].uri});
 				}
 				tracks.sort(randomsort);
 				var reqid = data.albums[i].id;
@@ -198,7 +198,7 @@ var artistRadio = function() {
 		fail: function(data) {
             debug.error("ARTIST RADIO","Failed to create playlist",data);
             infobar.notify(infobar.ERROR,"Failed to create Playlist");
-            playlist.endSmartMode();
+            playlist.radioManager.stop();
 		},
 
 		failQuiet: function(data) {

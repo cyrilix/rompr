@@ -16,10 +16,10 @@ debug_print("Populating Recently Added Sorted By ".$mode, "RECENTLY ADDED");
 $uris = array();
 $qstring = "";
 if ($mode == "random") {
-	$qstring = "SELECT Uri FROM Tracktable WHERE DATE_SUB(CURDATE(),INTERVAL 30 DAY) <= DateAdded AND Hidden = 0 ORDER BY RAND()";
+	$qstring = "SELECT Uri FROM Tracktable WHERE (DATE_SUB(CURDATE(),INTERVAL 30 DAY) <= DateAdded) AND Hidden = 0 ORDER BY RAND()";
 } else {
 	// This rather cumbersome query gives us albums in a random order but tracks in the correct order.
-	$qstring = "SELECT Uri FROM Tracktable JOIN (SELECT DISTINCT Albumindex FROM Tracktable WHERE DATE_SUB(CURDATE(),INTERVAL 30 DAY) <= DateAdded AND Hidden = 0 ORDER BY RAND()) AS x USING (Albumindex)";
+	$qstring = "SELECT Uri, Albumindex, TrackNo FROM Tracktable JOIN (SELECT DISTINCT Albumindex FROM Tracktable WHERE (DATE_SUB(CURDATE(),INTERVAL 30 DAY) <= DateAdded) AND Hidden = 0 AND Uri IS NOT NULL ORDER BY TrackNo, RAND()) AS x USING (Albumindex)";
 }
 if ($result = mysqli_query($mysqlc, $qstring)) {
 	while ($obj = mysqli_fetch_object($result)) {

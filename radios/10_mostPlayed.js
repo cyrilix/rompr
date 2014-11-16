@@ -45,7 +45,7 @@ var mostPlayed = function() {
 		},
 
         modeHtml: function() {
-            return '<img src="'+ipath+'document-open-folder.png" height="12px" style="vertical-align:middle">&nbsp;<span style="vertical-align:middle">'+language.gettext("label_mostplayed")+'</span>&nbsp;';
+            return '<img src="'+ipath+'document-open-folder.png" class="modeimg"><span class="modespan">'+language.gettext("label_mostplayed")+'</span>&nbsp;';
         },
 
         stop: function() {

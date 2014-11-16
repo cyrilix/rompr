@@ -632,6 +632,10 @@ select
 .tgtl
 {
     padding-right:4px;
+    /*because firefox is dumb and ignores the align
+      settings of the parent container. Honestly. Mozilla?
+      Moshittem more like*/
+    text-align:right;
 }
 
 .tgtr
@@ -2284,4 +2288,18 @@ div.lyrics p
     margin-right:auto;
     margin-left:auto;
     display:block;
+}
+
+.modeimg
+{
+    height:16px;
+    margin-right:8px;
+    vertical-align:middle;
+}
+
+.modespan
+{
+    vertical-align:middle;
+    font-size:120%;
+    font-weight:bold;
 }
