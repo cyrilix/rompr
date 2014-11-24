@@ -984,13 +984,19 @@ function joinartists(ob) {
 
     // NOTE : This function is duplicated in the php side. It's important the two stay in sync
     // See player/mopidy/connection.php and includes/functions.php
-
+    debug.log("JOINARTISTS",ob);
     if (typeof(ob) != "object") {
         return ob;
     } else {
         if (typeof(ob[0]) == "string") {
             // As returned by MPD in its Status ie for Performer
-            return concatenate_artist_names(ob);
+            // However these are returned as an Object rather than as an Array and we need an array
+            // (Yes, arrays and object are the same, more or less, but Objects don't have a slice method)
+            var a = new Array();
+            for (var i in ob) {
+                a.push(ob[i]);
+            }
+            return concatenate_artist_names(a);
         } else {
             var t = new Array();
             for (var i in ob) {

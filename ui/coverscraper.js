@@ -146,7 +146,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
    function finaliseImage(data) {
         debug.log("COVERSCRAPER","Source is",data.url);
         if (data.url == "" || data.url === null) {
-            revertCover(delaytime);
+            revertCover(data.delaytime);
         } else {
             angle = 0;
             stopAnimation();

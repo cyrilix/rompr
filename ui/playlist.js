@@ -380,6 +380,8 @@ function Playlist() {
             if (self.currentTrack) {
                 currentalbum = i;
                 scrollToCurrentTrack();
+                // finaltrack-1 prevents radios that add tracks slowly from trying to do multiple simultaneous
+                // populates.
                 if (self.currentTrack.playlistpos == finaltrack-1) {
                     playlist.radioManager.repopulate();
                 }

@@ -14,7 +14,7 @@ print '<i>'.get_int_text("label_multiterms").'</i>';
 <?php
 $labia = strlen(htmlspecialchars_decode(get_int_text("label_artist"), ENT_QUOTES));
 foreach(array(get_int_text("label_album"), get_int_text("label_track"),
-                get_int_text("label_tag"),
+                get_int_text("label_tag"), get_int_text("label_composer"), get_int_text("label_performer"),
                 get_int_text("label_genre")) as $a) {
     if (strlen(htmlspecialchars_decode($a, ENT_QUOTES)) > $labia) {
         debug_print("Setting search box width from ".htmlspecialchars_decode($a, ENT_QUOTES)." to ".strlen(htmlspecialchars_decode($a, ENT_QUOTES))."em","SEARCH");
@@ -46,6 +46,20 @@ print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_tr
 print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_genre").'</b></div>';
 ?>
         <div class="expand"><input class="searchterm enter sourceform" name="genre" type="text" /></div>
+    </div>
+
+    <div class="containerbox padright dropdown-container">
+<?php
+print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_composer").'</b></div>';
+?>
+        <div class="expand"><input class="searchterm enter sourceform" name="composer" type="text" /></div>
+    </div>
+
+    <div class="containerbox padright dropdown-container">
+<?php
+print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_performer").'</b></div>';
+?>
+        <div class="expand"><input class="searchterm enter sourceform" name="performer" type="text" /></div>
     </div>
 
 <?php

@@ -24,7 +24,9 @@ var lastfmImporter = function() {
 		rtsp: 1,
 		somafm: 1,
 		spotifytunigo: 1,
-		tunein: 1
+		tunein: 1,
+		rtmp: 1,
+		rtmps: 1
 	};
 
 	var chosensources = new Array();
@@ -610,7 +612,7 @@ var lastfmImporter = function() {
 			if ($("#hoobajoob").is(':visible')) {
 				$('[name="beefheart"]').children()[1].remove();
 				$('[name="beefheart"] div:last').prev().html('<b>'+language.gettext("label_progress")+'</b>');
-				$("#hoobajoob").slideToggle(500);
+				$("#hoobajoob").hide();
 				$('[name="beefheart"]').slideToggle(600);
 				progressbar.setProgress(0);
 				// Remove the delete and 'import' boxes from the rows

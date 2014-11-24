@@ -38,7 +38,7 @@ var mostPlayed = function() {
             if (s) selected = s;
             if (flag) running = flag;
             debug.shout("MOST PLAYED", "Populating");
-			getSmartPlaylistTracks(running ? "getplaylist" : "repopulate");
+			getSmartPlaylistTracks(running ? "repopulate" : "getplaylist");
 		},
 
         modeHtml: function() {
