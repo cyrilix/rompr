@@ -582,15 +582,15 @@ function Playlist() {
                 if (mode) {
                     radios[mode].stop();
                     playlist.repopulate();
-                }
-                mode = null;
-                prefs.save({radiomode: '', radioparam: ''});
-                if (prefs.consumeradio) {
-                    if (oldconsume != player.status.consume) {
-                        player.controller.toggleConsume();
-                    }
-                    if (oldbuttonstate == false && $("#playlistbuttons").is(":visible")) {
-                        $("#playlistbuttons").slideUp('slow');
+                    mode = null;
+                    prefs.save({radiomode: '', radioparam: ''});
+                    if (prefs.consumeradio) {
+                        if (oldconsume != player.status.consume) {
+                            player.controller.toggleConsume();
+                        }
+                        if (oldbuttonstate == false && $("#playlistbuttons").is(":visible")) {
+                            $("#playlistbuttons").slideUp('slow');
+                        }
                     }
                 }
             },
@@ -677,7 +677,7 @@ function Playlist() {
                 if (i !== false) {
                     debug.log("PLAYLIST","Playlist using image already in window");
                     this.updateImages(i);
-                    html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover fixed" name="'+tracks[0].key+'" src="'+i+'"/></div>';
+                    html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover fixed" name="'+tracks[0].key+'" src="'+i.url+'"/></div>';
                 } else {
                     html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index
                                 + '"><img class="smallcover updateable notexist fixed clickable clickicon clickrollup" romprname="'+self.index

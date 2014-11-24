@@ -728,8 +728,13 @@ function doBuyTable(values) {
 function findImageInWindow(key) {
     var result = false;
     $.each($('img[name="'+key+'"]'), function() {
-        if (!$(this).hasClass('notexist') && !$(this).hasClass('notfound') && result === false) {
-            result = $(this).attr("src");
+        var u = $(this).attr("src");
+        if (!$(this).hasClass('notexist') && !$(this).hasClass('notfound') && result === false &&
+            u != "" &&
+            u != "newimages/album-unknown.png" &&
+            u != "newimages/album-unknown-small.png" &&
+            u != "newimages/transparent-32x32.png") {
+            result = { url: u, origimage: u.replace(/original/, 'asdownloaded'), delaytime: 100 };
         }
     });
     return result;
