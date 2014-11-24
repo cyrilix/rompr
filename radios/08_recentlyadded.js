@@ -23,16 +23,13 @@ var recentlyaddedtracks = function() {
                     tracks = data;
                     addTracks();
                 } else {
-                    populating = false;
-                    running = false;
-                    playlist.repopulate();
+                    infobar.notify(infobar.NOTIFY,language.gettext('label_gotnotracks'));
+                    playlist.radioManager.stop();
                 }
             },
             fail: function() {
-                populating = false;
-                running = false;
-                infobar.notify(infobar.ERROR,"Failed to create Playlist");
-                playlist.repopulate();
+                infobar.notify(infobar.NOTIFY,language.gettext('label_gotnotracks'));
+                playlist.radioManager.stop();
             }
         });
 
@@ -49,7 +46,7 @@ var recentlyaddedtracks = function() {
 			if (t.length > 0) {
 				player.controller.addTracks(t, playlist.playFromEnd(), null);
 			} else {
-				running = false;
+                playlist.radioManager.stop();
 			}
 		}
 	}
@@ -76,6 +73,7 @@ var recentlyaddedtracks = function() {
 
         stop: function() {
             running = false;
+            opulating = false;
             tracks = new Array();
         },
 

@@ -97,7 +97,10 @@ var info_lastfm = function() {
         });
     }
 
-    function getArtistHTML(lfmdata, parent) {
+    function getArtistHTML(lfmdata, parent, artistmeta) {
+        if (lfmdata.error()) {
+            return formatLastFmError(lfmdata);
+        }
         var html = sectionHeader(lfmdata);
         var bigurl = lfmdata.image("mega");
         if (mobile == "no") {
@@ -136,9 +139,9 @@ var info_lastfm = function() {
             }
         }
         html = html +  '<div id="artistbio">';
-        if (parent.playlistinfo.metadata.artist.lastfm.fullbio !== undefined &&
-            parent.playlistinfo.metadata.artist.lastfm.fullbio !== null) {
-            html = html + formatBio(parent.playlistinfo.metadata.artist.lastfm.fullbio, null);
+        if (artistmeta.lastfm.fullbio !== undefined &&
+            artistmeta.lastfm.fullbio !== null) {
+            html = html + formatBio(artistmeta.lastfm.fullbio, null);
         } else {
             html = html + formatBio(lfmdata.bio(), lfmdata.url());
         }
@@ -160,6 +163,9 @@ var info_lastfm = function() {
     }
 
     function getAlbumHTML(lfmdata) {
+        if (lfmdata.error()) {
+            return formatLastFmError(lfmdata);
+        }
         var html = sectionHeader(lfmdata);
         html = html + '<br><ul id="buyalbum"><li><b>'+language.gettext("lastfm_buyalbum")+'&nbsp;</b><img class="infoclick clickbuy" height="20px" id="buyalbumbutton" style="vertical-align:middle" src="'+ipath+'cart.png"></li></ul>';
         html = html + '</ul><br>';
@@ -207,6 +213,9 @@ var info_lastfm = function() {
     }
 
     function getTrackHTML(lfmdata) {
+        if (lfmdata.error()) {
+            return formatLastFmError(lfmdata);
+        }
         var html = sectionHeader(lfmdata);
         html = html + '<li name="userloved">';
         html = html +'</li>';
@@ -230,12 +239,16 @@ var info_lastfm = function() {
             return [];
         },
 
-		collection: function(parent) {
+		collection: function(parent, artistmeta, albummeta, trackmeta) {
 
 			debug.log(medebug, "Creating data collection");
 
 			var self = this;
             var displaying = false;
+
+            this.populate = function() {
+                self.artist.populate();
+            }
 
             this.displayData = function() {
                 displaying = true;
@@ -246,20 +259,20 @@ var info_lastfm = function() {
 
             this.stopDisplaying = function() {
                 displaying = false;
-			}
+            }
 
             this.handleClick = function(source, element, event) {
-                debug.log(medebug,parent.index,source,"is handling a click event");
+                debug.log(medebug,parent.nowplayingindex,source,"is handling a click event");
                 if (element.hasClass('clickremovetag')) {
                     var tagname = element.parent().prev().children().text();
-                    debug.log(medebug,parent.index,source,"wants to remove tag",tagname);
+                    debug.log(medebug,parent.nowplayingindex,source,"wants to remove tag",tagname);
                     self[source].removetags(tagname);
                     if (prefs.synctags) {
                         parent.setMeta('remove', 'Tags', tagname);
                     }
                 } else if (element.hasClass('clickaddtags')) {
                     var tagname = element.prev().val();
-                    debug.log(medebug,parent.index,source,"wants to add tags",tagname);
+                    debug.log(medebug,parent.nowplayingindex,source,"wants to add tags",tagname);
                     self[source].addtags(tagname);
                     if (prefs.synctags) {
                         parent.setMeta('set', 'Tags', tagname.split(','));
@@ -288,7 +301,7 @@ var info_lastfm = function() {
             }
 
             this.justaddedtags = function(type, tags) {
-                debug.log(medebug,parent.index,"Just added or removed tags",tags,"on",type);
+                debug.log(medebug,parent.nowplayingindex,"Just added or removed tags",tags,"on",type);
                 self[type].resetUserTags();
                 self[type].getUserTags();
             }
@@ -341,7 +354,20 @@ var info_lastfm = function() {
             }
 
             function getSearchArtist() {
-                return (parent.playlistinfo.albumartist && parent.playlistinfo.albumartist != "") ? parent.playlistinfo.albumartist : self.artist.name();
+                return (albummeta.artist && albummeta.artist != "") ? albummeta.artist : parent.playlistinfo.creator;
+            }
+
+            function sendLastFMCorrections() {
+                try {
+                    var updates = { creator: (parent.playlistinfo.metadata.artists.length == 1) ? self.artist.name() : parent.playlistinfo.creator,
+                                    album: self.album.name(),
+                                    title: self.track.name(),
+                                    image: self.album.image('medium'),
+                                    origimage: self.album.image('mega') };
+                    nowplaying.setLastFMCorrections(parent.currenttrack, updates);
+                } catch(err) {
+                    debug.fail(medebug,"Not enough information to send corrections");
+                }
             }
 
 			this.artist = function() {
@@ -349,65 +375,64 @@ var info_lastfm = function() {
                 return {
 
 					populate: function() {
-                        if (parent.playlistinfo.metadata.artist.lastfm === undefined) {
-    						debug.mark(medebug,parent.index,"artist is populating",parent.playlistinfo.creator);
-    						lastfm.artist.getInfo( {artist: parent.playlistinfo.creator},
+                        if (artistmeta.lastfm === undefined) {
+    						debug.mark(medebug,parent.nowplayingindex,"artist is populating",artistmeta.name);
+    						lastfm.artist.getInfo( {artist: artistmeta.name},
     												this.lfmResponseHandler,
     												this.lfmResponseHandler
     						);
                         } else {
-                            debug.mark(medebug,parent.index,"artist is already populated",parent.playlistinfo.creator);
+                            debug.mark(medebug,parent.nowplayingindex,"artist is already populated",artistmeta.name);
                             self.album.populate();
                         }
 					},
 
 		            lfmResponseHandler: function(data) {
-						debug.mark(medebug,parent.index,"got artist data for",parent.playlistinfo.creator,data);
+						debug.mark(medebug,parent.nowplayingindex,"got artist data for",artistmeta.name,data);
 		                if (data) {
 		                    if (data.error) {
-		                        parent.playlistinfo.metadata.artist.lastfm = {artist: data};
+		                        artistmeta.lastfm = {artist: data};
 		                    } else {
-		                        parent.playlistinfo.metadata.artist.lastfm = data;
+		                        artistmeta.lastfm = data;
 		                    }
 		                } else {
-		                    parent.playlistinfo.metadata.artist.lastfm = {artist: {error: 1,
-		                                                                  message: language.gettext("lastfm_notfound",[language.gettext("label_artist")])}
+		                    artistmeta.lastfm = {artist: {error: 1,
+		                                                  message: language.gettext("lastfm_notfound",[language.gettext("label_artist")])}
 		                    };
 		                }
 
-		                if (parent.playlistinfo.musicbrainz.artistid == "") {
+		                if (artistmeta.musicbrainz_id == "") {
                             var mbid = null;
                             try {
                                 mbid = data.artist.mbid || null;
                             } catch(err) {
                                 mbid = null;
                             }
-		                	debug.shout(medebug,parent.index,"has found a musicbrainz artist ID",mbid);
-		                	parent.updateData({musicbrainz: {artistid: mbid }}, null);
+		                	debug.shout(medebug,parent.nowplayingindex,"has found a musicbrainz artist ID",mbid);
+		                	artistmeta.musicbrainz_id = mbid;
 		                }
                         self.album.populate();
 		                self.artist.doBrowserUpdate();
 		            },
 
 					doBrowserUpdate: function() {
-						if (displaying && parent.playlistinfo.metadata.artist.lastfm !== undefined) {
-                            debug.mark(medebug,parent.index,"artist was asked to display");
-				        	var lfmdata = new lfmDataExtractor(parent.playlistinfo.metadata.artist.lastfm.artist);
-				        	var html = "";
-					        if (lfmdata.error()) {
-					            html = formatLastFmError(lfmdata);
-					        } else {
-                                if (prefs.fullbiobydefault && lfmdata.url() && parent.playlistinfo.metadata.artist.lastfm.fullbio === undefined) {
-                                    self.artist.getFullBio(null, null);
-                                    return;
-                                }
-                                html = getArtistHTML(lfmdata, parent);
-					        }
+						if (displaying && artistmeta.lastfm !== undefined) {
+                            debug.mark(medebug,parent.nowplayingindex,"artist was asked to display");
+                            var lfmdata = new lfmDataExtractor(artistmeta.lastfm.artist);
+                            if (prefs.fullbiobydefault && lfmdata.url() && artistmeta.lastfm.fullbio === undefined) {
+                                self.artist.getFullBio(null, null);
+                                return;
+                            }
 
-					        var accepted = browser.Update('artist', me, parent.index, { name: self.artist.name(),
-					        											            link: lfmdata.url(),
-					        											            data: html
-					        										             }
+					        var accepted = browser.Update(
+                                null,
+                                'artist',
+                                me,
+                                parent.nowplayingindex,
+                                { name: self.artist.name(),
+					        	  link: lfmdata.url(),
+					        	  data: getArtistHTML(lfmdata, parent, artistmeta)
+					        	}
 					        );
 
                             if (accepted && lastfm.isLoggedIn() && !lfmdata.error()) {
@@ -420,21 +445,21 @@ var info_lastfm = function() {
 
                     name: function() {
                         try {
-                            return parent.playlistinfo.metadata.artist.lastfm.artist.name || parent.playlistinfo.creator;
+                            return artistmeta.lastfm.artist.name || artistmeta.name;
                         } catch(err) {
-                            return parent.playlistinfo.creator;
+                            return artistmeta.name;
                         }
                     },
 
                     getFullBio: function(callback, failcallback) {
-                        debug.log(medebug,parent.index,"Getting Bio URL:", parent.playlistinfo.metadata.artist.lastfm.artist.url);
-                        var url = "getLfmBio.php?url="+encodeURIComponent(parent.playlistinfo.metadata.artist.lastfm.artist.url);
+                        debug.log(medebug,parent.nowplayingindex,"Getting Bio URL:", artistmeta.lastfm.artist.url);
+                        var url = "getLfmBio.php?url="+encodeURIComponent(artistmeta.lastfm.artist.url);
                         if (lastfm.getLanguage() !== null) {
                             url = url + "&lang="+lastfm.getLanguage();
                         }
                         $.get(url)
                             .done( function(data) {
-                                parent.playlistinfo.metadata.artist.lastfm.fullbio = data;
+                                artistmeta.lastfm.fullbio = data;
                                 if (callback) {
                                     callback(data);
                                 } else {
@@ -442,7 +467,7 @@ var info_lastfm = function() {
                                 }
                             })
                             .fail( function(data) {
-                                parent.playlistinfo.metadata.artist.lastfm.fullbio = null;
+                                artistmeta.lastfm.fullbio = null;
                                 if (failcallback) {
                                     failcallback();
                                 } else {
@@ -458,22 +483,22 @@ var info_lastfm = function() {
                     },
 
                     goNoBio: function() {
-                        debug.warn(medebug,parent.index,"No Bio Available")
+                        debug.warn(medebug,parent.nowplayingindex,"No Bio Available")
                         infobar.notify(infobar.NOTIFY, language.gettext("lastfm_nobio"));
                     },
 
                     resetUserTags: function() {
-                        parent.playlistinfo.metadata.artist.lastfm.usertags = null;
+                        artistmeta.lastfm.usertags = null;
                     },
 
                     getUserTags: function() {
-                        debug.mark(medebug,parent.index,"Getting Artist User Tags");
-                        if (parent.playlistinfo.metadata.artist.lastfm.usertags) {
-                            formatUserTagData('artist', parent.playlistinfo.metadata.artist.lastfm.usertags, displaying);
+                        debug.mark(medebug,parent.nowplayingindex,"Getting Artist User Tags");
+                        if (artistmeta.lastfm.usertags) {
+                            formatUserTagData('artist', artistmeta.lastfm.usertags, displaying);
                         } else {
                             var options = { artist: self.artist.name() };
-                            if (parent.playlistinfo.musicbrainz.artistid != "") {
-                                options.mbid = parent.playlistinfo.musicbrainz.artistid;
+                            if (artistmeta.musicbrainz_id != "") {
+                                options.mbid = artistmeta.musicbrainz_id;
                             }
                             lastfm.artist.getTags(
                                 options,
@@ -496,25 +521,25 @@ var info_lastfm = function() {
                         } catch(err) {
                             tags = [];
                         }
-                        parent.playlistinfo.metadata.artist.lastfm.usertags = tags;
-                        formatUserTagData('artist', parent.playlistinfo.metadata.artist.lastfm.usertags, displaying);
+                        artistmeta.lastfm.usertags = tags;
+                        formatUserTagData('artist', artistmeta.lastfm.usertags, displaying);
                     },
 
                     addtags: function(tags) {
                         makeWaitingIcon("tagaddartist");
                         lastfm.artist.addTags({ artist: self.artist.name(),
                                                 tags: tags},
-                                            self.justaddedtags,
-                                            self.tagAddFailed
+                                                self.justaddedtags,
+                                                self.tagAddFailed
                         );
                     },
 
                     removetags: function(tags) {
                         makeWaitingIcon("tagaddartist");
-                        lastfm.artist.removeTag({   artist: self.artist.name(),
-                                                    tag: tags},
-                                            self.justaddedtags,
-                                            self.tagAddFailed
+                        lastfm.artist.removeTag({artist: self.artist.name(),
+                                                tag: tags},
+                                                self.justaddedtags,
+                                                self.tagAddFailed
                         );
                     }
 
@@ -527,71 +552,69 @@ var info_lastfm = function() {
                 return {
 
                     populate: function() {
-                        if (parent.playlistinfo.metadata.album.lastfm === undefined) {
+                        if (albummeta.lastfm === undefined) {
                             if (parent.playlistinfo.type == "stream") {
                                 debug.mark(medebug,"This album is a radio stream");
-                                parent.playlistinfo.metadata.album.lastfm = {album: {error: 99, message: parent.playlistinfo.album}};
-                                if (parent.playlistinfo.musicbrainz.albumid == "") {
-                                    parent.playlistinfo.musicbrainz.albumid = null;
+                                albummeta.lastfm = {album: {error: 99, message: albummeta.name}};
+                                if (albummeta.musicbrainz_id == "") {
+                                    albummeta.musicbrainz_id = null;
                                 }
                                 self.track.populate();
                                 self.album.doBrowserUpdate();
                             } else {
-                                debug.mark(medebug,"Getting last.fm data for album",parent.playlistinfo.album);
+                                debug.mark(medebug,"Getting last.fm data for album",albummeta.name);
                                 lastfm.album.getInfo({  artist: getSearchArtist(),
-                                                        album: parent.playlistinfo.album},
+                                                        album: albummeta.name},
                                                     this.lfmResponseHandler,
                                                     this.lfmResponseHandler );
                             }
                         } else {
-                            debug.mark(medebug,"Album is already populated",parent.playlistinfo.album);
+                            debug.mark(medebug,"Album is already populated",albummeta.name);
                             self.track.populate();
                         }
 
                     },
 
                     lfmResponseHandler: function(data) {
-                        debug.mark(medebug,"Got Album Info for",parent.playlistinfo.album, data);
+                        debug.mark(medebug,"Got Album Info for",albummeta.name, data);
                         if (data) {
                             if (data.error) {
-                                parent.playlistinfo.metadata.album.lastfm = {album: data};
+                                albummeta.lastfm = {album: data};
                             } else {
-                                parent.playlistinfo.metadata.album.lastfm = data;
+                                albummeta.lastfm = data;
                             }
                         } else {
-                            parent.playlistinfo.metadata.album.lastfm = {album: {error: 1,
-                                                                        message: language.gettext("lastfm_notfound", [language.gettext("label_album")])}
+                            albummeta.lastfm = {album: {error: 1,
+                                                        message: language.gettext("lastfm_notfound", [language.gettext("label_album")])}
                             };
                         }
-                        if (parent.playlistinfo.musicbrainz.albumid == "") {
+                        if (albummeta.musicbrainz_id == "") {
                             var mbid = null;
                             try {
                                 mbid = data.album.mbid || null;
                             } catch(err) {
                                 mbid = null;
                             }
-                            debug.shout(medebug,parent.index,"has found a musicbrainz album ID",mbid);
-                            parent.updateData({musicbrainz: {albumid: mbid }}, null);
+                            debug.shout(medebug,parent.nowplayingindex,"has found a musicbrainz album ID",mbid);
+                            albummeta.musicbrainz_id = mbid;
                         }
                         self.track.populate();
                         self.album.doBrowserUpdate();
                     },
 
                     doBrowserUpdate: function() {
-                        if (displaying && parent.playlistinfo.metadata.album.lastfm !== undefined) {
-                            debug.mark(medebug,parent.index,"album was asked to display");
-                            var lfmdata = new lfmDataExtractor(parent.playlistinfo.metadata.album.lastfm.album);
-                            var html = "";
-                            if (lfmdata.error()) {
-                                html = formatLastFmError(lfmdata);
-                            } else {
-                                html = getAlbumHTML(lfmdata);
-                            }
-
-                            var accepted = browser.Update('album', me, parent.index, {  name: lfmdata.name() || parent.playlistinfo.album,
-                                                                                    link: lfmdata.url(),
-                                                                                    data: html
-                                                                                }
+                        if (displaying && albummeta.lastfm !== undefined) {
+                            debug.mark(medebug,parent.nowplayingindex,"album was asked to display");
+                            var lfmdata = new lfmDataExtractor(albummeta.lastfm.album);
+                            var accepted = browser.Update(
+                                null,
+                                'album',
+                                me,
+                                parent.nowplayingindex,
+                                { name: lfmdata.name() || albummeta.name,
+                                  link: lfmdata.url(),
+                                  data: getAlbumHTML(lfmdata)
+                                }
                             );
 
                             if (accepted && lastfm.isLoggedIn() && !lfmdata.error()) {
@@ -603,32 +626,32 @@ var info_lastfm = function() {
 
                     name: function() {
                         try {
-                            return parent.playlistinfo.metadata.album.lastfm.album.name || parent.playlistinfo.album;
+                            return albummeta.lastfm.album.name || albummeta.name;
                         } catch(err) {
-                            return parent.playlistinfo.album;
+                            return albummeta.name;
                         }
                     },
 
                     image: function(size) {
-                        if (parent.playlistinfo.metadata.album.lastfm.album) {
-                            var lfmdata = new lfmDataExtractor(parent.playlistinfo.metadata.album.lastfm.album);
+                        if (albummeta.lastfm.album) {
+                            var lfmdata = new lfmDataExtractor(albummeta.lastfm.album);
                             return lfmdata.image(size);
                         }
                         return "";
                     },
 
                     resetUserTags: function() {
-                        parent.playlistinfo.metadata.album.lastfm.usertags = null;
+                        albummeta.lastfm.usertags = null;
                     },
 
                     getUserTags: function() {
-                        debug.mark(medebug,parent.index,"Getting Album User Tags");
-                        if (parent.playlistinfo.metadata.album.lastfm.usertags) {
-                            formatUserTagData('album', parent.playlistinfo.metadata.album.lastfm.usertags, displaying);
+                        debug.mark(medebug,parent.nowplayingindex,"Getting Album User Tags");
+                        if (albummeta.lastfm.usertags) {
+                            formatUserTagData('album', albummeta.lastfm.usertags, displaying);
                         } else {
                             var options = { artist: getSearchArtist(), album: self.album.name() };
-                            if (parent.playlistinfo.musicbrainz.albumid != "") {
-                                options.mbid = parent.playlistinfo.musicbrainz.albumid;
+                            if (albummeta.musicbrainz_id != "") {
+                                options.mbid = albummeta.musicbrainz_id;
                             }
                             lastfm.album.getTags(
                                 options,
@@ -651,8 +674,8 @@ var info_lastfm = function() {
                         } catch(err) {
                             tags = [];
                         }
-                        parent.playlistinfo.metadata.album.lastfm.usertags = tags;
-                        formatUserTagData('album', parent.playlistinfo.metadata.album.lastfm.usertags, displaying);
+                        albummeta.lastfm.usertags = tags;
+                        formatUserTagData('album', albummeta.lastfm.usertags, displaying);
                     },
 
                     addtags: function(tags) {
@@ -705,63 +728,57 @@ var info_lastfm = function() {
                 return {
 
                     populate: function() {
-                        if (parent.playlistinfo.metadata.track.lastfm === undefined) {
-                            debug.mark(medebug,"Getting last.fm data for track",parent.playlistinfo.title);
-                            lastfm.track.getInfo( { artist: self.artist.name(), track: parent.playlistinfo.title },
+                        if (trackmeta.lastfm === undefined) {
+                            debug.mark(medebug,parent.nowplayingindex,"Getting last.fm data for track",trackmeta.name);
+                            lastfm.track.getInfo( { artist: getSearchArtist(), track: trackmeta.name },
                                                     this.lfmResponseHandler,
                                                     this.lfmResponseHandler );
                         } else {
-                            debug.mark(medebug,"Track is already populated",parent.playlistinfo.title);
+                            debug.mark(medebug,parent.nowplayingindex,"Track is already populated",trackmeta.name);
+                            sendLastFMCorrections();
                         }
                     },
 
                     lfmResponseHandler: function(data) {
-                        debug.mark(medebug,"Got Track Info for",parent.playlistinfo.title, data);
+                        debug.mark(medebug,parent.nowplayingindex,"Got Track Info for",trackmeta.name, data);
                         if (data) {
                             if (data.error) {
-                                parent.playlistinfo.metadata.track.lastfm = {track: data};
+                                trackmeta.lastfm = {track: data};
                             } else {
-                                parent.playlistinfo.metadata.track.lastfm = data;
+                                trackmeta.lastfm = data;
                             }
                         } else {
-                            parent.playlistinfo.metadata.track.lastfm = {track: {error: 1,
-                                                                        message: language.gettext("lastfm_notfound", [language.gettext("label_track")])}
+                            trackmeta.lastfm = {track: {error: 1,
+                                                        message: language.gettext("lastfm_notfound", [language.gettext("label_track")])}
                             };
                         }
-                        if (parent.playlistinfo.musicbrainz.trackid == "") {
+                        if (trackmeta.musicbrainz_id == "") {
                             var mbid = null;
                             try {
                                 mbid = data.track.mbid || null;
                             } catch(err) {
                                 mbid = null;
                             }
-                            debug.shout(medebug,parent.index,"has found a musicbrainz track ID",mbid);
-                            parent.updateData({musicbrainz: {trackid: mbid }}, null);
+                            debug.shout(medebug,parent.nowplayingindex,"has found a musicbrainz track ID",mbid);
+                            trackmeta.musicbrainz_id = mbid;
                         }
-
-                        try {
-                            var updates = { creator: self.artist.name(),
-                                            album: self.album.name(),
-                                            title: self.track.name(),
-                                            image: self.album.image('medium'),
-                                            origimage: self.album.image('mega') };
-                            nowplaying.setLastFMCorrections(parent.index, updates);
-                        } catch(err) {
-                            debug.fail(medebug,"Not enough information to send corrections");
-                        }
-
+                        sendLastFMCorrections();
                         self.track.doBrowserUpdate();
                     },
 
                     doBrowserUpdate: function() {
-                        if (displaying && parent.playlistinfo.metadata.track.lastfm !== undefined) {
-                            debug.mark(medebug,parent.index,"track was asked to display");
-                            var lfmdata = new lfmDataExtractor(parent.playlistinfo.metadata.track.lastfm.track);
-                            var html = (lfmdata.error()) ? formatLastFmError(lfmdata) : getTrackHTML(lfmdata);
-                            var accepted = browser.Update('track', me, parent.index, { name: self.track.name(),
-                                                                                    link: lfmdata.url(),
-                                                                                    data: html
-                                                                                }
+                        if (displaying && trackmeta.lastfm !== undefined) {
+                            debug.mark(medebug,parent.nowplayingindex,"track was asked to display");
+                            var lfmdata = new lfmDataExtractor(trackmeta.lastfm.track);
+                            var accepted = browser.Update(
+                                null,
+                                'track',
+                                me,
+                                parent.nowplayingindex,
+                                { name: self.track.name(),
+                                  link: lfmdata.url(),
+                                  data: getTrackHTML(lfmdata)
+                                }
                             );
 
                             if (accepted && lastfm.isLoggedIn() && !lfmdata.error()) {
@@ -778,24 +795,24 @@ var info_lastfm = function() {
 
                     name: function() {
                         try {
-                            return parent.playlistinfo.metadata.track.lastfm.track.name || parent.playlistinfo.title;
+                            return trackmeta.lastfm.track.name || trackmeta.name;
                         } catch(err) {
-                            return parent.playlistinfo.title;
+                            return trackmeta.name;
                         }
                     },
 
                     resetUserTags: function() {
-                        parent.playlistinfo.metadata.track.lastfm.usertags = null;
+                        trackmeta.lastfm.usertags = null;
                     },
 
                     getUserTags: function() {
-                        debug.mark(medebug,parent.index,"Getting Track User Tags");
-                        if (parent.playlistinfo.metadata.track.lastfm.usertags) {
-                            formatUserTagData('track', parent.playlistinfo.metadata.track.lastfm.usertags, displaying);
+                        debug.mark(medebug,parent.nowplayingindex,"Getting Track User Tags");
+                        if (trackmeta.lastfm.usertags) {
+                            formatUserTagData('track', trackmeta.lastfm.usertags, displaying);
                         } else {
                             var options = { artist: self.artist.name(), track: self.track.name() };
-                            if (parent.playlistinfo.musicbrainz.trackid != "") {
-                                options.mbid = parent.playlistinfo.musicbrainz.trackid;
+                            if (trackmeta.musicbrainz_id != "") {
+                                options.mbid = trackmeta.musicbrainz_id;
                             }
                             lastfm.track.getTags(
                                 options,
@@ -818,8 +835,8 @@ var info_lastfm = function() {
                         } catch(err) {
                             tags = [];
                         }
-                        parent.playlistinfo.metadata.track.lastfm.usertags = tags;
-                        formatUserTagData('track', parent.playlistinfo.metadata.track.lastfm.usertags, displaying);
+                        trackmeta.lastfm.usertags = tags;
+                        formatUserTagData('track', trackmeta.lastfm.usertags, displaying);
                     },
 
                     addtags: function(tags) {
@@ -880,7 +897,7 @@ var info_lastfm = function() {
                     donelove: function(loved) {
                         if (loved) {
                             // Rather than re-get all the details, we can just edit the track data directly.
-                            parent.playlistinfo.metadata.track.lastfm.track.userloved = 1;
+                            trackmeta.lastfm.track.userloved = 1;
                             if (prefs.autotagname != '') {
                                 self.track.addtags(prefs.autotagname);
                                 if (prefs.synctags && prefs.synclove) {
@@ -889,7 +906,7 @@ var info_lastfm = function() {
                             }
                             if (displaying) { doUserLoved(true) }
                         } else {
-                            parent.playlistinfo.metadata.track.lastfm.track.userloved = 0;
+                            trackmeta.lastfm.track.userloved = 0;
                             if (prefs.autotagname != '') {
                                 self.track.removetags(prefs.autotagname);
                                 if (prefs.synctags && prefs.synclove) {
@@ -902,9 +919,6 @@ var info_lastfm = function() {
 
                 }
             }();
-
-			self.artist.populate();
-
 		}
 	}
 

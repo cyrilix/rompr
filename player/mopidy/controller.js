@@ -1,7 +1,6 @@
 function playerController() {
 
 	var self = this;
-	// var urischemes = new Object();
 	var tracklist = new Array();
 	var isReady = false;
 	var tracksToAdd = new Array();

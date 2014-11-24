@@ -2,10 +2,10 @@ var info_file = function() {
 
 	var me = "file";
 
-	function createInfoFromPlayerInfo() {
+	function createInfoFromPlayerInfo(info) {
 
         var html = "";
-        var file = unescape(player.status.file);
+        var file = unescape(info.file);
         file = file.replace(/^file:\/\//, '');
         var filetype = "";
         if (file) {
@@ -18,8 +18,8 @@ var info_file = function() {
         if (file == "null") file = "";
         html = html + '<div class="indent"><table><tr><td class="fil">'+language.gettext("info_file")+'</td><td>'+file;
         if (file.match(/^http:\/\/.*item\/\d+\/file/)) html = html + ' <i>'+language.gettext("info_from_beets")+'</i>';
-        if (player.status.file) {
-            var f = player.status.file.match(/^podcast\:(http.*?)\#/);
+        if (info.file) {
+            var f = info.file.match(/^podcast\:(http.*?)\#/);
             if (f && f[1]) {
                 html = html + '<button class="sourceform" onclick="podcasts.doPodcast(\'filepodiput\')">'+language.gettext('button_subscribe')+'</button>'+
                                 '<input type="hidden" id="filepodiput" value="'+f[1]+'" />';
@@ -29,10 +29,10 @@ var info_file = function() {
         if (filetype != "") {
             html = html + '<tr><td class="fil">'+language.gettext("info_format")+'</td><td>'+filetype+'</td></tr>';
         }
-        if (player.status.bitrate && player.status.bitrate != 'None' && player.status.bitrate != 0) {
-            html = html + '<tr><td class="fil">'+language.gettext("info_bitrate")+'</td><td>'+player.status.bitrate+'</td></tr>';
+        if (info.bitrate && info.bitrate != 'None' && info.bitrate != 0) {
+            html = html + '<tr><td class="fil">'+language.gettext("info_bitrate")+'</td><td>'+info.bitrate+'</td></tr>';
         }
-        var ai = player.status.audio;
+        var ai = info.audio;
         if (ai) {
             var p = ai.split(":");
             html = html + '<tr><td class="fil">'+language.gettext("info_samplerate")+'</td><td>'+p[0]+' Hz, '+p[1]+' Bit, ';
@@ -45,17 +45,17 @@ var info_file = function() {
             }
             '</td></tr>';
         }
-        if (player.status.Date) html = html + '<tr><td class="fil">'+language.gettext("info_date")+'</td><td>'+player.status.Date+'</td></tr>';
+        if (info.Date) html = html + '<tr><td class="fil">'+language.gettext("info_date")+'</td><td>'+info.Date+'</td></tr>';
 
-        if (player.status.Genre) html = html + '<tr><td class="fil">'+language.gettext("info_genre")+'</td><td>'+player.status.Genre+'</td></tr>';
+        if (info.Genre) html = html + '<tr><td class="fil">'+language.gettext("info_genre")+'</td><td>'+info.Genre+'</td></tr>';
 
-        if (player.status.Performer) {
-            html = html + '<tr><td class="fil">'+language.gettext("info_performers")+'</td><td>'+joinartists(player.status.Performer)+'</td></tr>';
+        if (info.Performer) {
+            html = html + '<tr><td class="fil">'+language.gettext("info_performers")+'</td><td>'+joinartists(info.Performer)+'</td></tr>';
         }
-        if (player.status.Composer) {
-            html = html + '<tr><td class="fil">'+language.gettext("info_composers")+'</td><td>'+joinartists(player.status.Composer)+'</td></tr>';
+        if (info.Composer) {
+            html = html + '<tr><td class="fil">'+language.gettext("info_composers")+'</td><td>'+joinartists(info.Composer)+'</td></tr>';
         }
-        if (player.status.Comment) html = html + '<tr><td class="fil">'+language.gettext("info_comment")+'</td><td>'+player.status.Comment+'</td></tr>';
+        if (info.Comment) html = html + '<tr><td class="fil">'+language.gettext("info_comment")+'</td><td>'+info.Comment+'</td></tr>';
         setBrowserIcon(filetype);
         return html;
     }
@@ -121,7 +121,7 @@ var info_file = function() {
 			return [];
 		},
 
-		collection: function(parent) {
+		collection: function(parent, artistmeta, albummeta, trackmeta) {
 
 			debug.log("FILE PLUGIN", "Creating data collection");
 
@@ -131,15 +131,11 @@ var info_file = function() {
 			this.displayData = function() {
 				displaying = true;
 				self.doBrowserUpdate();
-                browser.Update('album', me, parent.index, { name: "",
-                                        link: "",
-                                        data: null
-                                        }
+                browser.Update(null, 'album', me, parent.nowplayingindex,
+                                { name: "", link: "", data: null }
                 );
-                browser.Update('artist', me, parent.index, { name: "",
-                                        link: "",
-                                        data: null
-                                        }
+                browser.Update(null, 'artist', me, parent.nowplayingindex,
+                                { name: "", link: "", data: null }
                 );
 			}
 
@@ -151,14 +147,14 @@ var info_file = function() {
                 if (element.hasClass("clicksetrating")) {
                     nowplaying.setRating(event);
                 } else if (element.hasClass("clickremtag")) {
-                    nowplaying.removeTag(event, parent.index);
+                    nowplaying.removeTag(event, parent.nowplayingindex);
                 } else if (element.hasClass("clickaddtags")) {
-                    tagAdder.show(event, parent.index);
+                    tagAdder.show(event, parent.nowplayingindex);
                 }
             }
 
 			this.populate = function() {
-                if (parent.playlistinfo.metadata.track.fileinfo === undefined) {
+                if (trackmeta.fileinfo === undefined) {
     				var file = parent.playlistinfo.location;
     				var m = file.match(/(^http:\/\/.*item\/\d+)\/file/)
     		        if (m && m[1]) {
@@ -170,13 +166,13 @@ var info_file = function() {
                 		}, 1000);
     		        }
                 } else {
-                    debug.mark("FILE PLUGIN",parent.index,"is already populated");
+                    debug.mark("FILE PLUGIN",parent.nowplayingindex,"is already populated");
                 }
 		    }
 
 		    this.updateFileInformation = function() {
-                parent.playlistinfo.metadata.track.fileinfo = {beets: null, player: true};
-		    	parent.playlistinfo.metadata.track.lyrics = null;
+                trackmeta.fileinfo = {beets: null, player: cloneObject(player.status)};
+		    	trackmeta.lyrics = null;
                 player.controller.checkProgress();
 		    	self.doBrowserUpdate();
 		    }
@@ -186,11 +182,11 @@ var info_file = function() {
                 $.getJSON('getBeetsInfo.php', 'uri='+thing)
                 .done(function(data) {
                     debug.log("FILE PLUGIN",'Got info from beets server',data);
-                    parent.playlistinfo.metadata.track.fileinfo = {beets: data, player: false};
+                    trackmeta.fileinfo = {beets: data, player: null};
                     if (data.lyrics) {
-                        parent.playlistinfo.metadata.track.lyrics = data.lyrics;
+                        trackmeta.lyrics = data.lyrics;
                     } else {
-                        parent.playlistinfo.metadata.track.lyrics = null;
+                        trackmeta.lyrics = null;
                     }
                     self.doBrowserUpdate();
 
@@ -203,18 +199,18 @@ var info_file = function() {
 
             this.ratingsInfo = function() {
                 var html = "";
-                if (parent.playlistinfo.metadata.track.usermeta) {
-                    if (parent.playlistinfo.metadata.track.usermeta.Playcount) {
-                        html = html + '<tr><td class="fil">Play Count:</td><td>'+parent.playlistinfo.metadata.track.usermeta.Playcount;
+                if (trackmeta.usermeta) {
+                    if (trackmeta.usermeta.Playcount) {
+                        html = html + '<tr><td class="fil">Play Count:</td><td>'+trackmeta.usermeta.Playcount;
                         html = html + '</td></tr>';
                     }
-                    html = html + '<tr><td class="fil">Rating:</td><td><img class="infoclick clicksetrating" height="20px" src="newimages/'+parent.playlistinfo.metadata.track.usermeta.Rating+'stars.png" />';
-                    html = html + '<input type="hidden" value="'+parent.index+'" />';
+                    html = html + '<tr><td class="fil">Rating:</td><td><img class="infoclick clicksetrating" height="20px" src="newimages/'+trackmeta.usermeta.Rating+'stars.png" />';
+                    html = html + '<input type="hidden" value="'+parent.nowplayingindex+'" />';
                     html = html + '</td></tr>';
                     html = html + '<tr><td class="fil" style="vertical-align:top">Tags:</td><td>';
                     html = html + '<table>';
-                    for(var i = 0; i < parent.playlistinfo.metadata.track.usermeta.Tags.length; i++) {
-                        html = html + '<tr><td><span class="tag">'+parent.playlistinfo.metadata.track.usermeta.Tags[i]+'<span class="tagremover"><a href="#" class="clicktext infoclick clickremtag">x</a></span></span></td></tr>';
+                    for(var i = 0; i < trackmeta.usermeta.Tags.length; i++) {
+                        html = html + '<tr><td><span class="tag">'+trackmeta.usermeta.Tags[i]+'<span class="tagremover"><a href="#" class="clicktext infoclick clickremtag">x</a></span></span></td></tr>';
                     }
                     html = html + '<tr><td><a href="#" class="infoclick clickaddtags">ADD TAGS</a></td></tr>';
                     html = html + '</table>';
@@ -226,19 +222,21 @@ var info_file = function() {
             }
 
 			this.doBrowserUpdate = function() {
-				if (displaying && parent.playlistinfo.metadata.track.fileinfo !== undefined) {
-                    var data = (parent.playlistinfo.metadata.track.fileinfo.player) ? createInfoFromPlayerInfo() : createInfoFromBeetsInfo(parent.playlistinfo.metadata.track.fileinfo.beets);
+				if (displaying && trackmeta.fileinfo !== undefined) {
+                    var data = (trackmeta.fileinfo.player !== null) ? createInfoFromPlayerInfo(trackmeta.fileinfo.player) : createInfoFromBeetsInfo(trackmeta.fileinfo.beets);
                     data = data + self.ratingsInfo();
-	                browser.Update('track', me, parent.index, { name: parent.playlistinfo.title,
-	                    					link: "",
-	                    					data: data
-	                						}
+	                browser.Update(
+                        null,
+                        'track',
+                        me,
+                        parent.nowplayingindex,
+                        { name: trackmeta.name,
+	                      link: "",
+	                      data: data
+	                	}
 					);
 				}
 			}
-
-			self.populate();
-
 		}
 	}
 }();

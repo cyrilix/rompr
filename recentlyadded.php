@@ -16,10 +16,14 @@ debug_print("Populating Recently Added Sorted By ".$mode, "RECENTLY ADDED");
 $uris = array();
 $qstring = "";
 if ($mode == "random") {
-	$qstring = "SELECT Uri FROM Tracktable WHERE (DATE_SUB(CURDATE(),INTERVAL 30 DAY) <= DateAdded) AND Hidden = 0 ORDER BY RAND()";
+	$qstring = "SELECT Uri FROM Tracktable WHERE (DATE_SUB(CURDATE(),INTERVAL 30 DAY) <= DateAdded) AND Hidden = 0 AND Uri IS NOT NULL ORDER BY RAND()";
 } else {
 	// This rather cumbersome query gives us albums in a random order but tracks in the correct order.
-	$qstring = "SELECT Uri, Albumindex, TrackNo FROM Tracktable JOIN (SELECT DISTINCT Albumindex FROM Tracktable WHERE (DATE_SUB(CURDATE(),INTERVAL 30 DAY) <= DateAdded) AND Hidden = 0 AND Uri IS NOT NULL ORDER BY TrackNo, RAND()) AS x USING (Albumindex)";
+	// Trackno IS NOT NULL gets rid of soundcloud and youtube tracks which aren't strictly albums, and always appear first in the results
+	$qstring = "SELECT Trackorder.Uri FROM ".
+				"(SELECT Uri, Albumindex FROM Tracktable ORDER BY TrackNo) AS Trackorder JOIN ".
+				"(SELECT DISTINCT Albumindex FROM Tracktable WHERE DATE_SUB(CURDATE(),INTERVAL 30 DAY) <= DateAdded AND Hidden = 0 AND Uri IS NOT NULL AND TrackNo IS NOT NULL ORDER BY RAND()) AS Albumorder USING (Albumindex) ".
+				"WHERE Albumorder.Albumindex IS NOT NULL";
 }
 if ($result = mysqli_query($mysqlc, $qstring)) {
 	while ($obj = mysqli_fetch_object($result)) {

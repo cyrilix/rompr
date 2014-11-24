@@ -80,6 +80,7 @@ if ($prefs['player_backend'] == "mpd") {
         </div>
 
         <div id="infopane" class="invisible infowiki">
+            <div id="artistchooser" class="infotext"></div>
 <?php
             print '<div id="artistinformation" class="infotext"><h2 align="center">'.get_int_text('label_emptyinfo').'</h2></div>';
 ?>

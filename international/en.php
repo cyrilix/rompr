@@ -301,8 +301,6 @@ $languages['en'] = array (
 
 	// Info Panel
 	"info_gettinginfo" => "Getting Info...",
-	"info_clicktoshow" => "CLICK TO SHOW",
-	"info_clicktohide" => "CLICK TO HIDE",
 	"info_newtab" => "View In New Tab",
 
 	// File Info panel
@@ -390,7 +388,7 @@ $languages['en'] = array (
 
 	// Discogs info panel
 	"button_discogs" => "Info Panel (Discogs)",
-	"discogs_error" => "There was a network error or Discogs refused to reply",
+	"discogs_error" => "Nothing was found by Discogs",
 	"discogs_nonsense" => "Couldn't get a sensible response from Discogs",
 	"discogs_noalbum" => "Couldn't find this album on Discogs",
 	"discogs_notrack" => "Couldn't find this track on Discogs",
@@ -517,13 +515,14 @@ $languages['en'] = array (
 	"label_pop" => "Popularity",
 	"label_albumsby" => "Albums By This Artist",
 	"label_related" => "Related Artists",
-	"label_artistradio" => "Artist Radio",
-	"label_mostplayed" => "Most Played Tracks",
+	"label_singleartistradio" => "Artist Radio",
+	"label_artistradio" => "Artist Mix Radio",
+	"label_mostplayed" => "Favourite Tracks",
 	"label_neverplayed" => "Never Played Tracks",
 	"label_radio_fartist" => "Favourite Artist Radio",
 	"label_pluginplaylists" => "Personalised Radio",
 	"label_recentlyadded_random" => "Recently Added Tracks (Random)",
-	"label_recentlyadded_byalbum" => "Recently Added Tracks (By Album)",
+	"label_recentlyadded_byalbum" => "Recently Added Albums",
 	"setup_mpd" => "MPD-specific Settings",
 	"settings_appearance" => "Appearance",
 	"settings_panels" => "Panels",
@@ -536,13 +535,19 @@ $languages['en'] = array (
 	"config_sortbycomposer" => "Sort Artists using Composer",
 	"config_composergenre" => " .. only if Genre is:",
 	"config_displaycomposer" => ".. Display Composer/Performer Info instead of Artist",
-	"label_radio_mix" => "Mix Radio",
+	"label_radio_mix" => "Personal Mix Radio",
+	"label_gotnotracks" => "Didn't find any tracks",
+	"config_consumeradio" => "Enable Consume when playing Smart Radio",
 
 	//CHANGED in 0.60
 	"config_country" => "COUNTRY (for Last.FM and Spotify)",
 	"setup_labeladdresses" => "If you are having connection issues, try using an IP address instead of 'localhost'",
 	"setup_ipaddress" => "Mopidy or mpd server",
 	"config_dateinfo" => "You must update your music collection after changing collection settings",
+
+	//REMOVED in 0.60
+	// "info_clicktoshow" => "CLICK TO SHOW",
+	// "info_clicktohide" => "CLICK TO HIDE",
 
 );
 

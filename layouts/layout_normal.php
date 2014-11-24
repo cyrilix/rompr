@@ -286,6 +286,7 @@ print '<div class="expand">'.get_int_text('label_icecast').'</div>';
 </div>
 
 <div id="infopane" class="tleft cmiddle noborder infowiki">
+    <div id="artistchooser" class="infotext noselection invisible"></div>
 <?php
 print '<div id="artistinformation" class="infotext noselection"><h2 align="center">'.get_int_text('label_emptyinfo').'</h2></div>';
 ?>

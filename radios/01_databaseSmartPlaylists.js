@@ -58,6 +58,7 @@ var starRadios = function() {
 
         stop: function() {
             running = false;
+            populating = false;
         },
 
         Go: function(data) {
@@ -67,20 +68,15 @@ var starRadios = function() {
                 populating = false;
                 player.controller.addTracks(data, playlist.playFromEnd(), null);
             } else {
-                // What happens if we get no tracks is that it means we've run out.
-                // Setting running to false will cuase everything to reset and start all over again.
                 debug.warn("SMARTPLAYLIST","Got NO tracks",data);
-                populating = false;
-                running = false;
-                playlist.repopulate();
+                infobar.notify(infobar.NOTIFY,language.gettext('label_gotnotracks'));
+                playlist.radioManager.stop();
             }
         },
 
         Fail: function() {
-            populating = false;
-            running = false;
-            infobar.notify(infobar.ERROR,"Failed to create Playlist");
-            playlist.repopulate();
+            infobar.notify(infobar.NOTIFY,language.gettext('label_gotnotracks'));
+            playlist.radioManager.stop();
         },
 
         setup: function() {

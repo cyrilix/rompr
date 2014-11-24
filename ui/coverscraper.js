@@ -140,18 +140,18 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
 
     function gotImage(data) {
         debug.log("COVERSCRAPER","Retrieved Image", data);
-        finaliseImage($(data).find('url').text(), $(data).find('delaytime').text());
+        finaliseImage(data);
    }
 
-   function finaliseImage(src, delaytime) {
-        debug.log("COVERSCRAPER","Source is",src);
-        if (src == "") {
+   function finaliseImage(data) {
+        debug.log("COVERSCRAPER","Source is",data.url);
+        if (data.url == "" || data.url === null) {
             revertCover(delaytime);
         } else {
             angle = 0;
             stopAnimation();
             $.each($('img[name="'+name+'"]'), function() {
-                $(this).attr("src", src);
+                $(this).attr("src", data.url);
                 $(this).removeClass("notexist");
                 $(this).removeClass("notfound");
             });
@@ -160,10 +160,10 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
                 sendLocalStorageEvent(name);
             }
             if (callbacks[name] !== undefined) {
-                debug.log("COVERSCRAPER","calling back for",name,src);
-                callbacks[name](src);
+                debug.log("COVERSCRAPER","calling back for",name,data);
+                callbacks[name](data);
             }
-            doNextImage(delaytime);
+            doNextImage(data.delaytime);
         }
     }
 

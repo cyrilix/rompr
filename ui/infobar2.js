@@ -44,38 +44,17 @@ var infobar = function() {
             contents = '<span class="npinfo" style="font-size:130%"><b>'+info.title+'</b></span>';
             doctitle = info.title;
         }
-        // We use player.status here because
-        //  a) It prevents Last.FM corrections overriding our preference and
-        //  b) It's easier.
-        if (info != playlist.emptytrack && prefs.displaycomposer &&
-            ((prefs.composergenre && player.status.Genre && player.status.Genre.toLowerCase() == prefs.composergenrename.toLowerCase()) ||
-            !prefs.composergenre)) {
-            var c = null;
-            var p = null;
-            var t = null;
-            if (player.status.Composer) {
-                c = joinartists(player.status.Composer);
+        var s = info.creator;
+        if (info.metadata && info.metadata.artists) {
+            var an = new Array();
+            for (var i in info.metadata.artists) {
+                an.push(info.metadata.artists[i].name);
             }
-            if (player.status.Performer) {
-                p = joinartists(player.status.Performer);
-            }
-            if (c && p) {
-                t = c +  " ("+language.gettext('label_composer')+"), " + p;
-            } else if (c) {
-                t = c + " ("+language.gettext('label_composer')+")";
-            } else if (p) {
-                t = p;
-            }
-            if (t) {
-                contents = contents+'<br /><span class="npinfo"><i>'+frequentLabels.by+'</i> <b>'+t+'</b></span>';
-            } else if (info.creator) {
-                contents = contents+'<br /><span class="npinfo"><i>'+frequentLabels.by+'</i> <b>'+info.creator+'</b></span>';
-            }
-        } else if (info.creator) {
-            contents = contents+'<br /><span class="npinfo"><i>'+frequentLabels.by+'</i> <b>'+info.creator+'</b></span>';
+            s = concatenate_artist_names(an);
         }
-        if (info.creator) {
-            doctitle = doctitle + " - " + info.creator;
+        if (s != "") {
+            contents = contents + '<br /><span class="npinfo"><i>'+frequentLabels.by+'</i> <b>'+s+'</b></span>';
+            doctitle = doctitle + " . " + s;
         }
         if (info.album) {
             contents = contents+' <span id="smokey" class="npinfo">';
@@ -299,25 +278,25 @@ var infobar = function() {
                 infobar.albumImage.setSource({    image: "newimages/transparent-32x32.png",
                                                   origimage: "newimages/transparent-32x32.png"
                                             });
-                return 0;
-            }
-            infobar.albumImage.setKey(info.key);
-            if (info.trackimage) {
-                infobar.albumImage.setSource({    image: info.trackimage,
-                                                  origimage: info.trackimage
-                                            });
-
             } else {
-                debug.log("INFOBAR","Setting Album Image to",info.image);
-                infobar.albumImage.setSource({    image: info.image,
-                                                  origimage: info.origimage == "" ? info.image : info.origimage
-                                            });
+                infobar.albumImage.setKey(info.key);
+                if (info.trackimage) {
+                    infobar.albumImage.setSource({    image: info.trackimage,
+                                                      origimage: info.trackimage
+                                                });
+
+                } else {
+                    debug.log("INFOBAR","Setting Album Image to",info.image);
+                    infobar.albumImage.setSource({    image: info.image,
+                                                      origimage: info.origimage == "" ? info.image : info.origimage
+                                                });
+                }
             }
         },
 
         setLastFMCorrections: function(info) {
             lfminfo = info;
-            if (prefs.lastfm_autocorrect) {
+            if (prefs.lastfm_autocorrect && trackinfo.metadata.iscomposer == 'false') {
                 setTheText(info);
             }
             infobar.albumImage.setSecondarySource(info);

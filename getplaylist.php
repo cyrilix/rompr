@@ -17,11 +17,12 @@ debug_print("Playlist Output Is Done","GETPLAYLIST");
 function outputPlaylist() {
     global $playlist;
     global $PLAYLISTFILE;
+    global $prefs;
 
     $output = array();
 
     foreach ($playlist as $track) {
-        array_push($output, array(
+        $info = array(
             "title" => $track->name,
             "album" => $track->album,
             // Track artists are held in the track object possibly as an array
@@ -33,7 +34,7 @@ function outputPlaylist() {
             "type" => $track->type,
             "date" => $track->albumobject->getDate(),
             "tracknumber" => $track->number,
-            "expires" => $track->expires,
+            // "expires" => $track->expires,
             "stationurl" => $track->stationurl,
             "station" => $track->station,
             "disc" => $track->disc,
@@ -50,15 +51,58 @@ function outputPlaylist() {
             "spotify" => array (
                 "album" => $track->getSpotiAlbum()
             ),
-            // Sending null in any of these values is very, very bad as it prevents plugins
-            // waiting on lastfm to find an ID
-            "musicbrainz" => array (
-                "artistid" => unwanted_array($track->musicbrainz_artistid),
-                "albumid" => $track->musicbrainz_albumid,
-                "albumartistid" => unwanted_array($track->musicbrainz_albumartistid),
-                "trackid" => $track->musicbrainz_trackid
+            // Never send null in any musicbrainz id as it prevents plugins from
+            // waiting on lastfm to find one
+            "metadata" => array(
+                "iscomposer" => 'false',
+                "artists" => array(),
+                "album" => array(
+                    "name" => $track->album,
+                    "artist" => $track->albumobject->artist,
+                    "musicbrainz_id" => unwanted_array($track->musicbrainz_albumid),
+                ),
+                "track" => array(
+                    "name" => $track->name,
+                    "musicbrainz_id" => unwanted_array($track->musicbrainz_trackid),
+                ),
             )
-        ));
+        );
+
+        if ($prefs['displaycomposer'] == "true" &&
+            ($track->composer !== null || $track->performers !== null) &&
+            (
+                ($prefs['composergenre'] == "true" && $track->genre && strtolower($track->genre) == strtolower($prefs['composergenrename'])) ||
+                $prefs['composergenre'] == "false")
+            ) {
+            $c = getArray($track->composer);
+            foreach ($c as $comp) {
+                array_push($info['metadata']['artists'], array( "name" => $comp, "musicbrainz_id" => ""));
+            }
+            $c = getArray($track->performers);
+            foreach ($c as $comp) {
+                array_push($info['metadata']['artists'], array( "name" => $comp, "musicbrainz_id" => ""));
+            }
+            $info['metadata']['iscomposer'] = 'true';
+        } else {
+            $doalbumartist = true;
+            $c = getArray($track->artist);
+            $m = getArray($track->musicbrainz_artistid);
+            while (count($m) < count($c)) {
+                array_push($m, "");
+            }
+            foreach ($c as $i => $comp) {
+                array_push($info['metadata']['artists'], array( "name" => $comp, "musicbrainz_id" => $m[$i]));
+                if ($comp == $track->albumobject->artist) {
+                    $doalbumartist = false;
+                }
+            }
+            if ($doalbumartist && strtolower($track->albumobject->artist) != "various artists" && strtolower($track->albumobject->artist) != "various") {
+                array_push($info['metadata']['artists'], array( "name" => $track->albumobject->artist, "musicbrainz_id" => unwanted_array($track->musicbrainz_albumartistid)));
+            }
+        }
+
+        array_push($output, $info);
+
     }
     $o = json_encode($output);
     print $o;

@@ -1,12 +1,23 @@
 var browser = function() {
 
-    var current_source = prefs.infosource;
-    var history = [];
-    var displaypointer = -1;
+    var history = [{
+                    source: "",
+                    artist: {
+                        name: "",
+                    },
+                    album: {
+                        name: "",
+                        artist: "",
+                    },
+                    track: {
+                        name: "",
+                    }
+                }];
+    var displaypointer = 0;
     var panelclosed = {artist: false, album: false, track: false};
     var waitingon = {artist: false, album: false, track: false, index: -1, source: null};
     var extraPlugins = [];
-
+    var maxhistorylength = (mobile == "no") ? 20 : 5;
     var sources = nowplaying.getAllPlugins();
 
     function displayTheData(ptr, showartist, showalbum, showtrack) {
@@ -16,16 +27,36 @@ var browser = function() {
         waitingon = {   artist: a || showartist,
                         album:  b || showalbum,
                         track:  c || showtrack,
-                        index: history[ptr].nowplayingindex,
+                        index: history[ptr].mastercollection.nowplayingindex,
                         source: history[ptr].source
         };
+        debug.log("BROWSER", "Waiting on source",waitingon.source,"for index", waitingon.index);
+        if (waitingon.source != prefs.infosource) {
+            // Need to do this here rather than in switchsource otherwise it prevents
+            // the browser from accepting the update
+            $("#button_source"+prefs.infosource).removeClass("currentbun");
+            prefs.save({infosource: waitingon.source});
+            debug.log("BROWSER", "Source switched to",prefs.infosource);
+            $("#button_source"+prefs.infosource).addClass("currentbun");
+        }
         for (var i in waitingon) {
             if (waitingon[i] === true) {
                 $("#"+i+"information").html(waitingBanner(i));
             }
         }
-        nowplaying.giveUsTheData(waitingon);
-        debug.log("BROWSER", "Waiting on source",waitingon.source,"for index", waitingon.index);
+        if (waitingon.artist && $("#artistchooser").is(':visible')) {
+            $("#artistchooser").stop().hide();
+        }
+        for (var i = 1; i < history.length-1; i++) {
+            history[i].mastercollection.stopDisplaying();
+        }
+        // Remember, here we tell artist, album, and track to display even if we only want one of them.
+        // This is because we need the new collections to handle clicks and other stuff, as otherwise it all gets
+        // very out of hand and impossible to follow, mainly because it's super tricky to keep the
+        // stopDisplaying/displayData displaying flags all in sync since they're global to one dataCollection
+        // and not individual for artist, album, and track. (This was tried before and got stupid).
+        history[ptr].mastercollection.sendDataToBrowser(waitingon);
+
     }
 
     function waitingBanner(which) {
@@ -44,18 +75,14 @@ var browser = function() {
             html = html + '<h2 class="expand">' + data.name + '</h2>';
         }
         html = html + '<div class="fixed" style="vertical-align:middle;padding:12px"><a href="#" class="infoclick frog">';
-        if (hidden) {
-            html = html + language.gettext("info_clicktoshow");
-        } else {
-            html = html + language.gettext("info_clicktohide");
-        }
+        html = html + '<img src="'+ipath+'pushbutton.png" />';
         html = html + '</a></div>';
         if (source) {
             if (data.link === null) {
                 html = html + '<div class="fixed" style="vertical-align:middle"><img height="32px" src="'+sources[source].icon+'"></div>';
             } else {
                 html = html + '<div class="fixed" style="vertical-align:middle"><a href="'+
-                            data.link + '" title="'+language.gettext("info_newtab")+'" target="_blank"><img height="32px" src="'+sources[source].icon+'"></a></div>';
+                    data.link + '" title="'+language.gettext("info_newtab")+'" target="_blank"><img height="32px" src="'+sources[source].icon+'"></a></div>';
             }
         } else if (close) {
             html = html + '<div class="fixed" style="vertical-align:middle"><img class="infoclick clickicon tadpole" height="16px" src="'+ipath+'edit-delete.png"></div>';
@@ -75,20 +102,15 @@ var browser = function() {
         $(foldup).slideToggle('slow');
         section = section.replace(/information/,'');
         panelclosed[section] = !panelclosed[section];
-        if (panelclosed[section]) {
-            $("#"+section+"information .frog").text(language.gettext("info_clicktoshow"));
-        } else {
-            $("#"+section+"information .frog").text(language.gettext("info_clicktohide"));
-        }
     }
 
     function updateHistory() {
 
-        if (displaypointer == 0) {
+        if (displaypointer == 1) {
             $("#backbutton").unbind('click');
             $("#backbutton").attr("src", ipath+"backbutton_disabled.png");
         }
-        if (displaypointer > 0 && $("#backbutton").attr("src")==ipath+"backbutton_disabled.png") {
+        if (displaypointer > 1 && $("#backbutton").attr("src")==ipath+"backbutton_disabled.png") {
             $("#backbutton").click( browser.back );
             $("#backbutton").attr("src", ipath+"backbutton.png");
         }
@@ -102,13 +124,14 @@ var browser = function() {
         }
 
         var html;
+        var bits = ["artist","album","track"];
         if (mobile == "no") {
             html = '<li class="wider"><b>'+language.gettext("menu_history")+'</b></li><li class="wider">';
         } else {
             html = '<h3 align="center">'+language.gettext("menu_history")+'</h3>';
         }
         html = html + '<table class="histable" width="100%">';
-        for (var i in history) {
+        for (var i = 1; i < history.length; i++) {
             var clas="top";
             if (i == displaypointer) {
                 clas = clas + " current";
@@ -118,23 +141,16 @@ var browser = function() {
             } else {
                 html = html + '<tr class="'+clas+'" onclick="browser.doHistory('+i+');sourcecontrol(\'infopane\')">';
             }
+
             html = html + '<td><img height="24px" src="'+sources[history[i].source].icon+'" /></td>';
             html = html + '<td>';
-            if (history[i].specials.artist) {
-                html = html + history[i].specials.artist.name+'<br>';
-            } else {
-                html = html + language.gettext("label_artist")+' : '+history[i].playlistinfo.creator+'<br>';
-            }
-            if (history[i].specials.album) {
-                html = html + history[i].specials.album.name+'<br>';
-            } else {
-                html = html + language.gettext("label_album")+' : '+history[i].playlistinfo.album+'<br>';
-            }
-            if (history[i].specials.track) {
-                html = html + history[i].specials.track.name;
-            } else {
-                html = html + language.gettext("label_track")+' : '+history[i].playlistinfo.title;
-            }
+            bits.forEach(function(n) {
+                if (history[i][n].collection) {
+                    html = html + history[i][n].collection.bannername()+'<br />';
+                } else {
+                    html = html + language.gettext("label_"+n)+' : '+history[i][n].name+'<br>';
+                }
+            });
             html = html + '</td></tr>';
         }
         html = html + '</table>';
@@ -142,7 +158,6 @@ var browser = function() {
             html = html + '</li>';
         }
         $("#historypanel").html(html);
-        html = null;
     }
 
     function removeSection(section) {
@@ -152,6 +167,23 @@ var browser = function() {
             extraPlugins[section].div.remove();
             extraPlugins[section].div = null;
         });
+    }
+
+    function checkHistoryLength() {
+        if (history.length > maxhistorylength) {
+            debug.shout("BROWSER", "Truncating History");
+            var np = history[1].mastercollection.nowplayingindex;
+            history.splice(1,1);
+            displaypointer--;
+            for (var i = 1; i < history.length; i++) {
+                // Scan our history to see if this nowplayingindex is being used anywhere else
+                if (history[i].mastercollection.nowplayingindex == np) {
+                    return;
+                }
+            }
+            debug.log("BROWSER","Telling nowplaying to remove nowplayingindex",np);
+            nowplaying.remove(np);
+        }
     }
 
     return {
@@ -174,86 +206,104 @@ var browser = function() {
                 }
             }
             if (mobile == "no") {
-                $("#button_source"+current_source).addClass("currentbun");
+                $("#button_source"+prefs.infosource).addClass("currentbun");
                 $(".dildo").tipTip({delay: 1000, edgeOffset: 8});
             }
         },
 
-        trackHasChanged: function(npindex, pinfo) {
-            // Nowplaying is telling us the track has changed. Do we, or do we not, want to display it?
-            debug.mark("BROWSER", "A new track has arrived",npindex);
-            history.push({
-                nowplayingindex: npindex,
-                playlistinfo: pinfo,
-                source: current_source,
-                specials: {}
-            });
-            switch (true) {
-                case (displaypointer < 0):
-                    displaypointer = history.length - 1;
-                    $("#button_source"+current_source).removeClass("currentbun");
-                    current_source = history[displaypointer].source;
-                    $("#button_source"+current_source).addClass("currentbun");
-                    displayTheData(displaypointer, true, true, true);
-                    break;
+        dataIsComing: function(mastercollection, isartistswitch, nowplayingindex, source, creator, artist, albumartist, album, track) {
+            debug.log("BROWSER","Data is coming",nowplayingindex, source, artist, albumartist, album, track)
+            if (prefs.hidebrowser) {
+                debug.log("BROWSER","Browser is hidden. Ignoring Data");
+                return;
+            }
+            // Why am I checking creator and not artist.name?
+            // Ah. It's so that when there are multiple artists and you've switched away from the default
+            // and then the track changes it doesn't switch back to the default - creator will (usually)
+            // be the same for every track on an album.
+            var showalbum  = (album != history[displaypointer].album.name || albumartist != history[displaypointer].album.artist || source != prefs.infosource);
+            var showartist = (isartistswitch || creator != history[displaypointer].creator || source != prefs.infosource ||
+                (showalbum && artist != history[displaypointer].artist.name));
+            var showtrack  = (track != history[displaypointer].track.name || showalbum || source != prefs.infosource);
 
-                case (displaypointer == history.length-2):
-                    // We are showing the most recent entry, so accept the update
-                    var compareartist1 = (pinfo.albumartist == "") ? pinfo.creator : pinfo.albumartist;
-                    var compareartist2 = (history[displaypointer].playlistinfo.albumartist == "") ? history[displaypointer].playlistinfo.creator : history[displaypointer].playlistinfo.albumartist;
-                    var showalbum = pinfo.album != history[displaypointer].playlistinfo.album || compareartist1 != compareartist2;
-                    displaypointer = history.length-1;
-                    displayTheData( displaypointer,
-                                    (pinfo.creator != history[displaypointer-1].playlistinfo.creator),
-                                    showalbum,
-                                    (pinfo.title != history[displaypointer-1].playlistinfo.title || showalbum)
-                    );
-                    break;
+            checkHistoryLength();
+
+            history.push( {
+                mastercollection: mastercollection,
+                source: source,
+                creator: creator,
+                artist: {
+                    name: artist,
+                    collection: null
+                },
+                album: {
+                    name: album,
+                    artist: albumartist,
+                    collection: null
+                },
+                track: {
+                    name: track,
+                    collection: null
+                }
+            });
+
+            // Display the new data only if either:
+            //  We are currently displaying the most recent track (ie continuous updates)
+            //  This is an artist switch request
+            //  This is a source switch request
+            //  History has been truncated such that the currently displayed info needs to be removed
+            if (displaypointer == history.length - 2 || isartistswitch || source != prefs.infosource || displaypointer < 1) {
+                displaypointer = history.length - 1;
+                displayTheData( displaypointer,
+                                showartist,
+                                showalbum,
+                                showtrack );
             }
             updateHistory();
         },
 
-        Update: function(type, source, nowplayingindex, data) {
-            debug.mark("BROWSER", "Got",type,"info from",source,"for index",nowplayingindex);
-            if (source == waitingon.source && nowplayingindex == waitingon.index && waitingon[type]) {
-                debug.log("BROWSER", "  .. and we are going to display it");
-                if (data.data !== null) {
-                    $("#"+type+"information").html(banner(data, type, panelclosed[type], source)+data.data);
-                    $("#"+type+"information").find("[title]").tipTip({delay:1000, edgeOffset: 8});
-                } else {
-                    $("#"+type+"information").html("");
-                }
-                waitingon[type] = false;
-                return true;
-            } else {
+        Update: function(collection, type, source, nowplayingindex, data) {
+            if (prefs.hidebrowser) {
                 return false;
+            }
+            debug.mark("BROWSER", "Got",type,"info from",source,"for index",nowplayingindex);
+            if (source == waitingon.source && nowplayingindex == waitingon.index) {
+                if (waitingon[type]) {
+                    debug.log("BROWSER", "  .. and we are going to display it");
+                    if (data.data !== null) {
+                        $("#"+type+"information").html(banner(data, (collection === null) ? type : collection.bannertitle(), panelclosed[type], source)+data.data);
+                        $("#"+type+"information").find("[title]").tipTip({delay:1000, edgeOffset: 8});
+                    } else {
+                        $("#"+type+"information").html("");
+                    }
+                    waitingon[type] = false;
+                    if (type == 'artist' && displaypointer == history.length-1) {
+                        // We only allow artist switching on the current playing track.
+                        // It's not that it doesn't work, but it means the artist switch gets added to the end of history
+                        // and then you have to go back to get to the current track, which means things stop auto-updating.
+                        // Also it makes truncating the history really hard.
+                        // TODO perhaps artist switches should be spliced in?
+                        history[displaypointer].mastercollection.doArtistChoices();
+                    }
+                    return true;
+                } else {
+                    return false;
+                }
             }
         },
 
         reDo: function(index, source) {
-            if (index == history[displaypointer].nowplayingindex && source == current_source) {
-                debug.log("BROWSER","Re-disaplying data for",source,"index",index);
+            if (index == history[displaypointer].mastercollection.nowplayingindex && source == prefs.infosource) {
+                debug.log("BROWSER","Re-displaying data for",source,"index",index);
                 displayTheData(displaypointer, true, true, true);
             }
         },
 
         switchsource: function(src) {
-            debug.log("BROWSER", "Source switched to",src);
-            $("#button_source"+current_source).removeClass("currentbun");
-            current_source = src;
-            $("#button_source"+current_source).addClass("currentbun");
-            prefs.save({infosource: current_source});
-            if (displaypointer >= 0) {
-                var p = history.length - 1;
-                history.push({
-                    nowplayingindex: history[p].nowplayingindex,
-                    playlistinfo: history[p].playlistinfo,
-                    source: current_source,
-                    specials: {}
-                });
-                displaypointer = history.length-1;
+            if (displaypointer >= 1) {
+                displaypointer = history.length - 1;
+                history[displaypointer].mastercollection.populate(src, true);
                 updateHistory();
-                displayTheData(displaypointer, true, true, true);
             }
         },
 
@@ -270,14 +320,10 @@ var browser = function() {
                 } else {
                     playlist.addtrack(element);
                 }
+            } else if (element.hasClass('clickartistchoose')) {
+                nowplaying.switchArtist(history[displaypointer].source, element.next().val());
             } else {
-                nowplaying.clickPassThrough(
-                    history[displaypointer].nowplayingindex,
-                    history[displaypointer].source,
-                    source,
-                    element,
-                    event
-                );
+                history[displaypointer].mastercollection.handleClick(history[displaypointer].source, source, element, event);
             }
         },
 
@@ -289,34 +335,34 @@ var browser = function() {
         // eg wikipedia
         speciaUpdate: function(source, panel, data) {
             debug.mark("BROWSER","Special Update from",source,"for",panel);
-            // We CLONE the HISTORY object but this DOES NOT clone the playlistinfo object
-            // The reason for cloning the history objects is that we need a UNIQUE reference
-            // to which special items this history element is displaying
-            var p = cloneObject(history[displaypointer]);
-            p.specials[panel] = data;
-            history.splice(displaypointer+1,0,p);
+            var n = new specialUpdateCollection(source, panel, data);
+
+            history.splice(displaypointer+1,0, {
+                mastercollection: history[displaypointer].mastercollection,
+                source: source,
+                creator: history[displaypointer].creator,
+                artist: {
+                    name: history[displaypointer].artist.name,
+                    collection: (panel == "artist") ? n : history[displaypointer].artist.collection
+                },
+                album: {
+                    name: history[displaypointer].album.name,
+                    albumartist: history[displaypointer].albumartist,
+                    collection: (panel == "album") ? n : history[displaypointer].album.collection
+                },
+                track: {
+                    name: history[displaypointer].track.name,
+                    collection: (panel == "track") ? n : history[displaypointer].track.collection
+                }
+            });
+
+            waitingon[panel] = true;
+            waitingon.source = source;
+            waitingon.index = history[displaypointer].mastercollection.nowplayingindex;
             displaypointer++;
             updateHistory();
-            var sp;
-            switch (panel) {
-                case "artist":
-                    sp = $("#artistinformation").position();
-                    $("#artistinformation").html(banner(data, source, panelclosed.artist, source)+data.data);
-                    $("#artistinformation").find("[title]").tipTip({delay:1000, edgeOffset: 8});
-                    break;
-
-                case "album":
-                    sp = $("#albuminformation").position();
-                    $("#albuminformation").html(banner(data, source, panelclosed.album, source)+data.data);
-                    $("#albuminformation").find("[title]").tipTip({delay:1000, edgeOffset: 8});
-                    break;
-
-                case "track":
-                    sp = $("#trackinformation").position();
-                    $("#trackinformation").html(banner(data, source, panelclosed.track, source)+data.data);
-                    $("#trackinformation").find("[title]").tipTip({delay:1000, edgeOffset: 8});
-                    break;
-            }
+            browser.Update(n, panel, source, waitingon.index, data);
+            var sp = $("#"+panel+"information").position();
             if (mobile == "no") {
                 $("#infopane").mCustomScrollbar("scrollTo",sp.top);
             } else {
@@ -326,68 +372,42 @@ var browser = function() {
 
         doHistory: function(index) {
             debug.log("BROWSER", "Doing history, index is",index);
-            var showartist = false;
-            var showalbum = false;
-            var showtrack = false;
-            var compareartist1 = (history[index].playlistinfo.albumartist == "") ? history[index].playlistinfo.creator : history[index].playlistinfo.albumartist;
-            var compareartist2 = (history[displaypointer].playlistinfo.albumartist == "") ? history[displaypointer].playlistinfo.creator : history[displaypointer].playlistinfo.albumartist;
-            if (history[index].specials.artist) {
-                $("#artistinformation").html(
-                    banner(
-                        history[index].specials.artist,
-                        history[index].source,
-                        panelclosed.artist,
-                        history[index].source
-                    )+history[index].specials.artist.data);
-            } else {
-                if (history[index].playlistinfo.creator != history[displaypointer].playlistinfo.creator ||
+
+            var showartist = (history[index].artist.collection === null &&
+                (history[index].artist.name != history[displaypointer].artist.name ||
                     history[index].source != history[displaypointer].source ||
-                    history[displaypointer].specials.artist)
-                {
-                    showartist = true;
-                }
-            }
-            if (history[index].specials.album) {
-                $("#albuminformation").html(
-                    banner(
-                        history[index].specials.album,
-                        history[index].source,
-                        panelclosed.album,
-                        history[index].source
-                    )+history[index].specials.album.data);
-            } else {
-                if (history[index].playlistinfo.album != history[displaypointer].playlistinfo.album ||
-                    compareartist1 != compareartist2 ||
+                    history[displaypointer].artist.collection !== null));
+
+            var showalbum = (history[index].album.collection === null &&
+                (history[index].album.name != history[displaypointer].album.name ||
+                    history[index].album.artist != history[displaypointer].album.artist ||
                     history[index].source != history[displaypointer].source ||
-                    history[displaypointer].specials.album)
-                {
-                    showalbum = true;
-                }
-            }
-            if (history[index].specials.track) {
-                $("#trackinformation").html(
-                    banner(
-                        history[index].specials.track,
-                        history[index].source,
-                        panelclosed.track,
-                        history[index].source
-                    )+history[index].specials.track.data);
-            } else {
-                if (history[index].playlistinfo.title != history[displaypointer].playlistinfo.title ||
-                    history[index].playlistinfo.album != history[displaypointer].playlistinfo.album ||
-                    compareartist1 != compareartist2 ||
+                    history[displaypointer].album.collection !== null));
+
+            var showtrack = (history[index].track.collection === null &&
+                (history[index].track.name != history[displaypointer].track.name ||
+                    history[index].album.name != history[displaypointer].album.name ||
+                    history[index].album.artist != history[displaypointer].album.artist ||
                     history[index].source != history[displaypointer].source ||
-                    history[displaypointer].specials.track)
-                {
-                    showtrack = true;
-                }
-            }
-            $("#button_source"+history[displaypointer].source).removeClass("currentbun");
+                    history[displaypointer].track.collection !== null));
+
             displaypointer = index;
-            $("#button_source"+history[displaypointer].source).addClass("currentbun");
             debug.log("BROWSER","History flags are",showartist,showalbum,showtrack);
+            // Calling displayTheData is important even if all the showxxx flags are false
+            // since it makes sure the correct trackDataCollection gets its displaying flag set.
             displayTheData(displaypointer, showartist, showalbum, showtrack);
             updateHistory();
+
+            var bits = ["artist","album","track"];
+            bits.forEach(function(n) {
+                if (history[index][n].collection) {
+                    waitingon[n] = true;
+                    waitingon.source = history[index].source;
+                    waitingon.index = history[index].mastercollection.nowplayingindex;
+                    browser.Update(history[index][n].collection, n, waitingon.source, waitingon.index, history[index][n].collection.getData());
+                }
+            });
+
             if (mobile == "no") {
                 $("#infopane").mCustomScrollbar("scrollTo",0);
             } else {
@@ -403,36 +423,6 @@ var browser = function() {
         back: function() {
             browser.doHistory(displaypointer-1);
             return false;
-        },
-
-        thePubsCloseTooEarly: function() {
-            /* nowplaying has truncated its history by removing the first one in its list.
-             * This means that all of our stored indices are now out. We must remove any history
-             * entries that have a nowplaying index of 1 */
-            debug.log("INFO PANEL","Reducing the badger episodes becasue of too many carrots");
-            var temp = history[displaypointer].source;
-            var chop = 0;
-            for (var i in history) {
-                if (history[i].nowplayingindex == 1) {
-                    chop++;
-                }
-            }
-            if (chop > 0) {
-                debug.debug("INFO PANEL","Removing",chop,"entries");
-                history.splice(0,chop);
-                displaypointer -= chop;
-                // NOTE: This could make displaypointer negative... however this function gets called
-                // just before nowplaying sends us a new track. trackHasChanged handles this situation
-                // by making sure we display the new data. We CANNOT leave the user viewing data
-                // that nowplaying has deleted, because the trackDataCollection objects no longer exist
-                if (displaypointer < 0) {
-                    $("#button_source"+temp).removeClass("currentbun");
-                }
-                for (var i in history) {
-                    history[i].nowplayingindex = history[i].nowplayingindex - 1;
-                }
-                updateHistory();
-            }
         },
 
         registerExtraPlugin: function(id, name, parent) {
@@ -535,11 +525,21 @@ var browser = function() {
             return retval;
 
         },
-
-        dumpHistory: function() {
-            for (var i in history) {
-                debug.log("HISTORY", history[i]);
-            }
-        }
     }
 }();
+
+function specialUpdateCollection(source, panel, data) {
+
+    this.bannertitle = function() {
+        return source;
+    }
+
+    this.bannername = function() {
+        return data.name;
+    }
+
+    this.getData = function() {
+        return data;
+    }
+
+}

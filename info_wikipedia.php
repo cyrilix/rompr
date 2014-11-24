@@ -506,6 +506,21 @@ function  wikipedia_artist_search($artist, $disambig) {
         }
     }
 
+    if ($page == null && preg_match('/.*\(.*\).*/', $artist)) {
+        $sf = trim(preg_replace('/\(.*?\)/','',$artist));;
+        debug_print("Searching Wikipedia for ".$sf, "WIKIPEDIA ARTIST");
+        $xml = wikipedia_request('http://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=' . rawurlencode($sf) . '&srprop=score&format=xml');
+        $artist3info = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
+        foreach ($artist3info->query->search->p as $id) {
+            $searchstring = $id['title'];
+            $searchstring = prepare_string($searchstring);
+            if (preg_match('/^\s*' . $searchstring . '\s*$/i', $sf)) {
+                $page = $id['title'];
+                break;
+            }
+        }
+    }
+
     if ($page == null) {
         return '';
     }

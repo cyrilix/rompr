@@ -284,13 +284,14 @@ function doPlaylist($playlist) {
 			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden=0 AND Rating > 4";
 			break;
 		case "mostplayed":
+			// Used to be tracks with above average playcount, now also includes any rated tracks. Still called mostplayed :)
 			$avgplays = getAveragePlays();
-			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Playcounttable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden=0 AND Playcount > ".$avgplays;
+			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Playcounttable USING (TTindex) LEFT JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden = 0 AND (Playcount > ".$avgplays." OR Rating IS NOT NULL)";
 			break;
 		case "neverplayed":
-			// Slightly wierd syntax but this does in fact give us all rows in Tracktable that do not have a JOIN with Ratingtable
+			// LEFT JOIN (used here and above) means that the right-hand side of the JOIN will be NULL if TTindex doesn't exist on that side. Very handy.
 			// http://dev.mysql.com/doc/refman/5.0/en/join.html
-			$sqlstring = "SELECT Tracktable.TTindex FROM Tracktable LEFT JOIN Ratingtable ON Tracktable.TTindex = Ratingtable.TTindex WHERE Ratingtable.TTindex IS NULL";
+			$sqlstring = "SELECT Tracktable.TTindex FROM Tracktable LEFT JOIN Playcounttable ON Tracktable.TTindex = Playcounttable.TTindex WHERE Playcounttable.TTindex IS NULL";
 			break;
 		default:
 			if (preg_match('/tag\+(.*)/', $playlist, $matches)) {

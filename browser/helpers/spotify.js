@@ -34,7 +34,7 @@ var spotify = function() {
 
             if (req) {
             	if (req.flag) {
-            		debug.error("SPOTIFY","Request just pulled from queue is already being handled");
+            		debug.warn("SPOTIFY","Request just pulled from queue is already being handled");
             		return;
             	}
 				queue[0].flag = true;
@@ -69,7 +69,19 @@ var spotify = function() {
 		                		queue.unshift({flag: false, reqid: '', url: data[root].next, success: req.success, fail: req.fail});
 		                	} else if (data[root].previous) {
 	                			collectedobj[root].items = collectedobj[root].items.concat(data[root].items);
-		                		debug.log("SPOTIFY","Returning concatenate multi-page result");
+		                		debug.log("SPOTIFY","Returning concatenated multi-page result");
+	                			req.success(collectedobj);
+	                		} else if (data.next) {
+		                		debug.log("SPOTIFY","Got a response with a next page!");
+		                		if (data.previous == null) {
+		                			collectedobj = data;
+		                		} else {
+		                			collectedobj.items = collectedobj.items.concat(data.items);
+		                		}
+		                		queue.unshift({flag: false, reqid: '', url: data.next, success: req.success, fail: req.fail});
+		                	} else if (data.previous) {
+	                			collectedobj.items = collectedobj.items.concat(data.items);
+		                		debug.log("SPOTIFY","Returning concatenated multi-page result");
 	                			req.success(collectedobj);
 		                	} else {
 		                    	req.success(data);

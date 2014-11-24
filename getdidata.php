@@ -17,7 +17,6 @@ if (file_exists('prefs/jsoncache/discogs/'.md5($uri))) {
 	debug_print("Response Status was ".$s, "GETDIDATA");
 	header("Pragma: Not Cached");
 	if ($s == "200") {
-		// debug_print($content['contents'],"GETDIDATA");
 		print $content['contents'];
 		file_put_contents('prefs/jsoncache/discogs/'.md5($uri), $content['contents']);
 	} else {

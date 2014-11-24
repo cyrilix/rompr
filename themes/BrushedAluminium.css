@@ -274,7 +274,6 @@ input.topformbutton
 
 .funkymusic
 {
-    /*color:#ffffff;*/
     background-color:#ededed;
 }
 
@@ -290,4 +289,16 @@ table.histable tr:hover {
 tr.clickaddtrack:hover
 {
     background-image:url('../newimages/silver1.jpg');
+}
+
+.edged
+{
+    border-left:1px solid #222222;
+    border-right:1px solid #222222;
+    border-bottom:1px solid #222222;
+}
+
+span.clickartistchoose:hover
+{
+    color:#000000;
 }

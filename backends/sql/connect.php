@@ -7,7 +7,7 @@ function connect_to_database() {
 	global $prefs;
 	if (function_exists('mysqli_connect')) {
 		try {
-			$mysqlc = @mysqli_connect($prefs['mysql_host'],$prefs['mysql_user'],$prefs['mysql_password'],'romprdb',$prefs['mysql_port']);
+			$mysqlc = @mysqli_connect($prefs['mysql_host'],$prefs['mysql_user'],$prefs['mysql_password'],$prefs['mysql_database'],$prefs['mysql_port']);
 			if (mysqli_connect_errno()) {
 				debug_print("Failed to connect to MySQL: ".mysqli_connect_error(), "SEARCH");
 				$mysqlc = null;
@@ -44,6 +44,7 @@ function check_sql_tables() {
 	// Check all our tables exist and create them if necessary
 
 	global $mysqlc;
+	global $prefs;
 
 	$current_schema_version = 9;
 
@@ -180,7 +181,7 @@ function check_sql_tables() {
 			return false;
 		}
 
-		$result = mysqli_query($mysqlc, "SELECT * FROM information_schema.TABLES WHERE (TABLE_SCHEMA = 'romprdb') AND (TABLE_NAME = 'Statstable')");
+		$result = mysqli_query($mysqlc, "SELECT * FROM information_schema.TABLES WHERE (TABLE_SCHEMA = '".$prefs['mysql_database']."') AND (TABLE_NAME = 'Statstable')");
 		if (mysqli_num_rows($result) == 0) {
 			debug_print("Statstable does not exist","MYSQL");
 			$q = "CREATE TABLE Statstable(Item CHAR(11), PRIMARY KEY(Item), Value INT UNSIGNED) ENGINE=InnoDB";

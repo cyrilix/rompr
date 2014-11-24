@@ -169,8 +169,11 @@ print '<div class="pref">
 <input type="checkbox" onclick="togglePref(\'twocolumnsinlandscape\')" id="twocolumnsinlandscape">'.get_int_text('config_2columns').'</input>
 </div>';
 }
-print '<div class="pref prefsection">
+print '<div class="pref">
 <input type="checkbox" onclick="togglePref(\'fullbiobydefault\')" id="fullbiobydefault">'.get_int_text('config_fullbio').'</input>
+</div>';
+print '<div class="pref prefsection">
+<input type="checkbox" onclick="togglePref(\'consumeradio\')" id="consumeradio">'.get_int_text('config_consumeradio').'</input>
 </div>';
 
 // Click Policy

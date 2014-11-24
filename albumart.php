@@ -357,9 +357,10 @@ function handleDrop(ev) {
                             formData.append('key', imagekey);
                             var xhr = new XMLHttpRequest();
                             xhr.open('POST', 'getalbumcover.php');
+                            xhr.responseType = "json";
                             xhr.onload = function () {
                                 if (xhr.status === 200) {
-                                    uploadComplete(xhr.responseText);
+                                    uploadComplete(xhr.response);
                                 } else {
                                     searchFail();
                                 }
@@ -394,9 +395,10 @@ function handleDrop(ev) {
                         formData.append('key', imagekey);
                         var xhr = new XMLHttpRequest();
                         xhr.open('POST', 'getalbumcover.php');
+                        xhr.responseType = "json";
                         xhr.onload = function () {
                             if (xhr.status === 200) {
-                                uploadComplete(xhr.responseText);
+                                uploadComplete(xhr.response);
                             } else {
                                 searchFail();
                             }
@@ -716,9 +718,10 @@ var imageEditor = function() {
             var formElement = document.getElementById("uform");
             var xhr = new XMLHttpRequest();
             xhr.open("POST", "getalbumcover.php");
+            xhr.responseType = "json";
             xhr.onload = function () {
                 if (xhr.status === 200) {
-                    uploadComplete(xhr.responseText);
+                    uploadComplete(xhr.response);
                 } else {
                     searchFail();
                 }
@@ -785,8 +788,7 @@ function searchFail() {
 
 function uploadComplete(data) {
     debug.log("ALBUMART","Upload Complete");
-    var src = $(data).find('url').text();
-    if (!src || src == "") {
+    if (!data.url || data.url == "") {
         searchFail();
         return;
     }
@@ -802,9 +804,8 @@ function uploadComplete(data) {
     imgobj.attr('src', "");
     imgobj.attr('src', "albumart/original/firefoxiscrap/"+imagekey+"---"+firefoxcrapnesshack.toString());
 
-    var os = $(data).find('origurl').text();
-    debug.log("ALBUMART","Returned big sauce ",os);
-    if (os) {
+    debug.log("ALBUMART","Returned big sauce ",data.origimage);
+    if (data.origimage) {
         imageEditor.updateBigImg("albumart/asdownloaded/firefoxiscrap/"+imagekey+"---"+firefoxcrapnesshack.toString());
     }
 

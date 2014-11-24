@@ -123,18 +123,14 @@ if ($in_collection) {
     update_stream_image($stream, $main_file);
 }
 
-header('Content-Type: text/xml; charset=utf-8');
-print  '<?xml version="1.0" encoding="utf-8"?>'."\n".
-        '<imageresults version="1">'."\n".
-        '<imageList>';
-print xmlnode('url', $main_file);
-print xmlnode('origurl', $big_file);
-print xmlnode('delaytime', $delaytime);
-print "</imageList>\n</imageresults>\n";
-
 if ($download_file != "" && file_exists($download_file)) {
+    debug_print("Removing downloaded file ".$download_file,"GETALBUMCOVER");
     unlink($download_file);
 }
+
+$o = array( 'url' => $main_file, 'origimage' => $big_file, 'delaytime' => $delaytime);
+header('Content-Type: application/json; charset=utf-8');
+print json_encode($o);
 
 debug_print("--------------------------------------------","GETALBUMCOVER");
 
@@ -194,7 +190,7 @@ function check_playlist($fname) {
                 if ($track['key'] == $fname) {
                     $retval[1] = $track['albumartist'];
                     $retval[2] = $track['album'];
-                    $retval[3] = $track['musicbrainz']['albumid'];
+                    $retval[3] = $track['metadata']['album']['musicbrainz_id'];
                     $retval[4] = rawurldecode($track['dir']);
                     $retval[5] = rawurldecode($track['spotify']['album']);
                     $retval[6] = true;

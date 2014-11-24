@@ -7,7 +7,7 @@ var info_ratings = function() {
 			return [];
 		},
 
-		collection: function(parent) {
+		collection: function(parent, artistmeta, albummeta, trackmeta) {
 
 			debug.log("RATINGS PLUGIN", "Creating data collection");
 
@@ -16,15 +16,15 @@ var info_ratings = function() {
 
             function doThingsWithData() {
                 if (parent.isCurrentTrack()) {
-                    if (parent.playlistinfo.metadata.track.usermeta.Playcount) {
-                        $("#playcount").html("<b>PLAYS :</b>&nbsp;"+parent.playlistinfo.metadata.track.usermeta.Playcount);
+                    if (trackmeta.usermeta.Playcount) {
+                        $("#playcount").html("<b>PLAYS :</b>&nbsp;"+trackmeta.usermeta.Playcount);
                     } else {
                         $("#playcount").html("");
                     }
-                    $("#ratingimage").attr("src","newimages/"+parent.playlistinfo.metadata.track.usermeta.Rating+"stars.png");
+                    $("#ratingimage").attr("src","newimages/"+trackmeta.usermeta.Rating+"stars.png");
                     $("#dbtags").html('<span style="margin-right:8px"><b>'+language.gettext("musicbrainz_tags")+'&nbsp;</b><a href="#" class="clicktext" onclick="tagAdder.show(event)">+</a></span>');
-                    for(var i = 0; i < parent.playlistinfo.metadata.track.usermeta.Tags.length; i++) {
-                        $("#dbtags").append('<span class="tag">'+parent.playlistinfo.metadata.track.usermeta.Tags[i]+'<span class="tagremover invisible"><a href="#" class="clicktext" onclick="nowplaying.removeTag(event)">x</a></span></span>');
+                    for(var i = 0; i < trackmeta.usermeta.Tags.length; i++) {
+                        $("#dbtags").append('<span class="tag">'+trackmeta.usermeta.Tags[i]+'<span class="tagremover invisible"><a href="#" class="clicktext" onclick="nowplaying.removeTag(event)">x</a></span></span>');
                     }
                     $(".tag").hover( function() {
                         $(this).children().show();
@@ -33,7 +33,7 @@ var info_ratings = function() {
                     });
                 }
                 // Make sure the browser updates the file info display
-                browser.reDo(parent.index, 'file');
+                browser.reDo(parent.nowplayingindex, 'file');
             }
 
             function hideTheInputs() {
@@ -98,7 +98,7 @@ var info_ratings = function() {
 
 			this.populate = function() {
                 if (prefs.apache_backend == "sql") {
-                    if (parent.playlistinfo.metadata.track.usermeta === undefined) {
+                    if (trackmeta.usermeta === undefined) {
                         var data = getPostData();
                         data.action = 'get';
                         $.ajax({
@@ -108,18 +108,18 @@ var info_ratings = function() {
                             dataType: 'json',
                             success: function(data) {
                                 debug.log("RATING PLUGIN","Got Data",data);
-                                parent.playlistinfo.metadata.track.usermeta = data;
+                                trackmeta.usermeta = data;
                                 doThingsWithData();
                             },
                             error: function(data) {
                                 debug.fail("RATING PLUGIN","Failure");
-                                parent.playlistinfo.metadata.track.usermeta = null;
+                                trackmeta.usermeta = null;
                                 hideTheInputs();
 
                             }
                         });
                     } else {
-                        debug.mark("RATINGS PLUGIN",parent.index,"is already populated");
+                        debug.mark("RATINGS PLUGIN",parent.nowplayingindex,"is already populated");
                         doThingsWithData();
                     }
                 }
@@ -128,7 +128,7 @@ var info_ratings = function() {
             this.setMeta = function(action, type, value) {
                 if (prefs.apache_backend == "sql") {
                     var data = getPostData();
-                    debug.log("RATINGS PLUGIN",parent.index,"Doing",action,type,value,data);
+                    debug.log("RATINGS PLUGIN",parent.nowplayingindex,"Doing",action,type,value,data);
                     data.action = action;
                     data.attribute = type;
                     data.value = value;
@@ -153,7 +153,7 @@ var info_ratings = function() {
                     success: function(rdata) {
                         debug.log("RATING PLUGIN","Success",rdata);
                         if (rdata) {
-                            parent.playlistinfo.metadata.track.usermeta = rdata.metadata;
+                            trackmeta.usermeta = rdata.metadata;
                             doThingsWithData();
                             updateCollectionDisplay(rdata);
                         }

@@ -612,8 +612,8 @@ select
 .togglebutton
 {
     padding:0px;
-    height:16px;
-    width:33px;
+    height:24px;
+    width:24px;
 }
 
 .togglediv
@@ -645,12 +645,12 @@ select
 
 .togglebutton-0
 {
-    background-image:url('../newimages/button-off.png');
+    background-image:url('../newimages/button-off-new.png');
 }
 
 .togglebutton-1
 {
-    background-image:url('../newimages/button-on.png');
+    background-image:url('../newimages/button-on-new.png');
 }
 
 .clickicon
@@ -2157,17 +2157,6 @@ div.lyrics p
     font-weight:bold;
 }
 
-.clicknotlink
-{
-    color:#0b0080;
-    cursor:pointer;
-}
-
-.clicknotlink:hover
-{
-    color:#ff4800;
-}
-
 .funkymusic
 {
     z-index:1500;
@@ -2243,18 +2232,12 @@ div.lyrics p
     background-color:#e1e4ea;
 }
 
-.currentremote
-{
-    background-color:#ff0000;
-}
-
 .albumthing
 {
     background-color:#f9f9f9;
     margin-top:0px;
     margin-left:0px;
     margin-bottom:0px;
-    margin-right:8px;
     padding:8px;
     text-align:center;
 }
@@ -2262,13 +2245,6 @@ div.lyrics p
 .tagholder2
 {
     margin-top: 12px;
-}
-
-.edged
-{
-    border-left:1px solid #dddddd;
-    border-right:1px solid #dddddd;
-    border-bottom:1px solid #dddddd;
 }
 
 #pluginplaylists
@@ -2302,4 +2278,19 @@ div.lyrics p
     vertical-align:middle;
     font-size:120%;
     font-weight:bold;
+}
+
+#artistchooser
+{
+    font-weight:bold;
+    text-align:center;
+    border-bottom:1px solid #555555;
+    border-top:1px solid #555555;
+    color:#555555;
+    width:98%;
+    margin-right:auto;
+    margin-left:auto;
+    margin-bottom:2px;
+    padding-bottom:4px;
+    padding-top:4px;
 }

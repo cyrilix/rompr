@@ -36,7 +36,7 @@ var discogs = function() {
 	                	var c = getit.getResponseHeader('Pragma');
 		            	debug.debug("DISCOGS", "Request Success",c,data);
 	                	if (c == "From Cache") {
-		                	throttle = setTimeout(discogs.getrequest, 200);
+		                	throttle = setTimeout(discogs.getrequest, 100);
 	                	} else {
 		                	throttle = setTimeout(discogs.getrequest, 1500);
 		                }

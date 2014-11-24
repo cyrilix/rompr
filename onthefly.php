@@ -15,6 +15,8 @@ include ("international.php");
 include ("backends/sql/backend.php");
 include ("player/mopidy/connection.php");
 
+debug_print("------------------- STARTING -------------------","ONTHEFLY");
+
 $error = 0;
 $count = 1;
 $divtype = "album1";
@@ -26,12 +28,14 @@ $nodata = array (
 );
 
 if ($mysqlc == null) {
-	debug_print("Can't Do on the fly stuff as no SQL connection!","RATINGS");
+	debug_print("Can't Do on the fly stuff as no SQL connection!","ONTHEFLY");
 	header('HTTP/1.0 403 Forbidden');
 	exit(0);
 }
 
 check_tracks_against_db(json_decode(file_get_contents('php://input')));
+
+debug_print("------------------- FINISHED -------------------","ONTHEFLY");
 
 function check_tracks_against_db($json) {
 	global $mysqlc;
@@ -50,7 +54,6 @@ function check_tracks_against_db($json) {
 												'lastmodified' => $obj->LastModified,
 												'trackno' => $obj->TrackNo,
 												'disc' => $obj->Disc,
-												'lastmodified' => $obj->LastModified
 											);
 		}
 		mysqli_free_result($result);
@@ -69,7 +72,7 @@ function check_tracks_against_db($json) {
 			foreach ($p->{'tracks'} as $t) {
 				$track = parseTrack($t);
 				if (array_key_exists($track['file'], $tracks_in_db)) {
-					debug_print("Track ".$track['file']." ".$track['Title']." already exists","MYSQL");
+					//debug_print("Track ".$track['file']." ".$track['Title']." already exists","MYSQL");
 			        if ($prefs['ignore_unplayable'] == "true" && substr($track['Title'], 0, 12) == "[unplayable]") {
 						debug_print("Track ".$track['file']." is unplayable, needs to be removed","MYSQL");
 					} else {
@@ -95,11 +98,14 @@ function check_tracks_against_db($json) {
         			} else {
 						debug_print("Track ".$track['file']." ".$track['Title']." is a new track","MYSQL");
 						// Add new tracks here and call send_list_updates every time,
-
+						$metadata = array();
 						// We've only checked by Uri. Need to find_wishlist_item first
 						$ttid = find_wishlist_item(concatenate_artist_names($track['Artist']),$track['Album'],$track['Title']);
 						if ($ttid) {
 							debug_print(" ... found in wishlist. Removing that one.","MYSQL");
+							// It's easier to manage if we delete the track and create a new one
+							// but we must preserve the metadata, since that's why it's in the wishlist in the first place
+							$metadata = get_all_data($ttid);
 							generic_sql_query("DELETE FROM Tracktable WHERE TTindex=".$ttid);
 						}
 						$artist_created = false;
@@ -132,6 +138,15 @@ function check_tracks_against_db($json) {
 							0,
 							null
 						);
+						if (array_key_exists('Rating', $metadata)) {
+							set_attribute($ttid, 'Rating', $metadata['Rating']);
+						}
+						if (array_key_exists('Tags', $metadata)) {
+							set_attribute($ttid, 'Tags', $metadata['Tags']);
+						}
+						if (array_key_exists('Playcount', $metadata)) {
+							increment_value($ttid, 'Playcount', $metadata['Playcount']);
+						}
 						send_list_updates($artist_created, $album_created, $ttid, false);
 					}
 				}

@@ -958,7 +958,7 @@ function setPrefs() {
             "lastfm_autocorrect", "hide_albumlist", "hide_filelist", "hide_radiolist",
             "hidebrowser", "updateeverytime", "ignore_unplayable", "downloadart",
             "fullbiobydefault", "scrolltocurrent", "sortbydate", "notvabydate",
-            "twocolumnsinlandscape", "sortbycomposer", "composergenre", "displaycomposer"],
+            "twocolumnsinlandscape", "sortbycomposer", "composergenre", "displaycomposer", "consumeradio"],
             function(i,v) {
                 $("#"+v).attr("checked", prefs[v]);
             }
@@ -1008,7 +1008,9 @@ function joinartists(ob) {
 }
 
 function concatenate_artist_names(t) {
-    if (t.length == 1) {
+    if (t.length == 0) {
+        return "";
+    } else if (t.length == 1) {
         return t[0];
     } else if (t.length == 2) {
         return t.join(" & ");

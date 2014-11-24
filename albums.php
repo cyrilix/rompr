@@ -72,7 +72,7 @@ if (array_key_exists('item', $_REQUEST)) {
 } else if (array_key_exists('wishlist', $_REQUEST)) {
     include ("collection/collection.php");
     include( "collection/dbsearch.php");
-    $collection = doDbCollection(array('wishlist' => 1), null);
+    $collection = getWishlist();
     createAlbumsList('prefs/w_list.xml', "w");
     dumpAlbums('walbumroot');
 } else if (array_key_exists('rebuild', $_REQUEST)) {

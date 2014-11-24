@@ -659,6 +659,7 @@ print '<hr class="dingleberry" />';
 print '<h3>MySQL Server Settings</h3>';
 print '<p>Server<br><input type="text" class="winkle" name="mysql_host" value="'.$prefs['mysql_host'].'" /></p>'."\n";
 print '<p>Port<br><input type="text" class="winkle" name="mysql_port" value="'.$prefs['mysql_port'].'" /></p>'."\n";
+print '<p>Database<br><input type="text" class="winkle" name="mysql_database" value="'.$prefs['mysql_database'].'" /></p>'."\n";
 print '<p>Username<br><input type="text" class="winkle" name="mysql_user" value="'.$prefs['mysql_user'].'" /></p>'."\n";
 print '<p>Password<br><input type="text" class="winkle" name="mysql_password" value="'.$prefs['mysql_password'].'" /></p>'."\n";
 print '<hr class="dingleberry" />';
@@ -815,6 +816,16 @@ function unwanted_array($a) {
         return $a[0];
     } else {
         return $a;
+    }
+}
+
+function getArray($a) {
+    if ($a === null) {
+        return array();
+    } else if (is_array($a)) {
+        return $a;
+    } else {
+        return array($a);
     }
 }
 

@@ -11,38 +11,14 @@ function Playlist() {
     var scrollto = -1;
     var updateErrorFlag = 0;
 
+    // Minimal set of information - just what infobar requires to make sure
+    // it blanks everything out
     this.emptytrack = {
         album: "",
-        albumartist: "",
-        backendid: "",
-        compilation: "",
         creator: "",
-        dir: "",
-        duration: "",
-        expires: "",
-        image: "",
-        key: "",
         location: "",
-        musicbrainz: {
-            albumartistid: "",
-            albumid: "",
-            artistid: "",
-            trackid: ""
-        },
-        origimage: "",
-        trackimage: "",
-        playlistpos: "",
-        genre: "",
-        spotify: {
-            album: ""
-        },
-        station: "",
-        stationurl: "",
-        stream: "",
         title: "",
-        tracknumber: "",
         type: "",
-        date: ""
     };
 
     /*
@@ -404,7 +380,7 @@ function Playlist() {
             if (self.currentTrack) {
                 currentalbum = i;
                 scrollToCurrentTrack();
-                if (self.currentTrack.playlistpos == finaltrack) {
+                if (self.currentTrack.playlistpos == finaltrack-1) {
                     playlist.radioManager.repopulate();
                 }
                 break;
@@ -543,6 +519,8 @@ function Playlist() {
 
         var mode = null;
         var radios = new Object();
+        var oldconsume = null;
+        var oldbuttonstate = null;;
 
         return {
 
@@ -569,7 +547,7 @@ function Playlist() {
             load: function(which, param) {
                 debug.log("PLAYLIST","Loading Smart",which);
                 playlist.waiting();
-                if (mode && mode != which) {
+                if ((mode && mode != which) || (mode && param && param != prefs.radioparam)) {
                     radios[mode].stop();
                 }
                 mode = which;
@@ -580,6 +558,14 @@ function Playlist() {
                 } else {
                     if ($("#ppscr").is(':visible')) {
                         $("#ppscr").slideToggle('fast');
+                    }
+                }
+                if (player.status.consume == 0 && prefs.consumeradio) {
+                    oldbuttonstate = $("#playlistbuttons").is(":visible");
+                    oldconsume = player.status.consume;
+                    player.controller.toggleConsume();
+                    if (!$("#playlistbuttons").is(":visible")) {
+                        $("#playlistbuttons").slideDown('slow');
                     }
                 }
             },
@@ -597,6 +583,14 @@ function Playlist() {
                 }
                 mode = null;
                 prefs.save({radiomode: '', radioparam: ''});
+                if (prefs.consumeradio) {
+                    if (oldconsume != player.status.consume) {
+                        player.controller.toggleConsume();
+                    }
+                    if (oldbuttonstate == false && $("#playlistbuttons").is(":visible")) {
+                        $("#playlistbuttons").slideUp('slow');
+                    }
+                }
             },
 
             setHeader: function() {
@@ -721,12 +715,12 @@ function Playlist() {
             }
         }
 
-        this.updateImages = function(src) {
+        this.updateImages = function(data) {
             for (var trackpointer in tracks) {
-                tracks[trackpointer].image = src;
-                tracks[trackpointer].origimage = src.replace(/_original/, '_asdownloaded');
+                tracks[trackpointer].image = data.url;
+                tracks[trackpointer].origimage = data.origimage;
             }
-            infobar.albumImage.setSecondarySource( {key: tracks[0].key, image: src, origimage: src.replace(/_original/, '_asdownloaded')});
+            infobar.albumImage.setSecondarySource( {key: tracks[0].key, image: data.url, origimage: data.origimage});
         }
 
         this.getFirst = function() {

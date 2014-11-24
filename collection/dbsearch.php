@@ -8,7 +8,7 @@ function doDbCollection($terms, $domains) {
 	// But it isn't because we let Mopidy/MPD search for anything they support because otherwise we
 	// have to duplicate their entire database, whcih is daft.
 	// This function was written before I realised that... :)
-	// It's still used for the wishlist, and for searches where we're only looking for tags and/or ratings
+	// It's still used for searches where we're only looking for tags and/or ratings
 
 	global $mysqlc;
 	if ($mysqlc === null) {
@@ -103,7 +103,7 @@ function doDbCollection($terms, $domains) {
 				'file' => $obj->Uri,
 				'Title' => $obj->Title,
 				'Track' => $obj->TrackNo,
-				'Image' => imagePath($obj->ImgKey),
+				'Image' => $obj->Image,
 				'Time' => $obj->Duration,
 				'SpotiAlbum' => $obj->Spotilink,
 				'Date' => $obj->Year,
@@ -116,25 +116,38 @@ function doDbCollection($terms, $domains) {
 		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 
-	// For the wishlist - get the tracks which have no album
-	if (array_key_exists('wishlist', $terms)) {
-		$qstring = "SELECT t.*, a1.* FROM Tracktable AS t JOIN Artisttable AS a1 ON a1.Artistindex = t.Artistindex WHERE t.Uri IS NULL AND t.Albumindex IS NULL";
-		if ($result = mysqli_query($mysqlc, $qstring)) {
-			while ($obj = mysqli_fetch_object($result)) {
-				$filedata = array(
-					'Artist' => $obj->Artistname,
-					'file' => $obj->Uri,
-					'Title' => $obj->Title,
-					'Track' => $obj->TrackNo,
-					'Time' => $obj->Duration,
-					'Last-Modified' => $obj->LastModified
-				);
-				process_file($collection, $filedata);
-			}
-			mysqli_free_result($result);
-		} else {
-			debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+	return $collection;
+
+}
+
+function getWishlist() {
+
+	global $mysqlc;
+	if ($mysqlc === null) {
+		connect_to_database();
+	}
+
+	$collection = new musicCollection(null);
+
+	// For the wishlist - get the tracks which have no uri
+	$qstring = "SELECT Tracktable.*, Artisttable.*, Albumtable.* FROM Tracktable JOIN Artisttable USING (Artistindex) JOIN Albumtable ON Tracktable.Albumindex = Albumtable.Albumindex WHERE Uri IS NULL";
+	if ($result = mysqli_query($mysqlc, $qstring)) {
+		while ($obj = mysqli_fetch_object($result)) {
+			$filedata = array(
+				'Artist' => $obj->Artistname,
+				'file' => $obj->Uri,
+				'Title' => $obj->Title,
+				'Track' => $obj->TrackNo,
+				'Time' => $obj->Duration,
+				'Last-Modified' => $obj->LastModified,
+				'Image' => $obj->Image,
+				'Album' => $obj->Albumname
+			);
+			process_file($collection, $filedata);
 		}
+		mysqli_free_result($result);
+	} else {
+		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 
 	return $collection;

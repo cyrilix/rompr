@@ -65,6 +65,7 @@ $prefs = array( "mpd_host" => "localhost",
                 "debug_enabled" => 0,
                 "radiocountry" => "http://www.listenlive.eu/uk.html",
                 "mysql_host" => "localhost",
+                "mysql_database" => "romprdb",
                 "mysql_user" => "rompr",
                 "mysql_password" => "romprdbpass",
                 "mysql_port" => "3306",
@@ -90,7 +91,8 @@ $prefs = array( "mpd_host" => "localhost",
                 "composergenre" => "false",
                 "composergenrename" => "Classical",
                 "displaycomposer" => "true",
-                "custom_logfile" => ""
+                "custom_logfile" => "",
+                "consumeradio" => "false"
                 );
 
 loadPrefs();
@@ -129,7 +131,7 @@ if ($prefs['debug_enabled'] == 1) {
         }
     }
 } else {
-    function debug_print($a, $b) {
+    function debug_print($a, $b = "") {
 
     }
 }

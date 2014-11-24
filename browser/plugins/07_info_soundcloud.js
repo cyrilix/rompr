@@ -85,12 +85,16 @@ var info_soundcloud = function() {
 			return [];
 		},
 
-		collection: function(parent) {
+		collection: function(parent, artistmeta, albummeta, trackmeta) {
 			debug.log("SOUNDCLOUD PLUGIN", "Creating data collection");
 
 			var self = this;
 			var wi = 0;
 			var displaying = false;
+
+            this.populate = function() {
+				self.track.populate();
+            }
 
 			this.displayData = function(waitingon) {
 				displaying = true;
@@ -112,63 +116,48 @@ var info_soundcloud = function() {
 				return {
 
 					populate: function() {
-						if (parent.playlistinfo.metadata.track.soundcloud.track.error) {
-			                browser.Update('artist', me, parent.index, { name: "",
+						if (trackmeta.soundcloud.track.error) {
+			                browser.Update(null, 'artist', me, parent.nowplayingindex, { name: "",
 							                    					link: "",
 							                    					data: null
 						                						}
 							);
 						} else {
-		            		if (parent.playlistinfo.metadata.artist.soundcloud.artist === undefined) {
+		            		if (artistmeta.soundcloud.artist === undefined) {
 		            			debug.log("SOUNDCLOUD PLUGIN","Artist is populating");
-			                	soundcloud.getUserInfo(parent.playlistinfo.metadata.artist.soundcloud.id, self.artist.scResponseHandler);
+			                	soundcloud.getUserInfo(artistmeta.soundcloud.id, self.artist.scResponseHandler);
 			                }
 						}
 					},
 
 					scResponseHandler: function(data) {
-						parent.playlistinfo.metadata.artist.soundcloud.artist = data;
+						artistmeta.soundcloud.artist = data;
 						self.artist.doBrowserUpdate();
 					},
 
 					doBrowserUpdate: function() {
-						if (displaying && parent.playlistinfo.metadata.track.soundcloud.track !== undefined) {
-							if (parent.playlistinfo.metadata.track.soundcloud.track.error) {
-				                browser.Update('artist', me, parent.index, { name: "",
+						if (displaying && trackmeta.soundcloud.track !== undefined) {
+							if (trackmeta.soundcloud.track.error) {
+				                browser.Update(null, 'artist', me, parent.nowplayingindex, { name: "",
 								                    					link: "",
 								                    					data: null
 							                						}
 								);
-							} else if (parent.playlistinfo.metadata.artist.soundcloud !== undefined &&
-										parent.playlistinfo.metadata.artist.soundcloud.artist !== undefined) {
-								if (parent.playlistinfo.metadata.artist.soundcloud.artist.error) {
-									browser.Update('artist', me, parent.index, {name: parent.playlistinfo.creator,
+							} else if (artistmeta.soundcloud !== undefined &&
+										artistmeta.soundcloud.artist !== undefined) {
+								if (artistmeta.soundcloud.artist.error) {
+									browser.Update(null, 'artist', me, parent.nowplayingindex, {name: artistmeta.name,
 																				link: "",
-																				data: '<h3 align="center">'+parent.playlistinfo.metadata.artist.soundcloud.artist.error+'</h3>'
+																				data: '<h3 align="center">'+artistmeta.soundcloud.artist.error+'</h3>'
 																			}
 									);
 								} else {
-									var accepted = browser.Update('artist', me, parent.index, {	name: parent.playlistinfo.creator || parent.playlistinfo.metadata.artist.soundcloud.artist.username,
-																				link: parent.playlistinfo.metadata.artist.soundcloud.artist.permalink_url,
-																				data: getArtistHTML(parent.playlistinfo.metadata.artist.soundcloud.artist)
+									var accepted = browser.Update(null, 'artist', me, parent.nowplayingindex, {	name: artistmeta.soundcloud.artist.username,
+																				link: artistmeta.soundcloud.artist.permalink_url,
+																				data: getArtistHTML(artistmeta.soundcloud.artist)
 																			}
 									);
 								}
-							}
-							try {
-								var image = parent.playlistinfo.metadata.track.soundcloud.track.artwork_url;
-								if (!image) {
-									image = parent.playlistinfo.metadata.artist.soundcloud.artist.avatar_url
-								}
-								nowplaying.setSoundCloudCorrections(parent.index, {
-									creator: parent.playlistinfo.creator || parent.playlistinfo.metadata.artist.soundcloud.artist.username,
-									album: 'SoundCloud',
-									title: parent.playlistinfo.title || parent.playlistinfo.metadata.track.soundcloud.track.title,
-									image: image,
-									origimage: image
-								});
-							} catch(err) {
-								debug.warn("SOUNDCLOUD PLUGIN", "Not enough data to send corrections");
 							}
 						}
 
@@ -182,7 +171,7 @@ var info_soundcloud = function() {
 
 					doBrowserUpdate: function() {
 						if (displaying) {
-			                browser.Update('album', me, parent.index, { name: "",
+			                browser.Update(null, 'album', me, parent.nowplayingindex, { name: "",
 							                    					link: "",
 							                    					data: null
 						                						}
@@ -199,14 +188,14 @@ var info_soundcloud = function() {
 				return {
 
 		            populate: function() {
-		            	if (parent.playlistinfo.metadata.artist.soundcloud === undefined) {
-		            		parent.playlistinfo.metadata.artist.soundcloud = {};
+		            	if (artistmeta.soundcloud === undefined) {
+		            		artistmeta.soundcloud = {};
 		            	}
-		            	if (parent.playlistinfo.metadata.track.soundcloud === undefined) {
-		            		parent.playlistinfo.metadata.track.soundcloud = {};
+		            	if (trackmeta.soundcloud === undefined) {
+		            		trackmeta.soundcloud = {};
 			            	var t = parent.playlistinfo.location;
 			            	if (t.substring(0,11) !== 'soundcloud:') {
-			            		parent.playlistinfo.metadata.track.soundcloud.track = {error: language.gettext("soundcloud_not")};
+			            		trackmeta.soundcloud.track = {error: language.gettext("soundcloud_not")};
 			            		self.artist.populate();
 			            		self.track.doBrowserUpdate();
 			            	} else {
@@ -219,30 +208,30 @@ var info_soundcloud = function() {
 
 	               scResponseHandler: function(data) {
 		                debug.log("SOUNDCLOUD PLUGIN","Got SoundCloud Track Data:",data);
-		                parent.playlistinfo.metadata.track.soundcloud.track = data;
-		                parent.playlistinfo.metadata.artist.soundcloud.id = data.user_id;
+		                trackmeta.soundcloud.track = data;
+		                artistmeta.soundcloud.id = data.user_id;
 		                self.artist.populate();
 		                self.track.doBrowserUpdate();
 		            },
 
 		            doBrowserUpdate: function() {
-						if (displaying  && parent.playlistinfo.metadata.track.soundcloud.track !== undefined) {
+						if (displaying  && trackmeta.soundcloud.track !== undefined) {
 							debug.log("SOUNDCLOUD PLUGIN","Track was asked to display");
-							if (parent.playlistinfo.metadata.track.soundcloud.track.error) {
-								browser.Update('track', me, parent.index, {	name: parent.playlistinfo.title,
+							if (trackmeta.soundcloud.track.error) {
+								browser.Update(null, 'track', me, parent.nowplayingindex, {	name: trackmeta.name,
 																		link: "",
-																		data: '<h3 align="center">'+parent.playlistinfo.metadata.track.soundcloud.track.error+'</h3>'
+																		data: '<h3 align="center">'+trackmeta.soundcloud.track.error+'</h3>'
 																		}
 								);
 							} else {
-								var accepted = browser.Update('track', me, parent.index, {	name: parent.playlistinfo.title,
-																		link: parent.playlistinfo.metadata.track.soundcloud.track.permalink_url,
-																		data: getTrackHTML(parent.playlistinfo.metadata.track.soundcloud.track)
+								var accepted = browser.Update(null, 'track', me, parent.nowplayingindex, {	name: trackmeta.name,
+																		link: trackmeta.soundcloud.track.permalink_url,
+																		data: getTrackHTML(trackmeta.soundcloud.track)
 																		}
 								);
 								if (accepted) {
 							        scImg.onload = self.track.doSCImageStuff;
-							        scImg.src = "getRemoteImage.php?url="+formatSCMessyBits(parent.playlistinfo.metadata.track.soundcloud.track.waveform_url);
+							        scImg.src = "getRemoteImage.php?url="+formatSCMessyBits(trackmeta.soundcloud.track.waveform_url);
 								}
 							}
 						}
@@ -322,12 +311,8 @@ var info_soundcloud = function() {
 					}
 				}
 			}();
-
-			self.track.populate();
 		}
-
 	}
-
 }();
 
 if (prefs.player_backend == "mopidy") {

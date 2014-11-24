@@ -478,11 +478,9 @@ function selectRange(first, last) {
     debug.log("GENERAL","Selecting a range between:",first.attr("name")," and ",last.attr("name"));
 
     // Which list are we selecting from?
-    // var list = first.attr('id');
     var it = first;
     while(!it.hasClass('selecotron')) {
         it = it.parent();
-        // list = it.attr("id");
     }
 
     var target = null;
@@ -501,22 +499,6 @@ function selectRange(first, last) {
             $(this).addClass('selected');
         }
     });
-}
-
-function munge_album_name(album) {
-    album = album.replace(/(\(|\[)disc\s*\d+.*?(\)|\])/i, "");        // (disc 1) or (disc 1 of 2) or (disc 1-2) etc (or with [ ])
-    album = album.replace(/(\(|\[)*cd\s*\d+.*?(\)|\])*/i, "");        // (cd 1) or (cd 1 of 2) etc (or with [ ])
-    album = album.replace(/\sdisc\s*\d+.*?$/i, "");                   //  disc 1 or disc 1 of 2 etc
-    album = album.replace(/\scd\s*\d+.*?$/i, "");                     //  cd 1 or cd 1 of 2 etc
-    album = album.replace(/(\(|\[)\d+\s*of\s*\d+(\)|\])/i, "");       // (1 of 2) or (1of2) (or with [ ])
-    album = album.replace(/(\(|\[)\d+\s*-\s*\d+(\)|\])/i, "");        // (1 - 2) or (1-2) (or with [ ])
-    album = album.replace(/(\(|\[)Remastered(\)|\])/i, "");           // (Remastered) (or with [ ])
-    album = album.replace(/(\(|\[).*?bonus .*(\)|\])/i, "");          // (With Bonus Tracks) (or with [ ])
-    album = album.replace(/\s+-\s*$/, "");                            // Chops any stray - off the end that could have been left by the previous
-    album = album.replace(/\s+$/, '');
-    album = album.replace(/^\s+/, '');
-    return album.toLowerCase();
-
 }
 
 function checkServerTimeOffset() {

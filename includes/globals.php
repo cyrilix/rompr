@@ -48,7 +48,7 @@ var prefs = function() {
             var prefsToSave = {};
             var postSave = false;
             for (var i in options) {
-                debug.log("PREFS", "Setting ",i,"to",options[i]);
+                debug.log("PREFS", "Setting",i,"to",options[i]);
                 prefs[i] = options[i];
                 if (options[i] === true || options[i] === false) {
                     options[i] = options[i].toString();

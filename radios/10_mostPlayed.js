@@ -21,16 +21,13 @@ var mostPlayed = function() {
                     populating = false;
                     player.controller.addTracks(data, playlist.playFromEnd(), null);
                 } else {
-                    populating = false;
-                    running = false;
-                    playlist.repopulate();
+                    playlist.radioManager.stop();
                 }
             },
             fail: function() {
-                populating = false;
-                running = false;
-                infobar.notify(infobar.ERROR,"Failed to create Playlist");
-                playlist.repopulate();
+                debug.error("MOST PLAYED","Database fail");
+                infobar.notify(infobar.NOTIFY,language.gettext('label_gotnotracks'));
+                playlist.radioManager.stop();
             }
         });
     }
@@ -50,6 +47,7 @@ var mostPlayed = function() {
 
         stop: function() {
             running = false;
+            populating = false;
         },
 
         setup: function() {

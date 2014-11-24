@@ -335,3 +335,15 @@ tr.clickaddtrack:hover
 {
     background-color:#cccccc;
 }
+
+.edged
+{
+    border-left:1px solid #222222;
+    border-right:1px solid #222222;
+    border-bottom:1px solid #222222;
+}
+
+span.clickartistchoose:hover
+{
+    color:#000000;
+}
