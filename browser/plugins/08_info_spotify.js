@@ -207,7 +207,7 @@ var info_spotify = function() {
                 	$("#artistalbums").masonry('destroy');
                 	self.getArtists();
                 } else if (element.hasClass('clickstartradio')) {
-                    playlist.radioManager.load("artistRadio", 'spotify:artist:'+artistmeta.spotify.ids[0]);
+                    playlist.radioManager.load("artistRadio", 'spotify:artist:'+artistmeta.spotify.id);
                 }  else if (element.hasClass('clickstartsingleradio')) {
                     playlist.radioManager.load("singleArtistRadio", artistmeta.name);
                 }

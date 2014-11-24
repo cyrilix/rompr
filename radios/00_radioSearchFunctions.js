@@ -64,10 +64,12 @@ function searchRadio() {
 
 	this.populateNext = function(timeout) {
 		clearTimeout(populatetimer);
-		for (var i in self.artists) {
-			if (!self.artists[i].populated) {
-				populatetimer = setTimeout(self.artists[i].populate, timeout);
-				break;
+		if (self.running) {
+			for (var i in self.artists) {
+				if (!self.artists[i].populated) {
+					populatetimer = setTimeout(self.artists[i].populate, timeout);
+					break;
+				}
 			}
 		}
 	}
