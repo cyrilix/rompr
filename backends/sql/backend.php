@@ -339,7 +339,8 @@ function create_new_album($album, $albumai, $spotilink, $image, $date, $isonefil
 	}
 
 	if ($stmt = mysqli_prepare($mysqlc, "INSERT INTO Albumtable (Albumname, AlbumArtistindex, Spotilink, Year, IsOneFile, Searched, ImgKey, mbid, NumDiscs, Domain, Image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-		mysqli_stmt_bind_param($stmt, "sisiiississ", $album, $albumai, $spotilink, $date, $isonefile, checkImage($imagekey), $imagekey, $mbid, $numdiscs, $domain, $image);
+		$i = checkImage($imagekey);
+		mysqli_stmt_bind_param($stmt, "sisiiississ", $album, $albumai, $spotilink, $date, $isonefile, $i, $imagekey, $mbid, $numdiscs, $domain, $image);
 		if (mysqli_stmt_execute($stmt)) {
 			$retval = mysqli_insert_id($mysqlc);
 			debug_print("Created Album ".$album." with Albumindex ".$retval,"MYSQL");
