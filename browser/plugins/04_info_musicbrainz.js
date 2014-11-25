@@ -1020,9 +1020,7 @@ var info_musicbrainz = function() {
 						if (displaying && albummeta.musicbrainz.album !== undefined) {
 							debug.mark(medebug,parent.nowplayingindex,"album was asked to display");
 							var up = null;
-                            if (parent.playlistinfo.type == "stream" && albummeta.name == artistmeta.name) {
-                            	up = { name: "", link: "", data: null }
-                            } else if (albummeta.musicbrainz.album.error) {
+							if (albummeta.musicbrainz.album.error) {
 								up = { name: albummeta.name,
 									   link: null,
 									   data: '<h3 align="center">'+albummeta.musicbrainz.album.error+'</h3>'}

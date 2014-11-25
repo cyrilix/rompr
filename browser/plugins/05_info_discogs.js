@@ -888,12 +888,6 @@ var info_discogs = function() {
 						if (albummeta.discogs.album.error === undefined &&
 							albummeta.discogs.album.master === undefined) {
 
-							if (parent.playlistinfo.type == "stream") {
-								debug.mark(medebug,parent.nowplayingindex,"Not bothering to update album info as it's a radio station");
-								albummeta.discogs.album.error = {error: '(Internet Radio Station)'};
-								self.album.doBrowserUpdate();
-								return;
-							}
 							if (albummeta.discogs.albumlink === undefined) {
 								debug.shout(medebug,parent.nowplayingindex,"Album asked to populate but no link yet");
 								retries--;
@@ -1039,36 +1033,20 @@ var info_discogs = function() {
 								albummeta.discogs.album.master !== undefined ||
 								albummeta.discogs.album.release !== undefined)) {
 							debug.mark(medebug,parent.nowplayingindex,"album was asked to display");
-                            if (parent.playlistinfo.type == "stream" && albummeta.name == artistmeta.name) {
-								browser.Update(
-									null,
-									'album',
-									me,
-									parent.nowplayingindex,
-									{
-										name: "",
-										link: "",
-										data: null
-									}
-								);
-							} else {
-								browser.Update(
-									null,
-									'album',
-									me,
-									parent.nowplayingindex,
-									{
-										name: albummeta.name,
-										link: albummeta.discogs.albumlink,
-										data: getAlbumHTML(albummeta.discogs.album)
-									}
-								);
-							}
+							browser.Update(
+								null,
+								'album',
+								me,
+								parent.nowplayingindex,
+								{
+									name: albummeta.name,
+									link: albummeta.discogs.albumlink,
+									data: getAlbumHTML(albummeta.discogs.album)
+								}
+							);
 						}
 					},
-
 				}
-
 			}();
 
 			this.track = function() {

@@ -23,6 +23,8 @@ function playerController() {
                 if (parts[0] && parts[1]) {
                     temp.creator = parts.shift();
                     temp.title = parts.join(" - ");
+                    temp.metadata.artists = [{name: temp.creator, musicbrainz_id: ""}];
+                    temp.metadata.track = {name: temp.title, musicbrainz_id: ""};
                 }
             }
             if (player.status.Name && !player.status.Name.match(/^\//)) {
@@ -30,16 +32,13 @@ function playerController() {
                 // as read from the station's stream metadata
                 checkForUpdateToUnknownStream(player.status.file, player.status.Name);
                 temp.album = player.status.Name;
+                temp.metadata.album = {name: temp.album, musicbrainz_id: ""};
             }
 
             if (playlist.currentTrack.title != temp.title ||
                 playlist.currentTrack.album != temp.album ||
                 playlist.currentTrack.creator != temp.creator)
             {
-                temp.musicbrainz.artistid = "";
-                temp.musicbrainz.albumid = "";
-                temp.musicbrainz.trackid = "";
-                temp.musicbrainz.albumartistid = "";
                 playlist.currentTrack = temp;
                 debug.log("STREAMHANDLER","Detected change of track",playlist.currentTrack);
                 nowplaying.newTrack(playlist.currentTrack);

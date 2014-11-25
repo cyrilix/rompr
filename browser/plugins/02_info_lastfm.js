@@ -595,28 +595,21 @@ var info_lastfm = function() {
                     doBrowserUpdate: function() {
                         if (displaying && albummeta.lastfm !== undefined) {
                             debug.mark(medebug,parent.nowplayingindex,"album was asked to display");
-                            if (parent.playlistinfo.type == "stream" && albummeta.name == artistmeta.name) {
-                                if (albummeta.musicbrainz_id == "") {
-                                    albummeta.musicbrainz_id = null;
+                            var lfmdata = new lfmDataExtractor(albummeta.lastfm.album);
+                            var accepted = browser.Update(
+                                null,
+                                'album',
+                                me,
+                                parent.nowplayingindex,
+                                { name: lfmdata.name() || albummeta.name,
+                                  link: lfmdata.url(),
+                                  data: getAlbumHTML(lfmdata)
                                 }
-                                browser.Update(null, "album", me, parent.nowplayingindex, { name: "", link: "", data: null });
-                            } else {
-                                var lfmdata = new lfmDataExtractor(albummeta.lastfm.album);
-                                var accepted = browser.Update(
-                                    null,
-                                    'album',
-                                    me,
-                                    parent.nowplayingindex,
-                                    { name: lfmdata.name() || albummeta.name,
-                                      link: lfmdata.url(),
-                                      data: getAlbumHTML(lfmdata)
-                                    }
-                                );
+                            );
 
-                                if (accepted && lastfm.isLoggedIn() && !lfmdata.error()) {
-                                    self.album.getUserTags();
-                                    $("#albuminformation .enter").keyup( onKeyUp );
-                                }
+                            if (accepted && lastfm.isLoggedIn() && !lfmdata.error()) {
+                                self.album.getUserTags();
+                                $("#albuminformation .enter").keyup( onKeyUp );
                             }
                         }
                     },

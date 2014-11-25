@@ -45,7 +45,7 @@ var infobar = function() {
             doctitle = info.title;
         }
         var s = info.creator;
-        if (info.metadata && info.metadata.artists && info.type && info.type !== "stream") {
+        if (info.metadata && info.metadata.artists && (info.type == "stream" && s != "")) {
             var an = new Array();
             for (var i in info.metadata.artists) {
                 an.push(info.metadata.artists[i].name);
@@ -58,7 +58,7 @@ var infobar = function() {
         }
         if (info.album) {
             contents = contents+' <span id="smokey" class="npinfo">';
-            if (info.title != "" || info.creator != "") {
+            if (info.title != "" || s != "") {
                 contents=contents+ '<i>'+frequentLabels.on+'</i> ';
             }
             contents = contents + '<b>'+info.album+'</b></span>';
