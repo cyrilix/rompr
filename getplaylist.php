@@ -91,13 +91,19 @@ function outputPlaylist() {
                 array_push($m, "");
             }
             foreach ($c as $i => $comp) {
-                array_push($info['metadata']['artists'], array( "name" => $comp, "musicbrainz_id" => $m[$i]));
-                if ($comp == $track->albumobject->artist) {
-                    $doalbumartist = false;
+                if ($comp != "") {
+                    array_push($info['metadata']['artists'], array( "name" => $comp, "musicbrainz_id" => $m[$i]));
+                    if ($comp == $track->albumobject->artist) {
+                        $doalbumartist = false;
+                    }
                 }
             }
             if ($doalbumartist && strtolower($track->albumobject->artist) != "various artists" && strtolower($track->albumobject->artist) != "various") {
-                array_push($info['metadata']['artists'], array( "name" => $track->albumobject->artist, "musicbrainz_id" => unwanted_array($track->musicbrainz_albumartistid)));
+                if ($track->type == "stream" && $track->albumobject->artist == "Radio" && $track->get_artist_string() == "") {
+                    array_push($info['metadata']['artists'], array( "name" => $track->album, "musicbrainz_id" => ""));
+                } else {
+                    array_push($info['metadata']['artists'], array( "name" => $track->albumobject->artist, "musicbrainz_id" => unwanted_array($track->musicbrainz_albumartistid)));
+                }
             }
         }
 

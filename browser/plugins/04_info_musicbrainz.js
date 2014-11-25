@@ -922,17 +922,6 @@ var info_musicbrainz = function() {
 							albummeta.musicbrainz = {};
 						}
 						if (albummeta.musicbrainz.album === undefined) {
-							if (parent.playlistinfo.type == "stream") {
-								debug.mark(medebug,parent.nowplayingindex,"Not bothering to update album info as it's a radio station");
-								albummeta.musicbrainz.album = {error: '('+language.gettext("label_internet_radio")+')'};
-								parent.updateData({
-								            musicbrainz: { album_releasegroupid: null },
-											wikipedia: { albumlink: null },
-										  	discogs: {  albumlink: null }
-										}, albummeta);
-								self.album.doBrowserUpdate();
-								return;
-							}
 							if (albummeta.musicbrainz_id == "") {
 								debug.shout(medebug,parent.nowplayingindex,"Album asked to populate but no MBID, trying again in 2 seonds");
 								setTimeout(self.album.populate, 2000);
@@ -1031,7 +1020,9 @@ var info_musicbrainz = function() {
 						if (displaying && albummeta.musicbrainz.album !== undefined) {
 							debug.mark(medebug,parent.nowplayingindex,"album was asked to display");
 							var up = null;
-							if (albummeta.musicbrainz.album.error) {
+                            if (parent.playlistinfo.type == "stream" && albummeta.name == artistmeta.name) {
+                            	up = { name: "", link: "", data: null }
+                            } else if (albummeta.musicbrainz.album.error) {
 								up = { name: albummeta.name,
 									   link: null,
 									   data: '<h3 align="center">'+albummeta.musicbrainz.album.error+'</h3>'}

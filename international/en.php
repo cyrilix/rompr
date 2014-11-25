@@ -154,7 +154,6 @@ $languages['en'] = array (
 	"label_notracks" => "No Individual Tracks Returned By Search",
 	"label_duration" => "Duration",
 	"label_playererror" => "Player Error",
-	"label_internet_radio" => "Internet Radio",
 	"label_tunefailed" => "Failed To Tune Radio Station",
 	"label_noneighbours" => "Did not find any neighbours",
 	"label_nofreinds" => "You have 0 freinds",
@@ -548,6 +547,7 @@ $languages['en'] = array (
 	//REMOVED in 0.60
 	// "info_clicktoshow" => "CLICK TO SHOW",
 	// "info_clicktohide" => "CLICK TO HIDE",
+	// "label_internet_radio" => "Internet Radio",
 
 );
 

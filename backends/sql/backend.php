@@ -242,7 +242,6 @@ function create_new_track($title, $artist, $trackno, $duration, $albumartist, $s
 function check_artist($artist, $upflag) {
 	global $mysqlc;
 	$index = null;
-	debug_print("Checking for artist ".$artist,"MYSQL");
 	if ($stmt = mysqli_prepare($mysqlc, "SELECT Artistindex FROM Artisttable WHERE STRCMP(Artistname, ?) = 0")) {
 		mysqli_stmt_bind_param($stmt, "s", $artist);
 		mysqli_stmt_execute($stmt);
@@ -281,7 +280,6 @@ function check_album($album, $albumai, $spotilink, $image, $date, $isonefile, $s
 	$index = null;
 	$year = null;
 	$nd = null;
-	debug_print("Checking for album ".$album." on ".$domain, "MYSQL");
 	if ($stmt = mysqli_prepare($mysqlc, "SELECT Albumindex, Year, Numdiscs FROM Albumtable WHERE STRCMP(Albumname, ?) = 0 AND AlbumArtistindex = ? AND Domain = ?")) {
 		mysqli_stmt_bind_param($stmt, "sis", $album, $albumai, $domain);
 		mysqli_stmt_execute($stmt);
@@ -330,7 +328,6 @@ function create_new_album($album, $albumai, $spotilink, $image, $date, $isonefil
 	// get removed.
 
 	if (preg_match('#^prefs/imagecache/#', $image)) {
-		debug_print("Archiving Image For Album ... copying it from image cache","NEW ALBUM");
         $image = preg_replace('#_small\.jpg|_original\.jpg#', '', $image);
 		system( 'cp '.$image.'_small.jpg albumart/small/'.$imagekey.'.jpg');
 		system( 'cp '.$image.'_original.jpg albumart/original/'.$imagekey.'.jpg');

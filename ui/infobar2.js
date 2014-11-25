@@ -45,7 +45,7 @@ var infobar = function() {
             doctitle = info.title;
         }
         var s = info.creator;
-        if (info.metadata && info.metadata.artists) {
+        if (info.metadata && info.metadata.artists && info.type && info.type !== "stream") {
             var an = new Array();
             for (var i in info.metadata.artists) {
                 an.push(info.metadata.artists[i].name);
@@ -296,7 +296,7 @@ var infobar = function() {
 
         setLastFMCorrections: function(info) {
             lfminfo = info;
-            if (prefs.lastfm_autocorrect && trackinfo.metadata.iscomposer == 'false') {
+            if (prefs.lastfm_autocorrect && trackinfo.metadata.iscomposer == 'false' && trackinfo.type != "stream") {
                 setTheText(info);
             }
             infobar.albumImage.setSecondarySource(info);

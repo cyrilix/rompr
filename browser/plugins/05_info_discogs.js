@@ -1039,17 +1039,31 @@ var info_discogs = function() {
 								albummeta.discogs.album.master !== undefined ||
 								albummeta.discogs.album.release !== undefined)) {
 							debug.mark(medebug,parent.nowplayingindex,"album was asked to display");
-							browser.Update(
-								null,
-								'album',
-								me,
-								parent.nowplayingindex,
-								{
-									name: albummeta.name,
-									link: albummeta.discogs.albumlink,
-									data: getAlbumHTML(albummeta.discogs.album)
-								}
-							);
+                            if (parent.playlistinfo.type == "stream" && albummeta.name == artistmeta.name) {
+								browser.Update(
+									null,
+									'album',
+									me,
+									parent.nowplayingindex,
+									{
+										name: "",
+										link: "",
+										data: null
+									}
+								);
+							} else {
+								browser.Update(
+									null,
+									'album',
+									me,
+									parent.nowplayingindex,
+									{
+										name: albummeta.name,
+										link: albummeta.discogs.albumlink,
+										data: getAlbumHTML(albummeta.discogs.album)
+									}
+								);
+							}
 						}
 					},
 

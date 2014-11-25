@@ -15,7 +15,7 @@ var info_ratings = function() {
 			var displaying = false;
 
             function doThingsWithData() {
-                if (parent.isCurrentTrack()) {
+                if (parent.isCurrentTrack() && trackmeta.usermeta !== null) {
                     if (trackmeta.usermeta.Playcount) {
                         $("#playcount").html("<b>PLAYS :</b>&nbsp;"+trackmeta.usermeta.Playcount);
                     } else {
@@ -165,9 +165,6 @@ var info_ratings = function() {
                     }
                 });
             }
-
-			self.populate();
-
 		}
 	}
 }();

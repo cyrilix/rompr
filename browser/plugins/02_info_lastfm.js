@@ -553,21 +553,11 @@ var info_lastfm = function() {
 
                     populate: function() {
                         if (albummeta.lastfm === undefined) {
-                            if (parent.playlistinfo.type == "stream") {
-                                debug.mark(medebug,"This album is a radio stream");
-                                albummeta.lastfm = {album: {error: 99, message: albummeta.name}};
-                                if (albummeta.musicbrainz_id == "") {
-                                    albummeta.musicbrainz_id = null;
-                                }
-                                self.track.populate();
-                                self.album.doBrowserUpdate();
-                            } else {
-                                debug.mark(medebug,"Getting last.fm data for album",albummeta.name);
-                                lastfm.album.getInfo({  artist: getSearchArtist(),
-                                                        album: albummeta.name},
-                                                    this.lfmResponseHandler,
-                                                    this.lfmResponseHandler );
-                            }
+                            debug.mark(medebug,"Getting last.fm data for album",albummeta.name);
+                            lastfm.album.getInfo({  artist: getSearchArtist(),
+                                                    album: albummeta.name},
+                                                this.lfmResponseHandler,
+                                                this.lfmResponseHandler );
                         } else {
                             debug.mark(medebug,"Album is already populated",albummeta.name);
                             self.track.populate();
@@ -605,21 +595,28 @@ var info_lastfm = function() {
                     doBrowserUpdate: function() {
                         if (displaying && albummeta.lastfm !== undefined) {
                             debug.mark(medebug,parent.nowplayingindex,"album was asked to display");
-                            var lfmdata = new lfmDataExtractor(albummeta.lastfm.album);
-                            var accepted = browser.Update(
-                                null,
-                                'album',
-                                me,
-                                parent.nowplayingindex,
-                                { name: lfmdata.name() || albummeta.name,
-                                  link: lfmdata.url(),
-                                  data: getAlbumHTML(lfmdata)
+                            if (parent.playlistinfo.type == "stream" && albummeta.name == artistmeta.name) {
+                                if (albummeta.musicbrainz_id == "") {
+                                    albummeta.musicbrainz_id = null;
                                 }
-                            );
+                                browser.Update(null, "album", me, parent.nowplayingindex, { name: "", link: "", data: null });
+                            } else {
+                                var lfmdata = new lfmDataExtractor(albummeta.lastfm.album);
+                                var accepted = browser.Update(
+                                    null,
+                                    'album',
+                                    me,
+                                    parent.nowplayingindex,
+                                    { name: lfmdata.name() || albummeta.name,
+                                      link: lfmdata.url(),
+                                      data: getAlbumHTML(lfmdata)
+                                    }
+                                );
 
-                            if (accepted && lastfm.isLoggedIn() && !lfmdata.error()) {
-                                self.album.getUserTags();
-                                $("#albuminformation .enter").keyup( onKeyUp );
+                                if (accepted && lastfm.isLoggedIn() && !lfmdata.error()) {
+                                    self.album.getUserTags();
+                                    $("#albuminformation .enter").keyup( onKeyUp );
+                                }
                             }
                         }
                     },

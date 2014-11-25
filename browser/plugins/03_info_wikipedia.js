@@ -307,16 +307,20 @@ var info_wikipedia = function() {
 					doBrowserUpdate: function() {
 						if (displaying && albummeta.wikipedia.albumdata !== undefined) {
 							debug.log("WIKI PLUGIN",parent.nowplayingindex,"album was asked to display");
-							browser.Update(
-								null,
-								'album',
-								me,
-								parent.nowplayingindex,
-								{ name: albummeta.name,
-								  link: albummeta.wikipedia.albumlink,
-								  data: albummeta.wikipedia.albumdata
-								}
-							);
+                            if (parent.playlistinfo.type == "stream" && albummeta.name == artistmeta.name) {
+                                browser.Update(null, "album", me, parent.nowplayingindex, { name: "", link: "", data: null });
+                            } else {
+								browser.Update(
+									null,
+									'album',
+									me,
+									parent.nowplayingindex,
+									{ name: albummeta.name,
+									  link: albummeta.wikipedia.albumlink,
+									  data: albummeta.wikipedia.albumdata
+									}
+								);
+							}
 						}
 					},
 

@@ -270,7 +270,7 @@ var browser = function() {
             if (source == waitingon.source && nowplayingindex == waitingon.index) {
                 if (waitingon[type]) {
                     debug.log("BROWSER", "  .. and we are going to display it");
-                    if (data.data !== null) {
+                    if (data.data !== null && (source == "file" || data.name !== "")) {
                         $("#"+type+"information").html(banner(data, (collection === null) ? type : collection.bannertitle(), panelclosed[type], source)+data.data);
                         $("#"+type+"information").find("[title]").tipTip({delay:1000, edgeOffset: 8});
                     } else {
