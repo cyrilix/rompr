@@ -941,9 +941,6 @@ function lfmDataExtractor(data) {
     }
 
     this.name = function() {
-        if (data.error && data.error == 99) {
-            return "(Internet Radio)";
-        }
     	return data.name || "";
     }
 

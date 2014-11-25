@@ -279,7 +279,6 @@ function do_albums_xml($artistkey, $compilations, $showartist, $prefix, $output)
                         ($album->artist != null && ($album->artist != $trackobj->get_artist_string()))) &&
                         ($trackobj->get_artist_string() != null && $trackobj->get_artist_string() != '.')
                     ) {
-                        debug_print("'".$trackobj->get_artist_string()."' '".$trackobj->albumartist,"TEST");
                         $output->writeLine(xmlnode('artist', $trackobj->get_artist_string()));
                     }
                     $output->writeLine(xmlnode('url', rawurlencode($trackobj->url)));

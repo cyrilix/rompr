@@ -115,7 +115,7 @@ function find_wishlist_item($artist, $album, $title) {
 	global $mysqlc;
 
 	$ttid = null;
-	if ($album) {
+	if ($album && $album != "[Unknown]") {
 		debug_print("  Trying by artist ".$artist." album ".$album." and track ".$title,"MYSQL");
 		if ($stmt = mysqli_prepare($mysqlc, "SELECT TTindex FROM Tracktable JOIN Artisttable USING (Artistindex) JOIN Albumtable USING (Albumindex) WHERE STRCMP(Title, ?) = 0 AND STRCMP(Artistname, ?) = 0 AND STRCMP(Albumname, ?) = 0 AND Tracktable.Uri IS NULL")) {
 			mysqli_stmt_bind_param($stmt, "sss", $title, $artist, $album);

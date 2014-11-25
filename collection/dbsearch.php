@@ -150,6 +150,26 @@ function getWishlist() {
 		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 
+	$qstring = "SELECT Tracktable.*, Artisttable.* FROM Tracktable JOIN Artisttable USING (Artistindex) WHERE Albumindex IS NULL AND Uri IS NULL";
+	if ($result = mysqli_query($mysqlc, $qstring)) {
+		while ($obj = mysqli_fetch_object($result)) {
+			$filedata = array(
+				'Artist' => $obj->Artistname,
+				'file' => $obj->Uri,
+				'Title' => $obj->Title,
+				'Track' => $obj->TrackNo,
+				'Time' => $obj->Duration,
+				'Last-Modified' => $obj->LastModified,
+				'Image' => $obj->Image,
+				'Album' => "[Unknown]"
+			);
+			process_file($collection, $filedata);
+		}
+		mysqli_free_result($result);
+	} else {
+		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+	}
+
 	return $collection;
 
 }
