@@ -19,8 +19,6 @@ if (!$url) {
 			file_put_contents($outfile, $aagh['contents']);
 		} else {
 			debug_print("Failed to download - status was ".$aagh['status'],"TOMATO");
-	        // header('HTTP/1.0 403 Forbidden');
-	        // exit(0);
 	        header('Content-type: image/png');
 	        readfile('newimages/album-unknown-small.png');
 	        exit(0);
@@ -35,15 +33,12 @@ if (!$url) {
 	if (preg_match('/Mime type:\s+(.*)$/', $r, $o)) {
 		if ($o[1]) {
 			$mime = $o[1];
-			// debug_print("Using MIME type : ".$mime,"TOMATO");
 		}
 	} else {
 		$r = exec($convert_path."identify -verbose ".$outfile." | grep Format");
-		// debug_print("Checking MIME type again : ".$r,"TOMATO");
 		if (preg_match('/Format:\s+(.*?) /', $r, $o)) {
 			if ($o[1]) {
 				$mime = 'image/'.strtolower($o[1]);
-				// debug_print("Using MIME type : ".$mime,"TOMATO");
 			}
 		}
 	}

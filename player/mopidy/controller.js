@@ -308,13 +308,21 @@ function playerController() {
     					debug.log("PLAYER","addTracks has a findexact filter to apply",t.findexact,t.filterdomain);
     					mopidy.library.findExact(t.findexact, t.filterdomain).then(function(data) {
     						if (data[0].tracks)	tltracksToAdd = tltracksToAdd.concat(sortByAlbum(data[0].tracks));
-    						att = setTimeout(self.startAddingTracks, 50);
+    						att = setTimeout(self.startAddingTracks, 100);
     					}, consoleError);
     				} else {
 			    		debug.log("PLAYER","addTracks Adding",t.name);
 			    		mopidy.library.lookup(t.name).then(function(tracks) {
+                            for (var i in tracks) {
+                                if (tracks[i].name.match(/^\[loading\]/)) {
+                                    debug.fail("PLAYER", "Mopidy failed to load track! Retrying");
+                                    // Mopidy will send us this track when it finally looks it up, it seems.
+                                    att = setTimeout(self.startAddingTracks, 500);
+                                    return;
+                                }
+                            }
 			    			tltracksToAdd = tltracksToAdd.concat(tracks);
-    						att = setTimeout(self.startAddingTracks, 50);
+    						att = setTimeout(self.startAddingTracks, 100);
 			    		}, consoleError);
 		    		}
 	    			break;
@@ -327,7 +335,7 @@ function playerController() {
 		    		debug.log("PLAYER","addTracks Adding",t.name);
 	    			$.getJSON("getItems.php?item="+t.name, function(data) {
 	    				albumtracks = albumtracks.concat(data);
-						att = setTimeout(self.startAddingTracks, 50);
+						att = setTimeout(self.startAddingTracks, 100);
 	    			});
 	    			break;
 
@@ -343,7 +351,6 @@ function playerController() {
 	    			break;
 
     		}
-    		t = null;
 		} else {
 			debug.log("MOPIDY","TlTracks Array is",tltracksToAdd);
 			if (tltracksToAdd.length > 0) {

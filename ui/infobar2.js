@@ -41,11 +41,11 @@ var infobar = function() {
         var doctitle = "RompR";
         var contents = "";
         if (info.title != "") {
-            contents = '<span class="npinfo" style="font-size:130%"><b>'+info.title+'</b></span>';
+            contents = '<span class="npinfo nptitle"><b>'+info.title+'</b></span>';
             doctitle = info.title;
         }
         var s = info.creator;
-        if (info.metadata && info.metadata.artists && (info.type == "stream" && s != "")) {
+        if (info.metadata && info.metadata.artists && !(info.type == "stream" && s != "")) {
             var an = new Array();
             for (var i in info.metadata.artists) {
                 an.push(info.metadata.artists[i].name);
@@ -53,15 +53,18 @@ var infobar = function() {
             s = concatenate_artist_names(an);
         }
         if (s != "") {
-            contents = contents + '<br /><span class="npinfo"><i>'+frequentLabels.by+'</i> <b>'+s+'</b></span>';
+            contents = contents + '<br /><span class="npinfo npartist"><i>'+frequentLabels.by+'</i> <b>'+s+'</b></span>';
             doctitle = doctitle + " . " + s;
         }
         if (info.album) {
-            contents = contents+' <span id="smokey" class="npinfo">';
+            contents = contents+' <span id="smokey" class="npinfo npalbum">';
             if (info.title != "" || s != "") {
                 contents=contents+ '<i>'+frequentLabels.on+'</i> ';
             }
             contents = contents + '<b>'+info.album+'</b></span>';
+            if (info.title == "" && s == "" && info.stream != "") {
+                contents = contents + '<br /><span class="npinfo npstream">'+info.stream+'</span>';
+            }
         }
         $("#nptext").empty().html(contents);
         contents = null;
@@ -76,12 +79,26 @@ var infobar = function() {
         PERMERROR: 2,
 
         biggerize: function() {
+
+            // $("#nowplaying").css("font-family")
+            //   -> "'Lucida Grande', 'Lucida Sans Unicode', sans-serif"
+
+            // var canvas = document.createElement("canvas")
+            // var ctx = canvas.getContext("2d")
+            // var fs = $("#nowplaying").css("font-family").split(',')[0]
+            // fs = fs.replace(/'/g,"")
+            // ctx.font = "bold 20px "+fs
+            // var metrics = ctx.measureText("Incense And Peppermints - Stereo Version")
+            // metrics.width is the width. Height is just the chosen font size in pxiels
+
             var wehaveapasty = false;
+            $("#pasty").remove();
             if ($("#nptext").html() != "" && !itisbigger) {
                 var containersize = {
                     bottom: $("#nowplaying").offset().top + $("#nowplaying").height(),
                     width: $("#nowplaying").width() - $("#albumcover").outerWidth()
                 };
+                $("#nptext").css("top", "0px");
                 while ($("#nptext").offset().top + $("#nptext").height() <= containersize.bottom) {
                     fontsize += 0.2;
                     $("#pasty").remove();
@@ -111,6 +128,9 @@ var infobar = function() {
                     fontsize += 0.2;
                     $("#nowplaying").css("font-size", fontsize.toFixed(1)+"pt");
                 }
+                // if ($("#nptext").height() < ($("#nowplaying").height() - $("#smokey").height()) && !wehaveapasty) {
+                //     $("#smokey").before('<br id="pasty" />');
+                // }
             }
         },
 
@@ -296,7 +316,7 @@ var infobar = function() {
 
         setLastFMCorrections: function(info) {
             lfminfo = info;
-            if (prefs.lastfm_autocorrect && trackinfo.metadata.iscomposer == 'false' && trackinfo.type != "stream") {
+            if (prefs.lastfm_autocorrect && trackinfo.metadata.iscomposer == 'false' && trackinfo.type != "stream" && trackinfo.type != "podcast") {
                 setTheText(info);
             }
             infobar.albumImage.setSecondarySource(info);

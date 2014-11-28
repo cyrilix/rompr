@@ -527,8 +527,14 @@ var info_spotify = function() {
                     },
 
                     search: function() {
-                    	debug.shout(medebug, "Searching Spotify for artist",artistmeta.name)
-                    	spotify.artist.search(artistmeta.name, self.artist.searchResponse, self.artist.searchFail, true);
+                    	if (parent.playlistinfo.type == "stream" && artistmeta.name == "" && trackmeta.name == "") {
+	                    	debug.shout(medebug, "Searching Spotify for artist",albummeta.name)
+	                    	spotify.artist.search(albummeta.name, self.artist.searchResponse, self.artist.searchFail, true);
+
+                    	} else {
+	                    	debug.shout(medebug, "Searching Spotify for artist",artistmeta.name)
+	                    	spotify.artist.search(artistmeta.name, self.artist.searchResponse, self.artist.searchFail, true);
+	                    }
                     },
 
                     searchFail: function() {

@@ -7,7 +7,7 @@ print '<img onclick="togglePlaylistButtons()" title="'.get_int_text('button_play
 <td align="left" id="pltracks"></td>
 <td align="right" id="pltime"></td>
 </tr>
-<tr><td colspan="3" align="center" class="tiny" id="plmode"></td></tr>
+<tr><td colspan="3" align="center" id="plmode"></td></tr>
 </table>
 </div>
 <div id="playlistbuttons" class="invisible searchbox">
@@ -31,7 +31,6 @@ get_int_text('button_consume').'</div></div></td>';
 </tr>
 </table>
 </div>
-
 <div id="pscroller">
     <div id="sortable" class="noselection fullwidth">
     </div>

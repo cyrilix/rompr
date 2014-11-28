@@ -33,9 +33,10 @@ function format_tracknum($tracknum) {
 }
 
 # url_get_contents function by Andy Langton: http://andylangton.co.uk/
-function url_get_contents($url,$useragent='RompR Music Player/0.41',$headers=false,$follow_redirects=true,$debug=false,$fp=null) {
+function url_get_contents($url,$useragent='RompR Music Player/0.60',$headers=false,$follow_redirects=true,$debug=false,$fp=null) {
 
     global $prefs;
+    $url = preg_replace('/ /', '%20', $url);
     # initialise the CURL library
     $ch = curl_init();
     # specify the URL to be retrieved
@@ -716,7 +717,7 @@ function update_stream_playlist($url, $name, $image, $creator, $title, $type, $f
         $xml = '<?xml version="1.0" encoding="utf-8"?>'.
             "<playlist>\n".
             "<playlisturl></playlisturl>\n".
-            "<addedbyrompr>false</addedbyrompr>\n".
+            // "<addedbyrompr>false</addedbyrompr>\n".
             "<trackList>\n".
             "<track>\n".
             xmlnode('album', $name).

@@ -40,6 +40,7 @@ var info_ratings = function() {
                 if (parent.isCurrentTrack()) {
                     $("#ratingimage").attr("src","newimages/transparent-32x32.png");
                     $("#dbtags").html('');
+                    $("#playcount").html('');
                 }
             }
 

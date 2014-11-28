@@ -52,7 +52,7 @@ if (!$found) {
 	$output = '<?xml version="1.0" encoding="utf-8"?>'."\n".
 	          "<playlist>\n".
 	          "<playlisturl>".htmlspecialchars($playlisturl)."</playlisturl>\n".
-	          "<addedbyrompr>true</addedbyrompr>\n".
+	          // "<addedbyrompr>true</addedbyrompr>\n".
 			  "<trackList>\n".
 			  $output.
 			  "</trackList>\n".

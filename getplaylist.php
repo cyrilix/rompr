@@ -7,7 +7,6 @@ include ("player/".$prefs['player_backend']."/connection.php");
 include ("backends/".$prefs['apache_backend']."/backend.php");
 
 header('Content-Type: application/json; charset=utf-8');
-
 $collection = doCollection("playlistinfo");
 debug_print("Collection scan playlistinfo finished","GETPLAYLIST");
 outputPlaylist();
@@ -34,8 +33,6 @@ function outputPlaylist() {
             "type" => $track->type,
             "date" => $track->albumobject->getDate(),
             "tracknumber" => $track->number,
-            // "expires" => $track->expires,
-            "stationurl" => $track->stationurl,
             "station" => $track->station,
             "disc" => $track->disc,
             "location" => $track->url,
@@ -92,9 +89,11 @@ function outputPlaylist() {
             }
             foreach ($c as $i => $comp) {
                 if (($track->type != "stream" && $comp != "") || ($track->type == "stream" && $comp != $track->album && $comp != "")) {
-                    array_push($info['metadata']['artists'], array( "name" => $comp, "musicbrainz_id" => $m[$i]));
                     if ($comp == $track->albumobject->artist) {
                         $doalbumartist = false;
+                        array_unshift($info['metadata']['artists'], array( "name" => $comp, "musicbrainz_id" => $m[$i]));
+                    } else {
+                        array_push($info['metadata']['artists'], array( "name" => $comp, "musicbrainz_id" => $m[$i]));
                     }
                 }
             }

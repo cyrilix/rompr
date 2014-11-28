@@ -238,6 +238,17 @@ select
     line-height:1.5em;
 }
 
+.nptitle
+{
+    font-size:130%;
+}
+
+.npstream
+{
+    font-size: 60%;
+    font-style:italic;
+}
+
 #volumecontrol
 {
     width:12px;
@@ -537,11 +548,11 @@ select
 
 .playlistitem
 {
-    padding-left:8px;
-    padding-right:0px;
+    /*padding-left:8px;*/
+    /*padding-right:0px;*/
     padding-top:0px;
-    padding-bottom:2px;
-    font-weight:bold;
+    /*padding-bottom:2px;*/
+    /*font-weight:bold;*/
     font-size:90%;
     cursor:pointer;
 }
@@ -575,16 +586,16 @@ select
 
 .playlistcurrentitem
 {
-    padding-left:8px;
-    padding-right:0px;
-    padding-top:0px;
+    /*padding-left:8px;*/
+    /*padding-right:0px;*/
+    /*padding-top:0px;*/
     font-size:100%;
     cursor:pointer;
 }
 
 .playlistrow2
 {
-    font-size:90%;
+    font-size:88%;
     font-style:italic;
     font-weight:normal;
 }
@@ -2268,7 +2279,7 @@ div.lyrics p
 
 .modeimg
 {
-    height:16px;
+    height:20px;
     margin-right:8px;
     vertical-align:middle;
 }
@@ -2276,7 +2287,6 @@ div.lyrics p
 .modespan
 {
     vertical-align:middle;
-    font-size:120%;
     font-weight:bold;
 }
 

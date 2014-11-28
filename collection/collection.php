@@ -1,5 +1,7 @@
 <?php
 
+include ("player/".$prefs['player_backend']."/streamhandler.php");
+
 set_time_limit(600);
 $COMPILATION_THRESHOLD = 6;
 $numtracks = 0;
@@ -15,7 +17,6 @@ $current_artist = "";
 $current_album = "";
 $abm = false;
 $current_domain = "local";
-$streamdomains = array("http", "mms", "rtsp", "https", "rtmp", "rtmps", "dirble", "tunein", "radio-de");
 $playlist = array();
 
 $count = 1;
@@ -271,7 +272,7 @@ class artist {
 
 class track {
     public function __construct($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
-                                $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station,
+                                $type, $image, $backendid, $playlistpos, $station,
                                 $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack,
                                 $origimage, $playlist, $lastmodified, $composer, $performers) {
 
@@ -296,8 +297,6 @@ class track {
         $this->type = $type;
         $this->backendid = $backendid;
         $this->playlistpos = $playlistpos;
-        $this->expires = $expires;
-        $this->stationurl = $stationurl;
         $this->station = $station;
         $this->stream = $stream;
         $this->musicbrainz_artistid = $mbartist;
@@ -382,7 +381,7 @@ class musicCollection {
     }
 
     public function newTrack($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
-                                $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station,
+                                $type, $image, $backendid, $playlistpos, $station,
                                 $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack,
                                 $origimage, $spotialbum, $spotiartist, $domain, $cuefile, $lastmodified,
                                 $linktype, $composer, $performers) {
@@ -467,7 +466,7 @@ class musicCollection {
 
         // Create a track object then find an artist and album to associate it with
         $t = new track($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
-                        $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station,
+                        $type, $image, $backendid, $playlistpos, $station,
                         $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist,
                         $mbtrack, $origimage, $cuefile, $lastmodified, $composer, $performers);
 
@@ -594,13 +593,12 @@ function process_file($collection, $filedata) {
 
     global $numtracks;
     global $totaltime;
-    global $streamdomains;
     global $prefs;
     global $dbterms;
     global $ipath;
 
-    list ( $file, $domain, $type, $expires, $stationurl, $station, $stream, $origimage )
-        = array ( $filedata['file'], getDomain($filedata['file']), "local", null, null, null, "", null );
+    list ( $file, $domain, $type, $station, $stream, $origimage )
+        = array ( $filedata['file'], getDomain($filedata['file']), "local", null, "", null );
 
     if ($dbterms['tags'] !== null || $dbterms['rating'] !== null) {
         // If this is a search and we have tags or ratings to search for, check them here.
@@ -668,72 +666,26 @@ function process_file($collection, $filedata) {
             break;
     }
 
-    if (in_array($domain, $streamdomains) &&
-        !preg_match('#/item/\d+/file$#', $file) &&
-        // !preg_match('#http://archives.bassdrivearchive.com/#', $file) &&
-        !preg_match('#http://leftasrain.com/#', $file)) {
-        // domain will be http for anything being played through mopidy-beets and various
-        // other mopidy extensions, annoyingly. So we check the filename pattern too
-        list (  $track_found,
-                $name,
+    if (is_stream($domain, $filedata)) {
+
+        list (  $name,
                 $duration,
-                $number,
-                $date,
-                $genre,
                 $artist,
                 $album,
                 $folder,
                 $type,
                 $image,
-                $expires,
-                $stationurl,
                 $station,
                 $stream,
-                $albumartist) = getStuffFromXSPF($file);
+                $albumartist) = getStreamInfo($filedata, $domain);
 
-        // Streams added to Mopidy by various backends return some useful metadata
-
-        if (!$track_found || preg_match("/Unknown Internet Stream/", $album)) {
-
-            if ($prefs['player_backend'] == "mopidy") {
-                if (array_key_exists('Title', $filedata) &&
-                    !array_key_exists('Album', $filedata) &&
-                    !array_key_exists('Artist', $filedata) &&
-                    !(preg_match('/'.preg_quote($filedata['Title'],'/').'/', $filedata['file']))) {
-                    $album = $filedata['Title'];
-                } else if (array_key_exists('Album', $filedata) && array_key_exists('Artist', $filedata) && array_key_exists('Title', $filedata)) {
-                    $album = $filedata['Album'];
-                    $name = $filedata['Title'];
-                    $artist = $filedata['Artist'];
-                }
-            } else {
-                if (array_key_exists('Name', $filedata) && preg_match("/Unknown Internet Stream/", $album)) {
-                    $album = $filedata['Name'];
-                }
-            }
-            if (array_key_exists('Genre', $filedata) && $filedata['Genre'] == "Podcast") {
-                $album = array_key_exists('Album', $filedata) ? $filedata['Album'] : $album;
-                $name = array_key_exists('Title', $filedata) ? $filedata['Title'] : $album;
-                $artist = array_key_exists('Artist', $filedata) ? $filedata['Artist'] : $album;
-                $type = "podcast";
-            }
-            $image = (array_key_exists('Image', $filedata)) ? $filedata['Image'] : $image;
-            $duration = (array_key_exists('Time', $filedata) && $filedata['Time'] != 0) ? $filedata['Time'] : $duration;
-        }
-
-        // $domain = $type;
         if ($origimage == null && preg_match('#^albumart/original/#',$image)) {
             $origimage = "albumart/asdownloaded/".basename($image);
         }
     }
 
-    // Some podcast feeds don't report a duration, but mopidy's scanner will get one
-    if ($domain == "podcast" && $duration == 0 && array_key_exists('Time', $filedata)) {
-        $duration = $filedata['Time'];
-    }
-
     $collection->newTrack(  $name, $file, $duration, $number, $date, $genre, $artist, $album, $folder,
-                            $type, $image, $backendid, $playlistpos, $expires, $stationurl, $station,
+                            $type, $image, $backendid, $playlistpos, $station,
                             $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack,
                             $origimage, $spotialbum, $spotiartist, $domain, $playlist, $lastmodified,
                             $linktype, $composer, $performers);
@@ -773,32 +725,6 @@ function getStuffFromXSPF($url) {
         $xspf_loaded = true;
     }
 
-    foreach ($podcasts as $x) {
-        foreach($x->trackList->track as $track) {
-            if ($track->link == $url ||
-                ($track->origlink && $track->origlink == $url)) {
-                return array (
-                    true,
-                    (string) $track->title,
-                    (string) $track->duration,
-                    null,
-                    null,
-                    null,
-                    (string) $track->artist,
-                    (string) $x->album,
-                    md5((string) $x->album),
-                    "podcast",
-                    "getRemoteImage.php?url=".(string) $x->image,
-                    null,
-                    null,
-                    null,
-                    "",
-                    (string) $x->albumartist
-                );
-            }
-        }
-    }
-
     foreach($stream_xspfs as $i => $x) {
         foreach($x->trackList->track as $i => $track) {
             if($track->location == $url) {
@@ -815,19 +741,35 @@ function getStuffFromXSPF($url) {
                     true,
                     (string) $track->title,
                     0,
-                    null,
-                    null,
-                    null,
                     (string) $track->creator,
                     (string) $track->album,
                     getStreamFolder($url),
                     $type,
                     $image,
-                    null,
-                    null,
                     getDummyStation($url),
                     (string) $track->stream,
                     ""
+                );
+            }
+        }
+    }
+
+    foreach ($podcasts as $x) {
+        foreach($x->trackList->track as $track) {
+            if ($track->link == $url ||
+                ($track->origlink && $track->origlink == $url)) {
+                return array (
+                    true,
+                    (string) $track->title,
+                    (string) $track->duration,
+                    (string) $track->artist,
+                    (string) $x->album,
+                    md5((string) $x->album),
+                    "podcast",
+                    "getRemoteImage.php?url=".(string) $x->image,
+                    null,
+                    "",
+                    (string) $x->albumartist
                 );
             }
         }
@@ -838,15 +780,10 @@ function getStuffFromXSPF($url) {
         "",
         0,
         "",
-        null,
-        null,
-        "",
         "Unknown Internet Stream",
         getStreamFolder($url),
         "stream",
         $ipath."broadcast.png",
-        null,
-        null,
         getDummyStation($url),
         "",
         ""

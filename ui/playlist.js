@@ -567,7 +567,7 @@ function Playlist() {
                     oldconsume = player.status.consume;
                     player.controller.toggleConsume();
                     if (!$("#playlistbuttons").is(":visible")) {
-                        $("#playlistbuttons").slideDown('slow');
+                        togglePlaylistButtons();
                     }
                 }
             },
@@ -589,7 +589,7 @@ function Playlist() {
                             player.controller.toggleConsume();
                         }
                         if (oldbuttonstate == false && $("#playlistbuttons").is(":visible")) {
-                            $("#playlistbuttons").slideUp('slow');
+                            togglePlaylistButtons();
                         }
                     }
                 }
