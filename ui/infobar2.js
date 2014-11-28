@@ -7,11 +7,14 @@ var infobar = function() {
     var volumecontrol = null;
     var trackinfo = {};
     var lfminfo = {};
+    var npinfo = {};
     var starttime = 0;
     var scrobbled = false;
     var nowplaying_updated = false;
     var fontsize = 8;
     var ftimer = null;
+    var canvas = null;
+    var context = null;
 
     var volumeslider = function() {
         volume = 0;
@@ -40,8 +43,9 @@ var infobar = function() {
         debug.log("INFOBAR","Setting now playing info");
         var doctitle = "RompR";
         var contents = "";
+        npinfo = {};
         if (info.title != "") {
-            contents = '<span class="npinfo nptitle"><b>'+info.title+'</b></span>';
+            npinfo.title = info.title;
             doctitle = info.title;
         }
         var s = info.creator;
@@ -53,24 +57,35 @@ var infobar = function() {
             s = concatenate_artist_names(an);
         }
         if (s != "") {
-            contents = contents + '<br /><span class="npinfo npartist"><i>'+frequentLabels.by+'</i> <b>'+s+'</b></span>';
+            npinfo.artist = s;
             doctitle = doctitle + " . " + s;
         }
         if (info.album) {
-            contents = contents+' <span id="smokey" class="npinfo npalbum">';
-            if (info.title != "" || s != "") {
-                contents=contents+ '<i>'+frequentLabels.on+'</i> ';
-            }
-            contents = contents + '<b>'+info.album+'</b></span>';
+            npinfo.album = info.album;
             if (info.title == "" && s == "" && info.stream != "") {
-                contents = contents + '<br /><span class="npinfo npstream">'+info.stream+'</span>';
+                npinfo.stream = info.stream;
             }
         }
-        $("#nptext").empty().html(contents);
-        contents = null;
         document.title = doctitle;
-        infobar.biggerize();
-        doctitle = null;
+        infobar.biggerize(2);
+    }
+
+    function getWidth(text, fontsize) {
+
+        if (canvas == null) {
+            canvas = document.createElement("canvas");
+            context = canvas.getContext("2d");
+        }
+        var font = $("#nowplaying").css("font-family");
+        context.font = "bold "+fontsize+"px "+font;
+        var metrics = context.measureText(text);
+        return metrics.width;
+    }
+
+    function checkLines(lines, maxwidth) {
+        for (var i in lines) {
+            if (lines[i].width > maxwidth) return true;
+        }
     }
 
     return {
@@ -78,60 +93,122 @@ var infobar = function() {
         ERROR: 1,
         PERMERROR: 2,
 
-        biggerize: function() {
+        biggerize: function(numlines) {
 
-            // $("#nowplaying").css("font-family")
-            //   -> "'Lucida Grande', 'Lucida Sans Unicode', sans-serif"
+            // Fit the nowplaying text in the panel, always trying to make the best use of the available height
+            // We adjust by checking width, since we don't wrap lines as that causes hell with the layout
 
-            // var canvas = document.createElement("canvas")
-            // var ctx = canvas.getContext("2d")
-            // var fs = $("#nowplaying").css("font-family").split(',')[0]
-            // fs = fs.replace(/'/g,"")
-            // ctx.font = "bold 20px "+fs
-            // var metrics = ctx.measureText("Incense And Peppermints - Stereo Version")
-            // metrics.width is the width. Height is just the chosen font size in pxiels
-
-            var wehaveapasty = false;
-            $("#pasty").remove();
-            if ($("#nptext").html() != "" && !itisbigger) {
-                var containersize = {
-                    bottom: $("#nowplaying").offset().top + $("#nowplaying").height(),
-                    width: $("#nowplaying").width() - $("#albumcover").outerWidth()
-                };
-                $("#nptext").css("top", "0px");
-                while ($("#nptext").offset().top + $("#nptext").height() <= containersize.bottom) {
-                    fontsize += 0.2;
-                    $("#pasty").remove();
-                    $("#nowplaying").css("font-size", fontsize.toFixed(1)+"pt");
-                }
-                while ($("#nptext").offset().top + $("#nptext").height() > containersize.bottom && fontsize >= 6) {
-                    fontsize -= 0.2;
-                    if (fontsize.toFixed(1) == '8.4') {
-                        $("#pasty").remove();
-                        $("#smokey").before('<br id="pasty" />');
-                        wehaveapsty = true;
-                    }
-                    $("#nowplaying").css("font-size", fontsize.toFixed(1)+"pt");
-                }
-                while ($("#nptext").outerWidth() > containersize.width && fontsize >= 6) {
-                    fontsize -= 0.2;
-                    if (fontsize.toFixed(1) == '8.4') {
-                        $("#pasty").remove();
-                        $("#smokey").before('<br id="pasty" />');
-                        wehaveapsty = true;
-                    }
-                    $("#nowplaying").css("font-size", fontsize.toFixed(1)+"pt");
-                }
-                while ($("#nptext").outerWidth() < containersize.width &&
-                        wehaveapasty &&
-                        $("#nptext").offset().top + $("#nptext").height() <= containersize.bottom) {
-                    fontsize += 0.2;
-                    $("#nowplaying").css("font-size", fontsize.toFixed(1)+"pt");
-                }
-                // if ($("#nptext").height() < ($("#nowplaying").height() - $("#smokey").height()) && !wehaveapasty) {
-                //     $("#smokey").before('<br id="pasty" />');
-                // }
+            debug.log("INFOBAR","Biggerizing",npinfo,numlines);
+            if (itisbigger || Object.keys(npinfo).length == 0) {
+                $("#nptext").html("");
+                return;
             }
+            // Start by trying with two lines:
+            // Track Name
+            // by Artist on Album
+            if (!numlines) numlines = 2;
+            var maxlines =  (npinfo.artist && npinfo.album && npinfo.title) ? 3 : 2;
+            var maxheight = $("#nowplaying").height();
+            var maxwidth = $("#nowplaying").width() - $("#albumcover").outerWidth() - 8;
+            var lines = [
+                {weight: (numlines == 2 ? 62 : 46), width: maxwidth+1, text: " "},
+                {weight: (numlines == 2 ? 38 : 26), width: maxwidth+1, text: " "}
+            ];
+            if (numlines == 3) {
+                lines.push({weight: 26, width: maxwidth+1, text: " "});
+            }
+
+            if (npinfo.title) {
+                lines[0].text = npinfo.title;
+            } else if (npinfo.album) {
+                lines[0].text = npinfo.album;
+            }
+
+            if (numlines == 2) {
+                if (npinfo.artist && npinfo.album) {
+                    lines[1].text = frequentLabels.by+" "+npinfo.artist+" "+frequentLabels.on+" "+npinfo.album;
+                } else if (npinfo.stream) {
+                    lines[1].text = npinfo.stream;
+                }
+            } else {
+                lines[1].text = frequentLabels.by+" "+npinfo.artist;
+                lines[2].text = frequentLabels.on+" "+npinfo.album;
+            }
+
+            var totalheight = 0;
+            while( checkLines(lines, maxwidth) ) {
+                var factor = 100;
+                totalheight = 0;
+                for (var i in lines) {
+                    var f = maxwidth/lines[i].width;
+                    if (f < factor) factor = f;
+                }
+                for (var i in lines) {
+                    lines[i].weight = lines[i].weight * factor;
+                    // The 0.6666 comes in because the font height is 2/3rds of the line height,
+                    // or to put it another way the line height is 1.5x the font height
+                    lines[i].height = Math.round((maxheight/100)*lines[i].weight*0.6666);
+                    lines[i].width = getWidth(lines[i].text, lines[i].height);
+                    totalheight += Math.round(lines[i].height*1.5);
+                }
+            }
+
+            // If this leaves enough space to split it into 3 lines, do that
+            // Track Name
+            // by Artist
+            // on Album
+            if (numlines < maxlines && totalheight < (maxheight - Math.round(lines[1].height*1.5))) {
+                infobar.biggerize(numlines+1);
+                return;
+            }
+
+            // Now, if there's still vertical space, we can make the title bigger.
+            // Making one of the other two lines bigger looks bad
+            if (totalheight < maxheight) {
+                lines[0].height = Math.round(lines[0].height*(maxheight/totalheight));
+                debug.log("BANANA","Bumping up line 0 to",lines[0].height);
+                lines[0].width = getWidth(lines[0].text, lines[0].height);
+                if (lines[0].width > maxwidth) {
+                    lines[0].height = Math.round(lines[0].height*(maxwidth/lines[0].width));
+                    lines[0].width = getWidth(lines[0].text, lines[0].height);
+                    debug.log("BANANA","Overdid line 0",lines[0].height);
+                }
+            }
+
+            // Min line neight is 7 pixels. This isn't completely safe but tests show it always seems to fit
+            for (var i in lines) {
+                if (lines[i].height < 7) {
+                    lines[i].height = 7;
+                }
+            }
+
+            // Now adjust the text so it has appropriate italic and bold markup.
+            // We measured it all in bold, because canvas doesn't support html tags,
+            // but normal-italic is usally around the same width as bold.
+            lines[0].text = '<b>'+lines[0].text+'</b>';
+            if (numlines == 2) {
+                if (npinfo.artist && npinfo.album) {
+                    lines[1].text = '<i>'+frequentLabels.by+"</i> <b>"+npinfo.artist+"</b> <i>"+frequentLabels.on+"</i> <b>"+npinfo.album+'</b>';
+                } else if (npinfo.stream) {
+                    lines[1].text = '<i>'+npinfo.stream+'</i>';
+                }
+            } else {
+                lines[1].text = '<i>'+frequentLabels.by+"</i> <b>"+npinfo.artist+'</b>';
+                lines[2].text = '<i>'+frequentLabels.on+"</i> <b>"+npinfo.album+'</b>';
+            }
+
+            var html = "";
+            for (var i in lines) {
+                html = html + '<span style="font-size:'+lines[i].height+'px;line-height:'+Math.round(lines[i].height*1.5)+'px">'+lines[i].text+'</span>';
+                if (i < lines.length-1) {
+                    html = html + '<br />';
+                }
+            }
+
+            // Make sure the line spacing caused by the <br> is consistent
+            $("#nptext").css("font-size", lines[1].height+"px");
+            $("#nptext").empty().html(html);
+
         },
 
         rejigTheText: function() {
