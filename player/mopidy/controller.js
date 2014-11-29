@@ -96,7 +96,7 @@ function playerController() {
 		// Don't repopulate immediately in case there are more coming
 		debug.shout("PLAYER","Tracklist Changed");
 		clearTimeout(tlchangeTimer);
-		tlchangeTimer = setTimeout(playlist.repopulate, 400);
+		tlchangeTimer = setTimeout(playlist.repopulate, 500);
 	}
 
 	function checkPlaybackTime() {
@@ -308,7 +308,7 @@ function playerController() {
     					debug.log("PLAYER","addTracks has a findexact filter to apply",t.findexact,t.filterdomain);
     					mopidy.library.findExact(t.findexact, t.filterdomain).then(function(data) {
     						if (data[0].tracks)	tltracksToAdd = tltracksToAdd.concat(sortByAlbum(data[0].tracks));
-    						att = setTimeout(self.startAddingTracks, 100);
+    						att = setTimeout(self.startAddingTracks, 200);
     					}, consoleError);
     				} else {
 			    		debug.log("PLAYER","addTracks Adding",t.name);
@@ -322,7 +322,7 @@ function playerController() {
                                 }
                             }
 			    			tltracksToAdd = tltracksToAdd.concat(tracks);
-    						att = setTimeout(self.startAddingTracks, 100);
+    						att = setTimeout(self.startAddingTracks, 200);
 			    		}, consoleError);
 		    		}
 	    			break;
@@ -335,21 +335,9 @@ function playerController() {
 		    		debug.log("PLAYER","addTracks Adding",t.name);
 	    			$.getJSON("getItems.php?item="+t.name, function(data) {
 	    				albumtracks = albumtracks.concat(data);
-						att = setTimeout(self.startAddingTracks, 100);
+						att = setTimeout(self.startAddingTracks, 200);
 	    			});
 	    			break;
-
-	    		case "delete":
-		    		debug.log("PLAYER","addTracks Deleting ID",t.name);
-		    		if (pladdpos !== null && pladdpos > 0) {
-		    			// Adjust the insert position. This will only be used for Last.FM
-		    			// so we know that the track being deleted is before pladdpos in
-		    			// the playlist. For other situations this'll need a rethink.
-		    			pladdpos--;
-		    		}
-	    			mopidy.tracklist.remove({'tlid': [parseInt(t.name)]}).then( self.startAddingTracks );
-	    			break;
-
     		}
 		} else {
 			debug.log("MOPIDY","TlTracks Array is",tltracksToAdd);
@@ -418,6 +406,7 @@ function playerController() {
 	    				player.status.elapsed = parseInt(pos)/1000;
 	    				infobar.setStartTime(player.status.elapsed);
 				        infobar.updateWindowValues();
+                        playlist.connectionbuggered();
 	    				playlist.repopulate();
 	    				doTracklistButtons();
 	    			});
@@ -898,7 +887,7 @@ function playerController() {
 		if (pladdpos == null || pladdpos == -1) pladdpos = at_pos;
 		if (tracks.length == tracksToAdd.length) {
 			clearTimeout(att);
-			att = setTimeout(self.startAddingTracks, 50);
+			att = setTimeout(self.startAddingTracks, 200);
 		}
 		tracks = null;
 	}

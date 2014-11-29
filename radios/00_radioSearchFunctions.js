@@ -46,7 +46,7 @@ function searchRadio() {
 					myself.sendATrack();
 				}
 			}
-			self.populateNext(2000);
+			self.populateNext(4000);
 		}
 
 		this.sendATrack = function() {
@@ -80,7 +80,7 @@ function searchRadio() {
 			self.artists[self.artistindex].sendATrack();
 			self.artistindex++;
 			if (self.artistindex >= self.artists.length) self.artistindex = 0;
-			sendingtimer = setTimeout(self.startSending, 2000);
+			sendingtimer = setTimeout(self.startSending, 4000);
 		}
 	}
 }

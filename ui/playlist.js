@@ -66,6 +66,10 @@ function Playlist() {
         // where, for example, the user is clicking rapidly on the delete button for lots of tracks
         // and the playlist is slow to update from mpd
         updatecounter--;
+        if (updatecounter < 0) {
+            debug.log("PLAYLIST","Update counter is negative. Probably had a player screwup");
+            return 0;
+        }
         if (updatecounter > 0) {
             debug.log("PLAYLIST","Received playlist update but ",updatecounter," more are coming - ignoring");
             do_delayed_update = true;
@@ -522,7 +526,8 @@ function Playlist() {
         var mode = null;
         var radios = new Object();
         var oldconsume = null;
-        var oldbuttonstate = null;;
+        var oldbuttonstate = null;
+        var inited = false;
 
         return {
 
@@ -532,17 +537,20 @@ function Playlist() {
             },
 
             init: function() {
-                $("#pluginplaylists").empty();
-                if (prefs.apache_backend == "sql") {
-                    for(var i in radios) {
-                        debug.log("RADIO MANAGER","Activating Plugin",i);
-                        radios[i].setup();
-                        if (prefs.radiomode == i) {
-                            debug.mark("RADIOMANAGER","Found saved radio playlist state",prefs.radiomode, prefs.radioparam);
-                            radios[i].populate(prefs.radioparam, true);
-                            mode = prefs.radiomode;
+                if (inited == false) {
+                    $("#pluginplaylists").empty();
+                    if (prefs.apache_backend == "sql") {
+                        for(var i in radios) {
+                            debug.log("RADIO MANAGER","Activating Plugin",i);
+                            radios[i].setup();
+                            if (prefs.radiomode == i) {
+                                debug.mark("RADIOMANAGER","Found saved radio playlist state",prefs.radiomode, prefs.radioparam);
+                                radios[i].populate(prefs.radioparam, true);
+                                mode = prefs.radiomode;
+                            }
                         }
                     }
+                    inited = true;
                 }
             },
 

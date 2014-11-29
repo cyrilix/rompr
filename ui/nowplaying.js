@@ -137,6 +137,7 @@ var nowplaying = function() {
 	var plugins = new Array();
     var currenttrack = 0;
     var nowplayingindex = 0;
+    var currentbackendid = -1;
 
     function findCurrentTrack() {
     	for (var i in history) {
@@ -167,10 +168,15 @@ var nowplaying = function() {
 
 		newTrack: function(playlistinfo) {
 
+			if (playlistinfo.backendid == currentbackendid) {
+				debug.warn("NOWPLAYING","Meet the new track, same as the old track");
+				return;
+			}
 			infobar.setNowPlayingInfo(playlistinfo);
 			if (playlistinfo == playlist.emptytrack) {
 				return;
 			}
+			currentbackendid = playlistinfo.backendid;
 	        debug.mark("NOWPLAYING","New Track:",playlistinfo);
 
 	        // Repeatedly querying online databases for the same data is a bad idea -

@@ -346,10 +346,14 @@ var infobar = function() {
             nowplaying_updated = false;
             setTheText(info);
             lastfm.showloveban((info.title != ""));
-            if (info.title != "") {
+            if (info.title != "" && info.creator != "") {
                 $("#stars").fadeIn('fast');
                 $("#dbtags").fadeIn('fast');
                 $("#playcount").fadeIn('fast');
+            } else {
+                $("#stars").fadeOut('fast');
+                $("#dbtags").fadeOut('fast');
+                $("#playcount").fadeOut('fast');
             }
             if (info.type == "local") {
                 $("#progress").css("cursor", "pointer");
@@ -383,7 +387,6 @@ var infobar = function() {
                                                 });
 
                 } else {
-                    debug.log("INFOBAR","Setting Album Image to",info.image);
                     infobar.albumImage.setSource({    image: info.image,
                                                       origimage: info.origimage == "" ? info.image : info.origimage
                                                 });
@@ -410,8 +413,9 @@ var infobar = function() {
         scrobble: function() {
             if (!scrobbled) {
                 debug.debug("INFOBAR","Track is not scrobbled");
+                scrobbled = true;
                 if (lastfm.isLoggedIn()) {
-                    if (trackinfo.title != "" && trackinfo.name != "") {
+                    if (trackinfo.title != "" && trackinfo.creator != "") {
                         var options = {
                                         timestamp: parseInt(starttime.toString()),
                                         track: (lfminfo.title === undefined) ? trackinfo.title : lfminfo.title,
@@ -431,7 +435,6 @@ var infobar = function() {
                     nowplaying.incPlaycount(null);
                 }
             }
-            scrobbled = true;
         },
 
         updateNowPlaying: function() {
