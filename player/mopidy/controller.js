@@ -19,6 +19,7 @@ function playerController() {
     var updatePlTimer = null;
     var doingPlUpdate = false;
     var timecheckcounter = 0;
+    var firstconnection = true;
 
     function mopidyStateChange(data) {
         debug.shout("PLAYER","Mopidy State Change",data);
@@ -214,6 +215,19 @@ function playerController() {
 		return result;
 	}
 
+    function checkMopidyVersion() {
+        if ('getVersion' in mopidy) {
+            mopidy.getVersion().then(function(version){
+                debug.log("PLAYER", "Mopidy Version is",version);
+                if (version < prefs.mopidy_version) {
+                    mopidyTooOld();
+                }
+            });
+        } else {
+            mopidyTooOld();
+        }
+    }
+
 	function mopidyTooOld() {
 		alert(language.gettext("mopidy_tooold", [prefs.mopidy_version]));
 	}
@@ -371,18 +385,8 @@ function playerController() {
 	function connected() {
         debug.log("PLAYER","Connected to Mopidy");
         infobar.removenotify();
-        if ('getVersion' in mopidy) {
-        	mopidy.getVersion().then(function(version){
-    			debug.log("PLAYER", "Mopidy Version is",version);
-    			if (version < prefs.mopidy_version) {
-    				mopidyTooOld();
-    			}
-        	});
-        } else {
-        	mopidyTooOld();
-        }
+        checkMopidyVersion();
         isReady = true;
-		enableMopidyEvents();
     	mopidy.playback.getCurrentTlTrack().then( function(data) {
     		debug.log("PLAYER","Current tl_track is",data);
     		if (data) {
@@ -413,21 +417,25 @@ function playerController() {
     			});
     		});
 		});
-        mopidy.getUriSchemes().then( function(data) {
-            for(var i =0; i < data.length; i++) {
-            	debug.log("PLAYER","Mopidy URI Scheme : ",data[i]);
-                player.urischemes[data[i]] = true;
-            }
-			checkSearchDomains();
-			if (!player.collectionLoaded) {
-				debug.log("PLAYER","Checking Collection");
-				checkCollection();
-			} else {
-                self.reloadPlaylists();
-            }
-			playlist.radioManager.init();
-        });
-        self.cancelSingle();
+        if (firstconnection) {
+            enableMopidyEvents();
+            mopidy.getUriSchemes().then( function(data) {
+                for(var i =0; i < data.length; i++) {
+                	debug.log("PLAYER","Mopidy URI Scheme : ",data[i]);
+                    player.urischemes[data[i]] = true;
+                }
+    			checkSearchDomains();
+    			if (!player.collectionLoaded) {
+    				debug.log("PLAYER","Checking Collection");
+    				checkCollection();
+    			} else {
+                    self.reloadPlaylists();
+                }
+    			playlist.radioManager.init();
+            });
+            self.cancelSingle();
+            firstconnection = false;
+        }
 	}
 
 	function disconnected() {
@@ -436,14 +444,6 @@ function playerController() {
         infobar.notify(infobar.PERMERROR,
         	language.gettext("mopidy_down")+'<br><a href="#" onclick="player.controller.reConnect()">Click To Reconnect</a>');
         isReady = false;
-        mopidy.off("event:playlistsLoaded");
-        mopidy.off("event:playbackStateChanged");
-        mopidy.off("event:trackPlaybackStarted");
-        mopidy.off("event:seeked");
-        mopidy.off("event:trackPlaybackEnded");
-        mopidy.off("event:trackPlaybackPaused");
-        mopidy.off("event:trackPlaybackResumed");
-		mopidy.off("event:tracklistChanged");
 		tracknotfound = true;
 	}
 

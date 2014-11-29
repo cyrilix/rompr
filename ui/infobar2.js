@@ -135,6 +135,11 @@ var infobar = function() {
                 lines[2].text = frequentLabels.on+" "+npinfo.album;
             }
 
+            if (lines[1].text == " " && numlines == 2) {
+                lines.pop();
+                lines[0].weight = 100;
+            }
+
             var totalheight = 0;
             while( checkLines(lines, maxwidth) ) {
                 var factor = 100;
@@ -206,9 +211,12 @@ var infobar = function() {
             }
 
             // Make sure the line spacing caused by the <br> is consistent
-            $("#nptext").css("font-size", lines[1].height+"px");
+            if (lines[1]) {
+                $("#nptext").css("font-size", lines[1].height+"px");
+            } else {
+                $("#nptext").css("font-size", lines[0].height+"px");
+            }
             $("#nptext").empty().html(html);
-
         },
 
         rejigTheText: function() {

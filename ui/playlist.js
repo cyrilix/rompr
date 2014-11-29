@@ -66,7 +66,7 @@ function Playlist() {
         // where, for example, the user is clicking rapidly on the delete button for lots of tracks
         // and the playlist is slow to update from mpd
         updatecounter--;
-        if (updatecounter < 0) {
+        if (!player.controller.isConnected() || updatecounter < 0) {
             debug.log("PLAYLIST","Update counter is negative. Probably had a player screwup");
             return 0;
         }
