@@ -109,6 +109,9 @@ var infobar = function() {
             if (!numlines) numlines = 2;
             var maxlines =  (npinfo.artist && npinfo.album && npinfo.title) ? 3 : 2;
             var maxheight = $("#nowplaying").height();
+            if (!npinfo.title  && !npinfo.artist) {
+                maxheight = $("#patrickmoore").height() - 8;
+            }
             var maxwidth = $("#nowplaying").width() - $("#albumcover").outerWidth() - 8;
             var lines = [
                 {weight: (numlines == 2 ? 62 : 46), width: maxwidth+1, text: " "},
@@ -128,6 +131,8 @@ var infobar = function() {
                 if (npinfo.artist && npinfo.album) {
                     lines[1].text = frequentLabels.by+" "+npinfo.artist+" "+frequentLabels.on+" "+npinfo.album;
                 } else if (npinfo.stream) {
+                    lines[0].weight = 75;
+                    lines[1].weight = 25;
                     lines[1].text = npinfo.stream;
                 }
             } else {
@@ -171,20 +176,20 @@ var infobar = function() {
             // Making one of the other two lines bigger looks bad
             if (totalheight < maxheight) {
                 lines[0].height = Math.round(lines[0].height*(maxheight/totalheight));
-                debug.log("BANANA","Bumping up line 0 to",lines[0].height);
                 lines[0].width = getWidth(lines[0].text, lines[0].height);
                 if (lines[0].width > maxwidth) {
                     lines[0].height = Math.round(lines[0].height*(maxwidth/lines[0].width));
                     lines[0].width = getWidth(lines[0].text, lines[0].height);
-                    debug.log("BANANA","Overdid line 0",lines[0].height);
                 }
             }
 
             // Min line neight is 7 pixels. This isn't completely safe but tests show it always seems to fit
+            totalheight = 0;
             for (var i in lines) {
                 if (lines[i].height < 7) {
                     lines[i].height = 7;
                 }
+                totalheight += Math.round(lines[i].height*1.5);
             }
 
             // Now adjust the text so it has appropriate italic and bold markup.
@@ -209,6 +214,10 @@ var infobar = function() {
                     html = html + '<br />';
                 }
             }
+
+            var top = Math.floor((maxheight - totalheight)/2);
+            if (top < 0) top = 0;
+            $("#nptext").css("top", top+"px");
 
             // Make sure the line spacing caused by the <br> is consistent
             if (lines[1]) {

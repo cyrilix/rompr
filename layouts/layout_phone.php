@@ -108,40 +108,12 @@ if ($prefs['player_backend'] == "mpd") {
             </div>
             <div id="podcastslist" class="dropmenu"></div>
 
-            <div class="containerbox menuitem noselection">
 <?php
-                print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" onclick="loadSomaFM()" name="somafmlist"></div>';
+$sp = glob("streamplugins/*.php");
+foreach($sp as $p) {
+    include($p);
+}
 ?>
-<?php
-                print '<div class="smallcover fixed"><img height="32px" width="32px" src="'.$ipath.'somafm.png"></div>';
-                print '<div class="expand">'.get_int_text('label_somafm').'</div>';
-?>
-                <img id="somawait" height="14px" width="14px" src="newimages/transparent-32x32.png" />
-            </div>
-            <div id="somafmlist" class="dropmenu"></div>
-
-            <div class="containerbox menuitem noselection">
-<?php
-                print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" onclick="loadBigRadio()" name="bbclist"></div>';
-                print '<div class="smallcover fixed"><img height="32px" width="32px" src="'.$ipath.'broadcast-32.png"></div>';
-                print '<div class="expand">'.get_int_text('label_streamradio').'</div>';
-?>
-                <img id="bbcwait" height="14px" width="14px" src="newimages/transparent-32x32.png" />
-            </div>
-            <div id="bbclist" class="dropmenu"></div>
-
-            <div class="containerbox menuitem noselection">
-<?php
-                print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" onclick="refreshMyDrink()" name="icecastlist"></div>';
-?>
-<?php
-                print '<div class="smallcover fixed"><img height="32px" width="32px" src="'.$ipath.'icecast.png"></div>';
-                print '<div class="expand">'.get_int_text('label_icecast').'</div>';
-?>
-                <img id="icewait" height="14px" width="14px" src="newimages/transparent-32x32.png" />
-            </div>
-            <div id="icecastlist" class="dropmenu"></div>
-
         </div>
 
         <div id="chooser" class="invisible noborder">

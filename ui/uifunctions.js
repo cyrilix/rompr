@@ -56,10 +56,6 @@ function doTheSave() {
     $.post("setFinklestein.php", {dir: $("#configpanel").find('input[name|="music_directory_albumart"]').attr("value")});
 }
 
-function changeradiocountry() {
-    $("#bbclist").load("bbcradio.php?country="+$("#radioselector").val());
-}
-
 function setXfadeDur() {
     prefs.save({crossfade_duration: $("#configpanel").find('input[name|="michaelbarrymore"]').attr("value")});
     debug.log("DEBUG","Setting xfade to ",prefs.crossfade_duration);
@@ -190,20 +186,6 @@ function togglePref(pref) {
         coverscraper.toggle($("#"+pref).is(":checked"));
     } else if (pref == 'twocolumnsinlandscape') {
         setBottomPaneSize();
-    }
-}
-
-function loadSomaFM() {
-    if ($("#somafmlist").is(':empty')) {
-        makeWaitingIcon("somawait");
-        $("#somafmlist").load("somafm.php", function() { stopWaitingIcon("somawait")});
-    }
-}
-
-function loadBigRadio() {
-    if ($("#bbclist").is(':empty')) {
-        makeWaitingIcon("bbcwait");
-        $("#bbclist").load("bbcradio.php", function() { stopWaitingIcon("bbcwait")});
     }
 }
 
@@ -673,16 +655,6 @@ function doSomethingUseful(div,text) {
     }
 }
 
-function refreshMyDrink(path) {
-    makeWaitingIcon("icewait");
-    if ($("#icecastlist").is(':empty') || path === false) {
-        $("#icecastlist").load("iceScraper.php", function() { stopWaitingIcon("icewait") });
-    } else {
-        debug.log("GENERAL","Fanoogling the hubstraff",path);
-        $("#icecastlist").load("iceScraper.php?path="+path, function() { stopWaitingIcon("icewait") });
-    }
-}
-
 function setChooserButtons() {
     var s = ["albumlist", "filelist", "radiolist"];
     for (var i in s) {
@@ -1106,6 +1078,6 @@ function didntAddATrack(rdata) {
 }
 
 function failedToAddAlbum(data) {
-    debug.fail("SPOTIFY","Failed to add album",data);
+    debug.fail("ADD ALBUM","Failed to add album",data);
     infobar.notify(infobar.ERROR, "Failed To Add Album To Collection");
 }

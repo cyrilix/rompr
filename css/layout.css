@@ -204,6 +204,7 @@ select
     padding-top:4px;
     padding-bottom:4px;
     margin:0px;
+    width:82px;
 }
 
 #albumpicture
@@ -220,12 +221,14 @@ select
     padding-left:8px;
     white-space:nowrap;
     height:60px;
+    position:relative;
 }
 
 #nptext
 {
     width:auto;
     display:inline;
+    position:absolute;
 }
 
 .larger
