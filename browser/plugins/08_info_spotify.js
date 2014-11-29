@@ -2,7 +2,8 @@ var info_spotify = function() {
 
 	var me = "spotify";
     var medebug = "SPOTIFY PLUGIN";
-    var maxwidth = (mobile == "no") ? 1200 : 480;
+    // var maxwidth = (mobile == "no") ? 1200 : 480;
+    var maxwidth = 300;
 
     function getTrackHTML(data) {
 
@@ -105,6 +106,7 @@ var info_spotify = function() {
     	if (artistmeta.spotify.showing == "artists") {
     		h = h + ' bsel';
     	}
+
     	h = h + '">'+language.gettext("label_related")+'</span></h3></div>' +
     			'<div class="fixed"><img id="hibbert" height="32px" src="newimages/waiter.png" class="invisible" /></div></div>' +
     			'<div class="holdingcell masonified2" id="artistalbums"></div>';

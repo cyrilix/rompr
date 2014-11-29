@@ -262,6 +262,9 @@ function onPlaylistClicked(event) {
     } else if (clickedElement.hasClass("clickremovealbum")) {
         event.stopImmediatePropagation();
         playlist.deleteGroup(clickedElement.attr("name"));
+    } else if (clickedElement.hasClass("clickaddwholealbum")) {
+        event.stopImmediatePropagation();
+        playlist.addAlbumToCollection(clickedElement.attr("name"));
     } else if (clickedElement.hasClass("clickrollup")) {
         event.stopImmediatePropagation();
         playlist.hideItem(clickedElement.attr("romprname"));

@@ -176,6 +176,10 @@ function playerController() {
         $('#filesearch').load("filesearch.php");
     }
 
+    this.isConnected = function() {
+        return true;
+    }
+
 	this.reloadPlaylists = function() {
         $.get("loadplaylists.php", function(data) {
             var html = '';
@@ -186,7 +190,6 @@ function playerController() {
             }
             html = html + data + "</table>";
             $("#storedplaylists").html(html);
-            // addCustomScrollBar("#tigger");
         });
 	}
 

@@ -131,6 +131,7 @@ var tagManager = function() {
 	        		artist: 'dummy',
 	        		title: 'dummy',
 	        		urionly: '1',
+	        		dontcreate: '1',
 	        		action: 'set',
 	        		attribute: 'Tags',
 	        		value: [tag]

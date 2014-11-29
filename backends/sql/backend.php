@@ -5,8 +5,6 @@ connect_to_database();
 $artist_created = false;
 $album_created = false;
 $backend_in_use = "sql";
-$download_file = "";
-$convert_path = find_executable("convert");
 
 // In the following, we're using a mixture of prepared statement (mysqli_prepare) and just raw queries.
 // Raw queries are easier to handle in many cases, but prepared statements take a lot of fuss away
@@ -18,7 +16,18 @@ $convert_path = find_executable("convert");
 // and fave artists etc don't make a lot of sense in a world where a proportion of your listening
 // is in response to searches of Spotify or youtube etc.
 
-function find_item($uri,$title,$artist,$album,$urionly) {
+function find_item($uri,$title,$artist,$album,$albumartist,$urionly) {
+
+	// find_item is used by userRatings to find tracks on which to update metadata.
+	// It is NOT used when the collection is created
+	// The first thing we do is try by URI. This is the most accurate method of finding the ratings/tags/playcounts associated with
+	// the track we're looking for. However, URI might not match if we're playing from a different source - eg we have the album
+	// in our local files and that one is rated but we play it from spotify. In that case we want to return the metadata anyway
+	// so if we don't find it by URI we do an ever-widening search to try to find the track
+
+	// $urionly can be set to force looking up only by URI. This is used by when we need to import a specific version of
+	// the track  - currently from either the Last.FM importer or when add a spotify album to the collection
+
 	debug_print("Looking for item ".$title,"MYSQL");
 	global $mysqlc;
 
@@ -45,6 +54,7 @@ function find_item($uri,$title,$artist,$album,$urionly) {
 	if ($ttid == null) {
 		if ($album) {
 			// Note. We regard the same track on a different album as a different version. Unlike Last.FM do. Silly Buggers.
+			// So, first try looking up by title, track artist, and album
 			debug_print("  Trying by artist ".$artist." album ".$album." and track ".$title,"MYSQL");
 			if ($stmt = mysqli_prepare($mysqlc, "SELECT TTindex FROM Tracktable JOIN Artisttable USING (Artistindex) JOIN Albumtable USING (Albumindex) WHERE STRCMP(Title, ?) = 0 AND STRCMP(Artistname, ?) = 0 AND STRCMP(Albumname, ?) = 0")) {
 				mysqli_stmt_bind_param($stmt, "sss", $title, $artist, $album);
@@ -58,7 +68,27 @@ function find_item($uri,$title,$artist,$album,$urionly) {
 			} else {
 				debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 			}
+			// Now try a similar lookup but using the albumartist instead - track artists can vary by backend, and can come back in
+			// a different order sometimes so we could have $artist = "A & B" but it's in the database as "B & A".
+			// This shouldn't happen with albumartists
+			if ($ttid == null && $albumartist !== null) {
+				debug_print("  Trying by albumartist ".$albumartist." album ".$album." and track ".$title,"MYSQL");
+				if ($stmt = mysqli_prepare($mysqlc, "SELECT TTindex FROM Tracktable JOIN Albumtable USING (Albumindex) JOIN Artisttable ON Albumtable.AlbumArtistindex = Artisttable.Artistindex WHERE STRCMP(Title, ?) = 0 AND STRCMP (Artistname, ?) = 0 AND STRCMP (Albumname, ?) = 0")) {
+					mysqli_stmt_bind_param($stmt, "sss", $title, $albumartist, $album);
+					mysqli_stmt_execute($stmt);
+				    mysqli_stmt_bind_result($stmt, $ttid);
+				    mysqli_stmt_fetch($stmt);
+				    mysqli_stmt_close($stmt);
+				    if ($ttid) {
+						debug_print("    Found TTindex ".$ttid,"MYSQL");
+				    }
+				} else {
+					debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+				}
+
+			}
 			if ($ttid == null) {
+				// Finally look for album NULL which will be a wishlist item added via a radio station
 				debug_print("  Trying by artist ".$artist." album NULL and track ".$title,"MYSQL");
 				if ($stmt = mysqli_prepare($mysqlc, "SELECT TTindex FROM Tracktable JOIN Artisttable USING (Artistindex) WHERE STRCMP(Title, ?) = 0 AND STRCMP(Artistname, ?) = 0 AND Albumindex IS NULL")) {
 					mysqli_stmt_bind_param($stmt, "ss", $title, $artist);
@@ -203,7 +233,6 @@ function create_new_track($title, $artist, $trackno, $duration, $albumartist, $s
 					$album_created = $albumi;
 					debug_print("We're using an album that was previously invisible","MYSQL");
 				}
-
 			}
 		}
 	}
@@ -223,6 +252,13 @@ function create_new_track($title, $artist, $trackno, $duration, $albumartist, $s
 	}
 
 	if ($retval && $trackimage) {
+
+		// What are trackimages?
+		// Certain backends (youtube and soundcloud) return an image but using it as an album image doesn't make
+		// a lot of sense visually. So for these tracks we use it as a track image which will be displayed
+		// alongside the track in the collection and the playlist. The album images for these sites
+		// will always be the site logo, as set when the collection is created
+
 		if ($stmt = mysqli_prepare($mysqlc, "INSERT INTO Trackimagetable (TTindex, Image) VALUES (?, ?)")) {
 			mysqli_stmt_bind_param($stmt, "is", $retval, $trackimage);
 			if (mysqli_stmt_execute($stmt)) {
@@ -317,8 +353,6 @@ function create_new_album($album, $albumai, $spotilink, $image, $date, $isonefil
 	global $mysqlc;
 	global $album_created;
 	global $error;
-	global $download_file;
-	global $convert_path;
 	global $ipath;
 	$retval = null;
 
@@ -406,49 +440,39 @@ function set_attribute($ttid, $attribute, $value) {
 	// If we're setting it on a hidden track we have to:
 	// Unhide the track
 	// Work out if this will cause a new artist and/or album to appear in the collection
-	if ($result = mysqli_query($mysqlc, "SELECT Hidden FROM Tracktable WHERE TTindex=".$ttid)) {
-		$h = 0;
-		while ($obj = mysqli_fetch_object($result)) {
-			$h = $obj->Hidden;
-		}
-		mysqli_free_result($result);
-		if ($h == 1) {
-			debug_print("Setting attribute on a hidden track","MYSQL");
-			// See if the album has any non-hidden tracks
-			$result = mysqli_query($mysqlc, "SELECT TTindex FROM Tracktable JOIN Albumtable USING (Albumindex) WHERE Albumtable.Albumindex IN (SELECT Albumindex FROM Tracktable WHERE TTindex=".$ttid.") AND Hidden=0");
-			if (mysqli_num_rows($result) == 0) {
+	if (track_is_hidden($ttid)) {
+		debug_print("Setting attribute on a hidden track","MYSQL");
+		// See if the album has any non-hidden tracks
+		$result = mysqli_query($mysqlc, "SELECT TTindex FROM Tracktable JOIN Albumtable USING (Albumindex) WHERE Albumtable.Albumindex IN (SELECT Albumindex FROM Tracktable WHERE TTindex=".$ttid.") AND Hidden=0");
+		if (mysqli_num_rows($result) == 0) {
+			mysqli_free_result($result);
+			$result = mysqli_query($mysqlc, "SELECT Albumindex FROM Tracktable WHERE TTindex =".$ttid);
+			while ($obj = mysqli_fetch_object($result)) {
+				$album_created = $obj->Albumindex;
+				debug_print("Revealing Album Index ".$album_created,"MYSQL");
+			}
+			mysqli_free_result($result);
+			// Now to find if this artist has any other albums. If not, its a new artist
+
+			// TODO. This won't work if the artist has multiple hidden albums
+
+			$result = mysqli_query($mysqlc, "SELECT Albumindex FROM Albumtable WHERE AlbumArtistindex IN (SELECT AlbumArtistindex FROM Albumtable WHERE Albumindex=".$album_created.")");
+			if (mysqli_num_rows($result) < 2) {
+				// This is the only album by that artist
 				mysqli_free_result($result);
-				$result = mysqli_query($mysqlc, "SELECT Albumindex FROM Tracktable WHERE TTindex =".$ttid);
+				$result = mysqli_query($mysqlc,"SELECT AlbumArtistindex FROM Albumtable WHERE Albumindex=".$album_created);
 				while ($obj = mysqli_fetch_object($result)) {
-					$album_created = $obj->Albumindex;
-					debug_print("Revealing Album Index ".$album_created,"MYSQL");
-				}
-				mysqli_free_result($result);
-				// Now to find if this artist has any other albums. If not, its a new artist
-
-				// TODO. This won't work if the artist has multiple hidden albums
-
-				$result = mysqli_query($mysqlc, "SELECT Albumindex FROM Albumtable WHERE AlbumArtistindex IN (SELECT AlbumArtistindex FROM Albumtable WHERE Albumindex=".$album_created.")");
-				if (mysqli_num_rows($result) < 2) {
-					// This is the only album by that artist
-					mysqli_free_result($result);
-					$result = mysqli_query($mysqlc,"SELECT AlbumArtistindex FROM Albumtable WHERE Albumindex=".$album_created);
-					while ($obj = mysqli_fetch_object($result)) {
-						$artist_created = $obj->AlbumArtistindex;
-						debug_print("Revealing Artist Index ".$artist_created,"MYSQL");
-					}
-				} else {
-					mysqli_free_result($result);
+					$artist_created = $obj->AlbumArtistindex;
+					debug_print("Revealing Artist Index ".$artist_created,"MYSQL");
 				}
 			} else {
 				mysqli_free_result($result);
-				// If we didn't "create" a new album then we didn't create a new artist either.
 			}
-			generic_sql_query("UPDATE Tracktable SET Hidden=0 WHERE TTindex=".$ttid);
+		} else {
+			mysqli_free_result($result);
+			// If we didn't "create" a new album then we didn't create a new artist either.
 		}
-
-	} else {
-		debug_print("  ERROR Looking up Hidden status".mysqli_error($mysqlc), "MYSQL");
+		generic_sql_query("UPDATE Tracktable SET Hidden=0 WHERE TTindex=".$ttid);
 	}
 
 	if ($attribute == 'Tags') {
@@ -761,6 +785,23 @@ function update_image_db($key, $notfound, $imagefile) {
 	} else {
         debug_print("    MYSQL Statement Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
+}
+
+function track_is_hidden($ttid) {
+	global $mysqlc;
+	if ($result = mysqli_query($mysqlc, "SELECT Hidden FROM Tracktable WHERE TTindex=".$ttid)) {
+		$h = 0;
+		while ($obj = mysqli_fetch_object($result)) {
+			$h = $obj->Hidden;
+		}
+		mysqli_free_result($result);
+		if ($h == 1) {
+			return true;
+		}
+	} else {
+        debug_print("    Error checking hidden status: ".mysqli_error($mysqlc),"MYSQL");
+	}
+	return false;
 }
 
 function do_artists_from_database($which) {
@@ -1311,6 +1352,11 @@ function doDatabaseMagic() {
 
 function remove_cruft() {
 
+	debug_print("Removing once-played tracks not played in 6 months","MYSQL");
+	// To try and keep the db size down, if a track has only been played once in the last 6 months and it has no tags or ratings, remove it.
+	// We don't need to check if it's in the Ratingtable or TagListtable because if Hidden = 1 it can't be.
+	generic_sql_query("DELETE Tracktable FROM Tracktable JOIN Playcounttable USING (TTindex) WHERE Hidden = 1 AND DATE_SUB(CURDATE(), INTERVAL 6 MONTH) > DateAdded AND Playcount < 2");
+
     debug_print("Removing orphaned albums","MYSQL");
     // NOTE - the Albumindex IS NOT NULL is essential - if any albumindex is NULL the entire () expression returns NULL
     generic_sql_query("DELETE FROM Albumtable WHERE Albumindex NOT IN (SELECT DISTINCT Albumindex FROM Tracktable WHERE Albumindex IS NOT NULL)");
@@ -1323,9 +1369,6 @@ function remove_cruft() {
 	debug_print("Croft table creation took ".$dur,"MYSQL");
 
     $t = time();
-	// TODO
-	// Try this syntax:
-	// CREATE TEMPORARY TABLE Cruft(Artistindex INT UNSIGNED NOT NULL UNIQUE, PRIMARY KEY(Artistindex)) SELECT Artisttable.Artistindex FROM Artisttable LEFT JOIN Croft ON Artisttable.Artistindex = Croft.Artistindex WHERE Croft.Artistindex IS NULL
 	generic_sql_query("CREATE TEMPORARY TABLE Cruft(Artistindex INT UNSIGNED NOT NULL UNIQUE, PRIMARY KEY(Artistindex)) SELECT Artistindex FROM Artisttable WHERE Artistindex NOT IN (SELECT Artistindex FROM Croft)");
 	$dur = format_time(time() - $t);
 	debug_print("Cruft table creation took ".$dur,"MYSQL");

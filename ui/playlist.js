@@ -460,6 +460,11 @@ function Playlist() {
         tracklist[index].deleteSelf();
     }
 
+    this.addAlbumToCollection = function(index) {
+        infobar.notify(infobar.NOTIFY, "Adding Album To Collection");
+        tracklist[index].addToCollection();
+    }
+
     this.addtrack = function(element) {
         self.waiting();
         var n = decodeURIComponent(element.attr("name"));
@@ -698,7 +703,16 @@ function Playlist() {
             html = html + '<div class="line">'+self.artist+'</div>';
             html = html + '<div class="line">'+self.album+'</div>';
             html = html + '</div>';
-            html = html + '<div class="playlisticonr fixed clickable clickicon clickremovealbum" name="'+self.index+'"><img src="'+ipath+'edit-delete.png" /></div>';
+
+            html = html + '<div class="containerbox vertical fixed">';
+            if (tracks[0].spotify && tracks[0].spotify.album && tracks[0].spotify.album.substring(0,7) == "spotify" && prefs.apache_backend == "sql") {
+                html = html + '<div class="playlisticonr fixed clickable clickicon clickaddwholealbum" name="'+self.index+'"><img height="12px" width="12px" src="'+ipath+'audio-x-generic.png"></div>';
+            }
+            html = html + '<div class="playlisticonr fixed clickable clickicon clickremovealbum" name="'+self.index+'"><img src="'+ipath+'edit-delete.png"></div>';
+            html = html + '</div>';
+
+
+            // html = html + '<div class="playlisticonr fixed clickable clickicon clickremovealbum" name="'+self.index+'"><img src="'+ipath+'edit-delete.png" /></div>';
             html = html + '</div>';
             html = html + '<div class="trackgroup';
             if (rolledup) {
@@ -778,6 +792,14 @@ function Playlist() {
 
         this.nexttrackcommand = function() {
             player.controller.next();
+        }
+
+        this.addToCollection = function() {
+            if (tracks[0].spotify && tracks[0].spotify.album && tracks[0].spotify.album.substring(0,14) == "spotify:album:") {
+                spotify.album.getInfo(tracks[0].spotify.album.substring(14,tracks[0].spotify.album.length), addAlbumTracksToCollection, failedToAddAlbum, false)
+            } else {
+                debug.error("PLAYLIST","Trying to add non-spotify album to the collection!");
+            }
         }
 
         function format_tracknum(tracknum) {

@@ -35,6 +35,7 @@ $album = array_key_exists('album', $_POST) ? $_POST['album'] : null;
 $uri = array_key_exists('uri', $_POST) ? $_POST['uri'] : null;
 $date = array_key_exists('date', $_POST) ? $_POST['date'] : null;
 $urionly = array_key_exists('urionly', $_POST) ? true : false;
+$dontcreate = array_key_exists('dontcreate', $_POST) ? true : false;
 $disc = array_key_exists('disc', $_POST) ? $_POST['disc'] : 1;
 $trackimage = array_key_exists('trackimage', $_POST) ? $_POST['trackimage'] : null;
 if (substr($image,0,4) == "http") {
@@ -77,6 +78,7 @@ switch ($_POST['action']) {
 							$title,
 							$artist,
 							$album,
+							$albumartist,
 							false);
 		if ($ttid) {
 			print json_encode(get_all_data($ttid));
@@ -96,6 +98,7 @@ switch ($_POST['action']) {
 							$title,
 							$artist,
 							$album,
+							$albumartist,
 							false);
 
 		if ($ttid == null) {
@@ -130,6 +133,59 @@ switch ($_POST['action']) {
 		}
 		break;
 
+	case "add":
+
+		// This is used for adding specific tracks so we need urionly to be true
+		// We don't simply call into this using 'set' with urionly set to true
+		// because that might result in the rating being changed
+
+		$ttid = find_item(	$uri,
+							$title,
+							$artist,
+							$album,
+							$albumartist,
+							true);
+		if ($ttid !== null) {
+
+			// Since mopidy doesn't return disc numbers we'll take this opportunity to update them
+			if ($disc) {
+				generic_sql_query("UPDATE Tracktable SET Disc = ".$disc." WHERE TTindex = ".$ttid);
+			}
+
+			// If we found it, just make sure it's not hidden. This is slightly trickier than it sounds
+			// because if it is it might cause a new album and/or artist to appear in the collection when
+			// we unhide it.
+			// The code to do this already exists in set_attribute. If it's hidden it will have no attributes
+			// (except a playcount) so we can check if it's hidden and if it is, set its rating to 0.
+			if (track_is_hidden($ttid)) {
+				set_attribute($ttid, "Rating", "0");
+				update_track_stats();
+				send_list_updates($artist_created, $album_created, $ttid);
+			}
+		} else {
+			$ttid = create_new_track(	$title,
+										$artist,
+										$trackno,
+										$duration,
+										$albumartist,
+										$spotilink,
+										$image,
+										$album,
+										$date,
+										$uri,
+										null, null, null, null, null,
+										md5($albumartist." ".$album),
+										null,
+										$disc,
+										null, null,
+										$uri === null ? "local" : getDomain($uri),
+										0,
+										$trackimage);
+			update_track_stats();
+			send_list_updates($artist_created, $album_created, $ttid);
+		}
+		break;
+
 	case 'set':
 		if ($artist === null ||
 			$title === null ||
@@ -143,9 +199,14 @@ switch ($_POST['action']) {
 							$title,
 							$artist,
 							$album,
+							$albumartist,
 							$urionly);
 
-		if ($ttid == null) {
+		if ($ttid == null && $dontcreate == false) {
+
+			// dontcreate prevents us from creating a track if it doesn't already exist. It's used by the
+			// Tag Manager and Rating Manager as a means of preventing us adding stuff from the search
+			// panel, because it requires a shedload more code to get the title, artist etc details
 
 			// NOTE: This is adding new tracks without putting them through the collectioniser.
 			// This is probably OK, since the collectioniser was designed for coping with
@@ -199,6 +260,7 @@ switch ($_POST['action']) {
 							$title,
 							$artist,
 							$album,
+							$albumartist,
 							false);
 		if ($ttid) {
 			if (remove_tag($ttid, trim($_POST['value']))) {
@@ -213,7 +275,7 @@ switch ($_POST['action']) {
 
 
 	case 'delete':
-		$ttid = find_item($uri, null, null, null, false);
+		$ttid = find_item($uri, null, null, null, null, false);
 		if ($ttid == null) {
 			header('HTTP/1.0 403 Forbidden');
 		} else {

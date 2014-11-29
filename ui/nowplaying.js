@@ -168,11 +168,11 @@ var nowplaying = function() {
 
 		newTrack: function(playlistinfo) {
 
+			infobar.setNowPlayingInfo(playlistinfo);
 			if (playlistinfo.backendid == currentbackendid) {
 				debug.warn("NOWPLAYING","Meet the new track, same as the old track");
 				return;
 			}
-			infobar.setNowPlayingInfo(playlistinfo);
 			if (playlistinfo == playlist.emptytrack) {
 				return;
 			}

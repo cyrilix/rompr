@@ -19,6 +19,7 @@ function changefontfamily() {
     debug.log("CHICKEN","Setting font family to ",$("#fontfamselector").val());
     $("#fontfamily").attr({href: "fonts/"+$("#fontfamselector").val()});
     prefs.save({fontfamily: $("#fontfamselector").val()});
+    setTimeout(infobar.biggerize, 2000);
 }
 
 function changelanguage() {
@@ -1037,4 +1038,74 @@ function randomsort(a,b) {
     } else {
         return -1;
     }
+}
+
+var thisIsMessy = new Array();
+
+function addAlbumTracksToCollection(data) {
+    if (data.tracks && data.tracks.items) {
+        infobar.notify(infobar.NOTIFY, "Adding Album To Collection");
+        for (var i in data.tracks.items) {
+            var track = {};
+            track.title = data.tracks.items[i].name;
+            track.artist = joinartists(data.tracks.items[i].artists);
+            track.trackno = data.tracks.items[i].track_number;
+            track.duration = data.tracks.items[i].duration_ms/1000;
+            track.disc = data.tracks.items[i].disc_number;
+            track.albumartist = joinartists(data.artists);
+            track.spotilink = data.uri;
+            if (data.images) {
+                for (var j in data.images) {
+                    if (data.images[j].url) {
+                        track.image = "getRemoteImage.php?url="+data.images[j].url;
+                        break;
+                    }
+                }
+            }
+            track.album = data.name;
+            track.uri = data.tracks.items[i].uri;
+            track.date = data.release_date;
+            track.action = 'add';
+            thisIsMessy.push(track);
+        }
+        if (thisIsMessy.length == data.tracks.items.length) {
+            doTheTrackAddingThing();
+        }
+    } else {
+        debug.fail("SPOTIFY","Failed to add album - no tracks",data);
+        infobar.notify(infobar.ERROR, "Failed To Add Album To Collection");
+    }
+}
+
+function doTheTrackAddingThing() {
+    var data = thisIsMessy.shift();
+    if (data) {
+        $.ajax({
+            url: "userRatings.php",
+            type: "POST",
+            data: data,
+            dataType: 'json',
+            success: addedATrack,
+            error: didntAddATrack
+        });
+    }
+}
+
+function addedATrack(rdata) {
+    debug.log("ADD ALBUM","Success",rdata);
+    if (rdata) {
+        updateCollectionDisplay(rdata);
+    }
+    doTheTrackAddingThing();
+}
+
+function didntAddATrack(rdata) {
+    debug.error("ADD ALBUM","Failure",rdata);
+    infobar.notify(infobar.ERROR,"Failed To Add Track!");
+    doTheTrackAddingThing();
+}
+
+function failedToAddAlbum(data) {
+    debug.fail("SPOTIFY","Failed to add album",data);
+    infobar.notify(infobar.ERROR, "Failed To Add Album To Collection");
 }

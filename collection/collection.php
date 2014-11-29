@@ -177,7 +177,7 @@ class album {
             // we don't really need to pre-sort tracks because we can do it on the fly.
             // However, when there are no disc numbers multi-disc albums don't sort properly.
             // Hence we do a little check that we have have the same number of 'Track 1's
-            // as discs and only do the sort of they're not the same. This'll also
+            // as discs and only do the sort if they're not the same. This'll also
             // sort out badly tagged local files.
             if ($this->numOfTrackOnes <= 1 || $this->numOfTrackOnes == $this->numOfDiscs) return $this->numOfDiscs;
         }

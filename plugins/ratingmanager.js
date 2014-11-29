@@ -141,6 +141,7 @@ var ratingManager = function() {
 	        		artist: 'dummy',
 	        		title: 'dummy',
 	        		urionly: '1',
+	        		dontcreate: '1',
 	        		action: 'set',
 	        		attribute: 'Rating',
 	        		value: rat
