@@ -137,7 +137,7 @@ var nowplaying = function() {
 	var plugins = new Array();
     var currenttrack = 0;
     var nowplayingindex = 0;
-    var currentbackendid = -1;
+    // var currentbackendid = -1;
 
     function findCurrentTrack() {
     	for (var i in history) {
@@ -169,10 +169,10 @@ var nowplaying = function() {
 		newTrack: function(playlistinfo) {
 
 			infobar.setNowPlayingInfo(playlistinfo);
-			if (playlistinfo.backendid == currentbackendid) {
-				debug.warn("NOWPLAYING","Meet the new track, same as the old track");
-				return;
-			}
+			// if (playlistinfo.backendid == currentbackendid) {
+			// 	debug.warn("NOWPLAYING","Meet the new track, same as the old track");
+			// 	return;
+			// }
 			if (playlistinfo == playlist.emptytrack) {
 				return;
 			}
