@@ -144,7 +144,7 @@ switch ($_POST['action']) {
 							$album,
 							$albumartist,
 							true);
-		if ($ttid !== null) {
+		if ($ttid != null) {
 
 			// Since mopidy doesn't return disc numbers we'll take this opportunity to update them
 			if ($disc) {
