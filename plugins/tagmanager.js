@@ -22,7 +22,7 @@ var tagManager = function() {
 
 	function reloadTagList(tag) {
         $.ajax({
-        	url: 'userRatings.php',
+        	url: 'backends/sql/userRatings.php',
         	type: "POST",
         	data: {action: 'taglist'},
         	dataType: 'json',
@@ -62,7 +62,7 @@ var tagManager = function() {
 			    $("#tmgfoldup .enter").keyup( onKeyUp );
 			    $("#tmgfoldup").append('<div class="noselection fullwidth masonified" id="tagmunger"></div>');
 	            $.ajax({
-	            	url: 'userRatings.php',
+	            	url: 'backends/sql/userRatings.php',
 	            	type: "POST",
 	            	data: {action: 'taglist'},
 	            	dataType: 'json',
@@ -141,7 +141,7 @@ var tagManager = function() {
 	        	var track = tracks.shift();
 	        	if (track) {
 	        		$.ajax({
-	        			url: "userRatings.php",
+	        			url: "backends/sql/userRatings.php",
 	        			type: "POST",
 	        			data: track,
 	        			dataType: 'json',
@@ -168,7 +168,7 @@ var tagManager = function() {
 		        var uri = decodeURIComponent(element.parent().parent().attr('name'));
 		        debug.log("TAGMANAGER","Removing Tag",tag,"From",uri);
         		$.ajax({
-        			url: "userRatings.php",
+        			url: "backends/sql/userRatings.php",
         			type: "POST",
         			data: {
         				artist: 'dummy',
@@ -191,7 +191,7 @@ var tagManager = function() {
 		        tag = tag.replace(/tagman_/,'');
 		        debug.log("TAGMANAGER","Deleting Tag",tag);
         		$.ajax({
-        			url: "userRatings.php",
+        			url: "backends/sql/userRatings.php",
         			type: "POST",
         			data: {
         				action: 'deletetag',

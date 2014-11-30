@@ -370,15 +370,6 @@ function LastFM(user) {
             }
         },
 
-        getPlaylist: function(options, callback, failcallback) {
-            $.get("getlfmtrack.php?url="+options.url+"&sk="+prefs.lastfm_session_key)
-            .done( callback )
-            .complete( function(data) {
-                playlist.saveTrackPlaylist(data.responseText)
-            })
-            .fail( failcallback )
-        },
-
         getBuylinks: function(options, callback, failcallback) {
             addGetOptions(options, "track.getBuylinks");
             options.country = prefs.lastfm_country_code;

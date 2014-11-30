@@ -527,7 +527,7 @@ var imageEditor = function() {
 
                 imageEditor.search();
                 if (path) {
-                    $.getJSON("findLocalImages.php?path="+path, imageEditor.gotLocalImages)
+                    $.getJSON("utils/findLocalImages.php?path="+path, imageEditor.gotLocalImages)
                 }
 
                 $("#imagekey").attr("value", imagekey);

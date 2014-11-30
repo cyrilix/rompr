@@ -139,7 +139,7 @@ function switchsource(source) {
 }
 
 function loadKeyBindings() {
-    $.getJSON("getkeybindings.php")
+    $.getJSON("utils/getkeybindings.php")
         .done(function(data) {
             shortcut.add(getHotKey(data['nextrack']),    function(){ playlist.next() }, {'disable_in_input':true});
             shortcut.add(getHotKey(data['prevtrack']),   function(){ playlist.previous() }, {'disable_in_input':true});
@@ -170,7 +170,7 @@ function editkeybindings() {
 
     $("#configpanel").slideToggle('fast');
 
-    $.getJSON("getkeybindings.php")
+    $.getJSON("utils/getkeybindings.php")
         .done(function(data) {
             var keybpu = popupWindow.create(500,400,"keybpu",true,language.gettext("title_keybindings"));
             $("#popupcontents").append('<table align="center" cellpadding="4" id="keybindtable" width="80%"></table>');
@@ -259,7 +259,7 @@ function changeHotKey(ev) {
 function saveKeyBindings() {
 
     var bindings = new Object;
-    $.getJSON("getkeybindings.php")
+    $.getJSON("utils/getkeybindings.php")
         .done(function(data) {
             debug.log("GENERAL","Clearing Key Bindings");
             $.each(data, function(i, v) { shortcut.remove(v)});
@@ -270,7 +270,7 @@ function saveKeyBindings() {
                 bindings[$(this).attr("name")] = $(this).attr("value")+"+++"+bindings[$(this).attr("name")];
             });
 
-            $.post("savekeybindings.php", bindings, function() {
+            $.post("utils/savekeybindings.php", bindings, function() {
                 loadKeyBindings();
                 popupWindow.close();
             });

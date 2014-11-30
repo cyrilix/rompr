@@ -291,7 +291,7 @@ function playerController() {
     	debug.log("PLAYER","Seeing if we need to add new tracks to the database");
         $.ajax({
             type: "POST",
-            url: "onthefly.php",
+            url: "backends/sql/onthefly.php",
             data: JSON.stringify(data),
             dataType: "json",
             timeout: 1000000,
@@ -600,7 +600,7 @@ function playerController() {
 
 	this.loadPlaylist = function(uri) {
 		mopidy.tracklist.clear().then( function() {
-			$.get("cleanPlaylists.php?command=clear");
+			$.get("player/mopidy/cleanPlaylists.php?command=clear");
             mopidy.playlists.lookup(uri).then( function(list) {
                 debug.debug("PLAYER","Playlist : ",list);
                 mopidy.tracklist.add(list.tracks);
@@ -628,7 +628,7 @@ function playerController() {
 
 	this.clearPlaylist = function() {
 		mopidy.tracklist.clear();
-		$.get("cleanPlaylists.php?command=clear");
+		$.get("player/mopidy/cleanPlaylists.php?command=clear");
 	}
 
 	this.savePlaylist = function() {

@@ -14,7 +14,7 @@ var starRadios = function() {
             type: "POST",
             dataType: "json",
             data: { action: action, playlist: playlist },
-            url: "userRatings.php",
+            url: "backends/sql/userRatings.php",
             success: starRadios.Go,
             fail: starRadios.Fail
         });

@@ -41,7 +41,7 @@ var spotify = function() {
 				debug.debug("SPOTIFY","Taking next request from queue",req.url);
 	            var getit = $.ajax({
 	                dataType: "json",
-	                url: "getspdata.php?uri="+encodeURIComponent(req.url),
+	                url: "browser/backends/getspdata.php?uri="+encodeURIComponent(req.url),
 	                success: function(data) {
 
 	                	var c = getit.getResponseHeader('Pragma');

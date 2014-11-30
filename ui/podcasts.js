@@ -15,10 +15,10 @@ var podcasts = function() {
 				var monitor = new podcastDownloadMonitor(track, channel);
 			    $.ajax( {
 			        type: "GET",
-			        url: "podcasts.php",
+			        url: "streamplugins/01_podcasts.php",
 			        cache: false,
 			        contentType: "text/html; charset=utf-8",
-			        data: {downloadtrack: track, channel: channel },
+			        data: {downloadtrack: track, channel: channel, populate: 1 },
 			        timeout: 360000,
 			        success: function(data) {
 			            monitor.stop();
@@ -51,7 +51,7 @@ var podcasts = function() {
 	    this.checkProgress = function() {
 	        $.ajax( {
 	            type: "GET",
-	            url: "checkpodcastdownload.php",
+	            url: "utils/checkpodcastdownload.php",
 	            cache: false,
 	            dataType: "json",
 	            success: function(data) {
@@ -108,9 +108,10 @@ var podcasts = function() {
 
 	function podcastRequest(options) {
 		debug.log("PODCASTS","Sending request",options);
+		options.populate = 1;
 	    $.ajax( {
 	        type: "GET",
-	        url: "podcasts.php",
+	        url: "streamplugins/01_podcasts.php",
 	        cache: false,
 	        contentType: "text/html; charset=utf-8",
 	        data: options,
@@ -131,7 +132,7 @@ var podcasts = function() {
 
 		loadList: function() {
 			if (!prefs.hide_radiolist) {
-		        $("#podcastslist").load("podcasts.php", function() {
+		        $("#podcastslist").load("streamplugins/01_podcasts.php?populate=1", function() {
 		            $(".fridge").tipTip({delay: 1000, edgeOffset: 8});
 		            podcasts.doNewCount();
 		        });
@@ -144,10 +145,10 @@ var podcasts = function() {
 		    doSomethingUseful('cocksausage', language.gettext("label_downloading"));
 		    $.ajax( {
 		        type: "GET",
-		        url: "podcasts.php",
+		        url: "streamplugins/01_podcasts.php",
 		        cache: false,
 		        contentType: "text/html; charset=utf-8",
-		        data: {url: encodeURIComponent(url) },
+		        data: {url: encodeURIComponent(url), populate: 1 },
 		        success: function(data) {
 		            $("#podcastslist").html(data);
 		            $("#podcastslist").find('.fridge').tipTip({edgeOffset: 8});
@@ -169,10 +170,10 @@ var podcasts = function() {
 		    debug.mark("PODCAST","Refreshing podcast",name);
 		    $.ajax( {
 		        type: "GET",
-		        url: "podcasts.php",
+		        url: "streamplugins/01_podcasts.php",
 		        cache: false,
 		        contentType: "text/html; charset=utf-8",
-		        data: {refresh: name },
+		        data: {refresh: name, populate: 1 },
 		        success: function(data) {
 		            $("#podcast_"+name).html(data);
 		            $("#podcast_"+name).find('.fridge').tipTip({edgeOffset: 8});
@@ -188,10 +189,10 @@ var podcasts = function() {
 		    debug.log("PODCAST","Removing podcast",name);
 		    $.ajax( {
 		        type: "GET",
-		        url: "podcasts.php",
+		        url: "streamplugins/01_podcasts.php",
 		        cache: false,
 		        contentType: "text/html; charset=utf-8",
-		        data: {remove: name },
+		        data: {remove: name, populate: 1 },
 		        success: function(data) {
 		            $("#podcastslist").html(data);
 		            $("#podcastslist").find('.fridge').tipTip({edgeOffset: 8});
@@ -207,10 +208,10 @@ var podcasts = function() {
 		    debug.log("PODCAST","Marking as listened",name);
 		    $.ajax( {
 		        type: "GET",
-		        url: "podcasts.php",
+		        url: "streamplugins/01_podcasts.php",
 		        cache: false,
 		        contentType: "text/html; charset=utf-8",
-		        data: {channellistened: channel },
+		        data: {channellistened: channel, populate: 1 },
 		        success: function(data) {
 		            $("#podcast_"+channel).html(data);
 		            $("#podcast_"+channel).find('.fridge').tipTip({edgeOffset: 8});
@@ -253,10 +254,10 @@ var podcasts = function() {
 		            debug.debug("PODCASTS", "We just listened to",file,"from",podid);
 		            $.ajax( {
 		                type: "GET",
-		                url: "podcasts.php",
+		                url: "streamplugins/01_podcasts.php",
 		                cache: false,
 		                contentType: "text/html; charset=utf-8",
-		                data: {listened: podid, location: encodeURIComponent(file)},
+		                data: {listened: podid, location: encodeURIComponent(file), populate: 1},
 		                success: function(data) {
 		                    $("#"+divid).html(data);
 		                    $("#"+divid).find('.fridge').tipTip({edgeOffset: 8});

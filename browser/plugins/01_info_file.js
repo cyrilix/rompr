@@ -179,7 +179,7 @@ var info_file = function() {
 
             this.updateBeetsInformation = function(thing) {
                 // Get around possible same origin policy restriction by using a php script
-                $.getJSON('getBeetsInfo.php', 'uri='+thing)
+                $.getJSON('browser/backends/getBeetsInfo.php', 'uri='+thing)
                 .done(function(data) {
                     debug.log("FILE PLUGIN",'Got info from beets server',data);
                     trackmeta.fileinfo = {beets: data, player: null};

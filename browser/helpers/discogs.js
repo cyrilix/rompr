@@ -30,7 +30,7 @@ var discogs = function() {
 				debug.debug("DISCOGS","Taking next request from queue",req.url);
 	            var getit = $.ajax({
 	                dataType: "json",
-	                url: "getdidata.php?uri="+encodeURIComponent(req.url),
+	                url: "browser/backends/getdidata.php?uri="+encodeURIComponent(req.url),
 
 		            success: function(data) {
 	                	var c = getit.getResponseHeader('Pragma');

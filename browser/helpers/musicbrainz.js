@@ -31,7 +31,7 @@ var musicbrainz = function() {
 				debug.debug("MUSICBRAINZ","Taking next request from queue",req.url);
 	            var getit = $.ajax({
 	                dataType: "json",
-	                url: "getmbdata.php?uri="+encodeURIComponent(req.url),
+	                url: "browser/backends/getmbdata.php?uri="+encodeURIComponent(req.url),
 	                success: function(data) {
 	                	var c = getit.getResponseHeader('Pragma');
 	                	debug.debug("MUSICBRAINZ","Request success",c);

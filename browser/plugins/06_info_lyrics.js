@@ -55,7 +55,7 @@ var info_lyrics = function() {
         			trackmeta.lyrics = '<h3 align=center>'+language.gettext("lyrics_nonefound")+'</h3><p>'+language.gettext("lyrics_nopath")+'</p>';
         			self.doBrowserUpdate();
             	} else {
-	            	$.get("getLyrics.php?file="+encodeURIComponent(player.status.file)+"&artist="+encodeURIComponent(getSearchArtist())+"&song="+encodeURIComponent(trackmeta.name))
+	            	$.get("browser/backends/getLyrics.php?file="+encodeURIComponent(player.status.file)+"&artist="+encodeURIComponent(getSearchArtist())+"&song="+encodeURIComponent(trackmeta.name))
 	            		.done(function(data) {
 	            			debug.log("LYRICS",data);
 	            			trackmeta.lyrics = data;

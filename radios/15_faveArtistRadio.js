@@ -8,7 +8,7 @@ var faveArtistRadio = function() {
             type: "POST",
             dataType: "json",
             data: { action: "getfaveartists" },
-            url: "userRatings.php",
+            url: "backends/sql/userRatings.php",
             success: function(data) {
                 if (data.length > 0) {
                     debug.debug("FAVE ARTIST RADIO","Got artists",data);

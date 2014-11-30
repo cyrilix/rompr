@@ -453,7 +453,7 @@ var info_lastfm = function() {
 
                     getFullBio: function(callback, failcallback) {
                         debug.log(medebug,parent.nowplayingindex,"Getting Bio URL:", artistmeta.lastfm.artist.url);
-                        var url = "getLfmBio.php?url="+encodeURIComponent(artistmeta.lastfm.artist.url);
+                        var url = "browser/backends/getLfmBio.php?url="+encodeURIComponent(artistmeta.lastfm.artist.url);
                         if (lastfm.getLanguage() !== null) {
                             url = url + "&lang="+lastfm.getLanguage();
                         }

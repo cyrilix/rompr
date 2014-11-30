@@ -370,10 +370,6 @@ function Playlist() {
         return finaltrack;
     }
 
-    this.saveTrackPlaylist = function(xml) {
-        $.post("newplaylist.php", { type: "track", xml: xml});
-    }
-
     this.findCurrentTrack = function() {
         debug.debug("PLAYLIST","Looking For Current Track",player.status.songid);
         self.currentTrack = null;
@@ -514,10 +510,10 @@ function Playlist() {
         if (self.currentTrack) {
             data.uri = self.currentTrack.location;
         }
-        $.post("addfave.php", data)
+        $.post("utils/addfave.php", data)
             .done( function() {
                 if (!prefs.hide_radiolist) {
-                    $("#yourradiolist").load("yourradio.php");
+                    $("#yourradiolist").load("streamplugins/00_yourradio.php?populate");
                 }
             });
     }
@@ -710,9 +706,6 @@ function Playlist() {
             }
             html = html + '<div class="playlisticonr fixed clickable clickicon clickremovealbum" name="'+self.index+'"><img src="'+ipath+'edit-delete.png"></div>';
             html = html + '</div>';
-
-
-            // html = html + '<div class="playlisticonr fixed clickable clickicon clickremovealbum" name="'+self.index+'"><img src="'+ipath+'edit-delete.png" /></div>';
             html = html + '</div>';
             html = html + '<div class="trackgroup';
             if (rolledup) {

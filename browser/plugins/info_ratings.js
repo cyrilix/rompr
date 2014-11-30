@@ -103,7 +103,7 @@ var info_ratings = function() {
                         var data = getPostData();
                         data.action = 'get';
                         $.ajax({
-                            url: "userRatings.php",
+                            url: "backends/sql/userRatings.php",
                             type: "POST",
                             data: data,
                             dataType: 'json',
@@ -147,7 +147,7 @@ var info_ratings = function() {
                     infobar.notify(infobar.NOTIFY,language.gettext("label_addtow"));
                 }
                 $.ajax({
-                    url: "userRatings.php",
+                    url: "backends/sql/userRatings.php",
                     type: "POST",
                     data: data,
                     dataType: 'json',

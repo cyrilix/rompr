@@ -22,7 +22,7 @@ var ratingManager = function() {
 
 	function reloadRatList(rat) {
         $.ajax({
-        	url: 'userRatings.php',
+        	url: 'backends/sql/userRatings.php',
         	type: "POST",
         	data: {action: 'ratlist'},
         	dataType: 'json',
@@ -55,7 +55,7 @@ var ratingManager = function() {
 	        		'</div>');
 			    $("#rmgfoldup").append('<div class="noselection fullwidth masonified" id="ratmunger"></div>');
 	            $.ajax({
-	            	url: 'userRatings.php',
+	            	url: 'backends/sql/userRatings.php',
 	            	type: "POST",
 	            	data: {action: 'ratlist'},
 	            	dataType: 'json',
@@ -105,7 +105,7 @@ var ratingManager = function() {
 		        var uri = decodeURIComponent(element.parent().parent().attr('name'));
 		        debug.log("RATMANAGER","Removing Rating From",uri," current value is ",rat);
         		$.ajax({
-        			url: "userRatings.php",
+        			url: "backends/sql/userRatings.php",
         			type: "POST",
         			data: {
         				artist: 'dummy',
@@ -151,7 +151,7 @@ var ratingManager = function() {
 	        	var track = tracks.shift();
 	        	if (track) {
 	        		$.ajax({
-	        			url: "userRatings.php",
+	        			url: "backends/sql/userRatings.php",
 	        			type: "POST",
 	        			data: track,
 	        			dataType: 'json',

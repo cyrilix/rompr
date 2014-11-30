@@ -1,4 +1,5 @@
 <?php
+chdir('..');
 if (array_key_exists('name', $_REQUEST)) {
 	$name = rawurldecode($_REQUEST['name']);
 	if (file_exists($name)) {
@@ -18,5 +19,4 @@ if (array_key_exists('remove', $_REQUEST)) {
 		print '<html><body></body></html>';
 	}
 }
-
 ?>

@@ -1,5 +1,4 @@
 <?php
-include ("includes/vars.php");
 
 // This is for getting a remote playlist from a radio station - eg PLS or ASX files
 // This script parses that remote playlist and creates a local XSPF which will be
@@ -13,6 +12,8 @@ include ("includes/vars.php");
 // The generated playlists can be updated later if no information is known -
 // the playlist will handle that when it gets stream info from mpd
 
+chdir('..');
+include ("includes/vars.php");
 include ("includes/functions.php");
 include ("international.php");
 

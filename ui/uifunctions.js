@@ -53,7 +53,7 @@ function doTheSave() {
                 music_directory_albumart: $("#configpanel").find('input[name|="music_directory_albumart"]').attr("value"),
                 autotagname: $("#configpanel").find('input[name|="taglovedwith"]').attr("value")});
     debug.log("DEBUG","Setting music directory to ",prefs.music_directory_albumart);
-    $.post("setFinklestein.php", {dir: $("#configpanel").find('input[name|="music_directory_albumart"]').attr("value")});
+    $.post("utils/setFinklestein.php", {dir: $("#configpanel").find('input[name|="music_directory_albumart"]').attr("value")});
 }
 
 function setXfadeDur() {
@@ -126,7 +126,7 @@ function getInternetPlaylist(url, image, station, creator, usersupplied) {
 
     $.ajax( {
         type: "GET",
-        url: "getInternetPlaylist.php",
+        url: "utils/getInternetPlaylist.php",
         cache: false,
         contentType: "text/xml; charset=utf-8",
         data: data,
@@ -145,7 +145,7 @@ function playUserStream(xspf) {
     playlist.waiting();
     $.ajax( {
         type: "GET",
-        url: "getUserStreamPlaylist.php",
+        url: "utils/getUserStreamPlaylist.php",
         cache: false,
         contentType: "text/xml; charset=utf-8",
         data: {name: xspf},
@@ -161,13 +161,13 @@ function playUserStream(xspf) {
 function removeUserStream(xspf) {
     $.ajax( {
         type: "GET",
-        url: "getUserStreamPlaylist.php",
+        url: "utils/getUserStreamPlaylist.php",
         cache: false,
         contentType: "text/xml; charset=utf-8",
         data: {remove: xspf},
         success: function(data, status) {
             if (!prefs.hide_radiolist) {
-                $("#yourradiolist").load("yourradio.php",
+                $("#yourradiolist").load("streamplugins/00_yourradio.php?populate",
                     function() { saveRadioOrder() });
             }
         },
@@ -470,7 +470,7 @@ function saveRadioOrder() {
     });
     $.ajax({
             type: 'POST',
-            url: 'saveRadioOrder.php',
+            url: 'utils/saveRadioOrder.php',
             data: {'order[]': radioOrder}
     });
 }
@@ -554,7 +554,7 @@ function pollAlbumList() {
         clearTimeout(update_load_timer);
         update_load_timer_running = false;
     }
-    $.getJSON("ajaxcommand.php", checkPoll);
+    $.getJSON("player/mpd/ajaxcommand.php", checkPoll);
 }
 
 function sourcecontrol(source) {
@@ -625,7 +625,7 @@ function hidePanel(panel) {
     } else {
         switch (panel) {
             case "radiolist":
-                $("#yourradiolist").load("yourradio.php");
+                $("#yourradiolist").load("streamplugins/00_yourradio.php?populate");
                 podcasts.loadList();
                 break;
             case "albumlist":
@@ -814,7 +814,7 @@ function removeTrackFromDb(element) {
     var trackToGo = trackDiv.attr("name");
     debug.log("DB_TRACKS","Remove track from database",trackToGo);
     $.ajax({
-        url: "userRatings.php",
+        url: "backends/sql/userRatings.php",
         type: "POST",
         data: {action: 'delete', uri: decodeURIComponent(trackToGo)},
         dataType: 'json',
@@ -856,7 +856,7 @@ function doDbCleanup() {
     // We Don't run this on removing the track - where it would slow down
     // response of the GUI - because it's rather slow.
     $.ajax({
-        url: "userRatings.php",
+        url: "backends/sql/userRatings.php",
         type: "POST",
         data: { action: 'cleanup' },
         dataType: 'json',
@@ -1053,7 +1053,7 @@ function doTheTrackAddingThing() {
     var data = thisIsMessy.shift();
     if (data) {
         $.ajax({
-            url: "userRatings.php",
+            url: "backends/sql/userRatings.php",
             type: "POST",
             data: data,
             dataType: 'json',

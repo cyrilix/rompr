@@ -1,5 +1,5 @@
 <?php
-
+chdir('..');
 if (is_link("prefs/MusicFolders")) {
 	system ("unlink prefs/MusicFolders");
 }

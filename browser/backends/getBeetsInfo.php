@@ -1,4 +1,5 @@
 <?php
+chdir('../..');
 include ("includes/vars.php");
 include ("includes/functions.php");
 $uri = rawurldecode($_REQUEST['uri']);

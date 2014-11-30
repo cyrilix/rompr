@@ -510,7 +510,7 @@ var lastfmImporter = function() {
 				// Bloody hell this code is a mess
 
 		        $.ajax({
-		            url: "userRatings.php",
+		            url: "backends/sql/userRatings.php",
 		            type: "POST",
 		            data: data,
 		            dataType: 'json',
@@ -525,7 +525,7 @@ var lastfmImporter = function() {
 		                	data.value = data.tags;
 							debug.mark("LASTFM IMPORTER","Doing SQL Tag Stuff",data);
 					        $.ajax({
-					            url: "userRatings.php",
+					            url: "backends/sql/userRatings.php",
 					            type: "POST",
 					            data: data,
 					            dataType: 'json',
@@ -537,7 +537,7 @@ var lastfmImporter = function() {
 					                data.action = "inc";
 									debug.mark("LASTFM IMPORTER","Doing SQL Playcount Stuff",data);
 							        $.ajax({
-							            url: "userRatings.php",
+							            url: "backends/sql/userRatings.php",
 							            type: "POST",
 							            data: data,
 							            dataType: 'json',
@@ -574,7 +574,7 @@ var lastfmImporter = function() {
 			                data.action = "inc";
 							debug.mark("LASTFM IMPORTER","Doing SQL Playcount Stuff",data);
 					        $.ajax({
-					            url: "userRatings.php",
+					            url: "backends/sql/userRatings.php",
 					            type: "POST",
 					            data: data,
 					            dataType: 'json',

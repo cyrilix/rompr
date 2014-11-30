@@ -7,7 +7,7 @@
 // things correctly - although currently mopidy-spotify doesn't return disc numbers
 // so multi-disc albums don't get sorted correctly. I don't intend to fix that problem
 // in rompr, mopidy-spotify needs sorting out.
-
+chdir('../..');
 include ("includes/vars.php");
 include ("includes/functions.php");
 include ("utils/imagefunctions.php");

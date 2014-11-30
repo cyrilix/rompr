@@ -43,7 +43,7 @@ var charts = function() {
 
 			    $("#chafoldup").append('<div class="noselection fullwidth masonified" id="chamunger"></div>');
 	            $.ajax({
-	            	url: 'userRatings.php',
+	            	url: 'backends/sql/userRatings.php',
 	            	type: "POST",
 	            	data: {action: 'getcharts'},
 	            	dataType: 'json',

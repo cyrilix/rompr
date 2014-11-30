@@ -510,7 +510,7 @@ var info_spotify = function() {
                             	debug.debug(medebug,"Update was accepted by browser");
                             	if (artistmeta.spotify.artist.external_urls &&
                             		artistmeta.spotify.artist.external_urls.spotify) {
-	                            	$.get('getspotibio.php?url='+artistmeta.spotify.artist.external_urls.spotify)
+	                            	$.get('browser/backends/getspotibio.php?url='+artistmeta.spotify.artist.external_urls.spotify)
 	                            		.done( function(data) {
 	                            			if (displaying) $("#spartistinfo").html(data);
 	                            		})

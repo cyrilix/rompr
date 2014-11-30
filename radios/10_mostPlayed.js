@@ -13,7 +13,7 @@ var mostPlayed = function() {
             type: "POST",
             dataType: "json",
             data: { action: action, playlist: "mostplayed" },
-            url: "userRatings.php",
+            url: "backends/sql/userRatings.php",
             success: function(data) {
                 if (data.length > 0) {
                     debug.debug("SMARTPLAYLIST","Got tracks",data);

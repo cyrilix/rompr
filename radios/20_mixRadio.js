@@ -11,7 +11,7 @@ var mixRadio = function() {
             type: "POST",
             dataType: "json",
             data: { action: "getfaveartists" },
-            url: "userRatings.php",
+            url: "backends/sql/userRatings.php",
             success: function(data) {
                 if (data.length > 0) {
                     debug.mark("MIX RADIO","Got Fave Artists",data);

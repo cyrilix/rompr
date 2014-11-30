@@ -1,4 +1,5 @@
 <?php
+chdir('../..');
 include ("includes/vars.php");
 include ("includes/functions.php");
 include ("player/mpd/connection.php");
@@ -11,5 +12,4 @@ if (!array_key_exists('fast', $_REQUEST) && array_key_exists('song', $mpd_status
 }
 close_mpd($connection);
 print json_encode($mpd_status);
-//test
 ?>

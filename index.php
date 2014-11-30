@@ -233,7 +233,7 @@ $(window).ready(function(){
 
     if (prefs.country_userset == false) {
         // Have to pull this data in via the webserver as it's cross-domain
-        $.getJSON("getgeoip.php", function(result){
+        $.getJSON("utils/getgeoip.php", function(result){
             debug.shout("CHECKING", 'Country: ' + result.country_name + ' Code: ' + result.country_code);
             $("#countryselector").val(prefs.lastfm_country_code);
             prefs.save({lastfm_country_code: result.country_code});
@@ -252,7 +252,7 @@ $(window).ready(function(){
         $("#search").show();
     }
     if (!prefs.hide_radiolist) {
-        $("#yourradiolist").load("yourradio.php");
+        $("#yourradiolist").load("streamplugins/00_yourradio.php?populate");
     }
     setPrefs();
     checkServerTimeOffset();
@@ -269,7 +269,7 @@ $(window).load(function() {
     if (!prefs.hide_radiolist) {
         podcasts.loadList();
     }
-    $.get('cleancache.php', function() {
+    $.get('utils/cleancache.php', function() {
         debug.shout("INIT","Cache Has Been Cleaned");
     });
 });

@@ -1,4 +1,5 @@
 <?php
+chdir('../..');
 ob_start();
 include ("includes/vars.php");
 include ("includes/functions.php");

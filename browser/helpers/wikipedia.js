@@ -11,7 +11,7 @@ var wikipedia = function() {
 		},
 
 		search: function(terms, success, fail) {
-			var url = "info_wikipedia.php?";
+			var url = "browser/backends/info_wikipedia.php?";
 			for (var i in terms) {
 				url = url + i+'='+encodeURIComponent(terms[i])+"&";
 			}
@@ -34,7 +34,7 @@ var wikipedia = function() {
 		},
 
 		getFullUri: function(terms, success, fail) {
-			var url = "info_wikipedia.php?";
+			var url = "browser/backends/info_wikipedia.php?";
 			for (var i in terms) {
 				url = url + i+'='+encodeURIComponent(terms[i])+"&";
 			}
@@ -79,7 +79,7 @@ var wikipedia = function() {
 		getWiki: function(link, success, fail) {
 			$("#infopane").css({cursor:'wait'});
 			$("#infopane a").css({cursor:'wait'});
-			var url = "info_wikipedia.php?wiki="+link;
+			var url = "browser/backends/info_wikipedia.php?wiki="+link;
 			if (mobile != "no") {
 				url = url + "&mobile="+mobile;
 			}

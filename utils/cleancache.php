@@ -4,6 +4,7 @@
 // b) If we do it at page load time Chrome's page preload feature
 //    can result in two of them running simultanesouly, which
 //    produces 'cannot stat' errors.
+chdir('..');
 include("includes/vars.php");
 include("includes/functions.php");
 

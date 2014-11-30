@@ -53,7 +53,7 @@ function onDropdownClicked(event) {
     } else {
         $(".tagmenu-contents").empty();
         $.ajax({
-            url: "userRatings.php",
+            url: "backends/sql/userRatings.php",
             type: "POST",
             data: { action: 'gettags' },
             dataType: 'json',

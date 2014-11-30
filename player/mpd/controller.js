@@ -54,12 +54,12 @@ function playerController() {
         var m = playlist.currentTrack.album;
         if (m.match(/^Unknown Internet Stream/)) {
             debug.log("PLAYLIST","Updating Stream",name);
-            $.post("updateplaylist.php", { url: url, name: name })
+            $.post("utils/updateplaylist.php", { url: url, name: name })
             .done( function() {
                 playlist.repopulate();
                 if (!prefs.hide_radiolist) {
                     $("#yourradiolist").empty();
-                    $("#yourradiolist").load("yourradio.php");
+                    $("#yourradiolist").load("streamplugins/00_yourradio.php?populate");
                 }
             });
         }
@@ -84,7 +84,7 @@ function playerController() {
 	this.command = function(cmd, callback) {
         debug.debug("MPD","'"+cmd+"'");
         clearProgressTimer();
-        $.getJSON("ajaxcommand.php", cmd)
+        $.getJSON("player/mpd/ajaxcommand.php", cmd)
         .done(function(data) {
             debug.debug("MPD","Result for","'"+cmd+"'",data);
             if (cmd == "command=clearerror" && data.error) {
@@ -112,7 +112,7 @@ function playerController() {
 	}
 
 	this.fastcommand = function(cmd, callback) {
-        $.getJSON("ajaxcommand.php?fast", cmd)
+        $.getJSON("player/mpd/ajaxcommand.php?fast", cmd)
         .done(function() { if (callback) { callback(); } })
         .fail(function() { if (callback) { callback(); } })
 	}
@@ -127,7 +127,7 @@ function playerController() {
         }
         $.ajax({
             type: 'POST',
-            url: 'postcommand.php',
+            url: 'player/mpd/postcommand.php',
             data: data,
             success: function(data) {
                 debug.log("MPD           : result for",list,data);
@@ -161,7 +161,7 @@ function playerController() {
     this.updateCollection = function(cmd) {
         prepareForLiftOff(language.gettext("label_updating"));
         prepareForLiftOff2(language.gettext("label_updating"));
-        $.getJSON("ajaxcommand.php", "command="+cmd, function() {
+        $.getJSON("player/mpd/ajaxcommand.php", "command="+cmd, function() {
                     update_load_timer = setTimeout( pollAlbumList, 2000);
                     update_load_timer_running = true;
         });
@@ -181,7 +181,7 @@ function playerController() {
     }
 
 	this.reloadPlaylists = function() {
-        $.get("loadplaylists.php", function(data) {
+        $.get("player/mpd/loadplaylists.php", function(data) {
             var html = '';
             if (mobile == "no") {
                 html = html + '<table width="100%">';

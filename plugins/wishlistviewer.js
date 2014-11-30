@@ -15,7 +15,7 @@ var wishlistViewer = function() {
 	    var artist = $(artistDiv.children()[0]).children('.expand').html();
 	    debug.log("DB_TRACKS","Remove track from database",title,album,artist);
 	    $.ajax({
-	        url: "userRatings.php",
+	        url: "backends/sql/userRatings.php",
 	        type: "POST",
 	        data: {action: 'deletewl', artist: artist, album: album, title: title},
 	        dataType: 'json',

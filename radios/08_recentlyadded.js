@@ -14,7 +14,7 @@ var recentlyaddedtracks = function() {
         $.ajax({
             type: "POST",
             dataType: "json",
-            url: "recentlyadded.php?mode="+mode,
+            url: "radios/recentlyadded.php?mode="+mode,
             success: function(data) {
                 if (data && data.length > 0) {
                     debug.debug("SMARTPLAYLIST","Got tracks",data);

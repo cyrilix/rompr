@@ -1,9 +1,10 @@
 <?php
-
+chdir('../..');
 include ("includes/vars.php");
 include ("includes/functions.php");
 include ("utils/imagefunctions.php");
 include ("international.php");
+debug_print("--------------------------START---------------------","USERRATING");
 include ("backends/sql/backend.php");
 
 $error = 0;
@@ -21,8 +22,6 @@ if ($mysqlc == null) {
 	header('HTTP/1.0 403 Forbidden');
 	exit(0);
 }
-
-debug_print("--------------------------START---------------------","USERRATING");
 
 $title = array_key_exists('title', $_POST) ? $_POST['title'] : null;
 $artist = array_key_exists('artist', $_POST) ? $_POST['artist'] : null;;
