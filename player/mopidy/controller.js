@@ -268,7 +268,7 @@ function playerController() {
 						        break;
                 case "radio-de":
                    html = html + '<div class="containerbox menuitem clickable clicktrack" name="'+this.uri+'">'+
-                                '<div class="fixed playlisticon"><img height="12px" src="'+ipath+'broadcast-12.png" /></div>'+
+                                '<div class="fixed playlisticon"><img height="12px" src="'+ipath+'broadcast-24.png" /></div>'+
                                 '<div class="expand">'+this.name+'</div>'+
                                 '</div>';
                                 break;

@@ -116,7 +116,7 @@ function format_listenlink($c, $p, $label) {
     }
     print '<div class="clickable clickstream indent containerbox padright menuitem" name="'.(string) $p.'" streamimg="getRemoteImage.php?url='.$img.'" streamname="'.$c->title.'">';
     print '<div class="fixed">'.$label.'&nbsp;</div>';
-    print '<div class="playlisticon fixed"><img height="12px" src="'.$ipath.'broadcast-12.png" /></div>';
+    print '<div class="playlisticon fixed"><img height="12px" src="'.$ipath.'broadcast-24.png" /></div>';
     switch ($p[0]['format']) {
         case 'mp3':
             print '<div class="expand">MP3</div>';
