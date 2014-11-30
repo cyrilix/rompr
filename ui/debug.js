@@ -4,8 +4,14 @@ window.debug = (function() {
 	var ignoring = [];
 	var highlighting = [];
 	var colours = [];
+	var focuson = null;
 
 	function doTheLogging(css, module, logtype, args) {
+
+		if (focuson !== null && focuson != module) {
+			return;
+		}
+
 		var string = module;
 
 		if (ignoring[module]) {
@@ -143,6 +149,10 @@ window.debug = (function() {
 
 		highlight: function(module) {
 			highlighting[module] = true;
+		},
+
+		focus: function(module) {
+			focuson = module;
 		},
 
 		// Use this to set the colour used in debug.mark for a specific module

@@ -20,7 +20,7 @@ var spotify = function() {
 			} else {
 				queue.push( {flag: false, reqid: reqid, url: url, success: success, fail: fail } );
 			}
-			debug.debug("SPOTIFY","New request",url);
+			debug.debug("SPOTIFY","New request",url,throttle,queue.length);
 			if (throttle == null && queue.length == 1) {
 				spotify.getrequest();
 			}
@@ -34,7 +34,7 @@ var spotify = function() {
 
             if (req) {
             	if (req.flag) {
-            		debug.warn("SPOTIFY","Request just pulled from queue is already being handled");
+            		debug.warn("SPOTIFY","Request just pulled from queue is already being handled",req,throttle);
             		return;
             	}
 				queue[0].flag = true;

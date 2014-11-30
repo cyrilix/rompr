@@ -579,9 +579,6 @@ select
 
 .playlistcurrentitem
 {
-    /*padding-left:8px;*/
-    /*padding-right:0px;*/
-    /*padding-top:0px;*/
     font-size:100%;
     cursor:pointer;
 }

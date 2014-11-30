@@ -114,7 +114,7 @@ function spotifyRadio() {
 			self.artists[self.artistindex].sendATrack();
 			self.artistindex++;
 			if (self.artistindex >= self.artists.length) self.artistindex = 0;
-			sendingTimer = setTimeout(self.startSending, 2000);
+			sendingTimer = setTimeout(self.startSending, 4000);
 		}
 	}
 

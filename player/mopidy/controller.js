@@ -20,6 +20,7 @@ function playerController() {
     var doingPlUpdate = false;
     var timecheckcounter = 0;
     var firstconnection = true;
+    var connecttimer = null;
 
     function mopidyStateChange(data) {
         debug.shout("PLAYER","Mopidy State Change",data);
@@ -384,6 +385,7 @@ function playerController() {
 
 	function connected() {
         debug.log("PLAYER","Connected to Mopidy");
+        clearTimeout(connecttimer);
         infobar.removenotify();
         checkMopidyVersion();
         isReady = true;
@@ -457,12 +459,12 @@ function playerController() {
         });
         mopidy.on("state:online", connected);
         mopidy.on("state:offline", disconnected);
+        connecttimer = setTimeout(self.disconnected,5000);
         mopidy.connect();
 	    // self.mop = mopidy;
 	}
 
 	this.reConnect = function() {
-		mopidy.close();
 		mopidy.connect();
 	}
 
