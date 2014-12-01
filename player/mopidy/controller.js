@@ -430,6 +430,9 @@ function playerController() {
     				debug.log("PLAYER","Checking Collection");
     				checkCollection();
     			} else {
+                    // Must not do this while the collection is being loaded because, if we have
+                    // onthefly set to true, we might end up doing an onthefly at the same time
+                    // as a collection build. This might not be bad but it probably would be.
                     self.reloadPlaylists();
                 }
     			playlist.radioManager.init();
@@ -460,7 +463,7 @@ function playerController() {
         mopidy.on("state:offline", disconnected);
         connecttimer = setTimeout(self.disconnected,5000);
         mopidy.connect();
-	    self.mop = mopidy;
+	    // self.mop = mopidy;
 	}
 
 	this.reConnect = function() {
@@ -474,10 +477,7 @@ function playerController() {
 	this.updateCollection = function(cmd) {
         prepareForLiftOff(language.gettext("label_updating"));
         debug.log("PLAYER","Updating collection with command", cmd);
-        // mopidy.library.refresh().then( function() {
-        	// debug.log("PLAYER", "Refresh Success");
-        	checkPoll({data: 'dummy' })
-        // }, consoleError);
+    	checkPoll({data: 'dummy' })
 	}
 
 	this.reloadAlbumsList = function(uri) {
@@ -489,7 +489,9 @@ function playerController() {
                 $("#collection").html(data);
                 data = null;
                 player.collectionLoaded = true;
-                self.reloadPlaylists();
+                if (!uri.match(/rebuild/)) {
+                    self.reloadPlaylists();
+                }
             },
             error: function(data) {
                 $("#collection").empty();
