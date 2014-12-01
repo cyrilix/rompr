@@ -474,10 +474,10 @@ function playerController() {
 	this.updateCollection = function(cmd) {
         prepareForLiftOff(language.gettext("label_updating"));
         debug.log("PLAYER","Updating collection with command", cmd);
-        mopidy.library.refresh().then( function() {
-        	debug.log("PLAYER", "Refresh Success");
+        // mopidy.library.refresh().then( function() {
+        	// debug.log("PLAYER", "Refresh Success");
         	checkPoll({data: 'dummy' })
-        }, consoleError);
+        // }, consoleError);
 	}
 
 	this.reloadAlbumsList = function(uri) {

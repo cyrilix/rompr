@@ -19,6 +19,9 @@ function doCollection($command, $terms = null, $domains = null) {
     $filecount = 0;
     switch($command) {
         case "listallinfo":
+            debug_print("Refreshing Mopidy's Library","MOPIDY");
+            mopidy_post_command(null, "core.library.refresh", "");
+            debug_print("Building Collection","MOPIDY");
             mopidy_post_command($collection, "core.library.search", "");
             break;
         case "playlistinfo":
@@ -57,11 +60,13 @@ function mopidy_post_command($collection, $rpc, $paramlist) {
     curl_setopt($ch, CURLOPT_POSTFIELDS, '{"jsonrpc": "2.0", "id": 1, "method": "'.$rpc.'"'.$paramlist.'}');
     $result = curl_exec($ch);
     curl_close($ch);
-    $data = json_decode($result);
-    if (property_exists($data, 'error')) {
-        debug_print("Mopidy POST Failed : ".$data->{'error'}->{'message'},"MOPIDY");
-    } else {
-        parse_mopidy_json_data($collection, $data->{'result'});
+    if ($collection !== null) {
+        $data = json_decode($result);
+        if (property_exists($data, 'error')) {
+            debug_print("Mopidy POST Failed : ".$data->{'error'}->{'message'},"MOPIDY");
+        } else {
+            parse_mopidy_json_data($collection, $data->{'result'});
+        }
     }
 }
 
