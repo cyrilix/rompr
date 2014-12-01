@@ -9,7 +9,5 @@ if ($content['status'] == "200") {
 } else {
     header('HTTP/1.1 400 Bad Request');
 }
-
 ob_flush();
-
 ?>

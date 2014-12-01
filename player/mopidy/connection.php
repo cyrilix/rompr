@@ -30,11 +30,12 @@ function doCollection($command, $terms = null, $domains = null) {
         case "search":
             $paramlist = ', "params": {';
             foreach ($terms as $key => $array) {
-                $paramlist = $paramlist . '"'.$key.'": ["'.implode($array, '", "').'"]';
+                $paramlist = $paramlist . '"'.$key.'": ["'.implode($array, '", "').'"], ';
             }
             if ($domains !== null && count($domains) > 0) {
-                $paramlist = $paramlist . ', "uris": ["'.implode($domains, '", "').'"]';
+                $paramlist = $paramlist . '"uris": ["'.implode($domains, '", "').'"]';
             }
+            $paramlist = rtrim($paramlist, ', ');
             $paramlist = $paramlist . '}';
             debug_print("Search Terms Are : ".$paramlist,"MOPIDY");
             mopidy_post_command($collection, "core.library.search", $paramlist);

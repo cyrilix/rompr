@@ -454,20 +454,34 @@ function playerController() {
     this.initialise = function() {
         debug.shout("PLAYER","Connecting to Mopidy HTTP frontend");
         debug.log("PLAYER","ws://"+prefs.mopidy_http_address+":"+prefs.mopidy_http_port+"/mopidy/ws/");
-        mopidy = new Mopidy({
-            webSocketUrl: "ws://"+prefs.mopidy_http_address+":"+prefs.mopidy_http_port+"/mopidy/ws/",
-            callingConvention: "by-position-only",
-            autoConnect:false
-        });
-        mopidy.on("state:online", connected);
-        mopidy.on("state:offline", disconnected);
-        connecttimer = setTimeout(self.disconnected,5000);
-        mopidy.connect();
-	    // self.mop = mopidy;
+        connecttimer = setTimeout(self.connectFailed,10000);
+        // Just checking here to see - mopidy may not actually be accessible
+        if (typeof(Mopidy) != "undefined") {
+            mopidy = new Mopidy({
+                webSocketUrl: "ws://"+prefs.mopidy_http_address+":"+prefs.mopidy_http_port+"/mopidy/ws/",
+                callingConvention: "by-position-only",
+                autoConnect:false
+            });
+            mopidy.on("state:online", connected);
+            mopidy.on("state:offline", disconnected);
+            mopidy.connect();
+            // self.mop = mopidy;
+        } else {
+            clearTimeout(connecttimer);
+            self.connectFailed();
+        }
 	}
 
+    this.connectFailed = function() {
+        $("#artistinformation").html('<h2 align="center">Could not connect to mopidy at '+prefs.mopidy_http_address+":"+prefs.mopidy_http_port+'</h2>');
+        infobar.notify(infobar.PERMERROR,
+            language.gettext("mopidy_down")+'<br><a href="#" onclick="player.controller.reConnect()">Click To Reconnect</a>');
+    }
+
 	this.reConnect = function() {
-		mopidy.connect();
+        if (mopidy) {
+            mopidy.connect();
+        }
 	}
 
 	this.isConnected = function() {

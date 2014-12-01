@@ -397,6 +397,9 @@ class musicCollection {
         if ($prefs['ignore_unplayable'] == "true" && substr($name, 0, 12) == "[unplayable]") {
             return true;
         }
+        if (substr($name, 0, 9) == "[loading]") {
+            return true;
+        }
 
         $sortartist = ($albumartist == null) ? $artist : $albumartist;
         // For sorting internet streams from mopidy backends that don't

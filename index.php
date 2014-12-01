@@ -69,16 +69,12 @@ if (array_key_exists('mopidy', $_REQUEST)) {
 }
 
 if ($mopidy_detected) {
-
     $prefs["player_backend"] = "mopidy";
-
 } else {
-
     //
     // If we didn't find mopidy, try and connect to mpd and ask for
     // setup values if we couldn't
     //
-
     include("player/mpd/connection.php");
     if (!$is_connected) {
         debug_print("MPD Connection Failed","INDEX");

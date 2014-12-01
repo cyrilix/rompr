@@ -48,266 +48,264 @@ function check_sql_tables() {
 
 	$current_schema_version = 9;
 
-	if ($mysqlc) {
-
-		if (generic_sql_query("CREATE TABLE IF NOT EXISTS Tracktable(".
-			"TTindex INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE, ".
-			"PRIMARY KEY(TTindex), ".
-			"Title VARCHAR(255), ".
-			"Albumindex INT UNSIGNED, ".
-			"TrackNo SMALLINT UNSIGNED, ".
-			"Duration INT UNSIGNED, ".
-			"Artistindex INT UNSIGNED, ".
-			"Disc TINYINT(3) UNSIGNED, ".
-			"Uri VARCHAR(2000) ,".
-			"LastModified INT UNSIGNED, ".
-			"Hidden TINYINT(1) UNSIGNED DEFAULT 0, ".
-			"DateAdded TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, ".
-			"INDEX(Albumindex), ".
-			"INDEX(Title), ".
-			"INDEX(TrackNo)) ENGINE=InnoDB"))
-		{
-			debug_print("  Tracktable OK","MYSQL");
-		} else {
-			debug_print("Table Check/Create Error!", "MYSQL");
-			mysqli_close($mysqlc);
-			$mysqlc = null;
-			return false;
-		}
-
-		if (generic_sql_query("CREATE TABLE IF NOT EXISTS Albumtable(".
-			"Albumindex INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE, ".
-			"PRIMARY KEY(Albumindex), ".
-			"Albumname VARCHAR(255), ".
-			"AlbumArtistindex INT UNSIGNED, ".
-			"Spotilink VARCHAR(255), ".
-			"Year YEAR, ".
-			"IsOneFile TINYINT(1) UNSIGNED, ".
-			"Searched TINYINT(1) UNSIGNED, ".
-			"ImgKey CHAR(32), ".
-			"mbid CHAR(40), ".
-			"NumDiscs TINYINT(2), ".
-			"Domain CHAR(32), ".
-			"Image VARCHAR(255), ".
-			"INDEX(Albumname), ".
-			"INDEX(AlbumArtistindex), ".
-			"INDEX(Domain), ".
-			"INDEX(ImgKey)) ENGINE=InnoDB"))
-		{
-			debug_print("  Albumtable OK","MYSQL");
-		} else {
-			debug_print("Table Check/Create Error!", "MYSQL");
-			mysqli_close($mysqlc);
-			$mysqlc = null;
-			return false;
-		}
-
-		if (generic_sql_query("CREATE TABLE IF NOT EXISTS Artisttable(".
-			"Artistindex INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE, ".
-			"PRIMARY KEY(Artistindex), ".
-			"Artistname VARCHAR(255), ".
-			"INDEX(Artistname)) ENGINE=InnoDB"))
-		{
-			debug_print("  Artisttable OK","MYSQL");
-		} else {
-			debug_print("Table Check/Create Error!", "MYSQL");
-			mysqli_close($mysqlc);
-			$mysqlc = null;
-			return false;
-		}
-
-		if (generic_sql_query("CREATE TABLE IF NOT EXISTS Ratingtable(".
-			"TTindex INT UNSIGNED, ".
-			"PRIMARY KEY(TTindex), ".
-			"Rating TINYINT(1) UNSIGNED) ENGINE=InnoDB"))
-		{
-			debug_print("  Ratingtable OK","MYSQL");
-		} else {
-			debug_print("Table Check/Create Error!", "MYSQL");
-			mysqli_close($mysqlc);
-			$mysqlc = null;
-			return false;
-		}
-
-		if (generic_sql_query("CREATE TABLE IF NOT EXISTS Tagtable(".
-			"Tagindex INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE, ".
-			"PRIMARY KEY(Tagindex), ".
-			"Name VARCHAR(255)) ENGINE=InnoDB"))
-		{
-			debug_print("  Tagtable OK","MYSQL");
-		} else {
-			debug_print("Table Check/Create Error!", "MYSQL");
-			mysqli_close($mysqlc);
-			$mysqlc = null;
-			return false;
-		}
-
-		if (generic_sql_query("CREATE TABLE IF NOT EXISTS TagListtable(".
-			"Tagindex INT UNSIGNED NOT NULL REFERENCES Tagtable(Tagindex), ".
-			"TTindex INT UNSIGNED NOT NULL REFERENCES Tracktable(TTindex), ".
-			"PRIMARY KEY (Tagindex, TTindex)) ENGINE=InnoDB"))
-		{
-			debug_print("  TagListtable OK","MYSQL");
-		} else {
-			debug_print("Table Check/Create Error!", "MYSQL");
-			mysqli_close($mysqlc);
-			$mysqlc = null;
-			return false;
-		}
-
-		if (generic_sql_query("CREATE TABLE IF NOT EXISTS Playcounttable(".
-			"TTindex INT UNSIGNED NOT NULL REFERENCES Tracktable(TTindex), ".
-			"Playcount INT UNSIGNED NOT NULL, ".
-			"PRIMARY KEY (TTindex)) ENGINE=InnoDB"))
-		{
-			debug_print("  Playcounttable OK","MYSQL");
-		} else {
-			debug_print("Table Check/Create Error!", "MYSQL");
-			mysqli_close($mysqlc);
-			$mysqlc = null;
-			return false;
-		}
-
-		if (generic_sql_query("CREATE TABLE IF NOT EXISTS Trackimagetable(".
-			"TTindex INT UNSIGNED NOT NULL REFERENCES Tracktable(TTindex), ".
-			"Image VARCHAR(500), ".
-			"PRIMARY KEY (TTindex)) ENGINE=InnoDB"))
-		{
-			debug_print("  Trackimagetable OK","MYSQL");
-		} else {
-			debug_print("Table Check/Create Error!", "MYSQL");
-			mysqli_close($mysqlc);
-			$mysqlc = null;
-			return false;
-		}
-
-		$result = mysqli_query($mysqlc, "SELECT * FROM information_schema.TABLES WHERE (TABLE_SCHEMA = '".$prefs['mysql_database']."') AND (TABLE_NAME = 'Statstable')");
-		if (mysqli_num_rows($result) == 0) {
-			debug_print("Statstable does not exist","MYSQL");
-			$q = "CREATE TABLE Statstable(Item CHAR(11), PRIMARY KEY(Item), Value INT UNSIGNED) ENGINE=InnoDB";
-			if (mysqli_query($mysqlc,$q)) {
-				debug_print("Statstable created", "MYSQL");
-			} else {
-				debug_print("Error creating Statstable: ".mysqli_error($mysqlc), "MYSQL");
-				mysqli_close($mysqlc);
-				$mysqlc = null;
-				return false;
-			}
-			generic_sql_query("INSERT INTO Statstable (Item, Value) VALUES ('ListVersion', '0')");
-			generic_sql_query("INSERT INTO Statstable (Item, Value) VALUES ('ArtistCount', '0')");
-			generic_sql_query("INSERT INTO Statstable (Item, Value) VALUES ('AlbumCount', '0')");
-			generic_sql_query("INSERT INTO Statstable (Item, Value) VALUES ('TrackCount', '0')");
-			generic_sql_query("INSERT INTO Statstable (Item, Value) VALUES ('TotalTime', '0')");
-			generic_sql_query("INSERT INTO Statstable (Item, Value) VALUES ('SchemaVer', '".$current_schema_version."')");
-		} else {
-			debug_print("Statstable Exists","MYSQL");
-			// Check schema version and update tables as necessary
-			if ($result = mysqli_query($mysqlc, "SELECT Value FROM Statstable WHERE Item = 'SchemaVer'")) {
-				$sv = 0;
-				while ($obj = mysqli_fetch_object($result)) {
-					$sv = $obj->Value;
-				}
-				while ($sv < $current_schema_version) {
-					switch ($sv) {
-						case 0:
-							debug_print("BIG ERROR! No Schema Version found!!","SQL");
-							break;
-
-						case 1:
-							debug_print("Updating FROM Schema version 1 TO Schema version 2","SQL");
-							generic_sql_query("ALTER TABLE Albumtable DROP Directory");
-							generic_sql_query("UPDATE Statstable SET Value = 2 WHERE Item = 'SchemaVer'");
-							break;
-
-						case 2:
-							debug_print("Updating FROM Schema version 2 TO Schema version 3","SQL");
-							generic_sql_query("ALTER TABLE Tracktable ADD Hidden TINYINT(1) UNSIGNED DEFAULT 0");
-							generic_sql_query("UPDATE Statstable SET Value = 3 WHERE Item = 'SchemaVer'");
-							break;
-
-						case 3:
-							debug_print("Updating FROM Schema version 3 TO Schema version 4","SQL");
-							generic_sql_query("UPDATE Tracktable SET Disc = 1 WHERE Disc IS NULL OR Disc = 0");
-							generic_sql_query("UPDATE Statstable SET Value = 4 WHERE Item = 'SchemaVer'");
-							break;
-
-						case 4:
-							debug_print("Updating FROM Schema version 4 TO Schema version 5","SQL");
-							generic_sql_query("UPDATE Albumtable SET Searched = 0 WHERE Image NOT LIKE 'albumart%'");
-							generic_sql_query("ALTER TABLE Albumtable DROP Image");
-							generic_sql_query("UPDATE Statstable SET Value = 5 WHERE Item = 'SchemaVer'");
-							break;
-
-						case 5:
-							debug_print("Updating FROM Schema version 5 TO Schema version 6","SQL");
-							generic_sql_query("DROP INDEX Disc on Tracktable");
-							generic_sql_query("UPDATE Statstable SET Value = 6 WHERE Item = 'SchemaVer'");
-							break;
-
-						case 6:
-							debug_print("Updating FROM Schema version 6 TO Schema version 7","SQL");
-							// This was going to be a nice datestamp but newer versions of mysql don't work that way
-							generic_sql_query("ALTER TABLE Tracktable ADD DateAdded TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
-							generic_sql_query("UPDATE Tracktable SET DateAdded = FROM_UNIXTIME(LastModified) WHERE LastModified IS NOT NULL AND LastModified > 0");
-							generic_sql_query("UPDATE Statstable SET Value = 7 WHERE Item = 'SchemaVer'");
-							break;
-
-						case 7:
-							debug_print("Updating FROM Schema version 7 TO Schema version 8","SQL");
-							// Since we've changed the way we're joining artist names together,
-							// rather than force the database to be recreated and screw up everyone's
-							// tags and rating, just modify the artist data.
-							$stmt = mysqli_prepare($mysqlc, "UPDATE Artisttable SET Artistname = ? WHERE Artistindex = ?");
-							if ($result = mysqli_query($mysqlc, "SELECT * FROM Artisttable")) {
-								while ($obj = mysqli_fetch_object($result)) {
-									$artist = (string) $obj->Artistname;
-									$art = explode(' & ', $artist);
-									if (count($art) > 2) {
-									    $f = array_slice($art, 0, count($art) - 1);
-									    $newname = implode($f, ", ")." & ".$art[count($art) - 1];
-									    debug_print("Updating artist name from ".$artist." to ".$newname);
-									    mysqli_stmt_bind_param($stmt, "si", $newname, $obj->Artistindex);
-									    if (mysqli_stmt_execute($stmt)) {
-
-									    } else {
-							                debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
-									    }
-									}
-								}
-								generic_sql_query("UPDATE Statstable SET Value = 8 WHERE Item = 'SchemaVer'");
-							} else {
-								debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
-							}
-							break;
-
-						case 8:
-							debug_print("Updating FROM Schema version 7 TO Schema version 8","SQL");
-							// We removed the image column earlier, but I've decided we need it again
-							// because some mopidy backends supply images and archiving them all makes
-							// creating the collection take waaaaay too long.
-							generic_sql_query("ALTER TABLE Albumtable ADD Image VARCHAR(255)");
-							// So we now need to recreate the image database
-							if ($result = mysqli_query($mysqlc, "SELECT Albumindex, ImgKey FROM Albumtable")) {
-								while ($obj = mysqli_fetch_object($result)) {
-									if (file_exists('albumart/small/'.$obj->ImgKey.'.jpg')) {
-										generic_sql_query("UPDATE Albumtable SET Image = 'albumart/small/".$obj->ImgKey.".jpg', Searched = 1 WHERE Albumindex = ".$obj->Albumindex);
-									} else {
-										generic_sql_query("UPDATE Albumtable SET Image = '', Searched = 0 WHERE Albumindex = ".$obj->Albumindex);
-									}
-								}
-						    } else {
-				                debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
-						    }
-							generic_sql_query("UPDATE Statstable SET Value = 9 WHERE Item = 'SchemaVer'");
-					}
-					$sv++;
-				}
-			} else {
-				debug_print("Error querying Schema Version: ".mysqli_error($mysqlc), "MYSQL");
-			}
-		}
-
+	if (generic_sql_query("CREATE TABLE IF NOT EXISTS Tracktable(".
+		"TTindex INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE, ".
+		"PRIMARY KEY(TTindex), ".
+		"Title VARCHAR(255), ".
+		"Albumindex INT UNSIGNED, ".
+		"TrackNo SMALLINT UNSIGNED, ".
+		"Duration INT UNSIGNED, ".
+		"Artistindex INT UNSIGNED, ".
+		"Disc TINYINT(3) UNSIGNED, ".
+		"Uri VARCHAR(2000) ,".
+		"LastModified INT UNSIGNED, ".
+		"Hidden TINYINT(1) UNSIGNED DEFAULT 0, ".
+		"DateAdded TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, ".
+		"INDEX(Albumindex), ".
+		"INDEX(Title), ".
+		"INDEX(TrackNo)) ENGINE=InnoDB"))
+	{
+		debug_print("  Tracktable OK","MYSQL");
+	} else {
+		$err = mysqli_error($mysqlc);
+		debug_print("Table Check/Create Error! ".$err, "MYSQL");
+		return array(false, "Error While Checking Tracktable : ".$err);
 	}
+
+	if (generic_sql_query("CREATE TABLE IF NOT EXISTS Albumtable(".
+		"Albumindex INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE, ".
+		"PRIMARY KEY(Albumindex), ".
+		"Albumname VARCHAR(255), ".
+		"AlbumArtistindex INT UNSIGNED, ".
+		"Spotilink VARCHAR(255), ".
+		"Year YEAR, ".
+		"IsOneFile TINYINT(1) UNSIGNED, ".
+		"Searched TINYINT(1) UNSIGNED, ".
+		"ImgKey CHAR(32), ".
+		"mbid CHAR(40), ".
+		"NumDiscs TINYINT(2), ".
+		"Domain CHAR(32), ".
+		"Image VARCHAR(255), ".
+		"INDEX(Albumname), ".
+		"INDEX(AlbumArtistindex), ".
+		"INDEX(Domain), ".
+		"INDEX(ImgKey)) ENGINE=InnoDB"))
+	{
+		debug_print("  Albumtable OK","MYSQL");
+	} else {
+		$err = mysqli_error($mysqlc);
+		debug_print("Table Check/Create Error! ".$err, "MYSQL");
+		return array(false, "Error While Checking Albumtable : ".$err);
+	}
+
+	if (generic_sql_query("CREATE TABLE IF NOT EXISTS Artisttable(".
+		"Artistindex INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE, ".
+		"PRIMARY KEY(Artistindex), ".
+		"Artistname VARCHAR(255), ".
+		"INDEX(Artistname)) ENGINE=InnoDB"))
+	{
+		debug_print("  Artisttable OK","MYSQL");
+	} else {
+		$err = mysqli_error($mysqlc);
+		debug_print("Table Check/Create Error! ".$err, "MYSQL");
+		return array(false, "Error While Checking Artisttable : ".$err);
+	}
+
+	if (generic_sql_query("CREATE TABLE IF NOT EXISTS Ratingtable(".
+		"TTindex INT UNSIGNED, ".
+		"PRIMARY KEY(TTindex), ".
+		"Rating TINYINT(1) UNSIGNED) ENGINE=InnoDB"))
+	{
+		debug_print("  Ratingtable OK","MYSQL");
+	} else {
+		$err = mysqli_error($mysqlc);
+		debug_print("Table Check/Create Error! ".$err, "MYSQL");
+		return array(false, "Error While Checking Ratingtable : ".$err);
+	}
+
+	if (generic_sql_query("CREATE TABLE IF NOT EXISTS Tagtable(".
+		"Tagindex INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE, ".
+		"PRIMARY KEY(Tagindex), ".
+		"Name VARCHAR(255)) ENGINE=InnoDB"))
+	{
+		debug_print("  Tagtable OK","MYSQL");
+	} else {
+		$err = mysqli_error($mysqlc);
+		debug_print("Table Check/Create Error! ".$err, "MYSQL");
+		return array(false, "Error While Checking Tagtable : ".$err);
+	}
+
+	if (generic_sql_query("CREATE TABLE IF NOT EXISTS TagListtable(".
+		"Tagindex INT UNSIGNED NOT NULL REFERENCES Tagtable(Tagindex), ".
+		"TTindex INT UNSIGNED NOT NULL REFERENCES Tracktable(TTindex), ".
+		"PRIMARY KEY (Tagindex, TTindex)) ENGINE=InnoDB"))
+	{
+		debug_print("  TagListtable OK","MYSQL");
+	} else {
+		$err = mysqli_error($mysqlc);
+		debug_print("Table Check/Create Error! ".$err, "MYSQL");
+		return array(false, "Error While Checking TagListtable : ".$err);
+	}
+
+	if (generic_sql_query("CREATE TABLE IF NOT EXISTS Playcounttable(".
+		"TTindex INT UNSIGNED NOT NULL REFERENCES Tracktable(TTindex), ".
+		"Playcount INT UNSIGNED NOT NULL, ".
+		"PRIMARY KEY (TTindex)) ENGINE=InnoDB"))
+	{
+		debug_print("  Playcounttable OK","MYSQL");
+	} else {
+		$err = mysqli_error($mysqlc);
+		debug_print("Table Check/Create Error! ".$err, "MYSQL");
+		return array(false, "Error While Checking Playcounttable : ".$err);
+	}
+
+	if (generic_sql_query("CREATE TABLE IF NOT EXISTS Trackimagetable(".
+		"TTindex INT UNSIGNED NOT NULL REFERENCES Tracktable(TTindex), ".
+		"Image VARCHAR(500), ".
+		"PRIMARY KEY (TTindex)) ENGINE=InnoDB"))
+	{
+		debug_print("  Trackimagetable OK","MYSQL");
+	} else {
+		$err = mysqli_error($mysqlc);
+		debug_print("Table Check/Create Error! ".$err, "MYSQL");
+		return array(false, "Error While Checking Trackimagetable : ".$err);
+	}
+
+	$result = mysqli_query($mysqlc, "SELECT * FROM information_schema.TABLES WHERE (TABLE_SCHEMA = '".$prefs['mysql_database']."') AND (TABLE_NAME = 'Statstable')");
+	if (mysqli_num_rows($result) == 0) {
+		debug_print("Statstable does not exist","MYSQL");
+		$q = "CREATE TABLE Statstable(Item CHAR(11), PRIMARY KEY(Item), Value INT UNSIGNED) ENGINE=InnoDB";
+		if (mysqli_query($mysqlc,$q)) {
+			debug_print("Statstable created", "MYSQL");
+		} else {
+			$err = mysqli_error($mysqlc);
+			debug_print("Table Check/Create Error! ".$err, "MYSQL");
+			return array(false, "Error While Checking Statstable : ".$err);
+		}
+		generic_sql_query("INSERT INTO Statstable (Item, Value) VALUES ('ListVersion', '0')");
+		generic_sql_query("INSERT INTO Statstable (Item, Value) VALUES ('ArtistCount', '0')");
+		generic_sql_query("INSERT INTO Statstable (Item, Value) VALUES ('AlbumCount', '0')");
+		generic_sql_query("INSERT INTO Statstable (Item, Value) VALUES ('TrackCount', '0')");
+		generic_sql_query("INSERT INTO Statstable (Item, Value) VALUES ('TotalTime', '0')");
+		generic_sql_query("INSERT INTO Statstable (Item, Value) VALUES ('SchemaVer', '".$current_schema_version."')");
+	} else {
+		debug_print("Statstable Exists","MYSQL");
+		// Check schema version and update tables as necessary
+		if ($result = mysqli_query($mysqlc, "SELECT Value FROM Statstable WHERE Item = 'SchemaVer'")) {
+			$sv = 0;
+			while ($obj = mysqli_fetch_object($result)) {
+				$sv = $obj->Value;
+			}
+			if ($sv > $current_schema_version) {
+				debug_print("Schema Mismatch! We are version ".$current_schema_version." but database is version ".$sv,"MYSQL");
+				return array(false, "Your database has version number ".$sv." but this version of rompr only handles version ".$current_schema_version);
+			}
+			while ($sv < $current_schema_version) {
+				switch ($sv) {
+					case 0:
+						debug_print("BIG ERROR! No Schema Version found!!","SQL");
+						break;
+
+					case 1:
+						debug_print("Updating FROM Schema version 1 TO Schema version 2","SQL");
+						generic_sql_query("ALTER TABLE Albumtable DROP Directory");
+						generic_sql_query("UPDATE Statstable SET Value = 2 WHERE Item = 'SchemaVer'");
+						break;
+
+					case 2:
+						debug_print("Updating FROM Schema version 2 TO Schema version 3","SQL");
+						generic_sql_query("ALTER TABLE Tracktable ADD Hidden TINYINT(1) UNSIGNED DEFAULT 0");
+						generic_sql_query("UPDATE Statstable SET Value = 3 WHERE Item = 'SchemaVer'");
+						break;
+
+					case 3:
+						debug_print("Updating FROM Schema version 3 TO Schema version 4","SQL");
+						generic_sql_query("UPDATE Tracktable SET Disc = 1 WHERE Disc IS NULL OR Disc = 0");
+						generic_sql_query("UPDATE Statstable SET Value = 4 WHERE Item = 'SchemaVer'");
+						break;
+
+					case 4:
+						debug_print("Updating FROM Schema version 4 TO Schema version 5","SQL");
+						generic_sql_query("UPDATE Albumtable SET Searched = 0 WHERE Image NOT LIKE 'albumart%'");
+						generic_sql_query("ALTER TABLE Albumtable DROP Image");
+						generic_sql_query("UPDATE Statstable SET Value = 5 WHERE Item = 'SchemaVer'");
+						break;
+
+					case 5:
+						debug_print("Updating FROM Schema version 5 TO Schema version 6","SQL");
+						generic_sql_query("DROP INDEX Disc on Tracktable");
+						generic_sql_query("UPDATE Statstable SET Value = 6 WHERE Item = 'SchemaVer'");
+						break;
+
+					case 6:
+						debug_print("Updating FROM Schema version 6 TO Schema version 7","SQL");
+						// This was going to be a nice datestamp but newer versions of mysql don't work that way
+						generic_sql_query("ALTER TABLE Tracktable ADD DateAdded TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+						generic_sql_query("UPDATE Tracktable SET DateAdded = FROM_UNIXTIME(LastModified) WHERE LastModified IS NOT NULL AND LastModified > 0");
+						generic_sql_query("UPDATE Statstable SET Value = 7 WHERE Item = 'SchemaVer'");
+						break;
+
+					case 7:
+						debug_print("Updating FROM Schema version 7 TO Schema version 8","SQL");
+						// Since we've changed the way we're joining artist names together,
+						// rather than force the database to be recreated and screw up everyone's
+						// tags and rating, just modify the artist data.
+						$stmt = mysqli_prepare($mysqlc, "UPDATE Artisttable SET Artistname = ? WHERE Artistindex = ?");
+						if ($result = mysqli_query($mysqlc, "SELECT * FROM Artisttable")) {
+							while ($obj = mysqli_fetch_object($result)) {
+								$artist = (string) $obj->Artistname;
+								$art = explode(' & ', $artist);
+								if (count($art) > 2) {
+								    $f = array_slice($art, 0, count($art) - 1);
+								    $newname = implode($f, ", ")." & ".$art[count($art) - 1];
+								    debug_print("Updating artist name from ".$artist." to ".$newname);
+								    mysqli_stmt_bind_param($stmt, "si", $newname, $obj->Artistindex);
+								    if (mysqli_stmt_execute($stmt)) {
+
+								    } else {
+						                debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+								    }
+								}
+							}
+							generic_sql_query("UPDATE Statstable SET Value = 8 WHERE Item = 'SchemaVer'");
+						} else {
+							$err = mysqli_error($mysqlc);
+							debug_print("Error Updating to version 8 ".$err, "MYSQL");
+							return array(false, "There was an error while updating your database to version 8 : ".$err);
+						}
+						break;
+
+					case 8:
+						debug_print("Updating FROM Schema version 7 TO Schema version 8","SQL");
+						// We removed the image column earlier, but I've decided we need it again
+						// because some mopidy backends supply images and archiving them all makes
+						// creating the collection take waaaaay too long.
+						generic_sql_query("ALTER TABLE Albumtable ADD Image VARCHAR(255)");
+						// So we now need to recreate the image database
+						if ($result = mysqli_query($mysqlc, "SELECT Albumindex, ImgKey FROM Albumtable")) {
+							while ($obj = mysqli_fetch_object($result)) {
+								if (file_exists('albumart/small/'.$obj->ImgKey.'.jpg')) {
+									generic_sql_query("UPDATE Albumtable SET Image = 'albumart/small/".$obj->ImgKey.".jpg', Searched = 1 WHERE Albumindex = ".$obj->Albumindex);
+								} else {
+									generic_sql_query("UPDATE Albumtable SET Image = '', Searched = 0 WHERE Albumindex = ".$obj->Albumindex);
+								}
+							}
+							generic_sql_query("UPDATE Statstable SET Value = 9 WHERE Item = 'SchemaVer'");
+					    } else {
+							$err = mysqli_error($mysqlc);
+							debug_print("Error Updating to version 8 ".$err, "MYSQL");
+							return array(false, "There was an error while updating your database to version 9 : ".$err);
+					    }
+				}
+				$sv++;
+			}
+		} else {
+			$err = mysqli_error($mysqlc);
+			debug_print("Error querying Schema Version: ".$err, "MYSQL");
+			return array(false, "Error While Checking Database Schema Version : ".$err);
+		}
+	}
+	return array(true, "");
 }
 
 function check_albumslist() {

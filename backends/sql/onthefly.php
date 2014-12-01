@@ -29,6 +29,7 @@ $nodata = array (
 
 if ($mysqlc == null) {
 	debug_print("Can't Do on the fly stuff as no SQL connection!","ONTHEFLY");
+	debug_print("------------------- FINISHED -------------------","ONTHEFLY");
 	header('HTTP/1.0 403 Forbidden');
 	exit(0);
 }
@@ -48,7 +49,7 @@ function check_tracks_against_db($json) {
 	$tracks_in_db = array();
 
 	// Note - we're not currently doing anything with disc numbers as mopidy-spotify doesn't supply them.
-	// We're doing our checking for existing tracks by URI anyway, unlimne when we create the collection.
+	// We're doing our checking for existing tracks by URI anyway, unlike when we create the collection.
 	// This works in this instance. I think.
 
 	if ($result = mysqli_query($mysqlc, "SELECT Uri, Hidden, TTindex, LastModified, TrackNo, Disc FROM Tracktable WHERE Uri LIKE 'spotify:%'")) {
