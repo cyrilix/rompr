@@ -44,6 +44,28 @@ if (array_key_exists('item', $_REQUEST)) {
     dumpAlbums('balbumroot');
     print '<div class="separator"></div>';
     close_player();
+} else if (array_key_exists("mopidysearch", $_REQUEST)) {
+    // Handle a mopidy search request via an HTTP POST request
+    // - this is more efficient than searching via the HTTP WebSocket API
+    // and then passing the results over here and then passing them back again
+    include ("player/".$player_backend."/connection.php");
+    include ("collection/collection.php");
+    include( "collection/dbsearch.php");
+    $domains = (array_key_exists('domains', $_REQUEST)) ? $_REQUEST['domains'] : null;
+    $st = array();
+    foreach ($_REQUEST['mopidysearch'] as $key => $term) {
+        if ($key == "tag") {
+            $dbterms['tags'] = $term;
+        } else if ($key == "rating") {
+            $dbterms['rating'] = $term;
+        } else {
+            $st[$key] = $term;
+        }
+    }
+    $collection = doCollection('search',$st,$domains);
+    createAlbumsList($ALBUMSEARCH, "b");
+    dumpAlbums('balbumroot');
+    print '<div class="separator"></div>';
 } else if (array_key_exists("rawterms", $_REQUEST)) {
     // Handle an mpd-style search request requiring tl_track format results
     include ("player/".$player_backend."/connection.php");
@@ -87,7 +109,8 @@ if (array_key_exists('item', $_REQUEST)) {
     close_player();
     debug_print("Collection Update took ".format_time(time() - $now),"COLLECTION");
 } else {
-    // This can only be a mopidy search requiring parsing
+    // // This can only be a mopidy search requiring parsing
+    // // I'm not even sure this code is required any more
     include ("player/".$player_backend."/connection.php");
     include ("collection/collection.php");
     include( "collection/dbsearch.php");

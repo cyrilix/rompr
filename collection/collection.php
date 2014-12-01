@@ -178,7 +178,8 @@ class album {
             // However, when there are no disc numbers multi-disc albums don't sort properly.
             // Hence we do a little check that we have have the same number of 'Track 1's
             // as discs and only do the sort if they're not the same. This'll also
-            // sort out badly tagged local files.
+            // sort out badly tagged local files. It's essential that disc numbers are set
+            // because the database will not find the tracks otherwise.
             if ($this->numOfTrackOnes <= 1 || $this->numOfTrackOnes == $this->numOfDiscs) return $this->numOfDiscs;
         }
 
@@ -291,7 +292,6 @@ class track {
         $this->playlist = $playlist;
         $this->lastmodified = $lastmodified;
         $this->image = $image;
-        $this->needsupdate = false;
         // Only used by playlist
         $this->albumobject = null;
         $this->type = $type;
@@ -336,7 +336,6 @@ class track {
 
     public function updateDiscNo($disc) {
         $this->disc = $disc;
-        $this->needsupdate = true;
     }
 
     public function get_artist_string() {

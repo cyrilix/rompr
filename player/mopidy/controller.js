@@ -1,7 +1,6 @@
 function playerController() {
 
 	var self = this;
-	var tracklist = new Array();
 	var isReady = false;
 	var tracksToAdd = new Array();
 	var albumtracks = new Array();
@@ -98,7 +97,7 @@ function playerController() {
 		// Don't repopulate immediately in case there are more coming
 		debug.shout("PLAYER","Tracklist Changed");
 		clearTimeout(tlchangeTimer);
-		tlchangeTimer = setTimeout(playlist.repopulate, 500);
+		tlchangeTimer = setTimeout(playlist.repopulate, 250);
 	}
 
 	function checkPlaybackTime() {
@@ -461,7 +460,7 @@ function playerController() {
         mopidy.on("state:offline", disconnected);
         connecttimer = setTimeout(self.disconnected,5000);
         mopidy.connect();
-	    // self.mop = mopidy;
+	    self.mop = mopidy;
 	}
 
 	this.reConnect = function() {
@@ -482,34 +481,22 @@ function playerController() {
 	}
 
 	this.reloadAlbumsList = function(uri) {
-        if (uri.match(/rebuild/)) {
-            mopidy.library.search({}).then( function(data) {
-            	debug.log("PLAYER","Got Mopidy Library Response");
-                $.ajax({
-                    type: "POST",
-                    url: uri,
-                    data: JSON.stringify(data),
-                    timeout: 600000,
-                    contentType: "application/json",
-                    success: function(data) {
-                        $("#collection").html(data);
-                        data = null;
-                        player.collectionLoaded = true;
-                    },
-                    error: function(data) {
-                        $("#collection").empty();
-                        alert(language.gettext("label_update_error"));
-                    	debug.error("PLAYER","Failed to generate albums list",data);
-                    }
-                });
-	        }, consoleError);
-        } else {
-            debug.log("PLAYER","Loading",uri);
-	        $("#collection").load(uri, function() {
+        $.ajax({
+            type: "GET",
+            url: uri,
+            timeout: 600000,
+            success: function(data) {
+                $("#collection").html(data);
+                data = null;
                 player.collectionLoaded = true;
-	        	self.reloadPlaylists();
-	        });
-        }
+                self.reloadPlaylists();
+            },
+            error: function(data) {
+                $("#collection").empty();
+                alert(language.gettext("label_update_error"));
+                debug.error("PLAYER","Failed to generate albums list",data);
+            }
+        });
 	}
 
 	this.reloadFilesList = function(uri) {
@@ -638,30 +625,22 @@ function playerController() {
 	}
 
 	this.getPlaylist = function() {
-        debug.log("PLAYER","Using Mopidy HTTP connection for playlist");
-        mopidy.tracklist.getTlTracks().then( function (data) {
-            debug.log("PLAYER","Got Playlist from Mopidy:",data);
-            tracklist = data;
-            if (plstartpos !== null && plstartpos > -1) {
-            	mopidy.playback.play(tracklist[plstartpos]);
-            	plstartpos = null;
-            }
-            $.ajax({
-                type: "POST",
-                url: "getplaylist.php",
-                data: JSON.stringify(data),
-                contentType: "application/json",
-                dataType: "json",
-                success: playlist.newXSPF,
-                error: function(j, e, s) {
-                    debug.error("PLAYLIST",j);
-                    debug.error("PLAYLIST",e);
-                    debug.error("PLAYLIST",s);
-                    playlist.updateFailure();
+        $.ajax({
+            type: "GET",
+            url: "getplaylist.php",
+            dataType: "json",
+            success: function(data) {
+                playlist.newXSPF(data);
+                if (plstartpos !== null && plstartpos > -1) {
+                     self.playByPosition(plstartpos);
+                     plstartpos = null;
                 }
-            });
-            data = null;
-        }, consoleError);
+            },
+            error: function(j, e, s) {
+                debug.error("PLAYLIST",j,e,s);
+                playlist.updateFailure();
+            }
+        });
 	}
 
 	this.search = function(searchtype) {
@@ -672,11 +651,7 @@ function playerController() {
             var key = $(this).attr('name');
             var value = $(this).attr("value");
             if (value != "") {
-                if (key == 'tag') {
-                	terms[key] = value.split(',');
-                } else {
-                	terms[key] = [value];
-                }
+            	terms[key] = value.split(/,\s*/);
                 termcount++;
             }
         });
@@ -705,73 +680,26 @@ function playerController() {
             $("#searchresultholder").empty();
             doSomethingUseful('searchresultholder', language.gettext("label_searching"));
             debug.log("PLAYER","Doing Search:", terms, domains);
+            var st;
             if ((termcount == 1 && (terms.tag || terms.rating)) ||
             	(termcount == 2 && (terms.tag && terms.rating))) {
-            	debug.log("PLAYER","Doing Database Search");
-            	// We're only looking for a tag and/or a rating, so use the
-            	// database search engine
-                $.ajax({
-                    type: "POST",
-                    url: "albums.php",
-                    data: {terms: terms, domains: domains},
-                    success: function(data) {
-                        $("#searchresultholder").html(data);
-		                data = null;
-                    },
-                    error: function() {
-                        $("#searchresultholder").empty();
-                        infobar.notify(infobar.ERROR,"Search Failed");
-                    }
-                });
+                st = {terms: terms, domains: domains};
             } else {
-            	// If we're looking for anything else, let mopidy do the search
-            	// and the collectioniser will compare the results against the
-            	// database if we're looking for tags and/or ratings.
-            	// The allows us to keep the data in our database to a minimum -
-            	// i.e. we'd have to include genre, composer, performer etc if we
-            	// didn't do this. Also it means search results will always be
-            	// consistent because the same search engine is always being used.
-            	debug.log("PLAYER","Doing Mopidy Search");
-            	var dbterms = false;
-                if (terms.tag || terms.rating) {
-					dbterms = { '__model__': 'DBTerms'};
-					if (terms.tag) {
-						dbterms['tags'] = terms.tag;
-						delete terms.tag;
-					}
-					if (terms.rating) {
-						dbterms['rating'] = terms.rating;
-						delete terms.rating;
-					}
-                }
-	            mopidy.library[searchtype](terms, domains).then( function(data) {
-	            	if (dbterms) {
-	            		// Make sure the tags and rating search terms are the
-	            		// first in the list so the parser finds them before it
-	            		// starts collectionising the results.
-						data.unshift(dbterms);
-	            	}
-	                debug.log("PLAYER","Search Results",data);
-	                $.ajax({
-                        type: "POST",
-                        url: "albums.php",
-                        data: JSON.stringify(data),
-                        contentType: "application/json",
-                        success: function(data) {
-                            $("#searchresultholder").html(data);
-                            data = null;
-	                    },
-	                    error: function() {
-	                        $("#searchresultholder").empty();
-	                        infobar.notify(infobar.ERROR,"Search Failed");
-	                    }
-                    });
-	                data = null;
-	            }, function() {
+                st = {mopidysearch: terms, domains: domains};
+            }
+            $.ajax({
+                type: "POST",
+                url: "albums.php",
+                data: st,
+                success: function(data) {
+                    $("#searchresultholder").html(data);
+                    data = null;
+                },
+                error: function() {
                     $("#searchresultholder").empty();
                     infobar.notify(infobar.ERROR,"Search Failed");
-                });
-	        }
+                }
+            });
         }
 	}
 
@@ -812,19 +740,25 @@ function playerController() {
 
 	this.playId = function(id) {
         debug.log("PLAYER","Playing ID",id);
-        for(var i = 0; i < tracklist.length; i++) {
-            if (tracklist[i].tlid == id) {
-        		clearTimeout(progresstimer);
-                playTlTrack(tracklist[i]);
-                break;
-            }
-        }
+        // JEEEEZUS WEPT. Python and it's daft uber-strict type checking.
+        // Realising I needed a parseInt here took bloody ages.
+        // RANT. Everybody says that strict type checking is good. But they've all been
+        // brought up on C - so it's the way they're taught to think. To someone (me)
+        // brought up on Perl, strict type checking causes just as many headaches
+        // as loose type checking does to C people. But loose is infinitely more flexible.
+        // SO THEREFORE IT'S BETTER. rant over.
+        mopidy.tracklist.filter({'tlid': [parseInt(id)]}).then( function(tltracks) {
+            playTlTrack(tltracks[0]);
+        }, consoleError);
 	}
 
 	this.playByPosition = function(pos) {
         debug.log("PLAYER","Playing Position",pos);
         clearTimeout(progresstimer);
-        playTlTrack(tracklist[pos]);
+        mopidy.tracklist.getTlTracks().then( function (tracklist) {
+            debug.debug("PLAYER","Got Playlist from Mopidy:",tracklist);
+            playTlTrack(tracklist[pos]);
+       }, consoleError);
 	}
 
 	this.clearerror = function() {

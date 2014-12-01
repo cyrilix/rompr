@@ -46,6 +46,11 @@ function check_tracks_against_db($json) {
 	global $nodata;
 
 	$tracks_in_db = array();
+
+	// Note - we're not currently doing anything with disc numbers as mopidy-spotify doesn't supply them.
+	// We're doing our checking for existing tracks by URI anyway, unlimne when we create the collection.
+	// This works in this instance. I think.
+
 	if ($result = mysqli_query($mysqlc, "SELECT Uri, Hidden, TTindex, LastModified, TrackNo, Disc FROM Tracktable WHERE Uri LIKE 'spotify:%'")) {
 		while ($obj = mysqli_fetch_object($result)) {
 			$tracks_in_db[$obj->Uri] = array(	'hidden' => $obj->Hidden,

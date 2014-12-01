@@ -1419,7 +1419,7 @@ function do_artist_database_stuff($artistkey, $now) {
 	}
 
 	// First find tracks that we already have ...
-	if ($find_track = mysqli_prepare($mysqlc, "SELECT TTindex, LastModified, Hidden FROM Tracktable WHERE Title=? AND ((Albumindex=? AND TrackNo=?)".
+	if ($find_track = mysqli_prepare($mysqlc, "SELECT TTindex, LastModified, Hidden, Disc FROM Tracktable WHERE Title=? AND ((Albumindex=? AND TrackNo=? AND Disc=?)".
 	// ... then tracks that are in the wishlist. These will have TrackNo as NULL but Albumindex might not be.
 		" OR (Artistindex=? AND TrackNo IS NULL AND Uri IS NULL))")) {
 	} else {
@@ -1470,6 +1470,7 @@ function do_artist_database_stuff($artistkey, $now) {
             $ttid = null;
             $lastmodified = null;
             $hidden = 0;
+            $disc = 1;
 
             // Why are we not checking by URI? That should be unique, right?
             // Well, er. no. They're not. Especially Spotify returns the same URI multiple times if it's in mutliple playlists
@@ -1481,9 +1482,9 @@ function do_artist_database_stuff($artistkey, $now) {
 
             // debug_print("Checking for track ".$trackobj->name." ".$trackobj->number." ".$trackobj->url,"MYSQL");
 
-            mysqli_stmt_bind_param($find_track, "siii", $trackobj->name, $albumindex, $trackobj->number, $artistindex);
+            mysqli_stmt_bind_param($find_track, "siiii", $trackobj->name, $albumindex, $trackobj->number, $trackobj->disc, $artistindex);
 			if (mysqli_stmt_execute($find_track)) {
-			    mysqli_stmt_bind_result($find_track, $ttid, $lastmodified, $hidden);
+			    mysqli_stmt_bind_result($find_track, $ttid, $lastmodified, $hidden, $disc);
 			    mysqli_stmt_store_result($find_track);
 			    while (mysqli_stmt_fetch($find_track)) {
 			    	// PHP is the retarded bastard offspring of Perl and BASIC.
@@ -1498,7 +1499,7 @@ function do_artist_database_stuff($artistkey, $now) {
 		    	if ($lastmodified === null ||
 		    		$trackobj->lastmodified != $lastmodified ||
 		    		$hidden == 1 ||
-		    		$trackobj->needsupdate) {
+		    		$trackobj->disc != $disc) {
 			    	debug_print("  Updating track with ttid ".$ttid,"MYSQL");
 					mysqli_stmt_bind_param($stmt, "iiiisii", $trackobj->number, $trackobj->duration, $trackobj->lastmodified, $trackobj->disc, $trackobj->url, $albumindex, $ttid);
 					if (mysqli_stmt_execute($stmt)) {

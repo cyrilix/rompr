@@ -32,7 +32,7 @@ function doDbCollection($terms, $domains) {
 		$qstring .=") AS j ON j.TTindex = t.TTindex ";
 	}
 	if (array_key_exists('rating', $terms)) {
-		$qstring .= "JOIN (SELECT * FROM Ratingtable WHERE Rating >= ".$terms['rating'].") AS rat ON rat.TTindex = t.TTindex ";
+		$qstring .= "JOIN (SELECT * FROM Ratingtable WHERE Rating = ".$terms['rating'].") AS rat ON rat.TTindex = t.TTindex ";
 	}
 	$qstring .= "JOIN Artisttable AS a1 ON a1.Artistindex = t.Artistindex ";
 	$qstring .= "JOIN Albumtable AS al ON al.Albumindex = t.Albumindex ";

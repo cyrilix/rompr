@@ -1,15 +1,68 @@
 <?php
 
-function doCollection($command) {
+function doCollection($command, $terms = null, $domains = null) {
+
+    // Even when we're using mopidy's HTTP API we do 3 things almost purely in PHP
+    // using the POST request form of that API instead of the websocket.
+    // These are: building the collection, reading the playlist, and searching
+    // This is because all of these commands need to go through the collectioniser
+    // before being displayed. If we do them in the browser via the websocket then
+    // we have to:
+    //      send request to mopidy, get response, send response to here, get collection response back.
+    // This is inefficient and uses a lot of browser memory. Much better to:
+    //      send request to here, here sends request to mopidy and sends collection response back
+    // The switch statement below has silly mpd commands in it for compatability reasons.
 
     $collection = new musicCollection(null);
 
     $files = array();
     $filecount = 0;
-    parse_mopidy_json_data($collection, json_decode(file_get_contents('php://input')));
-
+    switch($command) {
+        case "listallinfo":
+            mopidy_post_command($collection, "core.library.search", "");
+            break;
+        case "playlistinfo":
+            mopidy_post_command($collection, "core.tracklist.get_tl_tracks", "");
+            break;
+        case "search":
+            $paramlist = ', "params": {';
+            foreach ($terms as $key => $array) {
+                $paramlist = $paramlist . '"'.$key.'": ["'.implode($array, '", "').'"]';
+            }
+            if ($domains !== null && count($domains) > 0) {
+                $paramlist = $paramlist . ', "uris": ["'.implode($domains, '", "').'"]';
+            }
+            $paramlist = $paramlist . '}';
+            debug_print("Search Terms Are : ".$paramlist,"MOPIDY");
+            mopidy_post_command($collection, "core.library.search", $paramlist);
+            break;
+        default:
+            // Don't honestly think this is needed any more
+            parse_mopidy_json_data($collection, json_decode(file_get_contents('php://input')));
+            break;
+    }
     return $collection;
 
+}
+
+function mopidy_post_command($collection, $rpc, $paramlist) {
+    global $prefs;
+    // Update the collection and playlist using an HTTP POST command - saves getting all the data
+    // into the browser and then pumping it out again.
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, "http://".$prefs['mopidy_http_address'].":".$prefs['mopidy_http_port']."/mopidy/rpc");
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 600);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, '{"jsonrpc": "2.0", "id": 1, "method": "'.$rpc.'"'.$paramlist.'}');
+    $result = curl_exec($ch);
+    curl_close($ch);
+    $data = json_decode($result);
+    if (property_exists($data, 'error')) {
+        debug_print("Mopidy POST Failed : ".$data->{'error'}->{'message'},"MOPIDY");
+    } else {
+        parse_mopidy_json_data($collection, $data->{'result'});
+    }
 }
 
 function parse_mopidy_json_data($collection, $jsondata) {
