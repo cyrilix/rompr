@@ -14,6 +14,9 @@ var wishlistViewer = function() {
 	    album = album.replace(/\s*<span.*$/,'');
 	    var artist = $(artistDiv.children()[0]).children('.expand').html();
 	    debug.log("DB_TRACKS","Remove track from database",title,album,artist);
+	    // Note: The returninfo method we use for deleting collection tracks doesn't work here
+	    // because that doesn't count albums where the tracks have no URI as visible albums.
+	    // - which is what it needs to do. So we fudge.
 	    $.ajax({
 	        url: "backends/sql/userRatings.php",
 	        type: "POST",
@@ -40,10 +43,8 @@ var wishlistViewer = function() {
 	                            });
 	                        }
 	                    });
-	                    doDbCleanup();
 	                }
 	            });
-
 	        },
 	        error: function() {
 	            debug.log("DB TRACKS", "Failed to remove track");

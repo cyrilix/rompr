@@ -292,7 +292,6 @@ function playerController() {
         $.ajax({
             type: "POST",
             url: "backends/sql/onthefly.php",
-            data: JSON.stringify(data),
             dataType: "json",
             timeout: 1000000,
             success: function(data) {
@@ -454,7 +453,7 @@ function playerController() {
     this.initialise = function() {
         debug.shout("PLAYER","Connecting to Mopidy HTTP frontend");
         debug.log("PLAYER","ws://"+prefs.mopidy_http_address+":"+prefs.mopidy_http_port+"/mopidy/ws/");
-        connecttimer = setTimeout(self.connectFailed,10000);
+        connecttimer = setTimeout(self.connectFailed,5000);
         // Just checking here to see - mopidy may not actually be accessible
         if (typeof(Mopidy) != "undefined") {
             mopidy = new Mopidy({
@@ -508,8 +507,12 @@ function playerController() {
                 }
             },
             error: function(data) {
-                $("#collection").empty();
-                alert(language.gettext("label_update_error"));
+                if (prefs.apache_backend == "sql") {
+                    loadCollection('albums.php?item=aalbumroot', null);
+                } else {
+                    $("#collection").empty();
+                }
+                alert(data.responseText);
                 debug.error("PLAYER","Failed to generate albums list",data);
             }
         });
@@ -532,14 +535,8 @@ function playerController() {
                 	debug.log("PLAYER","Got Playlists from Mopidy",data);
                 	formatPlaylistInfo(data);
                     if (prefs.apache_backend == "sql" && player.collectionLoaded && prefs.onthefly) {
-                        for (var i in data) {
-                            // Make sure we've got some Spotify playlists
-                            if (data[i].uri.match(/^spotify/)) {
-                                doingPlUpdate = true;
-                                checkTracksAgainstDatabase(data);
-                                break;
-                            }
-                        }
+                        doingPlUpdate = true;
+                        checkTracksAgainstDatabase();
                     } else {
                         doingPlUpdate = false;
                     }

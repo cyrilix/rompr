@@ -379,9 +379,11 @@ function doPlaylist($playlist) {
 }
 
 function delete_track($ttid) {
+	global $returninfo;
 	if (remove_ttid($ttid)) {
+		checkAlbumsAndArtists();
+		remove_cruft();
 		update_track_stats();
-		$returninfo = array();
 		$returninfo['stats'] = alistheader(get_stat('ArtistCount'), get_stat('AlbumCount'), get_stat('TrackCount'), format_time(get_stat('TotalTime')));
 		print json_encode($returninfo);
 	} else {

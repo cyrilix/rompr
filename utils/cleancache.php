@@ -8,7 +8,7 @@ chdir('..');
 include("includes/vars.php");
 include("includes/functions.php");
 
-debug_print("Starting Large Badger Process","CACHE CLEANER");
+debug_print("Checking Cache","CACHE CLEANER");
 // One Month
 clean_cache_dir('prefs/jsoncache/musicbrainz/', 2592000);
 // One Month
@@ -25,6 +25,7 @@ clean_cache_dir('prefs/jsoncache/lyrics/', 15552000);
 clean_cache_dir('prefs/imagecache/', 1296000);
 // Clean the albumart temporary upload directory
 clean_cache_dir('albumart/', 1);
+debug_print("Cache has been cleaned","CACHE CLEANER");
 ?>
 
 <html></html>

@@ -807,12 +807,9 @@ function playlistScrolled(el) {
 
 function removeTrackFromDb(element) {
     var trackDiv = element.parent().parent();
-    var albumDiv = trackDiv.parent();
-    var albumHeaderDiv = albumDiv.prev();
-    var albumContainer = albumHeaderDiv.parent();
-    var artistDiv = albumContainer.parent();
     var trackToGo = trackDiv.attr("name");
     debug.log("DB_TRACKS","Remove track from database",trackToGo);
+    trackDiv.fadeOut('fast');
     $.ajax({
         url: "backends/sql/userRatings.php",
         type: "POST",
@@ -820,53 +817,11 @@ function removeTrackFromDb(element) {
         dataType: 'json',
         success: function(rdata) {
             debug.log("DB TRACKS","Track was removed");
-            if (rdata && rdata.hasOwnProperty('stats')) {
-                $("#fothergill").html(rdata.stats);
-            }
-            trackDiv.fadeOut('fast', function() {
-                trackDiv.remove();
-                if (albumDiv.children().length == 5) {
-                    // All album dropdowns contain 5 meta- children which are used for cache control
-                    // JQuery counts these as children
-                    debug.log("DB_TRACK", "Album Div Is Empty");
-                    albumDiv.remove();
-                    albumHeaderDiv.fadeOut('fast', function() {
-                        albumHeaderDiv.remove();
-                        if (albumContainer.children().length == 5) {
-                            debug.log("DB_TRACK", "Artist Div Is Empty");
-                            artistDiv.fadeOut('fast', function() {
-                                artistDiv.remove();
-                            });
-                        }
-                    });
-                    doDbCleanup();
-                }
-            });
-
+            updateCollectionDisplay(rdata);
         },
         error: function() {
             debug.log("DB TRACKS", "Failed to remove track");
             infobar.notify(infobar.ERROR, "Failed to remove track!");
-        }
-    });
-}
-
-function doDbCleanup() {
-    // Run a cleanup on the database to remove empty albums and artists.
-    // We Don't run this on removing the track - where it would slow down
-    // response of the GUI - because it's rather slow.
-    $.ajax({
-        url: "backends/sql/userRatings.php",
-        type: "POST",
-        data: { action: 'cleanup' },
-        dataType: 'json',
-        success: function(rdata) {
-            if (rdata && rdata.hasOwnProperty('stats')) {
-                $("#fothergill").html(rdata.stats);
-            }
-        },
-        error: function() {
-            debug.log("DB TRACKS", "Failed to run cleanup!");
         }
     });
 }

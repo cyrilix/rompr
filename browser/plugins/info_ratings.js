@@ -467,28 +467,31 @@ function updateCollectionDisplay(rdata) {
         }
     }
     if (rdata && rdata.hasOwnProperty('deletedtracks')) {
-        debug.log("DELETED TRACKS",rdata.deletedtracks);
+        debug.debug("DELETED TRACKS",rdata.deletedtracks);
         for (var i in rdata.deletedtracks) {
             debug.log("REMOVING",rdata.deletedtracks[i]);
             $('div[name="'+rdata.deletedtracks[i]+'"]').remove();
         }
     }
     if (rdata && rdata.hasOwnProperty('deletedalbums')) {
-        debug.log("DELETED ALBUMS",rdata.deletedalbums);
+        debug.debug("DELETED ALBUMS",rdata.deletedalbums);
         for (var i in rdata.deletedalbums) {
-            debug.log("REMOVING",rdata.deletedalbums[i]);
             var d = $("#"+rdata.deletedalbums[i]);
             if (d.length > 0) {
+                debug.log("REMOVING",rdata.deletedalbums[i]);
                 d.prev().remove();
                 d.remove();
             }
         }
     }
     if (rdata && rdata.hasOwnProperty('deletedartists')) {
-        debug.log("DELETED ARTISTS",rdata.deletedartists);
+        debug.debug("DELETED ARTISTS",rdata.deletedartists);
         for (var i in rdata.deletedartists) {
-            debug.log("REMOVING",rdata.deletedartists[i]);
-            $("#"+rdata.deletedartists[i]).parent().remove();
+            var d = $("#"+rdata.deletedartists[i]).parent().remove();
+            if (d.length > 0) {
+                debug.log("REMOVING",rdata.deletedartists[i]);
+                d.parent().remove();
+            }
         }
     }
     if (rdata && rdata.hasOwnProperty('stats')) {

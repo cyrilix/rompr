@@ -1,6 +1,6 @@
 <?php
 
-function doCollection($command, $terms = null, $domains = null) {
+function doCollection($command, $terms = null, $domains = null, $params = "") {
 
     // Even when we're using mopidy's HTTP API we do 3 things almost purely in PHP
     // using the POST request form of that API instead of the websocket.
@@ -22,7 +22,7 @@ function doCollection($command, $terms = null, $domains = null) {
             debug_print("Refreshing Mopidy's Library","MOPIDY");
             mopidy_post_command(null, "core.library.refresh", "");
             debug_print("Building Collection","MOPIDY");
-            mopidy_post_command($collection, "core.library.search", "");
+            mopidy_post_command($collection, "core.library.search",', "params": {}');
             break;
         case "playlistinfo":
             mopidy_post_command($collection, "core.tracklist.get_tl_tracks", "");
@@ -41,8 +41,7 @@ function doCollection($command, $terms = null, $domains = null) {
             mopidy_post_command($collection, "core.library.search", $paramlist);
             break;
         default:
-            // Don't honestly think this is needed any more
-            parse_mopidy_json_data($collection, json_decode(file_get_contents('php://input')));
+            mopidy_post_command($collection, $command, $params);
             break;
     }
     return $collection;
@@ -59,12 +58,16 @@ function mopidy_post_command($collection, $rpc, $paramlist) {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_TIMEOUT, 600);
     curl_setopt($ch, CURLOPT_POSTFIELDS, '{"jsonrpc": "2.0", "id": 1, "method": "'.$rpc.'"'.$paramlist.'}');
+    debug_print("Sending Mopidy POST Command : ".'{"jsonrpc": "2.0", "id": 1, "method": "'.$rpc.'"'.$paramlist.'}',"MOPIDY");
     $result = curl_exec($ch);
     curl_close($ch);
     if ($collection !== null) {
         $data = json_decode($result);
         if (property_exists($data, 'error')) {
             debug_print("Mopidy POST Failed : ".$data->{'error'}->{'message'},"MOPIDY");
+            header("HTTP/1.1 500 Internal Server Error");
+            print get_int_text("label_update_error").": Mopidy Error - ".$data->{'error'}->{'message'};
+            exit(0);
         } else {
             parse_mopidy_json_data($collection, $data->{'result'});
         }
@@ -75,19 +78,10 @@ function parse_mopidy_json_data($collection, $jsondata) {
 
     global $dbterms;
     $plpos = 0;
-
+    $domainsdone = array();
     foreach($jsondata as $searchresults) {
 
-        if ($searchresults->{'__model__'} == "DBTerms") {
-
-            if (property_exists($searchresults, 'rating')) {
-                $dbterms['rating'] = $searchresults->rating;
-            }
-            if (property_exists($searchresults, 'tags')) {
-                $dbterms['tags'] = $searchresults->tags;
-            }
-
-        } else if ($searchresults->{'__model__'} == "SearchResult") {
+        if ($searchresults->{'__model__'} == "SearchResult") {
 
             if (property_exists($searchresults, 'artists')) {
                 foreach ($searchresults->artists as $track) {
@@ -109,8 +103,22 @@ function parse_mopidy_json_data($collection, $jsondata) {
 
         } else if ($searchresults->{'__model__'} == "TlTrack") {
             process_file($collection, parseTrack($searchresults->track, $plpos, $searchresults->{'tlid'}));
+            $plpos++;
+        } else if ($searchresults->{'__model__'} == "Playlist") {
+            // Used by onthefly. Hopefully search never returns playlists???? Maybe it does. I dunno.
+            if (property_exists($searchresults, 'uri')) {
+                if (property_exists($searchresults, 'tracks')) {
+                    $d = getDomain($searchresults->{'uri'});
+                    if (!array_key_exists($d, $domainsdone)) {
+                        generic_sql_query("INSERT INTO Existingtracks (TTindex) SELECT TTindex FROM Tracktable WHERE Uri LIKE '".$d."%' AND LastModified IS NOT NULL AND Hidden = 0");
+                        $domainsdone[$d] = 1;
+                    }
+                    foreach ($searchresults->tracks as $track) {
+                        process_file($collection, parseTrack($track));
+                    }
+                }
+            }
         }
-        $plpos++;
     }
 
 }
