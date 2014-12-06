@@ -917,7 +917,6 @@ function joinartists(ob) {
 
     // NOTE : This function is duplicated in the php side. It's important the two stay in sync
     // See player/mopidy/connection.php and includes/functions.php
-    debug.log("JOINARTISTS",ob);
     if (typeof(ob) != "object") {
         return ob;
     } else {

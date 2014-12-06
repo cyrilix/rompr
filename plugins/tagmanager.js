@@ -133,8 +133,7 @@ var tagManager = function() {
 	        		urionly: '1',
 	        		dontcreate: '1',
 	        		action: 'set',
-	        		attribute: 'Tags',
-	        		value: [tag]
+	        		attributes: [{attribute: 'Tags', value: [tag]}]
 	        	});
 	        });
 	        (function dotags() {
@@ -176,7 +175,7 @@ var tagManager = function() {
         				uri: uri,
         				urionly: 'true',
         				action: 'remove',
-        				value: tag
+        				attributes: [{ attribute: "Tags", value: tag}]
         			},
         			dataType: 'json',
         			success: function(rdata) {

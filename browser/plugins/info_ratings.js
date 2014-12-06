@@ -131,8 +131,7 @@ var info_ratings = function() {
                     var data = getPostData();
                     debug.log("RATINGS PLUGIN",parent.nowplayingindex,"Doing",action,type,value,data);
                     data.action = action;
-                    data.attribute = type;
-                    data.value = value;
+                    data.attributes = [{attribute: type, value: value}];
                     if (data.uri) {
                         self.updateDatabase(data);
                     } else {

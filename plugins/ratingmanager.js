@@ -113,8 +113,7 @@ var ratingManager = function() {
         				uri: uri,
         				urionly: 'true',
         				action: 'set',
-        				attribute: 'Rating',
-        				value: "0"
+        				attributes: [{attribute: "Rating", value: "0"}]
         			},
         			dataType: 'json',
         			success: function(rdata) {
@@ -122,7 +121,7 @@ var ratingManager = function() {
         				reloadRatList(rat);
         			},
         			error: function() {
-        				infobar.notify(infobar.ERROR, "Failed To Remove Tag");
+        				infobar.notify(infobar.ERROR, "Failed To Remove Rating");
         			}
         		});
 			}
@@ -143,8 +142,7 @@ var ratingManager = function() {
 	        		urionly: '1',
 	        		dontcreate: '1',
 	        		action: 'set',
-	        		attribute: 'Rating',
-	        		value: rat
+	        		attributes: [{ attribute: 'Rating', value: rat }]
 	        	});
 	        });
 	        (function dotags() {

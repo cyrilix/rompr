@@ -445,7 +445,7 @@ function set_attribute($ttid, $attribute, $value) {
 	// If we're setting it on a hidden track we have to:
 	// Unhide the track
 	// Work out if this will cause a new artist and/or album to appear in the collection
-	if (track_is_hidden($ttid)) {
+	if (track_is_hidden($ttid) && $attribute != "Playcount") {
 		debug_print("Setting attribute on a hidden track","MYSQL");
 		if ($artist_created == false) {
 			// See if this means we're revealing a new artist
@@ -1436,7 +1436,7 @@ function do_artist_database_stuff($artistkey, $now, $sendupdates = false) {
 	$artist_created = false;
     $artistindex = check_artist($artistname, $sendupdates);
     if ($artistindex == null) {
-    	debug_print("ERROR! Checked artist and index is still null!","MYSQL");
+    	debug_print("ERROR! Checked artist ".$artistname." and index is still null!","MYSQL");
         return false;
     }
 
@@ -1459,7 +1459,7 @@ function do_artist_database_stuff($artistkey, $now, $sendupdates = false) {
             $album->spotilink,
             $album->getImage('small'),
             $album->getDate(),
-            $album->isOneFile() ? 1 : 0,
+            $album->isOneFile(),
             "0",
             md5($album->artist." ".$album->name),
             $album->musicbrainz_albumid,
@@ -1469,7 +1469,7 @@ function do_artist_database_stuff($artistkey, $now, $sendupdates = false) {
         );
 
         if ($albumindex == null) {
-        	debug_print("ERROR! Album index is still null!","MYSQL");
+        	debug_print("ERROR! Album index for ".$album->name." is still null!","MYSQL");
     		continue;
         }
 
@@ -1522,11 +1522,12 @@ function do_artist_database_stuff($artistkey, $now, $sendupdates = false) {
 				}
 		    } else {
 		    	// debug_print("  Track not found","MYSQL");
-                if (($showartist ||
-                    ($artistname != null && ($artistname != $trackobj->get_artist_string()))) &&
-                    ($trackobj->get_artist_string() != null && $trackobj->get_artist_string() != '.' && $trackobj->get_artist_string() != "")
+		    	$a = $trackobj->get_artist_string();
+                if (
+                	($showartist || ($artistname != null && $artistname != $a)) &&
+                    $a != null
                 ){
-                    $trackartistindex = check_artist($trackobj->get_artist_string(), false);
+                    $trackartistindex = check_artist($a, false);
                 } else {
                     $trackartistindex = $artistindex;
                 }

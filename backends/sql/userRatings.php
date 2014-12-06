@@ -40,6 +40,14 @@ $trackimage = array_key_exists('trackimage', $_POST) ? $_POST['trackimage'] : nu
 if (substr($image,0,4) == "http") {
 	$image = "getRemoteImage.php?url=".$image;
 }
+$attributes = array_key_exists('attributes', $_POST) ? $_POST['attributes'] : null;
+if ( array_key_exists('attribute', $_POST) &&
+	 array_key_exists('value', $_POST)) {
+	debug_print("WARNING! Old-style attribute-value pair. Update the code!","USERRATING");
+	$attributes = array(
+		array( "attribute" => $_POST['attribute'], "value" => $_POST['value'] )
+	);
+}
 
 switch ($_POST['action']) {
 
@@ -87,9 +95,10 @@ switch ($_POST['action']) {
 		break;
 
 	case 'inc':
-		if ($artist === null || $title === null ||
-			!array_key_exists('attribute', $_POST) ||
-			!array_key_exists('value', $_POST)) {
+		if ($artist === null ||
+			$title === null ||
+			$attributes == null) {
+			debug_print("Something is not set","USERRATING");
 			header('HTTP/1.0 403 Forbidden');
 			exit(0);
 		}
@@ -126,7 +135,10 @@ switch ($_POST['action']) {
 
 		if ($ttid) {
 			debug_print("Doing an INCREMENT action - Found TTID ".$ttid,"USERRATING");
-			increment_value($ttid, $_POST['attribute'], $_POST['value']);
+			foreach ($attributes as $pair) {
+				debug_print("Incrementing ".$pair["attribute"]." by ".$pair["value"],"USERRATING");
+				increment_value($ttid, $pair["attribute"], $pair["value"]);
+			}
 			$returninfo['metadata'] = get_all_data($ttid);
 			print json_encode($returninfo);
 		}
@@ -146,7 +158,7 @@ switch ($_POST['action']) {
 							true);
 		if ($ttid != null) {
 
-			// Since mopidy doesn't return disc numbers we'll take this opportunity to update them
+			// Since mopidy-spotify doesn't return disc numbers we'll take this opportunity to update them
 			if ($disc) {
 				generic_sql_query("UPDATE Tracktable SET Disc = ".$disc." WHERE TTindex = ".$ttid);
 			}
@@ -188,12 +200,12 @@ switch ($_POST['action']) {
 	case 'set':
 		if ($artist === null ||
 			$title === null ||
-			!array_key_exists('attribute', $_POST) ||
-			!array_key_exists('value', $_POST)) {
+			$attributes == null) {
 			debug_print("Something is not set","USERRATING");
 			header('HTTP/1.0 403 Forbidden');
 			exit(0);
 		}
+
 		$ttid = find_item(	$uri,
 							$title,
 							$artist,
@@ -232,7 +244,16 @@ switch ($_POST['action']) {
 										$trackimage);
 		}
 		if ($ttid) {
-			if (set_attribute($ttid, $_POST['attribute'], $_POST['value'])) {
+			foreach ($attributes as $pair) {
+				debug_print("Setting ".$pair["attribute"]." to ".$pair["value"],"USERRATING");
+				$result = true;
+				$r = set_attribute($ttid, $pair["attribute"], $pair["value"]);
+				if ($r == false) {
+					debug_print("FAILED Setting ".$pair["attribute"]." to ".$pair["value"],"USERRATING");
+					$result = false;
+				}
+			}
+			if ($result) {
 				update_track_stats();
 				if ($uri) {
 					// Don't tell the browser to add stuff to the collection
@@ -262,9 +283,19 @@ switch ($_POST['action']) {
 							$albumartist,
 							false);
 		if ($ttid) {
-			if (remove_tag($ttid, trim($_POST['value']))) {
+			foreach ($attributes as $pair) {
+				debug_print("Removing ".$pair["attribute"]." ".$pair["value"],"USERRATING");
+				$result = true;
+				$r = remove_tag($ttid, $pair["value"]);
+				if ($r == false) {
+					debug_print("FAILED Removing ".$pair["attribute"]." ".$pair["value"],"USERRATING");
+					$result = false;
+				}
+			}
+			if ($result) {
 				send_list_updates($artist_created, $album_created, $ttid);
 			} else {
+				debug_print("Set Attribute Failed","USERRATING");
 				header('HTTP/1.0 403 Forbidden');
 			}
 		} else {

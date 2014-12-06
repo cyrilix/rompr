@@ -498,16 +498,18 @@ var lastfmImporter = function() {
 				}
 			} else {
 				data.action = 'set';
-				data.attribute = 'Rating';
-				data.value = data.Rating;
+				data.attributes = [	{attribute: 'Rating', value: data.Rating},
+									{attribute: 'Playcount', value: data.Playcount}
+				];
+				if (data.tags) {
+					data.attributes.push({attribute: 'Tags', value: data.tags});
+				}
 				// urionly here is set to ensure that the backend matches ONLY the specific
 				// version of this track that the user has chosen. It'll be created automatically
 				// if it doesn't exist. Failure to set urionly would mean that any old version
 				// of the track in the database would get matched.
 				data.urionly = 1;
 				debug.mark("LASTFM IMPORTER","Doing SQL Rating Stuff",data);
-
-				// Bloody hell this code is a mess
 
 		        $.ajax({
 		            url: "backends/sql/userRatings.php",
@@ -517,92 +519,14 @@ var lastfmImporter = function() {
 		            success: function(rdata) {
 		                debug.log("LASTFM IMPORTER","Success",rdata);
 		                updateCollectionDisplay(rdata);
-		                // For some unknown reason, testing data.tags.length doesn't work.
-		                // So if the tags array is empty we do this anyway. The PHP checks
-		                // and returns 403 Forbidden in that case so nothing untoward will happen.
-		                if (data.tags) {
-		                	data.attribute = 'Tags';
-		                	data.value = data.tags;
-							debug.mark("LASTFM IMPORTER","Doing SQL Tag Stuff",data);
-					        $.ajax({
-					            url: "backends/sql/userRatings.php",
-					            type: "POST",
-					            data: data,
-					            dataType: 'json',
-					            success: function(rdata) {
-					                debug.log("LASTFM IMPORTER","Success",rdata);
-					                updateCollectionDisplay(rdata);
-					                data.attribute = "Playcount";
-					                data.value = data.Playcount;
-					                data.action = "inc";
-									debug.mark("LASTFM IMPORTER","Doing SQL Playcount Stuff",data);
-							        $.ajax({
-							            url: "backends/sql/userRatings.php",
-							            type: "POST",
-							            data: data,
-							            dataType: 'json',
-							            success: function(rdata) {
-							                debug.log("LASTFM IMPORTER","Success",rdata);
-							                data.ignore = true;
-											$("#trackrow"+data.key+' td:last').html('<img src="newimages/tick.png" />');
-											if (callback) {
-												setTimeout(callback, 1000);
-											}
-							            },
-							            error: function(rdata) {
-							                debug.log("LASTFM IMPORTER","Failure");
-							                data.ignore = true;
-											$("#trackrow"+data.key+' td:last').html('<img src="newimages/tick.png" />');
-											if (callback) {
-												setTimeout(callback, 1000);
-											}
-							            }
-							        });
-					            },
-					            error: function(rdata) {
-					                debug.log("LASTFM IMPORTER","Failure with",data.tags);
-					                data.ignore = true;
-									$("#trackrow"+data.key+' td:last').html('<img src="newimages/tick.png" />');
-									if (callback) {
-										setTimeout(callback, 1000);
-									}
-					            }
-					        });
-		                } else {
-			                data.attribute = "Playcount";
-			                data.value = data.Playcount;
-			                data.action = "inc";
-							debug.mark("LASTFM IMPORTER","Doing SQL Playcount Stuff",data);
-					        $.ajax({
-					            url: "backends/sql/userRatings.php",
-					            type: "POST",
-					            data: data,
-					            dataType: 'json',
-					            success: function(rdata) {
-					                debug.log("LASTFM IMPORTER","Success",rdata);
-					                data.ignore = true;
-									$("#trackrow"+data.key+' td:last').html('<img src="newimages/tick.png" />');
-									if (callback) {
-										setTimeout(callback, 1000);
-									}
-					            },
-					            error: function(rdata) {
-					                debug.log("LASTFM IMPORTER","Failure");
-					                data.ignore = true;
-									$("#trackrow"+data.key+' td:last').html('<img src="newimages/tick.png" />');
-									if (callback) {
-										setTimeout(callback, 1000);
-									}
-					            }
-					        });
-		                }
-		            },
+		                data.ignore = true;
+						$("#trackrow"+data.key+' td:last').html('<img src="newimages/tick.png" />');
+						if (callback) setTimeout(callback, 1000);
+					},
 		            error: function(rdata) {
 		                infobar.notify(infobar.ERROR,"Track Import Failed");
 		                debug.warn("LASTFM IMPORTER","Failure");
-						if (callback) {
-							setTimeout(callback, 1000);
-						}
+						if (callback) setTimeout(callback, 1000);
 		            }
 		        });
 		    }

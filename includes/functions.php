@@ -745,53 +745,6 @@ function imagePath($image) {
     return ($image && $image !== "") ? $image : 'newimages/album-unknown-small.png';
 }
 
-function munge_filedata($filedata, $file) {
-
-    // Track Name
-    $name = (array_key_exists('Title', $filedata)) ? unwanted_array($filedata['Title']) : rawurldecode(basename($file));
-    // Track Artist(s)
-    $artist = (array_key_exists('Artist', $filedata)) ? $filedata['Artist'] : rawurldecode(basename(dirname(dirname($file))));
-    // Track Number
-    $number = (array_key_exists('Track', $filedata)) ? format_tracknum(ltrim(unwanted_array($filedata['Track']), '0')) : format_tracknum(rawurldecode(basename($file)));
-    // Track Duration
-    $duration = (array_key_exists('Time', $filedata)) ? unwanted_array($filedata['Time']) : 0;
-    // Album Artist(s)
-    $albumartist = (array_key_exists('AlbumArtist', $filedata)) ? $filedata['AlbumArtist'] : null;
-    // External Album URI (mopidy only)
-    $spotialbum = (array_key_exists('SpotiAlbum',$filedata)) ? $filedata['SpotiAlbum'] : null;
-    // Album Image
-    $image = (array_key_exists('Image', $filedata)) ? $filedata['Image'] : null;
-    // Album Name
-    $album = (array_key_exists('Album', $filedata)) ? unwanted_array($filedata['Album']) : rawurldecode(basename(dirname($file)));
-    // Date
-    $date = (array_key_exists('Date',$filedata)) ? unwanted_array($filedata['Date']) : null;
-    // Backend-Supplied LastModified Date
-    $lastmodified = (array_key_exists('Last-Modified',$filedata)) ? unwanted_array($filedata['Last-Modified']) : 0;
-    // Disc Number
-    $disc = (array_key_exists('Disc', $filedata)) ? format_tracknum(ltrim(unwanted_array($filedata['Disc']), '0')) : 1;
-    // Musicbrainz Album ID
-    $mbalbum = (array_key_exists('MUSICBRAINZ_ALBUMID', $filedata)) ? unwanted_array($filedata['MUSICBRAINZ_ALBUMID']) : "";
-    // Composer(s)
-    $composer = (array_key_exists('Composer', $filedata)) ? $filedata['Composer'] : null;
-    // Performer(s)
-    $performers = (array_key_exists('Performer', $filedata)) ? $filedata['Performer'] : null;
-
-    // Capture tracks where the basename/dirname route didn't work
-    if ($artist == "." || $artist == "" || $artist == " & ") {
-        $artist = ucfirst(getDomain(urldecode($file)));
-    }
-    if ($album == ".") {
-        $album = '[Unknown]';
-    }
-
-    $artist = preg_replace('/local:track:/', '', $artist);
-    $album = preg_replace('/local:track:/', '', $album);
-
-    return array($name, $artist, $number, $duration, $albumartist, $spotialbum,
-                    $image, $album, $date, $lastmodified, $disc, $mbalbum, $composer, $performers);
-
-}
-
 function concatenate_artist_names($art) {
     if (!is_array($art)) {
         return $art;

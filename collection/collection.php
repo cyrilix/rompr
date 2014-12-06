@@ -41,12 +41,12 @@ class album {
         $this->artistobject = null;
         $this->numOfDiscs = -1;
         $this->numOfTrackOnes = 0;
+        $this->isonefile = true;
         $numalbums++;
     }
 
     public function newTrack($object) {
         $this->tracks[] = $object;
-
         if ($this->folder == null) {
             $this->folder = $object->folder;
         }
@@ -62,19 +62,14 @@ class album {
         if ($object->number == 1) {
             $this->numOfTrackOnes++;
         }
+        if (!$object->playlist) {
+            $this->isonefile = false;
+        }
         $object->setAlbumObject($this);
     }
 
     public function isOneFile() {
-        $result = true;
-        foreach ($this->tracks as $i => $track) {
-            if ($track->playlist) {
-
-            } else {
-                $result = false;
-            }
-        }
-        return $result;
+        return $this->isonefile ? 1 : 0;
     }
 
     public function isCompilation() {
@@ -339,7 +334,12 @@ class track {
     }
 
     public function get_artist_string() {
-        return concatenate_artist_names($this->artist);
+        $a = concatenate_artist_names($this->artist);
+        if ($a != '.' && $a != "") {
+            return $a;
+        } else {
+            return null;
+        }
     }
 }
 
@@ -385,12 +385,7 @@ class musicCollection {
                                 $origimage, $spotialbum, $spotiartist, $domain, $cuefile, $lastmodified,
                                 $linktype, $composer, $performers) {
 
-        global $current_album;
-        global $current_artist;
-        global $abm;
-        global $current_domain;
-        global $playlist;
-        global $prefs;
+        global $current_album, $current_artist, $abm, $current_domain, $playlist, $prefs, $backend_in_use;
 
         // debug_print("New Track ".$name." ".$file." ".$album." ".$domain." ".$directory,"COLLECTION");
 
@@ -420,7 +415,12 @@ class musicCollection {
         // as an array of strings. For sorting the collection we want one string.
         $sortartist = concatenate_artist_names($sortartist);
 
-        $artistkey = strtolower(preg_replace('/^The /i', '', $sortartist));
+        $artistkey = "";
+        if ($backend_in_use == "sql") {
+            $artistkey = strtolower($sortartist);
+        } else {
+            $artistkey = strtolower(preg_replace('/^The /i', '', $sortartist));
+        }
         //Some discogs tags have 'Various' instead of 'Various Artists'
         if ($artistkey == "various") {
             $artistkey = "various artists";
@@ -609,9 +609,34 @@ function process_file($collection, $filedata) {
         }
     }
 
-    list($name, $artist, $number, $duration, $albumartist, $spotialbum,
-            $image, $album, $date, $lastmodified, $disc, $mbalbum, $composer, $performers) = munge_filedata($filedata, $file);
-
+    // Track Name
+    $name = (array_key_exists('Title', $filedata)) ? unwanted_array($filedata['Title']) : rawurldecode(basename($file));
+    // Track Artist(s)
+    $artist = (array_key_exists('Artist', $filedata)) ? $filedata['Artist'] : rawurldecode(basename(dirname(dirname($file))));
+    // Track Number
+    $number = (array_key_exists('Track', $filedata)) ? format_tracknum(ltrim(unwanted_array($filedata['Track']), '0')) : format_tracknum(rawurldecode(basename($file)));
+    // Track Duration
+    $duration = (array_key_exists('Time', $filedata)) ? unwanted_array($filedata['Time']) : 0;
+    // Album Artist(s)
+    $albumartist = (array_key_exists('AlbumArtist', $filedata)) ? $filedata['AlbumArtist'] : null;
+    // External Album URI (mopidy only)
+    $spotialbum = (array_key_exists('SpotiAlbum',$filedata)) ? $filedata['SpotiAlbum'] : null;
+    // Album Image
+    $image = (array_key_exists('Image', $filedata)) ? $filedata['Image'] : null;
+    // Album Name
+    $album = (array_key_exists('Album', $filedata)) ? unwanted_array($filedata['Album']) : rawurldecode(basename(dirname($file)));
+    // Date
+    $date = (array_key_exists('Date',$filedata)) ? unwanted_array($filedata['Date']) : null;
+    // Backend-Supplied LastModified Date
+    $lastmodified = (array_key_exists('Last-Modified',$filedata)) ? unwanted_array($filedata['Last-Modified']) : 0;
+    // Disc Number
+    $disc = (array_key_exists('Disc', $filedata)) ? format_tracknum(ltrim(unwanted_array($filedata['Disc']), '0')) : 1;
+    // Musicbrainz Album ID
+    $mbalbum = (array_key_exists('MUSICBRAINZ_ALBUMID', $filedata)) ? unwanted_array($filedata['MUSICBRAINZ_ALBUMID']) : "";
+    // Composer(s)
+    $composer = (array_key_exists('Composer', $filedata)) ? $filedata['Composer'] : null;
+    // Performer(s)
+    $performers = (array_key_exists('Performer', $filedata)) ? $filedata['Performer'] : null;
     // Genre
     $genre = (array_key_exists('Genre', $filedata)) ? unwanted_array($filedata['Genre']) : null;
     // Musicbrainz Track Artist ID(s)
@@ -628,6 +653,17 @@ function process_file($collection, $filedata) {
     $spotiartist = (array_key_exists('SpotiArtist',$filedata)) ? unwanted_array($filedata['SpotiArtist']) : null;
     // 'playlist' is how mpd handles flac/cue files (either embedded cue or external cue).
     $playlist = (array_key_exists('playlist',$filedata)) ? $filedata['playlist'] : null;
+
+    // Capture tracks where the basename/dirname route didn't work
+    if ($artist == "." || $artist == "" || $artist == " & ") {
+        $artist = ucfirst(getDomain(urldecode($file)));
+    }
+    if ($album == ".") {
+        $album = '[Unknown]';
+    }
+
+    $artist = preg_replace('/local:track:/', '', $artist);
+    $album = preg_replace('/local:track:/', '', $album);
 
     if (!array_key_exists('linktype', $filedata)) {
         if (preg_match('/^.*?:artist:/', $file)) {

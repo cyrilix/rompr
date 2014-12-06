@@ -258,7 +258,7 @@ function do_albums_xml($artistkey, $compilations, $showartist, $prefix, $output)
             }
             $output->writeLine(xmlnode('searched', 'no'));
             $output->writeLine("</image>\n");
-            if ($album->isOneFile()) {
+            if ($album->isOneFile() == 1) {
                 $output->writeLine(xmlnode('isonefile', 'yes'));
             }
             $numdiscs = $album->sortTracks();
@@ -277,7 +277,7 @@ function do_albums_xml($artistkey, $compilations, $showartist, $prefix, $output)
                     }
                     if (($showartist ||
                         ($album->artist != null && ($album->artist != $trackobj->get_artist_string()))) &&
-                        ($trackobj->get_artist_string() != null && $trackobj->get_artist_string() != '.')
+                        $trackobj->get_artist_string() != null
                     ) {
                         $output->writeLine(xmlnode('artist', $trackobj->get_artist_string()));
                     }

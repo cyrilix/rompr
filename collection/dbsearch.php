@@ -130,7 +130,7 @@ function getWishlist() {
 	$collection = new musicCollection(null);
 
 	// For the wishlist - get the tracks which have no uri
-	$qstring = "SELECT Tracktable.*, Artisttable.*, Albumtable.* FROM Tracktable JOIN Artisttable USING (Artistindex) JOIN Albumtable ON Tracktable.Albumindex = Albumtable.Albumindex WHERE Uri IS NULL";
+	$qstring = "SELECT Tracktable.*, Artisttable.*, Albumtable.* FROM Tracktable JOIN Artisttable USING (Artistindex) JOIN Albumtable ON Tracktable.Albumindex = Albumtable.Albumindex WHERE Uri IS NULL AND Hidden = 0";
 	if ($result = mysqli_query($mysqlc, $qstring)) {
 		while ($obj = mysqli_fetch_object($result)) {
 			$filedata = array(
@@ -150,7 +150,7 @@ function getWishlist() {
 		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 
-	$qstring = "SELECT Tracktable.*, Artisttable.* FROM Tracktable JOIN Artisttable USING (Artistindex) WHERE Albumindex IS NULL AND Uri IS NULL";
+	$qstring = "SELECT Tracktable.*, Artisttable.* FROM Tracktable JOIN Artisttable USING (Artistindex) WHERE Albumindex IS NULL AND Uri IS NULL AND Hidden = 0";
 	if ($result = mysqli_query($mysqlc, $qstring)) {
 		while ($obj = mysqli_fetch_object($result)) {
 			$filedata = array(
