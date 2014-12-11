@@ -1,6 +1,6 @@
 <?php
 
-function doCollection($command, $terms = null, $domains = null, $params = "") {
+function doCollection($command, $params = null) {
 
     // Even when we're using mopidy's HTTP API we do 3 things almost purely in PHP
     // using the POST request form of that API instead of the websocket.
@@ -13,32 +13,32 @@ function doCollection($command, $terms = null, $domains = null, $params = "") {
     //      send request to here, here sends request to mopidy and sends collection response back
     // The switch statement below has silly mpd commands in it for compatability reasons.
 
+    // We also add tracks using this API because the to-ing and fro-ing of track lookups
+    // is faster and easier to manage this way.
+
     $collection = new musicCollection(null);
 
     $files = array();
     $filecount = 0;
+    if ($params === null) $params = (object) array();
     switch($command) {
         case "listallinfo":
+            $now = time();
+            debug_print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~","TIMINGS");
             debug_print("Refreshing Mopidy's Library","MOPIDY");
-            mopidy_post_command(null, "core.library.refresh", "");
-            debug_print("Building Collection","MOPIDY");
-            mopidy_post_command($collection, "core.library.search",', "params": {}');
+            mopidy_post_command(null, "core.library.refresh", $params);
+            $dur = format_time(time() - $now);
+            debug_print("Library Refresh Took ".$dur,"TIMINGS");
+            $now = time();
+            debug_print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~","TIMINGS");
+            debug_print("Starting Collection Creation/Track-By-Track Update","MOPIDY");
+            prepareCollectionUpdate();
+            mopidy_post_command($collection, "core.library.search", $params);
+            $dur = format_time(time() - $now);
+            debug_print("Collection Creation/Track-By-Track Update Took ".$dur,"TIMINGS");
             break;
         case "playlistinfo":
-            mopidy_post_command($collection, "core.tracklist.get_tl_tracks", "");
-            break;
-        case "search":
-            $paramlist = ', "params": {';
-            foreach ($terms as $key => $array) {
-                $paramlist = $paramlist . '"'.$key.'": ["'.implode($array, '", "').'"], ';
-            }
-            if ($domains !== null && count($domains) > 0) {
-                $paramlist = $paramlist . '"uris": ["'.implode($domains, '", "').'"]';
-            }
-            $paramlist = rtrim($paramlist, ', ');
-            $paramlist = $paramlist . '}';
-            debug_print("Search Terms Are : ".$paramlist,"MOPIDY");
-            mopidy_post_command($collection, "core.library.search", $paramlist);
+            mopidy_post_command($collection, "core.tracklist.get_tl_tracks", $params);
             break;
         default:
             mopidy_post_command($collection, $command, $params);
@@ -50,46 +50,51 @@ function doCollection($command, $terms = null, $domains = null, $params = "") {
 
 function mopidy_post_command($collection, $rpc, $paramlist) {
     global $prefs;
-    // Update the collection and playlist using an HTTP POST command - saves getting all the data
-    // into the browser and then pumping it out again.
+    $jsonrpc = array(
+        "jsonrpc" => "2.0",
+        "id" => 1,
+        "method" => $rpc,
+        "params" => $paramlist
+    );
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, "http://".$prefs['mopidy_http_address'].":".$prefs['mopidy_http_port']."/mopidy/rpc");
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_TIMEOUT, 600);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, '{"jsonrpc": "2.0", "id": 1, "method": "'.$rpc.'"'.$paramlist.'}');
-    debug_print("Sending Mopidy POST Command : ".'{"jsonrpc": "2.0", "id": 1, "method": "'.$rpc.'"'.$paramlist.'}',"MOPIDY");
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($jsonrpc));
+    debug_print("Sending Mopidy POST Command : ".json_encode($jsonrpc),"MOPIDY");
     $result = curl_exec($ch);
     curl_close($ch);
+    $data = json_decode($result);
+    if (property_exists($data, 'error')) {
+        debug_print("Mopidy POST Failed : ".$data->{'error'}->{'message'},"MOPIDY");
+        header("HTTP/1.1 500 Internal Server Error");
+        print get_int_text("label_update_error").": Mopidy Error - ".$data->{'error'}->{'message'};
+        exit(0);
+    }
     if ($collection !== null) {
-        $data = json_decode($result);
-        if (property_exists($data, 'error')) {
-            debug_print("Mopidy POST Failed : ".$data->{'error'}->{'message'},"MOPIDY");
-            header("HTTP/1.1 500 Internal Server Error");
-            print get_int_text("label_update_error").": Mopidy Error - ".$data->{'error'}->{'message'};
-            exit(0);
-        } else {
-            parse_mopidy_json_data($collection, $data->{'result'});
-        }
+        parse_mopidy_json_data($collection, $data->{'result'});
+    } else {
+        return $data->{'result'};
     }
 }
 
 function parse_mopidy_json_data($collection, $jsondata) {
 
-    global $dbterms;
+    global $dbterms, $backend_in_use;
     $plpos = 0;
     $domainsdone = array();
     foreach($jsondata as $searchresults) {
 
         if ($searchresults->{'__model__'} == "SearchResult") {
 
-            if (property_exists($searchresults, 'artists')) {
+            if (property_exists($searchresults, 'artists') && $backend_in_use == "xml") {
                 foreach ($searchresults->artists as $track) {
                     parseArtist($collection, $track);
                 }
             }
 
-            if (property_exists($searchresults, 'albums')) {
+            if (property_exists($searchresults, 'albums') && $backend_in_use == "xml") {
                 foreach ($searchresults->albums as $track) {
                     parseAlbum($collection, $track);
                 }
@@ -113,6 +118,10 @@ function parse_mopidy_json_data($collection, $jsondata) {
                         generic_sql_query("INSERT INTO Existingtracks (TTindex) SELECT TTindex FROM Tracktable WHERE Uri LIKE '".$d."%' AND LastModified IS NOT NULL AND Hidden = 0");
                         $domainsdone[$d] = 1;
                     }
+                    // We only process tracks atm because we don't need the artist/album links
+                    // (if indeed playlists do return any). These ARE required by full collection
+                    // updates though because we use those to parse search results and some backends
+                    // return only albums or a mixture of artists, albums, and tracks
                     foreach ($searchresults->tracks as $track) {
                         process_file($collection, parseTrack($track));
                     }
@@ -125,7 +134,7 @@ function parse_mopidy_json_data($collection, $jsondata) {
 
 function parseArtist($collection, $track) {
     $trackdata = array();
-    $trackdata['linktype'] = 'artist';
+    $trackdata['linktype'] = ROMPR_ARTIST;
     if (property_exists($track, 'uri')) {
         $trackdata['SpotiArtist'] = $track->{'uri'};
         $trackdata['file'] = $track->{'uri'};
@@ -140,7 +149,7 @@ function parseArtist($collection, $track) {
 function parseAlbum($collection, $track) {
     $trackdata = array();
     $domain = null;
-    $trackdata['linktype'] = 'album';
+    $trackdata['linktype'] = ROMPR_ALBUM;
     if (property_exists($track, 'uri')) {
         $trackdata['file'] = $track->{'uri'};
         $domain = getDomain($track->{'uri'});
@@ -200,10 +209,8 @@ function parseTrack($track, $plpos = null, $plid = null) {
     } else {
         $trackdata['Track'] = 0;
     }
-    if (property_exists($track, 'disc_no')) {
+    if (property_exists($track, 'disc_no') && $track->{'disc_no'} != 0) {
         $trackdata['Disc'] = $track->{'disc_no'};
-    } else {
-        $trackdata['Disc'] = 1;
     }
     if (property_exists($track, 'date')) {
         $trackdata['Date'] = $track->{'date'};

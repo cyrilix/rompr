@@ -144,7 +144,7 @@ function playerController() {
             },
             error: function() {
                 alert("Failed sending command list to mpd");
-                playlist.checkProgress();
+                self.checkProgress();
             },
             dataType: 'json'
         });

@@ -140,7 +140,7 @@ print '<img id="playlistresizer" src="'.$ipath.'resize2.png" height="24px" style
     <li>
 <?php
 print '<a href="#" title="'.get_int_text('button_alarm').'" class="tooltip"><img id="alarmclock" class="topimg" src="'.$ipath.'alarmclock_false.png" height="24px"></a>';
-print '<ul id="alarmpanel" class="subnav" style="background-color:transparent;left:-62px;width:150px;font-size:10pt;border:none"><div style="width:150px;height:191px;background-image:url(\''.$ipath.'alarmclock_150.png\')">';
+print '<ul id="alarmpanel" class="subnav dropshadow" style="left:-62px;width:150px;font-size:10pt"><div style="width:150px;height:191px;background-image:url(\''.$ipath.'alarmclock_150.png\')">';
 print '<div style="height:70px;width:150px"></div>';
 include ("plugins/alarmclock.php");
 ?>

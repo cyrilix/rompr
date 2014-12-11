@@ -51,7 +51,6 @@ function dumpAlbums($which) {
                             $album->name,
                             $album->spotilink,
                             $album['id'],
-                            $album->isonefile,
                             $album->image->exists,
                             $album->image->searched,
                             $album->image->name,
@@ -66,29 +65,29 @@ function dumpAlbums($which) {
                     }
                 }
                 if ($type == $ALBUM) {
-                    $count = 0;
                     $currdisc = -1;
+                    $numtracks = count($obj->tracks->track);
                     foreach($obj->tracks->track as $i => $trackobj) {
-                        if (!$trackobj->playlist) {
-                            if ($obj->numdiscs > 1 && $trackobj->disc && $trackobj->disc != $currdisc) {
-                                $currdisc = $trackobj->disc;
-                                print '<div class="discnumber indent">Disc '.$currdisc.'</div>';
-                            }
-                            albumTrack(
-                                $trackobj->artist,
-                                -1,
-                                $trackobj->url,
-                                $obj->tracks->track->count(),
-                                $trackobj->number,
-                                $trackobj->name,
-                                $trackobj->duration,
-                                (string) $trackobj->lastmodified === "" ? null : (string) $trackobj->lastmodified,
-                                $trackobj->image
-                            );
-                            $count++;
+                        if ($obj->numdiscs > 1 && $trackobj->disc && $trackobj->disc != $currdisc) {
+                            $currdisc = $trackobj->disc;
+                            print '<div class="discnumber indent">Disc '.$currdisc.'</div>';
+                        }
+                        albumTrack(
+                            $trackobj->artist,
+                            -1,
+                            $trackobj->url,
+                            $obj->tracks->track->count(),
+                            $trackobj->number,
+                            $trackobj->name,
+                            $trackobj->duration,
+                            (string) $trackobj->lastmodified === "" ? null : (string) $trackobj->lastmodified,
+                            $trackobj->image
+                        );
+                        if ($numtracks == 2 && $trackobj->name == "Cue Sheet") {
+                            break;
                         }
                     }
-                    if ($count == 0) {
+                    if ($numtracks == 0) {
                         noAlbumTracks();
                     }
                 }
@@ -258,9 +257,6 @@ function do_albums_xml($artistkey, $compilations, $showartist, $prefix, $output)
             }
             $output->writeLine(xmlnode('searched', 'no'));
             $output->writeLine("</image>\n");
-            if ($album->isOneFile() == 1) {
-                $output->writeLine(xmlnode('isonefile', 'yes'));
-            }
             $numdiscs = $album->sortTracks();
             $output->writeLine(xmlnode('numdiscs', $numdiscs));
             $currdisc = -1;
@@ -287,13 +283,6 @@ function do_albums_xml($artistkey, $compilations, $showartist, $prefix, $output)
                     $output->writeLine(xmlnode('duration', format_time($trackobj->duration)));
                     $output->writeLine(xmlnode('image', $trackobj->image));
                     $output->writeLine(xmlnode('lastmodified', $trackobj->lastmodified));
-                    if ($trackobj->playlist && count($album->tracks) == 1) {
-                        // Don't include the cue sheet if the albums object has more than one track -
-                        // because if it does then it will be a cue sheet alongside a multi-track rip
-                        // and if we include it then the whole album gets added to the playlist twice
-                        // It's totally silly to even display it
-                        $output->writeLine(xmlnode('playlist', rawurlencode($trackobj->playlist)));
-                    }
                     $output->writeLine("</track>\n");
                     $count++;
                 }
@@ -339,8 +328,9 @@ function getTracksForArtist($artist) {
 function getTracksForAlbum($album) {
     $retarr = array();
     foreach($album->tracks->track as $j => $track) {
-        if ($track->playlist) {
-            array_push($retarr, "load ".rawurldecode($track->playlist));
+        if ($track->name == "Cue Sheet") {
+            array_push($retarr, "load ".rawurldecode($track->url));
+            break;
         } else {
             array_push($retarr, "add ".rawurldecode($track->url));
         }
@@ -354,7 +344,8 @@ function getTracksForDir($dir) {
         if ($d->type == "file") {
             array_push($retarr, "add ".rawurldecode($d->url));
         } else if ($d->type == "cue") {
-            array_push($retarr, "load ".rawurldecode($d->url));
+            $retarr = array("load ".rawurldecode($d->url));
+            break;
         } else {
             $retarr = array_merge($retarr, getTracksForDir($d));
         }
@@ -426,6 +417,10 @@ function update_image_db($fname, $notfound, $imagefile) {
         }
         fclose($fp);
     }
+
+}
+
+function prepareCollectionUpdate() {
 
 }
 

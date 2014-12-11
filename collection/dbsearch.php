@@ -6,7 +6,7 @@ function doDbCollection($terms, $domains) {
 
 	// This can actually be used to search the database for title, album, artist, anything, rating, and tag
 	// But it isn't because we let Mopidy/MPD search for anything they support because otherwise we
-	// have to duplicate their entire database, whcih is daft.
+	// have to duplicate their entire database, which is daft.
 	// This function was written before I realised that... :)
 	// It's still used for searches where we're only looking for tags and/or ratings
 
@@ -17,6 +17,7 @@ function doDbCollection($terms, $domains) {
 
 	$collection = new musicCollection(null);
 
+	$parameters = array();
 	$qstring = "SELECT t.*, al.*, a1.*, a2.Artistname AS AlbumArtistName ";
 	if (array_key_exists('rating', $terms)) {
 		$qstring .= ",rat.Rating ";
@@ -26,13 +27,14 @@ function doDbCollection($terms, $domains) {
 		$qstring .= "JOIN (SELECT DISTINCT TTindex FROM TagListtable JOIN Tagtable AS tag USING (Tagindex) WHERE";
 		$tagterms = array();
 		foreach ($terms['tag'] as $tag) {
-			array_push($tagterms, " tag.Name LIKE '".mysqli_real_escape_string($mysqlc, trim($tag))."'");
+			$parameters[] = trim($tag);
+			array_push($tagterms, " tag.Name LIKE ?");
 		}
 		$qstring .= implode(" OR",$tagterms);
 		$qstring .=") AS j ON j.TTindex = t.TTindex ";
 	}
 	if (array_key_exists('rating', $terms)) {
-		$qstring .= "JOIN (SELECT * FROM Ratingtable WHERE Rating = ".$terms['rating'].") AS rat ON rat.TTindex = t.TTindex ";
+		$qstring .= "JOIN (SELECT * FROM Ratingtable WHERE Rating >= ".$terms['rating'].") AS rat ON rat.TTindex = t.TTindex ";
 	}
 	$qstring .= "JOIN Artisttable AS a1 ON a1.Artistindex = t.Artistindex ";
 	$qstring .= "JOIN Albumtable AS al ON al.Albumindex = t.Albumindex ";
@@ -48,12 +50,15 @@ function doDbCollection($terms, $domains) {
 		if (array_key_exists('any', $terms)) {
 			$qstring .= "(";
 		}
-		$qstring .= "a1.Artistname LIKE '%".mysqli_real_escape_string($mysqlc, trim($terms['artist'][0]))."%' ";
+		$parameters[] = "%".trim($terms['artist'][0])."%";
+		$qstring .= "a1.Artistname LIKE ? ";
 		if (array_key_exists('any', $terms)) {
-			$qstring .= "OR a1.Artistname LIKE '%".mysqli_real_escape_string($mysqlc, trim($terms['any'][0]))."%') ";
+			$parameters[] = "%".trim($terms['any'][0])."%";
+			$qstring .= "OR a1.Artistname LIKE ?) ";
 		}
 	} else if (array_key_exists('any', $terms)) {
-		$qstring .= "OR a1.Artistname LIKE '%".mysqli_real_escape_string($mysqlc, trim($terms['any'][0]))."%' ";
+		$parameters[] = "%".trim($terms['any'][0])."%";
+		$qstring .= "OR a1.Artistname LIKE ? ";
 	}
 
 	if (array_key_exists('album', $terms)) {
@@ -61,12 +66,15 @@ function doDbCollection($terms, $domains) {
 		if (array_key_exists('any', $terms)) {
 			$qstring .= "(";
 		}
-		$qstring .= "al.Albumname LIKE '%".mysqli_real_escape_string($mysqlc, trim($terms['album'][0]))."%' ";
+		$parameters[] = "%".trim($terms['album'][0])."%";
+		$qstring .= "al.Albumname LIKE ? ";
 		if (array_key_exists('any', $terms)) {
-			$qstring .= "OR al.Albumname LIKE '%".mysqli_real_escape_string($mysqlc, trim($terms['any'][0]))."%') ";
+			$parameters[] = "%".trim($terms['any'][0])."%";
+			$qstring .= "OR al.Albumname LIKE ?) ";
 		}
 	} else if (array_key_exists('any', $terms)) {
-		$qstring .= "OR al.Albumname LIKE '%".mysqli_real_escape_string($mysqlc, trim($terms['any'][0]))."%' ";
+		$parameters[] = "%".trim($terms['any'][0])."%";
+		$qstring .= "OR al.Albumname LIKE ? ";
 	}
 
 	if (array_key_exists('track_name', $terms)) {
@@ -74,19 +82,23 @@ function doDbCollection($terms, $domains) {
 		if (array_key_exists('any', $terms)) {
 			$qstring .= "(";
 		}
-		$qstring .= "t.Title LIKE '%".mysqli_real_escape_string($mysqlc, trim($terms['track_name'][0]))."%' ";
+		$parameters[] = "%".trim($terms['track_name'][0])."%";
+		$qstring .= "t.Title LIKE ? ";
 		if (array_key_exists('any', $terms)) {
-			$qstring .= "OR t.Title LIKE '%".mysqli_real_escape_string($mysqlc, trim($terms['any'][0]))."%') ";
+			$parameters[] = "%".trim($terms['any'][0])."%";
+			$qstring .= "OR t.Title LIKE ?) ";
 		}
 	} else if (array_key_exists('any', $terms)) {
-		$qstring .= "OR t.Title LIKE '%".mysqli_real_escape_string($mysqlc, trim($terms['any'][0]))."%' ";
+		$parameters[] = "%".trim($terms['any'][0])."%";
+		$qstring .= "OR t.Title LIKE ? ";
 	}
 
 	if ($domains !== null) {
 		$qstring .= "AND (";
 		$domainterms = array();
 		foreach ($domains as $dom) {
-			array_push($domainterms, "t.Uri LIKE '".mysqli_real_escape_string($mysqlc, trim($dom))."%'");
+			$parameters[] = trim($dom)."%";
+			array_push($domainterms, "t.Uri LIKE ?");
 		}
 		$qstring .= implode(" OR ",$domainterms);
 		$qstring .= ")";
@@ -94,26 +106,29 @@ function doDbCollection($terms, $domains) {
 
 	debug_print("SQL Search String is ".$qstring,"SEARCH");
 
-	if ($result = mysqli_query($mysqlc, $qstring)) {
-		while ($obj = mysqli_fetch_object($result)) {
-			$filedata = array(
-				'Artist' => $obj->Artistname,
-				'Album' => $obj->Albumname,
-				'AlbumArtist' => $obj->AlbumArtistName,
-				'file' => $obj->Uri,
-				'Title' => $obj->Title,
-				'Track' => $obj->TrackNo,
-				'Image' => $obj->Image,
-				'Time' => $obj->Duration,
-				'SpotiAlbum' => $obj->Spotilink,
-				'Date' => $obj->Year,
-				'Last-Modified' => $obj->LastModified
-			);
-			process_file($collection, $filedata);
+	if ($result = sql_prepare_query_later($qstring)) {
+		if ($result->execute($parameters)) {
+			while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+				$filedata = array(
+					'Artist' => $obj->Artistname,
+					'Album' => $obj->Albumname,
+					'AlbumArtist' => $obj->AlbumArtistName,
+					'file' => $obj->Uri,
+					'Title' => $obj->Title,
+					'Track' => $obj->TrackNo,
+					'Image' => $obj->Image,
+					'Time' => $obj->Duration,
+					'SpotiAlbum' => $obj->Spotilink,
+					'Date' => $obj->Year,
+					'Last-Modified' => $obj->LastModified
+				);
+				process_file($collection, $filedata);
+			}
+		} else {
+			show_sql_error();
 		}
-		mysqli_free_result($result);
 	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+		show_sql_error();
 	}
 
 	return $collection;
@@ -131,8 +146,8 @@ function getWishlist() {
 
 	// For the wishlist - get the tracks which have no uri
 	$qstring = "SELECT Tracktable.*, Artisttable.*, Albumtable.* FROM Tracktable JOIN Artisttable USING (Artistindex) JOIN Albumtable ON Tracktable.Albumindex = Albumtable.Albumindex WHERE Uri IS NULL AND Hidden = 0";
-	if ($result = mysqli_query($mysqlc, $qstring)) {
-		while ($obj = mysqli_fetch_object($result)) {
+	if ($result = generic_sql_query($qstring)) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			$filedata = array(
 				'Artist' => $obj->Artistname,
 				'file' => $obj->Uri,
@@ -145,14 +160,11 @@ function getWishlist() {
 			);
 			process_file($collection, $filedata);
 		}
-		mysqli_free_result($result);
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 
 	$qstring = "SELECT Tracktable.*, Artisttable.* FROM Tracktable JOIN Artisttable USING (Artistindex) WHERE Albumindex IS NULL AND Uri IS NULL AND Hidden = 0";
-	if ($result = mysqli_query($mysqlc, $qstring)) {
-		while ($obj = mysqli_fetch_object($result)) {
+	if ($result = generic_sql_query($qstring)) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			$filedata = array(
 				'Artist' => $obj->Artistname,
 				'file' => $obj->Uri,
@@ -165,26 +177,25 @@ function getWishlist() {
 			);
 			process_file($collection, $filedata);
 		}
-		mysqli_free_result($result);
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 
 	return $collection;
 
 }
 
-function check_url_against_database($url, $tags, $rating) {
+function check_url_against_database($url, $itags, $rating) {
 	global $mysqlc;
 	if ($mysqlc === null) {
 		connect_to_database();
 	}
 	$qstring = "SELECT t.TTindex FROM Tracktable AS t ";
-	if ($tags !== null) {
+	$tags = array();
+	if ($itags !== null) {
 		$qstring .= "JOIN (SELECT DISTINCT TTindex FROM TagListtable JOIN Tagtable AS tag USING (Tagindex) WHERE";
 		$tagterms = array();
-		foreach ($tags as $tag) {
-			array_push($tagterms, " tag.Name LIKE '".mysqli_real_escape_string($mysqlc, trim($tag))."'");
+		foreach ($itags as $tag) {
+			$tags[] = trim($tag);
+			array_push($tagterms, " tag.Name LIKE ?");
 		}
 		$qstring .= implode(" OR",$tagterms);
 		$qstring .=") AS j ON j.TTindex = t.TTindex ";
@@ -192,20 +203,21 @@ function check_url_against_database($url, $tags, $rating) {
 	if ($rating !== null) {
 		$qstring .= "JOIN (SELECT * FROM Ratingtable WHERE Rating >= ".$rating.") AS rat ON rat.TTindex = t.TTindex ";
 	}
-	$qstring .= "WHERE t.Uri = '".mysqli_real_escape_string($mysqlc, $url)."'";
-	// debug_print("SQL Search String is ".$qstring,"SEARCH");
-	if ($result = mysqli_query($mysqlc, $qstring)) {
-		if (mysqli_num_rows($result) > 0) {
-			// debug_print("  DATABASE Match!","RESULT");
-			mysqli_free_result($result);
-			return true;
+	$tags[] = $url;
+	$qstring .= "WHERE t.Uri = ?";
+	if ($stmt = sql_prepare_query_later($qstring)) {
+		if ($stmt->execute($tags)) {
+			if ($stmt->rowCount() > 0) {
+				return true;
+			} else {
+				return false;
+			}
 		} else {
-			// debug_print("  DATABASE NOT Match!","RESULT");
-			mysqli_free_result($result);
+			show_sql_error();
 			return false;
 		}
 	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+		show_sql_error();
 		return false;
 	}
 }

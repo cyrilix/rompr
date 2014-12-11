@@ -610,6 +610,16 @@ select
     vertical-align:middle;
 }
 
+.iconremdb
+{
+    width:14px;
+    padding-right:0px;
+    padding-top:0px;
+    padding-bottom:0px;
+    padding-left:2px;
+    vertical-align:middle;
+}
+
 .togglebutton
 {
     padding:0px;

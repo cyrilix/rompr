@@ -20,6 +20,7 @@ function playerController() {
     var timecheckcounter = 0;
     var firstconnection = true;
     var connecttimer = null;
+    var addingTracks = false;
 
     function mopidyStateChange(data) {
         debug.shout("PLAYER","Mopidy State Change",data);
@@ -192,29 +193,6 @@ function playerController() {
         }
     }
 
-	function sortByAlbum(tracks) {
-		// Takes an array of unsorted mopidy.models.track and sorts them by albums
-		// ONLY works with spotify tracks!
-		debug.log("PLAYER", "Sorting tracks into albums");
-		var albums = {};
-		for (var i in tracks) {
-			if (!albums.hasOwnProperty(tracks[i].album.uri)) {
-				albums[tracks[i].album.uri] = new Array();
-			}
-			albums[tracks[i].album.uri].push(tracks[i]);
-		}
-		for (var i in albums) {
-			albums[i].sort(function(a,b){ return a.track_no - b.track_no });
-		}
-		var result = new Array();
-		for (var i in albums) {
-			for (var j in albums[i]) {
-				result.push(albums[i][j]);
-			}
-		}
-		return result;
-	}
-
     function checkMopidyVersion() {
         if ('getVersion' in mopidy) {
             mopidy.getVersion().then(function(version){
@@ -307,65 +285,44 @@ function playerController() {
 
 	}
 
-	this.startAddingTracks = function() {
-        clearTimeout(att);
-		var t = albumtracks.shift() || tracksToAdd.shift();
-		if (t) {
-    		switch (t.type) {
-    			case "uri":
-    				if (t.findexact) {
-    					// We use this for filtering items when we add a spotify:artist link.
-    					// The reason is that adding spotify:artist:whatever to the playlist
-    					// adds every *album* that artist is on, including compilations -
-    					// thus we get loads of tracks that *aren't* by that artist.
-    					debug.log("PLAYER","addTracks has a findexact filter to apply",t.findexact,t.filterdomain);
-    					mopidy.library.findExact(t.findexact, t.filterdomain).then(function(data) {
-    						if (data[0].tracks)	tltracksToAdd = tltracksToAdd.concat(sortByAlbum(data[0].tracks));
-    						att = setTimeout(self.startAddingTracks, 200);
-    					}, consoleError);
-    				} else {
-			    		debug.log("PLAYER","addTracks Adding",t.name);
-			    		mopidy.library.lookup(t.name).then(function(tracks) {
-                            for (var i in tracks) {
-                                if (tracks[i].name.match(/^\[loading\]/)) {
-                                    debug.fail("PLAYER", "Mopidy failed to load track! Retrying");
-                                    // Mopidy will send us this track when it finally looks it up, it seems.
-                                    att = setTimeout(self.startAddingTracks, 500);
-                                    return;
-                                }
-                            }
-			    			tltracksToAdd = tltracksToAdd.concat(tracks);
-    						att = setTimeout(self.startAddingTracks, 200);
-			    		}, consoleError);
-		    		}
-	    			break;
-
-	    		case "playlist":
-	    			self.loadSpecial(t.name,null,null);
-	    			break;
-
-	    		case "item":
-		    		debug.log("PLAYER","addTracks Adding",t.name);
-	    			$.getJSON("getItems.php?item="+t.name, function(data) {
-	    				albumtracks = albumtracks.concat(data);
-						att = setTimeout(self.startAddingTracks, 200);
-	    			});
-	    			break;
-    		}
-		} else {
-			debug.log("MOPIDY","TlTracks Array is",tltracksToAdd);
-			if (tltracksToAdd.length > 0) {
-				mopidy.tracklist.add(tltracksToAdd, pladdpos, null).then( function() {
-					tltracksToAdd = [];
-					pladdpos = null;
-				}, consoleError);
-			} else {
-				infobar.notify(infobar.NOTIFY, "Couldn't find any tracks");
-				playlist.repopulate();
-				pladdpos = null;
-			}
-		}
-	}
+    function startAddingTracks() {
+        var temp = tracksToAdd;
+        tracksToAdd = [];
+        if (temp.length == 0) {
+            addingTracks = false;
+            return;
+        }
+        addingTracks = true;
+        var data = {'add': JSON.stringify(temp)};
+        data.backend = "xml";
+        for (var i in temp) {
+            if (temp[i].type == "item") {
+                if (temp[i].name.substr(0,1) == "a") {
+                    data.backend = prefs.apache_backend;
+                }
+            }
+            break;
+        }
+        if (pladdpos !== null && pladdpos > -1) {
+            data.atpos = pladdpos;
+        }
+        pladdpos = null;
+        $.ajax({
+            type: 'POST',
+            url: "player/mopidy/getItems.php",
+            data: data,
+            success: function(data) {
+                clearTimeout(att);
+                att = setTimeout(startAddingTracks, 10);
+            },
+            error: function(data) {
+                infobar.notify(infobar.NOTIFY, "Couldn't find any tracks");
+                playlist.repopulate();
+                clearTimeout(att);
+                att = setTimeout(startAddingTracks, 10);
+            }
+        });
+    }
 
 	function checkSearchDomains() {
 		if (isReady) {
@@ -561,7 +518,10 @@ function playerController() {
     				        '<div class="mh fixed"><img src="'+ipath+'toggle-closed-new.png" class="menu fixed" name="'+menuid+'"></div>'+
     				        '<input type="hidden" name="'+ref.uri+'">'+
     				        '<div class="fixed playlisticon"><img width="16px" src="'+ipath+'folder.png" /></div>'+
+                            // Adding dirs and albums by uri doesn't work, library.lookup returns empty array
+                            // '<div class="clickable clicktrack containerbox padright line expand" name="'+encodeURIComponent(ref.uri)+'">'+
                             '<div class="expand">'+ref.name+'</div>'+
+                            // '</div>'+
     				        '</div>'+
     				        '<div id="'+menuid+'" class="dropmenu notfilled"></div>';
     				        break;
@@ -579,7 +539,7 @@ function playerController() {
                             '<div class="mh fixed"><img src="'+ipath+'toggle-closed-new.png" class="menu fixed" name="'+menuid+'"></div>'+
                             '<input type="hidden" name="'+ref.uri+'">'+
                             '<div class="fixed playlisticon"><img width="16px" src="'+ipath+'document-open-folder.png" /></div>'+
-    				        '<div class="clickable clickplaylist containerbox padright line expand" name="'+encodeURIComponent(ref.uri)+'">'+
+    				        '<div class="clickable clicktrack containerbox padright line expand" name="'+encodeURIComponent(ref.uri)+'">'+
     				        '<div class="expand">'+decodeURIComponent(ref.name)+'</div>'+
     				        '</div>'+
                             '</div>'+
@@ -608,20 +568,6 @@ function playerController() {
                 debug.debug("PLAYER","Playlist : ",list);
                 mopidy.tracklist.add(list.tracks);
             });
-        });
-	}
-
-	this.loadSpecial = function(uri, play, pos) {
-		// This is used for Spotify Browse functions - just looking up the playlist
-		// or simply adding it to the tracklist can often return lots of [loading] ..
-		// track names in our playlist. So we use our internal mechanism to add the tracks
-		// one by one by URI, which forces mopidy to look them up.
-        playlist.waiting();
-		debug.log("MOPIDY","Looking up",uri);
-        mopidy.library.lookup(uri).then( function(list) {
-        	var tracks = new Array();
-        	$.each(list, function(i, e){ tracks.push({type: "uri", name: e.uri})});
-        	self.addTracks(tracks,play,pos);
         });
 	}
 
@@ -754,13 +700,6 @@ function playerController() {
 
 	this.playId = function(id) {
         debug.log("PLAYER","Playing ID",id);
-        // JEEEEZUS WEPT. Python and it's daft uber-strict type checking.
-        // Realising I needed a parseInt here took bloody ages.
-        // RANT. Everybody says that strict type checking is good. But they've all been
-        // brought up on C - so it's the way they're taught to think. To someone (me)
-        // brought up on Perl, strict type checking causes just as many headaches
-        // as loose type checking does to C people. But loose is infinitely more flexible.
-        // SO THEREFORE IT'S BETTER. rant over.
         mopidy.tracklist.filter({'tlid': [parseInt(id)]}).then( function(tltracks) {
             playTlTrack(tltracks[0]);
         }, consoleError);
@@ -835,10 +774,7 @@ function playerController() {
 		tracksToAdd = tracksToAdd.concat(tracks);
 		if (plstartpos == null || plstartpos == -1) plstartpos = playpos;
 		if (pladdpos == null || pladdpos == -1) pladdpos = at_pos;
-		if (tracks.length == tracksToAdd.length) {
-			clearTimeout(att);
-			att = setTimeout(self.startAddingTracks, 200);
-		}
+        if (addingTracks === false) startAddingTracks();
 		tracks = null;
 	}
 

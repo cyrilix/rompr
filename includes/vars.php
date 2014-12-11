@@ -1,5 +1,5 @@
 <?php
-$LISTVERSION = "1";
+$LISTVERSION = "2";
 $ALBUMSLIST = 'prefs/albums_'.$LISTVERSION.'.xml';
 $ALBUMSEARCH = 'prefs/albumsearch_'.$LISTVERSION.'.xml';
 $FILESLIST = 'prefs/files_'.$LISTVERSION.'.xml';
@@ -12,6 +12,10 @@ $ALBUM = 1;
 $covernames = array("cover", "albumart", "thumb", "albumartsmall", "front");
 $mysqlc = null;
 $backend_in_use = "";
+
+define('ROMPR_ARTIST', 0);
+define('ROMPR_ALBUM', 1);
+define('ROMPR_FILE', 2);
 
 // Note that mpd_host is relative to the APACHE SERVER not the browser.
 

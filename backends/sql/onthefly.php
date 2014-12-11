@@ -1,11 +1,9 @@
 <?php
 
-// This does on-the-fly collection updates for mopidy users
+// This does on-the-fly collection updates for mopidy users by reading in mopidy's playlists
+// So it gets called when the javascript receives a 'playlists updated' message from Mopidy.
+// Currently this only happens for Spotify
 
-// This does not put things through the collectioniser since we trust spotify to tag
-// things correctly - although currently mopidy-spotify doesn't return disc numbers
-// so multi-disc albums don't get sorted correctly. I don't intend to fix that problem
-// in rompr, mopidy-spotify needs sorting out.
 chdir('../..');
 include ("includes/vars.php");
 include ("includes/functions.php");
@@ -33,26 +31,23 @@ if ($mysqlc == null) {
 }
 
 $now = time();
-generic_sql_query("CREATE TEMPORARY TABLE Foundtracks(TTindex INT UNSIGNED NOT NULL UNIQUE, PRIMARY KEY(TTindex)) ENGINE MEMORY");
+prepareCollectionUpdate();
 generic_sql_query("CREATE TEMPORARY TABLE Existingtracks(TTindex INT UNSIGNED NOT NULL UNIQUE, PRIMARY KEY(TTindex)) ENGINE MEMORY");
-$collection = doCollection("core.playlists.get_playlists", null, null, "");
+$collection = doCollection("core.playlists.get_playlists");
 
 $artistlist = $collection->getSortedArtistList();
 foreach($artistlist as $artistkey) {
-    do_artist_database_stuff($artistkey, $now, true);
+    do_artist_database_stuff($artistkey, true);
 }
 
 // Now to delete the tracks that were there and aren't any more
 debug_print("Removing tracks that don't exist any more","ONTHEFLY");
 $delcount = 0;
-if ($result = mysqli_query($mysqlc, "SELECT TTindex FROM Existingtracks LEFT OUTER JOIN Foundtracks USING (TTindex) WHERE Foundtracks.TTindex IS NULL")) {
-	while ($obj = mysqli_fetch_object($result)) {
+if ($result = generic_sql_query("SELECT TTindex FROM Existingtracks LEFT OUTER JOIN Foundtracks USING (TTindex) WHERE Foundtracks.TTindex IS NULL")) {
+	while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 		remove_ttid($obj->TTindex);
 		$delcount++;
 	}
-	mysqli_free_result($result);
-} else {
-	debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 }
 
 if ($delcount > 0) {
@@ -63,7 +58,7 @@ remove_cruft();
 update_track_stats();
 $returninfo['stats'] = alistheader(get_stat('ArtistCount'), get_stat('AlbumCount'), get_stat('TrackCount'), format_time(get_stat('TotalTime')));
 $dur = format_time(time() - $now);
-debug_print("Database Update Took ".$dur,"ONTHEFLY");
+debug_print("On The Fly Database Update Took ".$dur,"ONTHEFLY");
 print json_encode($returninfo);
 debug_print("------------------- FINISHED -------------------","ONTHEFLY");
 

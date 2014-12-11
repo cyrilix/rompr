@@ -72,6 +72,7 @@ function doCollection($command) {
     $collection = new musicCollection($connection);
 
     debug_print("Starting Collection Scan ".$command, "MPD");
+    prepareCollectionUpdate();
 
     $files = array();
     $filecount = 0;
@@ -105,8 +106,9 @@ function doCollection($command) {
                     array_push($filedata[$parts[0]], $value);
                 } else {
                     // Prevent unwanted multiple occurrences of the same value
-                    // (seemd to be an mpd bug - am getting Disc, Track and Albumartist
-                    // twice for several tracks).
+                    // (seems to be an mpd bug or some kind of tagging thing -
+                    // am getting Disc, Track and Albumartist twice for several tracks).
+                    // The collectioniser handles unexpected arrays of results where it doesn't want them.
                     if ($value != $filedata[$parts[0]]) {
                         $filedata[$parts[0]] = array($filedata[$parts[0]], $value);
                     }

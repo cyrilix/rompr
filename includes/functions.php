@@ -235,13 +235,15 @@ function alistheader($nart, $nalb, $ntra, $tim) {
 
 function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duration, $lm, $image) {
     global $ipath;
-    if ($artist || $rating > 0 || $lm === null) {
+    if ($artist || $rating > 0) {
         print '<div class="clickable clicktrack ninesix draggable indent containerbox vertical padright" name="'.$url.'">';
         print '<div class="containerbox line">';
+    } else if ($name == "Cue Sheet") {
+        print '<div class="clickable clickcue ninesix draggable indent containerbox padright line bold" name="'.$url.'">';
     } else {
         print '<div class="clickable clicktrack ninesix draggable indent containerbox padright line" name="'.$url.'">';
     }
-    if ($number && $number != "") {
+    if ($name == "Cue Sheet" || ($number && $number != "")) {
         print '<div class="tracknumber fixed"';
         if ($numtracks > 99 || $number > 99) {
             print ' style="width:3em"';
@@ -273,25 +275,22 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
     if ((string) $name == "") $name = urldecode($url);
     print '<div class="expand">'.$name.'</div>';
     print '<div class="fixed playlistrow2">'.$duration.'</div>';
+    if ($lm === null) {
+        print '<div class="iconremdb fixed clickable clickicon clickremdb"><img height="12px" src="'.$ipath.'edit-delete.png" /></div>';
+    }
     if ($artist) {
         print '</div><div class="containerbox line">';
         print '<div class="tracknumber fixed"></div>';
         print '<div class="expand playlistrow2">'.$artist.'</div>';
         print '</div>';
     }
-    if ($rating > 0 || $lm === null) {
+    if ($rating > 0) {
         if (!$artist) {
             print '</div>';
         }
         print '<div class="containerbox line"><div class="tracknumber fixed"></div><div class="expand playlistrow2">';
-        if ($rating > 0) {
-            print '<img height="12px" src="newimages/'.trim($rating).'stars.png" />';
-        }
-        print '</div>';
-        if ($lm === null) {
-            print '<div class="playlisticon fixed clickable clickicon clickremdb"><img height="12px" src="'.$ipath.'edit-delete.png" /></div>';
-        }
-        print '</div>';
+        print '<img height="12px" src="newimages/'.trim($rating).'stars.png" />';
+        print '</div></div>';
     }
     print '</div>';
 
@@ -345,7 +344,7 @@ function noAlbumsHeader() {
     print '<div class="playlistrow2" style="padding-left:64px">'.get_int_text("label_noalbums").'</div>';
 }
 
-function albumHeader($name, $spotilink, $id, $isonefile, $exists, $searched, $imgname, $src, $date, $numtracks = null) {
+function albumHeader($name, $spotilink, $id, $exists, $searched, $imgname, $src, $date, $numtracks = null) {
     global $prefs;
     global $ipath;
     $browseable = "";
@@ -354,8 +353,6 @@ function albumHeader($name, $spotilink, $id, $isonefile, $exists, $searched, $im
     }
     if ($spotilink) {
         print '<div class="clickable clicktrack draggable containerbox menuitem'.$browseable.'" name="'.$spotilink.'">';
-    } else if ($isonefile) {
-        print '<div class="clickable clickalbum onefile draggable containerbox menuitem" name="'.$id.'">';
     } else {
         print '<div class="clickable clickalbum draggable containerbox menuitem" name="'.$id.'">';
     }
@@ -611,7 +608,11 @@ function check_mopidy_http($addr) {
 
 function get_browser_language() {
     // TODO - this method is not good enough.
-    return substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+    if (array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER)) {
+        return substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+    } else {
+        return 'en';
+    }
 }
 
 function getDomain($d) {

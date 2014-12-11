@@ -50,7 +50,16 @@ function getStreamInfo($filedata, $domain) {
             $type = "podcast";
         }
 
-        $image = (array_key_exists('Image', $filedata)) ? $filedata['Image'] : $image;
+        switch ($domain) {
+            case "tunein":
+            case "radio-de":
+            case "dirble":
+                $image = "newimages/".$domain."-logo.png";
+                break;
+        }
+
+
+        $image = (array_key_exists('Image', $filedata) && $filedata['Image'] !== null) ? $filedata['Image'] : $image;
 
         $duration = (array_key_exists('Time', $filedata) && $filedata['Time'] != 0) ? $filedata['Time'] : $duration;
 

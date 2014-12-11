@@ -4,7 +4,7 @@ include ("includes/functions.php");
 include ("international.php");
 include ("collection/collection.php");
 include ("player/".$prefs['player_backend']."/connection.php");
-include ("backends/".$prefs['apache_backend']."/backend.php");
+include ("backends/xml/backend.php");
 
 header('Content-Type: application/json; charset=utf-8');
 $collection = doCollection("playlistinfo");
@@ -21,11 +21,16 @@ function outputPlaylist() {
     $output = array();
 
     foreach ($playlist as $track) {
+        // Track artists are held in the track object possibly as an array
+        $c = $track->get_artist_string();
+        $t = $track->name;
+        // We can't return NULL in the JSON data for some reason that escapes me
+        if ($c === null) $c = "";
+        if ($t === null) $t = "";
         $info = array(
-            "title" => $track->name,
+            "title" => $t,
             "album" => $track->album,
-            // Track artists are held in the track object possibly as an array
-            "creator" => $track->get_artist_string(),
+            "creator" => $c,
             // Albumartist is always stored as a string, since the metadata bit doesn't really use it
             "albumartist" => $track->albumobject->artist,
             "compilation" => $track->albumobject->isCompilation() ? "yes" : "no",

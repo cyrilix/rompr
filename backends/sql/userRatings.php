@@ -122,11 +122,11 @@ switch ($_POST['action']) {
 										$album,
 										$date,
 										$uri,
-										null, null, null, null, null,
+										null, null, null, null,
 										md5($albumartist." ".$album),
 										null,
 										$disc,
-										null, null,
+										null,
 										$uri === null ? "local" : getDomain($uri),
 										1,
 										$trackimage);
@@ -158,11 +158,6 @@ switch ($_POST['action']) {
 							true);
 		if ($ttid != null) {
 
-			// Since mopidy-spotify doesn't return disc numbers we'll take this opportunity to update them
-			if ($disc) {
-				generic_sql_query("UPDATE Tracktable SET Disc = ".$disc." WHERE TTindex = ".$ttid);
-			}
-
 			// If we found it, just make sure it's not hidden. This is slightly trickier than it sounds
 			// because if it is it might cause a new album and/or artist to appear in the collection when
 			// we unhide it.
@@ -184,11 +179,11 @@ switch ($_POST['action']) {
 										$album,
 										$date,
 										$uri,
-										null, null, null, null, null,
+										null, null, null, null,
 										md5($albumartist." ".$album),
 										null,
 										$disc,
-										null, null,
+										null,
 										$uri === null ? "local" : getDomain($uri),
 										0,
 										$trackimage);
@@ -234,18 +229,22 @@ switch ($_POST['action']) {
 										$album,
 										$date,
 										$uri,
-										null, null, null, null, null,
+										null, null, null, null,
 										md5($albumartist." ".$album),
 										null,
 										$disc,
-										null, null,
+										null,
 										$uri === null ? "local" : getDomain($uri),
 										0,
 										$trackimage);
 		}
 		if ($ttid) {
 			foreach ($attributes as $pair) {
-				debug_print("Setting ".$pair["attribute"]." to ".$pair["value"],"USERRATING");
+				$dbg = $pair["value"];
+				if (is_array($pair["value"])) {
+					$dbg = implode($pair["value"], ", ");
+				}
+				debug_print("Setting ".$pair["attribute"]." to ".$dbg,"USERRATING");
 				$result = true;
 				$r = set_attribute($ttid, $pair["attribute"], $pair["value"]);
 				if ($r == false) {
@@ -355,10 +354,10 @@ function preparePlaylist() {
 	generic_sql_query("CREATE TABLE pltable(TTindex INT UNSIGNED NOT NULL UNIQUE)");
 }
 
-function doPlaylist($playlist) {
-	global $mysqlc;
+function doPlaylist($playlist, $limit = 10) {
 	debug_print("Loading Playlist ".$playlist,"RATINGS");
 	$sqlstring = "";
+	$tags = null;
 	switch($playlist) {
 		case "1stars":
 			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden=0 AND Rating > 0";
@@ -389,19 +388,20 @@ function doPlaylist($playlist) {
 			if (preg_match('/tag\+(.*)/', $playlist, $matches)) {
 				$taglist = split(',', $matches[1]);
 				$sqlstring = "SELECT DISTINCT TTindex FROM Tracktable JOIN TagListtable USING (TTindex) JOIN Tagtable USING (Tagindex) WHERE (";
+				$tags = array();
 				foreach ($taglist as $i => $tag) {
 					debug_print("Getting tag playlist for ".$tag,"PLAYLISTS");
+					$tags[] = trim($tag);
 					if ($i > 0) {
 						$sqlstring .= " OR ";
 					}
-					$sqlstring .=  "Tagtable.Name = '".mysqli_real_escape_string($mysqlc, trim($tag))."'";
-
+					$sqlstring .=  "Tagtable.Name = ?";
 				}
 				$sqlstring .= ") AND Tracktable.Uri IS NOT NULL AND Tracktable.Hidden=0 ";
 			}
 			break;
 	}
-	$uris = getAllURIs($sqlstring);
+	$uris = getAllURIs($sqlstring, $limit, $tags);
 	$json = array();
 	foreach ($uris as $u) {
 		array_push($json, array( 'type' => 'uri', 'name' => $u));

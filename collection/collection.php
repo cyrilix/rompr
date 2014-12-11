@@ -25,6 +25,8 @@ $collection = null;
 
 $dbterms = array( 'tags' => null, 'rating' => null );
 
+$trackbytrack = true;
+
 class album {
     public function __construct($name, $artist, $domain) {
         global $numalbums;
@@ -41,7 +43,6 @@ class album {
         $this->artistobject = null;
         $this->numOfDiscs = -1;
         $this->numOfTrackOnes = 0;
-        $this->isonefile = true;
         $numalbums++;
     }
 
@@ -56,14 +57,16 @@ class album {
         if ($this->datestamp == null) {
             $this->datestamp = $object->datestamp;
         }
-        if ($this->numOfDiscs < $object->disc) {
+        if ($object->disc !== null && $this->numOfDiscs < $object->disc) {
             $this->numOfDiscs = $object->disc;
         }
         if ($object->number == 1) {
             $this->numOfTrackOnes++;
         }
-        if (!$object->playlist) {
-            $this->isonefile = false;
+        if ($object->playlist) {
+            $t = new track("Cue Sheet",$object->playlist,0,0,$object->datestamp,$object->genre,$object->artist,$this->name,$this->folder,
+                            "cue", null, null, null, null, $this->artist, $object->disc, null, null, null, null, null, null, null, $object->lastmodified, null, null);
+            array_unshift($this->tracks, $t);
         }
         $object->setAlbumObject($this);
     }
@@ -124,20 +127,21 @@ class album {
                 // But not all of them do so we need a fallback.
                 if ($image == "") $image = $ipath."podcast-logo.png";
                 break;
+
             case "youtube":
             case "soundcloud":
                 // Youtube and SoundCloud return album images, but it makes more
                 // sense to use them as track images. This is handled in the track
                 // object BUT $this->image will also be set to the same image because
                 // mopidy returns it as an album image, so this is a kind of hacky thing.
-            case "tunein":
-            case "radio-de":
-            case "dirble":
+                $image = "newimages/".$this->domain."-logo.png";
+                break;
+
             case "bassdrive":
             case "internetarchive":
                 // All of these don't return images so we display something nicer than
                 // a blank silvery CD.
-                $image = "newimages/".$this->domain."-logo.png";
+                if ($image == "") $image = "newimages/".$this->domain."-logo.png";
                 break;
         }
 
@@ -175,7 +179,7 @@ class album {
             // as discs and only do the sort if they're not the same. This'll also
             // sort out badly tagged local files. It's essential that disc numbers are set
             // because the database will not find the tracks otherwise.
-            if ($this->numOfTrackOnes <= 1 || $this->numOfTrackOnes == $this->numOfDiscs) return $this->numOfDiscs;
+            if ($this->numOfDiscs > 0 && ($this->numOfTrackOnes <= 1 || $this->numOfTrackOnes == $this->numOfDiscs)) return $this->numOfDiscs;
         }
 
         // For XML we have to do the sort every time, since we need the tracks to be in order
@@ -183,7 +187,7 @@ class album {
         $discs = array();
         $number = 1;
         foreach ($this->tracks as $ob) {
-            if ($ob->number) {
+            if ($ob->number !== '') {
                 $track_no = intval($ob->number);
             } else {
                 $track_no = $number;
@@ -222,7 +226,6 @@ class album {
             return null;
         }
     }
-
 }
 
 class artist {
@@ -282,12 +285,11 @@ class track {
         $this->genre = $genre;
         $this->folder = $directory;
         $this->albumartist = $albumartist;
-        $this->disc = $disc;
+        $this->disc = $disc === null ? 1 : $disc;
         $this->original_image = $origimage;
         $this->playlist = $playlist;
         $this->lastmodified = $lastmodified;
         $this->image = $image;
-        // Only used by playlist
         $this->albumobject = null;
         $this->type = $type;
         $this->backendid = $backendid;
@@ -385,9 +387,7 @@ class musicCollection {
                                 $origimage, $spotialbum, $spotiartist, $domain, $cuefile, $lastmodified,
                                 $linktype, $composer, $performers) {
 
-        global $current_album, $current_artist, $abm, $current_domain, $playlist, $prefs, $backend_in_use;
-
-        // debug_print("New Track ".$name." ".$file." ".$album." ".$domain." ".$directory,"COLLECTION");
+        global $current_album, $current_artist, $abm, $current_domain, $playlist, $prefs, $backend_in_use, $trackbytrack;
 
         if ($prefs['ignore_unplayable'] == "true" && substr($name, 0, 12) == "[unplayable]") {
             return true;
@@ -395,6 +395,9 @@ class musicCollection {
         if (substr($name, 0, 9) == "[loading]") {
             return true;
         }
+
+        // NOTE: linktype of ROMPR_ARTIST or ROMPR_ALBUM will not get here if the backend is SQL
+        // - we're only interested in these when we search for stuff and search uses the xml backend
 
         $sortartist = ($albumartist == null) ? $artist : $albumartist;
         // For sorting internet streams from mopidy backends that don't
@@ -414,16 +417,26 @@ class musicCollection {
         // All of the above possibilites (except $station) can come in from either backend
         // as an array of strings. For sorting the collection we want one string.
         $sortartist = concatenate_artist_names($sortartist);
+        //Some discogs tags have 'Various' instead of 'Various Artists'
+        if ($sortartist == "Various") {
+            $sortartist = "Various Artists";
+        }
+
+        if ($trackbytrack && $backend_in_use == "sql" && $albumartist !== null && $disc !== null) {
+            $t = new track($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
+                            $type, $image, $backendid, $playlistpos, $station,
+                            $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist,
+                            $mbtrack, $origimage, $cuefile, $lastmodified, $composer, $performers);
+
+            do_track_by_track($sortartist, $album, $domain, $spotialbum, $t);
+            return true;
+        }
 
         $artistkey = "";
         if ($backend_in_use == "sql") {
             $artistkey = strtolower($sortartist);
         } else {
             $artistkey = strtolower(preg_replace('/^The /i', '', $sortartist));
-        }
-        //Some discogs tags have 'Various' instead of 'Various Artists'
-        if ($artistkey == "various") {
-            $artistkey = "various artists";
         }
 
         // If artist doesn't exist, create it - indexed by all lower case name for convenient sorting and grouping
@@ -434,15 +447,15 @@ class musicCollection {
         if ($this->artists[$artistkey]->spotilink == null ) {
             if ($spotiartist != null) {
                 $this->artists[$artistkey]->spotilink = $spotiartist;
-            } else if ($linktype == "artist") {
+            } else if ($linktype == ROMPR_ARTIST) {
                 $this->artists[$artistkey]->spotilink = $file;
             }
         }
 
-        if ($linktype == 'artist') return true;
+        if ($linktype == ROMPR_ARTIST) return true;
 
         // Keep albums from different domains separate
-        if ($linktype == 'album') {
+        if ($linktype == ROMPR_ALBUM) {
             $abm = $this->findAlbum($album, $artistkey, null, $domain);
             if ($abm == false) {
                 $abm = new album($album, $sortartist, $domain);
@@ -630,7 +643,7 @@ function process_file($collection, $filedata) {
     // Backend-Supplied LastModified Date
     $lastmodified = (array_key_exists('Last-Modified',$filedata)) ? unwanted_array($filedata['Last-Modified']) : 0;
     // Disc Number
-    $disc = (array_key_exists('Disc', $filedata)) ? format_tracknum(ltrim(unwanted_array($filedata['Disc']), '0')) : 1;
+    $disc = (array_key_exists('Disc', $filedata)) ? format_tracknum(ltrim(unwanted_array($filedata['Disc']), '0')) : null;
     // Musicbrainz Album ID
     $mbalbum = (array_key_exists('MUSICBRAINZ_ALBUMID', $filedata)) ? unwanted_array($filedata['MUSICBRAINZ_ALBUMID']) : "";
     // Composer(s)
@@ -667,12 +680,12 @@ function process_file($collection, $filedata) {
 
     if (!array_key_exists('linktype', $filedata)) {
         if (preg_match('/^.*?:artist:/', $file)) {
-            $linktype = "artist";
+            $linktype = ROMPR_ARTIST;
             $spotiartist = $file;
         } else if (preg_match('/^.*?:album:/', $file)) {
-            $linktype = "album";
+            $linktype = ROMPR_ALBUM;
         } else {
-            $linktype = "file";
+            $linktype = ROMPR_FILE;
         }
     } else {
         $linktype = $filedata['linktype'];
@@ -680,7 +693,7 @@ function process_file($collection, $filedata) {
 
     // Sometimes the file domain can be http but the album domain is correct
     // this is true eg for bassdrive
-    if ($linktype == "file" && $spotialbum !== null &&
+    if ($linktype == ROMPR_FILE && $spotialbum !== null &&
         getDomain($spotialbum) != getDomain($file)) {
         $domain = getDomain($spotialbum);
     }

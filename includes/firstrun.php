@@ -27,10 +27,9 @@ if (!is_dir('prefs/jsoncache/lyrics')) {
 	mkdir('prefs/jsoncache/lyrics');
 }
 
-if ($prefs['apache_backend'] == 'sql' && $mysqlc) {
+if ($prefs['apache_backend'] == 'sql') {
 	list($result, $message) = check_sql_tables();
 	if ($result == false) {
-		mysqli_close($mysqlc);
 		initfail($message);
 	}
 }
@@ -48,7 +47,6 @@ function initfail($message) {
 <title>Badgers!</title>
 </head>
 <body>
-<br><br><br><br>
 <h2 align="center" style="font-size:300%">SQL Server Error!</h2>
 <br><br>
 <h2 align="center">It's all gone horribly wrong</h2>
@@ -57,6 +55,8 @@ function initfail($message) {
 <h3 align="center">The message was:</h3><br>
 <?php
 	print '<div class="bordered" style="width:75%;margin:auto"><p align="center"><b>'.$message.'</b></p></div></body></html>';
+	askForMpdValues("");
 	exit(0);
+
 }
 ?>

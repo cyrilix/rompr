@@ -132,7 +132,7 @@ function onCollectionClicked(event) {
         if (clickedElement.hasClass("clickalbum")) {
             event.stopImmediatePropagation();
             albumSelect(event, clickedElement);
-        } else if (clickedElement.hasClass("clicktrack")) {
+        } else if (clickedElement.hasClass("clicktrack") || clickedElement.hasClass("clickcue")) {
             event.stopImmediatePropagation();
             trackSelect(event, clickedElement);
         }
@@ -149,6 +149,9 @@ function onCollectionDoubleClicked(event) {
     } else if (clickedElement.hasClass("clicktrack")) {
         event.stopImmediatePropagation();
         playlist.addtrack(clickedElement);
+    } else if (clickedElement.hasClass("clickcue")) {
+        event.stopImmediatePropagation();
+        playlist.addcue(clickedElement);
     }
 }
 
@@ -181,9 +184,6 @@ function onFileCollectionDoubleClicked(event) {
     } else if (clickedElement.hasClass("clickcue")) {
         event.stopImmediatePropagation();
         playlist.addcue(clickedElement);
-    } else if (clickedElement.hasClass("clickplaylist")) {
-        event.stopImmediatePropagation();
-        player.controller.loadSpecial(decodeURIComponent(clickedElement.attr("name")), playlist.playFromEnd(), null);
     } else if (clickedElement.hasClass("clickloadplaylist")) {
         event.stopImmediatePropagation();
         playlist.load(clickedElement.prev().prev().attr('name'));
@@ -320,7 +320,7 @@ function doAlbumMenu(event, element, inbrowser) {
                     });
                     if (inbrowser) {
                         $(this).find('.menu').addClass("infoclick plugclickable");
-                        $(this).find('.playlisticon').addClass("infoclick plugclickable").removeClass('clickable')
+                        $(this).find('.iconremdb').addClass("infoclick plugclickable").removeClass('clickable')
                             .prev().html('<img class="infoclick clickbuytrack plugclickable" height="20px" style="vertical-align:middle" src="'+ipath+'cart.png">');
                     }
                 });

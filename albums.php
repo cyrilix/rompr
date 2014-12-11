@@ -51,7 +51,6 @@ if (array_key_exists('item', $_REQUEST)) {
     include ("player/".$player_backend."/connection.php");
     include ("collection/collection.php");
     include( "collection/dbsearch.php");
-    $domains = (array_key_exists('domains', $_REQUEST)) ? $_REQUEST['domains'] : null;
     $st = array();
     foreach ($_REQUEST['mopidysearch'] as $key => $term) {
         if ($key == "tag") {
@@ -62,7 +61,10 @@ if (array_key_exists('item', $_REQUEST)) {
             $st[$key] = $term;
         }
     }
-    $collection = doCollection('search',$st,$domains);
+    if (array_key_exists('domains', $_REQUEST)) {
+        $st['uris'] = $_REQUEST['domains'];
+    }
+    $collection = doCollection('core.library.search',$st);
     createAlbumsList($ALBUMSEARCH, "b");
     dumpAlbums('balbumroot');
     print '<div class="separator"></div>';
@@ -100,6 +102,8 @@ if (array_key_exists('item', $_REQUEST)) {
 } else if (array_key_exists('rebuild', $_REQUEST)) {
     // This is a request to rebuild the music collection coming from either
     // the mpd or mopidy controller
+    debug_print("======================================================================","TIMINGS");
+    debug_print("== Starting Collection Update","TIMINGS");
     $now = time();
     include ("player/".$player_backend."/connection.php");
     include ("collection/collection.php");
@@ -107,17 +111,8 @@ if (array_key_exists('item', $_REQUEST)) {
     createAlbumsList($ALBUMSLIST, "a");
 	dumpAlbums('aalbumroot');
     close_player();
-    debug_print("Collection Update took ".format_time(time() - $now),"COLLECTION");
-} else {
-    // // This can only be a mopidy search requiring parsing
-    // // I'm not even sure this code is required any more
-    include ("player/".$player_backend."/connection.php");
-    include ("collection/collection.php");
-    include( "collection/dbsearch.php");
-    $collection = doCollection(null);
-    createAlbumsList($ALBUMSEARCH, "b");
-    dumpAlbums('balbumroot');
-    print '<div class="separator"></div>';
+    debug_print("== Collection Update And Send took ".format_time(time() - $now),"TIMINGS");
+    debug_print("======================================================================","TIMINGS");
 }
 
 function mopidyfy($collection) {
@@ -138,7 +133,7 @@ function mopidyfy($collection) {
             foreach($albumlist as $album) {
                 foreach($album->tracks as $trackobj) {
                     $a = $trackobj->get_artist_string();
-                    $trackartist = ($a != null) ? $trackobj->$a : $albumartist;
+                    $trackartist = ($a != null) ? $a : $albumartist;
                     $track = array(
                         "album" => array(
                             "artists" => array(

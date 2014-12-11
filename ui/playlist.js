@@ -275,7 +275,7 @@ function Playlist() {
                         $(element).find('input').each( function() {
                             switch ($(this).val()) {
                                 case "needsfiltering":
-                                    options.findexact = {artist: $(element).children('.saname').text()};
+                                    options.findexact = {artist: [$(element).children('.saname').text()]};
                                     options.filterdomain = ['spotify:'];
                                     debug.log("PLAYLIST", "Adding Spotify artist",$(element).children('.saname').text());
                                     break;
@@ -472,7 +472,7 @@ function Playlist() {
         $.each(element.children('input'), function() {
             switch ($(this).val()) {
                 case "needsfiltering":
-                    options[0].findexact = {artist: element.children('.saname').text()};
+                    options[0].findexact = {artist: [element.children('.saname').text()]};
                     options[0].filterdomain = ['spotify:'];
                     debug.log("PLAYLIST", "Adding Spotify artist",element.children('.saname').text());
                     break;

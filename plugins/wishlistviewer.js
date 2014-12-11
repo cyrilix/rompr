@@ -3,13 +3,13 @@ var wishlistViewer = function() {
 	var wlv = null;
 
 	function removeTrackFromWl(element) {
-	    var trackDiv = element.parent().parent();
+	    var trackDiv = element.parent();
 	    var albumDiv = trackDiv.parent();
 	    var albumHeaderDiv = albumDiv.prev();
 	    var albumContainer = albumHeaderDiv.parent();
 	    var artistDiv = albumContainer.parent();
 
-	    var title = $(trackDiv.children()[0]).children('.expand').html();
+	    var title = trackDiv.children('.expand').html();
 	    var album = albumHeaderDiv.children('.expand').html();
 	    album = album.replace(/\s*<span.*$/,'');
 	    var artist = $(artistDiv.children()[0]).children('.expand').html();
@@ -24,9 +24,6 @@ var wishlistViewer = function() {
 	        dataType: 'json',
 	        success: function(rdata) {
 	            debug.log("DB TRACKS","Track was removed");
-	            if (rdata && rdata.hasOwnProperty('stats')) {
-	                $("#fothergill").html(rdata.stats);
-	            }
 	            trackDiv.fadeOut('fast', function() {
 	                trackDiv.remove();
 	                if (albumDiv.children().length == 5) {
@@ -54,12 +51,12 @@ var wishlistViewer = function() {
 	}
 
 	function getTrackBuyLinks(element) {
-	    var trackDiv = element.parent().parent().parent();
+	    var trackDiv = element.parent().parent();
 	    var albumDiv = trackDiv.parent();
 	    var albumHeaderDiv = albumDiv.prev();
 	    var albumContainer = albumHeaderDiv.parent();
 	    var artistDiv = albumContainer.parent();
-	    var title = unescapeHtml($(trackDiv.children()[0]).children('.expand').html());
+	    var title = unescapeHtml(trackDiv.children('.expand').html());
 	    var artist = unescapeHtml($(artistDiv.children()[0]).children('.expand').html());
 	    debug.log("DB_TRACKS","Getting Buy Links For",title,artist);
 	    makeWaitingIcon(element);

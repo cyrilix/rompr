@@ -66,8 +66,11 @@ function saveImage($fname, $in_collection, $stream) {
     // -alpha remove removes the alpha (transparency) channel if it exists - JPEG doesn't have one of these and
     // trying to resize PNGs with alpha channels and save them as JPEGs gives horrid results with convert
     $o = array();
+    debug_print("Creating file ".$main_file,"SAVEIMAGE");
     $r = exec( $convert_path."convert \"".$download_file."\" -resize 82x82 -background black -alpha remove -gravity center -extent 82x82 \"".$main_file."\" 2>&1", $o);
+    debug_print("Creating file ".$small_file,"SAVEIMAGE");
     $r = exec( $convert_path."convert \"".$download_file."\" -resize 32x32 -background black -alpha remove -gravity center -extent 32x32 \"".$small_file."\" 2>&1", $o);
+    debug_print("Creating file ".$anglofile,"SAVEIMAGE");
     $r = exec( $convert_path."convert \"".$download_file."\" -background black -alpha remove \"".$anglofile."\" 2>&1", $o);
 
     return array($small_file, $main_file, $anglofile);

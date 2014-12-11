@@ -5,8 +5,9 @@ connect_to_database();
 $artist_created = false;
 $album_created = false;
 $backend_in_use = "sql";
-
-// In the following, we're using a mixture of prepared statement (mysqli_prepare) and just raw queries.
+$find_track = null;
+$update_track = null;
+// In the following, we're using a mixture of prepared statements and raw queries.
 // Raw queries are easier to handle in many cases, but prepared statements take a lot of fuss away
 // when dealing with strings, as it automatically escapes everything.
 
@@ -29,22 +30,16 @@ function find_item($uri,$title,$artist,$album,$albumartist,$urionly) {
 	// the track  - currently from either the Last.FM importer or when add a spotify album to the collection
 
 	debug_print("Looking for item ".$title,"MYSQL");
-	global $mysqlc;
-
 	$ttid = null;
+
 	if ($uri) {
 		debug_print("  Trying by URI ".$uri,"MYSQL");
-		if ($stmt = mysqli_prepare($mysqlc, "SELECT TTindex FROM Tracktable WHERE Uri = ?")) {
-			mysqli_stmt_bind_param($stmt, "s", $uri);
-			mysqli_stmt_execute($stmt);
-		    mysqli_stmt_bind_result($stmt, $ttid);
-		    mysqli_stmt_fetch($stmt);
-		    mysqli_stmt_close($stmt);
-		    if ($ttid) {
+		if ($stmt = sql_prepare_query("SELECT TTindex FROM Tracktable WHERE Uri = ?", $uri)) {
+			$ttidobj = $stmt->fetch(PDO::FETCH_OBJ);
+			$ttid = $ttidobj ? $ttidobj->TTindex : null;
+			if ($ttid) {
 				debug_print("    Found TTindex ".$ttid,"MYSQL");
-		    }
-		} else {
-			debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+			}
 		}
 	}
 	if ($artist == null || $title == null || ($urionly && $uri)) {
@@ -56,81 +51,56 @@ function find_item($uri,$title,$artist,$album,$albumartist,$urionly) {
 			// Note. We regard the same track on a different album as a different version. Unlike Last.FM do. Silly Buggers.
 			// So, first try looking up by title, track artist, and album
 			debug_print("  Trying by artist ".$artist." album ".$album." and track ".$title,"MYSQL");
-			if ($stmt = mysqli_prepare($mysqlc, "SELECT TTindex FROM Tracktable JOIN Artisttable USING (Artistindex) JOIN Albumtable USING (Albumindex) WHERE STRCMP(Title, ?) = 0 AND STRCMP(Artistname, ?) = 0 AND STRCMP(Albumname, ?) = 0")) {
-				mysqli_stmt_bind_param($stmt, "sss", $title, $artist, $album);
-				mysqli_stmt_execute($stmt);
-			    mysqli_stmt_bind_result($stmt, $ttid);
-			    mysqli_stmt_fetch($stmt);
-			    mysqli_stmt_close($stmt);
-			    if ($ttid) {
+			if ($stmt = sql_prepare_query("SELECT TTindex FROM Tracktable JOIN Artisttable USING (Artistindex) JOIN Albumtable USING (Albumindex) WHERE STRCMP(Title, ?) = 0 AND STRCMP(Artistname, ?) = 0 AND STRCMP(Albumname, ?) = 0", $title, $artist, $album)) {
+				$ttidobj = $stmt->fetch(PDO::FETCH_OBJ);
+				$ttid = $ttidobj ? $ttidobj->TTindex : null;
+				if ($ttid) {
 					debug_print("    Found TTindex ".$ttid,"MYSQL");
-			    }
-			} else {
-				debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+				}
 			}
 			// Now try a similar lookup but using the albumartist instead - track artists can vary by backend, and can come back in
 			// a different order sometimes so we could have $artist = "A & B" but it's in the database as "B & A".
 			// This shouldn't happen with albumartists
 			if ($ttid == null && $albumartist !== null) {
 				debug_print("  Trying by albumartist ".$albumartist." album ".$album." and track ".$title,"MYSQL");
-				if ($stmt = mysqli_prepare($mysqlc, "SELECT TTindex FROM Tracktable JOIN Albumtable USING (Albumindex) JOIN Artisttable ON Albumtable.AlbumArtistindex = Artisttable.Artistindex WHERE STRCMP(Title, ?) = 0 AND STRCMP (Artistname, ?) = 0 AND STRCMP (Albumname, ?) = 0")) {
-					mysqli_stmt_bind_param($stmt, "sss", $title, $albumartist, $album);
-					mysqli_stmt_execute($stmt);
-				    mysqli_stmt_bind_result($stmt, $ttid);
-				    mysqli_stmt_fetch($stmt);
-				    mysqli_stmt_close($stmt);
-				    if ($ttid) {
+				if ($stmt = sql_prepare_query("SELECT TTindex FROM Tracktable JOIN Albumtable USING (Albumindex) JOIN Artisttable ON Albumtable.AlbumArtistindex = Artisttable.Artistindex WHERE STRCMP(Title, ?) = 0 AND STRCMP (Artistname, ?) = 0 AND STRCMP (Albumname, ?) = 0", $title, $albumartist, $album)) {
+					$ttidobj = $stmt->fetch(PDO::FETCH_OBJ);
+					$ttid = $ttidobj ? $ttidobj->TTindex : null;
+					if ($ttid) {
 						debug_print("    Found TTindex ".$ttid,"MYSQL");
-				    }
-				} else {
-					debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+					}
 				}
-
 			}
 			if ($ttid == null) {
 				// Finally look for album NULL which will be a wishlist item added via a radio station
 				debug_print("  Trying by artist ".$artist." album NULL and track ".$title,"MYSQL");
-				if ($stmt = mysqli_prepare($mysqlc, "SELECT TTindex FROM Tracktable JOIN Artisttable USING (Artistindex) WHERE STRCMP(Title, ?) = 0 AND STRCMP(Artistname, ?) = 0 AND Albumindex IS NULL")) {
-					mysqli_stmt_bind_param($stmt, "ss", $title, $artist);
-					mysqli_stmt_execute($stmt);
-				    mysqli_stmt_bind_result($stmt, $ttid);
-				    mysqli_stmt_fetch($stmt);
-				    mysqli_stmt_close($stmt);
-				    if ($ttid) {
+				if ($stmt = sql_prepare_query("SELECT TTindex FROM Tracktable JOIN Artisttable USING (Artistindex) WHERE STRCMP(Title, ?) = 0 AND STRCMP(Artistname, ?) = 0 AND Albumindex IS NULL", $title, $artist)) {
+					$ttidobj = $stmt->fetch(PDO::FETCH_OBJ);
+					$ttid = $ttidobj ? $ttidobj->TTindex : null;
+					if ($ttid) {
 						debug_print("    Found TTindex ".$ttid,"MYSQL");
-				    }
-				} else {
-					debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+					}
 				}
 			}
 		} else {
 			// No album supplied - ie this is from a radio stream. First look for a match where there is something in the album field
 			debug_print("  Trying by artist ".$artist." album NOT NULL and track ".$title,"MYSQL");
-			if ($stmt = mysqli_prepare($mysqlc, "SELECT TTindex FROM Tracktable JOIN Artisttable USING (Artistindex) WHERE STRCMP(Title, ?) = 0 AND STRCMP(Artistname, ?) = 0 AND Albumindex IS NOT NULL")) {
-				mysqli_stmt_bind_param($stmt, "ss", $title, $artist);
-				mysqli_stmt_execute($stmt);
-			    mysqli_stmt_bind_result($stmt, $ttid);
-			    mysqli_stmt_fetch($stmt);
-			    mysqli_stmt_close($stmt);
-			    if ($ttid) {
+			debug_print("  Trying by artist ".$artist." album NOT NULL and track ".$title,"MYSQL");
+			if ($stmt = sql_prepare_query("SELECT TTindex FROM Tracktable JOIN Artisttable USING (Artistindex) WHERE STRCMP(Title, ?) = 0 AND STRCMP(Artistname, ?) = 0 AND Albumindex IS NOT NULL", $title, $artist)) {
+				$ttidobj = $stmt->fetch(PDO::FETCH_OBJ);
+				$ttid = $ttidobj ? $ttidobj->TTindex : null;
+				if ($ttid) {
 					debug_print("    Found TTindex ".$ttid,"MYSQL");
-			    }
-			} else {
-				debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+				}
 			}
 			if ($ttid == null) {
 				debug_print("  Trying by artist ".$artist." album NULL and track ".$title,"MYSQL");
-				if ($stmt = mysqli_prepare($mysqlc, "SELECT TTindex FROM Tracktable JOIN Artisttable USING (Artistindex) WHERE STRCMP(Title, ?) = 0 AND STRCMP(Artistname, ?) = 0 AND Albumindex IS NULL")) {
-					mysqli_stmt_bind_param($stmt, "ss", $title, $artist);
-					mysqli_stmt_execute($stmt);
-				    mysqli_stmt_bind_result($stmt, $ttid);
-				    mysqli_stmt_fetch($stmt);
-				    mysqli_stmt_close($stmt);
-				    if ($ttid) {
+				if ($stmt = sql_prepare_query("SELECT TTindex FROM Tracktable JOIN Artisttable USING (Artistindex) WHERE STRCMP(Title, ?) = 0 AND STRCMP(Artistname, ?) = 0 AND Albumindex IS NULL", $title, $artist)) {
+					$ttidobj = $stmt->fetch(PDO::FETCH_OBJ);
+					$ttid = $ttidobj ? $ttidobj->TTindex : null;
+					if ($ttid) {
 						debug_print("    Found TTindex ".$ttid,"MYSQL");
-				    }
-				} else {
-					debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+					}
 				}
 			}
 		}
@@ -142,36 +112,24 @@ function find_item($uri,$title,$artist,$album,$albumartist,$urionly) {
 
 function find_wishlist_item($artist, $album, $title) {
 	debug_print("Looking for wishlist item","MYSQL");
-	global $mysqlc;
-
 	$ttid = null;
 	if ($album && $album != "[Unknown]") {
 		debug_print("  Trying by artist ".$artist." album ".$album." and track ".$title,"MYSQL");
-		if ($stmt = mysqli_prepare($mysqlc, "SELECT TTindex FROM Tracktable JOIN Artisttable USING (Artistindex) JOIN Albumtable USING (Albumindex) WHERE STRCMP(Title, ?) = 0 AND STRCMP(Artistname, ?) = 0 AND STRCMP(Albumname, ?) = 0 AND Tracktable.Uri IS NULL")) {
-			mysqli_stmt_bind_param($stmt, "sss", $title, $artist, $album);
-			mysqli_stmt_execute($stmt);
-		    mysqli_stmt_bind_result($stmt, $ttid);
-		    mysqli_stmt_fetch($stmt);
-		    mysqli_stmt_close($stmt);
-		    if ($ttid) {
+		if ($stmt = sql_prepare_query("SELECT TTindex FROM Tracktable JOIN Artisttable USING (Artistindex) JOIN Albumtable USING (Albumindex) WHERE STRCMP(Title, ?) = 0 AND STRCMP(Artistname, ?) = 0 AND STRCMP(Albumname, ?) = 0 AND Tracktable.Uri IS NULL", $title, $artist, $album)) {
+			$ttidobj = $stmt->fetch(PDO::FETCH_OBJ);
+			$ttid = $ttidobj ? $ttidobj->TTindex : null;
+			if ($ttid) {
 				debug_print("    Found TTindex ".$ttid,"MYSQL");
-		    }
-		} else {
-			debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+			}
 		}
 	} else {
 		debug_print("  Trying by artist ".$artist." and track ".$title,"MYSQL");
-		if ($stmt = mysqli_prepare($mysqlc, "SELECT TTindex FROM Tracktable JOIN Artisttable USING (Artistindex) WHERE STRCMP(Title, ?) = 0 AND STRCMP(Artistname, ?) = 0 AND Albumindex IS NULL AND Tracktable.Uri IS NULL")) {
-			mysqli_stmt_bind_param($stmt, "ss", $title, $artist);
-			mysqli_stmt_execute($stmt);
-		    mysqli_stmt_bind_result($stmt, $ttid);
-		    mysqli_stmt_fetch($stmt);
-		    mysqli_stmt_close($stmt);
-		    if ($ttid) {
+		if ($stmt = sql_prepare_query("SELECT TTindex FROM Tracktable JOIN Artisttable USING (Artistindex) WHERE STRCMP(Title, ?) = 0 AND STRCMP(Artistname, ?) = 0 AND Albumindex IS NULL AND Tracktable.Uri IS NULL", $title, $artist)) {
+			$ttidobj = $stmt->fetch(PDO::FETCH_OBJ);
+			$ttid = $ttidobj ? $ttidobj->TTindex : null;
+			if ($ttid) {
 				debug_print("    Found TTindex ".$ttid,"MYSQL");
-		    }
-		} else {
-			debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+			}
 		}
 	}
 	return $ttid;
@@ -179,8 +137,8 @@ function find_wishlist_item($artist, $album, $title) {
 }
 
 function create_new_track($title, $artist, $trackno, $duration, $albumartist, $spotilink, $image, $album, $date, $uri,
-						  $trackai, $albumai, $albumi, $isonefile, $searched, $imagekey, $lastmodified, $disc, $ambid,
-						  $numdiscs, $domain, $hidden, $trackimage) {
+						  $trackai, $albumai, $albumi, $searched, $imagekey, $lastmodified, $disc, $ambid,
+						  $domain, $hidden, $trackimage) {
 	debug_print("Adding New Track ".$title." No: ".$trackno." Hidden: ".$hidden,"MYSQL");
 	global $mysqlc;
 	global $artist_created;
@@ -207,7 +165,7 @@ function create_new_track($title, $artist, $trackno, $duration, $albumartist, $s
 	if ($albumi == null) {
 		// Does the album exist?
 		if ($album) {
-			$albumi = check_album($album, $albumai, $spotilink, $image, $date, $isonefile, $searched, $imagekey, $ambid, $numdiscs, $domain, true);
+			$albumi = check_album($album, $albumai, $spotilink, $image, $date, $searched, $imagekey, $ambid, $domain, true);
 			if ($albumi == null) {
 				return null;
 			}
@@ -215,37 +173,21 @@ function create_new_track($title, $artist, $trackno, $duration, $albumartist, $s
 	}
 
 	$retval = null;
-	if ($stmt = mysqli_prepare($mysqlc, "INSERT INTO Tracktable (Title, Albumindex, Trackno, Duration, Artistindex, Uri, LastModified, Disc, Hidden) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-		mysqli_stmt_bind_param($stmt, "siiiisiii", $title, $albumi, $trackno, $duration, $trackai, $uri, $lastmodified, $disc, $hidden);
-		if (mysqli_stmt_execute($stmt)) {
-			$retval = mysqli_insert_id($mysqlc);
-			debug_print("Created track ".$title." with TTindex ".$retval,"MYSQL");
-		} else {
-			debug_print("    MYSQL Error on track creation: ".mysqli_error($mysqlc),"MYSQL");
-		}
-	    mysqli_stmt_close($stmt);
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+	if ($stmt = sql_prepare_query("INSERT INTO Tracktable (Title, Albumindex, Trackno, Duration, Artistindex, Uri, LastModified, Disc, Hidden) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		$title, $albumi, $trackno, $duration, $trackai, $uri, $lastmodified, $disc, $hidden))
+	{
+		$retval = $mysqlc->lastInsertId();
+		debug_print("Created track ".$title." with TTindex ".$retval,"MYSQL");
 	}
 
 	if ($retval && $trackimage) {
-
 		// What are trackimages?
 		// Certain backends (youtube and soundcloud) return an image but using it as an album image doesn't make
 		// a lot of sense visually. So for these tracks we use it as a track image which will be displayed
 		// alongside the track in the collection and the playlist. The album images for these sites
 		// will always be the site logo, as set when the collection is created
-
-		if ($stmt = mysqli_prepare($mysqlc, "INSERT INTO Trackimagetable (TTindex, Image) VALUES (?, ?)")) {
-			mysqli_stmt_bind_param($stmt, "is", $retval, $trackimage);
-			if (mysqli_stmt_execute($stmt)) {
-				debug_print("Added Image for track","MYSQL");
-			} else {
-				debug_print("    MYSQL Error on track creation: ".mysqli_error($mysqlc),"MYSQL");
-			}
-		    mysqli_stmt_close($stmt);
-		} else {
-			debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+		if ($stmt = sql_prepare_query("INSERT INTO Trackimagetable (TTindex, Image) VALUES (?, ?)", $retval, $trackimage)) {
+			debug_print("Added Image for track","MYSQL");
 		}
 	}
 
@@ -253,35 +195,27 @@ function create_new_track($title, $artist, $trackno, $duration, $albumartist, $s
 }
 
 function check_artist($artist, $upflag = false) {
-	global $mysqlc;
 	global $artist_created;
 	$index = null;
-	if ($stmt = mysqli_prepare($mysqlc, "SELECT Artistindex FROM Artisttable WHERE STRCMP(Artistname, ?) = 0")) {
-		mysqli_stmt_bind_param($stmt, "s", $artist);
-		mysqli_stmt_execute($stmt);
-	    mysqli_stmt_bind_result($stmt, $index);
-	    mysqli_stmt_fetch($stmt);
-	    mysqli_stmt_close($stmt);
+	if ($stmt = sql_prepare_query("SELECT Artistindex FROM Artisttable WHERE STRCMP(Artistname, ?) = 0", $artist)) {
+		$obj = $stmt->fetch(PDO::FETCH_OBJ);
+		$index = $obj ? $obj->Artistindex : null;
 	    if ($index) {
 	    	if ($upflag) {
 				// For when we add new album artists...
 				// Need to check whether the artist we now have has any VISIBLE albums
 				// - we need to know if we've added a new albumartist so we can return the correct
 				// html fragment to the javascript
-				if ($result = mysqli_query($mysqlc, "SELECT Albumindex FROM Albumtable LEFT JOIN Tracktable USING (Albumindex) WHERE AlbumArtistindex = ".$index." AND Hidden = 0 AND Uri IS NOT NULL")) {
-					if (mysqli_num_rows($result) == 0) {
+				if ($result = generic_sql_query("SELECT Albumindex FROM Albumtable LEFT JOIN Tracktable USING (Albumindex) WHERE AlbumArtistindex = ".$index." AND Hidden = 0 AND Uri IS NOT NULL")) {
+					if ($result->rowCount() == 0) {
 						debug_print("Revealing artist ".$index,"MYSQL");
 						$artist_created = $index;
 					}
-				} else {
-					debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 				}
 			}
 	    } else {
 			$index = create_new_artist($artist, $upflag);
 	    }
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 	return $index;
 }
@@ -290,70 +224,54 @@ function create_new_artist($artist, $upflag) {
 	global $mysqlc;
 	global $artist_created;
 	$retval = null;
-	if ($stmt = mysqli_prepare($mysqlc, "INSERT INTO Artisttable (Artistname) VALUES (?)")) {
-		mysqli_stmt_bind_param($stmt, "s", $artist);
-		if (mysqli_stmt_execute($stmt)) {
-			$retval = mysqli_insert_id($mysqlc);
-			debug_print("Created artist ".$artist." with Artistindex ".$retval,"MYSQL");
-			if ($upflag) {
-				$artist_created = $retval;
-				debug_print("  Adding artist to display ".$retval,"MYSQL");
-			}
-		    mysqli_stmt_close($stmt);
+	if ($stmt = sql_prepare_query("INSERT INTO Artisttable (Artistname) VALUES (?)", $artist)) {
+		$retval = $mysqlc->lastInsertId();
+		debug_print("Created artist ".$artist." with Artistindex ".$retval,"MYSQL");
+		if ($upflag) {
+			$artist_created = $retval;
+			debug_print("  Adding artist to display ".$retval,"MYSQL");
 		}
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 	return $retval;
 }
 
-function check_album($album, $albumai, $spotilink, $image, $date, $isonefile, $searched, $imagekey, $mbid, $numdiscs, $domain, $upflag) {
-	global $mysqlc;
+function check_album($album, $albumai, $spotilink, $image, $date, $searched, $imagekey, $mbid, $domain, $upflag) {
 	global $album_created;
 	$index = null;
 	$year = null;
-	$nd = null;
-	if ($stmt = mysqli_prepare($mysqlc, "SELECT Albumindex, Year, Numdiscs FROM Albumtable WHERE STRCMP(Albumname, ?) = 0 AND AlbumArtistindex = ? AND Domain = ?")) {
-		mysqli_stmt_bind_param($stmt, "sis", $album, $albumai, $domain);
-		mysqli_stmt_execute($stmt);
-	    mysqli_stmt_bind_result($stmt, $index, $year, $nd);
-	    mysqli_stmt_fetch($stmt);
-	    mysqli_stmt_close($stmt);
-	    if ($index) {
-	    	if (($year == null && $date != null) || ($nd == null && $numdiscs != null)) {
-	    		debug_print("Updating Album Details","MYSQL");
-	    		$qarray = array();
-	    		if ($date) {
-	    			array_push($qarray,"Year=".$date);
-	    		}
-	    		if ($numdiscs) {
-	    			array_push($qarray,"NumDiscs=".$numdiscs);
-	    		}
-	    		$qstring = "UPDATE Albumtable SET ".implode(", ", $qarray)." WHERE Albumindex=".$index;
-	    		debug_print($qstring,"MYSQL");
-				if ($result = mysqli_query($mysqlc, $qstring)) {
-					debug_print("Success","MYSQL");
+	$img = null;
+	if ($stmt = sql_prepare_query("SELECT Albumindex, Year, Image FROM Albumtable WHERE STRCMP(Albumname, ?) = 0 AND AlbumArtistindex = ? AND Domain = ?", $album, $albumai, $domain)) {
+		$obj = $stmt->fetch(PDO::FETCH_OBJ);
+		$index = $obj ? $obj->Albumindex : 0;
+		if ($index) {
+			$year = $obj->Year;
+			$img = $obj->Image;
+			if (($year == null && $date != null) ||
+				(($img == null || $img = "") && ($image != "" && $image != null))) {
+				debug_print("Updating Details For Album ".$album ,"MYSQL");
+				if ($up = sql_prepare_query("UPDATE Albumtable SET Year=?, Image=? WHERE Albumindex=?",$date,$image,$index)) {
+					debug_print("   ...Success","MYSQL");
 				} else {
-					debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+					debug_print("   ...Failed","MYSQL");
 					return false;
 				}
-	    	}
+			}
 			if ($upflag) {
-				// We didn't create a new album BUT we might be using one that has only hidden tracks.
-				$result = mysqli_query($mysqlc, "SELECT TTindex FROM Tracktable WHERE Albumindex = ".$index." AND Hidden = 0 AND Uri IS NOT NULL");
-				if (mysqli_num_rows($result) == 0) {
-					$album_created = $index;
-					debug_print("We're using album ".$index." that was previously invisible","MYSQL");
+				if ($result = generic_sql_query("SELECT TTindex FROM Tracktable WHERE Albumindex = ".$index." AND Hidden = 0 AND Uri IS NOT NULL")) {
+					if ($result->rowCount() == 0) {
+						$album_created = $index;
+						debug_print("We're using album ".$album." that was previously invisible","MYSQL");
+					}
 				}
 			}
-	    } else {
-			$index = create_new_album($album, $albumai, $spotilink, $image, $date, $isonefile, $searched, $imagekey, $mbid, $numdiscs, $domain);
-	    }
+		} else {
+			$index = create_new_album($album, $albumai, $spotilink, $image, $date, $searched, $imagekey, $mbid, $domain);
+		}
 	}
 	return $index;
 }
 
-function create_new_album($album, $albumai, $spotilink, $image, $date, $isonefile, $searched, $imagekey, $mbid, $numdiscs, $domain) {
+function create_new_album($album, $albumai, $spotilink, $image, $date, $searched, $imagekey, $mbid, $domain) {
 
 	global $mysqlc;
 	global $album_created;
@@ -373,18 +291,12 @@ function create_new_album($album, $albumai, $spotilink, $image, $date, $isonefil
 		system( 'cp '.$image.'_asdownloaded.jpg albumart/asdownloaded/'.$imagekey.'.jpg');
 		$image = 'albumart/small/'.$imagekey.'.jpg';
 	}
-
-	if ($stmt = mysqli_prepare($mysqlc, "INSERT INTO Albumtable (Albumname, AlbumArtistindex, Spotilink, Year, IsOneFile, Searched, ImgKey, mbid, NumDiscs, Domain, Image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
-		$i = checkImage($imagekey);
-		mysqli_stmt_bind_param($stmt, "sisiiississ", $album, $albumai, $spotilink, $date, $isonefile, $i, $imagekey, $mbid, $numdiscs, $domain, $image);
-		if (mysqli_stmt_execute($stmt)) {
-			$retval = mysqli_insert_id($mysqlc);
+	$i = checkImage($imagekey);
+	if ($stmt = sql_prepare_query("INSERT INTO Albumtable (Albumname, AlbumArtistindex, Spotilink, Year, Searched, ImgKey, mbid, Domain, Image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		$album, $albumai, $spotilink, $date, $i, $imagekey, $mbid, $domain, $image)) {
+		$retval = $mysqlc->lastInsertId();
 			debug_print("Created Album ".$album." with Albumindex ".$retval,"MYSQL");
 			$album_created = $retval;
-		    mysqli_stmt_close($stmt);
-		}
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 	return $retval;
 }
@@ -399,29 +311,19 @@ function checkImage($imagekey) {
 
 function increment_value($ttid, $attribute, $value) {
 
-	global $mysqlc;
 	debug_print("Incrementing ".$attribute." by ".$value." for TTID ".$ttid, "MYSQL");
-	if ($stmt = mysqli_prepare($mysqlc, "UPDATE ".$attribute."table SET ".$attribute."=".$attribute."+? WHERE TTindex=?")) {
-		mysqli_stmt_bind_param($stmt, "ii", $value, $ttid);
-		if (mysqli_stmt_execute($stmt)) {
-			if (mysqli_stmt_affected_rows($stmt) == 0) {
-				debug_print("  Update affected 0 rows, creating new value","MYSQL");
-			    mysqli_stmt_close($stmt);
-				if ($stmt = mysqli_prepare($mysqlc, "INSERT INTO ".$attribute."table (TTindex, ".$attribute.") VALUES (?, ?)")) {
-					mysqli_stmt_bind_param($stmt, "ii", $ttid, $value);
-					if (mysqli_stmt_execute($stmt)) {
-						debug_print("    New Value Created", "MYSQL");
-					} else {
-						debug_print("  Error Executing mySql", "MYSQL");
-					}
-				}
+	if ($stmt = sql_prepare_query("UPDATE ".$attribute."table SET ".$attribute."=".$attribute."+? WHERE TTindex=?", $value, $ttid)) {
+		if ($stmt->rowCount() == 0) {
+			debug_print("  Update affected 0 rows, creating new value","MYSQL");
+			if ($stmt = sql_prepare_query("INSERT INTO ".$attribute."table (TTindex, ".$attribute.") VALUES (?, ?)", $ttid, $value)) {
+				debug_print("    New Value Created", "MYSQL");
+			} else {
+				debug_print("    Failed to create new value", "MYSQL");
+				return false;
 			}
-		} else {
-			debug_print("  ERROR Executing mySql statement", "MYSQL");
-			return false;
 		}
 	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+		debug_print("    Failed to increment value", "MYSQL");
 		return false;
 	}
 	return true;
@@ -431,13 +333,11 @@ function increment_value($ttid, $attribute, $value) {
 function set_attribute($ttid, $attribute, $value) {
 
 	// NOTE:
-	// This function can only be used for integers!
-	// It will set value for an EXISTING attribute to 0, but it will NOT create a NEW attribute
+	// This will set value for an EXISTING attribute to 0, but it will NOT create a NEW attribute
 	// when $value is 0. This is because 0 is meant to represent 'no attribute'
 	// and this keeps the table size down and ALSO means import functions
 	// can cause new tracks to be added just by tring to set eg Rating to 0.
 
-	global $mysqlc;
 	global $album_created;
 	global $artist_created;
 
@@ -449,28 +349,28 @@ function set_attribute($ttid, $attribute, $value) {
 		debug_print("Setting attribute on a hidden track","MYSQL");
 		if ($artist_created == false) {
 			// See if this means we're revealing a new artist
-			$result = mysqli_query($mysqlc, "SELECT AlbumArtistindex FROM Albumtable LEFT JOIN Tracktable USING (Albumindex) WHERE AlbumArtistindex IN (SELECT AlbumArtistindex FROM Albumtable JOIN Tracktable USING (Albumindex) WHERE TTindex = ".$ttid.") AND Hidden = 0 AND Uri IS NOT NULL");
-			if (mysqli_num_rows($result) == 0) {
-				mysqli_free_result($result);
-				$result = mysqli_query($mysqlc, "SELECT AlbumArtistindex FROM Tracktable LEFT JOIN Albumtable USING (Albumindex) WHERE TTindex = ".$ttid);
-				while ($obj = mysqli_fetch_object($result)) {
-					$artist_created = $obj->AlbumArtistindex;
-					debug_print("Revealing Artist Index ".$artist_created,"MYSQL");
+			if ($result = generic_sql_query("SELECT AlbumArtistindex FROM Albumtable LEFT JOIN Tracktable USING (Albumindex) WHERE AlbumArtistindex IN (SELECT AlbumArtistindex FROM Albumtable JOIN Tracktable USING (Albumindex) WHERE TTindex = ".$ttid.") AND Hidden = 0 AND Uri IS NOT NULL")) {
+				if ($result->rowCount() == 0) {
+					if ($result = generic_sql_query("SELECT AlbumArtistindex FROM Tracktable LEFT JOIN Albumtable USING (Albumindex) WHERE TTindex = ".$ttid)) {
+						while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+							$artist_created = $obj->AlbumArtistindex;
+							debug_print("Revealing Artist Index ".$artist_created,"MYSQL");
+						}
+					}
 				}
-				mysqli_free_result($result);
 			}
 		}
 		if ($artist_created == false && $album_created == false) {
 			// See if this means we're revealing a new album
-			$result = mysqli_query($mysqlc, "SELECT TTindex FROM Tracktable WHERE Albumindex = (SELECT Albumindex FROM Tracktable WHERE TTindex = ".$ttid.") AND Hidden = 0 AND Uri IS NOT NULL");
-			if (mysqli_num_rows($result) == 0) {
-				mysqli_free_result($result);
-				$result = mysqli_query($mysqlc, "SELECT Albumindex FROM Tracktable WHERE TTindex = ".$ttid);
-				while ($obj = mysqli_fetch_object($result)) {
-					$album_created = $obj->Albumindex;
-					debug_print("Revealing Album Index ".$album_created,"MYSQL");
+			if ($result = generic_sql_query("SELECT TTindex FROM Tracktable WHERE Albumindex = (SELECT Albumindex FROM Tracktable WHERE TTindex = ".$ttid.") AND Hidden = 0 AND Uri IS NOT NULL")) {
+				if ($result->rowCount() == 0) {
+					if ($result = generic_sql_query("SELECT Albumindex FROM Tracktable WHERE TTindex = ".$ttid)) {
+						while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+							$album_created = $obj->Albumindex;
+							debug_print("Revealing Album Index ".$album_created,"MYSQL");
+						}
+					}
 				}
-				mysqli_free_result($result);
 			}
 		}
 		generic_sql_query("UPDATE Tracktable SET Hidden=0 WHERE TTindex=".$ttid);
@@ -480,33 +380,21 @@ function set_attribute($ttid, $attribute, $value) {
 		return addTags($ttid, $value);
 	} else {
 		debug_print("Setting ".$attribute." to ".$value." on ".$ttid,"MYSQL");
-
-		if ($stmt = mysqli_prepare($mysqlc, "UPDATE ".$attribute."table SET ".$attribute."=? WHERE TTindex=?")) {
-			mysqli_stmt_bind_param($stmt, "ii", $value, $ttid);
-			if (mysqli_stmt_execute($stmt)) {
-				if (mysqli_stmt_affected_rows($stmt) == 0 && $value !== 0) {
-					debug_print("  Update affected 0 rows, creating new value","MYSQL");
-				    mysqli_stmt_close($stmt);
-					if ($stmt = mysqli_prepare($mysqlc, "INSERT INTO ".$attribute."table (TTindex, ".$attribute.") VALUES (?, ?)")) {
-						mysqli_stmt_bind_param($stmt, "ii", $ttid, $value);
-						if (mysqli_stmt_execute($stmt)) {
-							debug_print("    New Value Created", "MYSQL");
-						} else {
-							// NOTE - we could get here if the attribute we are setting already exists
-							// (eg setting Rating to 5 on a track that already has rating set to 5).
-							// We don't check that because the database is set up such that this
-							// can't happen twice - because the rating table uses TWO indices to keep things unique.
-							// Hence an error here is probably not a problem, so we ignore them.
-							// debug_print("  Error Executing mySql", "MYSQL");
-						}
-					}
+		if ($stmt = sql_prepare_query("UPDATE ".$attribute."table SET ".$attribute."=? WHERE TTindex=?", $value, $ttid)) {
+			if ($stmt->rowCount() == 0 && $value !== 0) {
+				debug_print("  Update affected 0 rows, creating new value","MYSQL");
+				if ($stmt = sql_prepare_query("INSERT INTO ".$attribute."table (TTindex, ".$attribute.") VALUES (?, ?)", $ttid, $value)) {
+					debug_print("    New Value Created", "MYSQL");
+				} else {
+					// NOTE - we could get here if the attribute we are setting already exists
+					// (eg setting Rating to 5 on a track that already has rating set to 5).
+					// We don't check that because the database is set up such that this
+					// can't happen twice - because the rating table uses TWO indices to keep things unique.
+					// Hence an error here is probably not a problem, so we ignore them.
+					// debug_print("  Error Executing mySql", "MYSQL");
 				}
-			} else {
-				debug_print("  ERROR Executing mySql statement", "MYSQL");
-				return false;
 			}
 		} else {
-			debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 			return false;
 		}
 		return true;
@@ -514,42 +402,36 @@ function set_attribute($ttid, $attribute, $value) {
 }
 
 function addTags($ttid, $tags) {
-	global $mysqlc;
 	foreach ($tags as $tag) {
 		$t = trim($tag);
 		debug_print("Adding Tag ".$t." to ".$ttid,"MYSQL");
-		$esctag = mysqli_real_escape_string($mysqlc, $t);
 		$tagindex = null;
-		if ($result = mysqli_query($mysqlc, "SELECT Tagindex FROM Tagtable WHERE Name = '".$esctag."'")) {
-			while ($obj = mysqli_fetch_object($result)) {
+		if ($result = sql_prepare_query("SELECT Tagindex FROM Tagtable WHERE Name=?", $t)) {
+			while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 				$tagindex = $obj->Tagindex;
 			}
-			mysqli_free_result($result);
 			if ($tagindex == null) {
-				$tagindex = create_new_tag($esctag);
+				$tagindex = create_new_tag($t);
 			}
 			if ($tagindex == null) {
 				debug_print("    Could not create tag","MYSQL");
 				return false;
 			}
-			if ($result = mysqli_query($mysqlc, "SELECT * FROM TagListtable WHERE TTindex = '".$ttid."' AND Tagindex = '".$tagindex."'")) {
-				if (mysqli_num_rows($result) == 0) {
+			if ($result = generic_sql_query("SELECT * FROM TagListtable WHERE TTindex = '".$ttid."' AND Tagindex = '".$tagindex."'")) {
+				if ($result->rowCount() == 0) {
 					debug_print("Adding new tag relation","MYSQL");
-					if ($result = mysqli_query($mysqlc, "INSERT INTO TagListtable (TTindex, Tagindex) VALUES ('".$ttid."', '".$tagindex."')")) {
+					if ($result = generic_sql_query("INSERT INTO TagListtable (TTindex, Tagindex) VALUES ('".$ttid."', '".$tagindex."')")) {
 						debug_print("Success","MYSQL");
 					} else {
-						debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 						return false;
 					}
 				} else {
 					debug_print("Tag relation already exists","MYSQL");
 				}
 			} else {
-				debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 				return false;
 			}
 		} else {
-			debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 			return false;
 		}
 	}
@@ -560,63 +442,48 @@ function create_new_tag($tag) {
 	global $mysqlc;
 	debug_print("Creating new tag ".$tag,"MYSQL");
 	$tagindex = null;
-	if ($result = mysqli_query($mysqlc, "INSERT INTO Tagtable (Name) VALUES ('".$tag."')")) {
-		$tagindex = mysqli_insert_id($mysqlc);
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
+	if ($result = sql_prepare_query("INSERT INTO Tagtable (Name) VALUES (?)", $tag)) {
+		$tagindex = $mysqlc->lastInsertId();
 	}
 	return $tagindex;
-
 }
 
 function remove_tag($ttid, $tag) {
-	global $mysqlc;
 	debug_print("Removing Tag ".$tag." from ".$ttid,"MYSQL");
-	$esctag = mysqli_real_escape_string($mysqlc, $tag);
 	$tagindex = null;
-	if ($result = mysqli_query($mysqlc, "SELECT Tagindex FROM Tagtable WHERE Name = '".$esctag."'")) {
-		while ($obj = mysqli_fetch_object($result)) {
+	if ($result = sql_prepare_query("SELECT Tagindex FROM Tagtable WHERE Name = ?", $tag)) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			$tagindex = $obj->Tagindex;
 		}
-		mysqli_free_result($result);
 		if ($tagindex == null) {
-			debug_print("    Could not find tag","MYSQL");
+			debug_print("  ..  Could not find tag!","MYSQL");
 			return false;
 		}
-		if ($result = mysqli_query($mysqlc, "DELETE FROM TagListtable WHERE TTindex = '".$ttid."' AND Tagindex = '".$tagindex."'")) {
-			debug_print("Success","MYSQL");
+		if ($result = generic_sql_query("DELETE FROM TagListtable WHERE TTindex = '".$ttid."' AND Tagindex = '".$tagindex."'")) {
+			debug_print(" .. Success","MYSQL");
 		} else {
-			debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 			return false;
 		}
 	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 		return false;
 	}
 	return true;
-
 }
 
 function list_tags() {
-	global $mysqlc;
 	$tags = array();
-	if ($result = mysqli_query($mysqlc, "SELECT Name FROM Tagtable ORDER BY Name")) {
-		while ($obj = mysqli_fetch_object($result)) {
+	if ($result = generic_sql_query("SELECT Name FROM Tagtable ORDER BY Name")) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			array_push($tags, $obj->Name);
 		}
-		mysqli_free_result($result);
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 	return $tags;
 }
 
 function list_all_tag_data() {
-	global $mysqlc;
 	$tags = array();
-	if ($result = mysqli_query($mysqlc, "SELECT t.Name, a.Artistname, tr.Title, al.Albumname, al.Image, tr.Uri FROM Tagtable AS t JOIN TagListtable AS tl USING (Tagindex) JOIN Tracktable AS tr USING (TTindex) JOIN Albumtable AS al USING (Albumindex) JOIN Artisttable AS a ON (tr.Artistindex = a.Artistindex) ORDER BY t.Name, a.Artistname, al.Albumname, tr.TrackNo
-")) {
-		while ($obj = mysqli_fetch_object($result)) {
+	if ($result = generic_sql_query("SELECT t.Name, a.Artistname, tr.Title, al.Albumname, al.Image, tr.Uri FROM Tagtable AS t JOIN TagListtable AS tl USING (Tagindex) JOIN Tracktable AS tr USING (TTindex) JOIN Albumtable AS al USING (Albumindex) JOIN Artisttable AS a ON (tr.Artistindex = a.Artistindex) ORDER BY t.Name, a.Artistname, al.Albumname, tr.TrackNo")) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			if (!array_key_exists($obj->Name, $tags)) {
 				$tags[$obj->Name] = array();
 			}
@@ -628,14 +495,11 @@ function list_all_tag_data() {
 				'Uri' => $obj->Uri
 			));
 		}
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 	return $tags;
 }
 
 function list_all_rating_data() {
-	global $mysqlc;
 	$ratings = array(
 		"1" => array(),
 		"2" => array(),
@@ -643,8 +507,8 @@ function list_all_rating_data() {
 		"4" => array(),
 		"5" => array()
 	);
-	if ($result = mysqli_query($mysqlc, "SELECT r.Rating, a.Artistname, tr.Title, al.Albumname, al.Image, tr.Uri FROM Ratingtable AS r JOIN Tracktable AS tr USING (TTindex) JOIN Albumtable AS al USING (Albumindex) JOIN Artisttable AS a ON (tr.Artistindex = a.Artistindex) WHERE r.Rating > 0 ORDER BY r.Rating, a.Artistname, al.Albumname, tr.TrackNo")) {
-		while ($obj = mysqli_fetch_object($result)) {
+	if ($result = generic_sql_query("SELECT r.Rating, a.Artistname, tr.Title, al.Albumname, al.Image, tr.Uri FROM Ratingtable AS r JOIN Tracktable AS tr USING (TTindex) JOIN Albumtable AS al USING (Albumindex) JOIN Artisttable AS a ON (tr.Artistindex = a.Artistindex) WHERE r.Rating > 0 ORDER BY r.Rating, a.Artistname, al.Albumname, tr.TrackNo")) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			array_push($ratings[$obj->Rating], array(
 				'Title' => $obj->Title,
 				'Album' => $obj->Albumname,
@@ -653,21 +517,24 @@ function list_all_rating_data() {
 				'Uri' => $obj->Uri
 			));
 		}
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 	return $ratings;
 }
 
 function remove_tag_from_db($tag) {
-	global $mysqlc;
 	$r = true;
-	if ($result = mysqli_query($mysqlc, "SELECT Tagindex FROM Tagtable WHERE Name = '".mysqli_real_escape_string($mysqlc, $tag)."'")) {
-		$obj = mysqli_fetch_object($result);
-		$tagindex = $obj->Tagindex;
-		$r = generic_sql_query("DELETE FROM TagListtable WHERE Tagindex = ".$tagindex);
-		if ($r) {
-			$r = generic_sql_query("DELETE FROM Tagtable WHERE Tagindex = ".$tagindex);
+	debug_print("Removing Tag ".$tag." from database","MYSQL");
+	if ($result = sql_prepare_query("SELECT Tagindex FROM Tagtable WHERE Name=?", $tag)) {
+		$obj = $result->fetch(PDO::FETCH_OBJ);
+		$tagindex = $obj ? $obj->Tagindex : null;
+		if ($tagindex !== null) {
+			$r = generic_sql_query("DELETE FROM TagListtable WHERE Tagindex = ".$tagindex);
+			if ($r) {
+				$r = generic_sql_query("DELETE FROM Tagtable WHERE Tagindex = ".$tagindex);
+			}
+		} else {
+			debug_print(" .. Could not find tag!","MYSQL");
+			$r = false;
 		}
 	} else {
 		$r = false;
@@ -680,39 +547,27 @@ function get_all_data($ttid) {
 	// Misleadingly named function which should be used to get ratings and tags (and whatever else we might add)
 	// based on a TTindex
 
-	global $mysqlc;
 	global $nodata;
 	$data = $nodata;
-	if ($result = mysqli_query($mysqlc, "SELECT Rating FROM Ratingtable WHERE TTindex = '".$ttid."'")) {
-		$num = mysqli_num_rows($result);
-		if ($num > 0) {
-			$obj = mysqli_fetch_object($result);
-			$data['Rating'] = $obj->Rating;
+	if ($result = generic_sql_query("SELECT Rating FROM Ratingtable WHERE TTindex = '".$ttid."'")) {
+		if ($result->rowCount() > 0) {
+			$obj = $result->fetch(PDO::FETCH_OBJ);
+			$data['Rating'] = $obj ? $obj->Rating : 0;
 			debug_print("Rating is ".$data['Rating'],"MYSQL");
 		}
-		mysqli_free_result($result);
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
-	if ($result = mysqli_query($mysqlc, "SELECT Name FROM Tagtable JOIN TagListtable USING(Tagindex) WHERE TagListtable.TTindex = '".$ttid."' ORDER BY Name")) {
-		while ($obj = mysqli_fetch_object($result)) {
+	if ($result = generic_sql_query("SELECT Name FROM Tagtable JOIN TagListtable USING(Tagindex) WHERE TagListtable.TTindex = '".$ttid."' ORDER BY Name")) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			array_push($data['Tags'], $obj->Name);
 			debug_print("Got Tag ".$obj->Name,"MYSQL");
 		}
-		mysqli_free_result($result);
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
-	if ($result = mysqli_query($mysqlc, "SELECT Playcount FROM Playcounttable WHERE TTindex = '".$ttid."'")) {
-		$num = mysqli_num_rows($result);
-		if ($num > 0) {
-			$obj = mysqli_fetch_object($result);
-			$data['Playcount'] = $obj->Playcount;
+	if ($result = generic_sql_query("SELECT Playcount FROM Playcounttable WHERE TTindex = '".$ttid."'")) {
+		if ($result->rowCount() > 0) {
+			$obj = $result->fetch(PDO::FETCH_OBJ);
+			$data['Playcount'] = $obj ? $obj->Playcount : 0;
 			debug_print("Playcount is ".$data['Playcount'],"MYSQL");
 		}
-		mysqli_free_result($result);
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 
 	return $data;
@@ -721,14 +576,11 @@ function get_all_data($ttid) {
 function get_imagesearch_info($key) {
 
 	// Used by getalbumcover.php to get album and artist names etc based on an Image Key
-
-	global $mysqlc;
 	$retval = array(false, null, null, null, null, null, false);
-	//if ($result = mysqli_query($mysqlc, "SELECT Artistname, Albumname, mbid, Directory, Spotilink FROM Albumtable JOIN Artisttable ON AlbumArtistindex = Artistindex WHERE ImgKey = '".$key."'")) {
-	if ($result = mysqli_query($mysqlc, "SELECT Artistname, Albumname, mbid, Albumindex, Spotilink FROM Albumtable JOIN Artisttable ON AlbumArtistindex = Artistindex WHERE ImgKey = '".$key."'")) {
+	if ($result = generic_sql_query("SELECT Artistname, Albumname, mbid, Albumindex, Spotilink FROM Albumtable JOIN Artisttable ON AlbumArtistindex = Artistindex WHERE ImgKey = '".$key."'")) {
 		// This can come back with multiple results if we have the same album on multiple backends
 		// Need to make sure we put appropriate values in the return list
-		while ($obj = mysqli_fetch_object($result)) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			if ($retval[1] == null) {
 				$retval[1] = $obj->Artistname;
 			}
@@ -748,23 +600,20 @@ function get_imagesearch_info($key) {
 			$retval[6] = true;
 			debug_print("Found album ".$key." in database","GETALBUMCOVER");
 		}
-	} else {
-		debug_print("MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 	return $retval;
 }
 
 function get_album_directory($albumindex, $uri) {
-	global $mysqlc;
 	$retval = null;
 	if (!preg_match('/\w+?:album/', $uri)) {
 		// Get album directory by using the Uri of one of its tracks, making sure we
 		// choose only local tracks
-		if ($result2 = mysqli_query($mysqlc, "SELECT Uri FROM Tracktable WHERE Albumindex = ".$albumindex." LIMIT 1")) {
-			while ($obj2 = mysqli_fetch_object($result2)) {
+		if ($result2 = generic_sql_query("SELECT Uri FROM Tracktable WHERE Albumindex = ".$albumindex." LIMIT 1")) {
+			while ($obj2 = $result2->fetch(PDO::FETCH_OBJ)) {
 				$retval = dirname($obj2->Uri);
-	            $retval = preg_replace('#^local:track:#', '', $retval);
-	            debug_print("Got album directory using track Uri - ".$retval,"SQL");
+				$retval = preg_replace('#^local:track:#', '', $retval);
+				debug_print("Got album directory using track Uri - ".$retval,"SQL");
 			}
 		}
 	}
@@ -772,74 +621,60 @@ function get_album_directory($albumindex, $uri) {
 }
 
 function update_image_db($key, $notfound, $imagefile) {
-	global $mysqlc;
 	$val = ($notfound == 0) ? $imagefile : "";
-	if ($stmt = mysqli_prepare($mysqlc, "UPDATE Albumtable SET Image=?, Searched = 1 WHERE ImgKey=?")) {
-		mysqli_stmt_bind_param($stmt, "ss", $val, $key);
-		if (mysqli_stmt_execute($stmt)) {
-			debug_print("    Database Image URL Updated","MYSQL");
-		} else {
-	        debug_print("    MYSQL Execution Error: ".mysqli_error($mysqlc),"MYSQL");
-
-		}
-	    mysqli_stmt_close($stmt);
+	if ($stmt = sql_prepare_query("UPDATE Albumtable SET Image=?, Searched = 1 WHERE ImgKey=?", $val, $key)) {
+		debug_print("    Database Image URL Updated","MYSQL");
 	} else {
-        debug_print("    MYSQL Statement Error: ".mysqli_error($mysqlc),"MYSQL");
+		debug_print("    Failed To Update Database Image URL","MYSQL");
 	}
 }
 
 function track_is_hidden($ttid) {
-	global $mysqlc;
-	if ($result = mysqli_query($mysqlc, "SELECT Hidden FROM Tracktable WHERE TTindex=".$ttid)) {
+	if ($result = generic_sql_query("SELECT Hidden FROM Tracktable WHERE TTindex=".$ttid)) {
 		$h = 0;
-		while ($obj = mysqli_fetch_object($result)) {
+		while ($obj =$result->fetch(PDO::FETCH_OBJ)) {
 			$h = $obj->Hidden;
 		}
-		mysqli_free_result($result);
 		if ($h == 1) {
 			return true;
 		}
-	} else {
-        debug_print("    Error checking hidden status: ".mysqli_error($mysqlc),"MYSQL");
 	}
 	return false;
 }
 
-function do_artists_from_database($which) {
-	global $mysqlc;
-	global $divtype;
-	$singleheader = array();
-    debug_print("Generating Artist ".$which." from database","DUMPALBUMS");
-	$vai = null;
-	$singleheader['type'] = 'insertAtStart';
-	$singleheader['where'] = 'collection';
-	$qstring = "SELECT Artistindex FROM Artisttable WHERE Artistname = 'Various Artists'";
-	if ($result = mysqli_query($mysqlc, $qstring)) {
-		while ($obj = mysqli_fetch_object($result)) {
-			if ($which == "aalbumroot") {
-				artistHeader('aartist'.$obj->Artistindex, null, "Various Artists");
-			} else {
-				$singleheader['where'] = "aartist".$obj->Artistindex;
-				$singleheader['type'] = 'insertAfter';
-			}
-            $divtype = ($divtype == "album1") ? "album2" : "album1";
-            $vai = $obj->Artistindex;
-		}
-		mysqli_free_result($result);
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
-        print '<h3>'.get_int_text("label_general_error").'</h3>';
-	}
-
+function albumartist_sort_query() {
 	// This query gives us album artists only, which is what we want. Also makes sure we only get artists for whom we have actual
 	// tracks with URIs (eg no artists who appear only on the wishlist)
-    $qstring = "SELECT a.Artistname, a.Artistindex FROM Artisttable AS a JOIN Albumtable AS al ON a.Artistindex = al.AlbumArtistindex JOIN Tracktable AS t ON al.Albumindex = t.Albumindex WHERE t.Uri IS NOT NULL AND t.Hidden = 0 ";
-    if ($vai != null) {
-    	$qstring .= "AND a.Artistindex != '".$vai."' ";
-    }
-    $qstring .= "GROUP BY a.Artistindex ORDER BY TRIM(LEADING 'the ' FROM LOWER(Artistname))";
-	if ($result = mysqli_query($mysqlc, $qstring)) {
-		while ($obj = mysqli_fetch_object($result)) {
+	$qstring = "SELECT a.Artistname, a.Artistindex FROM Artisttable AS a JOIN Albumtable AS al ON a.Artistindex = al.AlbumArtistindex JOIN Tracktable AS t ON al.Albumindex = t.Albumindex WHERE t.Uri IS NOT NULL AND t.Hidden = 0 ";
+	$qstring .= "GROUP BY a.Artistindex ORDER BY CASE WHEN Artistname = 'Various Artists' THEN 1 ELSE 2 END,  CASE WHEN Artistname = 'Soundtracks' THEN 1 ELSE 2 END, TRIM(LEADING 'the ' FROM LOWER(Artistname))";
+	// NB : if at some stage we decide to make this multilingual, this kind of syntax would work:
+	// ORDER BY TRIM(LEADING 'das ' FROM TRIM(LEADING 'der ' FROM TRIM(LEADING 'die ' FROM LOWER(Artistname))))
+	// We can also have multiple CASE (in order) to put specific artists at the top
+	return $qstring;
+}
+
+function is_various_artists($index) {
+	$qstring = "SELECT Artistname FROM Artisttable WHERE Artistindex = '".$index."'";
+	$va = false;
+	if ($result = generic_sql_query($qstring)) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+			if ($obj->Artistname == "Various Artists") {
+				$va = true;
+			}
+		}
+	}
+	return $va;
+}
+
+function do_artists_from_database($which) {
+	global $divtype;
+	$singleheader = array();
+	debug_print("Generating ".$which." from database","DUMPALBUMS");
+	$singleheader['type'] = 'insertAtStart';
+	$singleheader['where'] = 'collection';
+
+	if ($result = generic_sql_query(albumartist_sort_query())) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			if ($which == "aalbumroot") {
 				artistHeader('aartist'.$obj->Artistindex, null, $obj->Artistname);
 			} else {
@@ -854,76 +689,53 @@ function do_artists_from_database($which) {
 					return $singleheader;
 				}
 			}
-            $divtype = ($divtype == "album1") ? "album2" : "album1";
+			$divtype = ($divtype == "album1") ? "album2" : "album1";
 		}
-		mysqli_free_result($result);
 	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
-        print '<h3>'.get_int_text("label_general_error").'</h3>';
+		print '<h3>'.get_int_text("label_general_error").'</h3>';
 	}
 }
 
 function get_list_of_artists() {
-	global $mysqlc;
 	$vals = array();
-    $qstring = "SELECT a.Artistname, a.Artistindex FROM Artisttable AS a JOIN Albumtable AS al ON a.Artistindex = al.AlbumArtistindex JOIN Tracktable AS t ON al.Albumindex = t.Albumindex WHERE t.Uri IS NOT NULL AND t.Hidden = 0 ";
-    $qstring .= "GROUP BY a.Artistindex ORDER BY TRIM(LEADING 'the ' FROM LOWER(Artistname))";
-	if ($result = mysqli_query($mysqlc, $qstring)) {
-		while ($v = mysqli_fetch_assoc($result)) {
+	if ($result = generic_sql_query(albumartist_sort_query())) {
+		while ($v = $result->fetch(PDO::FETCH_ASSOC)) {
 			array_push($vals, $v);
 		}
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 	return $vals;
 }
 
 function do_albums_from_database($which, $fragment = false) {
-	global $mysqlc;
 	global $prefs;
 	$singleheader = array();
 	$singleheader['type'] = 'insertAtStart';
 	$singleheader['where'] = $which;
-    debug_print("Generating Albums for ".$which." from database","DUMPALBUMS");
+	debug_print("Generating ".$which." from database","DUMPALBUMS");
 	$a = preg_match("/aartist(\d+)/", $which, $matches);
 	if (!$a) {
-        print '<h3>'.get_int_text("label_general_error").'</h3>';
-        return false;
-	}
-	$qstring = "SELECT Artistname FROM Artisttable WHERE Artistindex = '".$matches[1]."'";
-	$va = false;
-	if ($result = mysqli_query($mysqlc, $qstring)) {
-		while ($obj = mysqli_fetch_object($result)) {
-			if ($obj->Artistname == "Various Artists") {
-				$va = true;
-			}
-		}
-		mysqli_free_result($result);
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
-        print '<h3>'.get_int_text("label_general_error").'</h3>';
-        return false;
+		print '<h3>'.get_int_text("label_general_error").'</h3>';
+		return false;
 	}
 
 	debug_print("Looking for artistID ".$matches[1],"DUMPALBUMS");
 
 	$qstring = "SELECT * FROM Albumtable WHERE AlbumArtistindex = '".$matches[1]."' AND Albumindex IN (SELECT Albumindex FROM Tracktable WHERE Tracktable.Albumindex = Albumtable.Albumindex AND Tracktable.Uri IS NOT NULL AND Tracktable.Hidden = 0)";
 	if ($prefs['sortbydate'] == "false" ||
-		($va && $prefs['notvabydate'] == "true")) {
+		(is_various_artists($matches[1]) && $prefs['notvabydate'] == "true")) {
 		$qstring .= ' ORDER BY LOWER(Albumname)';
 	} else {
 		$qstring .= ' ORDER BY Year, LOWER(Albumname)';
 	}
 
-	if ($result = mysqli_query($mysqlc, $qstring)) {
+	if ($result = generic_sql_query($qstring)) {
 		$count = 0;
-		while ($obj = mysqli_fetch_object($result)) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			if ($fragment === false) {
 				albumHeader(
 					$obj->Albumname,
 					rawurlencode($obj->Spotilink),
 					"aalbum".$obj->Albumindex,
-					$obj->IsOneFile,
 					($obj->Image && $obj->Image !== "") ? "yes" : "no",
 					$obj->Searched == 1 ? "yes" : "no",
 					$obj->ImgKey,
@@ -940,7 +752,6 @@ function do_albums_from_database($which, $fragment = false) {
 						$obj->Albumname,
 						rawurlencode($obj->Spotilink),
 						"aalbum".$obj->Albumindex,
-						$obj->IsOneFile,
 						($obj->Image && $obj->Image !== "") ? "yes" : "no",
 						$obj->Searched == 1 ? "yes" : "no",
 						$obj->ImgKey,
@@ -954,90 +765,62 @@ function do_albums_from_database($which, $fragment = false) {
 			}
 			$count++;
 		}
-        if ($count == 0) {
-            noAlbumsHeader();
-        }
-		mysqli_free_result($result);
+		if ($count == 0) {
+			noAlbumsHeader();
+		}
 	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
-        print '<h3>'.get_int_text("label_general_error").'</h3>';
+		print '<h3>'.get_int_text("label_general_error").'</h3>';
 	}
 }
 
 function get_list_of_albums($aid) {
-	global $mysqlc;
 	$vals = array();
 	$qstring = "SELECT * FROM Albumtable WHERE AlbumArtistindex = '".$aid."' GROUP BY ImgKey ORDER BY LOWER(Albumname)";
-	if ($result = mysqli_query($mysqlc, $qstring)) {
-		while ($v = mysqli_fetch_assoc($result)) {
+	if ($result = generic_sql_query($qstring)) {
+		while ($v = $result->fetch(PDO::FETCH_ASSOC)) {
 			array_push($vals, $v);
 		}
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 	return $vals;
 }
 
 function get_album_tracks_from_database($index) {
-	global $mysqlc;
 	$retarr = array();
 	debug_print("Getting Album Tracks for Albumindex ".$index,"MYSQL");
-	$qstring = "SELECT Uri FROM Tracktable WHERE Albumindex = '".$index."' AND Uri IS NOT NULL AND Hidden=0 ORDER BY Disc, TrackNo";
-	if ($result = mysqli_query($mysqlc, $qstring)) {
-		while ($obj = mysqli_fetch_object($result)) {
-			if (preg_match('/\.cue$/', (string) $obj->Uri)) {
-				array_push($retarr, "load ".$obj->Uri);
+	$qstring = "SELECT Uri, Title FROM Tracktable WHERE Albumindex = '".$index."' AND Uri IS NOT NULL AND Hidden=0 ORDER BY Disc, TrackNo";
+	if ($result = generic_sql_query($qstring)) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+			if ((string) $obj->Title == "Cue Sheet") {
+				$retarr = array("load ".$obj->Uri);
+				break;
 			} else {
 				array_push($retarr, "add ".$obj->Uri);
 			}
 		}
-		mysqli_free_result($result);
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 	return $retarr;
 }
 
 function get_artist_tracks_from_database($index) {
-	global $mysqlc;
 	global $prefs;
 	$retarr = array();
 	debug_print("Getting Tracks for AlbumArtist ".$index,"MYSQL");
-
-	$qstring = "SELECT Artistname FROM Artisttable WHERE Artistindex = '".$index."'";
-	$va = false;
-	if ($result = mysqli_query($mysqlc, $qstring)) {
-		while ($obj = mysqli_fetch_object($result)) {
-			if ($obj->Artistname == "Various Artists") {
-				$va = true;
-			}
-		}
-		mysqli_free_result($result);
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
-        return $retarr;
-	}
-
-	$qstring = "SELECT Uri FROM Tracktable JOIN Albumtable ON Tracktable.Albumindex = Albumtable.Albumindex WHERE Albumtable.AlbumArtistindex = '".$index."' AND Uri IS NOT NULL AND Hidden=0";
+	$qstring = "SELECT Albumindex FROM Albumtable WHERE AlbumArtistindex = ".$index;
 	if ($prefs['sortbydate'] == "false" ||
-		($va && $prefs['notvabydate'] == "true")) {
-		$qstring .= ' ORDER BY LOWER(Albumname), Disc, TrackNo';
+		(is_various_artists($index) && $prefs['notvabydate'] == "true")) {
+		$qstring .= ' ORDER BY LOWER(Albumname)';
 	} else {
-		$qstring .= ' ORDER BY Year, LOWER(Albumname), Disc, Trackno';
+		$qstring .= ' ORDER BY Year, LOWER(Albumname)';
 	}
-	if ($result = mysqli_query($mysqlc, $qstring)) {
-		while ($obj = mysqli_fetch_object($result)) {
-			array_push($retarr, "add ".$obj->Uri);
+	if ($result = generic_sql_query($qstring)) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+			$retarr = array_merge($retarr, get_album_tracks_from_database($obj->Albumindex));
 		}
-		mysqli_free_result($result);
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 	return $retarr;
 }
 
 function do_tracks_from_database($which, $fragment = false) {
-	global $mysqlc;
     debug_print("Generating ".$which." from database","DUMPALBUMS");
 	if ($fragment) {
 		ob_start();
@@ -1047,37 +830,44 @@ function do_tracks_from_database($which, $fragment = false) {
         print '<h3>'.get_int_text("label_general_error").'</h3>';
 	} else {
 		debug_print("Looking for albumID ".$matches[1],"DUMPALBUMS");
-		$qstring = "SELECT t.*, a.Artistname, b.AlbumArtistindex, b.NumDiscs, r.Rating, ti.Image FROM Tracktable AS t JOIN Artisttable AS a ON t.Artistindex = a.Artistindex JOIN Albumtable AS b ON t.Albumindex = b.Albumindex LEFT JOIN Ratingtable AS r ON r.TTindex = t.TTindex LEFT JOIN Trackimagetable AS ti ON ti.TTindex = t.TTindex WHERE t.Albumindex = '".$matches[1]."' AND Uri IS NOT NULL AND Hidden=0 ORDER BY t.Disc, t.TrackNo";
-		if ($result = mysqli_query($mysqlc, $qstring)) {
-			$numtracks = mysqli_num_rows($result);
+		$numdiscs = 1;
+		if ($result2 = generic_sql_query("SELECT MAX(Disc) AS NumDiscs FROM Tracktable WHERE Albumindex = '".$matches[1]."' AND Uri IS NOT NULL AND Hidden=0")) {
+			$obj2 = $result2->fetch(PDO::FETCH_OBJ);
+			$numdiscs = $obj2->NumDiscs;
+		} else {
+			debug_print("ERROR! Couldn't find NumDiscs for Albumindex ".$matches[1],"MYSQL");
+		}
+		if ($result = generic_sql_query("SELECT t.*, a.Artistname, b.AlbumArtistindex, r.Rating, ti.Image FROM Tracktable AS t JOIN Artisttable AS a ON t.Artistindex = a.Artistindex JOIN Albumtable AS b ON t.Albumindex = b.Albumindex LEFT JOIN Ratingtable AS r ON r.TTindex = t.TTindex LEFT JOIN Trackimagetable AS ti ON ti.TTindex = t.TTindex WHERE t.Albumindex = '".$matches[1]."' AND Uri IS NOT NULL AND Hidden=0 ORDER BY t.Disc, t.TrackNo")) {
+			$numtracks = $result->rowCount();
 			$currdisc = -1;
-			$count = 0;
-			while ($obj = mysqli_fetch_object($result)) {
-				if (!preg_match('/\.cue$/', (string) $obj->Uri)) {
-					if ($obj->NumDiscs > 1 && $obj->Disc && $obj->Disc != $currdisc) {
-	                    $currdisc = $obj->Disc;
-		                print '<div class="discnumber indent">Disc '.$currdisc.'</div>';
-					}
-					albumTrack(
-						$obj->Artistindex != $obj->AlbumArtistindex ? $obj->Artistname : null,
-						$obj->Rating,
-						rawurlencode($obj->Uri),
-						$numtracks,
-						$obj->TrackNo,
-						$obj->Title,
-						format_time($obj->Duration),
-						$obj->LastModified,
-						$obj->Image
-					);
-					$count++;
+			while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+				if ($numdiscs > 1 && $obj->Disc != $currdisc) {
+                    $currdisc = $obj->Disc;
+	                print '<div class="discnumber indent">'.ucfirst(strtolower(get_int_text("musicbrainz_disc"))).' '.$currdisc.'</div>';
+				}
+				albumTrack(
+					$obj->Artistindex != $obj->AlbumArtistindex ? $obj->Artistname : null,
+					$obj->Rating,
+					rawurlencode($obj->Uri),
+					$numtracks,
+					$obj->TrackNo,
+					$obj->Title,
+					format_time($obj->Duration),
+					$obj->LastModified,
+					$obj->Image
+				);
+				if ($numtracks == 2 && $obj->Title == "Cue Sheet") {
+					// This will be a single-file album rip with a cue sheet.
+					// The FLAC file will probably be untagged and we don't want to display it.
+					// But it WILL be in the database because we can't prevent that if we permit track-by-track
+					// file adding (because you can also have cue sheets with multiple-file rips)
+					break;
 				}
 			}
-	        if ($count == 0) {
+	        if ($numtracks == 0) {
 	            noAlbumTracks();
 	        }
-			mysqli_free_result($result);
 		} else {
-			debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	        print '<h3>'.get_int_text("label_general_error").'</h3>';
 		}
 	}
@@ -1092,129 +882,106 @@ function getAllURIs($sqlstring) {
 
 	// Get all track URIs using a supplied SQL string. For playlist generators
 
-	global $mysqlc;
-
+	// Get all track URIs using a supplied SQL string. For playlist generators
 	debug_print("Selector is ".$sqlstring,"SMART PLAYLIST");
 
 	generic_sql_query("CREATE TEMPORARY TABLE pltemptable(TTindex INT UNSIGNED NOT NULL UNIQUE)");
-	generic_sql_query("INSERT INTO pltemptable(TTindex) (".$sqlstring." AND NOT Tracktable.TTindex IN (SELECT TTindex FROM pltable) ORDER BY RAND() LIMIT 10)");
+	if ($tags) {
+		$stmt = sql_prepare_query_later("INSERT INTO pltemptable(TTindex) (".$sqlstring." AND NOT Tracktable.TTindex IN (SELECT TTindex FROM pltable) ORDER BY RAND() LIMIT ?)");
+		if ($stmt !== FALSE) {
+			$tags[] = $limit;
+			$stmt->execute($tags);
+		}
+	} else {
+		sql_prepare_query("INSERT INTO pltemptable(TTindex) (".$sqlstring." AND NOT Tracktable.TTindex IN (SELECT TTindex FROM pltable) ORDER BY RAND() LIMIT ?)", $limit);
+	}
 	generic_sql_query("INSERT INTO pltable (TTindex) (SELECT TTindex FROM pltemptable)");
 
 	$uris = array();
-	if ($result = mysqli_query($mysqlc, "SELECT Uri FROM Tracktable WHERE TTindex IN (SELECT TTindex FROM pltemptable)")) {
-		while ($obj = mysqli_fetch_object($result)) {
+	if ($result = generic_sql_query("SELECT Uri FROM Tracktable WHERE TTindex IN (SELECT TTindex FROM pltemptable)")) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			array_push($uris, $obj->Uri);
 			debug_print("URI : ".$obj->Uri,"SMART PLAYLIST");
 		}
-		mysqli_free_result($result);
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 	return $uris;
 }
 
 function get_fave_artists() {
-	global $mysqlc;
 	generic_sql_query("CREATE TEMPORARY TABLE aplaytable (playtotal INT UNSIGNED, Artistindex INT UNSIGNED NOT NULL UNIQUE)");
 	// Playcount > 3 in this query is totally arbitrary and may need tuning. Just trying to get the most popular artists by choosing anyone with an
 	// above average number of plays, but we don't want all the 'played them a few times' artists dragging the average down.
 	generic_sql_query("INSERT INTO aplaytable(playtotal, Artistindex) (SELECT SUM(Playcount) AS playtotal, Artistindex FROM (SELECT Playcount, Artistindex FROM Playcounttable JOIN Tracktable USING (TTindex) WHERE Playcount > 3) AS derived GROUP BY Artistindex)");
 
 	$artists = array();
-	if ($result = mysqli_query($mysqlc, "SELECT playtot, Artistname FROM (SELECT SUM(Playcount) AS playtot, Artistindex FROM (SELECT Playcount, Artistindex FROM Playcounttable JOIN Tracktable USING (TTindex)) AS derived GROUP BY Artistindex) AS alias JOIN Artisttable USING (Artistindex) WHERE playtot > (SELECT AVG(playtotal) FROM aplaytable) ORDER BY RAND()")) {
-		while ($obj = mysqli_fetch_object($result)) {
+	if ($result = generic_sql_query("SELECT playtot, Artistname FROM (SELECT SUM(Playcount) AS playtot, Artistindex FROM (SELECT Playcount, Artistindex FROM Playcounttable JOIN Tracktable USING (TTindex)) AS derived GROUP BY Artistindex) AS alias JOIN Artisttable USING (Artistindex) WHERE playtot > (SELECT AVG(playtotal) FROM aplaytable) ORDER BY RAND()")) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			debug_print("Artist : ".$obj->Artistname,"FAVEARTISTS");
 			array_push($artists, array( 'name' => $obj->Artistname, 'plays' => $obj->playtot));
 		}
-		mysqli_free_result($result);
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 	return $artists;
 }
 
 function get_artist_charts() {
-	global $mysqlc;
 	$artists = array();
-	if ($result = mysqli_query($mysqlc, "SELECT playtot, Artistname FROM (SELECT SUM(Playcount) AS playtot, Artistindex FROM (SELECT Playcount, Artistindex FROM Tracktable JOIN Playcounttable USING (TTindex)) AS arse GROUP BY Artistindex) AS cheese JOIN Artisttable USING (Artistindex) ORDER BY playtot DESC LIMIT 40")) {
-		while ($obj = mysqli_fetch_object($result)) {
+	if ($result = generic_sql_query("SELECT playtot, Artistname FROM (SELECT SUM(Playcount) AS playtot, Artistindex FROM (SELECT Playcount, Artistindex FROM Tracktable JOIN Playcounttable USING (TTindex)) AS arse GROUP BY Artistindex) AS cheese JOIN Artisttable USING (Artistindex) ORDER BY playtot DESC LIMIT 40")) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			array_push($artists, array( 'label_artist' => $obj->Artistname, 'soundcloud_plays' => $obj->playtot));
 		}
-		mysqli_free_result($result);
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 	return $artists;
 }
 
 function get_album_charts() {
-	global $mysqlc;
 	$albums = array();
-	if ($result = mysqli_query($mysqlc, "SELECT playtot, Albumname, Artistname, Spotilink FROM (SELECT SUM(Playcount) AS playtot, Albumindex FROM (SELECT Playcount, Albumindex FROM Tracktable JOIN Playcounttable USING (TTindex)) AS arse GROUP BY Albumindex) AS cheese JOIN Albumtable USING (Albumindex) JOIN Artisttable ON (Albumtable.AlbumArtistIndex = Artisttable.Artistindex) ORDER BY playtot DESC LIMIT 40")) {
-		while ($obj = mysqli_fetch_object($result)) {
+	if ($result = generic_sql_query("SELECT playtot, Albumname, Artistname, Spotilink FROM (SELECT SUM(Playcount) AS playtot, Albumindex FROM (SELECT Playcount, Albumindex FROM Tracktable JOIN Playcounttable USING (TTindex)) AS arse GROUP BY Albumindex) AS cheese JOIN Albumtable USING (Albumindex) JOIN Artisttable ON (Albumtable.AlbumArtistIndex = Artisttable.Artistindex) ORDER BY playtot DESC LIMIT 40")) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			array_push($albums, array( 'label_artist' => $obj->Artistname, 'label_album' => $obj->Albumname, 'soundcloud_plays' => $obj->playtot, 'uri' => $obj->Spotilink));
 		}
-		mysqli_free_result($result);
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 	return $albums;
 }
 
 function get_track_charts() {
-	global $mysqlc;
 	$tracks = array();
-	if ($result = mysqli_query($mysqlc, "SELECT Title, Playcount, Artistname, Uri FROM Tracktable JOIN Playcounttable USING (TTIndex) JOIN Artisttable USING (Artistindex) ORDER BY Playcount DESC LIMIT 40")) {
-		while ($obj = mysqli_fetch_object($result)) {
+	if ($result = generic_sql_query("SELECT Title, Playcount, Artistname, Uri FROM Tracktable JOIN Playcounttable USING (TTIndex) JOIN Artisttable USING (Artistindex) ORDER BY Playcount DESC LIMIT 40")) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			array_push($tracks, array( 'label_artist' => $obj->Artistname, 'label_track' => $obj->Title, 'soundcloud_plays' => $obj->Playcount, 'uri' => $obj->Uri));
 		}
-		mysqli_free_result($result);
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 	return $tracks;
 }
 
 function getAveragePlays() {
-
-	global $mysqlc;
 	$avgplays = 0;
-	if ($result = mysqli_query($mysqlc, "SELECT avg(Playcount) as avgplays FROM Playcounttable")) {
-		while ($obj = mysqli_fetch_object($result)) {
+	if ($result = generic_sql_query("SELECT avg(Playcount) as avgplays FROM Playcounttable")) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			$avgplays = $obj->avgplays;
 			debug_print("Average Plays is ".$avgplays, "SMART PLAYLIST");
 		}
-		mysqli_free_result($result);
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 	return round($avgplays, 0, PHP_ROUND_HALF_DOWN);
 }
 
 function find_artist_from_album($albumid) {
-	global $mysqlc;
 	$retval = null;
 	$qstring = "SELECT AlbumArtistindex FROM Albumtable WHERE Albumindex = '".$albumid."'";
-	if ($result = mysqli_query($mysqlc, $qstring)) {
-		while ($obj = mysqli_fetch_object($result)) {
+	if ($result = generic_sql_query($qstring)) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			$retval = $obj->AlbumArtistindex;
 		}
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 	return $retval;
 }
 
 function find_album_from_track($ttid) {
-	global $mysqlc;
 	$retval = null;
 	$qstring = "SELECT Albumindex FROM Tracktable WHERE TTindex = '".$ttid."'";
-	if ($result = mysqli_query($mysqlc, $qstring)) {
-		while ($obj = mysqli_fetch_object($result)) {
+	if ($result = generic_sql_query($qstring)) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			$retval = $obj->Albumindex;
 		}
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 	return $retval;
 }
@@ -1225,36 +992,26 @@ function remove_ttid($ttid) {
 	// Doesn't do any cleaning up.
 	// You should call remove_cruft afterwards to remove orphaned
 	// artists and albums
-
-	global $mysqlc;
 	global $returninfo;
 	$retval = false;
-	$uri = null;
 	debug_print("Removing track ".$ttid,"MYSQL");
-	if ($result = mysqli_query($mysqlc, "SELECT Uri FROM Tracktable WHERE TTindex = '".$ttid."'")) {
-		while ($obj = mysqli_fetch_object($result)) {
+	if ($result = generic_sql_query("SELECT Uri FROM Tracktable WHERE TTindex = '".$ttid."'")) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			if (!array_key_exists('deletedtracks', $returninfo)) {
 				$returninfo['deletedtracks'] = array();
 			}
 			array_push($returninfo['deletedtracks'], rawurlencode($obj->Uri));
 		}
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
-	mysqli_free_result($result);
-	$result = mysqli_query($mysqlc, "SELECT Playcount FROM Playcounttable WHERE TTindex=".$ttid);
-	if (mysqli_num_rows($result) > 0) {
+	$result = generic_sql_query("SELECT Playcount FROM Playcounttable WHERE TTindex=".$ttid);
+	if ($result->rowCount() > 0) {
 		debug_print("  Track has a playcount. Hiding it instead","MYSQL");
-		if ($result = mysqli_query($mysqlc, "UPDATE Tracktable SET Hidden = 1 WHERE TTindex = '".$ttid."'")) {
+		if ($result = generic_sql_query("UPDATE Tracktable SET Hidden = 1 WHERE TTindex = '".$ttid."'")) {
 			$retval = true;
-		} else {
-			debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 		}
 	} else {
-		if ($result = mysqli_query($mysqlc, "DELETE FROM Tracktable WHERE TTindex = '".$ttid."'")) {
+		if ($result = generic_sql_query("DELETE FROM Tracktable WHERE TTindex = '".$ttid."'")) {
 			$retval = true;
-		} else {
-			debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 		}
 	}
 	return $retval;
@@ -1266,48 +1023,38 @@ function remove_ttid($ttid) {
 
 function update_track_stats() {
 	debug_print("Updating Track Stats","MYSQL");
-	global $mysqlc;
-	if ($result = mysqli_query($mysqlc, "SELECT COUNT(*) AS NumArtists FROM (SELECT DISTINCT AlbumArtistIndex FROM Albumtable INNER JOIN Tracktable USING (Albumindex) WHERE Albumname IS NOT NULL AND Uri IS NOT NULL AND Hidden = 0) AS t")) {
+	if ($result = generic_sql_query("SELECT COUNT(*) AS NumArtists FROM (SELECT DISTINCT AlbumArtistIndex FROM Albumtable INNER JOIN Tracktable USING (Albumindex) WHERE Albumname IS NOT NULL AND Uri IS NOT NULL AND Hidden = 0) AS t")) {
 		$ac = 0;
-		while ($obj = mysqli_fetch_object($result)) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			$ac = $obj->NumArtists;
 		}
 		update_stat('ArtistCount',$ac);
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 
-	if ($result = mysqli_query($mysqlc, "SELECT COUNT(*) AS NumAlbums FROM (SELECT DISTINCT Albumindex FROM Albumtable INNER JOIN Tracktable USING (Albumindex) WHERE Albumname IS NOT NULL AND Uri IS NOT NULL AND Hidden = 0) AS t")) {
+	if ($result = generic_sql_query("SELECT COUNT(*) AS NumAlbums FROM (SELECT DISTINCT Albumindex FROM Albumtable INNER JOIN Tracktable USING (Albumindex) WHERE Albumname IS NOT NULL AND Uri IS NOT NULL AND Hidden = 0) AS t")) {
 		$ac = 0;
-		while ($obj = mysqli_fetch_object($result)) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			$ac = $obj->NumAlbums;
 		}
 		update_stat('AlbumCount',$ac);
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 
-	if ($result = mysqli_query($mysqlc, "SELECT COUNT(*) AS NumTracks FROM Tracktable WHERE Uri IS NOT NULL AND Hidden=0")) {
+	if ($result = generic_sql_query("SELECT COUNT(*) AS NumTracks FROM Tracktable WHERE Uri IS NOT NULL AND Hidden=0")) {
 		$ac = 0;
-		while ($obj = mysqli_fetch_object($result)) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			$ac = $obj->NumTracks;
 		}
 		update_stat('TrackCount',$ac);
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 
-	if ($result = mysqli_query($mysqlc, "SELECT SUM(Duration) AS TotalTime FROM Tracktable WHERE Uri IS NOT NULL AND Hidden=0")) {
+	if ($result = generic_sql_query("SELECT SUM(Duration) AS TotalTime FROM Tracktable WHERE Uri IS NOT NULL AND Hidden=0")) {
 		$ac = 0;
-		while ($obj = mysqli_fetch_object($result)) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			$ac = $obj->TotalTime;
 		}
 		update_stat('TotalTime',$ac);
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 	debug_print("Track Stats Updated","MYSQL");
-
 }
 
 function update_stat($item, $value) {
@@ -1315,14 +1062,11 @@ function update_stat($item, $value) {
 }
 
 function get_stat($item) {
-	global $mysqlc;
 	$retval = 0;
-	if ($result = mysqli_query($mysqlc, "SELECT Value FROM Statstable WHERE Item = '".$item."'")) {
-		while ($obj = mysqli_fetch_object($result)) {
+	if ($result = generic_sql_query("SELECT Value FROM Statstable WHERE Item = '".$item."'")) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			$retval = $obj->Value;
 		}
-	} else {
-		debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
 	}
 	return $retval;
 }
@@ -1331,31 +1075,48 @@ function get_stat($item) {
 // Stuff to do with creating the database from a music collection (collection.php)
 //
 
-function doDatabaseMagic() {
-    global $collection;
-    global $LISTVERSION;
-    global $mysqlc;
-    global $prefs;
+function prepareCollectionUpdate() {
+	global $find_track, $update_track;
+	if ($find_track = sql_prepare_query_later("SELECT TTindex, LastModified, Hidden, Disc FROM Tracktable WHERE Title=? AND ((Albumindex=? AND TrackNo=? AND Disc=?)".
+	// ... then tracks that are in the wishlist. These will have TrackNo as NULL but Albumindex might not be.
+		" OR (Artistindex=? AND TrackNo IS NULL AND Uri IS NULL))")) {
+	} else {
+		show_sql_error();
+        exit(1);
+	}
 
-    $now = time();
+	if ($update_track = sql_prepare_query_later("UPDATE Tracktable SET Trackno=?, Duration=?, Disc=?, LastModified=?, Uri=?, Albumindex=?, Hidden=0 WHERE TTindex=?")) {
+	} else {
+		show_sql_error();
+        exit(1);
+	}
 	generic_sql_query("CREATE TEMPORARY TABLE Foundtracks(TTindex INT UNSIGNED NOT NULL UNIQUE, PRIMARY KEY(TTindex)) ENGINE MEMORY");
+}
+
+function doDatabaseMagic() {
+    global $collection, $LISTVERSION;
+
+    debug_print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~","TIMINGS");
+    debug_print("Starting Database Update From Collection","TIMINGS");
+    $now = time();
 
     $artistlist = $collection->getSortedArtistList();
     foreach($artistlist as $artistkey) {
-        do_artist_database_stuff($artistkey, $now);
+        do_artist_database_stuff($artistkey);
     }
 
     // Find tracks that have been removed
     debug_print("Finding tracks that have been deleted","MYSQL");
     // Hide tracks that have playcounts
-    generic_sql_query("UPDATE Tracktable SET Hidden = 1 WHERE LastModified IS NOT NULL AND TTindex NOT IN (SELECT TTindex FROM Foundtracks) AND TTindex IN (SELECT TTindex FROM Playcounttable)");
-    generic_sql_query("DELETE FROM Tracktable WHERE LastModified IS NOT NULL AND TTindex NOT IN (SELECT TTindex FROM Foundtracks) AND Hidden = 0");
+    generic_sql_query("UPDATE Tracktable SET Hidden = 1 WHERE LastModified IS NOT NULL AND TTindex NOT IN (SELECT TTindex FROM Foundtracks) AND TTindex IN (SELECT TTindex FROM Playcounttable)", true);
+    generic_sql_query("DELETE FROM Tracktable WHERE LastModified IS NOT NULL AND TTindex NOT IN (SELECT TTindex FROM Foundtracks) AND Hidden = 0", true);
 
     remove_cruft();
 	update_stat('ListVersion',$LISTVERSION);
 	update_track_stats();
 	$dur = format_time(time() - $now);
-	debug_print("Database Update Took ".$dur,"MYSQL");
+	debug_print("Database Update From Collection Took ".$dur,"MYSQL");
+    debug_print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~","TIMINGS");
 
 }
 
@@ -1366,36 +1127,34 @@ function remove_cruft() {
 	// To try and keep the db size down, if a track has only been played once in the last 6 months and it has no tags or ratings, remove it.
 	// We don't need to check if it's in the Ratingtable or TagListtable because if Hidden = 1 it can't be.
 	debug_print("Removing once-played tracks not played in 6 months","MYSQL");
-	generic_sql_query("DELETE Tracktable FROM Tracktable JOIN Playcounttable USING (TTindex) WHERE Hidden = 1 AND DATE_SUB(CURDATE(), INTERVAL 6 MONTH) > DateAdded AND Playcount < 2");
+	generic_sql_query("DELETE Tracktable FROM Tracktable JOIN Playcounttable USING (TTindex) WHERE Hidden = 1 AND DATE_SUB(CURDATE(), INTERVAL 6 MONTH) > DateAdded AND Playcount < 2", true);
 
     debug_print("Removing orphaned albums","MYSQL");
     // NOTE - the Albumindex IS NOT NULL is essential - if any albumindex is NULL the entire () expression returns NULL
-    generic_sql_query("DELETE FROM Albumtable WHERE Albumindex NOT IN (SELECT DISTINCT Albumindex FROM Tracktable WHERE Albumindex IS NOT NULL)");
+    generic_sql_query("DELETE FROM Albumtable WHERE Albumindex NOT IN (SELECT DISTINCT Albumindex FROM Tracktable WHERE Albumindex IS NOT NULL)", true);
 
     debug_print("Removing orphaned artists","MYSQL");
-	generic_sql_query("CREATE TEMPORARY TABLE Croft(Artistindex INT UNSIGNED NOT NULL UNIQUE, PRIMARY KEY(Artistindex)) SELECT Artistindex FROM Tracktable UNION SELECT AlbumArtistindex FROM Albumtable");
-	generic_sql_query("CREATE TEMPORARY TABLE Cruft(Artistindex INT UNSIGNED NOT NULL UNIQUE, PRIMARY KEY(Artistindex)) SELECT Artistindex FROM Artisttable WHERE Artistindex NOT IN (SELECT Artistindex FROM Croft)");
-	generic_sql_query("DELETE Artisttable FROM Artisttable INNER JOIN Cruft ON Artisttable.Artistindex = Cruft.Artistindex");
+	generic_sql_query("CREATE TEMPORARY TABLE Croft(Artistindex INT UNSIGNED NOT NULL UNIQUE, PRIMARY KEY(Artistindex)) SELECT Artistindex FROM Tracktable UNION SELECT AlbumArtistindex FROM Albumtable", true);
+	generic_sql_query("CREATE TEMPORARY TABLE Cruft(Artistindex INT UNSIGNED NOT NULL UNIQUE, PRIMARY KEY(Artistindex)) SELECT Artistindex FROM Artisttable WHERE Artistindex NOT IN (SELECT Artistindex FROM Croft)", true);
+	generic_sql_query("DELETE Artisttable FROM Artisttable INNER JOIN Cruft ON Artisttable.Artistindex = Cruft.Artistindex", true);
 
     debug_print("Tidying Metadata","MYSQL");
-    generic_sql_query("DELETE FROM Ratingtable WHERE Rating = '0'");
-	generic_sql_query("DELETE FROM Ratingtable WHERE TTindex NOT IN (SELECT TTindex FROM Tracktable WHERE Hidden = 0)");
-	generic_sql_query("DELETE FROM TagListtable WHERE TTindex NOT IN (SELECT TTindex FROM Tracktable WHERE Hidden = 0)");
-	generic_sql_query("DELETE FROM Tagtable WHERE Tagindex NOT IN (SELECT Tagindex FROM TagListtable)");
-	generic_sql_query("DELETE FROM Playcounttable WHERE Playcount = '0'");
-	generic_sql_query("DELETE FROM Playcounttable WHERE TTindex NOT IN (SELECT TTindex FROM Tracktable)");
-	generic_sql_query("DELETE FROM Trackimagetable WHERE TTindex NOT IN (SELECT TTindex FROM Tracktable)");
+    generic_sql_query("DELETE FROM Ratingtable WHERE Rating = '0'", true);
+	generic_sql_query("DELETE FROM Ratingtable WHERE TTindex NOT IN (SELECT TTindex FROM Tracktable WHERE Hidden = 0)", true);
+	generic_sql_query("DELETE FROM TagListtable WHERE TTindex NOT IN (SELECT TTindex FROM Tracktable WHERE Hidden = 0)", true);
+	generic_sql_query("DELETE FROM Tagtable WHERE Tagindex NOT IN (SELECT Tagindex FROM TagListtable)", true);
+	generic_sql_query("DELETE FROM Playcounttable WHERE Playcount = '0'", true);
+	generic_sql_query("DELETE FROM Playcounttable WHERE TTindex NOT IN (SELECT TTindex FROM Tracktable)", true);
+	generic_sql_query("DELETE FROM Trackimagetable WHERE TTindex NOT IN (SELECT TTindex FROM Tracktable)", true);
 
 	$dur = format_time(time() - $now);
 	debug_print("Remove Cruft Took ".$dur,"MYSQL");
 
 }
 
-function do_artist_database_stuff($artistkey, $now, $sendupdates = false) {
-    global $collection;
-    global $mysqlc;
-    global $artist_created;
-    global $album_created;
+function do_artist_database_stuff($artistkey, $sendupdates = false) {
+
+    global $collection, $artist_created, $album_created, $find_track, $update_track;
 
     $artistname = $collection->artistName($artistkey);
 
@@ -1405,34 +1164,17 @@ function do_artist_database_stuff($artistkey, $now, $sendupdates = false) {
     // It speeds things up a bit and stops us unnecessarily creating artists when certain backends
     // return only albums.
     if ($collection->artistNumTracks($artistkey) == 0) {
-    	debug_print("Artist ".$artistname." has no albums. Ignoring it","MYSQL");
+    	// debug_print("Artist ".$artistname." has no albums. Ignoring it","MYSQL");
     	return false;
     }
 
     $albumlist = array();
-    $showartist = false;
     if ($artistkey == "various artists") {
 		$albumlist = $collection->getAlbumList($artistkey, false);
-		$showartist = true;
     } else {
 	    $albumlist = $collection->getAlbumList($artistkey, true);
     }
 
-	if ($stmt = mysqli_prepare($mysqlc, "UPDATE Tracktable SET Trackno=?, Duration=?, LastModified=?, Disc=?, Uri=?, Albumindex=?, Hidden=0 WHERE TTindex=?")) {
-	} else {
-        debug_print("    MYSQL Statement Error: ".mysqli_error($mysqlc),"MYSQL");
-        return false;
-	}
-
-	// First find tracks that we already have ...
-	if ($find_track = mysqli_prepare($mysqlc, "SELECT TTindex, LastModified, Hidden, Disc FROM Tracktable WHERE Title=? AND ((Albumindex=? AND TrackNo=? AND Disc=?)".
-	// ... then tracks that are in the wishlist. These will have TrackNo as NULL but Albumindex might not be.
-		" OR (Artistindex=? AND TrackNo IS NULL AND Uri IS NULL))")) {
-	} else {
-        debug_print("    MYSQL Statement Error: ".mysqli_error($mysqlc),"MYSQL");
-        return false;
-	}
-	// NOTE that SQL OR is not C-Style || - both sides of the OR will be evaluated. This probably doesn't matter.
 	$artist_created = false;
     $artistindex = check_artist($artistname, $sendupdates);
     if ($artistindex == null) {
@@ -1448,22 +1190,23 @@ function do_artist_database_stuff($artistkey, $now, $sendupdates = false) {
     		// and many radio backends are also the same. We don't want these in the database;
     		// they don't get added even without this check because there are no tracks BUT
     		// the album does get created and then remove_cruft has to delete it again).
-    		debug_print("Album ".$album->name." has no tracks. Ignoring it","MYSQL");
+    		// debug_print("Album ".$album->name." has no tracks. Ignoring it","MYSQL");
     		continue;
     	}
 
 		$album_created = false;
+		// Although we don't need to sort the tracks, we do need to call sortTracks
+		// because this sorts them by disc in the case where there are no disc numbers
+        $album->sortTracks();
         $albumindex = check_album(
             $album->name,
             $artistindex,
             $album->spotilink,
             $album->getImage('small'),
             $album->getDate(),
-            $album->isOneFile(),
             "0",
             md5($album->artist." ".$album->name),
             $album->musicbrainz_albumid,
-            $album->sortTracks(),
             $album->domain,
             $sendupdates
         );
@@ -1475,106 +1218,9 @@ function do_artist_database_stuff($artistkey, $now, $sendupdates = false) {
 
         $ttidupdate = false;
         foreach($album->tracks as $trackobj) {
-            $trackartistindex = null;
-            $ttid = null;
-            $lastmodified = null;
-            $hidden = 0;
-            $disc = 1;
+			$ttidupdate = check_and_update_track($trackobj, $albumindex, $artistindex, $sendupdates);
+        }
 
-            // Why are we not checking by URI? That should be unique, right?
-            // Well, er. no. They're not. Especially Spotify returns the same URI multiple times if it's in mutliple playlists
-            // We CANNOT HANDLE that. Nor do we want to.
-
-            // The other advantage of this is that we can put an INDEX on Albumindex, TrackNo, and Title, which we can't do with Uri cos it's too long
-            // - this speeds the whole process up by a factor of about 32 (9 minutes when checking by URI vs 15 seconds this way, on my collection)
-            // Also, URIs might change if the user moves his music collection.
-
-            // debug_print("Checking for track ".$trackobj->name." ".$trackobj->number." ".$trackobj->url,"MYSQL");
-
-            mysqli_stmt_bind_param($find_track, "siiii", $trackobj->name, $albumindex, $trackobj->number, $trackobj->disc, $artistindex);
-			if (mysqli_stmt_execute($find_track)) {
-			    mysqli_stmt_bind_result($find_track, $ttid, $lastmodified, $hidden, $disc);
-			    mysqli_stmt_store_result($find_track);
-			    while (mysqli_stmt_fetch($find_track)) {
-			    	// PHP is the retarded bastard offspring of Perl and BASIC.
-			    	// And not even BBC Basic. No. Microsoft Quick Basic.
-			    }
-			} else {
-                debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
-                continue;
-	        }
-
-		    if ($ttid) {
-		    	if ($lastmodified === null ||
-		    		$trackobj->lastmodified != $lastmodified ||
-		    		$hidden == 1 ||
-		    		$trackobj->disc != $disc) {
-			    	debug_print("  Updating track with ttid ".$ttid,"MYSQL");
-					mysqli_stmt_bind_param($stmt, "iiiisii", $trackobj->number, $trackobj->duration, $trackobj->lastmodified, $trackobj->disc, $trackobj->url, $albumindex, $ttid);
-					if (mysqli_stmt_execute($stmt)) {
-						// debug_print("    Updated track","MYSQL");
-						if ($sendupdates && $artist_created == false && $album_created == false) {
-							$ttidupdate = $ttid;
-						}
-					} else {
-		                debug_print("    MYSQL Error: ".mysqli_error($mysqlc),"MYSQL");
-					}
-				}
-		    } else {
-		    	// debug_print("  Track not found","MYSQL");
-		    	$a = $trackobj->get_artist_string();
-                if (
-                	($showartist || ($artistname != null && $artistname != $a)) &&
-                    $a != null
-                ){
-                    $trackartistindex = check_artist($a, false);
-                } else {
-                    $trackartistindex = $artistindex;
-                }
-                if ($trackartistindex == null) {
-		        	debug_print("ERROR! Trackartistindex is still null!","MYSQL");
-                    continue;
-                }
-                $trackuri = $trackobj->url;
-                if ($trackobj->playlist && count($album->tracks == 1)) {
-                	$trackuri = $trackobj->playlist;
-                }
-                $ttid = create_new_track(
-                    $trackobj->name,
-                    null,
-                    $trackobj->number,
-                    $trackobj->duration,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    $trackuri,
-                    $trackartistindex,
-                    $artistindex,
-                    $albumindex,
-                    null,
-                    null,
-                    null,
-                    $trackobj->lastmodified,
-                    $trackobj->disc,
-                    null,
-                    null,
-                    null,
-                    0,
-                    null
-                );
-				if ($sendupdates && $artist_created == false && $album_created == false) {
-					$ttidupdate = $ttid;
-				}
-		    }
-
-		    if ($ttid == null) {
-		    	debug_print("ERROR! No ttid for track ".$trackobj->name,"MYSQL");
-		    } else {
-		    	generic_sql_query("INSERT INTO Foundtracks (TTindex) VALUES (".$ttid.")", false);
-		    }
-        } /* End of Album Track Loop */
     	if ($sendupdates && $artist_created == false && $album_created) {
     		send_list_updates(false, $album_created, null, false);
     	} else if ($ttidupdate) {
@@ -1582,9 +1228,162 @@ function do_artist_database_stuff($artistkey, $now, $sendupdates = false) {
         	send_list_updates(false, false, $ttidupdate, false);
         }
     } /* End of Artist Album Loop */
+
     if ($sendupdates && $artist_created) {
 		send_list_updates($artist_created, false, null, false);
 	}
+}
+
+function do_track_by_track($artistname, $albumname, $domain, $spotialbum, $trackobject, $sendupdates = false) {
+
+	// The difference between this and the above function is that this one takes tracks as they come in direct
+	// from the backend - without being collectionised. This is faster and uses less RAM but does rely on the tags
+	// being correct - they're filtered before being sent here.
+
+	global $mysqlc, $album_created, $artist_created, $find_track, $update_track;
+
+	static $current_albumartist = null;
+	static $current_album = null;
+	static $current_domain = null;
+
+	static $albumindex = null;
+	static $albumartistindex = null;
+
+	if ($current_albumartist != $artistname) {
+		$albumartistindex = check_artist($artistname, $sendupdates);
+	}
+    if ($albumartistindex == null) {
+    	debug_print("ERROR! Checked artist ".$artistname." and index is still null!","MYSQL_TBT");
+        return false;
+    }
+
+    $albumobj = new album($albumname, $artistname, $domain);
+    $albumobj->newTrack($trackobject);
+    $albumobj->spotilink = $spotialbum;
+
+    if ($current_albumartist != $artistname || $current_album != $albumname || $current_domain != $domain) {
+        $albumindex = check_album(
+            $albumobj->name,
+            $albumartistindex,
+            $albumobj->spotilink,
+            $albumobj->getImage('small'),
+            $albumobj->getDate(),
+            "0",
+            md5($albumobj->artist." ".$albumobj->name),
+            $albumobj->musicbrainz_albumid,
+            $albumobj->domain,
+            $sendupdates
+        );
+
+        if ($albumindex == null) {
+        	debug_print("ERROR! Album index for ".$albumobj->name." is still null!","MYSQL_TBT");
+    		return false;
+        }
+    }
+
+    $current_albumartist = $artistname;
+    $current_album = $albumname;
+    $current_domain = $domain;
+
+	foreach ($albumobj->tracks as $trackobj) {
+		// There is one case where the album we've just created might have 2 tracks - this is when the
+		// track we're using has a 'playlist' property - this means it's a CUE sheet from MPD but it may
+		// also have an audio file URI that we need to add.
+		$ttidupdate = check_and_update_track($trackobj, $albumindex, $albumartistindex, $sendupdates);
+	}
+}
+
+function check_and_update_track($trackobj, $albumindex, $artistindex, $sendupdates) {
+	global $find_track, $update_track, $artist_created, $album_created;
+	static $current_trackartist = null;
+	static $trackartistindex = null;
+	$ttidupdate = false;
+    $ttid = null;
+    $lastmodified = null;
+    $hidden = 0;
+    $disc = 0;
+    // Why are we not checking by URI? That should be unique, right?
+    // Well, er. no. They're not. Especially Spotify returns the same URI multiple times if it's in mutliple playlists
+    // We CANNOT HANDLE that. Nor do we want to.
+
+    // The other advantage of this is that we can put an INDEX on Albumindex, TrackNo, and Title, which we can't do with Uri cos it's too long
+    // - this speeds the whole process up by a factor of about 32 (9 minutes when checking by URI vs 15 seconds this way, on my collection)
+    // Also, URIs might change if the user moves his music collection.
+
+    if ($find_track->execute(array($trackobj->name, $albumindex, $trackobj->number, $trackobj->disc, $artistindex))) {
+    	$obj = $find_track->fetch(PDO::FETCH_OBJ);
+    	if ($obj) {
+    		$ttid = $obj->TTindex;
+    		$lastmodified = $obj->LastModified;
+    		$hidden = $obj->Hidden;
+    		$disc = $obj->Disc;
+    	}
+    } else {
+    	show_sql_error();
+    	return false;
+    }
+
+    if ($ttid) {
+    	if ($lastmodified === null ||
+    		$trackobj->lastmodified != $lastmodified ||
+    		$trackobj->disc != $disc ||
+    		$hidden == 1) {
+	    	debug_print("  Updating track with ttid ".$ttid,"MYSQL");
+			if ($update_track->execute(array($trackobj->number, $trackobj->duration, $trackobj->disc, $trackobj->lastmodified, $trackobj->url, $albumindex, $ttid))) {
+				if ($sendupdates && $artist_created == false && $album_created == false) {
+					$ttidupdate = $ttid;
+				}
+			} else {
+				show_sql_error();
+			}
+		}
+    } else {
+    	$a = $trackobj->get_artist_string();
+    	if ($a != $current_trackartist || $trackartistindex == null) {
+	        if ($artistname != $a && $a != null) {
+	            $trackartistindex = check_artist($a, false);
+	        } else {
+	            $trackartistindex = $albumartistindex;
+	        }
+	    }
+        if ($trackartistindex == null) {
+        	debug_print("ERROR! Trackartistindex is still null!","MYSQL_TBT");
+            return false;
+        }
+        $current_trackartist = $a;
+        $ttid = create_new_track(
+            $trackobj->name,
+            null,
+            $trackobj->number,
+            $trackobj->duration,
+            null,
+            null,
+            null,
+            null,
+            null,
+            $trackobj->url,
+            $artistindex,
+            $albumartistindex,
+            $albumindex,
+            null,
+            null,
+            $trackobj->lastmodified,
+            $trackobj->disc,
+            null,
+            null,
+            0,
+            null
+        );
+		if ($sendupdates && $artist_created == false && $album_created == false) {
+			$ttidupdate = $ttid;
+		}
+	}
+    if ($ttid == null) {
+    	debug_print("ERROR! No ttid for track ".$trackobj->name,"MYSQL");
+    } else {
+    	generic_sql_query("INSERT INTO Foundtracks (TTindex) VALUES (".$ttid.")", false, false);
+    }
+    return $ttidupdate;
 }
 
 function dumpAlbums($which) {
@@ -1632,7 +1431,6 @@ function getItemsToAdd($which) {
         }
         return get_album_tracks_from_database($matches[1]);
     }
-
 }
 
 function printHeaders() {
@@ -1650,7 +1448,6 @@ function printHeaders() {
 
 function printTrailers() {
     return '</body></html>';
-
 }
 
 function send_list_updates($artist_created, $album_created, $ttid, $send = true) {
@@ -1704,18 +1501,17 @@ function checkAlbumsAndArtists() {
 	// NOTE: this query does return albums for which we have only hidden tracks.
 	// This is what we want, because one of those may still be displayed.
 	// Any that aren't displayed don't matter because they can't be removed from the display anyway
-	$result = mysqli_query($mysqlc, "SELECT Albumindex FROM Albumtable WHERE Albumindex NOT IN (SELECT DISTINCT Albumindex FROM Tracktable WHERE Albumindex IS NOT NULL AND Hidden=0)");
-	while ($obj = mysqli_fetch_object($result)) {
-		// debug_print("Album ".$obj->Albumindex." is no longer needed","MYSQL");
-		if (!array_key_exists('deletedalbums', $returninfo)) {
-			$returninfo['deletedalbums'] = array();
+	if ($result = generic_sql_query("SELECT Albumindex FROM Albumtable WHERE Albumindex NOT IN (SELECT DISTINCT Albumindex FROM Tracktable WHERE Albumindex IS NOT NULL AND Hidden=0)")) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+			if (!array_key_exists('deletedalbums', $returninfo)) {
+				$returninfo['deletedalbums'] = array();
+			}
+			array_push($returninfo['deletedalbums'], "aalbum".$obj->Albumindex);
 		}
-		array_push($returninfo['deletedalbums'], "aalbum".$obj->Albumindex);
 	}
-	mysqli_free_result($result);
 
 	// Now find which artists have either no tracks or only hidden tracks
-	$result = mysqli_query($mysqlc, "SELECT hidden.AlbumArtistindex FROM ".
+	if ($result = generic_sql_query("SELECT hidden.AlbumArtistindex FROM ".
 									"(SELECT COUNT(Tracktable.Albumindex) AS numtracks, AlbumArtistindex FROM Albumtable LEFT JOIN Tracktable USING (Albumindex) WHERE Hidden = 1 ".
 									"OR Tracktable.Albumindex IS NULL ".
 									"GROUP BY AlbumArtistindex) AS hidden ".
@@ -1724,15 +1520,14 @@ function checkAlbumsAndArtists() {
 									"WHERE Hidden = 0 OR Hidden = 1 ".
 									"OR Tracktable.Albumindex IS NULL ".
 									"GROUP BY AlbumArtistindex) AS alltracks ".
-									"ON hidden.numtracks = alltracks.numtracks AND hidden.AlbumArtistindex = alltracks.AlbumArtistindex WHERE alltracks.numtracks IS NOT NULL");
-	while ($obj = mysqli_fetch_object($result)) {
-		// debug_print("Artist index ".$obj->AlbumArtistindex." needs to be removed","MYSQL");
-		if (!array_key_exists('deletedartists', $returninfo)) {
-			$returninfo['deletedartists'] = array();
+									"ON hidden.numtracks = alltracks.numtracks AND hidden.AlbumArtistindex = alltracks.AlbumArtistindex WHERE alltracks.numtracks IS NOT NULL")) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+			if (!array_key_exists('deletedartists', $returninfo)) {
+				$returninfo['deletedartists'] = array();
+			}
+			array_push($returninfo['deletedartists'], "aartist".$obj->AlbumArtistindex);
 		}
-		array_push($returninfo['deletedartists'], "aartist".$obj->AlbumArtistindex);
 	}
-	mysqli_free_result($result);
 }
 
 ?>

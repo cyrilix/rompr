@@ -3,7 +3,21 @@ chdir('../..');
 include ("includes/vars.php");
 include ("includes/functions.php");
 include ("player/mpd/sockets.php");
-include ("backends/".$prefs['apache_backend']."/backend.php");
+$apache_backend = "xml";
+foreach($_POST['commands'] as $cmd) {
+    $cmdstart = strpos($cmd, " ");
+    $part1 = substr($cmd, 0, $cmdstart);
+    if ($part1 == "additem") {
+        $part2 = substr($cmd, $cmdstart+1, strlen($cmd));
+        if (substr($part2,0,2) == "aa") {
+            $apache_backend = $prefs['apache_backend'];
+            break;
+        }
+    }
+}
+
+include ("backends/".$apache_backend."/backend.php");
+
 $mpd_status = array();
 $mpd_status['albumart'] = "";
 

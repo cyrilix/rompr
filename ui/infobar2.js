@@ -237,17 +237,17 @@ var infobar = function() {
             var aImg = new Image();
             var oImg = new Image();
 
-            aImg.className = "notfound";
+            $("#albumpicture").attr('class', "notfound");
 
             aImg.onload = function() {
                 debug.log("ALBUMPICTURE","Image Loaded",$(this).attr("src"));
-                aImg.className = "";
+                $("#albumpicture").attr('class', "");
                 $("#albumpicture").attr("src", $(this).attr("src")).fadeIn('fast');
             }
             aImg.onerror = function() {
                 debug.log("ALBUMPICTURE","Image Failed To Load",$(this).attr("src"));
                 $('img[name="'+$(this).attr('name')+'"]').addClass("notfound");
-                aImg.className = "notexist";
+                $("#albumpicture").attr('class', "notexist");
                 $("#albumpicture").fadeOut('fast');
                 // Don't call coverscraper here - the playlist will do it for us and
                 // its callback will call setSecondarySource
@@ -255,10 +255,11 @@ var infobar = function() {
 
             oImg.onload = function() {
                 debug.log("ALBUMPICTURE","Original Image Loaded",$(this).attr("src"));
-                $("#albumpicture").unbind('click').bind('click', infobar.albumImage.displayOriginalImage);
-                $("#albumpicture").removeClass('clickicon').addClass('clickicon');
+                $("#albumpicture").bind('click', infobar.albumImage.displayOriginalImage);
+                $("#albumpicture").addClass('clickicon');
             }
             oImg.onerror = function() {
+                debug.log("ALBUMPICTURE","Original Image Error");
                 $("#albumpicture").unbind('click');
                 $("#albumpicture").removeClass('clickicon');
             }
@@ -269,12 +270,14 @@ var infobar = function() {
                     if (data.image === null || data.image == "") {
                         aImg.src = "newimages/album-unknown.png";
                         oImg.src = "newimages/album-unknown.png";
-                        aImg.className = "notexist";
+                        $("#albumpicture").attr('class', "notexist");
                     } else {
                         if (aImg.src != data.image) {
                             aImg.src = data.image;
                         }
                         if (oImg.src != data.origimage) {
+                            $("#albumpicture").unbind('click');
+                            $("#albumpicture").removeClass('clickicon');
                             oImg.src = data.origimage;
                         }
                     }
@@ -286,6 +289,8 @@ var infobar = function() {
                         if (data.image != "" && data.image !== null && (aImg.src == "" || aImg.className == "notexist")) {
                             debug.debug("ALBUMPICTURE","  OK, the criteria have been met");
                             aImg.src = data.image;
+                            $("#albumpicture").unbind('click');
+                            $("#albumpicture").removeClass('clickicon');
                             oImg.src = data.origimage;
                         }
                     }

@@ -806,7 +806,10 @@ function playlistScrolled(el) {
 }
 
 function removeTrackFromDb(element) {
-    var trackDiv = element.parent().parent();
+    var trackDiv = element.parent();
+    if (!trackDiv.hasClass('clicktrack')) {
+        trackDiv = trackDiv.parent();
+    }
     var trackToGo = trackDiv.attr("name");
     debug.log("DB_TRACKS","Remove track from database",trackToGo);
     trackDiv.fadeOut('fast');
