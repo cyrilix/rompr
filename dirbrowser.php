@@ -8,12 +8,12 @@ include ("backends/xml/filelister.php");
 $count = 1;
 $tree = null;
 
-if (array_key_exists('item', $_REQUEST) && file_exists($FILESLIST)) {
+if (array_key_exists('item', $_REQUEST) && file_exists(ROMPR_FILEBROWSER_LIST)) {
 	dumpTree($_REQUEST['item']);
 } else {
 	include ("player/mpd/connection.php");
 	$tree = doFileList("listall");
-	doFileCollection($FILESLIST);
+	doFileCollection(ROMPR_FILEBROWSER_LIST);
    	dumpTree('adirroot');
 	close_player($connection);
 }

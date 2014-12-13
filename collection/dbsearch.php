@@ -207,18 +207,16 @@ function check_url_against_database($url, $itags, $rating) {
 	$qstring .= "WHERE t.Uri = ?";
 	if ($stmt = sql_prepare_query_later($qstring)) {
 		if ($stmt->execute($tags)) {
-			if ($stmt->rowCount() > 0) {
+			// rowCount() doesn't work for SELECT with SQLite
+			while($obj = $stmt->fetch(PDO::FETCH_OBJ)) {
 				return true;
-			} else {
-				return false;
 			}
 		} else {
 			show_sql_error();
-			return false;
 		}
 	} else {
 		show_sql_error();
-		return false;
 	}
+	return false;
 }
 ?>

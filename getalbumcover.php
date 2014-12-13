@@ -154,14 +154,13 @@ function check_stream($fname) {
 }
 
 function check_search($fname) {
-    global $ALBUMSEARCH;
     $axp = array();
     $fp = null;
     $retval = array(false, null, null, null, null, null, false);
 
-    if (file_exists($ALBUMSEARCH)) {
-        if (get_file_lock($ALBUMSEARCH, $fp)) {
-            $ax = simplexml_load_file($ALBUMSEARCH);
+    if (file_exists(ROMPR_XML_SEARCH)) {
+        if (get_file_lock(ROMPR_XML_SEARCH, $fp)) {
+            $ax = simplexml_load_file(ROMPR_XML_SEARCH);
             $axp = $ax->xpath('//image/name[.="'.$fname.'"]/parent::*/parent::*');
         }
         release_file_lock($fp);
@@ -180,12 +179,11 @@ function check_search($fname) {
 }
 
 function check_playlist($fname) {
-    global $PLAYLISTFILE;
     $fp = null;
     $retval = array(false, null, null, null, null, null, false);
-    if (file_exists($PLAYLISTFILE)) {
-        if (get_file_lock($PLAYLISTFILE, $fp)) {
-            $ax = json_decode(file_get_contents($PLAYLISTFILE), true);
+    if (file_exists(ROMPR_PLAYLIST_FILE)) {
+        if (get_file_lock(ROMPR_PLAYLIST_FILE, $fp)) {
+            $ax = json_decode(file_get_contents(ROMPR_PLAYLIST_FILE), true);
             foreach ($ax as $track) {
                 if ($track['key'] == $fname) {
                     $retval[1] = $track['albumartist'];

@@ -20,6 +20,8 @@ if (array_key_exists('rebuild', $_REQUEST) ||
 // because it slows things down and makes the UI look unresponsive
 include ("backends/".$apache_backend."/backend.php");
 
+debug_print("Performing Backend Player Action using player ".$player_backend." and backend ".$apache_backend,"ALBUMSLIST");
+
 if (array_key_exists('item', $_REQUEST)) {
     // Populate a dropdown in the collection or search results
 	dumpAlbums($_REQUEST['item']);
@@ -40,7 +42,7 @@ if (array_key_exists('item', $_REQUEST)) {
     }
     debug_print("Search command : ".$cmd,"MPD SEARCH");
     $collection = doCollection($cmd);
-    createAlbumsList($ALBUMSEARCH, "b");
+    createAlbumsList(ROMPR_XML_SEARCH, "b");
     dumpAlbums('balbumroot');
     print '<div class="separator"></div>';
     close_player();
@@ -64,8 +66,8 @@ if (array_key_exists('item', $_REQUEST)) {
     if (array_key_exists('domains', $_REQUEST)) {
         $st['uris'] = $_REQUEST['domains'];
     }
-    $collection = doCollection('core.library.search',$st);
-    createAlbumsList($ALBUMSEARCH, "b");
+    $collection = doCollection('core.library.search',$st,array("Track", "Artist", "Album"), $prefs['lowmemorymode'] == "false" ? true : false);
+    createAlbumsList(ROMPR_XML_SEARCH, "b");
     dumpAlbums('balbumroot');
     print '<div class="separator"></div>';
 } else if (array_key_exists("rawterms", $_REQUEST)) {
@@ -90,7 +92,7 @@ if (array_key_exists('item', $_REQUEST)) {
     include ("collection/collection.php");
     include( "collection/dbsearch.php");
     $collection = doDbCollection($_REQUEST['terms'], $domains);
-    createAlbumsList($ALBUMSEARCH, "b");
+    createAlbumsList(ROMPR_XML_SEARCH, "b");
     dumpAlbums('balbumroot');
     print '<div class="separator"></div>';
 } else if (array_key_exists('wishlist', $_REQUEST)) {
@@ -107,8 +109,8 @@ if (array_key_exists('item', $_REQUEST)) {
     $now = time();
     include ("player/".$player_backend."/connection.php");
     include ("collection/collection.php");
-	$collection = doCollection("listallinfo");
-    createAlbumsList($ALBUMSLIST, "a");
+	$collection = doCollection("listallinfo",null,array("Track"),false);
+    createAlbumsList(ROMPR_XML_COLLECTION, "a");
 	dumpAlbums('aalbumroot');
     close_player();
     debug_print("== Collection Update And Send took ".format_time(time() - $now),"TIMINGS");

@@ -139,8 +139,6 @@ class album {
 
             case "bassdrive":
             case "internetarchive":
-                // All of these don't return images so we display something nicer than
-                // a blank silvery CD.
                 if ($image == "") $image = "newimages/".$this->domain."-logo.png";
                 break;
         }
@@ -184,6 +182,8 @@ class album {
 
         // For XML we have to do the sort every time, since we need the tracks to be in order
 
+        debug_print("Sorting tracks for album ".$this->name,"COLLECTION");
+
         $discs = array();
         $number = 1;
         foreach ($this->tracks as $ob) {
@@ -220,11 +220,7 @@ class album {
     }
 
     public function getDate() {
-        if (preg_match('/(\d\d\d\d)/', $this->datestamp, $matches)) {
-            return $matches[1];
-        } else {
-            return null;
-        }
+        return getYear($this->datestamp);
     }
 }
 
@@ -742,6 +738,7 @@ function process_file($collection, $filedata) {
                             $linktype, $composer, $performers);
 
     $numtracks++;
+    // debug_print("Processed ".$numtracks." tracks. Memory used is ".memory_get_usage(),"COLLECTION");
     $totaltime += $duration;
 }
 

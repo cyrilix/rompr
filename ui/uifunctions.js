@@ -38,6 +38,12 @@ function changeClickPolicy() {
     setClickHandlers();
 }
 
+function changeSortPolicy() {
+    prefs.save({sortcollectionby: $('[name=sortcollectionby]:checked').val()});
+    albumslistexists = true;
+    checkCollection();
+}
+
 function saveTextBoxes() {
     clearTimeout(textSaveTimer);
     textSaveTimer = setTimeout(doTheSave, 1000);
@@ -48,10 +54,18 @@ function setSLValue() {
 }
 
 function doTheSave() {
-    prefs.save({lastfmlang: $('[name=clicklfmlang]:checked').val(),
-                user_lang: $('[name=userlanguage]').val(),
-                music_directory_albumart: $("#configpanel").find('input[name|="music_directory_albumart"]').attr("value"),
-                autotagname: $("#configpanel").find('input[name|="taglovedwith"]').attr("value")});
+    var felakuti = {lastfmlang: $('[name=clicklfmlang]:checked').val(),
+                    user_lang: $('[name=userlanguage]').val(),
+                    autotagname: $("#configpanel").find('input[name|="taglovedwith"]').attr("value")};
+
+    $("#configpanel").find(".saveotron").each( function() {
+        felakuti[$(this).attr("name")] = $(this).attr("value");
+
+    });
+                    // music_directory_albumart: $("#configpanel").find('input[name|="music_directory_albumart"]').attr("value"),
+    debug.log("DEBUG","Saving Text And Ting",felakuti);
+    prefs.save(felakuti);
+
     debug.log("DEBUG","Setting music directory to ",prefs.music_directory_albumart);
     $.post("utils/setFinklestein.php", {dir: $("#configpanel").find('input[name|="music_directory_albumart"]').attr("value")});
 }
@@ -557,6 +571,15 @@ function pollAlbumList() {
     $.getJSON("player/mpd/ajaxcommand.php", checkPoll);
 }
 
+function scootTheAlbums() {
+    debug.log("HELLO","Looking for albums images to search for");
+    $.each($("#collection").find("img").filter(function() {
+        return $(this).hasClass('notexist');
+    }), function() {
+        coverscraper.GetNewAlbumArt($(this).attr('name'));
+    });
+}
+
 function sourcecontrol(source) {
 
     if (mobile == "no") {
@@ -881,6 +904,7 @@ function setPrefs() {
     $("#langselector").val(interfaceLanguage);
     $("#countryselector").val(prefs.lastfm_country_code);
     $("[name=clickselect][value="+prefs.clickmode+"]").attr("checked", true);
+    $("[name=sortcollectionby][value="+prefs.sortcollectionby+"]").attr("checked", true);
     $("[name=clicklfmlang][value="+prefs.lastfmlang+"]").attr("checked", true);
     $("[name=userlanguage]").val(prefs.user_lang);
     $("#fontselector").val(prefs.fontsize);
@@ -893,7 +917,7 @@ function setPrefs() {
     $.each(["synctags", "synclove", "onthefly", "lastfm_scrobbling",
             "lastfm_autocorrect", "hide_albumlist", "hide_filelist", "hide_radiolist",
             "hidebrowser", "updateeverytime", "ignore_unplayable", "downloadart",
-            "fullbiobydefault", "scrolltocurrent", "sortbydate", "notvabydate",
+            "fullbiobydefault", "scrolltocurrent", "sortbydate", "notvabydate", "lowmemorymode",
             "twocolumnsinlandscape", "sortbycomposer", "composergenre", "displaycomposer", "consumeradio"],
             function(i,v) {
                 $("#"+v).attr("checked", prefs[v]);

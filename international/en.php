@@ -537,6 +537,12 @@ $languages['en'] = array (
 	"label_radio_mix" => "Personal Mix Radio",
 	"label_gotnotracks" => "Didn't find any tracks",
 	"config_consumeradio" => "Enable Consume when playing Smart Radio",
+	"config_artistfirst" => "Artists At Top Of Collection",
+	"config_prefixignore" => "Ignore These Prefixes When Sorting Artists",
+	"config_sortcollectionby" => "Sort Collection By",
+	"config_low_memory_mode" => "Build Collection Using Low Memory Mode",
+	"config_meminfo" => "Low Memory Mode is slower but works better with large collections",
+
 
 	//CHANGED in 0.60
 	"config_country" => "COUNTRY (for Last.FM and Spotify)",

@@ -207,15 +207,13 @@ function normalizeChars($s) {
 }
 
 function findItem($x, $which) {
-    global $ARTIST;
-    global $ALBUM;
     $t = substr($which, 1, 3);
     if ($t == "art") {
         $it = $x->xpath("artists/artist[@id='".$which."']");
-        return array($ARTIST, $it[0]);
+        return array(ROMPR_ITEM_ARTIST, $it[0]);
     } else {
         $it = $x->xpath("artists/artist/albums/album[@id='".$which."']");
-        return array($ALBUM, $it[0]);
+        return array(ROMPR_ITEM_ALBUM, $it[0]);
     }
 }
 
@@ -658,7 +656,25 @@ print '<hr class="dingleberry" />';
 print '<h3>'.get_int_text("setup_mopidy").'</h3>';
 print '<p>'.get_int_text("setup_mopidyport").'<br><input type="text" class="winkle" name="mopidy_http_port" value="'.$prefs['mopidy_http_port'].'" /></p>'."\n";
 print '<hr class="dingleberry" />';
-print '<h3>MySQL Server Settings</h3>';
+print '<h3>Collection Settings</h3>';
+print '<p><input type="radio" name="collection_type" value="xml"';
+if (array_key_exists('collection_type', $prefs) && $prefs['collection_type'] == "xml") {
+    print " checked";
+}
+print '>Basic Collection</input></p>';
+print '<p class="tiny">Fast but with limited features</p>';
+print '<p><input type="radio" name="collection_type" value="sqlite"';
+if (array_key_exists('collection_type', $prefs) && $prefs['collection_type'] == "sqlite") {
+    print " checked";
+}
+print '>Lite Database Collection</input></p>';
+print '<p class="tiny">Full featured but may be slow with a large collection</p>';
+print '<p><input type="radio" name="collection_type" value="mysql"';
+if (array_key_exists('collection_type', $prefs) && $prefs['collection_type'] == "mysql") {
+    print " checked";
+}
+print '>Full Database Collection</input></p>';
+print '<p class="tiny">Fast and full featured - requires MySQL Server:</p>';
 print '<p>Server<br><input type="text" class="winkle" name="mysql_host" value="'.$prefs['mysql_host'].'" /></p>'."\n";
 print '<p>Port<br><input type="text" class="winkle" name="mysql_port" value="'.$prefs['mysql_port'].'" /></p>'."\n";
 print '<p>Database<br><input type="text" class="winkle" name="mysql_database" value="'.$prefs['mysql_database'].'" /></p>'."\n";
@@ -682,6 +698,32 @@ print'        <p><input type="submit" class="winkle" value="OK" /></p>
 </body>
 </html>';
 print "\n";
+}
+
+function sql_init_fail($message) {
+
+    global $prefs;
+    header("HTTP/1.1 500 Internal Server Error");
+?>
+<html><head>
+<link rel="stylesheet" type="text/css" href="css/layout.css" />
+<link rel="stylesheet" type="text/css" href="themes/Darkness.css" />
+<title>Badgers!</title>
+</head>
+<body>
+<h2 align="center" style="font-size:200%">Collection Database Error</h2>
+<h4 align="center">It's all gone horribly wrong</h2>
+<br>
+<?php
+print '<h3 align="center">Rompr encountered an error while checking your '.ucfirst($prefs['collection_type']).' database.</h3>';
+?>
+<h3 align="center">You may find it helpful to <a href="https://sourceforge.net/p/rompr/wiki/Enabling%20Rating%20and%20Tagging/" target="_blank">Read The Wiki</a></h3>
+<h3 align="center">The error message was:</h3><br>
+<?php
+    print '<div class="bordered" style="width:75%;margin:auto"><p align="center"><b>'.$message.'</b></p></div><br><br></body></html>';
+    askForMpdValues("");
+    exit(0);
+
 }
 
 function update_stream_playlist($url, $name, $image, $creator, $title, $type, $fname) {
@@ -781,6 +823,14 @@ function getArray($a) {
         return $a;
     } else {
         return array($a);
+    }
+}
+
+function getYear($date) {
+    if (preg_match('/(\d\d\d\d)/', $date, $matches)) {
+        return $matches[1];
+    } else {
+        return null;
     }
 }
 

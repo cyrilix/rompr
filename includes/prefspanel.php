@@ -119,6 +119,10 @@ if ($prefs['player_backend'] == "mpd") {
     print '<div class="pref">
     <input type="checkbox" onclick="togglePref(\'ignore_unplayable\')" id="ignore_unplayable">'.get_int_text('config_ignore_unplayable').'</input>
     </div>';
+    print '<div class="pref">
+    <input type="checkbox" onclick="togglePref(\'lowmemorymode\')" id="lowmemorymode">'.get_int_text('config_low_memory_mode').'</input>
+    </div>';
+    print '<div class="pref"><span class="tiny">'.get_int_text('config_meminfo').'</span></div>';
     if ($prefs['apache_backend'] == "sql") {
         print '<div class="pref">
         <input type="checkbox" onclick="togglePref(\'onthefly\')" id="onthefly">'.get_int_text('config_onthefly').'</input>
@@ -126,18 +130,31 @@ if ($prefs['player_backend'] == "mpd") {
     }
 }
 
-print '<div class="pref">
+print '<div class="pref"><b>
 <input type="checkbox" onclick="togglePref(\'sortbycomposer\')" id="sortbycomposer">'.get_int_text('config_sortbycomposer').'</input>
-</div>';
-print '<div class="pref">
+</div></b>';
+print '<div class="pref indent">
 <input type="checkbox" onclick="togglePref(\'composergenre\')" id="composergenre">'.get_int_text('config_composergenre').'</input>
 </div>';
-print '<div class="pref">
-<input class="winkle" name="composergenrename" onkeyup="saveTextBoxes()" type="text" size="40" value="'.$prefs['composergenrename'].'"/>
+print '<div class="pref indent">
+<input class="winkle saveotron" name="composergenrename" onkeyup="saveTextBoxes()" type="text" size="40" value="'.$prefs['composergenrename'].'"/>
 </div>';
-print '<div class="pref">
+print '<div class="pref indent">
 <input type="checkbox" onclick="togglePref(\'displaycomposer\')" id="displaycomposer">'.get_int_text('config_displaycomposer').'</input>
 </div>';
+
+if ($prefs['apache_backend'] == "sql") {
+    print '<div class="pref"><b>'.get_int_text('config_artistfirst').'
+    <input class="winkle saveotron" name="artistsfirst" onkeyup="saveTextBoxes()" type="text" size="128" value="'.$prefs['artistsfirst'].'"/>
+    </b></div>';
+    print '<div class="pref"><b>'.get_int_text('config_prefixignore').'
+    <input class="winkle saveotron" name="prefixignore" onkeyup="saveTextBoxes()" type="text" size="128" value="'.$prefs['prefixignore'].'"/>
+    </b></div>';
+    print '<div class="pref"><b>'.get_int_text('config_sortcollectionby').'</b>';
+    print '<div><input type="radio" class="topcheck" onclick="changeSortPolicy()" name="sortcollectionby" value="artist">'.get_int_text('label_artist').'</input></div>
+    <div><input type="radio" class="topcheck" onclick="changeSortPolicy()" name="sortcollectionby" value="album">'.get_int_text('label_album').'</input></div>';
+    print '</div>';
+}
 
 // Album Sorting
 print '<div class="pref prefsection">
@@ -153,7 +170,7 @@ print '<div class="pref">
 </div>
 <div class="pref prefsection">
 <span class="tiny">'.get_int_text('config_musicfolders').'</span>
-<input class="winkle" name="music_directory_albumart" onkeyup="saveTextBoxes()" type="text" size="40" value="'.$prefs['music_directory_albumart'].'"/>
+<input class="winkle saveotron" name="music_directory_albumart" onkeyup="saveTextBoxes()" type="text" size="40" value="'.$prefs['music_directory_albumart'].'"/>
 </div>';
 
 // Interface

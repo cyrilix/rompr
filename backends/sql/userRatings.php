@@ -32,7 +32,7 @@ $spotilink = array_key_exists('spotilink', $_POST) ? $_POST['spotilink'] : null;
 $image = array_key_exists('image', $_POST) ? $_POST['image'] : null;
 $album = array_key_exists('album', $_POST) ? $_POST['album'] : null;
 $uri = array_key_exists('uri', $_POST) ? $_POST['uri'] : null;
-$date = array_key_exists('date', $_POST) ? $_POST['date'] : null;
+$date = array_key_exists('date', $_POST) ? getYear($_POST['date']) : null;
 $urionly = array_key_exists('urionly', $_POST) ? true : false;
 $dontcreate = array_key_exists('dontcreate', $_POST) ? true : false;
 $disc = array_key_exists('disc', $_POST) ? $_POST['disc'] : 1;
@@ -48,6 +48,8 @@ if ( array_key_exists('attribute', $_POST) &&
 		array( "attribute" => $_POST['attribute'], "value" => $_POST['value'] )
 	);
 }
+
+open_transaction();
 
 switch ($_POST['action']) {
 
@@ -346,6 +348,8 @@ switch ($_POST['action']) {
 		break;
 
 }
+
+close_transaction();
 
 debug_print("---------------------------END----------------------","USERRATING");
 

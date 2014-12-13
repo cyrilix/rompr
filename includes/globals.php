@@ -119,13 +119,13 @@ if (prefs.infosource == "slideshow") {
 if ($prefs['apache_backend'] == "sql") {
     print "var albumslistexists = ".check_albumslist().";\n";
 } else {
-    if (file_exists($ALBUMSLIST)) {
+    if (file_exists(ROMPR_XML_COLLECTION)) {
         print "var albumslistexists = true;\n";
     } else {
         print "var albumslistexists = false;\n";
     }
 }
-if (file_exists($FILESLIST) || $prefs['player_backend'] == "mopidy") {
+if (file_exists(ROMPR_FILEBROWSER_LIST) || $prefs['player_backend'] == "mopidy") {
     // Mopidy doesn't require a files list as it's generated on the fly
     print "var fileslistexists = true;\n";
 } else {

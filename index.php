@@ -95,7 +95,12 @@ if ($mopidy_detected) {
 //
 
 include( "backends/sql/connect.php");
-connect_to_database();
+if (array_key_exists('collection_type', $prefs)) {
+    connect_to_database();
+} else {
+    probe_database();
+    include("backends/sql/".$prefs['collection_type']."/specifics.php");
+}
 if ($mysqlc) {
     $prefs["apache_backend"] = "sql";
     $backend_in_use = "sql";
@@ -106,11 +111,21 @@ if ($mysqlc) {
 
 savePrefs();
 
+if ($prefs['apache_backend'] == 'sql') {
+    list($result, $message) = check_sql_tables();
+    if ($result == false) {
+        sql_init_fail($message);
+    }
+}
+
 //
 // Do some initialisation and cleanup of the Apache backend
 //
 
 include ("includes/firstrun.php");
+
+debug_print("Initialisation done. Let's Boogie!", "INIT");
+debug_print("=================****==================","STARTED UP");
 
 ?>
 

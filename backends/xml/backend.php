@@ -5,10 +5,8 @@ $backend_in_use = "xml";
 function dumpAlbums($which) {
 
     global $divtype;
-    global $ARTIST;
-    global $ALBUM;
 
-    debug_print("Generating output from XML","DUMPALBUMS");
+    debug_print("Generating output ".$which." from XML","DUMPALBUMS");
 
     $headers =  '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'.
                 '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">'.
@@ -44,7 +42,7 @@ function dumpAlbums($which) {
                 }
             } else {
                 list ($type, $obj) = findItem($x, $which);
-                if ($type == $ARTIST) {
+                if ($type == ROMPR_ITEM_ARTIST) {
                     $count = 0;
                     foreach($obj->albums->album as $i => $album) {
                         albumHeader(
@@ -64,7 +62,7 @@ function dumpAlbums($which) {
                         noAlbumsHeader();
                     }
                 }
-                if ($type == $ALBUM) {
+                if ($type == ROMPR_ITEM_ALBUM) {
                     $currdisc = -1;
                     $numtracks = count($obj->tracks->track);
                     foreach($obj->tracks->track as $i => $trackobj) {
@@ -107,19 +105,15 @@ function dumpAlbums($which) {
 
 
 function getWhichXML($which) {
-    global $ALBUMSLIST;
-    global $ALBUMSEARCH;
-    global $FILESLIST;
-    global $FILESEARCH;
     global $mysqlc;
     if (substr($which,0,2) == "aa") {
-        return $ALBUMSLIST;
+        return ROMPR_XML_COLLECTION;
     } else if (substr($which,0,2) == "ba") {
-        return $ALBUMSEARCH;
+        return ROMPR_XML_SEARCH;
     } else if (substr($which,0,2) == "ad") {
-        return $FILESLIST;
+        return ROMPR_FILEBROWSER_LIST;
     } else if (substr($which,0,2) == "bd") {
-        return $FILESEARCH;
+        return ROMPR_FILESEARCH_LIST;
     } else {
         if (file_exists('prefs/'.substr($which,0,1).'_list.xml')) {
             return 'prefs/'.substr($which,0,1).'_list.xml';
@@ -134,6 +128,7 @@ function getWhichXML($which) {
 function createAlbumsList($file, $prefix) {
 
     global $collection;
+    debug_print("Creating XML Collection Output","XML_BACKEND");
     $output = new collectionOutput($file);
     createXML($collection->getSortedArtistList(), $prefix, $output);
     $output->closeFile();
@@ -299,19 +294,16 @@ function do_albums_xml($artistkey, $compilations, $showartist, $prefix, $output)
 }
 
 function getItemsToAdd($which) {
-    global $ARTIST;
-    global $ALBUM;
-
     $fname = getWhichXML($which);
     $x = simplexml_load_file($fname);
     if (substr($which, 0, 4) == "adir" || substr($which, 0, 4) == "bdir") {
         return getTracksForDir(findFileItem($x, $which));
     } else {
         list ($type, $obj) = findItem($x, $which);
-        if ($type == $ARTIST) {
+        if ($type == ROMPR_ITEM_ARTIST) {
             return getTracksForArtist($obj);
         }
-        if ($type == $ALBUM) {
+        if ($type == ROMPR_ITEM_ALBUM) {
             return getTracksForAlbum($obj);
         }
     }
@@ -354,13 +346,12 @@ function getTracksForDir($dir) {
 }
 
 function get_imagesearch_info($fname) {
-    global $ALBUMSLIST;
     $axp = array();
     $fp = null;
     $retval = array(false, null, null, null, null, null, false);
-    if (file_exists($ALBUMSLIST)) {
-        if (get_file_lock($ALBUMSLIST, $fp)) {
-            $ax = simplexml_load_file($ALBUMSLIST);
+    if (file_exists(ROMPR_XML_COLLECTION)) {
+        if (get_file_lock(ROMPR_XML_COLLECTION, $fp)) {
+            $ax = simplexml_load_file(ROMPR_XML_COLLECTION);
             $axp = $ax->xpath('//image/name[.="'.$fname.'"]/parent::*/parent::*');
         }
         release_file_lock($fp);
@@ -379,15 +370,14 @@ function get_imagesearch_info($fname) {
 }
 
 function update_image_db($fname, $notfound, $imagefile) {
-    global $ALBUMSLIST;
-    if (file_exists($ALBUMSLIST)) {
+    if (file_exists(ROMPR_XML_COLLECTION)) {
         // Get an exclusive lock on the file. We can't have two threads trying to update it at once.
         // That would be bad.
-        $fp = fopen($ALBUMSLIST, 'r+');
+        $fp = fopen(ROMPR_XML_COLLECTION, 'r+');
         if ($fp) {
             $crap = true;
             if (flock($fp, LOCK_EX, $crap)) {
-                $x = simplexml_load_file($ALBUMSLIST);
+                $x = simplexml_load_file(ROMPR_XML_COLLECTION);
                 debug_print("  Updating cache for for ".$fname.", error is ".$notfound,"GETALBUMCOVER");
                 foreach($x->artists->artist as $i => $artist) {
                     foreach($artist->albums->album as $j => $album) {

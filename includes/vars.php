@@ -1,21 +1,24 @@
 <?php
-$LISTVERSION = "2";
-$ALBUMSLIST = 'prefs/albums_'.$LISTVERSION.'.xml';
-$ALBUMSEARCH = 'prefs/albumsearch_'.$LISTVERSION.'.xml';
-$FILESLIST = 'prefs/files_'.$LISTVERSION.'.xml';
-$FILESEARCH = 'prefs/filesearch_'.$LISTVERSION.'.xml';
-$PLAYLISTFILE = 'prefs/playlist.json';
-$connection = null;
-$is_connected = false;
-$ARTIST = 0;
-$ALBUM = 1;
-$covernames = array("cover", "albumart", "thumb", "albumartsmall", "front");
-$mysqlc = null;
-$backend_in_use = "";
 
 define('ROMPR_ARTIST', 0);
 define('ROMPR_ALBUM', 1);
 define('ROMPR_FILE', 2);
+define('ROMPR_MAX_TRACKS_PER_TRANSACTION', 1000);
+define('ROMPR_COLLECTION_VERSION', 2);
+define('ROMPR_SCHEMA_VERSION', 11);
+define('ROMPR_PLAYLIST_FILE', 'prefs/playlist.json');
+define('ROMPR_XML_COLLECTION', 'prefs/albums_'.ROMPR_COLLECTION_VERSION.'.xml');
+define('ROMPR_XML_SEARCH', 'prefs/albumsearch_'.ROMPR_COLLECTION_VERSION.'.xml');
+define('ROMPR_FILEBROWSER_LIST', 'prefs/files_'.ROMPR_COLLECTION_VERSION.'.xml');
+define('ROMPR_FILESEARCH_LIST', 'prefs/filesearch_'.ROMPR_COLLECTION_VERSION.'.xml');
+define('ROMPR_ITEM_ARTIST', 0);
+define('ROMPR_ITEM_ALBUM', 1);
+
+$connection = null;
+$is_connected = false;
+$covernames = array("cover", "albumart", "thumb", "albumartsmall", "front");
+$mysqlc = null;
+$backend_in_use = "";
 
 // Note that mpd_host is relative to the APACHE SERVER not the browser.
 
@@ -73,7 +76,6 @@ $prefs = array( "mpd_host" => "localhost",
                 "mysql_user" => "rompr",
                 "mysql_password" => "romprdbpass",
                 "mysql_port" => "3306",
-                "mysql_socket" => "/var/run/mysqld/mysqld.sock",
                 "fontsize" => "02-Normal.css",
                 "fontfamily" => "Verdana.css",
                 "alarmtime" => 43200,
@@ -96,7 +98,11 @@ $prefs = array( "mpd_host" => "localhost",
                 "composergenrename" => "Classical",
                 "displaycomposer" => "true",
                 "custom_logfile" => "",
-                "consumeradio" => "false"
+                "consumeradio" => "false",
+                "artistsfirst" => "Various Artists,Soundtracks",
+                "prefixignore" => "The",
+                "sortcollectionby" => "artist",
+                "lowmemorymode" => "true",
                 );
 
 loadPrefs();

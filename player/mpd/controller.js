@@ -168,7 +168,24 @@ function playerController() {
     }
 
     this.reloadAlbumsList = function(uri) {
-       	$("#collection").load(uri);
+        $.ajax({
+            type: "GET",
+            url: uri,
+            timeout: 600000,
+            success: function(data) {
+                $("#collection").html(data);
+                data = null;
+                player.collectionLoaded = true;
+                if (prefs.sortcollectionby == "album") {
+                    scootTheAlbums();
+                }
+            },
+            error: function(data) {
+                $("#collection").empty();
+                alert("Failed To Generate Collection : \n"+data.responseText+"\n"+data.statusText);
+                debug.error("PLAYER","Failed to generate albums list",data);
+            }
+        });
     }
 
     this.reloadFilesList = function(uri) {

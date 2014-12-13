@@ -7,7 +7,7 @@ include ("player/".$prefs['player_backend']."/connection.php");
 include ("backends/xml/backend.php");
 
 header('Content-Type: application/json; charset=utf-8');
-$collection = doCollection("playlistinfo");
+$collection = doCollection("playlistinfo", null, array("TlTrack"), true);
 debug_print("Collection scan playlistinfo finished","GETPLAYLIST");
 outputPlaylist();
 
@@ -15,7 +15,6 @@ debug_print("Playlist Output Is Done","GETPLAYLIST");
 
 function outputPlaylist() {
     global $playlist;
-    global $PLAYLISTFILE;
     global $prefs;
 
     $output = array();
@@ -41,7 +40,7 @@ function outputPlaylist() {
             "station" => $track->station,
             "disc" => $track->disc,
             "location" => $track->url,
-            "backendid" => $track->backendid,
+            "backendid" => (int) $track->backendid,
             "dir" => rawurlencode($track->albumobject->folder),
             "key" => $track->albumobject->getKey(),
             "image" => $track->albumobject->getImage('original'),
@@ -116,7 +115,7 @@ function outputPlaylist() {
     $o = json_encode($output);
     print $o;
     ob_flush();
-    file_put_contents($PLAYLISTFILE, $o);
+    file_put_contents(ROMPR_PLAYLIST_FILE, $o);
 }
 
 ?>

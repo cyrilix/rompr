@@ -422,7 +422,7 @@ function playerController() {
             mopidy.on("state:offline", disconnected);
             mopidy.connect();
             // For testing and debugging purposes, player.controller.mop is a direct link to mopidy.js
-            // self.mop = mopidy;
+            self.mop = mopidy;
         } else {
             clearTimeout(connecttimer);
             self.connectFailed();
@@ -463,14 +463,12 @@ function playerController() {
                 if (!uri.match(/rebuild/)) {
                     self.reloadPlaylists();
                 }
+                if (prefs.sortcollectionby == "album") {
+                    scootTheAlbums();
+                }
             },
             error: function(data) {
-                if (prefs.apache_backend == "sql") {
-                    loadCollection('albums.php?item=aalbumroot', null);
-                } else {
-                    $("#collection").empty();
-                }
-                alert(data.responseText);
+                $("#collection").html('<p align="center"><b><font color="red">Failed To Generate Collection :</font></b><br>'+data.responseText+"<br>"+data.statusText+"</p>");
                 debug.error("PLAYER","Failed to generate albums list",data);
             }
         });

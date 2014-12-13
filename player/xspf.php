@@ -33,11 +33,11 @@ if(array_key_exists("command", $_REQUEST)) {
 
         case "update":
         case "rescan":
-            if (file_exists($ALBUMSLIST)) {
-                unlink($ALBUMSLIST);
+            if (file_exists(ROMPR_XML_COLLECTION)) {
+                unlink(ROMPR_XML_COLLECTION);
             }
-            if (file_exists($FILESLIST)) {
-                unlink($FILESLIST);
+            if (file_exists(ROMPR_FILEBROWSER_LIST)) {
+                unlink(ROMPR_FILEBROWSER_LIST);
             }
             break;
 

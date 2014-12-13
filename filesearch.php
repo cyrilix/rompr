@@ -26,8 +26,7 @@ if(array_key_exists("searchtitle", $_REQUEST)) {
 close_player($connection);
 
 function doFileSearch($cmd) {
-    global $FILESEARCH;
-    $output = new collectionOutput($FILESEARCH);
+    $output = new collectionOutput(ROMPR_FILESEARCH_LIST);
     $tree = doFileList($cmd);
     $tree->getXML("b", $output);
     $output->closeFile();

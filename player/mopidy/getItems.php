@@ -46,13 +46,13 @@ function add_uri($uri) {
 		$p['at_position'] = (int) $atpos;
 		$atpos++;
 	}
-	mopidy_post_command(null, "core.tracklist.add", $p);
+	mopidy_post_command("core.tracklist.add", $p, true);
 }
 
 function add_spotify_artist($t) {
 	$params = (array) $t->findexact;
 	$params['uris'] = $t->filterdomain;
-	$collection = doCollection('core.library.find_exact', $params);
+	$collection = doCollection('core.library.find_exact', $params, array("Track"), true);
     $artistlist = $collection->getSortedArtistList();
     foreach($artistlist as $artistkey) {
 	    $albumlist = array();

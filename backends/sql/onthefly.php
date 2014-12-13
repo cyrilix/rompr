@@ -32,8 +32,7 @@ if ($mysqlc == null) {
 
 $now = time();
 prepareCollectionUpdate();
-generic_sql_query("CREATE TEMPORARY TABLE Existingtracks(TTindex INT UNSIGNED NOT NULL UNIQUE, PRIMARY KEY(TTindex)) ENGINE MEMORY");
-$collection = doCollection("core.playlists.get_playlists");
+$collection = doCollection("core.playlists.get_playlists",null,array("Track"),$prefs['lowmemorymode'] == "false" ? true : false);
 
 $artistlist = $collection->getSortedArtistList();
 foreach($artistlist as $artistkey) {
@@ -56,6 +55,7 @@ if ($delcount > 0) {
 
 remove_cruft();
 update_track_stats();
+close_transaction();
 $returninfo['stats'] = alistheader(get_stat('ArtistCount'), get_stat('AlbumCount'), get_stat('TrackCount'), format_time(get_stat('TotalTime')));
 $dur = format_time(time() - $now);
 debug_print("On The Fly Database Update Took ".$dur,"ONTHEFLY");

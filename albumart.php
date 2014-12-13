@@ -837,7 +837,7 @@ print '<tr><td class="outer" id="infotext"></td><td align="center"><div class="i
 <div id="artistcoverslist" class="tleft noborder" style="width:20%">
     <div class="noselection fullwidth">
 <?php
-if ($mysqlc || file_exists($ALBUMSLIST)) {
+if ($mysqlc || file_exists(ROMPR_XML_COLLECTION)) {
     print '<div class="containerbox menuitem clickable clickselectartist selected" id="allartists"><div class="expand" style="padding-top:2px;padding-bottom:2px">'.get_int_text("albumart_allartists").'</div></div>';
     print '<div class="containerbox menuitem clickable clickselectartist" id="radio"><div class="expand" style="padding-top:2px;padding-bottom:2px">'.get_int_text("label_yourradio").'</div></div>';
     print '<div class="containerbox menuitem clickable clickselectartist" id="unused"><div class="expand" style="padding-top:2px;padding-bottom:2px">'.get_int_text("albumart_unused").'</div></div>';
@@ -863,7 +863,7 @@ $count = 0;
 $albums_without_cover = 0;
 if ($mysqlc) {
     do_covers_db_style();
-} else if (file_exists($ALBUMSLIST)) {
+} else if (file_exists(ROMPR_XML_COLLECTION)) {
     do_covers_xml_style();
 } else {
     print '<h3>'.get_int_text("albumart_nocollection").'<h3>';
@@ -892,9 +892,8 @@ print "</body>\n";
 print "</html>\n";
 
 function do_artists_xml_style() {
-    global $ALBUMSLIST;
     $acount = 0;
-    $collection = simplexml_load_file($ALBUMSLIST);
+    $collection = simplexml_load_file(ROMPR_XML_COLLECTION);
     foreach($collection->artists->artist as $artist) {
         print '<div class="containerbox menuitem clickable clickselectartist';
         print '" id="artistname'.$acount.'">';
@@ -915,11 +914,10 @@ function do_artists_db_style() {
 }
 
 function do_covers_xml_style() {
-    global $ALBUMSLIST;
     global $count;
     global $albums_without_cover;
     global $allfiles;
-    $collection = simplexml_load_file($ALBUMSLIST);
+    $collection = simplexml_load_file(ROMPR_XML_COLLECTION);
     $acount = 0;
     foreach($collection->artists->artist as $artist) {
         print '<div class="cheesegrater" name="artistname'.$acount.'">';
