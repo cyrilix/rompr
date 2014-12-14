@@ -386,9 +386,11 @@ class musicCollection {
         global $current_album, $current_artist, $abm, $current_domain, $playlist, $prefs, $backend_in_use, $trackbytrack;
 
         if ($prefs['ignore_unplayable'] == "true" && substr($name, 0, 12) == "[unplayable]") {
+            debug_print("Ignoring unplayable track ".$file,"COLLECTION");
             return true;
         }
         if (substr($name, 0, 9) == "[loading]") {
+            debug_print("Ignoring unloaded track ".$file,"COLLECTION");
             return true;
         }
 

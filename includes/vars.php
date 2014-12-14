@@ -102,7 +102,7 @@ $prefs = array( "mpd_host" => "localhost",
                 "artistsfirst" => "Various Artists,Soundtracks",
                 "prefixignore" => "The",
                 "sortcollectionby" => "artist",
-                "lowmemorymode" => "true",
+                "lowmemorymode" => "false",
                 );
 
 loadPrefs();

@@ -10,13 +10,15 @@ $domainsdone = array();
 
 // This contains two mechanisms for parsing JSON data.
 // One is a stream-based handwritten mopidy parser designed to reduce memory usage.
-// This, by default, is used to creating the collection, on-the-fly, and search.
-// The other method uses jsopn_decode, whcih is massively faster but uses 10 times
-// as much RAM. This is used for getting the tracklist and other simple commands
-// that don't return much output.
-// $fast is a boolean flag used to switch this behaviour
-// mopidy_post_command will create a collection using a global $collection is $fast is false;
+// This is used (if low memory mode is enabled) for parsing the collection and search results.
+// The other method uses PHP's json_decode, which is 10 times faster but uses 10 times as much RAM.
+// So json_decode is used for the tracklist. It's toggled by setting $fast, although this variable
+// is ignored for collection and tracklist requests.
+
+// mopidy_post_command will create a collection using a global $collection if $fast is false;
 // Otherwise it will return parsed JSON results which can be collectionised using parse_mopidy_json_data
+
+// $models should be a list of mopidy.models that we want low memory mode to collectionise. eg Track, Artist, Album, TlTrack
 
 function doCollection($command, $params = null, $models = array(), $fast = false) {
 
@@ -42,6 +44,7 @@ function doCollection($command, $params = null, $models = array(), $fast = false
     debug_print("Starting Up. Memory Used is ".memory_get_usage(),"COLLECTION");
 
     $files = array();
+    $json = (object) array();
     $filecount = 0;
     if ($params === null) $params = (object) array();
     switch($command) {
@@ -57,23 +60,19 @@ function doCollection($command, $params = null, $models = array(), $fast = false
             debug_print("Starting Collection Creation/Track-By-Track Update","MOPIDY");
             debug_print("1. Memory Used is ".memory_get_usage(),"COLLECTION");
             prepareCollectionUpdate();
-            $json = mopidy_post_command("core.library.search", $params, $prefs['lowmemorymode'] == "false" ? true : false);
-            if ($prefs['lowmemorymode'] == "false") {
-                parse_mopidy_json_data($collection, $json);
-            }
+            $json = mopidy_post_command("core.library.search", $params, $fast);
             $dur = format_time(time() - $now);
             debug_print("Collection Creation/Track-By-Track Update Took ".$dur,"TIMINGS");
             break;
         case "playlistinfo":
-            $json = mopidy_post_command("core.tracklist.get_tl_tracks", $params, true);
-            parse_mopidy_json_data($collection, $json);
+            $json = mopidy_post_command("core.tracklist.get_tl_tracks", $params, $fast);
             break;
         default:
-            mopidy_post_command($command, $params, $fast);
-            if ($fast) {
-                parse_mopidy_json_data($collection, $json);
-            }
+            $json = mopidy_post_command($command, $params, $fast);
             break;
+    }
+    if ($fast) {
+        parse_mopidy_json_data($collection, $json);
     }
     return $collection;
 
@@ -81,12 +80,22 @@ function doCollection($command, $params = null, $models = array(), $fast = false
 
 function mopidy_post_command($rpc, $paramlist, $fast = true) {
     global $prefs, $current_object;
-    $parser = new JSONParser();
-    $parser->setArrayHandlers('arrayStart', 'arrayEnd');
-    $parser->setObjectHandlers('objStart', 'objEnd');
-    $parser->setScalarHandler('scalar');
-
-    $current_object = new genericMopidyThing(null, null);
+    $parser = null;
+    $reader = null;
+    if ($fast == false) {
+        if (class_exists("JSONReader")) {
+            $reader = new JSONReader();
+            debug_print("Using Fast JSON Streaming Reader. Good.","MOPIDY");
+        } else {
+            $parser = new JSONParser();
+            $parser->setArrayHandlers('arrayStart', null);
+            $parser->setObjectHandlers('objStart', 'objEnd');
+            $parser->setScalarHandler('scalar');
+            $parser->setPropertyHandler(null);
+            debug_print("Using Very Slow JSON Stream Parser. You really should install JSONReader. Read The Wiki","MOPIDY");
+        }
+        $current_object = new genericMopidyThing(null, null);
+    }
 
     $jsonrpc = array(
         "jsonrpc" => "2.0",
@@ -109,9 +118,58 @@ function mopidy_post_command($rpc, $paramlist, $fast = true) {
         exit(0);
     }
     if ($fast === false) {
-        $parser->parseDocument($fp);
-        fclose($fp);
-        return (object) array();
+        if ($reader !== null) {
+            $reader->open($fp);
+            $current_key = "";
+            while ($reader->read()) {
+                switch($reader->tokenType) {
+                    case JSONReader::ARRAY_START:
+                        // debug_print("Array Start","JSON");
+                        $current_object->newArray($current_key);
+                        $current_key = "";
+                        break;
+
+                    // case JSONReader::ARRAY_END:
+                    //  debug_print("Array End","JSON");
+                    //  break;
+
+                    case JSONReader::OBJECT_START:
+                        // debug_print("Object Start","JSON");
+                        $current_object->newObject($current_key);
+                        $current_key = "";
+                        break;
+
+                    case JSONReader::OBJECT_END:
+                        // debug_print("Object End","JSON");
+                        $pn = $current_object->finish();
+                        $current_object = $current_object->parent;
+                        if ($current_object !== null && $pn == "") {
+                            $current_object->propertyParsed();
+                        }
+                        break;
+
+                    case JSONReader::OBJECT_KEY:
+                        // debug_print("Object Key ".$reader->value,"JSON");
+                        $current_key = $reader->value;
+                        break;
+
+                    case JSONReader::NULL:
+                    case JSONReader::FALSE:
+                    case JSONReader::TRUE:
+                    case JSONReader::INT:
+                    case JSONReader::FLOAT:
+                    case JSONReader::STRING:
+                        // debug_print("Value ".$reader->value,"JSON");
+                        $current_object->newProperty($current_key, $reader->value);
+                        $current_key = "";
+                        break;
+                }
+            }
+        } else {
+            $parser->parseDocument($fp);
+            fclose($fp);
+            return (object) array();
+        }
     } else {
         $json = @stream_get_contents($fp);
         if ($json === false) {
@@ -122,6 +180,12 @@ function mopidy_post_command($rpc, $paramlist, $fast = true) {
         }
         fclose($fp);
         $data = json_decode($json);
+        if ($data->error) {
+            debug_print("Command $rpc failed with ".$data->error->message,"MOPIDY");
+            header("HTTP/1.1 500 Internal Server Error");
+            print "Mopidy Error : ".$data->error->message;
+            exit(0);
+        }
         return $data->{'result'};
     }
 }
@@ -130,10 +194,10 @@ function parse_mopidy_json_data($collection, $jsondata) {
 
     global $dbterms, $backend_in_use;
     $plpos = 0;
+    $domainsdone = array();
     foreach($jsondata as $searchresults) {
 
         if ($searchresults->{'__model__'} == "SearchResult") {
-
             if (property_exists($searchresults, 'artists') && $backend_in_use == "xml") {
                 foreach ($searchresults->artists as $track) {
                     parseArtist($collection, $track);
@@ -151,13 +215,24 @@ function parse_mopidy_json_data($collection, $jsondata) {
                     parseTrack($collection, $track);
                 }
             }
-
         } else if ($searchresults->{'__model__'} == "TlTrack") {
             parseTrack($collection, $searchresults->track, $plpos, $searchresults->{'tlid'});
             $plpos++;
+        } else if ($searchresults->{'__model__'} == "Playlist") {
+            if (property_exists($searchresults, 'uri')) {
+                if (property_exists($searchresults, 'tracks')) {
+                    $d = getDomain($searchresults->{'uri'});
+                    if (!array_key_exists($d, $domainsdone)) {
+                        generic_sql_query("INSERT INTO Existingtracks (TTindex) SELECT TTindex FROM Tracktable WHERE Uri LIKE '".$d."%' AND LastModified IS NOT NULL AND Hidden = 0");
+                        $domainsdone[$d] = 1;
+                    }
+                    foreach ($searchresults->tracks as $track) {
+                        parseTrack($collection, $track);
+                    }
+                }
+            }
         }
     }
-
 }
 
 class genericMopidyThing {
@@ -274,9 +349,6 @@ function objEnd($value, $property) {
 function arrayStart($value, $property) {
     global $current_object;
     $current_object->newArray($property);
-}
-
-function arrayEnd($value, $property) {
 }
 
 function scalar($value, $property) {

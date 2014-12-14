@@ -1113,11 +1113,6 @@ ul.subnav li.wide
     width:300px;
 }
 
-#countryselector
-{
-    width:220px;
-}
-
 ul.topnav li ul.wide
 {
     left:-270px;
@@ -2303,4 +2298,8 @@ div.lyrics p
     margin-bottom:2px;
     padding-bottom:4px;
     padding-top:4px;
+}
+
+.prefinput {
+    width: 95%;
 }

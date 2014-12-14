@@ -542,7 +542,7 @@ $languages['en'] = array (
 	"config_sortcollectionby" => "Sort Collection By",
 	"config_low_memory_mode" => "Build Collection Using Low Memory Mode",
 	"config_meminfo" => "Low Memory Mode is slower but works better with large collections",
-
+	"config_sortoptions" => "Collection Sorting Options",
 
 	//CHANGED in 0.60
 	"config_country" => "COUNTRY (for Last.FM and Spotify)",

@@ -316,7 +316,7 @@ function playerController() {
                 att = setTimeout(startAddingTracks, 10);
             },
             error: function(data) {
-                infobar.notify(infobar.NOTIFY, "Couldn't find any tracks");
+                infobar.notify(infobar.ERROR, data.responseText);
                 playlist.repopulate();
                 clearTimeout(att);
                 att = setTimeout(startAddingTracks, 10);
@@ -455,7 +455,7 @@ function playerController() {
         $.ajax({
             type: "GET",
             url: uri,
-            timeout: 600000,
+            timeout: 800000,
             success: function(data) {
                 $("#collection").html(data);
                 data = null;

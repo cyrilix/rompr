@@ -95,7 +95,7 @@ print '<div class="pref">
 <div><span class="tiny">'.get_int_text('config_langinfo').'</span></div>
 </div>';
 
-print '<div class="pref prefsection"><b>'.get_int_text('config_country').'</b><select id="countryselector" onchange="changecountry()">';
+print '<div class="pref prefsection"><b>'.get_int_text('config_country').'</b><select class="prefinput" id="countryselector" onchange="changecountry()">';
 $x = simplexml_load_file('iso3166.xml');
 foreach($x->CountryEntry as $i => $c) {
     print '<option value="'.$c->CountryCode.'">'.mb_convert_case($c->CountryName, MB_CASE_TITLE, "UTF-8")."</option>\n";
@@ -129,15 +129,17 @@ if ($prefs['player_backend'] == "mpd") {
         </div>';
     }
 }
+print '<div class="pref prefsection"></div>';
+print '<div class="pref textcentre ucfirst"><b>'.get_int_text('config_sortoptions').'</b></div>';
 
-print '<div class="pref"><b>
+print '<div class="pref">
 <input type="checkbox" onclick="togglePref(\'sortbycomposer\')" id="sortbycomposer">'.get_int_text('config_sortbycomposer').'</input>
-</div></b>';
+</div>';
 print '<div class="pref indent">
 <input type="checkbox" onclick="togglePref(\'composergenre\')" id="composergenre">'.get_int_text('config_composergenre').'</input>
 </div>';
 print '<div class="pref indent">
-<input class="winkle saveotron" name="composergenrename" onkeyup="saveTextBoxes()" type="text" size="40" value="'.$prefs['composergenrename'].'"/>
+<input class="winkle saveotron prefinput" name="composergenrename" onkeyup="saveTextBoxes()" type="text" size="40" value="'.$prefs['composergenrename'].'"/>
 </div>';
 print '<div class="pref indent">
 <input type="checkbox" onclick="togglePref(\'displaycomposer\')" id="displaycomposer">'.get_int_text('config_displaycomposer').'</input>
@@ -145,10 +147,10 @@ print '<div class="pref indent">
 
 if ($prefs['apache_backend'] == "sql") {
     print '<div class="pref"><b>'.get_int_text('config_artistfirst').'
-    <input class="winkle saveotron" name="artistsfirst" onkeyup="saveTextBoxes()" type="text" size="128" value="'.$prefs['artistsfirst'].'"/>
+    <input class="winkle saveotron prefinput" name="artistsfirst" onkeyup="saveTextBoxes()" type="text" size="128" value="'.$prefs['artistsfirst'].'"/>
     </b></div>';
     print '<div class="pref"><b>'.get_int_text('config_prefixignore').'
-    <input class="winkle saveotron" name="prefixignore" onkeyup="saveTextBoxes()" type="text" size="128" value="'.$prefs['prefixignore'].'"/>
+    <input class="winkle saveotron prefinput" name="prefixignore" onkeyup="saveTextBoxes()" type="text" size="128" value="'.$prefs['prefixignore'].'"/>
     </b></div>';
     print '<div class="pref"><b>'.get_int_text('config_sortcollectionby').'</b>';
     print '<div><input type="radio" class="topcheck" onclick="changeSortPolicy()" name="sortcollectionby" value="artist">'.get_int_text('label_artist').'</input></div>
@@ -170,7 +172,7 @@ print '<div class="pref">
 </div>
 <div class="pref prefsection">
 <span class="tiny">'.get_int_text('config_musicfolders').'</span>
-<input class="winkle saveotron" name="music_directory_albumart" onkeyup="saveTextBoxes()" type="text" size="40" value="'.$prefs['music_directory_albumart'].'"/>
+<input class="winkle saveotron prefinput" name="music_directory_albumart" onkeyup="saveTextBoxes()" type="text" size="40" value="'.$prefs['music_directory_albumart'].'"/>
 </div>';
 
 // Interface
@@ -213,7 +215,7 @@ print '<div class="pref textcentre">
 <img src="'.$ipath.'lastfm.png" height="24px" style="vertical-align:middle;margin-right:8px"/><b>'.get_int_text('label_lastfm').'</b>
 </div>
 <div class="pref">'.get_int_text('config_lastfmusername').'
-<input class="winkle" name="user" type="text" size="30" value="'.$prefs['lastfm_user'].'"/><button onclick="lastfmlogin()">'.get_int_text('config_loginbutton').'</button>
+<input class="winkle prefinput" name="user" type="text" size="30" value="'.$prefs['lastfm_user'].'"/><button onclick="lastfmlogin()">'.get_int_text('config_loginbutton').'</button>
 </div>
 <div class="pref">
 <input type="checkbox" onclick="lastfm.setscrobblestate()" id="lastfm_scrobbling">'.get_int_text('config_scrobbling').'</input>
@@ -226,7 +228,7 @@ print '<div class="pref textcentre">
 <input type="checkbox" onclick="lastfm.setscrobblestate()" id="lastfm_autocorrect">'.get_int_text('config_autocorrect').'</input>
 </div>
 <div class="pref prefsection">'.get_int_text('config_tagloved').'
-<input class="winkle" name="taglovedwith" onkeyup="saveTextBoxes()" type="text" size="40" value="'.$prefs['autotagname'].'"/>
+<input class="winkle prefinput" name="taglovedwith" onkeyup="saveTextBoxes()" type="text" size="40" value="'.$prefs['autotagname'].'"/>
 </div>';
 
 // Tags and Ratings

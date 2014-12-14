@@ -109,7 +109,7 @@ if (array_key_exists('item', $_REQUEST)) {
     $now = time();
     include ("player/".$player_backend."/connection.php");
     include ("collection/collection.php");
-	$collection = doCollection("listallinfo",null,array("Track"),false);
+	$collection = doCollection("listallinfo",null,array("Track"),$prefs['lowmemorymode'] == "false" ? true : false);
     createAlbumsList(ROMPR_XML_COLLECTION, "a");
 	dumpAlbums('aalbumroot');
     close_player();
