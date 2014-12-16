@@ -199,6 +199,8 @@ var lastfmImporter = function() {
 					}
 					$("#local_import_domain").attr("checked", true);
 					$("#spotify_import_domain").attr("checked", true);
+					$("#gmusic_import_domain").attr("checked", true);
+					$("#beets_import_domain").attr("checked", true);
 				} else {
 					$("#domchooser").remove();
 				}
@@ -504,10 +506,13 @@ var lastfmImporter = function() {
 				if (data.tags) {
 					data.attributes.push({attribute: 'Tags', value: data.tags});
 				}
-				// urionly here is set to ensure that the backend matches ONLY the specific
-				// version of this track that the user has chosen. It'll be created automatically
-				// if it doesn't exist. Failure to set urionly would mean that any old version
-				// of the track in the database would get matched.
+
+				// We do the set twice. Which is inefficient but important:
+				// The first one sets urionly, which ensures the track gets added to the
+				// database if it doesn't already exist.
+				// The second time we send no uri and don't set urionly, which ensures that
+				// any other matching tracks - eg from a different backend - also get the metadata applied.
+
 				data.urionly = 1;
 				debug.mark("LASTFM IMPORTER","Doing SQL Rating Stuff",data);
 
@@ -519,14 +524,32 @@ var lastfmImporter = function() {
 		            success: function(rdata) {
 		                debug.log("LASTFM IMPORTER","Success",rdata);
 		                updateCollectionDisplay(rdata);
-		                data.ignore = true;
-						$("#trackrow"+data.key+' td:last').html('<img src="newimages/tick.png" />');
-						if (callback) setTimeout(callback, 1000);
+				        delete data.urionly;
+				        delete data.uri;
+				        $.ajax({
+				            url: "backends/sql/userRatings.php",
+				            type: "POST",
+				            data: data,
+				            dataType: 'json',
+				            success: function(rdata) {
+				                debug.log("LASTFM IMPORTER","Success",rdata);
+				                updateCollectionDisplay(rdata);
+				                data.ignore = true;
+								$("#trackrow"+data.key+' td:last').html('<img src="newimages/tick.png" />');
+								if (callback) setTimeout(callback, 1000);
+							},
+				            error: function(rdata) {
+				                infobar.notify(infobar.ERROR,"Track Import Failed");
+				                debug.warn("LASTFM IMPORTER","Failure");
+								if (callback) setTimeout(callback, 1000);
+				            }
+				        });
 					},
 		            error: function(rdata) {
 		                infobar.notify(infobar.ERROR,"Track Import Failed");
 		                debug.warn("LASTFM IMPORTER","Failure");
 						if (callback) setTimeout(callback, 1000);
+						return false;
 		            }
 		        });
 		    }

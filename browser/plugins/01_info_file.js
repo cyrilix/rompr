@@ -19,7 +19,7 @@ var info_file = function() {
         html = html + '<div class="indent"><table><tr><td class="fil">'+language.gettext("info_file")+'</td><td>'+file;
         if (file.match(/^http:\/\/.*item\/\d+\/file/)) html = html + ' <i>'+language.gettext("info_from_beets")+'</i>';
         if (info.file) {
-            var f = info.file.match(/^podcast\:(http.*?)\#/);
+            var f = info.file.match(/^podcast[\:|\+](http.*?)\#/);
             if (f && f[1]) {
                 html = html + '<button class="sourceform" onclick="podcasts.doPodcast(\'filepodiput\')">'+language.gettext('button_subscribe')+'</button>'+
                                 '<input type="hidden" id="filepodiput" value="'+f[1]+'" />';

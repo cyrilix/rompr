@@ -46,7 +46,7 @@ class album {
         $numalbums++;
     }
 
-    public function newTrack($object) {
+    public function newTrack(&$object) {
         $this->tracks[] = $object;
         if ($this->folder == null) {
             $this->folder = $object->folder;
@@ -123,6 +123,7 @@ class album {
         switch ($this->domain) {
             // These are mopidy domains
             case "podcast":
+            case "podcast http":
                 // Some podcasts return album images, which will be $this->image
                 // But not all of them do so we need a fallback.
                 if ($image == "") $image = $ipath."podcast-logo.png";
@@ -137,8 +138,12 @@ class album {
                 $image = "newimages/".$this->domain."-logo.png";
                 break;
 
-            case "bassdrive":
             case "internetarchive":
+            case "bassdrive":
+            case "oe1":
+                // These are here because they're not classed as streams -
+                // domain will only be bassdrive or oe1 if this is an archive
+                // track, and those make more sense to display as albums.
                 if ($image == "") $image = "newimages/".$this->domain."-logo.png";
                 break;
         }
@@ -232,7 +237,7 @@ class artist {
         $this->spotilink = null;
     }
 
-    public function newAlbum($object) {
+    public function newAlbum(&$object) {
         // Pass an album object to this function
         $key = md5(strtolower($object->name).$object->domain);
         $this->albums[$key] = $object;
@@ -394,8 +399,8 @@ class musicCollection {
             return true;
         }
 
-        // NOTE: linktype of ROMPR_ARTIST or ROMPR_ALBUM will not get here if the backend is SQL
-        // - we're only interested in these when we search for stuff and search uses the xml backend
+        // NOTE: linktype of ROMPR_ARTIST or ROMPR_ALBUM will not get here during a collection update,
+        // we're only interested in those duting a search.
 
         $sortartist = ($albumartist == null) ? $artist : $albumartist;
         // For sorting internet streams from mopidy backends that don't
@@ -602,13 +607,9 @@ class musicCollection {
 
 }
 
-function process_file($collection, $filedata) {
+function process_file(&$filedata) {
 
-    global $numtracks;
-    global $totaltime;
-    global $prefs;
-    global $dbterms;
-    global $ipath;
+    global $numtracks, $totaltime, $prefs, $dbterms, $ipath, $collection;
 
     list ( $file, $domain, $type, $station, $stream, $origimage )
         = array ( $filedata['file'], getDomain($filedata['file']), "local", null, "", null );
@@ -670,7 +671,7 @@ function process_file($collection, $filedata) {
         $artist = ucfirst(getDomain(urldecode($file)));
     }
     if ($album == ".") {
-        $album = '[Unknown]';
+        $album = '';
     }
 
     $artist = preg_replace('/local:track:/', '', $artist);

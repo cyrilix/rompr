@@ -68,7 +68,7 @@ function close_player() {
 
 function doCollection($command) {
 
-    global $connection;
+    global $connection, $collection;
     $collection = new musicCollection($connection);
 
     debug_print("Starting Collection Scan ".$command, "MPD");
@@ -89,7 +89,7 @@ function doCollection($command) {
                     $foundfile = true;
                 } else {
                     $filecount++;
-                    process_file($collection, $filedata);
+                    process_file($filedata);
                     $filedata = array();
                 }
             }
@@ -121,11 +121,8 @@ function doCollection($command) {
 
     if (array_key_exists('file', $filedata) && $filedata['file']) {
         $filecount++;
-        process_file($collection, $filedata);
+        process_file($filedata);
     }
-
-    return $collection;
-
 }
 
 

@@ -20,107 +20,114 @@ $numdone = 0;
 // and fave artists etc don't make a lot of sense in a world where a proportion of your listening
 // is in response to searches of Spotify or youtube etc.
 
+// Wishlist items have Uri as NULL and Album might also be NULL
+// TODO. If we find one of these and we're doing a SET, or ADD, or INC we really ought to update the album and URI details if we can.
+// Doing a collection update will do this but adding things by rating or tagging ar adding a spotify album don't, I think.
+
+
 // Cross-Database Notes:
 // 1. rowCount does not return a non-zero value for SELECT statements with SQLite. Use SELECT COUNT instead
 // 2. SQLite does not have STRCMP
 
 function find_item($uri,$title,$artist,$album,$albumartist,$urionly) {
 
-	// find_item is used by userRatings to find tracks on which to update metadata.
+	// find_item is used by userRatings to find tracks on which to update or display metadata.
 	// It is NOT used when the collection is created
-	// The first thing we do is try by URI. This is the most accurate method of finding the ratings/tags/playcounts associated with
-	// the track we're looking for. However, URI might not match if we're playing from a different source - eg we have the album
-	// in our local files and that one is rated but we play it from spotify. In that case we want to return the metadata anyway
-	// so if we don't find it by URI we do an ever-widening search to try to find the track
+
+	// When Setting Metadata we do not use a URI because we might have mutliple versions of the track in the database
+	// or someone might be rating a track from Spotify that they already have in Local. So in this case we check
+	// using an increasingly wider check to find the track, returning as soon as one of these produces matches.
+	// 		First by Track, Track Artist, and Album
+	//		Then by Track, Album Artist, and Album
+	//		Then by Track, Artist, and Album NULL (meaning wishlist)
+	// We return ALL tracks found, because you might have the same track on multiple backends, and set metadata on them all.
+	// This means that when getting metadata it doesn't matter which one we match on.
+	// When we Get Metadata we do supply a URI if we have one, just because.
+
+	// If we don't supply an album to this function that's because we're listening to the radio.
+	// In that case we look for a match where there is something in the album field and then for where album is NULL
 
 	// $urionly can be set to force looking up only by URI. This is used by when we need to import a specific version of
-	// the track  - currently from either the Last.FM importer or when add a spotify album to the collection
+	// the track  - currently from either the Last.FM importer or when we add a spotify album to the collection
 
 	debug_print("Looking for item ".$title,"MYSQL");
-	$ttid = null;
+	$ttids = array();
 
 	if ($uri) {
 		debug_print("  Trying by URI ".$uri,"MYSQL");
 		if ($stmt = sql_prepare_query("SELECT TTindex FROM Tracktable WHERE Uri = ?", $uri)) {
-			$ttidobj = $stmt->fetch(PDO::FETCH_OBJ);
-			$ttid = $ttidobj ? $ttidobj->TTindex : null;
-			if ($ttid) {
-				debug_print("    Found TTindex ".$ttid,"MYSQL");
+			while ($ttidobj = $stmt->fetch(PDO::FETCH_OBJ)) {
+				debug_print("    Found TTindex ".$ttidobj->TTindex,"MYSQL");
+				$ttids[] = $ttidobj->TTindex;
 			}
 		}
 	}
+
 	if ($artist == null || $title == null || ($urionly && $uri)) {
-		return $ttid;
+		return $ttids;
 	}
-	// Not found by URI. Let's try looking it up by name
-	if ($ttid == null) {
+
+	if (count($ttids) == 0) {
 		if ($album) {
-			// Note. We regard the same track on a different album as a different version. Unlike Last.FM do. Silly Buggers.
-			// So, first try looking up by title, track artist, and album
+			// Note. We regard the same track on a different album as a different version. So, first try looking up by title, track artist, and album
 			debug_print("  Trying by artist ".$artist." album ".$album." and track ".$title,"MYSQL");
 			if ($stmt = sql_prepare_query("SELECT TTindex FROM Tracktable JOIN Artisttable USING (Artistindex) JOIN Albumtable USING (Albumindex) WHERE LOWER(Title) = LOWER(?) AND LOWER(Artistname) = LOWER(?) AND LOWER(Albumname) = LOWER(?)", $title, $artist, $album)) {
-				$ttidobj = $stmt->fetch(PDO::FETCH_OBJ);
-				$ttid = $ttidobj ? $ttidobj->TTindex : null;
-				if ($ttid) {
-					debug_print("    Found TTindex ".$ttid,"MYSQL");
+				while ($ttidobj = $stmt->fetch(PDO::FETCH_OBJ)) {
+					debug_print("    Found TTindex ".$ttidobj->TTindex,"MYSQL");
+					$ttids[] = $ttidobj->TTindex;
 				}
 			}
-			// Now try a similar lookup but using the albumartist instead - track artists can vary by backend, and can come back in
-			// a different order sometimes so we could have $artist = "A & B" but it's in the database as "B & A".
-			// This shouldn't happen with albumartists
-			if ($ttid == null && $albumartist !== null) {
+
+			// Track artists can vary by backend, and can come back in a different order sometimes so we could have $artist = "A & B" but it's in the database as "B & A".
+			if (count($ttids) == 0 && $albumartist !== null) {
 				debug_print("  Trying by albumartist ".$albumartist." album ".$album." and track ".$title,"MYSQL");
 				if ($stmt = sql_prepare_query("SELECT TTindex FROM Tracktable JOIN Albumtable USING (Albumindex) JOIN Artisttable ON Albumtable.AlbumArtistindex = Artisttable.Artistindex WHERE LOWER(Title) = LOWER(?) AND LOWER(Artistname) = LOWER(?) AND LOWER(Albumname) = LOWER(?)", $title, $albumartist, $album)) {
-					$ttidobj = $stmt->fetch(PDO::FETCH_OBJ);
-					$ttid = $ttidobj ? $ttidobj->TTindex : null;
-					if ($ttid) {
-						debug_print("    Found TTindex ".$ttid,"MYSQL");
+					while ($ttidobj = $stmt->fetch(PDO::FETCH_OBJ)) {
+						debug_print("    Found TTindex ".$ttidobj->TTindex,"MYSQL");
+						$ttids[] = $ttidobj->TTindex;
 					}
 				}
 			}
-			if ($ttid == null) {
-				// Finally look for album NULL which will be a wishlist item added via a radio station
+
+			// Finally look for album NULL which will be a wishlist item added via a radio station
+			if (count($ttids) == 0) {
 				debug_print("  Trying by artist ".$artist." album NULL and track ".$title,"MYSQL");
 				if ($stmt = sql_prepare_query("SELECT TTindex FROM Tracktable JOIN Artisttable USING (Artistindex) WHERE LOWER(Title) = LOWER(?) AND LOWER(Artistname) = LOWER(?) AND Albumindex IS NULL", $title, $artist)) {
-					$ttidobj = $stmt->fetch(PDO::FETCH_OBJ);
-					$ttid = $ttidobj ? $ttidobj->TTindex : null;
-					if ($ttid) {
-						debug_print("    Found TTindex ".$ttid,"MYSQL");
+					while ($ttidobj = $stmt->fetch(PDO::FETCH_OBJ)) {
+						debug_print("    Found TTindex ".$ttidobj->TTindex,"MYSQL");
+						$ttids[] = $ttidobj->TTindex;
 					}
 				}
 			}
 		} else {
 			// No album supplied - ie this is from a radio stream. First look for a match where there is something in the album field
 			debug_print("  Trying by artist ".$artist." album NOT NULL and track ".$title,"MYSQL");
-			debug_print("  Trying by artist ".$artist." album NOT NULL and track ".$title,"MYSQL");
 			if ($stmt = sql_prepare_query("SELECT TTindex FROM Tracktable JOIN Artisttable USING (Artistindex) WHERE LOWER(Title) = LOWER(?) AND LOWER(Artistname) = LOWER(?) AND Albumindex IS NOT NULL", $title, $artist)) {
-				$ttidobj = $stmt->fetch(PDO::FETCH_OBJ);
-				$ttid = $ttidobj ? $ttidobj->TTindex : null;
-				if ($ttid) {
-					debug_print("    Found TTindex ".$ttid,"MYSQL");
+				while ($ttidobj = $stmt->fetch(PDO::FETCH_OBJ)) {
+					debug_print("    Found TTindex ".$ttidobj->TTindex,"MYSQL");
+					$ttids[] = $ttidobj->TTindex;
 				}
 			}
-			if ($ttid == null) {
+
+			if (count($ttids) == 0) {
 				debug_print("  Trying by artist ".$artist." album NULL and track ".$title,"MYSQL");
 				if ($stmt = sql_prepare_query("SELECT TTindex FROM Tracktable JOIN Artisttable USING (Artistindex) WHERE LOWER(Title) = LOWER(?) AND LOWER(Artistname) = LOWER(?) AND Albumindex IS NULL", $title, $artist)) {
-					$ttidobj = $stmt->fetch(PDO::FETCH_OBJ);
-					$ttid = $ttidobj ? $ttidobj->TTindex : null;
-					if ($ttid) {
-						debug_print("    Found TTindex ".$ttid,"MYSQL");
+					while ($ttidobj = $stmt->fetch(PDO::FETCH_OBJ)) {
+						debug_print("    Found TTindex ".$ttidobj->TTindex,"MYSQL");
+						$ttids[] = $ttidobj->TTindex;
 					}
 				}
 			}
 		}
 	}
 
-	return $ttid;
-
+	return $ttids;
 }
 
 function find_wishlist_item($artist, $album, $title) {
 	debug_print("Looking for wishlist item","MYSQL");
 	$ttid = null;
-	if ($album && $album != "[Unknown]") {
+	if ($album) {
 		debug_print("  Trying by artist ".$artist." album ".$album." and track ".$title,"MYSQL");
 		if ($stmt = sql_prepare_query("SELECT TTindex FROM Tracktable JOIN Artisttable USING (Artistindex) JOIN Albumtable USING (Albumindex) WHERE LOWER(Title) = LOWER(?) AND LOWER(Artistname) = LOWER(?) AND LOWER(Albumname) = LOWER(?) AND Tracktable.Uri IS NULL", $title, $artist, $album)) {
 			$ttidobj = $stmt->fetch(PDO::FETCH_OBJ);
@@ -140,7 +147,6 @@ function find_wishlist_item($artist, $album, $title) {
 		}
 	}
 	return $ttid;
-
 }
 
 function create_new_track($title, $artist, $trackno, $duration, $albumartist, $spotilink, $image, $album, $date, $uri,
@@ -209,9 +215,8 @@ function check_artist($artist, $upflag = false) {
 	    if ($index) {
 	    	if ($upflag) {
 				// For when we add new album artists...
-				// Need to check whether the artist we now have has any VISIBLE albums
-				// - we need to know if we've added a new albumartist so we can return the correct
-				// html fragment to the javascript
+				// Need to check whether the artist we now have has any VISIBLE albums - we need to know if we've added a
+				// new albumartist so we can return the correct html fragment to the javascript
 				if ($result = generic_sql_query("SELECT COUNT(Albumindex) AS num FROM Albumtable LEFT JOIN Tracktable USING (Albumindex) WHERE AlbumArtistindex = ".$index." AND Hidden = 0 AND Uri IS NOT NULL")) {
 					$obj = $result->fetch(PDO::FETCH_OBJ);
 					if ($obj->num == 0) {
@@ -288,9 +293,9 @@ function create_new_album($album, $albumai, $spotilink, $image, $date, $searched
 	$retval = null;
 
 	// See if the image needs to be archived.
-	// This archives stuff that is currently in prefs/imagecache - these have come from coverscraper/getAlbumCover
-	// for albums that are in the search or playlist. We can't use images from prefs/imagecache because they will eventually
-	// get removed.
+	// This archives stuff that is currently in prefs/imagecache -
+	// these have come from coverscraper/getAlbumCover for albums that are in the search or playlist.
+	// We can't use images from prefs/imagecache because they will eventually get removed.
 
 	if (preg_match('#^prefs/imagecache/#', $image)) {
         $image = preg_replace('#_small\.jpg|_original\.jpg#', '', $image);
@@ -342,17 +347,17 @@ function set_attribute($ttid, $attribute, $value) {
 
 	// NOTE:
 	// This will set value for an EXISTING attribute to 0, but it will NOT create a NEW attribute
-	// when $value is 0. This is because 0 is meant to represent 'no attribute'
-	// and this keeps the table size down and ALSO means import functions
-	// can cause new tracks to be added just by tring to set eg Rating to 0.
+	// when $value is 0. This is because 0 is meant to represent 'no attribute'.
+	// This keeps the table size down and ALSO means import functions
+	// can cause new tracks to be added just by tring to set Rating to 0.
 
 	global $album_created;
 	global $artist_created;
 
 	// We're setting an attribute.
 	// If we're setting it on a hidden track we have to:
-	// Unhide the track
-	// Work out if this will cause a new artist and/or album to appear in the collection
+	// 1. Work out if this will cause a new artist and/or album to appear in the collection
+	// 2. Unhide the track
 	if (track_is_hidden($ttid)) {
 		debug_print("Setting attribute on a hidden track","MYSQL");
 		if ($artist_created == false) {
@@ -555,8 +560,7 @@ function remove_tag_from_db($tag) {
 
 function get_all_data($ttid) {
 
-	// Misleadingly named function which should be used to get ratings and tags (and whatever else we might add)
-	// based on a TTindex
+	// Misleadingly named function which should be used to get ratings and tags (and whatever else we might add) based on a TTindex
 
 	global $nodata;
 	$data = $nodata;
@@ -588,7 +592,7 @@ function get_imagesearch_info($key) {
 	$retval = array(false, null, null, null, null, null, false);
 	if ($result = generic_sql_query("SELECT Artistname, Albumname, mbid, Albumindex, Spotilink FROM Albumtable JOIN Artisttable ON AlbumArtistindex = Artistindex WHERE ImgKey = '".$key."'")) {
 		// This can come back with multiple results if we have the same album on multiple backends
-		// Need to make sure we put appropriate values in the return list
+		// So we make sure we combine the data to get the best possible set
 		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			if ($retval[1] == null) {
 				$retval[1] = $obj->Artistname;
@@ -615,13 +619,13 @@ function get_imagesearch_info($key) {
 
 function get_album_directory($albumindex, $uri) {
 	$retval = null;
+	// Get album directory by using the Uri of one of its tracks, making sure we choose only local tracks
 	if (!preg_match('/\w+?:album/', $uri)) {
-		// Get album directory by using the Uri of one of its tracks, making sure we
-		// choose only local tracks
 		if ($result2 = generic_sql_query("SELECT Uri FROM Tracktable WHERE Albumindex = ".$albumindex." LIMIT 1")) {
 			while ($obj2 = $result2->fetch(PDO::FETCH_OBJ)) {
 				$retval = dirname($obj2->Uri);
 				$retval = preg_replace('#^local:track:#', '', $retval);
+				$retval = preg_replace('#^file://#', '', $retval);
 				debug_print("Got album directory using track Uri - ".$retval,"SQL");
 			}
 		}
@@ -653,9 +657,8 @@ function track_is_hidden($ttid) {
 
 function albumartist_sort_query() {
 	global $prefs;
-	// This query gives us album artists only, which is what we want.
-	// Also makes sure we only get artists for whom we have actual tracks
-	// (no artists who appear only on the wishlist or who have only hidden tracks)
+	// This query gives us album artists only. It also makes sure we only get artists for whom we have actual tracks
+	// (no album artists who appear only on the wishlist or who have only hidden tracks)
 	$qstring = "SELECT a.Artistname, a.Artistindex FROM Artisttable AS a JOIN Albumtable AS al ON a.Artistindex = al.AlbumArtistindex JOIN Tracktable AS t ON al.Albumindex = t.Albumindex WHERE t.Uri IS NOT NULL AND t.Hidden = 0 GROUP BY a.Artistindex ORDER BY ";
 	$afirst = explode(',', $prefs['artistsfirst']);
 	foreach ($afirst as $a) {
@@ -666,11 +669,11 @@ function albumartist_sort_query() {
 		$qstring .= "(CASE ";
 		foreach($prefixes AS $p) {
 			$phpisshitsometimes = strlen($p)+2;
-			$qstring .= "WHEN LOWER(Artistname) LIKE '".strtolower($p)." %' THEN SUBSTR(Artistname,".$phpisshitsometimes.") ";
+			$qstring .= "WHEN LOWER(Artistname) LIKE '".strtolower($p)." %' THEN LOWER(SUBSTR(Artistname,".$phpisshitsometimes.")) ";
 		}
-		$qstring .= "ELSE Artistname END)";
+		$qstring .= "ELSE LOWER(Artistname) END)";
 	} else {
-		$qstring .= "Artistname";
+		$qstring .= "LOWER(Artistname)";
 	}
 	return $qstring;
 }
@@ -747,7 +750,7 @@ function do_albums_from_database($which, $fragment = false) {
 	}
 	debug_print("Looking for artistID ".$matches[1],"DUMPALBUMS");
 	$qstring = "SELECT * FROM Albumtable WHERE ";
-	if ($matches[1] != "root" && $fragment == false) {
+	if ($matches[1] != "root" && !($fragment !== false && $prefs['sortcollectionby'] == "album")) {
 		$qstring .= "AlbumArtistindex = '".$matches[1]."' AND ";
 	}
 	$qstring .= "Albumindex IN (SELECT Albumindex FROM Tracktable WHERE Tracktable.Albumindex = Albumtable.Albumindex AND Tracktable.Uri IS NOT NULL AND Tracktable.Hidden = 0)";
@@ -1017,9 +1020,7 @@ function find_album_from_track($ttid) {
 function remove_ttid($ttid) {
 
 	// Remove a track from the database.
-	// Doesn't do any cleaning up.
-	// You should call remove_cruft afterwards to remove orphaned
-	// artists and albums
+	// Doesn't do any cleaning up - call remove_cruft afterwards to remove orphaned artists and albums
 	global $returninfo;
 	$retval = false;
 	debug_print("Removing track ".$ttid,"MYSQL");
@@ -1138,7 +1139,6 @@ function doDatabaseMagic() {
     $artistlist = $collection->getSortedArtistList();
     foreach($artistlist as $artistkey) {
         do_artist_database_stuff($artistkey);
-        check_transaction();
     }
 
 	$dur = format_time(time() - $now);
@@ -1187,13 +1187,16 @@ function remove_cruft() {
 
 function do_artist_database_stuff($artistkey, $sendupdates = false) {
 
-    global $collection, $artist_created, $album_created, $find_track, $update_trac, $prefs;
+    global $collection, $artist_created, $album_created, $find_track, $update_trac, $prefs, $onthefly;
+    if ($sendupdates === false) {
+    	$sendupdates = $onthefly;
+    }
 
     $artistname = $collection->artistName($artistkey);
 
-    // CHECK. This prevents us creating artists when those artists have no albums with tracks.
-    // These MIGHT BE artists who appear only on compilations. Need to make sure a new database
-    // works when we do this - the track artist should get checked lower down so we're probably OK.
+    // CHECK. This prevents us creating album artists when those artists have no albums with tracks.
+    // These might be artists who appear on compilations, but check_and_update_track will
+    // create the artist if it's needed as a track artist.
     // It speeds things up a bit and stops us unnecessarily creating artists when certain backends
     // return only albums.
     if ($collection->artistNumTracks($artistkey) == 0) {
@@ -1272,8 +1275,14 @@ function do_track_by_track($artistname, $albumname, $domain, $spotialbum, $track
 	// The difference between this and the above function is that this one takes tracks as they come in direct
 	// from the backend - without being collectionised. This is faster and uses less RAM but does rely on the tags
 	// being correct - they're filtered before being sent here.
+	// Tracks must have disc and albumartist tags to be handled by this method.
+	// The collectionizer was designed to sort tracks without those tags so if those tags exist they don't need
+	// to be collectionized.
 
-	global $mysqlc, $album_created, $artist_created, $find_track, $update_track, $prefs;
+	global $mysqlc, $album_created, $artist_created, $find_track, $update_track, $prefs, $onthefly;
+    if ($sendupdates === false) {
+    	$sendupdates = $onthefly;
+    }
 
 	static $current_albumartist = null;
 	static $current_album = null;
@@ -1282,7 +1291,14 @@ function do_track_by_track($artistname, $albumname, $domain, $spotialbum, $track
 	static $albumindex = null;
 	static $albumartistindex = null;
 
+	static $wecreatedartist = null;
+	static $wecreatedalbum = null;
+
+	static $createdartists = array();
+	static $createdalbums = array();
+
 	if ($current_albumartist != $artistname) {
+		$artist_created = false;
 		$albumartistindex = check_artist($artistname, $sendupdates);
 	}
     if ($albumartistindex == null) {
@@ -1295,6 +1311,7 @@ function do_track_by_track($artistname, $albumname, $domain, $spotialbum, $track
     $albumobj->spotilink = $spotialbum;
 
     if ($current_albumartist != $artistname || $current_album != $albumname || $current_domain != $domain) {
+    	$album_created = false;
         $albumindex = check_album(
             $albumobj->name,
             $albumartistindex,
@@ -1324,8 +1341,23 @@ function do_track_by_track($artistname, $albumname, $domain, $spotialbum, $track
 		// also have an audio file URI that we need to add.
 		$ttidupdate = check_and_update_track($trackobj, $albumindex, $albumartistindex, $artistname, $sendupdates);
 	}
-	check_transaction();
 
+	if ($sendupdates) {
+		if ($artist_created && $current_albumartist != $wecreatedartist && $prefs['sortcollectionby'] == "artist") {
+			debug_print("Sending List Updates for Artist ".$artist_created,"TBT");
+			send_list_updates($artist_created, false, null, false);
+			$wecreatedartist = $current_albumartist;
+			$createdartists[] = (int) $artist_created;
+		} else if ($album_created  && $current_album != $wecreatedalbum && (!(in_array((int) $albumartistindex, $createdartists)) ||  $prefs['sortcollectionby'] == "album")) {
+			debug_print("Sending List Updates for Album ".$album_created,"TBT");
+			send_list_updates(false, $album_created, null, false);
+			$wecreatedalbum = $current_album;
+			$createdalbums[] = (int) $album_created;
+		} else if ($ttidupdate && !(in_array((int) $albumartistindex, $createdartists)) && !(in_array((int) $albumindex, $createdalbums))) {
+			debug_print("Sending List Updates for Track ".$ttidupdate,"TBT");
+	    	send_list_updates(false, false, $ttidupdate, false);
+		}
+	}
 }
 
 function check_and_update_track($trackobj, $albumindex, $artistindex, $artistname, $sendupdates) {
@@ -1337,6 +1369,7 @@ function check_and_update_track($trackobj, $albumindex, $artistindex, $artistnam
     $lastmodified = null;
     $hidden = 0;
     $disc = 0;
+    $uri = null;
     // Why are we not checking by URI? That should be unique, right?
     // Well, er. no. They're not. Especially Spotify returns the same URI multiple times if it's in mutliple playlists
     // We CANNOT HANDLE that. Nor do we want to.
@@ -1368,13 +1401,18 @@ function check_and_update_track($trackobj, $albumindex, $artistindex, $artistnam
     		$trackobj->lastmodified != $lastmodified ||
     		$trackobj->disc != $disc ||
     		$hidden != 0) {
-	    	debug_print("  Updating track with ttid ".$ttid,"MYSQL");
+	    	debug_print("  Updating track with ttid $ttid because :","MYSQL");
+	    	if ($lastmodified == null) debug_print("    LastModified is not set in the database","MYSQL");
+	    	if ($lastmodified != $trackobj->lastmodified) debug_print("    LastModified has changed: We have ".$lastmodified." but track has ".$trackobj->lastmodified,"MYSQL");
+	    	if ($disc != $trackobj->disc) debug_print("    Disc Number has changed: We have ".$disc." but track has ".$trackobj->disc,"MYSQL");
+	    	if ($hidden != 0) debug_print("    It is hidden","MYSQL");
 
 			if ($update_track->execute(array($trackobj->number, $trackobj->duration, $trackobj->disc, $trackobj->lastmodified, $trackobj->url, $albumindex, $ttid))) {
 				if ($sendupdates && $artist_created == false && $album_created == false) {
 					$ttidupdate = $ttid;
 				}
 				$numdone++;
+				check_transaction();
 			} else {
 				show_sql_error();
 			}
@@ -1418,6 +1456,7 @@ function check_and_update_track($trackobj, $albumindex, $artistindex, $artistnam
             null
         );
         $numdone++;
+		check_transaction();
 		if ($sendupdates && ($artist_created == false || $prefs['sortcollectionby'] == "album") && $album_created == false) {
 			$ttidupdate = $ttid;
 		}

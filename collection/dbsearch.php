@@ -10,7 +10,7 @@ function doDbCollection($terms, $domains) {
 	// This function was written before I realised that... :)
 	// It's still used for searches where we're only looking for tags and/or ratings
 
-	global $mysqlc;
+	global $mysqlc, $collection;
 	if ($mysqlc === null) {
 		connect_to_database();
 	}
@@ -122,7 +122,7 @@ function doDbCollection($terms, $domains) {
 					'Date' => $obj->Year,
 					'Last-Modified' => $obj->LastModified
 				);
-				process_file($collection, $filedata);
+				process_file($filedata);
 			}
 		} else {
 			show_sql_error();
@@ -131,13 +131,11 @@ function doDbCollection($terms, $domains) {
 		show_sql_error();
 	}
 
-	return $collection;
-
 }
 
 function getWishlist() {
 
-	global $mysqlc;
+	global $mysqlc, $collection;
 	if ($mysqlc === null) {
 		connect_to_database();
 	}
@@ -158,7 +156,7 @@ function getWishlist() {
 				'Image' => $obj->Image,
 				'Album' => $obj->Albumname
 			);
-			process_file($collection, $filedata);
+			process_file($filedata);
 		}
 	}
 
@@ -173,14 +171,11 @@ function getWishlist() {
 				'Time' => $obj->Duration,
 				'Last-Modified' => $obj->LastModified,
 				'Image' => $obj->Image,
-				'Album' => "[Unknown]"
+				'Album' => ""
 			);
-			process_file($collection, $filedata);
+			process_file($filedata);
 		}
 	}
-
-	return $collection;
-
 }
 
 function check_url_against_database($url, $itags, $rating) {

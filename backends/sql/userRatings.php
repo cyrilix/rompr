@@ -10,7 +10,6 @@ include ("backends/sql/backend.php");
 $error = 0;
 $count = 1;
 $divtype = "album1";
-$collection = null;
 $returninfo = array();
 $nodata = array (
 	'Rating' => 0,
@@ -83,14 +82,14 @@ switch ($_POST['action']) {
 			header('HTTP/1.0 403 Forbidden');
 			exit(0);
 		}
-		$ttid = find_item(	$uri,
+		$ttids = find_item(	$uri,
 							$title,
 							$artist,
 							$album,
 							$albumartist,
 							false);
-		if ($ttid) {
-			print json_encode(get_all_data($ttid));
+		if (count($ttids) > 0) {
+			print json_encode(get_all_data(array_shift($ttids)));
 		} else {
 			print json_encode( $nodata );
 		}
@@ -104,44 +103,48 @@ switch ($_POST['action']) {
 			header('HTTP/1.0 403 Forbidden');
 			exit(0);
 		}
-		$ttid = find_item(	$uri,
+		$ttids = find_item(	null,
 							$title,
 							$artist,
 							$album,
 							$albumartist,
 							false);
 
-		if ($ttid == null) {
+		if (count($ttids) == 0) {
 			debug_print("Doing an INCREMENT action - Found NOTHING so creating hidden track","USERRATING");
 			// So we need to create a new hidden track
-			$ttid = create_new_track(	$title,
-										$artist,
-										$trackno,
-										$duration,
-										$albumartist,
-										$spotilink,
-										$image,
-										$album,
-										$date,
-										$uri,
-										null, null, null, null,
-										md5($albumartist." ".$album),
-										null,
-										$disc,
-										null,
-										$uri === null ? "local" : getDomain($uri),
-										1,
-										$trackimage);
+			$ttids[0] = create_new_track(	$title,
+											$artist,
+											$trackno,
+											$duration,
+											$albumartist,
+											$spotilink,
+											$image,
+											$album,
+											$date,
+											$uri,
+											null, null, null, null,
+											md5($albumartist." ".$album),
+											null,
+											$disc,
+											null,
+											$uri === null ? "local" : getDomain($uri),
+											1,
+											$trackimage);
 
 		}
 
-		if ($ttid) {
-			debug_print("Doing an INCREMENT action - Found TTID ".$ttid,"USERRATING");
-			foreach ($attributes as $pair) {
-				debug_print("Incrementing ".$pair["attribute"]." by ".$pair["value"],"USERRATING");
-				increment_value($ttid, $pair["attribute"], $pair["value"]);
+		if (count($ttids) > 0) {
+			foreach ($ttids as $ttid) {
+				debug_print("Doing an INCREMENT action - Found TTID ".$ttid,"USERRATING");
+				foreach ($attributes as $pair) {
+					debug_print("Incrementing ".$pair["attribute"]." by ".$pair["value"],"USERRATING");
+					increment_value($ttid, $pair["attribute"], $pair["value"]);
+				}
+				$returninfo['metadata'] = get_all_data($ttid);
+				$artist_created = false;
+				$album_created = false;
 			}
-			$returninfo['metadata'] = get_all_data($ttid);
 			print json_encode($returninfo);
 		}
 		break;
@@ -152,12 +155,18 @@ switch ($_POST['action']) {
 		// We don't simply call into this using 'set' with urionly set to true
 		// because that might result in the rating being changed
 
-		$ttid = find_item(	$uri,
+		$ttids = find_item(	$uri,
 							$title,
 							$artist,
 							$album,
 							$albumartist,
 							true);
+
+		// As we check by URI we can only have one result.
+		$ttid = null;
+		if (count($ttids) > 0) {
+			$ttid = array_shift($ttids);
+		}
 		if ($ttid != null) {
 
 			// If we found it, just make sure it's not hidden. This is slightly trickier than it sounds
@@ -203,14 +212,14 @@ switch ($_POST['action']) {
 			exit(0);
 		}
 
-		$ttid = find_item(	$uri,
+		$ttids = find_item(	$urionly ? $uri : null,
 							$title,
 							$artist,
 							$album,
 							$albumartist,
 							$urionly);
 
-		if ($ttid == null && $dontcreate == false) {
+		if (count($ttids) == 0 && $dontcreate == false) {
 
 			// dontcreate prevents us from creating a track if it doesn't already exist. It's used by the
 			// Tag Manager and Rating Manager as a means of preventing us adding stuff from the search
@@ -221,51 +230,51 @@ switch ($_POST['action']) {
 			// local files that had bad or partial tags. Stuff coming from online sources
 			// is usually OK. I hope.
 
-			$ttid = create_new_track(	$title,
-										$artist,
-										$trackno,
-										$duration,
-										$albumartist,
-										$spotilink,
-										$image,
-										$album,
-										$date,
-										$uri,
-										null, null, null, null,
-										md5($albumartist." ".$album),
-										null,
-										$disc,
-										null,
-										$uri === null ? "local" : getDomain($uri),
-										0,
-										$trackimage);
+			$ttids[0] = create_new_track(	$title,
+											$artist,
+											$trackno,
+											$duration,
+											$albumartist,
+											$spotilink,
+											$image,
+											$album,
+											$date,
+											$uri,
+											null, null, null, null,
+											md5($albumartist." ".$album),
+											null,
+											$disc,
+											null,
+											$uri === null ? "local" : getDomain($uri),
+											0,
+											$trackimage);
+			debug_print("Created New Track with TTindex ".$ttids[0],"USERRATINGS");
 		}
-		if ($ttid) {
-			foreach ($attributes as $pair) {
-				$dbg = $pair["value"];
-				if (is_array($pair["value"])) {
-					$dbg = implode($pair["value"], ", ");
+		if (count($ttids) > 0) {
+			foreach($ttids as $ttid) {
+				foreach ($attributes as $pair) {
+					$dbg = $pair["value"];
+					if (is_array($pair["value"])) {
+						$dbg = implode($pair["value"], ", ");
+					}
+					debug_print("Setting ".$pair["attribute"]." to ".$dbg." on TTindex ".$ttid,"USERRATING");
+					$result = true;
+					$r = set_attribute($ttid, $pair["attribute"], $pair["value"]);
+					if ($r == false) {
+						debug_print("FAILED Setting ".$pair["attribute"]." to ".$dbg,"USERRATING");
+						$result = false;
+					}
 				}
-				debug_print("Setting ".$pair["attribute"]." to ".$dbg,"USERRATING");
-				$result = true;
-				$r = set_attribute($ttid, $pair["attribute"], $pair["value"]);
-				if ($r == false) {
-					debug_print("FAILED Setting ".$pair["attribute"]." to ".$pair["value"],"USERRATING");
-					$result = false;
+				if ($result && $uri) {
+					send_list_updates($artist_created, $album_created, $ttid, false);
+					$returninfo['metadata'] = get_all_data($ttid);
 				}
+				$artist_created = false;
+				$album_created = false;
 			}
-			if ($result) {
-				update_track_stats();
-				if ($uri) {
-					// Don't tell the browser to add stuff to the collection
-					// if we didn't have a URI. I can't remember why we would be here without
-					// a URI though. Probably wishlist tracks.
-					send_list_updates($artist_created, $album_created, $ttid);
-				}
-			} else {
-				debug_print("Set Attribute Failed","USERRATING");
-				header('HTTP/1.0 403 Forbidden');
-			}
+			update_track_stats();
+			$returninfo['stats'] = alistheader(get_stat('ArtistCount'), get_stat('AlbumCount'), get_stat('TrackCount'), format_time(get_stat('TotalTime')));
+			print json_encode($returninfo);
 		} else {
 			debug_print("TTID Not Found","USERRATING");
 			header('HTTP/1.0 403 Forbidden');
@@ -277,28 +286,29 @@ switch ($_POST['action']) {
 			header('HTTP/1.0 403 Forbidden');
 			exit(0);
 		}
-		$ttid = find_item(	$uri,
+		$ttids = find_item(	null,
 							$title,
 							$artist,
 							$album,
 							$albumartist,
 							false);
-		if ($ttid) {
-			foreach ($attributes as $pair) {
-				debug_print("Removing ".$pair["attribute"]." ".$pair["value"],"USERRATING");
-				$result = true;
-				$r = remove_tag($ttid, $pair["value"]);
-				if ($r == false) {
-					debug_print("FAILED Removing ".$pair["attribute"]." ".$pair["value"],"USERRATING");
-					$result = false;
+		if (count($ttids) > 0) {
+			foreach ($ttids as $ttid) {
+				foreach ($attributes as $pair) {
+					debug_print("Removing ".$pair["attribute"]." ".$pair["value"],"USERRATING");
+					$result = true;
+					$r = remove_tag($ttid, $pair["value"]);
+					if ($r == false) {
+						debug_print("FAILED Removing ".$pair["attribute"]." ".$pair["value"],"USERRATING");
+						$result = false;
+					}
+				}
+				if ($result) {
+					send_list_updates($artist_created, $album_created, $ttid, false);
+					$returninfo['metadata'] = get_all_data($ttid);
 				}
 			}
-			if ($result) {
-				send_list_updates($artist_created, $album_created, $ttid);
-			} else {
-				debug_print("Set Attribute Failed","USERRATING");
-				header('HTTP/1.0 403 Forbidden');
-			}
+			print json_encode($returninfo);
 		} else {
 			header('HTTP/1.0 403 Forbidden');
 		}
@@ -306,11 +316,11 @@ switch ($_POST['action']) {
 
 
 	case 'delete':
-		$ttid = find_item($uri, null, null, null, null, false);
-		if ($ttid == null) {
+		$ttids = find_item($uri, null, null, null, null, false);
+		if (count($ttids) == 0) {
 			header('HTTP/1.0 403 Forbidden');
 		} else {
-			delete_track($ttid);
+			delete_track(array_shift($ttids));
 		}
 		break;
 
@@ -425,6 +435,5 @@ function delete_track($ttid) {
 		header('HTTP/1.0 403 Forbidden');
 	}
 }
-
 
 ?>

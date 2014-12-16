@@ -6,8 +6,7 @@ include ("includes/functions.php");
 include ("utils/imagefunctions.php");
 include ("international.php");
 
-set_time_limit(600);
-
+set_time_limit(800);
 $player_backend = $prefs['player_backend'];
 $apache_backend = "xml";
 $error = 0;
@@ -41,7 +40,7 @@ if (array_key_exists('item', $_REQUEST)) {
         }
     }
     debug_print("Search command : ".$cmd,"MPD SEARCH");
-    $collection = doCollection($cmd);
+    doCollection($cmd);
     createAlbumsList(ROMPR_XML_SEARCH, "b");
     dumpAlbums('balbumroot');
     print '<div class="separator"></div>';
@@ -66,7 +65,7 @@ if (array_key_exists('item', $_REQUEST)) {
     if (array_key_exists('domains', $_REQUEST)) {
         $st['uris'] = $_REQUEST['domains'];
     }
-    $collection = doCollection('core.library.search',$st,array("Track", "Artist", "Album"), $prefs['lowmemorymode'] == "false" ? true : false);
+    doCollection('core.library.search',$st,array("Track", "Artist", "Album"), $prefs['lowmemorymode'] == "false" ? true : false);
     createAlbumsList(ROMPR_XML_SEARCH, "b");
     dumpAlbums('balbumroot');
     print '<div class="separator"></div>';
@@ -83,22 +82,22 @@ if (array_key_exists('item', $_REQUEST)) {
         }
     }
     debug_print("Search command : ".$cmd,"MPD SEARCH");
-    $collection = doCollection($cmd);
-    mopidyfy($collection);
+    doCollection($cmd);
+    mopidyfy();
     close_player();
 } else if (array_key_exists('terms', $_REQUEST)) {
     // SQL database search request
     $domains = (array_key_exists('domains', $_REQUEST)) ? $_REQUEST['domains'] : null;
     include ("collection/collection.php");
     include( "collection/dbsearch.php");
-    $collection = doDbCollection($_REQUEST['terms'], $domains);
+    doDbCollection($_REQUEST['terms'], $domains);
     createAlbumsList(ROMPR_XML_SEARCH, "b");
     dumpAlbums('balbumroot');
     print '<div class="separator"></div>';
 } else if (array_key_exists('wishlist', $_REQUEST)) {
     include ("collection/collection.php");
     include( "collection/dbsearch.php");
-    $collection = getWishlist();
+    getWishlist();
     createAlbumsList('prefs/w_list.xml', "w");
     dumpAlbums('walbumroot');
 } else if (array_key_exists('rebuild', $_REQUEST)) {
@@ -106,21 +105,27 @@ if (array_key_exists('item', $_REQUEST)) {
     // the mpd or mopidy controller
     debug_print("======================================================================","TIMINGS");
     debug_print("== Starting Collection Update","TIMINGS");
-    $now = time();
+    $initmem = memory_get_usage();
+    debug_print("Memory Used is ".$initmem,"COLLECTION");
+    $now2 = time();
     include ("player/".$player_backend."/connection.php");
     include ("collection/collection.php");
-	$collection = doCollection("listallinfo",null,array("Track"),$prefs['lowmemorymode'] == "false" ? true : false);
+	doCollection("listallinfo",null,array("Track"),$prefs['lowmemorymode'] == "false" ? true : false);
     createAlbumsList(ROMPR_XML_COLLECTION, "a");
-	dumpAlbums('aalbumroot');
+    dumpAlbums('aalbumroot');
     close_player();
-    debug_print("== Collection Update And Send took ".format_time(time() - $now),"TIMINGS");
+    debug_print("== Collection Update And Send took ".format_time(time() - $now2),"TIMINGS");
+    $peakmem = memory_get_peak_usage();
+    $ourmem = $peakmem - $initmem;
+    debug_print("Peak Memory Used Was ".number_format($peakmem)." bytes  - meaning we used ".number_format($ourmem)." bytes.","COLLECTION");
     debug_print("======================================================================","TIMINGS");
 }
 
-function mopidyfy($collection) {
+function mopidyfy() {
     // Output a collection as mopidy format search results
     // Note these only contain the info relevant to FaveFinder,
     // which isn't very much.
+    global $collection;
     $results = array();
     $results[0] = array(
         "__model__" => "SearchResult",

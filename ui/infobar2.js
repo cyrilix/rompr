@@ -49,12 +49,14 @@ var infobar = function() {
             doctitle = info.title;
         }
         var s = info.creator;
-        if (info.metadata && info.metadata.artists && !(info.type == "stream" && s != "")) {
-            var an = new Array();
-            for (var i in info.metadata.artists) {
-                an.push(info.metadata.artists[i].name);
+        if (info.type != "stream" || s != "") {
+            if (info.metadata && info.metadata.artists) {
+                var an = new Array();
+                for (var i in info.metadata.artists) {
+                    an.push(info.metadata.artists[i].name);
+                }
+                s = concatenate_artist_names(an);
             }
-            s = concatenate_artist_names(an);
         }
         if (s != "") {
             npinfo.artist = s;
@@ -64,9 +66,12 @@ var infobar = function() {
             npinfo.album = info.album;
             if (info.title == "" && s == "" && info.stream != "") {
                 npinfo.stream = info.stream;
+            } else if (info.title == "" && s == "" && info.stream == "" && info.albumartist != "") {
+                npinfo.stream = info.albumartist;
             }
         }
         document.title = doctitle;
+        debug.log("INFOBAR","Now Playing Info",npinfo);
         infobar.biggerize(2);
     }
 
@@ -383,7 +388,7 @@ var infobar = function() {
                 $("#progress").css("cursor", "default");
             }
             if (info.location != "") {
-                var f = info.location.match(/^podcast\:(http.*?)\#/);
+                var f = info.location.match(/^podcast[\:|\+](http.*?)\#/);
                 if (f && f[1]) {
                     $("#nppodiput").attr("value", f[1]);
                     $("#subscribe").fadeIn('fast');

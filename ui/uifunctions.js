@@ -41,7 +41,7 @@ function changeClickPolicy() {
 function changeSortPolicy() {
     prefs.save({sortcollectionby: $('[name=sortcollectionby]:checked').val()});
     albumslistexists = true;
-    checkCollection();
+    checkCollection(false, false);
 }
 
 function saveTextBoxes() {
@@ -489,9 +489,17 @@ function saveRadioOrder() {
     });
 }
 
+function doingOnTheFly() {
+    return (prefs.apache_backend == "sql" && player.collectionLoaded && prefs.onthefly);
+}
+
 function prepareForLiftOff(text) {
-    $("#collection").empty();
-    doSomethingUseful('collection', text);
+    if (doingOnTheFly()) {
+        doSomethingUseful('fothergill', text);
+    } else {
+        $("#collection").empty();
+        doSomethingUseful('collection', text);
+    }
 }
 
 function prepareForLiftOff2(text) {
@@ -503,8 +511,8 @@ function prepareForLiftOff2(text) {
     and builds them, if necessary. If they are there, it loads them
 */
 
-function checkCollection() {
-    var update = false;
+function checkCollection(forceup, rescan) {
+    var update = forceup;
     if (prefs.updateeverytime) {
         debug.log("GENERAL","Updating Collection due to preference");
         update = true;
@@ -519,7 +527,7 @@ function checkCollection() {
         }
     }
     if (update) {
-        player.controller.updateCollection('update');
+        player.controller.updateCollection(rescan ? 'rescan' : 'update');
     } else {
         if (prefs.hide_filelist && !prefs.hide_albumlist) {
             debug.log("GENERAL","Loading albums cache only");
@@ -550,15 +558,19 @@ function checkPoll(data) {
         update_load_timer = setTimeout( pollAlbumList, 1000);
         update_load_timer_running = true;
     } else {
+        var getalbums = 'albums.php?rebuild=yes';
+        if (doingOnTheFly()) {
+            getalbums = 'backends/sql/onthefly.php?command=listallinfo';
+        }
         if (prefs.hide_filelist && !prefs.hide_albumlist) {
             debug.log("GENERAL","Building albums cache only");
-            loadCollection('albums.php?rebuild=yes', null);
+            loadCollection(getalbums, null);
         } else if (prefs.hidealbumlist && !prefs.hide_filelist) {
             debug.log("GENERAL","Building Files Cache Only");
             loadCollection(null, 'dirbrowser.php');
         } else if (!prefs.hidealbumlist && !prefs.hide_filelist) {
             debug.log("GENERAL","Building Both Caches");
-            loadCollection('albums.php?rebuild=yes', 'dirbrowser.php');
+            loadCollection(getalbums, 'dirbrowser.php');
         }
     }
 }
@@ -668,6 +680,9 @@ function hidePanel(panel) {
 
 function doSomethingUseful(div,text) {
     var html = '<div class="containerbox bar">';
+    if (typeof div == "string") {
+        html = '<div class="containerbox bar" id= "spinner_'+div+'">';
+    }
     html = html + '<div class="fixed" style="vertical-align:middle;padding-left:8px"><img height="32px" src="newimages/waiter.png" class="spinner"></div>';
     html = html + '<h3 class="expand ucfirst label">'+text+'</h3>';
     html = html + '</div>';

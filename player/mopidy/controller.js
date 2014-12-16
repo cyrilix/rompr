@@ -197,7 +197,7 @@ function playerController() {
         if ('getVersion' in mopidy) {
             mopidy.getVersion().then(function(version){
                 debug.log("PLAYER", "Mopidy Version is",version);
-                if (version < prefs.mopidy_version) {
+                if (version < mopidy_version) {
                     mopidyTooOld();
                 }
             });
@@ -207,7 +207,7 @@ function playerController() {
     }
 
 	function mopidyTooOld() {
-		alert(language.gettext("mopidy_tooold", [prefs.mopidy_version]));
+		alert(language.gettext("mopidy_tooold", [mopidy_version]));
 	}
 
 	function doTracklistButtons() {
@@ -384,7 +384,7 @@ function playerController() {
     			checkSearchDomains();
     			if (!player.collectionLoaded) {
     				debug.log("PLAYER","Checking Collection");
-    				checkCollection();
+    				checkCollection(false, false);
     			} else {
                     // Must not do this while the collection is being loaded because, if we have
                     // onthefly set to true, we might end up doing an onthefly at the same time
@@ -452,17 +452,24 @@ function playerController() {
 	}
 
 	this.reloadAlbumsList = function(uri) {
+        debug.log("PLAYER","Reloading Collection From",uri);
         $.ajax({
             type: "GET",
             url: uri,
             timeout: 800000,
+            dataType: (uri.match(/onthefly\.php/)) ? "json" : "html",
             success: function(data) {
-                $("#collection").html(data);
-                data = null;
-                player.collectionLoaded = true;
-                if (!uri.match(/rebuild/)) {
-                    self.reloadPlaylists();
+                if (uri.match(/onthefly\.php/)) {
+                    updateCollectionDisplay(data);
+                    $("#spinner_fothergill").remove();
+                } else {
+                    $("#collection").html(data);
+                    data = null;
+                    if (!uri.match(/rebuild/)) {
+                        self.reloadPlaylists();
+                    }
                 }
+                player.collectionLoaded = true;
                 if (prefs.sortcollectionby == "album") {
                     scootTheAlbums();
                 }

@@ -13,14 +13,12 @@ define('ROMPR_FILEBROWSER_LIST', 'prefs/files_'.ROMPR_COLLECTION_VERSION.'.xml')
 define('ROMPR_FILESEARCH_LIST', 'prefs/filesearch_'.ROMPR_COLLECTION_VERSION.'.xml');
 define('ROMPR_ITEM_ARTIST', 0);
 define('ROMPR_ITEM_ALBUM', 1);
+define('ROMPR_MOPIDY_MIN_VERSION', "0.18.3");
 
 $connection = null;
 $is_connected = false;
-$covernames = array("cover", "albumart", "thumb", "albumartsmall", "front");
 $mysqlc = null;
 $backend_in_use = "";
-
-// Note that mpd_host is relative to the APACHE SERVER not the browser.
 
 $prefs = array( "mpd_host" => "localhost",
                 "mpd_port" => 6600,
@@ -66,9 +64,9 @@ $prefs = array( "mpd_host" => "localhost",
                 "search_limit_spotify" => 0,
                 "search_limit_soundcloud" => 0,
                 "search_limit_beets" => 0,
+                "search_limit_beetslocal" => 0,
                 "search_limit_gmusic" => 0,
                 "scrolltocurrent" => "false",
-                "mopidy_version" => "0.18.3",
                 "debug_enabled" => 0,
                 "radiocountry" => "http://www.listenlive.eu/uk.html",
                 "mysql_host" => "localhost",
@@ -92,7 +90,7 @@ $prefs = array( "mpd_host" => "localhost",
                 "icontheme" => "Colourful",
                 "radiomode" => "",
                 "radioparam" => "",
-                "onthefly" => "true",
+                "onthefly" => "false",
                 "sortbycomposer" => "false",
                 "composergenre" => "false",
                 "composergenrename" => "Classical",
@@ -105,7 +103,11 @@ $prefs = array( "mpd_host" => "localhost",
                 "lowmemorymode" => "false",
                 );
 
-loadPrefs();
+if (file_exists('prefs/prefs')) {
+    include("utils/convertprefs.php");
+} else if (file_exists('prefs/prefs.var')) {
+    loadPrefs();
+}
 
 $ipath = "iconsets/".$prefs['icontheme']."/";
 
@@ -113,29 +115,39 @@ $searchlimits = array(  "local" => "Local Files",
                         "spotify" => "Spotify",
                         "soundcloud" => "Soundcloud",
                         "beets" => "Beets",
+                        "beetslocal" => "Beets Local",
                         "gmusic" => "Google Play Music",
                         "youtube" => "YouTube",
                         "internetarchive" => "Internet Archive",
                         "leftasrain" => "Left As Rain",
                         "podcast" => "Podcasts",
                         "tunein" => "Tunein Radio",
-                        "radio_de" => "Radio.de"
-                        // BassDrive and Drible aren't yet searchable
+                        "radio_de" => "Radio.de",
                         // "bassdrive" => "BassDrive",
                         // "dirble" => "Dirble",
                         );
 
 if ($prefs['debug_enabled'] == 1) {
+
+    $debug_colours = array(
+        "COLLECTION" => "0;34",
+        "MYSQL" => "0;32",
+        "TIMINGS" => "0;36",
+        "TOMATO" => "1;30",
+        "GETALBUMCOVER" => "0;33",
+        "INIT" => "1;33"
+    );
+
     function debug_print($out, $module = "") {
-        global $prefs;
-        $indent = 20 - strlen($module);
-        $in = "";
-        while ($indent > 0) {
-            $in .= " ";
-            $indent--;
-        }
+        global $prefs, $debug_colours;
+        $in = str_repeat(" ", 20 - strlen($module));
         if ($prefs['custom_logfile'] != "") {
-            error_log($module.$in.": ".$out."\n",3,$prefs['custom_logfile']);
+            if (array_key_exists($module, $debug_colours)) {
+                $col = $debug_colours[$module];
+            } else {
+                $col = "1;35";
+            }
+            error_log(strftime('%T')." : \e[".$col."m".$module.$in.": \e[0m".$out."\n",3,$prefs['custom_logfile']);
         } else {
             error_log($module.$in.": ".$out,0);
         }
@@ -148,69 +160,40 @@ if ($prefs['debug_enabled'] == 1) {
 
 function savePrefs() {
     global $prefs;
-    $fp = fopen('prefs/prefs', 'w');
-    if($fp) {
-        $crap = true;
-        if (flock($fp, LOCK_EX, $crap)) {
-            foreach($prefs as $key=>$value) {
-                if ($key != "albumslist" && $key != "fileslist" && $key != "mopidy_version") {
-                    fwrite($fp, $key . "||||" . $value . "\n");
-                }
-            }
-            flock($fp, LOCK_UN);
-            if(!fclose($fp)) {
-                error_log("ERROR!              : Couldn't close the prefs file.");
-            }
-        } else {
-            error_log("=================================================================");
-            error_log("ERROR!              : COULD NOT GET WRITE FILE LOCK ON PREFS FILE");
-            error_log("=================================================================");
+    $sp = $prefs;
+    foreach (array('albumslist', 'fileslist') as $p) {
+        if (array_key_exists($p, $sp)) {
+            unset($sp[$p]);
         }
+    }
+    $ps = serialize($sp);
+    $r = file_put_contents('prefs/prefs.var', $ps, LOCK_EX);
+    if ($r === false) {
+        error_log("ERROR!              : COULD NOT SAVE PREFS");
     }
 }
 
 function loadPrefs() {
     global $prefs;
-    if (file_exists('prefs/prefs')) {
-        $fp = fopen('prefs/prefs', 'r');
-        if($fp) {
-            $crap = true;
-            if (flock($fp, LOCK_EX, $crap)) {
-                $fcontents = array();
-                while (!feof($fp)) {
-                    array_push($fcontents, fgets($fp));
-                }
-                flock($fp, LOCK_UN);
-                if(!fclose($fp)) {
-                    error_log("ERROR!              : Couldn't close the prefs file.");
-                    exit(1);
-                }
-                if (count($fcontents) > 0) {
-                    foreach($fcontents as $line) {
-                        $a = explode("||||", $line);
-                        if (is_array($a) && count($a) > 1) {
-                            $prefs[$a[0]] = trim($a[1]);
-                        }
-                    }
-                } else {
-                    error_log("===============================================");
-                    error_log("ERROR!              : COULD NOT READ PREFS FILE");
-                    error_log("===============================================");
-                    exit(1);
-                }
-            } else {
-                error_log("================================================================");
-                error_log("ERROR!              : COULD NOT GET READ FILE LOCK ON PREFS FILE");
-                error_log("================================================================");
-                fclose($fp);
+    $fp = fopen('prefs/prefs.var', 'r');
+    if($fp) {
+        $crap = true;
+        if (flock($fp, LOCK_EX, $crap)) {
+            $sp = unserialize(fread($fp, 32768));
+            flock($fp, LOCK_UN);
+            fclose($fp);
+            if ($sp === false) {
+                error_log("ERROR!              : COULD NOT LOAD PREFS");
                 exit(1);
             }
+            $prefs = array_replace($prefs, $sp);
         } else {
-            error_log("=========================================================");
-            error_log("ERROR!              : COULD NOT GET HANDLE FOR PREFS FILE");
-            error_log("=========================================================");
+            error_log("ERROR!              : COULD NOT GET READ FILE LOCK ON PREFS FILE");
             exit(1);
         }
+    } else {
+        error_log("ERROR!              : COULD NOT GET HANDLE FOR PREFS FILE");
+        exit(1);
     }
 }
 

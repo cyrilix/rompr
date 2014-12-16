@@ -7,7 +7,7 @@ include ("player/".$prefs['player_backend']."/connection.php");
 include ("backends/xml/backend.php");
 
 header('Content-Type: application/json; charset=utf-8');
-$collection = doCollection("playlistinfo", null, array("TlTrack"), true);
+doCollection("playlistinfo", null, array("TlTrack"), true);
 debug_print("Collection scan playlistinfo finished","GETPLAYLIST");
 outputPlaylist();
 

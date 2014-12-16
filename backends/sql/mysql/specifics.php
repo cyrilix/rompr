@@ -290,7 +290,7 @@ function open_transaction() {
 }
 
 function check_transaction() {
-	global $numdone, $transaction_open;
+	global $numdone, $transaction_open, $numtracks;
 	if ($transaction_open && $numdone >= ROMPR_MAX_TRACKS_PER_TRANSACTION) {
 		generic_sql_query("COMMIT", true);
 		$numdone = 0;

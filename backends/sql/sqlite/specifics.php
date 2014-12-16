@@ -5,7 +5,7 @@ define('SQL_RANDOM_SORT', 'RANDOM()');
 function connect_to_database() {
 	global $mysqlc, $prefs;
 	try {
-		$dsn = "sqlite:prefs/collection.sq3";
+		$dsn = "sqlite:prefs/collection_".$prefs['player_backend'].".sq3";
 		$mysqlc = new PDO($dsn);
 		debug_print("Connected to SQLite","MYSQL");
 	} catch (Exception $e) {
@@ -73,7 +73,7 @@ function check_sql_tables() {
 		"Domain CHAR(32), ".
 		"Image VARCHAR(255))"))
 	{
-		debug_print("  Albumtable OK","MYSQL_CONNECT");
+		debug_print("  Albumtable OK","SQLITE_CONNECT");
 		if (generic_sql_query("CREATE INDEX IF NOT EXISTS ni ON Albumtable (Albumname)")) {
 		} else {
 			$err = $mysqlc->errorInfo()[2];
@@ -103,7 +103,7 @@ function check_sql_tables() {
 		"Artistindex INTEGER PRIMARY KEY NOT NULL UNIQUE, ".
 		"Artistname VARCHAR(255))"))
 	{
-		debug_print("  Artisttable OK","MYSQL_CONNECT");
+		debug_print("  Artisttable OK","SQLITE_CONNECT");
 		if (generic_sql_query("CREATE INDEX IF NOT EXISTS ni ON Artisttable (Artistname)")) {
 		} else {
 			$err = $mysqlc->errorInfo()[2];
@@ -118,7 +118,7 @@ function check_sql_tables() {
 		"TTindex INTEGER PRIMARY KEY NOT NULL UNIQUE, ".
 		"Rating TINYINT(1))"))
 	{
-		debug_print("  Ratingtable OK","MYSQL_CONNECT");
+		debug_print("  Ratingtable OK","SQLITE_CONNECT");
 	} else {
 		$err = $mysqlc->errorInfo()[2];
 		return array(false, "Error While Checking Ratingtable : ".$err);
@@ -128,7 +128,7 @@ function check_sql_tables() {
 		"Tagindex INTEGER PRIMARY KEY NOT NULL UNIQUE, ".
 		"Name VARCHAR(255))"))
 	{
-		debug_print("  Tagtable OK","MYSQL_CONNECT");
+		debug_print("  Tagtable OK","SQLITE_CONNECT");
 	} else {
 		$err = $mysqlc->errorInfo()[2];
 		return array(false, "Error While Checking Tagtable : ".$err);
@@ -139,7 +139,7 @@ function check_sql_tables() {
 		"TTindex INTEGER NOT NULL REFERENCES Tracktable(TTindex), ".
 		"PRIMARY KEY (Tagindex, TTindex))"))
 	{
-		debug_print("  TagListtable OK","MYSQL_CONNECT");
+		debug_print("  TagListtable OK","SQLITE_CONNECT");
 	} else {
 		$err = $mysqlc->errorInfo()[2];
 		return array(false, "Error While Checking TagListtable : ".$err);
@@ -149,7 +149,7 @@ function check_sql_tables() {
 		"TTindex INTEGER PRIMARY KEY NOT NULL UNIQUE REFERENCES Tracktable(TTindex), ".
 		"Playcount INT UNSIGNED NOT NULL)"))
 	{
-		debug_print("  Playcounttable OK","MYSQL_CONNECT");
+		debug_print("  Playcounttable OK","SQLITE_CONNECT");
 	} else {
 		$err = $mysqlc->errorInfo()[2];
 		return array(false, "Error While Checking Playcounttable : ".$err);
@@ -159,7 +159,7 @@ function check_sql_tables() {
 		"TTindex INTEGER PRIMARY KEY NOT NULL UNIQUE REFERENCES Tracktable(TTindex), ".
 		"Image VARCHAR(500))"))
 	{
-		debug_print("  Trackimagetable OK","MYSQL_CONNECT");
+		debug_print("  Trackimagetable OK","SQLITE_CONNECT");
 	} else {
 		$err = $mysqlc->errorInfo()[2];
 		return array(false, "Error While Checking Trackimagetable : ".$err);
@@ -184,7 +184,7 @@ function check_sql_tables() {
 			generic_sql_query("INSERT INTO Statstable (Item, Value) VALUES ('TotalTime', '0')");
 			generic_sql_query("INSERT INTO Statstable (Item, Value) VALUES ('SchemaVer', '".ROMPR_SCHEMA_VERSION."')");
 			$sv = ROMPR_SCHEMA_VERSION;
-			debug_print("Statstable populated", "MYSQL_CONNECT");
+			debug_print("Statstable populated", "SQLITE_CONNECT");
 		}
 	} else {
 		$err = $mysqlc->errorInfo()[2];
@@ -202,7 +202,7 @@ function open_transaction() {
 }
 
 function check_transaction() {
-	global $numdone, $transaction_open;
+	global $numdone, $transaction_open, $numtracks;
 	if ($transaction_open && $numdone >= ROMPR_MAX_TRACKS_PER_TRANSACTION) {
 		generic_sql_query("COMMIT", true);
 		$numdone = 0;

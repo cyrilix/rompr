@@ -26,6 +26,7 @@ $delaytime = 1;
 $fp = null;
 $in_collection = false;
 $found = false;
+$covernames = array("cover", "albumart", "thumb", "albumartsmall", "front");
 
 $fname = $_REQUEST['key'];
 if (array_Key_exists('stream', $_REQUEST)) {

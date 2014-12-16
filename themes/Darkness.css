@@ -234,7 +234,13 @@ input.sourceform
 
 input.topformbutton
 {
+    border-color:black;
     color:#000000;
+}
+
+select.topformbutton
+{
+    border-color:black;
 }
 
 /*-- Styles to make the Wikipedia nav boxes look prettier --*/

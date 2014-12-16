@@ -319,6 +319,7 @@ function artistHeader($id, $spotilink, $name, $numalbums = null) {
 
             case "gmusic":
             case "podcast":
+            case "podcast http":
             case "internetarchive":
                 print '<div class="playlisticon fixed"><img height="12px" src="'.$ipath.$d.'-logo.png" /></div>';
                 break;
@@ -614,8 +615,6 @@ function get_browser_language() {
 }
 
 function getDomain($d) {
-    // Note: for tracks being played via Mopidy-Beets, this will return 'http'
-    // This is why, for streams, I set the domain to be the same as the type field.
     $d = urldecode($d);
     $a = substr($d,0,strpos($d, ":"));
     if ($a == "") {
@@ -655,6 +654,19 @@ print '<input type="text" class="winkle" name="unix_socket" value="'.$prefs['uni
 print '<hr class="dingleberry" />';
 print '<h3>'.get_int_text("setup_mopidy").'</h3>';
 print '<p>'.get_int_text("setup_mopidyport").'<br><input type="text" class="winkle" name="mopidy_http_port" value="'.$prefs['mopidy_http_port'].'" /></p>'."\n";
+if (!class_exists("JSONReader")) {
+    print '<p><font color="red">Please READ THE WIKI about Low Memory Mode</font></p>';
+}
+print '<p><input type="checkbox" name="lowmemorymode" value="true"';
+if (!class_exists("JSONreader")) {
+    print " disabled";
+} else {
+    if ($prefs['lowmemorymode'] == "true") {
+        print " checked";
+    }
+}
+print '>'.get_int_text('config_low_memory_mode').'</input></p>';
+print '<p class="tiny">'.get_int_text('config_meminfo').'</p>';
 print '<hr class="dingleberry" />';
 print '<h3>Collection Settings</h3>';
 print '<p><input type="radio" name="collection_type" value="xml"';
@@ -691,9 +703,11 @@ if ($prefs['debug_enabled'] == 1) {
     print " checked";
 }
 print '>'.get_int_text("setup_debug").'</input></p>';
-
-print'        <p><input type="submit" class="winkle" value="OK" /></p>
-    </form>
+print '<p>Custom Log File</p>';
+print '<p class=tiny>Rompr debug output will be sent to this file, but PHP error messages will still go to the web server error log. The web server needs write access to this file and you should ensure it gets rotated as it will get large</p>';
+print '<p><input type="text" class="winkle" style="width:90%" name="custom_logfile" value="'.$prefs['custom_logfile'].'" /></p>';
+print '<p><input type="submit" class="winkle" value="OK" /></p>';
+print'    </form>
     </div>
 </body>
 </html>';
@@ -760,7 +774,6 @@ function update_stream_playlist($url, $name, $image, $creator, $title, $type, $f
         $xml = '<?xml version="1.0" encoding="utf-8"?>'.
             "<playlist>\n".
             "<playlisturl></playlisturl>\n".
-            // "<addedbyrompr>false</addedbyrompr>\n".
             "<trackList>\n".
             "<track>\n".
             xmlnode('album', $name).

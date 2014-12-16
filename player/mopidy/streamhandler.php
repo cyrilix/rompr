@@ -1,9 +1,10 @@
 <?php
 
 function is_stream($domain, $filedata) {
-	$streamdomains = array("http", "mms", "rtsp", "https", "rtmp", "rtmps", "dirble", "tunein", "radio-de");
+	$streamdomains = array("http", "mms", "rtsp", "https", "rtmp", "rtmps", "dirble", "tunein", "radio-de", "audioaddict", "oe1");
     if (in_array($domain, $streamdomains) &&
         !preg_match('#/item/\d+/file$#', $filedata['file']) &&
+        !preg_match('#oe1:archive:#', $filedata['file']) &&
         !preg_match('#http://leftasrain.com/#', $filedata['file'])) {
 		return true;
 	} else {
@@ -50,11 +51,20 @@ function getStreamInfo($filedata, $domain) {
             $type = "podcast";
         }
 
+        // Pretty up the images for some mopidy stream domains
         switch ($domain) {
             case "tunein":
             case "radio-de":
             case "dirble":
+            case "audioaddict":
+            case "oe1":
                 $image = "newimages/".$domain."-logo.png";
+                break;
+
+            case "http":
+                if ($filedata['Title'] == 'Bassdrive - Worldwide Drum and Bass Radio') {
+                    $image = "newimages/bassdrive4.png";
+                }
                 break;
         }
 

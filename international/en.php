@@ -110,7 +110,7 @@ $languages['en'] = array (
 	"label_no" => "No",
 	"mopidy_down" => "The connection to Mopidy has been lost!",
 	"label_updating" => "Updating Music Collection",
-	"label_update_error" => "Failed to generate music collection!",
+	"label_update_error" => "Failed to generate music collection.",
 	"label_notsupported" => "Operation not supported!",
 	"label_playlisterror" => "Something went wrong retrieving the playlist!",
 	"label_mpd_no" => "MPD cannot adjust volume while playback is stopped",
@@ -529,7 +529,7 @@ $languages['en'] = array (
 	"settings_interface" => "Interface",
 	"label_charts" => "Your Top 40",
 	"label_choosedomains" => "Search these sources:",
-	"config_onthefly" => "Update Collection In The Background (for backends that support it)",
+	"config_onthefly" => "Background Collection Updates",
 	"button_subscribe" => "Subscribe",
 	"config_sortbycomposer" => "Sort Artists using Composer",
 	"config_composergenre" => " .. only if Genre is:",
@@ -541,7 +541,7 @@ $languages['en'] = array (
 	"config_prefixignore" => "Ignore These Prefixes When Sorting Artists",
 	"config_sortcollectionby" => "Sort Collection By",
 	"config_low_memory_mode" => "Build Collection Using Low Memory Mode",
-	"config_meminfo" => "Low Memory Mode is slower but works better with large collections",
+	"config_meminfo" => "Low Memory Mode works better with large collections",
 	"config_sortoptions" => "Collection Sorting Options",
 
 	//CHANGED in 0.60

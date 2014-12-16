@@ -74,8 +74,7 @@ function playerController() {
     	self.command("", playlist.repopulate);
 		if (!player.collectionLoaded) {
             debug.log("MPD", "Checking Collection");
-            player.collectionLoaded = true;
-            checkCollection();
+            checkCollection(false, false);
         }
 		self.reloadPlaylists();
         playlist.radioManager.init();
@@ -172,16 +171,24 @@ function playerController() {
             type: "GET",
             url: uri,
             timeout: 600000,
+            dataType: (uri.match(/onthefly\.php/)) ? "json" : "html",
             success: function(data) {
-                $("#collection").html(data);
-                data = null;
+                if (uri.match(/onthefly\.php/)) {
+                    updateCollectionDisplay(data);
+                    $("#spinner_fothergill").remove();
+                } else {
+                    $("#collection").html(data);
+                    data = null;
+                    if (!uri.match(/rebuild/)) {
+                        self.reloadPlaylists();
+                    }
+                }
                 player.collectionLoaded = true;
                 if (prefs.sortcollectionby == "album") {
                     scootTheAlbums();
                 }
             },
             error: function(data) {
-                $("#collection").empty();
                 alert("Failed To Generate Collection : \n"+data.responseText+"\n"+data.statusText);
                 debug.error("PLAYER","Failed to generate albums list",data);
             }

@@ -1,13 +1,13 @@
 <?php
 include("includes/vars.php");
 
-debug_print("=================****==================","STARTING UP");
+debug_print("=================****==================","INIT");
 
 include("includes/functions.php");
 include("international.php");
 
-debug_print($_SERVER['SCRIPT_FILENAME'],"STARTING UP");
-debug_print($_SERVER['PHP_SELF'],"STARTING UP");
+debug_print($_SERVER['SCRIPT_FILENAME'],"INIT");
+debug_print($_SERVER['PHP_SELF'],"INIT");
 
 //
 // See if there are any POST values from the setup screen
@@ -15,6 +15,7 @@ debug_print($_SERVER['PHP_SELF'],"STARTING UP");
 
 if (array_key_exists('mpd_host', $_POST)) {
     $prefs['debug_enabled'] = 0;
+    $prefs['lowmemorymode'] = "false";
     foreach ($_POST as $i => $value) {
         debug_print("Setting Pref ".$i." to ".$value,"INIT");
         $prefs[$i] = $value;
@@ -38,14 +39,14 @@ if (array_key_exists('setup', $_REQUEST)) {
 include 'utils/Mobile_Detect.php';
 if (array_key_exists('mobile', $_REQUEST)) {
     $mobile = $_REQUEST['mobile'];
-    debug_print("Request asked for mobile mode: ".$mobile,"INDEX");
+    debug_print("Request asked for mobile mode: ".$mobile,"INIT");
 } else {
     $detect = new Mobile_Detect();
     if ($detect->isMobile() && !$detect->isTablet()) {
-        debug_print("Mobile Browser Detected!","INDEX");
+        debug_print("Mobile Browser Detected!","INIT");
         $mobile = "phone";
     } else {
-        debug_print("Not a mobile browser","INDEX");
+        debug_print("Not a mobile browser","INIT");
         $mobile = "no";
     }
 }
@@ -61,7 +62,7 @@ if (array_key_exists('mopidy', $_REQUEST)) {
     $a = explode(':', $_REQUEST['mopidy']);
     $prefs['mopidy_http_address'] = $a[0];
     $prefs['mopidy_http_port'] = $a[1];
-    debug_print("User Specified Mopidy Connection As ".$prefs['mopidy_http_address'].":".$prefs['mopidy_http_port'],"INDEX");
+    debug_print("User Specified Mopidy Connection As ".$prefs['mopidy_http_address'].":".$prefs['mopidy_http_port'],"INIT");
 } else {
     $mopidy_detected = detect_mopidy();
     $prefs['mopidy_detected'] = $mopidy_detected == true ? "true" : "false";
@@ -76,12 +77,12 @@ if ($mopidy_detected) {
     //
     include("player/mpd/connection.php");
     if (!$is_connected) {
-        debug_print("MPD Connection Failed","INDEX");
+        debug_print("MPD Connection Failed","INIT");
         close_mpd($connection);
         askForMpdValues(get_int_text("setup_connectfail"));
         exit();
     } else if (array_key_exists('error', $mpd_status)) {
-        debug_print("MPD Password Failed or other status failure","INDEX");
+        debug_print("MPD Password Failed or other status failure","INIT");
         close_mpd($connection);
         askForMpdValues(get_int_text("setup_connecterror").$mpd_status['error']);
         exit();
@@ -224,6 +225,7 @@ var coverscraper = new coverScraper(0, false, false, prefs.downloadart);
 
 <?php
 print 'var ipath = "'.$ipath.'";'."\n";
+print 'var mopidy_version = "'.ROMPR_MOPIDY_MIN_VERSION.'";'."\n";
 ?>
 
 $(window).ready(function(){
@@ -305,7 +307,7 @@ function showUpdateWindow() {
         $("#fnarkler").append('<p align="center"><b>'+language.gettext("intro_mopidy")+'</b></p>');
 <?php
         print '$("#fnarkler").append(\'<p align="center"><a href="https://sourceforge.net/p/rompr/wiki/Rompr%20and%20Mopidy/" target="_blank">'.get_int_text("intro_mopidywiki").'</a></p>\');'."\n";
-        print '$("#fnarkler").append(\'<p align="center"><b>'.get_int_text("intro_mopidyversion", array($prefs["mopidy_version"])).'</b></p>\');'."\n";
+        print '$("#fnarkler").append(\'<p align="center"><b>'.get_int_text("intro_mopidyversion", array(ROMPR_MOPIDY_MIN_VERSION)).'</b></p>\');'."\n";
 ?>
         $("#fnarkler").append('<p><button style="width:8em" class="tright" onclick="popupWindow.close()">OK</button></p>');
         popupWindow.open();

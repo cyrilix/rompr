@@ -109,25 +109,21 @@ print '<div class="pref">
 <input type="checkbox" onclick="togglePref(\'updateeverytime\')" id="updateeverytime">'.get_int_text('config_updateonstart').'</input>
 </div>
 <div class="pref">
-<button onclick="player.controller.updateCollection(\'update\')">'.get_int_text('config_updatenow').'</button>
+<button onclick="checkCollection(true, false)">'.get_int_text('config_updatenow').'</button>
 </div>';
 if ($prefs['player_backend'] == "mpd") {
     print '<div class="pref">
-    <button onclick="player.controller.updateCollection(\'rescan\')">'.get_int_text('config_rescan').'</button>
+    <button onclick="checkCollection(true, true)">'.get_int_text('config_rescan').'</button>
     </div>';
 } else {
     print '<div class="pref">
     <input type="checkbox" onclick="togglePref(\'ignore_unplayable\')" id="ignore_unplayable">'.get_int_text('config_ignore_unplayable').'</input>
     </div>';
+}
+if ($prefs['apache_backend'] == "sql") {
     print '<div class="pref">
-    <input type="checkbox" onclick="togglePref(\'lowmemorymode\')" id="lowmemorymode">'.get_int_text('config_low_memory_mode').'</input>
+    <input type="checkbox" onclick="togglePref(\'onthefly\')" id="onthefly">'.get_int_text('config_onthefly').'</input>
     </div>';
-    print '<div class="pref"><span class="tiny">'.get_int_text('config_meminfo').'</span></div>';
-    if ($prefs['apache_backend'] == "sql") {
-        print '<div class="pref">
-        <input type="checkbox" onclick="togglePref(\'onthefly\')" id="onthefly">'.get_int_text('config_onthefly').'</input>
-        </div>';
-    }
 }
 print '<div class="pref prefsection"></div>';
 print '<div class="pref textcentre ucfirst"><b>'.get_int_text('config_sortoptions').'</b></div>';
