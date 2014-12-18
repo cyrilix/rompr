@@ -113,7 +113,6 @@ function switchsource(source) {
             }
         }
         if (typeof togo == "function") {
-            debug.shout("MOBILE","Fanoogling");
             $("#"+source).show({complete: togo});
         } else {
             $("#"+source).show();

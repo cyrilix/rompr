@@ -27,7 +27,7 @@ var info_spotify = function() {
     	if (data.error) {
     		return '<h3 align="center">'+data.error+'</h3>';
     	}
-        if (mobile == "no") {
+        if (layout == "desktop") {
         	var html = '<div class="containerbox">';
         	html = html + '<div class="fixed bright">';
         } else {
