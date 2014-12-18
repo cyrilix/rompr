@@ -25,6 +25,12 @@ function loadOldPrefs() {
                         $a = explode("||||", $line);
                         if (is_array($a) && count($a) > 1) {
                             $prefs[$a[0]] = trim($a[1]);
+                            if ($prefs[$a[0]] === "false") {
+                            	$prefs[$a[0]] = false;
+                            }
+                            if ($prefs[$a[0]] === "true") {
+                            	$prefs[$a[0]] = true;
+                            }
                         }
                     }
                 } else {

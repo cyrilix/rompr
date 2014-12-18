@@ -48,7 +48,7 @@ var charts = function() {
 	            	data: {action: 'getcharts'},
 	            	dataType: 'json',
 	            	success: function(data) {
-	            		if (mobile != "phone") {
+	            		if (layout == "desktop") {
 	            			setDraggable('chafoldup');
 	            		}
 	            		charts.doMainLayout(data);

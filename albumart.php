@@ -4,7 +4,7 @@ include ("includes/functions.php");
 include ("international.php");
 include ("backends/sql/backend.php");
 set_time_limit(240);
-$mobile = "no";
+$layout = "desktop";
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -25,6 +25,7 @@ print '<link rel="stylesheet" id="fontfamily" type="text/css" href="fonts/'.$pre
 <link type="text/css" href="custom-scrollbar-plugin/css/jquery.mCustomScrollbar.css" rel="stylesheet" />
 <script type="text/javascript" src="jquery/jquery-1.8.3-min.js"></script>
 <script type="text/javascript" src="custom-scrollbar-plugin/js/jquery.mCustomScrollbar.concat.min.js"></script>
+<script type="text/javascript" src="layouts/desktop/functions.js"></script>
 <script type="text/javascript" src="ui/functions.js"></script>
 <script type="text/javascript" src="ui/uifunctions.js"></script>
 <script type="text/javascript" src="ui/debug.js"></script>
@@ -34,15 +35,14 @@ include ("includes/globals.php");
 ?>
 <script language="JavaScript">
 <?php
-if ($prefs['debug_enabled'] == 1) {
+if ($prefs['debug_enabled']) {
     print "debug.setLevel(8);\n";
 } else {
     print "debug.setLevel(0);\n";
 }
-print 'var ipath = "'.$ipath.'";'."\n";
 ?>
 
-var mobile = "no";
+var layout = "desktop";
 var imagekey = '';
 var imgobj = null;
 var useLocalStorage = false;

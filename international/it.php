@@ -104,7 +104,7 @@ $languages['it'] = array (
 	"label_icecast" => "Radio Icecast",
 	"label_emptyinfo" => "Questo è il pannello informazioni. Diverse cose interessanti appariranno qui quando riprodurrai della musica.",
 	"button_playlistcontrols" => "Controlli Playlist",
-	"button_shuffle" => "CASUALE",
+	"button_random" => "CASUALE",
 	"button_crossfade" => "DISSOLVENZA INCROCIATA",
 	"button_repeat" => "RIPETI",
 	"button_consume" => "CONSUMA",
@@ -510,7 +510,7 @@ $languages['it'] = array (
 	"config_alarm_ramp" => "Dissolvenza in Ingresso",
 	"config_ignore_unplayable" => "Ignora brani non riproducibili"
 
-	
+
 );
 
 ?>

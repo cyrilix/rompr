@@ -65,7 +65,7 @@ if (array_key_exists('item', $_REQUEST)) {
     if (array_key_exists('domains', $_REQUEST)) {
         $st['uris'] = $_REQUEST['domains'];
     }
-    doCollection('core.library.search',$st,array("Track", "Artist", "Album"), $prefs['lowmemorymode'] == "false" ? true : false);
+    doCollection('core.library.search',$st,array("Track", "Artist", "Album"), $prefs['lowmemorymode'] ? false : true);
     createAlbumsList(ROMPR_XML_SEARCH, "b");
     dumpAlbums('balbumroot');
     print '<div class="separator"></div>';
@@ -110,7 +110,7 @@ if (array_key_exists('item', $_REQUEST)) {
     $now2 = time();
     include ("player/".$player_backend."/connection.php");
     include ("collection/collection.php");
-	doCollection("listallinfo",null,array("Track"),$prefs['lowmemorymode'] == "false" ? true : false);
+	doCollection("listallinfo",null,array("Track"),$prefs['lowmemorymode'] ? false : true);
     createAlbumsList(ROMPR_XML_COLLECTION, "a");
     dumpAlbums('aalbumroot');
     close_player();

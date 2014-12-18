@@ -69,11 +69,11 @@ function outputPlaylist() {
             )
         );
 
-        if ($prefs['displaycomposer'] == "true" &&
+        if ($prefs['displaycomposer'] &&
             ($track->composer !== null || $track->performers !== null) &&
             (
-                ($prefs['composergenre'] == "true" && $track->genre && strtolower($track->genre) == strtolower($prefs['composergenrename'])) ||
-                $prefs['composergenre'] == "false")
+                ($prefs['composergenre'] && $track->genre && strtolower($track->genre) == strtolower($prefs['composergenrename'])) ||
+                !$prefs['composergenre'])
             ) {
             $c = getArray($track->composer);
             foreach ($c as $comp) {

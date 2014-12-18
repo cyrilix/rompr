@@ -178,21 +178,6 @@ function playerController() {
         mopidy.playback.play(track,1).then( function(data){ }, consoleError);
     }
 
-    function checkDomain(element) {
-        if ($("#limitsearch").is(':checked')) {
-            if ($(element).is(':checked')) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            // return false to leave an empty array meaning ALL domains
-            // get searched - this means new backends we don't know about
-            // can be added and they'll still be searched
-            return false;
-        }
-    }
-
     function checkMopidyVersion() {
         if ('getVersion' in mopidy) {
             mopidy.getVersion().then(function(version){
@@ -263,8 +248,6 @@ function playerController() {
 	    $("#storedplaylists").html(html);
 	}
 
-	// This is the beginning of our ability to update the collection on the fly
-	// - because mopidy is good :)
 	function checkTracksAgainstDatabase(data) {
     	debug.log("PLAYER","Seeing if we need to add new tracks to the database");
         $.ajax({
@@ -482,7 +465,7 @@ function playerController() {
 	}
 
 	this.reloadFilesList = function(uri) {
-		self.browse(null, "filecollection");
+        self.browse(null, "filecollection");
 	}
 
 	this.reloadPlaylists = function() {
@@ -625,23 +608,14 @@ function playerController() {
         	termcount++;
         }
         var domains = new Array();
-        var fanny = 0;
-        var prefssave = { search_limit_limitsearch: $("#limitsearch").is(':checked') ? 1 : 0 };
-        $("#mopidysearcher").find('.searchdomain').each( function() {
-            if (checkDomain(this)) {
-                debug.log("PLAYER","Search Type", $(this).attr("value"));
+        if (prefs.search_limit_limitsearch) {
+            $("#mopidysearchdomains").find('.searchdomain:checked').each( function() {
                 var d = $(this).attr("value");
-                if (d == "radio_de") {
-                    // We can't have a pref value with a - in it; javascript interprets it as a math function
-                    d = "radio-de";
-                }
+                if (d == "radio_de") d = "radio-de";
                 domains.push(d+":");
-                fanny++;
-            }
-            prefssave['search_limit_'+$(this).attr("value")] = $(this).is(':checked') ? 1 : 0;
-        });
-        prefs.save(prefssave);
-        if (termcount > 0 && (!($("#limitsearch").is(':checked')) || fanny > 0)) {
+            });
+        }
+        if (termcount > 0 && (!($("#limitsearch").is(':checked')) || domains.length > 0)) {
             $("#searchresultholder").empty();
             doSomethingUseful('searchresultholder', language.gettext("label_searching"));
             debug.log("PLAYER","Doing Search:", terms, domains);
@@ -772,7 +746,7 @@ function playerController() {
 
 	this.addTracks = function(tracks, playpos, at_pos) {
 		if (tracks.length == 0) return;
-		if (mobile != "no") infobar.notify(infobar.NOTIFY, language.gettext("label_addingtracks"));
+		if (layout == "phone") infobar.notify(infobar.NOTIFY, language.gettext("label_addingtracks"));
 		debug.log("PLAYER","Adding Tracks",tracks,playpos,at_pos);
 		// Add the tracks to a single variable. Otherwise if we get one add request
 		// before the previous one has finished the tracks get muddled up

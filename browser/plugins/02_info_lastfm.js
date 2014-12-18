@@ -19,7 +19,7 @@ var info_lastfm = function() {
     function doTags(taglist) {
     	debug.debug(medebug,"    Doing Tags");
         var html = '<ul><li><b>'+language.gettext("lastfm_toptags")+'</b></li><li><table';
-        if (mobile == "no") {
+        if (layout == "desktop") {
             html = html + ' width="100%"';
         }
         html = html + '>';
@@ -57,7 +57,7 @@ var info_lastfm = function() {
 
     function doUserTags(name) {
         var html = '<ul><li><b>'+language.gettext("lastfm_yourtags")+'</b></li><li><table name="'+name+'tagtable"';
-        if (mobile == "no") {
+        if (layout == "desktop") {
             html = html + ' width="100%"';
         }
         html = html + '>';
@@ -103,7 +103,7 @@ var info_lastfm = function() {
         }
         var html = sectionHeader(lfmdata);
         var bigurl = lfmdata.image("mega");
-        if (mobile == "no") {
+        if (layout == "desktop") {
             var imageurl = lfmdata.image("extralarge");
         } else {
             var imageurl = lfmdata.image("extralarge");
@@ -128,7 +128,7 @@ var info_lastfm = function() {
 
         html = html + '</div><div class="statsbox">';
 
-        if (mobile == "no" && imageurl != '') {
+        if (layout == "desktop" && imageurl != '') {
             html = html +  '<img class="stright standout'
             if (bigurl && bigurl != imageurl) {
                 html = html + ' infoclick clickzoomimage';
@@ -178,7 +178,7 @@ var info_lastfm = function() {
 
         html = html + '</div><div class="statsbox">';
         var imageurl;
-        if (mobile == "no") {
+        if (layout == "desktop") {
             var imageurl = lfmdata.image("large");
             var bigurl = lfmdata.image("mega");
         } else {

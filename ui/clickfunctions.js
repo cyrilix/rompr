@@ -46,7 +46,7 @@ function onDropdownClicked(event) {
     var where = $(this).attr("id");
     if (dropbox.is(':visible')) {
         dropbox.slideToggle('fast', function() {
-            if (mobile == "no" && where == "poohbear") {
+            if (layout == "desktop" && where == "poohbear") {
                 $("#ppscr").mCustomScrollbar("update");
             }
         });
@@ -63,7 +63,7 @@ function onDropdownClicked(event) {
                 }
                 data = null;
                 dropbox.slideToggle('fast', function() {
-                    if (mobile == "no") {
+                    if (layout == "desktop") {
                         dropbox.mCustomScrollbar("update");
                         if (where == "poohbear") {
                             $("#ppscr").mCustomScrollbar("update");

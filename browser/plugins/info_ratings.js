@@ -180,6 +180,12 @@ var faveFinder = function() {
     var throttle = null;
     var withalbum = false;
 
+    // Prioritize - local, beetslocal, beets, gmusic, spotify - in that order
+    // Everything else can take its chance. This is only really relevant for
+    // lastFmImporter. These are the default priorities, but they can be changed
+    // from the lastfm importer gui.
+    var priority = ["spotify", "gmusic", "beets", "beetslocal", "local"];
+
     function searchForTrack() {
         var req = queue[0];
         var st = {};
@@ -216,6 +222,15 @@ var faveFinder = function() {
 
     return {
 
+        getPriorities: function() {
+            return priority;
+        },
+
+        setPriorities: function(p) {
+            priority = p;
+            debug.log("FAVEFINDER","Priorities Set To (reverse order)",priority);
+        },
+
         queueLength: function() {
             return queue.length;
         },
@@ -224,58 +239,23 @@ var faveFinder = function() {
             var f = false;
             var req = queue[0];
 
-            // Prioritize - local, gmusic, beets, spotify - in that order
-            // Everything else can take its chance
-
-            var spot = null;
-            for (var i in data) {
-                var dom = data[i].uri;
-                if (dom.match(/^spotify:/)) {
-                    spot = i;
-                    break;
+            $.each(priority,
+                function(j,v) {
+                    var spot = null;
+                    for (var i in data) {
+                        var match = new RegExp('^'+v+':');
+                        if (match.test(data[i].uri)) {
+                            spot = i;
+                            break;
+                        }
+                    }
+                    if (spot !== null) {
+                        data.unshift(data.splice(spot, 1)[0]);
+                    }
                 }
-            }
-            if (spot !== null) {
-                data.unshift(data.splice(spot, 1)[0]);
-            }
+            );
 
-            spot = null;
-            for (var i in data) {
-                var dom = data[i].uri;
-                if (dom.match(/^beets:/)) {
-                    spot = i;
-                    break;
-                }
-            }
-            if (spot !== null) {
-                data.unshift(data.splice(spot, 1)[0]);
-            }
-
-            spot = null;
-            for (var i in data) {
-                var dom = data[i].uri;
-                if (dom.match(/^gmusic:/)) {
-                    spot = i;
-                    break;
-                }
-            }
-            if (spot !== null) {
-                data.unshift(data.splice(spot, 1)[0]);
-            }
-
-            spot = null;
-            for (var i in data) {
-                var dom = data[i].uri;
-                if (dom.match(/^local:/)) {
-                    spot = i;
-                    break;
-                }
-            }
-            if (spot !== null) {
-                data.unshift(data.splice(spot, 1)[0]);
-            }
-
-            debug.debug("FAVEFINDER","Sorted Search Results are",data);
+            // debug.debug("FAVEFINDER","Sorted Search Results are",data);
 
             var results = new Array();
             if (req.returnall) {

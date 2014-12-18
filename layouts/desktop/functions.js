@@ -1,3 +1,4 @@
+
 function expandInfo(side) {
     switch(side) {
         case "left":
@@ -15,20 +16,18 @@ function expandInfo(side) {
 
 function toggleSearch() {
     if (prefs.hide_albumlist) {
-        sourcecontrol("albumlist");
-        $("#search").show();
+        sourcecontrol("albumlist", grrAnnoyed);
         ihatefirefox();
         return false;
     }
     if ($("#albumlist").is(':visible')) {
         if (albumScrollOffset < 20) {
-            $("#search").slideToggle('fast');
+            $("#search").slideToggle({duration: 'fast', start: setSearchLabelWidth});
         } else {
-            $("#search").slideDown('fast');
+            $("#search").slideDown({duration: 'fast', start: setSearchLabelWidth});
         }
     } else {
-        sourcecontrol("albumlist");
-        $("#search").slideDown('fast');
+        sourcecontrol("albumlist", grrAnnoyed);
     }
     $('#sources').mCustomScrollbar("scrollTo", 0, {scrollInertia:20});
     albumScrollOffset = 0;
@@ -36,8 +35,12 @@ function toggleSearch() {
     return false;
 }
 
+function grrAnnoyed() {
+    $("#search").slideDown({duration: 'fast', start: setSearchLabelWidth});
+}
+
 function ihatefirefox() {
-    if (prefs.search_limit_limitsearch == 1) {
+    if (prefs.search_limit_limitsearch) {
         $("#mopidysearchdomains").show();
     } else {
         $("#mopidysearchdomains").hide();
@@ -88,10 +91,9 @@ function doThatFunkyThang() {
 }
 
 function hideBrowser() {
-    if (prefs.hidebrowser) {
+    if (!prefs.hidebrowser) {
         prefs.save({playlistwidthpercent: 25, sourceswidthpercent: 25});
     }
-    prefs.save({hidebrowser: !prefs.hidebrowser});
     doThatFunkyThang();
 }
 
@@ -126,7 +128,7 @@ function setBottomPaneSize() {
 function switchsource(source) {
 
     var togo = sources.shift();
-    if (togo) {
+    if (togo && typeof togo != "function") {
         if ($("#"+togo).is(':visible')) {
             $("#"+togo).fadeOut(200, function() { switchsource(source) });
         } else {
@@ -134,148 +136,113 @@ function switchsource(source) {
         }
     } else {
         prefs.save({chooser: source});
-        $("#"+source).fadeIn(200);
+        if (typeof togo == "function") {
+            $("#"+source).fadeIn(200, togo);
+        } else {
+            $("#"+source).fadeIn(200);
+        }
     }
 }
 
-function loadKeyBindings() {
-    $.getJSON("utils/getkeybindings.php")
-        .done(function(data) {
-            shortcut.add(getHotKey(data['nextrack']),    function(){ playlist.next() }, {'disable_in_input':true});
-            shortcut.add(getHotKey(data['prevtrack']),   function(){ playlist.previous() }, {'disable_in_input':true});
-            shortcut.add(getHotKey(data['stop']),        function(){ player.controller.stop() }, {'disable_in_input':true});
-            shortcut.add(getHotKey(data['play']),        function(){ infobar.playbutton.clicked() }, {'disable_in_input':true} );
-            shortcut.add(getHotKey(data['volumeup']),    function(){ infobar.volumeKey(5) }, {'disable_in_input':true} );
-            shortcut.add(getHotKey(data['volumedown']),  function(){ infobar.volumeKey(-5) }, {'disable_in_input':true} );
-            shortcut.add(getHotKey(data['closewindow']), function(){ window.open(location, '_self').close() }, {'disable_in_input':true} );
+var shortcuts = function() {
 
-        })
-        .fail( function(data) {  });
-}
+    var hotkeys = { button_next: "Right",
+                    button_previous: "Left",
+                    button_stop: "Space",
+                    button_play: "P",
+                    button_volup: "Up",
+                    button_voldown: "Down",
+                    button_closewindow: "Escape",
+                    button_skipforward: "]",
+                    button_skipbackward: "[",
+                    button_clearplaylist: "C",
+                    button_stopafter: "F",
+                    button_random: "S",
+                    button_crossfade: "X",
+                    button_repeat: "R",
+                    button_consume: "E"
+    };
 
-function getHotKey(st) {
-    var bits = st.split("+++");
-    return bits[0];
-}
+    var bindings = { button_next: playlist.next,
+                    button_previous: playlist.previous,
+                    button_stop: player.controller.stop,
+                    button_play: infobar.playbutton.clicked,
+                    button_volup: function() { infobar.volumeKey(5) },
+                    button_voldown: function() { infobar.volumeKey(-5) },
+                    button_closewindow: function() { window.open(location, '_self').close() },
+                    button_skipforward: function() { player.skip(10) },
+                    button_skipbackward: function() { player.skip(-10) },
+                    button_clearplaylist: playlist.clear,
+                    button_stopafter: playlist.stopafter,
+                    button_random: function() { playlistControlButton('random') },
+                    button_crossfade: function() { playlistControlButton('crossfade') },
+                    button_repeat: function() { playlistControlButton('repeat') },
+                    button_consume: function() { playlistControlButton('consume') }
+    };
 
-function getHotKeyDisplay(st) {
-    debug.log("HOTKEY","Display passed is ",st);
-    var bits = st.split("+++");
-    return bits[1];
-}
+    function format_keyinput(inpname, hotkey) {
+        if (hotkey === null) hotkey = "";
+        return '<input id="'+inpname+'" class="tleft sourceform buttonchange" type="text" size="16" value="'+hotkey+'"></input>';
+    }
 
-function editkeybindings() {
+    return {
 
-    debug.log("GENERAL", "Editing Key Bindings");
+        load: function() {
+            debug.shout("SHORTCUTS","Loading Key Bindings");
+            $(document).unbind('keydown');
+            for (var i in hotkeys) {
+                if (localStorage.getItem('hotkeys.'+i) != null) {
+                    hotkeys[i] = localStorage.getItem('hotkeys.'+i);
+                }
+                if (hotkeys[i] !== null && bindings[i]) {
+                    debug.log("SHORTCUTS","Binding Key For",i);
+                    $(document).bind('keydown', hotkeys[i], bindings[i]);
+                }
+            }
+        },
 
-    $("#configpanel").slideToggle('fast');
-
-    $.getJSON("utils/getkeybindings.php")
-        .done(function(data) {
-            var keybpu = popupWindow.create(500,400,"keybpu",true,language.gettext("title_keybindings"));
-            $("#popupcontents").append('<table align="center" cellpadding="4" id="keybindtable" width="80%"></table>');
-            $("#keybindtable").append('<tr><td width="35%" align="right">'+language.gettext("button_next")+'</td><td>'+format_keyinput('nextrack', data)+'</td></tr>');
-            $("#keybindtable").append('<tr><td width="35%" align="right">'+language.gettext("button_previous")+'</td><td>'+format_keyinput('prevtrack', data)+'</td></tr>');
-            $("#keybindtable").append('<tr><td width="35%" align="right">'+language.gettext("button_stop")+'</td><td>'+format_keyinput('stop', data)+'</td></tr>');
-            $("#keybindtable").append('<tr><td width="35%" align="right">'+language.gettext("button_play")+'</td><td>'+format_keyinput('play', data)+'</td></tr>');
-            $("#keybindtable").append('<tr><td width="35%" align="right">'+language.gettext("button_volup")+'</td><td>'+format_keyinput('volumeup', data)+'</td></tr>');
-            $("#keybindtable").append('<tr><td width="35%" align="right">'+language.gettext("button_voldown")+'</td><td>'+format_keyinput('volumedown', data)+'</td></tr>');
-            $("#keybindtable").append('<tr><td width="35%" align="right">'+language.gettext("button_closewindow")+'</td><td>'+format_keyinput('closewindow', data)+'</td></tr>');
-
-            $("#keybindtable").append('<tr><td colspan="2"><button style="width:8em" class="tleft topformbutton" onclick="popupWindow.close()">'+language.gettext("button_cancel")+'</button>'+
-                                        '<button  style="width:8em" class="tright topformbutton" onclick="saveKeyBindings()">'+language.gettext("button_OK")+'</button></td></tr>');
-
-            $(".buttonchange").keydown( function(ev) { changeHotKey(ev) } );
+        edit: function() {
+            $("#configpanel").slideToggle('fast');
+            var keybpu = popupWindow.create(400,600,"keybpu",true,language.gettext("title_keybindings"));
+            $("#popupcontents").append('<table align="center" cellpadding="2" id="keybindtable" width="90%"></table>');
+            for (var i in hotkeys) {
+                $("#keybindtable").append('<tr><td width="50%" align="right">'+language.gettext(i).initcaps()+'</td><td>'+format_keyinput(i, hotkeys[i])+'</td></tr>');
+            }
+            $(".buttonchange").keydown( shortcuts.change );
             popupWindow.open();
-        })
-        .fail( function() { alert("Failed To Read Key Bindings!") });
+        },
 
-}
+        change: function(ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            $(ev.target).val(KeyCode.hot_key(KeyCode.translate_event(ev)));
+            shortcuts.save()
+        },
 
-function format_keyinput(inpname, data) {
-    return '<input id="'+inpname+'" class="tleft sourceform buttonchange" type="text" size="10" value="'+getHotKeyDisplay(data[inpname])+'"></input>' +
-            '<input name="'+inpname+'" class="buttoncode" type="hidden" value="'+getHotKey(data[inpname])+'"></input>';
-}
+        save: function() {
+            $("#keybindtable").find(".buttonchange").each(function() {
+                var k = $(this).val();
+                if (k != "") {
+                    hotkeys[$(this).attr("id")] = $(this).val();
+                    localStorage.setItem('hotkeys.'+$(this).attr("id"), $(this).val());
+                }
+            });
+            shortcuts.load();
+        },
 
-function changeHotKey(ev) {
-
-    var key = ev.which;
-    debug.log("HOTKEY", "pressed code was",key);
-    // Ignore Shift, Ctrl, Alt, and Meta
-    if (key == 17 || key == 18 || key == 19 || key == 224) {
-        return true;
+        add: function(name, binding) {
+            hotkeys[name] = null;
+            bindings[name] = binding;
+        }
     }
 
-    ev.preventDefault();
-    ev.stopPropagation();
-    var source = $(ev.target).attr("id");
+}();
 
-    var special_keys = {
-        9: 'tab',
-        32: 'space',
-        13: 'return',
-        8: 'backspace',
-        145: 'scrolllock',
-        20: 'capslock',
-        144: 'numlock',
-        19: 'pause',
-        45: 'insert',
-        36: 'home',
-        46: 'delete',
-        35: 'end',
-        33: 'pageup',
-        34: 'pagedown',
-        37: 'left',
-        38: 'up',
-        39: 'right',
-        40: 'down',
-        112: 'f1',
-        113: 'f2',
-        114: 'f3',
-        115: 'f4',
-        116: 'f5',
-        117: 'f6',
-        118: 'f7',
-        119: 'f8',
-        120: 'f9',
-        121: 'f10',
-        122: 'f11',
-        123: 'f12',
+function playlistControlButton(button) {
+    if (!$("#playlistbuttons").is(':visible')) {
+        togglePlaylistButtons()
     }
-
-    var keystring = special_keys[key] || String.fromCharCode(key).toUpperCase();
-
-    if (ev.shiftKey) { keystring = "Shift+"+keystring };
-    if (ev.metaKey) { keystring = "Meta+"+keystring };
-    if (ev.ctrlKey) { keystring = "Ctrl+"+keystring };
-    if (ev.altKey) { keystring = "Alt+"+keystring };
-
-    var keydisplay = KeyCode.hot_key(KeyCode.translate_event(ev));
-
-    $("#"+source).attr("value", keydisplay);
-    $('input[name="'+source+'"]').attr("value", keystring);
-}
-
-function saveKeyBindings() {
-
-    var bindings = new Object;
-    $.getJSON("utils/getkeybindings.php")
-        .done(function(data) {
-            debug.log("GENERAL","Clearing Key Bindings");
-            $.each(data, function(i, v) { shortcut.remove(v)});
-            $(".buttonchange").each( function(i) {
-                bindings[$(this).attr("id")] = $(this).attr("value");
-            });
-            $(".buttoncode").each( function(i) {
-                bindings[$(this).attr("name")] = $(this).attr("value")+"+++"+bindings[$(this).attr("name")];
-            });
-
-            $.post("utils/savekeybindings.php", bindings, function() {
-                loadKeyBindings();
-                popupWindow.close();
-            });
-        })
-        .fail( function(data) {  });
+    $("#"+button).click();
 }
 
 function srDrag(event, ui) {
@@ -399,7 +366,7 @@ function initUI() {
         return false;
     });
 
-    loadKeyBindings();
+    shortcuts.load();
     var obj = document.getElementById('volumecontrol');
     obj.addEventListener('mousedown', function(event) {
         event.preventDefault();
@@ -423,7 +390,6 @@ function initUI() {
 
     $("#mopidysearcher input").keyup( function(event) {
         if (event.keyCode == 13) {
-            debug.log("SEARCH","Keyup");
             player.controller.search('search');
         }
     } );

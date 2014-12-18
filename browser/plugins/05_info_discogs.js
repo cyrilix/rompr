@@ -166,7 +166,7 @@ var info_discogs = function() {
 			return '<h3 align="center">'+data.error.error+'</h3>';
 		}
 
-        if (mobile == "no") {
+        if (layout == "desktop") {
         	var html = '<div class="containerbox">';
         	html = html + '<div class="fixed bright">';
         } else {
@@ -196,7 +196,7 @@ var info_discogs = function() {
 
 		html = html + '</div>';
 
-        if (mobile == "no") {
+        if (layout == "desktop") {
         	html = html + '<div class="expand stumpy">';
         } else {
         	html = html + '<div class="stumpy">';
@@ -227,9 +227,9 @@ var info_discogs = function() {
 			html = html + getTracklist(data.master.data.tracklist)
 		}
 
-		if (mobile == "no" && data.release && data.release.data.videos) {
+		if (layout == "desktop" && data.release && data.release.data.videos) {
 			html = html + doVideos(data.release.data.videos);
-		} else if (mobile == "no" && data.master && data.master.data.videos) {
+		} else if (layout == "desktop" && data.master && data.master.data.videos) {
 			html = html + doVideos(data.master.data.videos);
 		}
 
@@ -503,7 +503,7 @@ var info_discogs = function() {
 					return '<h3 align="center">'+data.error+'</h3>';
 				}
 				debug.debug(medebug, "Creating Artist HTML",data);
-				if (mobile == "no") {
+				if (layout == "desktop") {
 			        var html = '<div class="containerbox">';
 			        html = html + '<div class="fixed bright">';
 			    } else {
@@ -538,7 +538,7 @@ var info_discogs = function() {
 			    }
 			    html = html + '</div>';
 
-		        if (mobile == "no") {
+		        if (layout == "desktop") {
 		        	html = html + '<div class="expand stumpy">';
 		        } else {
 		        	html = html + '<div class="stumpy">';

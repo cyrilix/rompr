@@ -14,7 +14,7 @@ print '<img onclick="togglePlaylistButtons()" title="'.get_int_text('button_play
 <table width="90%" align="center" style="border-collapse:collapse">
 <tr>
 <?php
-print '<td width="50%" align="right"><div class="togglecontainer"><div class="togglediv tgtl">'.get_int_text('button_shuffle').
+print '<td width="50%" align="right"><div class="togglecontainer"><div class="togglediv tgtl">'.get_int_text('button_random').
 '</div><div class="togglebutton clickicon togglebutton-0 togglediv" id="random" onclick="player.controller.toggleRandom()"></div>'.
 '</div></td>';
 print '<td width="50%" align="left"><div class="togglecontainer">'.

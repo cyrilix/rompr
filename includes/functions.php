@@ -389,7 +389,7 @@ function albumHeader($name, $spotilink, $id, $exists, $searched, $imgname, $src,
     }
 
     print '<div class="expand">'.$name;
-    if ($date && $date != "" && $prefs['sortbydate'] == "true") {
+    if ($date && $date != "" && $prefs['sortbydate']) {
         print ' <span class="notbold">('.$date.')</span>';
     }
     print '</div></div>';
@@ -657,11 +657,11 @@ print '<p>'.get_int_text("setup_mopidyport").'<br><input type="text" class="wink
 if (!class_exists("JSONReader")) {
     print '<p><font color="red">Please READ THE WIKI about Low Memory Mode</font></p>';
 }
-print '<p><input type="checkbox" name="lowmemorymode" value="true"';
+print '<p><input type="checkbox" name="lowmemorymode" value="1"';
 if (!class_exists("JSONreader")) {
     print " disabled";
 } else {
-    if ($prefs['lowmemorymode'] == "true") {
+    if ($prefs['lowmemorymode']) {
         print " checked";
     }
 }
@@ -699,12 +699,12 @@ print '<p>Proxy Username<br><input type="text" class="winkle" name="proxy_user" 
 print '<p>Proxy Password<br><input type="text" class="winkle" name="proxy_password" value="'.$prefs['proxy_password'].'" /></p>'."\n";
 print '<hr class="dingleberry" />';
 print '<p><input type="checkbox" name="debug_enabled" value="1"';
-if ($prefs['debug_enabled'] == 1) {
+if ($prefs['debug_enabled']) {
     print " checked";
 }
 print '>'.get_int_text("setup_debug").'</input></p>';
 print '<p>Custom Log File</p>';
-print '<p class=tiny>Rompr debug output will be sent to this file, but PHP error messages will still go to the web server error log. The web server needs write access to this file and you should ensure it gets rotated as it will get large</p>';
+print '<p class=tiny>Rompr debug output will be sent to this file, but PHP error messages will still go to the web server error log. The web server needs write access to this file, it must already exist, and you should ensure it gets rotated as it will get large</p>';
 print '<p><input type="text" class="winkle" style="width:90%" name="custom_logfile" value="'.$prefs['custom_logfile'].'" /></p>';
 print '<p><input type="submit" class="winkle" value="OK" /></p>';
 print'    </form>

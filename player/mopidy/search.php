@@ -1,146 +1,36 @@
 <div id="mopidysearcher" style="padding:6px">
-    <div class="containerbox padright">
-<?php
-print '<h3>'.get_int_text("label_searchfor").'</h3>';
-?>
-    </div>
-    <div class="containerbox padright wibble">
-<?php
-print '<i>'.get_int_text("label_multiterms").'</i>';
-?>
-    </div>
-
-    <div class="containerbox padright dropdown-container">
-<?php
-$labia = strlen(htmlspecialchars_decode(get_int_text("label_artist"), ENT_QUOTES));
-foreach(array(get_int_text("label_album"),
-                get_int_text("label_track"),
-                get_int_text("label_anything"),
-                get_int_text("label_genre"),
-                get_int_text("label_composer"),
-                get_int_text("label_performer"),
-                get_int_text("label_tag")) as $a) {
-    if (strlen(htmlspecialchars_decode($a, ENT_QUOTES)) > $labia) {
-        debug_print("Setting search box width from ".htmlspecialchars_decode($a, ENT_QUOTES)." to ".strlen(htmlspecialchars_decode($a, ENT_QUOTES))."em","SEARCH");
-        $labia = strlen(htmlspecialchars_decode($a, ENT_QUOTES));
-    }
-}
-$labia -= 1;
-print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_artist").'</b></div>';
-?>
-        <div class="expand"><input class="searchterm enter sourceform" name="artist" type="text" /></div>
-    </div>
-
-    <div class="containerbox padright dropdown-container">
-<?php
-print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_album").'</b></div>';
-?>
-        <div class="expand"><input class="searchterm enter sourceform" name="album" type="text" /></div>
-    </div>
-
-    <div class="containerbox padright dropdown-container">
-<?php
-print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_track").'</b></div>';
-?>
-        <div class="expand"><input class="searchterm enter sourceform" name="track_name" type="text" /></div>
-    </div>
-
-    <div class="containerbox padright dropdown-container">
-<?php
-print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_genre").'</b></div>';
-?>
-        <div class="expand"><input class="searchterm enter sourceform" name="genre" type="text" /></div>
-    </div>
-
-    <div class="containerbox padright dropdown-container">
-<?php
-print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_composer").'</b></div>';
-?>
-        <div class="expand"><input class="searchterm enter sourceform" name="composer" type="text" /></div>
-    </div>
-
-    <div class="containerbox padright dropdown-container">
-<?php
-print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_performer").'</b></div>';
-?>
-        <div class="expand"><input class="searchterm enter sourceform" name="performer" type="text" /></div>
-    </div>
-
-    <div class="containerbox padright dropdown-container">
-<?php
-print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_anything").'</b></div>';
-?>
-        <div class="expand"><input class="searchterm enter sourceform" name="any" type="text" /></div>
-    </div>
 
 <?php
-if ($prefs['apache_backend'] == "sql") {
-?>
-    <div class="containerbox padright dropdown-container">
-<?php
-print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_tag").'</b></div>';
-?>
-        <div class="expand dropdown-holder">
-            <input class="searchterm enter sourceform" name="tag" type="text" style="width:100%;font-size:100%"/>
-            <div class="drop-box dropshadow tagmenu" style="width:100%">
-                <div class="tagmenu-contents">
-                </div>
-            </div>
-        </div>
-        <div class="fixed dropdown-button">
-<?php
-            print '<img src="'.$ipath.'dropdown.png">';
-?>
-        </div>
-    </div>
+$sterms = array(
+    "label_artist" => "artist",
+    "label_album" => "album",
+    "label_track" => "track_name",
+    "label_genre" => "genre",
+    "label_composer" => "composer",
+    "label_performer" => "performer",
+    "label_anything" => "any"
+);
+include("layouts/search.php");
 
-    <div class="containerbox padright dropdown-container">
-<?php
-print '<div class="fixed" style="width:'.$labia.'em"><b>'.get_int_text("label_rating").'</b></div>
-        <div class="expand">
-        <select name="searchrating">
-        <option value="5">5 '.get_int_text('stars').'</option>
-        <option value="4">4 '.get_int_text('stars').'</option>
-        <option value="3">3 '.get_int_text('stars').'</option>
-        <option value="2">2 '.get_int_text('stars').'</option>
-        <option value="1">1 '.get_int_text('star').'</option>
-        <option value="" selected></option>
-        </select>
-       </div>
-    </div>';
-}
+print '<div class="containerbox padright" style="padding-top:4px">';
+print '<input class="autoset toggle" type="checkbox" id="search_limit_limitsearch">'.get_int_text("label_limitsearch").'</input>';
+print '</div>';
 
-    print '<div class="containerbox padright" style="padding-top:4px">';
-    print '<input type="checkbox" id="limitsearch" value="1" onclick="weaselBurrow()"';
-    if ($prefs['search_limit_limitsearch'] == 1) {
-        print ' checked';
-    }
-    print '>'.get_int_text("label_limitsearch").'</input>';
+print '<div class="dropmenu" id="mopidysearchdomains" style="margin-top:4px">';
+foreach ($searchlimits as $domain => $text) {
+    // Need 'fullwidth' for bloody stupid firefox. divs are SUPPOSED to fill the width of their container, fuckwits.
+    print '<div class="indent containerbox padright fullwidth">';
+    print '<input type="checkbox" class="searchdomain autoset toggle" id="search_limit_'.$domain.'" value="'.$domain.'"';
+    print '>'.$text.'</input>';
     print '</div>';
-
-    print '<div class="dropmenu" id="mopidysearchdomains" style="margin-top:4px">';
-    foreach ($searchlimits as $domain => $text) {
-        // Need 'fullwidth' for bloody stupid firefox.
-        // divs are SUPPOSED to fill the width of their container, fuckwits.
-        print '<div class="indent containerbox padright fullwidth">';
-        print '<input type="checkbox" class="searchdomain" value="'.$domain.'"';
-        if (array_key_exists('search_limit_'.$domain, $prefs)) {
-            if ($prefs['search_limit_'.$domain] == 1) {
-                print ' checked';
-            }
-        }
-        print '>'.$text.'</input>';
-        print '</div>';
-    }
-    print '</div>';
+}
+print '</div>';
 ?>
-    <div class="indent containerbox padright">
-        <div class="expand"></div>
+<div class="indent containerbox padright">
+    <div class="expand"></div>
 <?php
 print '<button class="fixed" onclick="player.controller.search(\'search\')">'.get_int_text("button_search").'</button>';
 ?>
-    </div>
-
-    <div id="searchresultholder" class="noselection fullwidth"></div>
-
+</div>
+<div id="searchresultholder" class="noselection fullwidth"></div>
 </div>

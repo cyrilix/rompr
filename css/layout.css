@@ -205,6 +205,7 @@ select
     padding-bottom:4px;
     margin:0px;
     width:82px;
+    z-index:500;
 }
 
 #albumpicture

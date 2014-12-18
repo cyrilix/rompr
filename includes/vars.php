@@ -27,47 +27,40 @@ $prefs = array( "mpd_host" => "localhost",
                 'crossfade_duration' => 5,
                 "volume" => 100,
                 "lastfm_user" => "",
-                "lastfm_scrobbling" => "false",
-                "lastfm_autocorrect" => "false",
+                "lastfm_scrobbling" => false,
+                "lastfm_autocorrect" => false,
                 "theme" => "Darkness.css",
                 "scrobblepercent" => 50,
-                "sourceshidden" => "false",
-                "playlisthidden" => "false",
-                "showfileinfo" => "true",
+                "sourceshidden" => false,
+                "playlisthidden" => false,
                 "infosource" => "lastfm",
                 "chooser" => "albumlist",
                 "sourceswidthpercent" => 22,
                 "playlistwidthpercent" => 22,
-                "shownupdatewindow" => "false",
-                "updateeverytime" => "false",
-                "downloadart" => "true",
+                "shownupdatewindow" => 0,
+                "updateeverytime" => false,
+                "downloadart" => true,
                 "autotagname" => "",
-                "sortbydate" => "false",
-                "notvabydate" => "false",
-                "playlistcontrolsvisible" => "false",
+                "sortbydate" => false,
+                "notvabydate" => false,
+                "playlistcontrolsvisible" => false,
                 "clickmode" => "double",
                 "lastfm_country_code" => "GB",
-                "country_userset" => "false",
-                "hide_albumlist" => "false",
-                "hide_filelist" => "false",
-                "hide_radiolist" => "false",
-                "hidebrowser" => "false",
-                "fullbiobydefault" => "true",
+                "country_userset" => false,
+                "hide_albumlist" => false,
+                "hide_filelist" => false,
+                "hide_radiolist" => false,
+                "hidebrowser" => false,
+                "fullbiobydefault" => true,
                 "lastfmlang" => "default",
                 "lastfm_session_key" => "",
                 "user_lang" => "en",
-                "twocolumnsinlandscape" => "false",
+                "twocolumnsinlandscape" => false,
                 "music_directory_albumart" => "",
                 "mopidy_http_port" => 6680,
-                "search_limit_limitsearch" => 0,
-                "search_limit_local" => 0,
-                "search_limit_spotify" => 0,
-                "search_limit_soundcloud" => 0,
-                "search_limit_beets" => 0,
-                "search_limit_beetslocal" => 0,
-                "search_limit_gmusic" => 0,
-                "scrolltocurrent" => "false",
-                "debug_enabled" => 0,
+                "search_limit_limitsearch" => false,
+                "scrolltocurrent" => false,
+                "debug_enabled" => false,
                 "radiocountry" => "http://www.listenlive.eu/uk.html",
                 "mysql_host" => "localhost",
                 "mysql_database" => "romprdb",
@@ -77,30 +70,31 @@ $prefs = array( "mpd_host" => "localhost",
                 "fontsize" => "02-Normal.css",
                 "fontfamily" => "Verdana.css",
                 "alarmtime" => 43200,
-                "alarmon" => "false",
-                "alarmramp" => "false",
-                "synctags" => "false",
-                "synclove" => "false",
+                "alarmon" => false,
+                "alarmramp" => false,
+                "synctags" => false,
+                "synclove" => false,
                 "synclovevalue" => "5",
                 "proxy_host" => "",
                 "proxy_user" => "",
                 "proxy_password" => "",
-                "ignore_unplayable" => "true",
-                "remote" => "false",
+                "ignore_unplayable" => true,
                 "icontheme" => "Colourful",
                 "radiomode" => "",
                 "radioparam" => "",
-                "onthefly" => "false",
-                "sortbycomposer" => "false",
-                "composergenre" => "false",
+                "onthefly" => false,
+                "sortbycomposer" => false,
+                "composergenre" => false,
                 "composergenrename" => "Classical",
-                "displaycomposer" => "true",
+                "displaycomposer" => true,
                 "custom_logfile" => "",
-                "consumeradio" => "false",
-                "artistsfirst" => "Various Artists,Soundtracks",
-                "prefixignore" => "The",
+                "consumeradio" => false,
+                "artistsatstart" => array("Various Artists","Soundtracks"),
+                "nosortprefixes" => array("The"),
                 "sortcollectionby" => "artist",
-                "lowmemorymode" => "false",
+                "lowmemorymode" => false,
+                "alarm_ramptime" => 30,
+                "alarm_snoozetime" => 8
                 );
 
 if (file_exists('prefs/prefs')) {
@@ -111,23 +105,7 @@ if (file_exists('prefs/prefs')) {
 
 $ipath = "iconsets/".$prefs['icontheme']."/";
 
-$searchlimits = array(  "local" => "Local Files",
-                        "spotify" => "Spotify",
-                        "soundcloud" => "Soundcloud",
-                        "beets" => "Beets",
-                        "beetslocal" => "Beets Local",
-                        "gmusic" => "Google Play Music",
-                        "youtube" => "YouTube",
-                        "internetarchive" => "Internet Archive",
-                        "leftasrain" => "Left As Rain",
-                        "podcast" => "Podcasts",
-                        "tunein" => "Tunein Radio",
-                        "radio_de" => "Radio.de",
-                        // "bassdrive" => "BassDrive",
-                        // "dirble" => "Dirble",
-                        );
-
-if ($prefs['debug_enabled'] == 1) {
+if ($prefs['debug_enabled']) {
 
     $debug_colours = array(
         "COLLECTION" => "0;34",
@@ -161,7 +139,7 @@ if ($prefs['debug_enabled'] == 1) {
 function savePrefs() {
     global $prefs;
     $sp = $prefs;
-    foreach (array('albumslist', 'fileslist') as $p) {
+    foreach (array('albumslist', 'fileslist', 'showfileinfo') as $p) {
         if (array_key_exists($p, $sp)) {
             unset($sp[$p]);
         }
@@ -177,8 +155,7 @@ function loadPrefs() {
     global $prefs;
     $fp = fopen('prefs/prefs.var', 'r');
     if($fp) {
-        $crap = true;
-        if (flock($fp, LOCK_EX, $crap)) {
+        if (flock($fp, LOCK_SH)) {
             $sp = unserialize(fread($fp, 32768));
             flock($fp, LOCK_UN);
             fclose($fp);

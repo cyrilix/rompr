@@ -37,4 +37,13 @@ function multiProtocolController() {
         }
     }
 
+    this.skip = function(sec) {
+        if (self.status.state == "play") {
+            var p = infobar.progress();
+            var to = p + sec;
+            if (p < 0) p = 0;
+            self.controller.seek(to);
+        }
+    }
+
 }

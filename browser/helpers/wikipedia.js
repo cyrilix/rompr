@@ -16,8 +16,8 @@ var wikipedia = function() {
 				url = url + i+'='+encodeURIComponent(terms[i])+"&";
 			}
 			url = url + "lang="+wikipedia.getLanguage();
-			if (mobile != "no") {
-				url = url + "&mobile="+mobile;
+			if (layout == "phone") {
+				url = url + "&mobile="+layout;
 			}
 		    $.ajax({
 		        type: "GET",
@@ -39,8 +39,8 @@ var wikipedia = function() {
 				url = url + i+'='+encodeURIComponent(terms[i])+"&";
 			}
 			url = url + "lang="+wikipedia.getLanguage();
-			if (mobile != "no") {
-				url = url + "&mobile="+mobile;
+			if (layout == "phone") {
+				url = url + "&mobile="+layout;
 			}
 		    $.ajax({
 		        type: "GET",
@@ -80,8 +80,8 @@ var wikipedia = function() {
 			$("#infopane").css({cursor:'wait'});
 			$("#infopane a").css({cursor:'wait'});
 			var url = "browser/backends/info_wikipedia.php?wiki="+link;
-			if (mobile != "no") {
-				url = url + "&mobile="+mobile;
+			if (layout == "phone") {
+				url = url + "&mobile="+layout;
 			}
 		    $.ajax({
 		        type: "GET",

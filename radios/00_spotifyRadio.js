@@ -62,6 +62,10 @@ function spotifyRadio() {
 		var myself = this;
 		debug.mark("SPOTIRADIO ALBUM", "Getting tracks for artist",name);
 		var tracks = new Array();
+		// Artists with > 20 albums will send multiple get tracks requests to spotify
+		// which will result in mutliple consecutive tracks being added to the tracklist
+		// this is not what we want, so we lock them out for 30 seconds.
+		this.cansend = true;
 
 		this.gotTracks = function(data) {
 			debug.debug("SPOTIRADIO ALBUM", "Got Tracks For",name,data);
@@ -80,13 +84,19 @@ function spotifyRadio() {
 			debug.warn("SPOTIRADIO ALBUM", "Spotify Error On",name,data);
 		}
 
+		this.allowsend = function() {
+			myself.cansend = true;
+		}
+
 		this.sendATrack = function() {
-			if (self.running && tracks.length > 0) {
+			if (myself.cansend && self.running && tracks.length > 0) {
 				self.sending--;
+	        	myself.cansend = false;
 				debug.shout("SPOTIRADIO ALBUM",name,"is sending a track!",self.sending,"left");
 	        	player.controller.addTracks([tracks.shift()], playlist.playFromEnd(), null);
+	        	setTimeout(myself.allowsend, 30000);
 			} else {
-				debug.debug("SPOTIRADIO ALBUM",name,"was asked for a track but doesn't have any");
+				debug.debug("SPOTIRADIO ALBUM",name,"was asked for a track but doesn't have any or is locked");
 			}
 		}
 

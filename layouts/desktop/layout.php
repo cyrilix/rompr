@@ -136,18 +136,7 @@ print '<img id="playlistresizer" src="'.$ipath.'resize2.png" height="24px" style
 </div>
 <div class="fixed topbox">
 
-<ul class="topnav">
-    <li>
-<?php
-print '<a href="#" title="'.get_int_text('button_alarm').'" class="tooltip"><img id="alarmclock" class="topimg" src="'.$ipath.'alarmclock_false.png" height="24px"></a>';
-print '<ul id="alarmpanel" class="subnav dropshadow" style="left:-62px;width:150px;font-size:10pt"><div style="width:150px;height:191px;background-image:url(\''.$ipath.'alarmclock_150.png\')">';
-print '<div style="height:70px;width:150px"></div>';
-include ("plugins/alarmclock.php");
-?>
-        </div>
-    </ul>
-    </li>
-
+<ul class="topnav"  id="righthandtop">
 
     <li>
 <?php
@@ -162,7 +151,7 @@ include ("includes/prefspanel.php");
 <?php
 print '<a href="#" title="'.get_int_text('button_clearplaylist').'" class="tooltip"><img class="topimg" src="'.$ipath.'edit-clear-list.png" height="24px"></a>';
 print '<ul id="clrplst" class="subnav dropshadow">';
-print '<li><b>'.get_int_text('menu_clearplaylist').'</b></li>';
+print '<li class="prefsection fullwidth textcenter"><b>'.get_int_text('menu_clearplaylist').'</b></li>';
 print '<li>';
 print '<button style="width:100%" class="topformbutton" onclick="clearPlaylist()">'.get_int_text('button_imsure').'</button>';
 ?>
@@ -174,14 +163,14 @@ print '<button style="width:100%" class="topformbutton" onclick="clearPlaylist()
 <?php
 print '<a href="#" title="'.get_int_text('label_pluginplaylists').'" class="tooltip"><img class="topimg" src="'.$ipath.'smartradio.png" height="24px"></a>';
 print '<ul id="ppscr" class="subnav wide dropshadow"><div class="clearfix containerbox vertical" id="pluginplaylists" style="width:324px">';
-// print '<div class="containerbox"><div class="expand"><b>'.get_int_text("label_pluginplaylists").'</b></div></div>';
+print '<div class="containerbox spacer prefsection"><div class="expand textcentre"><b>'.get_int_text('label_pluginplaylists').'</b></div></div>';
 print '</div></ul>';
 print '</li>';
 
 print '<li>';
 print '<a href="#" title="'.get_int_text('button_loadplaylist').'" class="tooltip"><img class="topimg" src="'.$ipath.'document-open-folder.png" height="24px"></a>';
 print '<ul id="lpscr" class="subnav wide dropshadow"><div id="playlistslist" class="clearfix">';
-print '<div class="containerbox"><div class="expand"><b>'.get_int_text("menu_playlists").'</b></div></div>';
+print '<div class="containerbox prefsection"><div class="expand textcentre"><b>'.get_int_text("menu_playlists").'</b></div></div>';
 print '<div id="storedplaylists" class="noborder selecotron"></div>';
 print '</div></ul>';
 print '</li>';
@@ -189,7 +178,7 @@ print '</li>';
 print '<li>';
 print '<a href="#" title="'.get_int_text('button_saveplaylist').'" class="tooltip"><img class="topimg" src="'.$ipath.'document-save.png" height="24px"></a>';
 print '<ul id="saveplst" class="subnav wide dropshadow">';
-print '<li class="wide"><b>'.get_int_text('menu_saveplaylist').'</b></li>';
+print '<li class="wide prefsection"><b>'.get_int_text('menu_saveplaylist').'</b></li>';
 print '<li class="wide">';
 print '<input class="enter" style="width:195px" name="nigel" id="playlistname" type="text" size="200"/>';
 print '<button class="topformbutton" onclick="player.controller.savePlaylist()">'.get_int_text('button_save').'</button>';

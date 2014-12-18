@@ -170,7 +170,7 @@ function playerController() {
         $.ajax({
             type: "GET",
             url: uri,
-            timeout: 600000,
+            timeout: 800000,
             dataType: (uri.match(/onthefly\.php/)) ? "json" : "html",
             success: function(data) {
                 if (uri.match(/onthefly\.php/)) {
@@ -179,9 +179,6 @@ function playerController() {
                 } else {
                     $("#collection").html(data);
                     data = null;
-                    if (!uri.match(/rebuild/)) {
-                        self.reloadPlaylists();
-                    }
                 }
                 player.collectionLoaded = true;
                 if (prefs.sortcollectionby == "album") {
@@ -207,7 +204,7 @@ function playerController() {
 	this.reloadPlaylists = function() {
         $.get("player/mpd/loadplaylists.php", function(data) {
             var html = '';
-            if (mobile == "no") {
+            if (layout == "desktop") {
                 html = html + '<table width="100%">';
             } else {
                 html = html + '<table width="90%">';
@@ -343,7 +340,7 @@ function playerController() {
 	}
 
 	this.addTracks = function(tracks, playpos, at_pos) {
-		if (mobile != "no") {
+		if (layout == "phone") {
     		infobar.notify(infobar.NOTIFY, language.gettext("label_addingtracks"));
     	}
 		debug.log("MPD","Adding Tracks",tracks,playpos,at_pos);

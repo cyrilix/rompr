@@ -2,7 +2,7 @@ var info_spotify = function() {
 
 	var me = "spotify";
     var medebug = "SPOTIFY PLUGIN";
-    // var maxwidth = (mobile == "no") ? 1200 : 480;
+    // var maxwidth = (layout == "desktop") ? 1200 : 480;
     var maxwidth = 300;
 
     function getTrackHTML(data) {
@@ -38,13 +38,13 @@ var info_spotify = function() {
         				'<ul><li>'+language.gettext("lastfm_releasedate")+': '+data.release_date+'</li></ul>'+
         				'</div>';
 
-        if (mobile == "no") {
+        if (layout == "desktop") {
 	        html = html + '<div class="expand stumpy selecotron">';
 	    } else {
 	        html = html + '<div class="stumpy selecotron">';
 	    }
 	    html = html + trackListing(data)+'</div>';
-        if (mobile == "no") {
+        if (layout == "desktop") {
 	        html = html + '<div class="cleft fixed">';
 	    } else {
 	        html = html + '<div class="stumpy">';
@@ -53,7 +53,7 @@ var info_spotify = function() {
     		html = html + '<img class="shrinker infoclick clickzoomimage" src="getRemoteImage.php?url='+data.images[0].url+'" ';
     		var w = $("#artistinformation").width();
     		var imgwidth = data.images[0].width;
-    		var i = (mobile == "no") ? 4 : 1.2;
+    		var i = (layout == "desktop") ? 4 : 1.2;
     		if (imgwidth > (w/i)) imgwidth = w/i;
     		html = html + 'width="'+imgwidth+'" name="'+data.images[0].width+'" thing="'+i+'"/>';
     	}
@@ -85,7 +85,7 @@ var info_spotify = function() {
     	if (data.images && data.images[0]) {
     		var w = $("#artistinformation").width();
     		var imgwidth = data.images[0].width;
-    		if (mobile == "no") {
+    		if (layout == "desktop") {
     			if (imgwidth > (w/3)) imgwidth = w/3;
     			h = h + '<img class="stright standout shrinker infoclick clickzoomimage" src="getRemoteImage.php?url='+data.images[0].url+'" width="'+imgwidth+'" name="'+data.images[0].width+'" thing="3"/>';
     		} else {

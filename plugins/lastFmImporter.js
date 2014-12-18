@@ -26,7 +26,11 @@ var lastfmImporter = function() {
 		spotifytunigo: 1,
 		tunein: 1,
 		rtmp: 1,
-		rtmps: 1
+		rtmps: 1,
+		audioaddict: 1,
+		oe1: 1,
+		sc: 1,
+		yt: 1
 	};
 
 	var chosensources = new Array();
@@ -186,21 +190,37 @@ var lastfmImporter = function() {
 	            	'<input type="checkbox" class="topcheck" id="reviewfirst">'+language.gettext("label_review")+'</input><br>'+
 	            	'<input type="checkbox" class="topcheck" id="wishlist">'+language.gettext("label_addtowish")+'</input>'+
 	            	'</div>'+
-	            	'<div id="domchooser" class="expand"></div>'+
+	            	'<div id="domchooser" class="expand clickicon"></div>'+
 	            	'<button class="fixed topformbutton" onclick="lastfmImporter.go()" id="importgo">GO</button>'+
 	            	'</div>');
 
 				if (prefs.player_backend == "mopidy") {
-					$("#domchooser").append(language.gettext("label_choosedomains")+'<br>');
+					$("#domchooser").append('<div class="pref">'+language.gettext("label_choosedomains")+'<br>'+language.gettext("label_dragtoprio")+'</div>');
+					var p = faveFinder.getPriorities();
+					p.reverse();
+					for (var i in p) {
+						if (player.canPlay(p[i])) {
+							$("#domchooser").append('<div class="brianblessed"><input type="checkbox" class="topcheck" id="'+p[i]+'_import_domain">'+p[i]+'</input></div>');
+						}
+					}
 					for (var i in player.urischemes) {
-						if (!sources_not_to_not_choose.hasOwnProperty(i)) {
-							$("#domchooser").append('<input type="checkbox" class="topcheck" id="'+i+'_import_domain">'+i+'</input><br>');
+						if (p.indexOf(i) == -1 && !sources_not_to_not_choose.hasOwnProperty(i)) {
+							$("#domchooser").append('<div class="brianblessed"><input type="checkbox" class="topcheck" id="'+i+'_import_domain">'+i+'</input></div>');
 						}
 					}
 					$("#local_import_domain").attr("checked", true);
 					$("#spotify_import_domain").attr("checked", true);
 					$("#gmusic_import_domain").attr("checked", true);
 					$("#beets_import_domain").attr("checked", true);
+					$("#beetslocal_import_domain").attr("checked", true);
+					$("#domchooser").disableSelection();
+					$("#domchooser").sortable({
+						items: ".brianblessed",
+						axis: "y",
+						containment: "#domchooser",
+						scroll: false,
+						tolerance: "pointer"
+					});
 				} else {
 					$("#domchooser").remove();
 				}
@@ -230,14 +250,15 @@ var lastfmImporter = function() {
 		go: function() {
 			if (!stopped) {
 				chosensources = new Array();
-				$("#domchooser").find('.topcheck').each( function() {
-					if ($(this).is(':checked')) {
-						var n = $(this).attr("id");
-						chosensources.push(n.substr(0, n.indexOf('_'))+':');
-						debug.log("LASTFM IMPORTER","Chosen domains: ",chosensources);
-					}
+				var p = new Array();
+				$("#domchooser").find('.topcheck:checked').each( function() {
+					var n = $(this).attr("id");
+					chosensources.push(n.substr(0, n.indexOf('_'))+':');
+					p.push(n.substr(0, n.indexOf('_')));
 				});
-
+				debug.log("LASTFM IMPORTER","Chosen domains: ",chosensources);
+				p.reverse();
+				faveFinder.setPriorities(p);
 				if ($("#hoobajoob").is(':visible')) {
 					$("#hoobajoob").slideToggle(500);
 					$('[name="beefheart"]').slideToggle(600, function() {
@@ -416,11 +437,16 @@ var lastfmImporter = function() {
 				$("#trackrow"+data.key).append('<td align="center"></td>');
 				lastfmImporter.doSqlStuff(data, false);
 			} else {
-				$("#trackrow"+data.key).append('<td align="center" class="invisible"><img src="'+ipath+'edit-delete.png" class="clickicon plugclickable infoclick removerow" /></td>').fadeIn('fast');
-				$("#trackrow"+data.key).append('<td align="center" class="invisible"><button class="plugclickable infoclick importrow">Import</button></td>').fadeIn('fast');
-				$("#trackrow"+data.key).after(html2);
-				$("#trackrow"+data.key+' td:last').fadeIn('fast');
-				$("#trackrow"+data.key+' td:last').prev().fadeIn('fast');
+				if (databits[data.reqid].data[0].ignore == false) {
+					$("#trackrow"+data.key).append('<td align="center" class="invisible"><img src="'+ipath+'edit-delete.png" class="clickicon plugclickable infoclick removerow" /></td>');
+					$("#trackrow"+data.key).append('<td align="center" class="invisible"><button class="plugclickable infoclick importrow">Import</button></td>');
+					$("#trackrow"+data.key).after(html2);
+					$("#trackrow"+data.key+' td:last').fadeIn('fast');
+					$("#trackrow"+data.key+' td:last').prev().fadeIn('fast');
+				} else {
+					$("#trackrow"+data.key).append('<td></td>');
+					$("#trackrow"+data.key).append('<td></td>');
+				}
 			}
 			debug.log("LASTFM IMPORTER", "Searchcount is",searchcount);
 			if (searchcount == 0 && finished) {
@@ -500,9 +526,13 @@ var lastfmImporter = function() {
 				}
 			} else {
 				data.action = 'set';
-				data.attributes = [	{attribute: 'Rating', value: data.Rating},
-									{attribute: 'Playcount', value: data.Playcount}
-				];
+				data.attributes = new Array();
+				if (data.Rating) {
+					data.attributes.push({attribute: 'Rating', value: data.Rating});
+				}
+				if (data.Playcount) {
+					data.attributes.push({attribute: 'Playcount', value: data.Playcount});
+				}
 				if (data.tags) {
 					data.attributes.push({attribute: 'Tags', value: data.tags});
 				}

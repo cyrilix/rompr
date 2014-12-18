@@ -36,10 +36,10 @@ $initmem = memory_get_usage();
 debug_print("Memory Used is ".$initmem,"COLLECTION");
 
 if (array_key_exists('command', $_REQUEST)) {
-	doCollection($_REQUEST['command'],null,array("Track"),$prefs['lowmemorymode'] == "false" ? true : false);
+	doCollection($_REQUEST['command'],null,array("Track"),$prefs['lowmemorymode'] ? false : true);
 } else {
 	prepareCollectionUpdate();
-	doCollection("core.playlists.get_playlists",null,array("Track"),$prefs['lowmemorymode'] == "false" ? true : false);
+	doCollection("core.playlists.get_playlists",null,array("Track"),$prefs['lowmemorymode'] ? false : true);
 }
 
 debug_print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~","TIMINGS");

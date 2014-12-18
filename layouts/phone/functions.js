@@ -4,23 +4,25 @@ function doThatFunkyThang() {
 
 function toggleSearch() {
     if (prefs.hide_albumlist) {
-        sourcecontrol("albumlist");
-        $("#search").show();
+        sourcecontrol("albumlist", grrAnnoyed);
         return false;
     }
     albumScrollOffset = $("#sources").scrollTop();
     if ($("#albumlist").is(':visible')) {
         if (albumScrollOffset < 20) {
-            $("#search").slideToggle('fast');
+            $("#search").slideToggle({duration: 'fast', start: setSearchLabelWidth});
         } else {
-            $("#search").slideDown('fast');
+            $("#search").slideDown({duration: 'fast', start: setSearchLabelWidth});
         }
     } else {
-        sourcecontrol("albumlist");
-        $("#search").slideDown('fast');
+        sourcecontrol("albumlist", grrAnnoyed);
     }
     $("#sources").animate({scrollTop: 0}, 500);
     return false;
+}
+
+function grrAnnoyed() {
+    $("#search").slideDown({duration: 'fast', start: setSearchLabelWidth});
 }
 
 function setBottomPaneSize() {
@@ -54,7 +56,7 @@ function setBottomPaneSize() {
     $("#patrickmoore").css('width', gibbon.toString()+"px");
     // Hack for some themes that have a 1 pixel border on nowplaying
     // or the top of the albums list/info pane.
-    // This cuases it to overflow bottompage, and on a mobile device
+    // This causes it to overflow bottompage, and on a mobile device
     // we get a second scrollbar because of it.
     var cockfeature = newheight-2;
     $("#infopane").css("height", cockfeature.toString()+"px");
@@ -92,7 +94,7 @@ function switchColumnMode(flag) {
 function switchsource(source) {
 
     var togo = sources.shift();
-    if (togo) {
+    if (togo && typeof togo != "function") {
         if ($("#"+togo).is(':visible')) {
             $("#"+togo).hide();
             switchsource(source);
@@ -101,7 +103,6 @@ function switchsource(source) {
         }
     } else {
         prefs.save({chooser: source});
-        $("#"+source).show();
         if (landscape) {
             switchColumnMode(source != "infopane");
         } else {
@@ -110,6 +111,12 @@ function switchsource(source) {
             } else {
                 $("#sources").show();
             }
+        }
+        if (typeof togo == "function") {
+            debug.shout("MOBILE","Fanoogling");
+            $("#"+source).show({complete: togo});
+        } else {
+            $("#"+source).show();
         }
         setBottomPaneSize();
         browser.rePoint();

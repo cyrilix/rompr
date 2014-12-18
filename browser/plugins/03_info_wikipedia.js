@@ -124,7 +124,7 @@ var info_wikipedia = function() {
                 } else if (element.hasClass('clickwikicontents')) {
                 	var section = element.attr('name');
                 	debug.log("WIKI PLUGIN",parent.nowplayingindex,source,"clicked a contents link",section);
-                	if (mobile == "no") {
+                	if (layout == "desktop") {
           				//TODO make this work on a phone (no custom scrollbars)
                 		$("#infopane").mCustomScrollbar("scrollTo", section);
                 	}

@@ -201,12 +201,12 @@ function Playlist() {
         var newheight = $("#bottompage").height() - $("#horse").height();
         if ($("#playlistbuttons").is(":visible")) {
             newheight -= $("#playlistbuttons").height();
-            if (mobile != "no") {
+            if (layout == "phone") {
                 newheight -= 2;
             }
         }
         $("#pscroller").css("height", newheight.toString()+"px");
-        if (mobile == "no") {
+        if (layout == "desktop") {
             $('#pscroller').mCustomScrollbar("update");
         }
     }
@@ -215,7 +215,7 @@ function Playlist() {
         $("#sortable").empty();
         makeFictionalCharacter();
         playlist.waiting();
-        if (mobile == "no") {
+        if (layout == "desktop") {
             if ($("#lpscr").is(':visible')) {
                 $("#lpscr").slideToggle('fast');
             }
@@ -396,7 +396,7 @@ function Playlist() {
             $('.track[romprid="'+player.status.songid+'"]').offset() &&
                 scrollto === -1) {
             debug.debug("PLAYLIST","Scrolling to",player.status.songid);
-            if (mobile == "no") {
+            if (layout == "desktop") {
                 $('#pscroller').mCustomScrollbar(
                     "scrollTo",
                     $('div.track[romprid="'+player.status.songid+'"]').offset().top - $('#sortable').offset().top - $('#pscroller').height()/2,
@@ -539,7 +539,6 @@ function Playlist() {
 
             init: function() {
                 if (inited == false) {
-                    $("#pluginplaylists").empty();
                     if (prefs.apache_backend == "sql") {
                         for(var i in radios) {
                             debug.log("RADIO MANAGER","Activating Plugin",i);
@@ -564,7 +563,7 @@ function Playlist() {
                 mode = which;
                 radios[which].populate(param, false);
                 prefs.save({radiomode: which, radioparam: param});
-                if (mobile == "phone") {
+                if (layout == "phone") {
                     sourcecontrol('playlistm');
                 } else {
                     if ($("#ppscr").is(':visible')) {

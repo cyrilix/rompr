@@ -14,9 +14,12 @@ debug_print($_SERVER['PHP_SELF'],"INIT");
 //
 
 if (array_key_exists('mpd_host', $_POST)) {
-    $prefs['debug_enabled'] = 0;
-    $prefs['lowmemorymode'] = "false";
+    $prefs['debug_enabled'] = false;
+    $prefs['lowmemorymode'] = false;
     foreach ($_POST as $i => $value) {
+        if ($i == 'debug_enabled' || $i == 'lowmemorymode') {
+            $value = true;
+        }
         debug_print("Setting Pref ".$i." to ".$value,"INIT");
         $prefs[$i] = $value;
     }
@@ -38,16 +41,23 @@ if (array_key_exists('setup', $_REQUEST)) {
 
 include 'utils/Mobile_Detect.php';
 if (array_key_exists('mobile', $_REQUEST)) {
-    $mobile = $_REQUEST['mobile'];
-    debug_print("Request asked for mobile mode: ".$mobile,"INIT");
+    $layout = ($_REQUEST['mobile'] == "phone") ? "phone" : "desktop";
+    debug_print("Request asked for layout: ".$layout,"INIT");
+} else if(array_key_exists('layout', $_REQUEST)) {
+    $layout = $_REQUEST['layout'];
+    debug_print("Request asked for layout: ".$layout,"INIT");
+    if (!is_dir('layouts/'.$layout)) {
+        print '<h3>Layout '.$layout.' does not exist!</h3>';
+        exit(0);
+    }
 } else {
     $detect = new Mobile_Detect();
     if ($detect->isMobile() && !$detect->isTablet()) {
         debug_print("Mobile Browser Detected!","INIT");
-        $mobile = "phone";
+        $layout = "phone";
     } else {
         debug_print("Not a mobile browser","INIT");
-        $mobile = "no";
+        $layout = "desktop";
     }
 }
 
@@ -58,14 +68,12 @@ if (array_key_exists('mobile', $_REQUEST)) {
 
 if (array_key_exists('mopidy', $_REQUEST)) {
     $mopidy_detected = true;
-    $prefs['mopidy_detected'] = "true";
     $a = explode(':', $_REQUEST['mopidy']);
     $prefs['mopidy_http_address'] = $a[0];
     $prefs['mopidy_http_port'] = $a[1];
     debug_print("User Specified Mopidy Connection As ".$prefs['mopidy_http_address'].":".$prefs['mopidy_http_port'],"INIT");
 } else {
     $mopidy_detected = detect_mopidy();
-    $prefs['mopidy_detected'] = $mopidy_detected == true ? "true" : "false";
 }
 
 if ($mopidy_detected) {
@@ -142,9 +150,11 @@ debug_print("=================****==================","STARTED UP");
 <link rel="stylesheet" type="text/css" href="tiptip/tipTip.css" />
 <link type="text/css" href="jqueryui1.8.16/css/start/jquery-ui-1.8.23.custom.css" rel="stylesheet" />
 <?php
-if ($mobile != "no") {
-    print '<link rel="stylesheet" type="text/css" href="css/layout_mobile.css" />'."\n";
-} else {
+$inc = glob("layouts/".$layout."/*.css");
+foreach($inc as $i) {
+    print '<link rel="stylesheet" type="text/css" href="'.$i.'" />'."\n";
+}
+if ($layout = "desktop") {
     print '<link type="text/css" href="custom-scrollbar-plugin/css/jquery.mCustomScrollbar.css" rel="stylesheet" />'."\n";
 }
 print '<link id="theme" rel="stylesheet" type="text/css" href="themes/'.$prefs['theme'].'" />'."\n";
@@ -170,18 +180,9 @@ print '<link rel="stylesheet" id="fontfamily" type="text/css" href="fonts/'.$pre
 <script type="text/javascript" src="jquery/masonry.pkgd.min.js"></script>
 <script type="text/javascript" src="jquery/imagesloaded.pkgd.min.js"></script>
 <?php
-if ($mobile != "no") {
-    // JQuery touchwipe plugin : http://www.netcu.de/jquery-touchwipe-iphone-ipad-library
-    print '<script type="text/javascript" src="jquery/jquery.touchwipe.min.js"></script>'."\n";
-    print '<script type="text/javascript" src="ui/mobile_functions.js"></script>'."\n";
-} else {
+if ($layout == "desktop") {
     // Custom scrollbar plugin : http://manos.malihu.gr/jquery-custom-content-scroller/
     print '<script type="text/javascript" src="custom-scrollbar-plugin/js/jquery.mCustomScrollbar.concat.min.js"></script>'."\n";
-    // Keyboard shortcut helper : http://www.openjs.com/scripts/events/keyboard_shortcuts/
-    print '<script type="text/javascript" src="ui/shortcut.js"></script>'."\n";
-    // Keycode normaliser by Jonathan Tang : http://jonathan.tang.name/code/js_keycode
-    print '<script type="text/javascript" src="ui/keycode.js"></script>'."\n";
-    print '<script type="text/javascript" src="ui/desktop_functions.js"></script>'."\n";
 }
 ?>
 <script type="text/javascript" src="ui/debug.js"></script>
@@ -223,12 +224,21 @@ var player = new multiProtocolController();
 var lastfm = new LastFM(prefs.lastfm_user);
 var coverscraper = new coverScraper(0, false, false, prefs.downloadart);
 
+</script>
+
 <?php
-print 'var ipath = "'.$ipath.'";'."\n";
-print 'var mopidy_version = "'.ROMPR_MOPIDY_MIN_VERSION.'";'."\n";
+$inc = glob("layouts/".$layout."/*.js");
+foreach($inc as $i) {
+    print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
+}
 ?>
 
+<script language="javascript">
+
 $(window).ready(function(){
+
+    $("#fontsize").attr({href: "sizes/"+prefs.fontsize});
+    $("#fontfamily").attr({href: "fonts/"+prefs.fontfamily});
 
     // Update the old-style lastfm_session_key variable
     if (typeof lastfm_session_key !== 'undefined') {
@@ -249,7 +259,7 @@ $(window).ready(function(){
         // and it's necessary for the Spotify info panel to return accurate data
         $.getJSON("utils/getgeoip.php", function(result){
             debug.shout("GET COUNTRY", 'Country:',result.country,'Code:',result.country_code);
-            $("#countryselector").val(prefs.lastfm_country_code);
+            $("#lastfm_country_codeselector").val(result.country_code);
             prefs.save({lastfm_country_code: result.country_code});
         });
     }
@@ -258,16 +268,20 @@ $(window).ready(function(){
     $("#sortable").click(onPlaylistClicked);
     infobar.createProgressBar();
     $("#progress").click( infobar.seek );
-    sbWidth = scrollbarWidth();
+    globalPlugins.initialise();
     initUI();
     browser.createButtons();
     setChooserButtons();
     if (prefs.hide_albumlist) {
-        $("#search").show();
+        $("#search").show({complete: setSearchLabelWidth});
     }
     if (!prefs.hide_radiolist) {
         $("#yourradiolist").load("streamplugins/00_yourradio.php?populate");
     }
+    $(".toggle").click(togglePref);
+    $(".saveotron").keyup(saveTextBoxes);
+    $(".saveomatic").change(saveSelectBoxes);
+    $(".savulon").click(toggleRadio);
     setPrefs();
     checkServerTimeOffset();
     sourcecontrol(prefs.chooser);
@@ -292,14 +306,14 @@ function showUpdateWindow() {
     if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < 0.60) {
         var fnarkle = popupWindow.create(500,600,"fnarkle",true,language.gettext("intro_title"));
         $("#popupcontents").append('<div id="fnarkler" class="mw-headline"></div>');
-        if (mobile != "no") {
+        if (layout != "desktop") {
             $("#fnarkler").addClass('tiny');
         }
         $("#fnarkler").append('<p align="center">'+language.gettext("intro_welcome")+' 0.60</p>');
-        if (mobile != "no") {
-            $("#fnarkler").append('<p align="center">'+language.gettext("intro_viewingmobile")+' <a href="/rompr/?mobile=no">/rompr/?mobile=no</a></p>');
+        if (layout != "desktop") {
+            $("#fnarkler").append('<p align="center">'+language.gettext("intro_viewingmobile")+' <a href="/rompr/?layout=desktop">/rompr/?layout=desktop</a></p>');
         } else {
-            $("#fnarkler").append('<p align="center">'+language.gettext("intro_viewmobile")+' <a href="/rompr/?mobile=phone">/rompr/?mobile=phone</a></p>');
+            $("#fnarkler").append('<p align="center">'+language.gettext("intro_viewmobile")+' <a href="/rompr/?layout=phone">/rompr/?layout=phone</a></p>');
         }
         $("#fnarkler").append('<p align="center">'+language.gettext("intro_basicmanual")+' <a href="https://sourceforge.net/p/rompr/wiki/Basic%20Manual/" target="_blank">http://sourceforge.net/p/rompr/wiki/Basic%20Manual/</a></p>');
         $("#fnarkler").append('<p align="center">'+language.gettext("intro_forum")+' <a href="https://sourceforge.net/p/rompr/discussion/" target="_blank">http://sourceforge.net/p/rompr/discussion/</a></p>');
@@ -319,11 +333,7 @@ function showUpdateWindow() {
 </head>
 
 <?php
-if ($mobile == "no") {
-    include('layouts/layout_normal.php');
-} else if ($mobile == "phone") {
-    include('layouts/layout_phone.php');
-}
+include('layouts/'.$layout.'/layout.php');
 ?>
 
 <div id="tagadder" class="funkymusic dropmenu dropshadow">
@@ -370,7 +380,7 @@ ksort($inc);
 foreach($inc as $i) {
     print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
 }
-if ($mobile == "no") {
+if ($layout == "desktop") {
     $inc = glob("plugins/*.js");
     foreach($inc as $i) {
         print '<script type="text/javascript" src="'.$i.'"></script>'."\n";

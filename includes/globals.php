@@ -4,89 +4,90 @@
 var prefsInLocalStorage = ["sourceshidden", "playlisthidden", "infosource", "playlistcontrolsvisible",
                             "sourceswidthpercent", "playlistwidthpercent", "downloadart", "clickmode", "chooser",
                             "hide_albumlist", "hide_filelist", "hide_radiolist", "twocolumnsinlandscape", "hidebrowser",
-                            "shownupdatewindow", "showfileinfo", "scrolltocurrent", "remote",
+                            "shownupdatewindow", "scrolltocurrent", "volume", "alarm_ramptime", "alarm_snoozetime",
                             "lastfmlang", "user_lang", "fontsize", "fontfamily", "alarmtime", "alarmon", "synctags",
-                            "synclove", "synclovevalue", "alarmramp", "radiomode", "radioparam", "onthefly'"];
+                            "synclove", "synclovevalue", "alarmramp", "radiomode", "radioparam", "onthefly"];
 
-var prefs = function() {
-
-    var useLocal = false;
-    if ("localStorage" in window && window["localStorage"] != null) {
-        useLocal = true;
-    }
-
-    return {
 <?php
- foreach ($prefs as $index => $value) {
-    if ($index == 'clickmode' && $mobile != "no") {
-        $value = 'single';
-    }
-    if ($value == "true" || $value == "false" || is_numeric($value)) {
-        print "        ".$index.": ".$value.",\n";
-    } else {
-        print "        ".$index.": '".$value."',\n";
+$searchlimits = array(  "local" => "Local Files",
+                        "spotify" => "Spotify",
+                        "soundcloud" => "Soundcloud",
+                        "beets" => "Beets",
+                        "beetslocal" => "Beets Local",
+                        "gmusic" => "Google Play Music",
+                        "youtube" => "YouTube",
+                        "internetarchive" => "Internet Archive",
+                        "leftasrain" => "Left As Rain",
+                        "podcast" => "Podcasts",
+                        "tunein" => "Tunein Radio",
+                        // Note that radio-de is here as radio_de. Can't have a prefs key with a
+                        // - sign in it because javascript tries to do maths on it.
+                        "radio_de" => "Radio.de",
+                        );
+
+print "var layout = '".$layout."';\n";
+print 'var prefs = '.json_encode($prefs)."\n";
+?>
+
+prefs.updateLocal = function() {
+    prefsInLocalStorage.forEach(function(p) {
+        if (localStorage.getItem("prefs."+p) != null && localStorage.getItem("prefs."+p) != "") {
+            prefs[p] = JSON.parse(localStorage.getItem("prefs."+p));
+        }
+    });
+    if (layout == "phone") {
+        prefs.clickmode = 'single';
     }
 }
-?>
-        updateLocal: function() {
-            if (useLocal) {
-                prefsInLocalStorage.forEach(function(p) {
-                    if (localStorage.getItem("prefs."+p) != null && localStorage.getItem("prefs."+p) != "") {
-                        prefs[p] = localStorage.getItem("prefs."+p);
-                        if (prefs[p] == "false") {
-                            prefs[p] = false;
-                        }
-                        if (prefs[p] == "true") {
-                            prefs[p] = true;
-                        }
-                    }
-                });
-            }
-        },
 
-        save: function(options, callback) {
-            var prefsToSave = {};
-            var postSave = false;
-            for (var i in options) {
-                debug.log("PREFS", "Setting",i,"to",options[i]);
-                prefs[i] = options[i];
-                if (options[i] === true || options[i] === false) {
-                    options[i] = options[i].toString();
-                }
-                if (useLocal) {
-                    if (prefsInLocalStorage.indexOf(i) > -1) {
-                        debug.log("PREFS","Setting in local storage");
-                        localStorage.setItem("prefs."+i, options[i]);
-                    } else {
-                        prefsToSave[i] = options[i];
-                        postSave = true;
-                    }
-                } else {
-                    prefsToSave[i] = options[i];
-                    postSave = true;
-                }
+prefs.save = function(options, callback) {
+    var prefsToSave = {};
+    var postSave = false;
+    for (var i in options) {
+        prefs[i] = options[i];
+        if (prefsInLocalStorage.indexOf(i) > -1) {
+            debug.log("PREFS", "Setting",i,"to",options[i],"in local storage");
+            localStorage.setItem("prefs."+i, JSON.stringify(options[i]));
+        } else {
+            debug.log("PREFS", "Setting",i,"to",options[i],"on backend");
+            prefsToSave[i] = options[i];
+            postSave = true;
+        }
+    }
+    if (postSave) {
+        $.post('saveprefs.php', {prefs: JSON.stringify(prefsToSave)}, function() {
+            if (callback) {
+                callback();
             }
-            if (postSave) {
-                $.post('saveprefs.php', prefsToSave, function() {
-                    if (callback) {
-                        callback();
-                    }
-                });
+        });
+    } else if (callback) {
+        callback();
+    }
+}
+
+function convertPrefs() {
+    if (localStorage.getItem("prefs.prefversion") == null) {
+        for (var i in window.localStorage) {
+            if (i.match(/^prefs\.(.*)/)) {
+                var val = localStorage.getItem(i);
+                if (val === "true") {
+                    val = true;
+                }
+                if (val === "false") {
+                    val = false;
+                }
+                localStorage.setItem(i, JSON.stringify(val));
             }
         }
-
+        localStorage.setItem('prefs.prefversion', JSON.stringify(2));
     }
-}();
+}
 
 var language = function() {
 
-    var tags = {
 <?php
-foreach ($translations as $key => $value) {
-    print "        ".$key.": \"".$value."\",\n";
-}
+print "    var tags = ".json_encode($translations);
 ?>
-    };
 
     return {
         gettext: function(key, args) {
@@ -104,11 +105,10 @@ foreach ($translations as $key => $value) {
                 return escapeHtml(s);
             }
         }
-
     }
-
 }();
 
+convertPrefs();
 prefs.updateLocal();
 if (prefs.infosource == "slideshow") {
     // slideshow plugin has been removed since last.fm have removed artist.getImages from their API
@@ -137,22 +137,23 @@ if (preg_match('#^/usr/share/rompr/#', $_SERVER['SCRIPT_FILENAME'])) {
     print "var debinstall = false;\n";
 }
 
-if ($prefs['debug_enabled'] == 1) {
+if ($prefs['debug_enabled']) {
     print "debug.setLevel(8);\n";
 } else {
     print "debug.setLevel(0);\n";
 }
-print "var mobile = '".$mobile."';\n";
 
 print "var interfaceLanguage = '".$interface_language."';\n";
 print "var browserLanguage = '".$browser_language."';\n";
-// Three translation keys are need so regularly it makes sense to
+// Three translation keys are needed so regularly it makes sense to
 // have them as static variables, instead of looking them up every time
 print "var frequentLabels = {\n";
 print "    of: '".get_int_text("label_of")."',\n";
 print "    by: '".get_int_text("label_by")."',\n";
 print "    on: '".get_int_text("label_on")."'\n";
 print "};\n";
+print 'var ipath = "'.$ipath.'";'."\n";
+print 'var mopidy_version = "'.ROMPR_MOPIDY_MIN_VERSION.'";'."\n";
 ?>
 var lastfm_api_key = "15f7532dff0b8d84635c757f9f18aaa3";
 var sources = new Array();
@@ -162,15 +163,8 @@ var last_selected_element = null;
 var landscape = false;
 var itisbigger = false;
 var textSaveTimer = null;
-// TODO why are these global?
-var gotNeighbours = false;
-var gotFriends = false;
-var gotTopTags = false;
-var gotTopArtists = false;
 var scrobwrangler = null;
 var serverTimeOffset = 0;
 var playlistScrollOffset = 0;
 var albumScrollOffset = 0;
-var sbWidth;
-var tagManager = false;
 </script>

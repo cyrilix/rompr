@@ -20,10 +20,6 @@ function LastFM(user) {
         throttleTime = Math.max(500,t);
     }
 
-    this.getScrobbling = function() {
-        return prefs.lastfm_scrobbling ? 1 : 0;
-    }
-
     this.showloveban = function(flag) {
         if (logged_in && lovebanshown != flag) {
             lovebanshown = flag;
@@ -37,12 +33,6 @@ function LastFM(user) {
 
     this.isLoggedIn = function() {
         return logged_in;
-    }
-
-    this.setscrobblestate = function() {
-        prefs.save({ lastfm_scrobbling: $("#scrobbling").is(":checked"),
-                    lastfm_autocorrect: $("#autocorrect").is(":checked")}
-        );
     }
 
     this.getLanguage = function() {

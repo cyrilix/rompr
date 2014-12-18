@@ -260,7 +260,7 @@ var infobar = function() {
 
             oImg.onload = function() {
                 debug.log("ALBUMPICTURE","Original Image Loaded",$(this).attr("src"));
-                $("#albumpicture").bind('click', infobar.albumImage.displayOriginalImage);
+                $("#albumpicture").click(infobar.albumImage.displayOriginalImage);
                 $("#albumpicture").addClass('clickicon');
             }
             oImg.onerror = function() {
@@ -271,16 +271,21 @@ var infobar = function() {
 
             return {
                 setSource: function(data) {
-                    debug.log("ALBUMPICTURE","Source is being set to ",data.image,aImg);
                     if (data.image === null || data.image == "") {
                         aImg.src = "newimages/album-unknown.png";
                         oImg.src = "newimages/album-unknown.png";
+                        $("#albumpicture").unbind('click');
+                        $("#albumpicture").removeClass('clickicon');
                         $("#albumpicture").attr('class', "notexist");
                     } else {
-                        if (aImg.src != data.image) {
+                        var re = new RegExp(data.image+'$');
+                        if (!re.test(aImg.src)) {
+                            debug.log("ALBUMPICTURE","Source is being set to ",data.image);
                             aImg.src = data.image;
                         }
-                        if (oImg.src != data.origimage) {
+                        var re = new RegExp(data.origimage+'$');
+                        if (!re.test(oImg.src)) {
+                            debug.log("ALBUMPICTURE","Big Source is being set to ",data.origimage);
                             $("#albumpicture").unbind('click');
                             $("#albumpicture").removeClass('clickicon');
                             oImg.src = data.origimage;
@@ -302,13 +307,16 @@ var infobar = function() {
                 },
 
                 setKey: function(key) {
-                    debug.log("ALBUMPICTURE","Setting Image Key to ",key);
-                    aImg.name = key;
-                    $("#albumpicture").attr("name", key);
-                    aImg.className = "notfound";
+                    if (aImg.name != key) {
+                        debug.log("ALBUMPICTURE","Setting Image Key to ",key);
+                        aImg.name = key;
+                        $("#albumpicture").attr("name", key);
+                        aImg.className = "notfound";
+                    }
                 },
 
                 displayOriginalImage: function(event) {
+                    debug.log("ALBUMNPICTURE","Display Original Image");
                     imagePopup.create($(event.target), event, oImg.src);
                 },
 
@@ -382,7 +390,7 @@ var infobar = function() {
                 $("#dbtags").fadeOut('fast');
                 $("#playcount").fadeOut('fast');
             }
-            if (info.type == "local") {
+            if (info.type != "stream") {
                 $("#progress").css("cursor", "pointer");
             } else {
                 $("#progress").css("cursor", "default");
@@ -492,8 +500,7 @@ var infobar = function() {
         },
 
         seek: function(e) {
-            // Streams and last.fm tracks can't be seeked
-            if (trackinfo.type == "local") {
+            if (trackinfo.type != "stream") {
                 var d = trackinfo.duration;
                 if (d > 0) {
                     var position = getPosition(e);

@@ -114,7 +114,7 @@ var starRadios = function() {
 
                 $("#pluginplaylists").append(html);
                 $("#poohbear").click(onDropdownClicked);
-                if (mobile == "no") {
+                if (layout == "desktop") {
                     addCustomScrollBar("#tigger");
                 }
             }

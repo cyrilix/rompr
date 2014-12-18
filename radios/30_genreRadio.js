@@ -7,14 +7,15 @@ var genreRadio = function() {
 
 	function searchForTracks(genre) {
 		var domains = new Array();
-		// Am finding some spotify backends don't support search by genre
+		// Am finding some mopidy backends don't support search by genre
 		// and actually return an error instead of failing gracefully
-		var testdoms = ["local","spotify", "gmusic", "beets"];
+		var testdoms = ["local","spotify", "beets", "beetslocal"];
 		for (var i in testdoms) {
 			if (player.canPlay(testdoms[i])) {
 				domains.push(testdoms[i]+":");
 			}
 		}
+		debug.shout("GENRE RADIO","Searching for Genre",genre,"in domains",domains);
 		player.controller.rawsearch({genre: [genre]}, domains, genreRadio.checkResults);
 	}
 

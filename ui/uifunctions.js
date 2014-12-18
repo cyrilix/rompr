@@ -1,25 +1,40 @@
-function changetheme() {
-    $("#theme").attr({href: 'themes/'+$("#themeselector").val()});
-    prefs.save({theme: $("#themeselector").val()});
+function reloadWindow() {
+    location.reload(true);
 }
 
-function changeicontheme() {
-    prefs.save({icontheme: $("#iconthemeselector").val()}, function() {
-        location.reload(true);
-    });
-}
+function saveSelectBoxes(event) {
+    var prefobj = new Object();
+    var prefname = $(event.target).attr("id").replace(/selector/,'');
+    prefobj[prefname] = $(event.target).val();
+    var callback = null;
 
-function changefontsize() {
-    debug.log("CHICKEN","Setting font size to ",$("#fontselector").val());
-    $("#fontsize").attr({href: "sizes/"+$("#fontselector").val()});
-    prefs.save({fontsize: $("#fontselector").val()});
-}
+    switch(prefname) {
+        case "theme":
+            $("#theme").attr({href: 'themes/'+$("#themeselector").val()});
+            break;
 
-function changefontfamily() {
-    debug.log("CHICKEN","Setting font family to ",$("#fontfamselector").val());
-    $("#fontfamily").attr({href: "fonts/"+$("#fontfamselector").val()});
-    prefs.save({fontfamily: $("#fontfamselector").val()});
-    setTimeout(infobar.biggerize, 2000);
+        case "icontheme":
+            callback = reloadWindow;
+            break;
+
+        case "fontsize":
+            $("#fontsize").attr({href: "sizes/"+$("#fontsizeselector").val()});
+            setTimeout(setSearchLabelWidth, 2000);
+            setTimeout(infobar.biggerize, 2000);
+            break;
+
+        case "fontfamily":
+            $("#fontfamily").attr({href: "fonts/"+$("#fontfamilyselector").val()});
+            setTimeout(setSearchLabelWidth, 2000);
+            setTimeout(infobar.biggerize, 2000);
+            break;
+
+        case "lastfm_country_code":
+            prefobj.country_userset = true;
+            break;
+
+    }
+    prefs.save(prefobj, callback);
 }
 
 function changelanguage() {
@@ -28,20 +43,61 @@ function changelanguage() {
     });
 }
 
-function changecountry() {
-    prefs.save({lastfm_country_code: $("#countryselector").val(),
-                country_userset: true});
+function togglePref(event) {
+    var prefobj = new Object;
+    var prefname = $(event.target).attr("id");
+    prefobj[prefname] = $("#"+prefname).is(":checked");
+    var callback = null;
+    switch (prefname) {
+        case 'downloadart':
+            coverscraper.toggle($("#"+prefname).is(":checked"));
+            break;
+
+        case 'twocolumnsinlandscape':
+            callback = setBottomPaneSize;
+            break;
+
+        case 'hide_albumlist':
+            callback = function() { hidePanel('albumlist') }
+            break;
+
+        case 'hide_filelist':
+            callback = function() { hidePanel('filelist') }
+            break;
+
+        case 'hide_radiolist':
+            callback = function() { hidePanel('radiolist') }
+            break;
+
+        case 'hidebrowser':
+            callback = hideBrowser;
+            break;
+
+        case 'search_limit_limitsearch':
+            callback = weaselBurrow;
+            break;
+    }
+    prefs.save(prefobj, callback);
 }
 
-function changeClickPolicy() {
-    prefs.save({clickmode: $('[name=clickselect]:checked').val()});
-    setClickHandlers();
-}
+function toggleRadio(event) {
+    var prefobj = new Object;
+    var prefname = $(event.target).attr("name");
+    prefobj[prefname] = $('[name='+prefname+']:checked').val();
+    var callback = null;
+    switch(prefname) {
+        case 'clickmode':
+            callback = setClickHandlers;
+            break;
 
-function changeSortPolicy() {
-    prefs.save({sortcollectionby: $('[name=sortcollectionby]:checked').val()});
-    albumslistexists = true;
-    checkCollection(false, false);
+        case 'sortcollectionby':
+            callback = function() {
+                albumslistexists = true;
+                checkCollection(false, false);
+            }
+            break;
+    }
+    prefs.save(prefobj, callback);
 }
 
 function saveTextBoxes() {
@@ -49,33 +105,51 @@ function saveTextBoxes() {
     textSaveTimer = setTimeout(doTheSave, 1000);
 }
 
-function setSLValue() {
-    prefs.save({synclovevalue: $("#synclovevalue").val()});
-}
-
 function doTheSave() {
-    var felakuti = {lastfmlang: $('[name=clicklfmlang]:checked').val(),
-                    user_lang: $('[name=userlanguage]').val(),
-                    autotagname: $("#configpanel").find('input[name|="taglovedwith"]').attr("value")};
-
-    $("#configpanel").find(".saveotron").each( function() {
-        felakuti[$(this).attr("name")] = $(this).attr("value");
-
+    var felakuti = new Object;
+    $(".saveotron").each( function() {
+        if ($(this).hasClass("arraypref")) {
+            felakuti[$(this).attr("id")] = $(this).attr("value").split(',');
+        } else {
+            felakuti[$(this).attr("id")] = $(this).attr("value");
+        }
     });
-                    // music_directory_albumart: $("#configpanel").find('input[name|="music_directory_albumart"]').attr("value"),
-    debug.log("DEBUG","Saving Text And Ting",felakuti);
+    if (felakuti.crossfade_duration != player.status.xfade && player.status.xfade !== undefined && player.status.xfade !== null && player.status.xfade > 0) {
+        player.controller.setCrossfade(felakuti.crossfade_duration);
+    }
     prefs.save(felakuti);
-
-    debug.log("DEBUG","Setting music directory to ",prefs.music_directory_albumart);
-    $.post("utils/setFinklestein.php", {dir: $("#configpanel").find('input[name|="music_directory_albumart"]').attr("value")});
 }
 
-function setXfadeDur() {
-    prefs.save({crossfade_duration: $("#configpanel").find('input[name|="michaelbarrymore"]').attr("value")});
-    debug.log("DEBUG","Setting xfade to ",prefs.crossfade_duration);
-    if (player.status.xfade !== undefined && player.status.xfade !== null && player.status.xfade > 0) {
-        player.controller.setCrossfade($("#configpanel").find('input[name|="michaelbarrymore"]').attr("value"));
-    }
+function setPrefs() {
+    $("#langselector").val(interfaceLanguage);
+
+    scrobwrangler = new progressBar('scrobwrangler', 'horizontal');
+    scrobwrangler.setProgress(parseInt(prefs.scrobblepercent.toString()));
+    $("#scrobwrangler").click( setscrob );
+
+    $.each($('.autoset'), function() {
+        $(this).attr("checked", prefs[$(this).attr("id")]);
+    });
+
+    $.each($('.saveotron'), function() {
+        if ($(this).hasClass('arraypref')) {
+            var a = prefs[$(this).attr("id")];
+            $(this).val(a.join());
+        } else {
+            $(this).val(prefs[$(this).attr("id")]);
+        }
+    });
+
+    $.each($('.saveomatic'), function() {
+        var prefname = $(this).attr("id").replace(/selector/,'');
+        $(this).val(prefs[prefname]);
+    });
+
+    $.each($('.savulon'), function() {
+        var prefname = $(this).attr("name");
+        $("[name="+prefname+"][value="+prefs[prefname]+"]").attr("checked", true);
+    });
+
 }
 
 function setscrob(e) {
@@ -190,17 +264,6 @@ function removeUserStream(xspf) {
             alert(language.gettext("label_general_error"));
         }
     } );
-}
-
-function togglePref(pref) {
-    var prefobj = new Object;
-    prefobj[pref] = ($("#"+pref).is(":checked"));
-    prefs.save( prefobj );
-    if (pref == 'downloadart') {
-        coverscraper.toggle($("#"+pref).is(":checked"));
-    } else if (pref == 'twocolumnsinlandscape') {
-        setBottomPaneSize();
-    }
 }
 
 function toggleFileSearch() {
@@ -367,7 +430,7 @@ var popupWindow = function() {
             $(popup).append('<div id="popupcontents"></div>');
             var winsize=getWindowSize();
             var windowScroll = getScrollXY();
-            if (mobile == "no") {
+            if (layout == "desktop") {
                 var width = winsize.x - 128;
                 var height = winsize.y - 128;
             } else {
@@ -408,7 +471,7 @@ var popupWindow = function() {
         setsize:function() {
             var winsize=getWindowSize();
             var windowScroll = getScrollXY();
-            if (mobile == "no") {
+            if (layout == "desktop") {
                 var width = winsize.x - 128;
                 var height = winsize.y - 128;
             } else {
@@ -584,7 +647,6 @@ function pollAlbumList() {
 }
 
 function scootTheAlbums() {
-    debug.log("HELLO","Looking for albums images to search for");
     $.each($("#collection").find("img").filter(function() {
         return $(this).hasClass('notexist');
     }), function() {
@@ -592,9 +654,9 @@ function scootTheAlbums() {
     });
 }
 
-function sourcecontrol(source) {
+function sourcecontrol(source, callback) {
 
-    if (mobile == "no") {
+    if (layout == "desktop") {
         sources = ["albumlist", "filelist", "radiolist"];
     } else {
         if (landscape) {
@@ -602,6 +664,9 @@ function sourcecontrol(source) {
         } else {
             sources = ["albumlist", "filelist", "radiolist", "infopane", "playlistm", "pluginplaylists", "chooser", "historypanel", "playlistman", "prefsm"];
         }
+    }
+    if (callback) {
+        sources.push(callback);
     }
     for(var i in sources) {
         if (sources[i] == source) {
@@ -615,12 +680,9 @@ function sourcecontrol(source) {
 
 function hidePanel(panel) {
     var is_hidden = $("#"+panel).is(':hidden');
-    var new_state = !prefs["hide_"+panel];
+    var new_state = prefs["hide_"+panel];
     debug.log("GENERAL","Hide Panel",panel,is_hidden,new_state);
-    var newprefs = {};
-    newprefs["hide_"+panel] = new_state;
-    prefs.save(newprefs);
-    if (mobile == "no") {
+    if (layout == "desktop") {
         if (is_hidden != new_state) {
             if (new_state && prefs.chooser == panel) {
                 $("#"+panel).fadeOut('fast');
@@ -821,20 +883,6 @@ function preventDefault(ev) {
     return false;
 }
 
-function scrollbarWidth() {
-    var $inner = jQuery('<div style="width: 100%; height:200px;">test</div>'),
-        $outer = jQuery('<div style="width:200px;height:150px; position: absolute; top: 0; left: 0; visibility: hidden; overflow:hidden;"></div>').append($inner),
-        inner = $inner[0],
-        outer = $outer[0];
-
-    jQuery('body').append(outer);
-    var width1 = inner.offsetWidth;
-    $outer.css('overflow', 'scroll');
-    var width2 = outer.clientWidth;
-    $outer.remove();
-    return (width1 - width2);
-}
-
 function playlistScrolled(el) {
     if (el.attr("id") == "pscroller") {
         playlistScrollOffset = -mcs.top;
@@ -875,7 +923,7 @@ var tagAdder = function() {
         show: function(evt, idx) {
             index = idx;
             var position = getPosition(evt);
-            if (mobile == "no") {
+            if (layout == "desktop") {
                 $("#tagadder").css({top: position.y+8, left: position.x+8});
             } else {
                 $("#tagadder").css({top: position.y+8, left: 0, width: $("#bottompage").width()});
@@ -911,39 +959,9 @@ function chooseNewTag(event) {
     tb.val(currvalue);
 }
 
-function setPrefs() {
-    $("#fontsize").attr({href: "sizes/"+prefs.fontsize});
-    $("#fontfamily").attr({href: "fonts/"+prefs.fontfamily});
-    $("#themeselector").val(prefs.theme);
-    $("#iconthemeselector").val(prefs.icontheme);
-    $("#langselector").val(interfaceLanguage);
-    $("#countryselector").val(prefs.lastfm_country_code);
-    $("[name=clickselect][value="+prefs.clickmode+"]").attr("checked", true);
-    $("[name=sortcollectionby][value="+prefs.sortcollectionby+"]").attr("checked", true);
-    $("[name=clicklfmlang][value="+prefs.lastfmlang+"]").attr("checked", true);
-    $("[name=userlanguage]").val(prefs.user_lang);
-    $("#fontselector").val(prefs.fontsize);
-    $("#fontfamselector").val(prefs.fontfamily);
-    scrobwrangler = new progressBar('scrobwrangler', 'horizontal');
-    scrobwrangler.setProgress(parseInt(prefs.scrobblepercent.toString()));
-    $("#scrobwrangler").click( setscrob );
-    $("#synclovevalue").val(prefs.synclovevalue);
-
-    $.each(["synctags", "synclove", "onthefly", "lastfm_scrobbling",
-            "lastfm_autocorrect", "hide_albumlist", "hide_filelist", "hide_radiolist",
-            "hidebrowser", "updateeverytime", "ignore_unplayable", "downloadart",
-            "fullbiobydefault", "scrolltocurrent", "sortbydate", "notvabydate", "lowmemorymode",
-            "twocolumnsinlandscape", "sortbycomposer", "composergenre", "displaycomposer", "consumeradio"],
-            function(i,v) {
-                $("#"+v).attr("checked", prefs[v]);
-            }
-    );
-
-}
-
 function playlistMenuHeader() {
     var html = "";
-    if (mobile == "no") {
+    if (layout == "desktop") {
         html = html + '<div class="containerbox"><div class="expand"><b>'+language.gettext("menu_playlists")+'</b></div></div>';
     } else {
         html = html + '<h3>'+language.gettext("menu_playlists")+'</h3>';
@@ -1077,3 +1095,32 @@ function failedToAddAlbum(data) {
     debug.fail("ADD ALBUM","Failed to add album",data);
     infobar.notify(infobar.ERROR, "Failed To Add Album To Collection");
 }
+
+function setSearchLabelWidth() {
+    var w = 0;
+    $.each($(".slt"), function() {
+        if ($(this).width() > w) {
+            w = $(this).width();
+        }
+    });
+    w += 8;
+    $(".searchlabel").css("width", w+"px");
+}
+
+var globalPlugins = function() {
+
+    var plugins = new Array();
+
+    return {
+        register: function(plugin) {
+            plugins.push(plugin);
+        },
+
+        initialise: function() {
+            for (var i in plugins) {
+                plugins[i].setup();
+            }
+        }
+    }
+
+}();

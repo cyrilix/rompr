@@ -390,7 +390,7 @@ class musicCollection {
 
         global $current_album, $current_artist, $abm, $current_domain, $playlist, $prefs, $backend_in_use, $trackbytrack;
 
-        if ($prefs['ignore_unplayable'] == "true" && substr($name, 0, 12) == "[unplayable]") {
+        if ($prefs['ignore_unplayable'] && substr($name, 0, 12) == "[unplayable]") {
             debug_print("Ignoring unplayable track ".$file,"COLLECTION");
             return true;
         }
@@ -572,8 +572,8 @@ class musicCollection {
                 if ($object->isCompilation() && $ignore_compilations) {
 
                 } else {
-                    if ($prefs['sortbydate'] == "true" &&
-                        !($artist == "various artists" && $prefs['notvabydate'] == "true")) {
+                    if ($prefs['sortbydate'] &&
+                        !($artist == "various artists" && $prefs['notvabydate'])) {
                         $d = $object->getDate();
                         if ($d == null) {
                             $d = "99999";
@@ -591,8 +591,8 @@ class musicCollection {
                     }
                 }
             }
-            if ($prefs['sortbydate'] == "true" &&
-                !($artist == "various artists" && $prefs['notvabydate'] == "true")) {
+            if ($prefs['sortbydate'] &&
+                !($artist == "various artists" && $prefs['notvabydate'])) {
                 ksort($albums, SORT_NUMERIC);
             } else {
                 ksort($albums, SORT_STRING);

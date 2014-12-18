@@ -67,7 +67,7 @@ var tagManager = function() {
 	            	data: {action: 'taglist'},
 	            	dataType: 'json',
 	            	success: function(data) {
-	            		if (mobile != "phone") {
+	            		if (layout == "desktop") {
 	            			setDraggable('tmgfoldup');
 	            		}
 	            		tagManager.doMainLayout(data);

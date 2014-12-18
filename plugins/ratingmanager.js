@@ -60,7 +60,7 @@ var ratingManager = function() {
 	            	data: {action: 'ratlist'},
 	            	dataType: 'json',
 	            	success: function(data) {
-	            		if (mobile != "phone") {
+	            		if (layout == "desktop") {
 	            			setDraggable('rmgfoldup');
 	            		}
 	            		ratingManager.doMainLayout(data);

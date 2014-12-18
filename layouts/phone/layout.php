@@ -116,6 +116,9 @@ foreach($sp as $p) {
         </div>
 
         <div id="pluginplaylists" class="invisible noborder containerbox vertical">
+<?php
+        print '<div class="containerbox spacer prefsection"><div class="expand textcentre"><b>'.get_int_text('label_pluginplaylists').'</b></div></div>';
+?>
         </div>
 
         <div id="playlistman" class="invisible noborder">
@@ -132,17 +135,17 @@ foreach($sp as $p) {
                 <div id="playlistslist">
 <?php
                     print '<h3>'.get_int_text("menu_playlists").'</h3>';
-                    print '<div class="containerbox vertical" id="pluginplaylists"></div>';
                     print '<div id="storedplaylists"></div>';
 ?>
                 </div>
             </div>
         </div>
         <div id="prefsm" class="invisible noborder">
+        <div id="configpanel">
 <?php
-debug_print("Doing Prefs Panel","INIT");
 include("includes/prefspanel.php")
 ?>
+        </div>
         </div>
     </div>
 

@@ -626,6 +626,7 @@ function get_album_directory($albumindex, $uri) {
 				$retval = dirname($obj2->Uri);
 				$retval = preg_replace('#^local:track:#', '', $retval);
 				$retval = preg_replace('#^file://#', '', $retval);
+				$retval = preg_replace('#^beetslocal:\d+:/#', '', $retval);
 				debug_print("Got album directory using track Uri - ".$retval,"SQL");
 			}
 		}
@@ -660,14 +661,14 @@ function albumartist_sort_query() {
 	// This query gives us album artists only. It also makes sure we only get artists for whom we have actual tracks
 	// (no album artists who appear only on the wishlist or who have only hidden tracks)
 	$qstring = "SELECT a.Artistname, a.Artistindex FROM Artisttable AS a JOIN Albumtable AS al ON a.Artistindex = al.AlbumArtistindex JOIN Tracktable AS t ON al.Albumindex = t.Albumindex WHERE t.Uri IS NOT NULL AND t.Hidden = 0 GROUP BY a.Artistindex ORDER BY ";
-	$afirst = explode(',', $prefs['artistsfirst']);
-	foreach ($afirst as $a) {
+	// $afirst = explode(',', $prefs['artistsatstart']);
+	foreach ($prefs['artistsatstart'] as $a) {
 		$qstring .= "CASE WHEN LOWER(Artistname) = LOWER('".$a."') THEN 1 ELSE 2 END, ";
 	}
-	$prefixes = explode(',', $prefs['prefixignore']);
-	if (count($prefixes) > 0) {
+	// $prefixes = explode(',', $prefs['nosortprefixes']);
+	if (count($prefs['nosortprefixes']) > 0) {
 		$qstring .= "(CASE ";
-		foreach($prefixes AS $p) {
+		foreach($prefs['nosortprefixes'] AS $p) {
 			$phpisshitsometimes = strlen($p)+2;
 			$qstring .= "WHEN LOWER(Artistname) LIKE '".strtolower($p)." %' THEN LOWER(SUBSTR(Artistname,".$phpisshitsometimes.")) ";
 		}
@@ -754,8 +755,8 @@ function do_albums_from_database($which, $fragment = false) {
 		$qstring .= "AlbumArtistindex = '".$matches[1]."' AND ";
 	}
 	$qstring .= "Albumindex IN (SELECT Albumindex FROM Tracktable WHERE Tracktable.Albumindex = Albumtable.Albumindex AND Tracktable.Uri IS NOT NULL AND Tracktable.Hidden = 0)";
-	if ($prefs['sortbydate'] == "false" ||
-		(is_various_artists($matches[1]) && $prefs['notvabydate'] == "true")) {
+	if (!$prefs['sortbydate'] ||
+		(is_various_artists($matches[1]) && $prefs['notvabydate'])) {
 		$qstring .= ' ORDER BY LOWER(Albumname)';
 	} else {
 		$qstring .= ' ORDER BY Year, LOWER(Albumname)';
@@ -839,8 +840,8 @@ function get_artist_tracks_from_database($index) {
 	$retarr = array();
 	debug_print("Getting Tracks for AlbumArtist ".$index,"MYSQL");
 	$qstring = "SELECT Albumindex FROM Albumtable WHERE AlbumArtistindex = ".$index;
-	if ($prefs['sortbydate'] == "false" ||
-		(is_various_artists($index) && $prefs['notvabydate'] == "true")) {
+	if (!$prefs['sortbydate'] ||
+		(is_various_artists($index) && $prefs['notvabydate'])) {
 		$qstring .= ' ORDER BY LOWER(Albumname)';
 	} else {
 		$qstring .= ' ORDER BY Year, LOWER(Albumname)';
@@ -939,13 +940,15 @@ function getAllURIs($sqlstring, $limit, $tags) {
 }
 
 function get_fave_artists() {
-	generic_sql_query("CREATE TEMPORARY TABLE aplaytable (playtotal INT UNSIGNED, Artistindex INT UNSIGNED NOT NULL UNIQUE)");
 	// Playcount > 3 in this query is totally arbitrary and may need tuning. Just trying to get the most popular artists by choosing anyone with an
 	// above average number of plays, but we don't want all the 'played them a few times' artists dragging the average down.
-	generic_sql_query("INSERT INTO aplaytable(playtotal, Artistindex) (SELECT SUM(Playcount) AS playtotal, Artistindex FROM (SELECT Playcount, Artistindex FROM Playcounttable JOIN Tracktable USING (TTindex) WHERE Playcount > 3) AS derived GROUP BY Artistindex)");
+	// generic_sql_query("CREATE TEMPORARY TABLE aplaytable (playtotal INT UNSIGNED, Artistindex INT UNSIGNED NOT NULL UNIQUE)");
+	// generic_sql_query("INSERT INTO aplaytable(playtotal, Artistindex) (SELECT SUM(Playcount) AS playtotal, Artistindex FROM (SELECT Playcount, Artistindex FROM Playcounttable JOIN Tracktable USING (TTindex) WHERE Playcount > 3) AS derived GROUP BY Artistindex)");
+
+	generic_sql_query("CREATE TEMPORARY TABLE aplaytable AS SELECT SUM(Playcount) AS playtotal, Artistindex FROM (SELECT Playcount, Artistindex FROM Playcounttable JOIN Tracktable USING (TTindex) WHERE Playcount > 3) AS derived GROUP BY Artistindex");
 
 	$artists = array();
-	if ($result = generic_sql_query("SELECT playtot, Artistname FROM (SELECT SUM(Playcount) AS playtot, Artistindex FROM (SELECT Playcount, Artistindex FROM Playcounttable JOIN Tracktable USING (TTindex)) AS derived GROUP BY Artistindex) AS alias JOIN Artisttable USING (Artistindex) WHERE playtot > (SELECT AVG(playtotal) FROM aplaytable) ORDER BY RAND()")) {
+	if ($result = generic_sql_query("SELECT playtot, Artistname FROM (SELECT SUM(Playcount) AS playtot, Artistindex FROM (SELECT Playcount, Artistindex FROM Playcounttable JOIN Tracktable USING (TTindex)) AS derived GROUP BY Artistindex) AS alias JOIN Artisttable USING (Artistindex) WHERE playtot > (SELECT AVG(playtotal) FROM aplaytable) ORDER BY ".SQL_RANDOM_SORT)) {
 		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			debug_print("Artist : ".$obj->Artistname,"FAVEARTISTS");
 			array_push($artists, array( 'name' => $obj->Artistname, 'plays' => $obj->playtot));

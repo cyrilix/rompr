@@ -17,7 +17,7 @@ var browser = function() {
     var panelclosed = {artist: false, album: false, track: false};
     var waitingon = {artist: false, album: false, track: false, index: -1, source: null};
     var extraPlugins = [];
-    var maxhistorylength = (mobile == "no") ? 20 : 5;
+    var maxhistorylength = 20;
     var sources = nowplaying.getAllPlugins();
 
     function displayTheData(ptr, showartist, showalbum, showtrack) {
@@ -125,7 +125,7 @@ var browser = function() {
 
         var html;
         var bits = ["artist","album","track"];
-        if (mobile == "no") {
+        if (layout == "desktop") {
             html = '<li class="wider"><b>'+language.gettext("menu_history")+'</b></li><li class="wider">';
         } else {
             html = '<h3 align="center">'+language.gettext("menu_history")+'</h3>';
@@ -136,7 +136,7 @@ var browser = function() {
             if (i == displaypointer) {
                 clas = clas + " current";
             }
-            if (mobile == "no") {
+            if (layout == "desktop") {
                 html = html + '<tr class="'+clas+'" onclick="browser.doHistory('+i+')">';
             } else {
                 html = html + '<tr class="'+clas+'" onclick="browser.doHistory('+i+');sourcecontrol(\'infopane\')">';
@@ -154,7 +154,7 @@ var browser = function() {
             html = html + '</td></tr>';
         }
         html = html + '</table>';
-        if (mobile == "no") {
+        if (layout == "desktop") {
             html = html + '</li>';
         }
         $("#historypanel").html(html);
@@ -186,28 +186,37 @@ var browser = function() {
         }
     }
 
+    function keySwitcher(s) {
+        this.push = function() {
+            browser.switchsource(s);
+        }
+    }
+
     return {
 
         createButtons: function() {
             for (var i in sources) {
                 if (sources[i].icon !== null) {
                     debug.log("BROWSER", "Found plugin", i,sources[i].icon);
-                    if (mobile == "no") {
+                    if (layout == "desktop") {
                         $("#chooserbuttons").append($('<img>', {
                             src: sources[i].icon,
                             onclick: "browser.switchsource('"+i+"')",
-                            title: sources[i].text,
+                            title: language.gettext(sources[i].text),
                             class: 'topimg sep dildo',
                             id: "button_source"+i
                         }));
+                        var k = new keySwitcher(i);
+                        shortcuts.add(sources[i].text, k.push)
                     } else {
-                        $("#chooser").append('<div class="chooser penbehindtheear"><a href="#" onclick="browser.switchsource(\''+i+'\');sourcecontrol(\'infopane\')">'+sources[i].text+'</a></div>');
+                        $("#chooser").append('<div class="chooser penbehindtheear"><a href="#" onclick="browser.switchsource(\''+i+'\');sourcecontrol(\'infopane\')">'+language.gettext(sources[i].text)+'</a></div>');
                     }
                 }
             }
-            if (mobile == "no") {
+            if (layout == "desktop") {
                 $("#button_source"+prefs.infosource).addClass("currentbun");
                 $(".dildo").tipTip({delay: 1000, edgeOffset: 8});
+                shortcuts.load()
             }
         },
 
@@ -300,6 +309,7 @@ var browser = function() {
         },
 
         switchsource: function(src) {
+            debug.log("BROWSER","Switching to",src);
             if (displaypointer >= 1) {
                 displaypointer = history.length - 1;
                 history[displaypointer].mastercollection.populate(src, true);
@@ -363,7 +373,7 @@ var browser = function() {
             updateHistory();
             browser.Update(n, panel, source, waitingon.index, data);
             var sp = $("#"+panel+"information").position();
-            if (mobile == "no") {
+            if (layout == "desktop") {
                 $("#infopane").mCustomScrollbar("scrollTo",sp.top);
             } else {
                 $("#infopane").scrollTo("#"+panel+"information");
@@ -408,7 +418,7 @@ var browser = function() {
                 }
             });
 
-            if (mobile == "no") {
+            if (layout == "desktop") {
                 $("#infopane").mCustomScrollbar("scrollTo",0);
             } else {
                 $("#infopane").scrollTo("#artistinformation");
@@ -441,7 +451,7 @@ var browser = function() {
         },
 
         goToPlugin: function(id) {
-            if (mobile == "no") {
+            if (layout == "desktop") {
                 $("#plscr").slideToggle('fast');
                 $("#infopane").mCustomScrollbar("scrollTo", "#"+id+"information");
             } else {

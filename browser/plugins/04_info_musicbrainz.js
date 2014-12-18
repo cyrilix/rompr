@@ -45,7 +45,7 @@ var info_musicbrainz = function() {
 			return '<h3 align="center">'+data.error+'</h3>';
 		}
 
-        if (mobile == "no") {
+        if (layout == "desktop") {
 	        var html = '<div class="containerbox">';
         	html = html + '<div class="fixed bright">';
         } else {
@@ -78,7 +78,7 @@ var info_musicbrainz = function() {
         html = html + '<br>'+getURLs(data.relations, true);
         html = html + '</div>';
 
-        if (mobile == "no") {
+        if (layout == "desktop") {
         	html = html + '<div class="expand stumpy">';
         } else {
         	html = html + '<div class="stumpy">';
@@ -344,7 +344,7 @@ var info_musicbrainz = function() {
 		if (data.error && data.recording === undefined && data.work === undefined) {
 			return '<h3 align="center">'+data.error.error+'</h3>';
 		}
-		if (mobile == "no") {
+		if (layout == "desktop") {
 	        var html = '<div class="containerbox">';
 	        html = html + '<div class="fixed bright">';
 	    } else {
@@ -382,7 +382,7 @@ var info_musicbrainz = function() {
 		html = html + getURLs(rels, true);
 		html = html + '</div>';
 
-        if (mobile == "no") {
+        if (layout == "desktop") {
         	html = html + '<div class="expand stumpy">';
         } else {
         	html = html + '<div class="stumpy">';
@@ -644,7 +644,7 @@ var info_musicbrainz = function() {
 					return '<h3 align="center">'+data.error+'</h3>';
 				}
 
-		        if (mobile == "no") {
+		        if (layout == "desktop") {
 		        	var html = '<div class="containerbox">';
 		        	html = html + '<div class="fixed bright">';
 		        } else {
@@ -681,7 +681,7 @@ var info_musicbrainz = function() {
 		        html = html + '<br>'+getURLs(data.relations, true);
 				html = html + '</div>';
 
-		        if (mobile == "no") {
+		        if (layout == "desktop") {
 			        html = html + '<div class="expand stumpy">';
 			    } else {
 			        html = html + '<div class="stumpy">';
@@ -735,7 +735,7 @@ var info_musicbrainz = function() {
 		        html = html + '</div>';
 		        if (data['cover-art-archive'].artwork == true) {
 		        	debug.log(medebug,"There is cover art available");
-			        if (mobile == "no") {
+			        if (layout == "desktop") {
 				        html = html + '<div class="cleft fixed" id="coverart">';
 				    } else {
 				        html = html + '<div class="stumpy" id="coverart">';
