@@ -22,9 +22,9 @@ print '<link id="theme" rel="stylesheet" type="text/css" href="themes/'.$prefs['
 print '<link rel="stylesheet" id="fontsize" type="text/css" href="sizes/'.$prefs['fontsize'].'" />'."\n";
 print '<link rel="stylesheet" id="fontfamily" type="text/css" href="fonts/'.$prefs['fontfamily'].'" />'."\n";
 ?>
-<link type="text/css" href="custom-scrollbar-plugin/css/jquery.mCustomScrollbar.css" rel="stylesheet" />
+<link type="text/css" href="layouts/desktop/jquery.mCustomScrollbar.css" rel="stylesheet" />
 <script type="text/javascript" src="jquery/jquery-1.8.3-min.js"></script>
-<script type="text/javascript" src="custom-scrollbar-plugin/js/jquery.mCustomScrollbar.concat.min.js"></script>
+<script type="text/javascript" src="layouts/desktop/jquery.mCustomScrollbar.concat.min.js"></script>
 <script type="text/javascript" src="layouts/desktop/functions.js"></script>
 <script type="text/javascript" src="ui/functions.js"></script>
 <script type="text/javascript" src="ui/uifunctions.js"></script>

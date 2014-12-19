@@ -186,12 +186,6 @@ var browser = function() {
         }
     }
 
-    function keySwitcher(s) {
-        this.push = function() {
-            browser.switchsource(s);
-        }
-    }
-
     return {
 
         createButtons: function() {
@@ -206,8 +200,6 @@ var browser = function() {
                             class: 'topimg sep dildo',
                             id: "button_source"+i
                         }));
-                        var k = new keySwitcher(i);
-                        shortcuts.add(sources[i].text, k.push)
                     } else {
                         $("#chooser").append('<div class="chooser penbehindtheear"><a href="#" onclick="browser.switchsource(\''+i+'\');sourcecontrol(\'infopane\')">'+language.gettext(sources[i].text)+'</a></div>');
                     }
@@ -216,8 +208,21 @@ var browser = function() {
             if (layout == "desktop") {
                 $("#button_source"+prefs.infosource).addClass("currentbun");
                 $(".dildo").tipTip({delay: 1000, edgeOffset: 8});
-                shortcuts.load()
             }
+        },
+
+        nextSource: function(direction) {
+            var s = new Array();
+            for (var i in sources) {
+                if (sources[i].icon !== null) {
+                    s.push(i);
+                }
+            }
+            var cursourceidx = s.indexOf(prefs.infosource);
+            var newsourceidx = cursourceidx+direction;
+            if (newsourceidx >= s.length) newsourceidx = 0;
+            if (newsourceidx < 0) newsourceidx = s.length-1;
+            browser.switchsource(s[newsourceidx]);
         },
 
         dataIsComing: function(mastercollection, isartistswitch, nowplayingindex, source, creator, artist, albumartist, album, track) {

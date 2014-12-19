@@ -554,6 +554,7 @@ $languages['en'] = array (
 	"button_ratefive" => "Rate 5 Stars",
 	"button_updatecollection" => "Update Music Collection",
 	"label_favealbums" => "Favourite Albums",
+	"button_nextsource" => "Info Panel - Cycle Source",
 
 	//CHANGED in 0.60
 	"config_country" => "COUNTRY (for Last.FM and Spotify)",

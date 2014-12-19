@@ -155,9 +155,6 @@ $inc = glob("layouts/".$layout."/*.css");
 foreach($inc as $i) {
     print '<link rel="stylesheet" type="text/css" href="'.$i.'" />'."\n";
 }
-if ($layout == "desktop") {
-    print '<link type="text/css" href="custom-scrollbar-plugin/css/jquery.mCustomScrollbar.css" rel="stylesheet" />'."\n";
-}
 print '<link id="theme" rel="stylesheet" type="text/css" href="themes/'.$prefs['theme'].'" />'."\n";
 print '<link rel="stylesheet" id="fontsize" type="text/css" href="sizes/'.$prefs['fontsize'].'" />'."\n";
 print '<link rel="stylesheet" id="fontfamily" type="text/css" href="fonts/'.$prefs['fontfamily'].'" />'."\n";
@@ -168,7 +165,7 @@ print '<link rel="stylesheet" id="fontfamily" type="text/css" href="fonts/'.$pre
 <script type="text/javascript" src="jquery/jquery.form.js"></script>
 <!-- JQuery UI plugin : http://jqueryui.com. Heavily modified to make dragging work more easily and to function -->
 <!-- with the custom scrollbar plugin (now almost certainly doesn't work without it) -->
-<script type="text/javascript" src="jqueryui1.8.16/js/jquery-ui-1.8.23.custom.js"></script>
+<script type="text/javascript" src="jqueryui1.8.16/js/jquery-ui-min.js"></script>
 <!-- JQuery JSONP Plugin. My saviour : https://github.com/jaubourg/jquery-jsonp -->
 <script type="text/javascript" src="jquery/jquery.jsonp-2.3.1.min.js"></script>
 <!-- JQuery scrollTO plugin : http://demos.flesler.com/jquery/scrollTo/ -->
@@ -180,12 +177,6 @@ print '<link rel="stylesheet" id="fontfamily" type="text/css" href="fonts/'.$pre
 <!-- Masonry layout engine : http://masonry.desandro.com/ -->
 <script type="text/javascript" src="jquery/masonry.pkgd.min.js"></script>
 <script type="text/javascript" src="jquery/imagesloaded.pkgd.min.js"></script>
-<?php
-if ($layout == "desktop") {
-    // Custom scrollbar plugin : http://manos.malihu.gr/jquery-custom-content-scroller/
-    print '<script type="text/javascript" src="custom-scrollbar-plugin/js/jquery.mCustomScrollbar.concat.min.js"></script>'."\n";
-}
-?>
 <script type="text/javascript" src="ui/debug.js"></script>
 <script type="text/javascript" src="ui/functions.js"></script>
 <script type="text/javascript" src="ui/uifunctions.js"></script>

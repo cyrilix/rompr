@@ -170,6 +170,7 @@ var shortcuts = function() {
                     button_toggleplaylist: ".",
                     config_hidebrowser: "H",
                     button_updatecollection: "U",
+                    button_nextsource: "I",
     };
 
     var bindings = { button_next: playlist.next,
@@ -195,7 +196,8 @@ var shortcuts = function() {
                     button_togglesources: function() { expandInfo('left') },
                     button_toggleplaylist: function() { expandInfo('right') },
                     config_hidebrowser: function() { $("#hidebrowser").attr("checked", !$("#hidebrowser").is(':checked')); prefs.save({hidebrowser: $("#hidebrowser").is(':checked')}, hideBrowser) },
-                    button_updatecollection: function(){ checkCollection(true, false) }
+                    button_updatecollection: function(){ checkCollection(true, false) },
+                    button_nextsource: function() { browser.nextSource(1) }
     };
 
     function format_keyinput(inpname, hotkey) {
