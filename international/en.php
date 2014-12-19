@@ -363,7 +363,6 @@ $languages['en'] = array (
 	// reason not to do that
 	"title_year" => "YEAR",
 	"title_title" => "TITLE",
-	"title_artist" => "ARTIST",
 	"title_type" => "TYPE",
 	"title_label" => "LABEL",
 	"label_pages" => "PAGES",
@@ -391,7 +390,6 @@ $languages['en'] = array (
 	"discogs_nonsense" => "Couldn't get a sensible response from Discogs",
 	"discogs_noalbum" => "Couldn't find this album on Discogs",
 	"discogs_notrack" => "Couldn't find this track on Discogs",
-	"discogs_slideshow" => "Slideshow",
 
 	// Musicbrainz info panel
 	"button_musicbrainz" => "Info Panel (Musicbrainz)",
@@ -549,17 +547,19 @@ $languages['en'] = array (
 	"button_alarmsnooze" => "Alarm Snooze",
 	"config_snoozetime" => "Snooze Time (Mins)",
 	"config_ramptime" => "Fade Time (Secs)",
+	"button_rateone" => "Rate 1 Star",
+	"button_ratetwo" => "Rate 2 Stars",
+	"button_ratethree" => "Rate 3 Stars",
+	"button_ratefour" => "Rate 4 Stars",
+	"button_ratefive" => "Rate 5 Stars",
+	"button_updatecollection" => "Update Music Collection",
+	"label_favealbums" => "Favourite Albums",
 
 	//CHANGED in 0.60
 	"config_country" => "COUNTRY (for Last.FM and Spotify)",
 	"setup_labeladdresses" => "If you are having connection issues, try using an IP address instead of 'localhost'",
 	"setup_ipaddress" => "Mopidy or mpd server",
 	"config_dateinfo" => "You must update your music collection after changing collection settings",
-
-	//REMOVED in 0.60
-	// "info_clicktoshow" => "CLICK TO SHOW",
-	// "info_clicktohide" => "CLICK TO HIDE",
-	// "label_internet_radio" => "Internet Radio",
 
 );
 

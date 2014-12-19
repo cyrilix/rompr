@@ -290,7 +290,7 @@ var info_musicbrainz = function() {
 			var dby = data['release-groups'].sort(albumsbyyear);
         	var html = '<div class="mbbox"><table class="padded" width="100%">';
         	html = html + '<tr><th>'+language.gettext("title_year")+'</th><th>'+language.gettext("title_title")+' / '
-        				+language.gettext("title_artist")+'</th><th>'+language.gettext("title_type")+'</th><th>'
+        				+language.getUCtext("label_artist")+'</th><th>'+language.gettext("title_type")+'</th><th>'
         				+language.gettext("musicbrainz_rating")+'</th><th>'+language.gettext("discogs_external")+'</th></tr>'
         	for (var i in dby) {
 

@@ -156,7 +156,6 @@ $languages['it'] = array (
 	"label_notracks" => "La ricerca non ha trovato il brano specificato",
 	"label_duration" => "Durata",
 	"label_playererror" => "Errore del riproduttore",
-	"label_internet_radio" => "Internet Radio",
 	"label_tunefailed" => "Sintonizzazione della Stazione Radio fallita",
 	"label_noneighbours" => "Non è stato trovato nessun vicino",
 	"label_nofreinds" => "Hai 0 amici",
@@ -305,8 +304,6 @@ $languages['it'] = array (
 
 	// Info Panel
 	"info_gettinginfo" => "Recupero informazioni...",
-	"info_clicktoshow" => "CLIC PER MOSTRARE",
-	"info_clicktohide" => "CLIC PER NASCONDERE",
 	"info_newtab" => "Visualizza in una nuova scheda",
 
 	// File Info panel
@@ -398,7 +395,6 @@ $languages['it'] = array (
 	"discogs_nonsense" => "Impossibile ottenere una risposta sensata da Discogs",
 	"discogs_noalbum" => "Impossibile trovare questo album su Discogs",
 	"discogs_notrack" => "Impossibile trovare questo brano su Discogs",
-	"discogs_slideshow" => "Presentazione",
 
 	// Musicbrainz info panel
 	"button_musicbrainz" => "Pannello Informazioni (Musicbrainz)",

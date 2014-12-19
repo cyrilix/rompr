@@ -60,6 +60,7 @@ if (array_key_exists('mobile', $_REQUEST)) {
         $layout = "desktop";
     }
 }
+debug_print("Using layout : ".$layout,"INIT");
 
 //
 // Find mopidy's HTTP interface, if present or ignore this check
@@ -154,7 +155,7 @@ $inc = glob("layouts/".$layout."/*.css");
 foreach($inc as $i) {
     print '<link rel="stylesheet" type="text/css" href="'.$i.'" />'."\n";
 }
-if ($layout = "desktop") {
+if ($layout == "desktop") {
     print '<link type="text/css" href="custom-scrollbar-plugin/css/jquery.mCustomScrollbar.css" rel="stylesheet" />'."\n";
 }
 print '<link id="theme" rel="stylesheet" type="text/css" href="themes/'.$prefs['theme'].'" />'."\n";
@@ -304,7 +305,7 @@ $(window).load(function() {
 
 function showUpdateWindow() {
     if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < 0.60) {
-        var fnarkle = popupWindow.create(500,600,"fnarkle",true,language.gettext("intro_title"));
+        var fnarkle = popupWindow.create(550,800,"fnarkle",true,language.gettext("intro_title"));
         $("#popupcontents").append('<div id="fnarkler" class="mw-headline"></div>');
         if (layout != "desktop") {
             $("#fnarkler").addClass('tiny');
@@ -333,6 +334,7 @@ function showUpdateWindow() {
 </head>
 
 <?php
+debug_print("Including layouts/".$layout.'/layout.php',"LAYOUT");
 include('layouts/'.$layout.'/layout.php');
 ?>
 

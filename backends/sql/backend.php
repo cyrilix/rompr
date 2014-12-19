@@ -626,7 +626,7 @@ function get_album_directory($albumindex, $uri) {
 				$retval = dirname($obj2->Uri);
 				$retval = preg_replace('#^local:track:#', '', $retval);
 				$retval = preg_replace('#^file://#', '', $retval);
-				$retval = preg_replace('#^beetslocal:\d+:/#', '', $retval);
+				$retval = preg_replace('#^beetslocal:\d+:'.$prefs['music_directory_albumart'].'/#', '', $retval);
 				debug_print("Got album directory using track Uri - ".$retval,"SQL");
 			}
 		}
@@ -913,19 +913,20 @@ function do_tracks_from_database($which, $fragment = false) {
 	}
 }
 
-function getAllURIs($sqlstring, $limit, $tags) {
+function getAllURIs($sqlstring, $limit, $tags, $random = true) {
 
 	// Get all track URIs using a supplied SQL string. For playlist generators
 	debug_print("Selector is ".$sqlstring,"SMART PLAYLIST");
+	$rndstr = $random ? " ORDER BY ".SQL_RANDOM_SORT : " ORDER BY Albumindex, TrackNo";
 
 	generic_sql_query("CREATE TEMPORARY TABLE pltemptable(TTindex INT UNSIGNED NOT NULL UNIQUE)",true);
 	if ($tags) {
-		$stmt = sql_prepare_query_later("INSERT INTO pltemptable(TTindex) ".$sqlstring." AND NOT Tracktable.TTindex IN (SELECT TTindex FROM pltable) ORDER BY ".SQL_RANDOM_SORT." LIMIT ".$limit);
+		$stmt = sql_prepare_query_later("INSERT INTO pltemptable(TTindex) ".$sqlstring." AND NOT Tracktable.TTindex IN (SELECT TTindex FROM pltable)".$rndstr." LIMIT ".$limit);
 		if ($stmt !== FALSE) {
 			$stmt->execute($tags);
 		}
 	} else {
-		generic_sql_query("INSERT INTO pltemptable(TTindex) ".$sqlstring." AND NOT Tracktable.TTindex IN (SELECT TTindex FROM pltable) ORDER BY ".SQL_RANDOM_SORT." LIMIT ".$limit);
+		generic_sql_query("INSERT INTO pltemptable(TTindex) ".$sqlstring." AND NOT Tracktable.TTindex IN (SELECT TTindex FROM pltable)".$rndstr." LIMIT ".$limit);
 	}
 	generic_sql_query("INSERT INTO pltable (TTindex) SELECT TTindex FROM pltemptable",true);
 
@@ -942,9 +943,6 @@ function getAllURIs($sqlstring, $limit, $tags) {
 function get_fave_artists() {
 	// Playcount > 3 in this query is totally arbitrary and may need tuning. Just trying to get the most popular artists by choosing anyone with an
 	// above average number of plays, but we don't want all the 'played them a few times' artists dragging the average down.
-	// generic_sql_query("CREATE TEMPORARY TABLE aplaytable (playtotal INT UNSIGNED, Artistindex INT UNSIGNED NOT NULL UNIQUE)");
-	// generic_sql_query("INSERT INTO aplaytable(playtotal, Artistindex) (SELECT SUM(Playcount) AS playtotal, Artistindex FROM (SELECT Playcount, Artistindex FROM Playcounttable JOIN Tracktable USING (TTindex) WHERE Playcount > 3) AS derived GROUP BY Artistindex)");
-
 	generic_sql_query("CREATE TEMPORARY TABLE aplaytable AS SELECT SUM(Playcount) AS playtotal, Artistindex FROM (SELECT Playcount, Artistindex FROM Playcounttable JOIN Tracktable USING (TTindex) WHERE Playcount > 3) AS derived GROUP BY Artistindex");
 
 	$artists = array();

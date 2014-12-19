@@ -405,7 +405,7 @@ function playerController() {
             mopidy.on("state:offline", disconnected);
             mopidy.connect();
             // For testing and debugging purposes, player.controller.mop is a direct link to mopidy.js
-            self.mop = mopidy;
+            // self.mop = mopidy;
         } else {
             clearTimeout(connecttimer);
             self.connectFailed();

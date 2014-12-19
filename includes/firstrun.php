@@ -26,4 +26,8 @@ if (!is_dir('prefs/jsoncache/spotify')) {
 if (!is_dir('prefs/jsoncache/lyrics')) {
 	mkdir('prefs/jsoncache/lyrics');
 }
+if (file_exists('prefs/keybindings')) {
+	unlink('prefs/keybindings');
+}
+
 ?>

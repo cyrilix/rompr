@@ -151,10 +151,10 @@ var alarm = function() {
 				'<table align="center"><tr><td align="center"><div id="button_alarm_on" onclick="alarm.toggle()" class="togglebutton clickicon togglebuton-0" />';
 				if (prefs.player_backend == "mopidy") {
 					// Volume ramping won't work with MPD because we can't set the volume to zero if playback is stopped. Duh.
-					html = html + '</td></tr><tr><td><input class="autoset toggle" type="checkbox" id="alarmramp">'+language.gettext('config_alarm_ramp')+'</input>';
-					html = html + '</td></tr><tr><td>'+language.gettext('config_ramptime')+'&nbsp;<input class="saveotron prefinput winkle" id="alarm_ramptime" type="text" size="2" />';
+					html = html + '</td></tr><tr><td align="center"><input class="autoset toggle" type="checkbox" id="alarmramp">'+language.gettext('config_alarm_ramp')+'</input>';
+					html = html + '</td></tr><tr><td align="center">'+language.gettext('config_ramptime')+'&nbsp;<input class="saveotron prefinput winkle" id="alarm_ramptime" type="text" size="2" />';
 				}
-				html = html + '</td></tr><tr><td>'+language.gettext('config_snoozetime')+'&nbsp;<input class="saveotron prefinput winkle" id="alarm_snoozetime" type="text" size="2" />';
+				html = html + '</td></tr><tr><td align="center">'+language.gettext('config_snoozetime')+'&nbsp;<input class="saveotron prefinput winkle" id="alarm_snoozetime" type="text" size="2" />';
 				html = html + '</td></tr></table></li></ul></li>';
 
 			$("#righthandtop").prepend(html);

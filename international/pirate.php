@@ -340,7 +340,6 @@ $languages['pirate'] = array (
 	// reason not to do that
 	"title_year" => "YEAR",
 	"title_title" => "TITLE",
-	"title_artist" => "MINSTREL",
 	"title_type" => "TYPE",
 	"title_label" => "YE PUBLISHER",
 	"label_pages" => "PAGES",
@@ -368,7 +367,6 @@ $languages['pirate'] = array (
 	"discogs_nonsense" => "Ye Discogs speaks nonsense",
 	"discogs_noalbum" => "Couldn't find this book o' shantys on Discogs",
 	"discogs_notrack" => "Couldn't find this shanty on Discogs",
-	"discogs_slideshow" => "Painting Gallery",
 
 	// Musicbrainz
 	"button_musicbrainz" => "Info Panel (Musicbrainz)",

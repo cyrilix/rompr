@@ -271,17 +271,23 @@ var nowplaying = function() {
 
         setRating: function(evt) {
             if (prefs.apache_backend == 'sql') {
-                var position = getPosition(evt);
-                var elem = $(evt.target);
-                var width = elem.width();
-                var offset = elem.offset();
-                var rating = Math.ceil(((position.x - offset.left - 6)/width) * 5);
-                var index = elem.next().val();
-                if (index == -1) index = findCurrentTrack();
-				if (index > 0) {
-		            debug.log("NOWPLAYING", "Setting Rating to",rating,"on index",index);
+            	if (typeof evt == "number") {
+            		debug.log("NOWPLAYING","Button Press Rating Set",evt);
+            		var rating = evt;
+            		var index = findCurrentTrack();
+            	} else {
+	                var position = getPosition(evt);
+	                var elem = $(evt.target);
+	                var width = elem.width();
+	                var offset = elem.offset();
+	                var rating = Math.ceil(((position.x - offset.left - 6)/width) * 5);
+	                var index = elem.next().val();
+	                if (index == -1) index = findCurrentTrack();
 		            // The image will get updated anyway, but this makes it more responsive
 		            elem.attr("src", "newimages/"+rating+"stars.png");
+	            }
+				if (index > 0) {
+		            debug.log("NOWPLAYING", "Setting Rating to",rating,"on index",index);
 					history[index].setMeta('set', 'Rating', rating.toString());
 					if (prefs.synclove && lastfm.isLoggedIn() && rating >= prefs.synclovevalue) {
 						history[index].love();

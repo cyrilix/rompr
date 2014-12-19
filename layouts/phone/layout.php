@@ -1,3 +1,6 @@
+<?php
+debug_print("Doing Layout For PHONE","LAYOUT");
+?>
 <body class="mobile">
 
 <div id="notifications"></div>

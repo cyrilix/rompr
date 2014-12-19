@@ -160,7 +160,16 @@ var shortcuts = function() {
                     button_random: "S",
                     button_crossfade: "X",
                     button_repeat: "R",
-                    button_consume: "E"
+                    button_consume: "E",
+                    button_rateone: "1",
+                    button_ratetwo: "2",
+                    button_ratethree: "3",
+                    button_ratefour: "4",
+                    button_ratefive: "5",
+                    button_togglesources: ",",
+                    button_toggleplaylist: ".",
+                    config_hidebrowser: "H",
+                    button_updatecollection: "U",
     };
 
     var bindings = { button_next: playlist.next,
@@ -177,12 +186,25 @@ var shortcuts = function() {
                     button_random: function() { playlistControlButton('random') },
                     button_crossfade: function() { playlistControlButton('crossfade') },
                     button_repeat: function() { playlistControlButton('repeat') },
-                    button_consume: function() { playlistControlButton('consume') }
+                    button_consume: function() { playlistControlButton('consume') },
+                    button_rateone: function() { nowplaying.setRating(1) },
+                    button_ratetwo: function() { nowplaying.setRating(2) },
+                    button_ratethree: function() { nowplaying.setRating(3) },
+                    button_ratefour: function() { nowplaying.setRating(4) },
+                    button_ratefive: function() { nowplaying.setRating(5) },
+                    button_togglesources: function() { expandInfo('left') },
+                    button_toggleplaylist: function() { expandInfo('right') },
+                    config_hidebrowser: function() { $("#hidebrowser").attr("checked", !$("#hidebrowser").is(':checked')); prefs.save({hidebrowser: $("#hidebrowser").is(':checked')}, hideBrowser) },
+                    button_updatecollection: function(){ checkCollection(true, false) }
     };
 
     function format_keyinput(inpname, hotkey) {
         if (hotkey === null) hotkey = "";
         return '<input id="'+inpname+'" class="tleft sourceform buttonchange" type="text" size="16" value="'+hotkey+'"></input>';
+    }
+
+    function format_clearbutton(inpname) {
+        return '<td><img class="clickicon buttonclear" name="'+inpname+'" src="'+ipath+'edit-delete.png"></td>';
     }
 
     return {
@@ -191,10 +213,10 @@ var shortcuts = function() {
             debug.shout("SHORTCUTS","Loading Key Bindings");
             $(document).unbind('keydown');
             for (var i in hotkeys) {
-                if (localStorage.getItem('hotkeys.'+i) != null) {
+                if (localStorage.getItem('hotkeys.'+i) !== null) {
                     hotkeys[i] = localStorage.getItem('hotkeys.'+i);
                 }
-                if (hotkeys[i] !== null && bindings[i]) {
+                if (hotkeys[i] !== "" && bindings[i]) {
                     debug.log("SHORTCUTS","Binding Key For",i);
                     $(document).bind('keydown', hotkeys[i], bindings[i]);
                 }
@@ -206,9 +228,10 @@ var shortcuts = function() {
             var keybpu = popupWindow.create(400,600,"keybpu",true,language.gettext("title_keybindings"));
             $("#popupcontents").append('<table align="center" cellpadding="2" id="keybindtable" width="90%"></table>');
             for (var i in hotkeys) {
-                $("#keybindtable").append('<tr><td width="50%" align="right">'+language.gettext(i).initcaps()+'</td><td>'+format_keyinput(i, hotkeys[i])+'</td></tr>');
+                $("#keybindtable").append('<tr><td width="50%" align="right">'+language.gettext(i).initcaps()+'</td><td>'+format_keyinput(i, hotkeys[i])+'</td>'+format_clearbutton(i)+'</tr>');
             }
             $(".buttonchange").keydown( shortcuts.change );
+            $(".buttonclear").click( shortcuts.remove );
             popupWindow.open();
         },
 
@@ -219,19 +242,24 @@ var shortcuts = function() {
             shortcuts.save()
         },
 
+        remove: function(ev) {
+            var n = $(ev.target).attr("name");
+            $("#"+n).val('');
+            shortcuts.save();
+        },
+
         save: function() {
             $("#keybindtable").find(".buttonchange").each(function() {
                 var k = $(this).val();
-                if (k != "") {
-                    hotkeys[$(this).attr("id")] = $(this).val();
-                    localStorage.setItem('hotkeys.'+$(this).attr("id"), $(this).val());
-                }
+                var n = $(this).attr("id");
+                hotkeys[n] = k;
+                localStorage.setItem('hotkeys.'+n, k);
             });
             shortcuts.load();
         },
 
         add: function(name, binding) {
-            hotkeys[name] = null;
+            hotkeys[name] = "";
             bindings[name] = binding;
         }
     }

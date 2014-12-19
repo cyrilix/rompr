@@ -54,7 +54,7 @@ switch ($_POST['action']) {
 
 	case 'getplaylist':
 		preparePlaylist();
-		doPlaylist($_POST['playlist']);
+		doPlaylist();
 		break;
 
 	case 'repopulate':
@@ -363,7 +363,7 @@ close_transaction();
 
 debug_print("---------------------------END----------------------","USERRATING");
 
-function preparePlaylist() {
+function preparePlaylist($name) {
 	generic_sql_query("DROP TABLE IF EXISTS pltable");
 	generic_sql_query("CREATE TABLE pltable(TTindex INT UNSIGNED NOT NULL UNIQUE)");
 }
@@ -372,6 +372,7 @@ function doPlaylist($playlist, $limit = 10) {
 	debug_print("Loading Playlist ".$playlist,"RATINGS");
 	$sqlstring = "";
 	$tags = null;
+	$random = true;
 	switch($playlist) {
 		case "1stars":
 			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden=0 AND Rating > 0";
@@ -415,7 +416,7 @@ function doPlaylist($playlist, $limit = 10) {
 			}
 			break;
 	}
-	$uris = getAllURIs($sqlstring, $limit, $tags);
+	$uris = getAllURIs($sqlstring, $limit, $tags, $random);
 	$json = array();
 	foreach ($uris as $u) {
 		array_push($json, array( 'type' => 'uri', 'name' => $u));

@@ -104,7 +104,12 @@ print "    var tags = ".json_encode($translations);
                 }
                 return escapeHtml(s);
             }
+        },
+
+        getUCtext: function(key, args) {
+            return language.gettext(key, args).toUpperCase();
         }
+
     }
 }();
 

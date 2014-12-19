@@ -145,7 +145,6 @@ $languages['fr'] = array (
 	"label_notracks" => "Aucune Piste Trouvée",
 	"label_duration" => "Durée",
 	"label_playererror" => "Erreur Du Lecteur",
-	"label_internet_radio" => "Radio Internet",
 	"label_tunefailed" => "Échec De Lecture De La Station De Radio",
 	"label_noneighbours" => "Aucun voisin trouvé",
 	"label_nofreinds" => "Vous avez 0 amis",
@@ -294,8 +293,6 @@ $languages['fr'] = array (
 
 	// Info Panel
 	"info_gettinginfo" => "Récupération Des Infos...",
-	"info_clicktoshow" => "CLIC POUR MONTRER",
-	"info_clicktohide" => "CLIC POUR MASQUER",
 	"info_newtab" => "Voir Dans Un Nouvel Onglet",
 
 	// File Info panel
@@ -358,7 +355,6 @@ $languages['fr'] = array (
 	// reason not to do that
 	"title_year" => "ANNEE",
 	"title_title" => "TITRE",
-	"title_artist" => "ARTISTE",
 	"title_type" => "TYPE",
 	"title_label" => "LABEL",
 	"label_pages" => "PAGES",
@@ -386,7 +382,6 @@ $languages['fr'] = array (
 	"discogs_nonsense" => "Aucune information pertinente de Discogs",
 	"discogs_noalbum" => "Album non trouvé sur Discogs",
 	"discogs_notrack" => "Piste non trouvée sur Discogs",
-	"discogs_slideshow" => "Diaporama",
 
 	// Musicbrainz info panel
 	"button_musicbrainz" => "Informations (Musicbrainz)",

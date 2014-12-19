@@ -99,7 +99,7 @@ var info_discogs = function() {
         	html = html + '</span></div>';
         	html = html + '<div class="mbbox"><table class="padded" width="100%">';
         	html = html + '<tr><th>'+language.gettext("title_year")+'</th><th>'+language.gettext("title_title")+'</th><th>'
-        				+language.gettext("title_artist")+'</th><th>'+language.gettext("title_type")+'</th><th>'+language.gettext("title_label")+'</th></tr>';
+        				+language.getUCtext("label_artist")+'</th><th>'+language.gettext("title_type")+'</th><th>'+language.gettext("title_label")+'</th></tr>';
         	for (var i in data.data.releases) {
         		html = html + '<tr>';
         		if (data.data.releases[i].year) {
