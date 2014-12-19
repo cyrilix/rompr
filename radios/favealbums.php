@@ -16,7 +16,14 @@ generic_sql_query("CREATE TEMPORARY TABLE alplaytable AS SELECT SUM(Playcount) A
 // But then I don't know much about SQL.
 $albums = array();
 $uris = array();
-if ($result = generic_sql_query("SELECT Uri, TrackNo, Albumindex FROM Tracktable JOIN alplaytable USING (Albumindex) WHERE playtotal > (SELECT AVG(playtotal) FROM alplaytable) AND Uri IS NOT NULL AND Hidden = 0")) {
+$avgplays = 0;
+if ($result = generic_sql_query("SELECT AVG(playtotal) AS plavg FROM alplaytable")) {
+	while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+		$avgplays = $obj->plavg;
+	}
+}
+
+if ($result = generic_sql_query("SELECT Uri, TrackNo, Albumindex FROM Tracktable JOIN alplaytable USING (Albumindex) WHERE playtotal > ".$avgplays." AND Uri IS NOT NULL AND Hidden = 0")) {
 	while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 		if (!array_key_exists($obj->Albumindex, $albums)) {
 			$albums[$obj->Albumindex] = array($obj->TrackNo => $obj->Uri);
