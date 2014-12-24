@@ -449,7 +449,6 @@ $languages['fr'] = array (
 	"button_playlist" => "Playlist",
 	"button_playman" => "Gestion De La Playlist",
 	"button_mob_history" => "Historique Du Panneau d'Information",
-	"config_2columns" => "Utiliser 2 Colonnes En Mode Paysage",
 	"label_streamradio" => "Radios Nationales et Locales"
 
 );

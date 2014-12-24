@@ -7,8 +7,8 @@ var info_soundcloud = function() {
 	function getTrackHTML(data) {
 
         debug.debug("SOUNDCLOUD PLUGIN","Creating track HTML from",data);
-        var html = '<div class="containerbox">';
-        html = html + '<div class="fixed bright">';
+        var html = '<div class="containerbox info-detail-layout">';
+        html = html + '<div class="info-box-fixed info-border-right info-box-list">';
 
         if (data.artwork_url) {
             html = html +  '<img src="' + data.artwork_url + '" class="clrboth" style="margin:8px" />';
@@ -28,7 +28,7 @@ var info_soundcloud = function() {
         html = html + '</ul>';
         html = html + '</div>';
 
-        html = html + '<div class="expand stumpy">';
+        html = html + '<div class="info-box-expand stumpy">';
 		html = html + '<div id="similarartists" class="bordered" style="position:relative">'+
                     '<div id="scprog" class="infowiki" style="position:absolute;width:2px;top:0px;opacity:0.6;z-index:100;left:0px"></div>'+
                     '<canvas style="position:relative;left:64px" id="gosblin"></canvas>'+
@@ -44,8 +44,8 @@ var info_soundcloud = function() {
 
 	function getArtistHTML(data) {
         debug.debug("SOUNDCLOUD PLUGIN","Creating artist HTML from",data);
-        var html = '<div class="containerbox">';
-        html = html + '<div class="fixed bright">';
+        var html = '<div class="containerbox info-detail-layout">';
+        html = html + '<div class="info-box-fixed info-border-right info-box-list">';
 
         if (data.avatar_url) {
             html = html +  '<img src="' + data.avatar_url + '" class="clrboth" style="margin:8px" />';
@@ -59,7 +59,7 @@ var info_soundcloud = function() {
         }
         html = html + '</ul>';
         html = html + '</div>';
-        html = html + '<div class="expand stumpy">';
+        html = html + '<div class="info-box-expand stumpy">';
         var f = formatSCMessyBits(data.description)
         f = f.replace(/\n/g, "</p><p>");
         html = html + '<p>'+ f +'</p>';
@@ -316,5 +316,5 @@ var info_soundcloud = function() {
 }();
 
 if (prefs.player_backend == "mopidy") {
-	nowplaying.registerPlugin("soundcloud", info_soundcloud, ipath+"soundcloud-logo.png", "button_soundcloud");
+	nowplaying.registerPlugin("soundcloud", info_soundcloud, "icon-soundcloud-circled", "button_soundcloud");
 }

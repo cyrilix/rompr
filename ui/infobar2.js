@@ -41,36 +41,9 @@ var infobar = function() {
 
     function setTheText(info) {
         debug.log("INFOBAR","Setting now playing info");
-        var doctitle = "RompR";
-        var contents = "";
-        npinfo = {};
-        if (info.title != "") {
-            npinfo.title = info.title;
-            doctitle = info.title;
-        }
-        var s = info.creator;
-        if (info.type != "stream" || s != "") {
-            if (info.metadata && info.metadata.artists) {
-                var an = new Array();
-                for (var i in info.metadata.artists) {
-                    an.push(info.metadata.artists[i].name);
-                }
-                s = concatenate_artist_names(an);
-            }
-        }
-        if (s != "") {
-            npinfo.artist = s;
-            doctitle = doctitle + " . " + s;
-        }
-        if (info.album) {
-            npinfo.album = info.album;
-            if (info.title == "" && s == "" && info.stream != "") {
-                npinfo.stream = info.stream;
-            } else if (info.title == "" && s == "" && info.stream == "" && info.albumartist != "") {
-                npinfo.stream = info.albumartist;
-            }
-        }
-        document.title = doctitle;
+        var stuff = mungeTrackInfo(info);
+        document.title = stuff.doctitle;
+        npinfo = stuff.textbits
         debug.log("INFOBAR","Now Playing Info",npinfo);
         infobar.biggerize(2);
     }
@@ -104,7 +77,7 @@ var infobar = function() {
             // We adjust by checking width, since we don't wrap lines as that causes hell with the layout
 
             debug.log("INFOBAR","Biggerizing",npinfo,numlines);
-            if (itisbigger || Object.keys(npinfo).length == 0) {
+            if (Object.keys(npinfo).length == 0 || $("#nptext").is(':hidden') || $("#infobar").is(':hidden')) {
                 $("#nptext").html("");
                 return;
             }
@@ -117,7 +90,7 @@ var infobar = function() {
             if (!npinfo.title  && !npinfo.artist) {
                 maxheight = $("#patrickmoore").height() - 8;
             }
-            var maxwidth = $("#nowplaying").width() - $("#albumcover").outerWidth() - 8;
+            var maxwidth = $("#nowplaying").width() - 8;
             var lines = [
                 {weight: (numlines == 2 ? 62 : 46), width: maxwidth+1, text: " "},
                 {weight: (numlines == 2 ? 38 : 26), width: maxwidth+1, text: " "}
@@ -222,7 +195,8 @@ var infobar = function() {
 
             var top = Math.floor((maxheight - totalheight)/2);
             if (top < 0) top = 0;
-            $("#nptext").css("top", top+"px");
+            // $("#nptext").css({top: top+"px", left: $("#albumcover").outerWidth()+"px"});
+            $("#nptext").css("margin-top", top+"px");
 
             // Make sure the line spacing caused by the <br> is consistent
             if (lines[1]) {
@@ -240,40 +214,29 @@ var infobar = function() {
 
         albumImage: function() {
             var aImg = new Image();
-            var oImg = new Image();
-
             $("#albumpicture").attr('class', "notfound");
 
             aImg.onload = function() {
                 debug.log("ALBUMPICTURE","Image Loaded",$(this).attr("src"));
-                $("#albumpicture").attr('class', "");
+                $("#albumpicture").attr('class', "clickicon");
                 $("#albumpicture").attr("src", $(this).attr("src")).fadeIn('fast');
+                $("#albumpicture").click(infobar.albumImage.displayOriginalImage);
+                infobar.biggerize();
             }
             aImg.onerror = function() {
                 debug.log("ALBUMPICTURE","Image Failed To Load",$(this).attr("src"));
                 $('img[name="'+$(this).attr('name')+'"]').addClass("notfound");
                 $("#albumpicture").attr('class', "notexist");
                 $("#albumpicture").fadeOut('fast');
+                $("#albumpicture").unbind('click');
                 // Don't call coverscraper here - the playlist will do it for us and
                 // its callback will call setSecondarySource
-            }
-
-            oImg.onload = function() {
-                debug.log("ALBUMPICTURE","Original Image Loaded",$(this).attr("src"));
-                $("#albumpicture").click(infobar.albumImage.displayOriginalImage);
-                $("#albumpicture").addClass('clickicon');
-            }
-            oImg.onerror = function() {
-                debug.log("ALBUMPICTURE","Original Image Error");
-                $("#albumpicture").unbind('click');
-                $("#albumpicture").removeClass('clickicon');
             }
 
             return {
                 setSource: function(data) {
                     if (data.image === null || data.image == "") {
                         aImg.src = "newimages/album-unknown.png";
-                        oImg.src = "newimages/album-unknown.png";
                         $("#albumpicture").unbind('click');
                         $("#albumpicture").removeClass('clickicon');
                         $("#albumpicture").attr('class', "notexist");
@@ -283,13 +246,6 @@ var infobar = function() {
                             debug.log("ALBUMPICTURE","Source is being set to ",data.image);
                             aImg.src = data.image;
                         }
-                        var re = new RegExp(data.origimage+'$');
-                        if (!re.test(oImg.src)) {
-                            debug.log("ALBUMPICTURE","Big Source is being set to ",data.origimage);
-                            $("#albumpicture").unbind('click');
-                            $("#albumpicture").removeClass('clickicon');
-                            oImg.src = data.origimage;
-                        }
                     }
                 },
 
@@ -298,10 +254,9 @@ var infobar = function() {
                         debug.log("ALBUMPICTURE","Secondary Source is being set to ",data.image,aImg);
                         if (data.image != "" && data.image !== null && (aImg.src == "" || aImg.className == "notexist")) {
                             debug.debug("ALBUMPICTURE","  OK, the criteria have been met");
-                            aImg.src = data.image;
                             $("#albumpicture").unbind('click');
                             $("#albumpicture").removeClass('clickicon');
-                            oImg.src = data.origimage;
+                            aImg.src = data.image;
                         }
                     }
                 },
@@ -317,7 +272,7 @@ var infobar = function() {
 
                 displayOriginalImage: function(event) {
                     debug.log("ALBUMNPICTURE","Display Original Image");
-                    imagePopup.create($(event.target), event, oImg.src);
+                    imagePopup.create($(event.target), event, aImg.src);
                 },
 
             }
@@ -346,11 +301,13 @@ var infobar = function() {
                         state = s;
                         switch (state) {
                             case "play":
-                                $("#playbuttonimg").attr("src", ipath+"media-playback-pause.png");
+                                // $("#playbuttonimg").attr("src", ipath+"media-playback-pause.png");
+                                $(".icon-play-circled").removeClass("icon-play-circled").addClass("icon-pause-circled");
                                 break;
                             case "pause":
                             case "stop":
-                                $("#playbuttonimg").attr("src", ipath+"media-playback-start.png");
+                                // $("#playbuttonimg").attr("src", ipath+"media-playback-start.png");
+                                $(".icon-pause-circled").removeClass("icon-pause-circled").addClass("icon-play-circled");
                                 break;
                         }
                     }
@@ -411,20 +368,14 @@ var infobar = function() {
                 $("#dbtags").fadeOut('fast');
                 $("#playcount").fadeOut('fast');
                 $("#subscribe").fadeOut('fast');
-                infobar.albumImage.setSource({    image: "newimages/transparent-32x32.png",
-                                                  origimage: "newimages/transparent-32x32.png"
-                                            });
+                infobar.albumImage.setSource({ image: "newimages/transparent-32x32.png" });
             } else {
                 infobar.albumImage.setKey(info.key);
                 if (info.trackimage) {
-                    infobar.albumImage.setSource({    image: info.trackimage,
-                                                      origimage: info.trackimage
-                                                });
+                    infobar.albumImage.setSource({ image: info.trackimage });
 
                 } else {
-                    infobar.albumImage.setSource({    image: info.image,
-                                                      origimage: info.origimage == "" ? info.image : info.origimage
-                                                });
+                    infobar.albumImage.setSource({ image: info.image });
                 }
             }
         },
@@ -591,9 +542,9 @@ var infobar = function() {
         notify: function(type, message) {
             var html = '<div class="containerbox menuitem">';
             if (type == infobar.NOTIFY) {
-                html = html + '<img class="fixed" src="'+ipath+'dialog-information.png" />';
+                html = html + '<div class="fixed"><i class="icon-info-circled smallcover-svg"></i></div>';
             } else if (type == infobar.ERROR || type == infobar.PERMERROR) {
-                html = html + '<img class="fixed" src="'+ipath+'dialog-error.png" />';
+                html = html + '<div class="fixed"><i class="icon-attention-1 smallcover-svg"></i></div>';
             }
             html = html + '<div class="expand indent">'+message+'</div></div>';
             $('#notifications').empty().html(html);

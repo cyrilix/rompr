@@ -56,13 +56,12 @@ var browser = function() {
         // stopDisplaying/displayData displaying flags all in sync since they're global to one dataCollection
         // and not individual for artist, album, and track. (This was tried before and got stupid).
         history[ptr].mastercollection.sendDataToBrowser(waitingon);
-
     }
 
     function waitingBanner(which) {
         var html = '<div class="containerbox infosection menuitem bordered">';
         html = html + '<h3 class="expand ucfirst">'+language.gettext("label_"+which)+' : '+language.gettext("info_gettinginfo")+'</h3>';
-        html = html + '<div class="fixed" style="vertical-align:middle"><img height="32px" src="newimages/waiter.png" class="spinner"></div>';
+        html = html + '<div class="fixed" style="vertical-align:middle"><i class="icon-spin6 smallcover-svg spinner"></i></div>';
         html = html + '</div>';
         return html;
     }
@@ -75,17 +74,17 @@ var browser = function() {
             html = html + '<h2 class="expand">' + data.name + '</h2>';
         }
         html = html + '<div class="fixed" style="vertical-align:middle;padding:12px"><a href="#" class="infoclick frog">';
-        html = html + '<img src="'+ipath+'pushbutton.png" />';
+        html = html + '<i class="icon-menu topimg"></i>';
         html = html + '</a></div>';
         if (source) {
             if (data.link === null) {
-                html = html + '<div class="fixed" style="vertical-align:middle"><img height="32px" src="'+sources[source].icon+'"></div>';
+                html = html + '<div class="fixed" style="vertical-align:middle"><i class="'+sources[source].icon+' smallcover-svg"></i></div>';
             } else {
                 html = html + '<div class="fixed" style="vertical-align:middle"><a href="'+
-                    data.link + '" title="'+language.gettext("info_newtab")+'" target="_blank"><img height="32px" src="'+sources[source].icon+'"></a></div>';
+                    data.link + '" title="'+language.gettext("info_newtab")+'" target="_blank"><i class="'+sources[source].icon+' smallcover-svg"></i></a></div>';
             }
         } else if (close) {
-            html = html + '<div class="fixed" style="vertical-align:middle"><img class="infoclick clickicon tadpole" height="16px" src="'+ipath+'edit-delete.png"></div>';
+            html = html + '<div class="fixed" style="vertical-align:middle"><i class="icon-cancel-circled playlisticon infoclick clickicon tadpole"></i></div>';
         }
         html = html + '</div>';
         html = html + '<div class="foldup" id="'+title+'foldup"';
@@ -108,41 +107,32 @@ var browser = function() {
 
         if (displaypointer == 1) {
             $("#backbutton").unbind('click');
-            $("#backbutton").attr("src", ipath+"backbutton_disabled.png");
+            $("#backbutton").addClass('button-disabled');
         }
-        if (displaypointer > 1 && $("#backbutton").attr("src")==ipath+"backbutton_disabled.png") {
+        if (displaypointer > 1 && $("#backbutton").hasClass('button-disabled')) {
             $("#backbutton").click( browser.back );
-            $("#backbutton").attr("src", ipath+"backbutton.png");
+            $("#backbutton").removeClass('button-disabled');
         }
         if (displaypointer == (history.length)-1) {
             $("#forwardbutton").unbind('click');
-            $("#forwardbutton").attr("src", ipath+"forwardbutton_disabled.png");
+            $("#forwardbutton").addClass('button-disabled');
         }
-        if (displaypointer < (history.length)-1 && $("#forwardbutton").attr("src")==ipath+"forwardbutton_disabled.png") {
+        if (displaypointer < (history.length)-1 && $("#forwardbutton").hasClass('button-disabled')) {
             $("#forwardbutton").click( browser.forward );
-            $("#forwardbutton").attr("src", ipath+"forwardbutton.png");
+            $("#forwardbutton").removeClass('button-disabled');
         }
 
         var html;
         var bits = ["artist","album","track"];
-        if (layout == "desktop") {
-            html = '<li class="wider"><b>'+language.gettext("menu_history")+'</b></li><li class="wider">';
-        } else {
-            html = '<h3 align="center">'+language.gettext("menu_history")+'</h3>';
-        }
+        html = '<div class="prefsection textcentre"><b>'+language.gettext("menu_history")+'</b></div>';
         html = html + '<table class="histable" width="100%">';
         for (var i = 1; i < history.length; i++) {
             var clas="top";
             if (i == displaypointer) {
                 clas = clas + " current";
             }
-            if (layout == "desktop") {
-                html = html + '<tr class="'+clas+'" onclick="browser.doHistory('+i+')">';
-            } else {
-                html = html + '<tr class="'+clas+'" onclick="browser.doHistory('+i+');sourcecontrol(\'infopane\')">';
-            }
-
-            html = html + '<td><img height="24px" src="'+sources[history[i].source].icon+'" /></td>';
+            html = html + '<tr class="'+clas+'" onclick="browser.doHistory('+i+')">';
+            html = html + '<td><i class="'+sources[history[i].source].icon+' medicon"></i></td>';
             html = html + '<td>';
             bits.forEach(function(n) {
                 if (history[i][n].collection) {
@@ -154,9 +144,6 @@ var browser = function() {
             html = html + '</td></tr>';
         }
         html = html + '</table>';
-        if (layout == "desktop") {
-            html = html + '</li>';
-        }
         $("#historypanel").html(html);
     }
 
@@ -192,23 +179,10 @@ var browser = function() {
             for (var i in sources) {
                 if (sources[i].icon !== null) {
                     debug.log("BROWSER", "Found plugin", i,sources[i].icon);
-                    if (layout == "desktop") {
-                        $("#chooserbuttons").append($('<img>', {
-                            src: sources[i].icon,
-                            onclick: "browser.switchsource('"+i+"')",
-                            title: language.gettext(sources[i].text),
-                            class: 'topimg sep dildo',
-                            id: "button_source"+i
-                        }));
-                    } else {
-                        $("#chooser").append('<div class="chooser penbehindtheear"><a href="#" onclick="browser.switchsource(\''+i+'\');sourcecontrol(\'infopane\')">'+language.gettext(sources[i].text)+'</a></div>');
-                    }
+                    layoutProcessor.addInfoSource(i, sources[i]);
                 }
             }
-            if (layout == "desktop") {
-                $("#button_source"+prefs.infosource).addClass("currentbun");
-                $(".dildo").tipTip({delay: 1000, edgeOffset: 8});
-            }
+            layoutProcessor.setupInfoButtons();
         },
 
         nextSource: function(direction) {
@@ -377,12 +351,6 @@ var browser = function() {
             displaypointer++;
             updateHistory();
             browser.Update(n, panel, source, waitingon.index, data);
-            var sp = $("#"+panel+"information").position();
-            if (layout == "desktop") {
-                $("#infopane").mCustomScrollbar("scrollTo",sp.top);
-            } else {
-                $("#infopane").scrollTo("#"+panel+"information");
-            }
         },
 
         doHistory: function(index) {
@@ -422,12 +390,7 @@ var browser = function() {
                     browser.Update(history[index][n].collection, n, waitingon.source, waitingon.index, history[index][n].collection.getData());
                 }
             });
-
-            if (layout == "desktop") {
-                $("#infopane").mCustomScrollbar("scrollTo",0);
-            } else {
-                $("#infopane").scrollTo("#artistinformation");
-            }
+            layoutProcessor.afterHistory();
         },
 
         forward: function() {
@@ -442,8 +405,8 @@ var browser = function() {
 
         registerExtraPlugin: function(id, name, parent) {
             if (prefs.hidebrowser) {
-                hideBrowser();
-                $("#button_hide_browser").attr("checked", prefs.hidebrowser);
+                $("#hidebrowser").attr("checked", !$("#hidebrowser").is(':checked'));
+                prefs.save({hidebrowser: $("#hidebrowser").is(':checked')}, hideBrowser);
             }
             var displayer = $('<div>', {id: id+"information", class: "infotext invisible"}).insertBefore('#artistinformation');
             displayer.html(banner({name: name}, id, false, false, true));
@@ -456,12 +419,7 @@ var browser = function() {
         },
 
         goToPlugin: function(id) {
-            if (layout == "desktop") {
-                $("#plscr").slideToggle('fast');
-                $("#infopane").mCustomScrollbar("scrollTo", "#"+id+"information");
-            } else {
-                sourcecontrol("infopane");
-            }
+            layoutProcessor.goToBrowserPlugin(id);
         },
 
         rePoint: function() {
@@ -509,7 +467,8 @@ var browser = function() {
             $.each($(".shrinker"), function(){
                 var mw = $(this).attr("name");
                 var cw = $(this).attr("width");
-                var tw = w/$(this).attr("thing");
+                var tw = w/layoutProcessor.shrinkerRatio;
+                tw -= 48;
                 if (cw < tw) {
                     $(this).attr("width", tw);
                 } else {

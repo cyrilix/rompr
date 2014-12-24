@@ -457,7 +457,6 @@ $languages['en'] = array (
 	"button_playlist" => "Playlist",
 	"button_playman" => "Playlist Management",
 	"button_mob_history" => "Info Panel History",
-	"config_2columns" => "Use 2 Columns in landscape mode",
 	"label_streamradio" => "Local and National Radio",
 
 	// Various Plugins, Rating, and Tagging
@@ -555,6 +554,8 @@ $languages['en'] = array (
 	"button_updatecollection" => "Update Music Collection",
 	"label_favealbums" => "Favourite Albums",
 	"button_nextsource" => "Info Panel - Cycle Source",
+	"button_now_playing" => "Now Playing",
+	"button_infopanel" => "Info Panel",
 
 	//CHANGED in 0.60
 	"config_country" => "COUNTRY (for Last.FM and Spotify)",

@@ -3,10 +3,11 @@
 
 var prefsInLocalStorage = ["sourceshidden", "playlisthidden", "infosource", "playlistcontrolsvisible",
                             "sourceswidthpercent", "playlistwidthpercent", "downloadart", "clickmode", "chooser",
-                            "hide_albumlist", "hide_filelist", "hide_radiolist", "twocolumnsinlandscape", "hidebrowser",
+                            "hide_albumlist", "hide_filelist", "hide_radiolist", "hidebrowser",
                             "shownupdatewindow", "scrolltocurrent", "volume", "alarm_ramptime", "alarm_snoozetime",
                             "lastfmlang", "user_lang", "fontsize", "fontfamily", "alarmtime", "alarmon", "synctags",
-                            "synclove", "synclovevalue", "alarmramp", "radiomode", "radioparam", "onthefly"];
+                            "synclove", "synclovevalue", "alarmramp", "radiomode", "radioparam", "onthefly",
+                            "theme", "icontheme"];
 
 <?php
 $searchlimits = array(  "local" => "Local Files",
@@ -165,8 +166,6 @@ var sources = new Array();
 var update_load_timer = 0;
 var update_load_timer_running = false;
 var last_selected_element = null;
-var landscape = false;
-var itisbigger = false;
 var textSaveTimer = null;
 var scrobwrangler = null;
 var serverTimeOffset = 0;

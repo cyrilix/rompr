@@ -94,4 +94,4 @@ var info_lyrics = function() {
 
 }();
 
-nowplaying.registerPlugin("lyrics", info_lyrics, ipath+"lyrics.png", "button_lyrics");
+nowplaying.registerPlugin("lyrics", info_lyrics, "icon-doc-text-1", "button_lyrics");

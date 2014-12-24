@@ -36,8 +36,6 @@ a:hover,a:active
     background-color:#181850;
 }
 
-
-
 /*-- divs used to create infobar layout --*/
 
 .bordered
@@ -173,46 +171,18 @@ div.clickable.selected:hover
 
 /*-- Styles for drop-down menus --*/
 
-ul.topnav li a
+div.topdropmenu
 {
-    color:#12569a;
-}
-
-ul.subnav li a
-{
-    color:#ffffff;
-}
-
-ul.topnav li a:hover
-{
-    color:#ff4800;
-}
-
-ul.subnav
-{
+    background-color:#181850;
     border-left:1px solid #1a1a90;
     border-bottom:1px solid #1a1a90;
     border-right:1px solid #1a1a90;
     border-top:none;
 }
 
-ul.topnav li ul.subnav
+.prefsection
 {
-    background-color:#000055;
-    color:#ffffff;
-}
-
-ul.topnav li ul.subnav input.topform
-{
-    background:000000;
-    color:#ffffff;
-    border:1px solid #999999;
-}
-
-ul.topnav li ul.subnav input.topcheck
-{
-    background-color:000000;
-    color:#ffffff;
+    border-bottom: 1px solid #1a1a90;
 }
 
 .separator

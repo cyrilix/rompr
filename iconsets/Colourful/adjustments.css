@@ -1,0 +1,42 @@
+#buttons
+{
+    padding-left:12px;
+    padding-right:12px;
+    padding-top:4px;
+    padding-bottom:6px;
+}
+
+.controlbutton
+{
+    margin:0px;
+    padding:0px;
+    vertical-align:middle;
+    display:inline-block;
+    width:56px;
+    height:56px;
+}
+
+.controlbutton-small
+{
+    margin:0px;
+    vertical-align:middle;
+    display:inline-block;
+    width:48px;
+    height:48px;
+}
+
+.shiftleft
+{
+}
+
+.shiftleft2
+{
+}
+
+.shiftleft3
+{
+}
+
+.shiftleft4
+{
+}

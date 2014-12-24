@@ -248,37 +248,21 @@ div.clickable.selected:hover
 
 /*-- Styles for drop-down menus --*/
 
-ul.topnav li a
+div.topdropmenu
 {
-    color:#220000;
-}
-
-ul.subnav li a
-{
-    color:#220000;
-}
-
-ul.topnav li a:hover
-{
-    color:#ff4800;
-}
-
-ul.subnav
-{
+    background-image: linear-gradient(#E5E5E5, #b3b3b3);
+    background-image: -o-linear-gradient(#E5E5E5, #b3b3b3);
+    background-image: -moz-linear-gradient(#E5E5E5, #b3b3b3);
+    background-image: -webkit-linear-gradient(#E5E5E5, #b3b3b3);
+    background-image: -ms-linear-gradient(#E5E5E5, #b3b3b3);
     border-left:1px solid #eeeeee;
     border-bottom:1px solid #9a9a9a;
     border-right:1px solid #9a9a9a;
 }
 
-ul.topnav li ul.subnav
+.prefsection
 {
-    background-color:#cccccc;
-    color:#000000;
-}
-
-ul.topnav li ul.subnav input.topform
-{
-    border:1px solid #999999;
+    border-bottom: 1px solid #ffffff;
 }
 
 .separator

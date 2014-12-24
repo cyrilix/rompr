@@ -57,7 +57,7 @@ $languages['de'] = array (
 	"config_hideradio" => "Verstecke Radiosender",
 	"config_hidebrowser" => "Verstecke Infofenster",
 	"config_fullbio" => "Hole vollständige Biographie des Künstlers / der Künstlerin von Last.FM",
-	"config_lastfmlang" => "Sparche für Last.FM und Wikipedia",
+	"config_lastfmlang" => "Sprache für Last.FM und Wikipedia",
 	"config_lastfmdefault" => "Standardsprache (English)",
 	"config_lastfminterface" => "Sprache der RompR-Oberfläche",
 	"config_lastfmbrowser" => "Browser Standardsprache",
@@ -119,7 +119,7 @@ $languages['de'] = array (
 	"label_downloading" => "Lade herunter...",
 	"button_OK" => "OK",
 	"button_cancel" => "Abbruch",
-	"error_playlistname" => "Playlist Name darf keine Schräger enthalten",
+	"error_playlistname" => "Playlist Name darf keine Schrägstriche enthalten",
 	"label_savedpl" => "Playlist gesichert als %s",
 	"label_loadingstations" => "Lade Sender...",
 
@@ -170,10 +170,10 @@ $languages['de'] = array (
 	"label_incoming" => "Lade...",
 	"label_addingtracks" => "Füge Titel hinzu",
 	// Now Playing - [track name] by [artist] on [album]
-	"label_by" => "by",
-	"label_on" => "on",
-	// Now playing - 1:45 of 6:50
-	"label_of" => "of",
+    "label_by" => "von",
+    "label_on" => "auf",
+    // Now playing - 1:45 of 6:50
+    "label_of" => "von",
 
 	// Podcasts
 	"podcast_rss_error" => "Fehler beim Laden des RRS Feeds",
@@ -216,7 +216,7 @@ $languages['de'] = array (
 	"podcast_keep_0" => "Unbegrenzt",
 	// Podcast other options
 	"podcast_keep_downloaded" => "Halte alle heruntergeladenen Episoden",
-	"podcast_kd_tooltip" => "Aktiviere diese option um alle heruntergeladenen Episoden zu behalten. Die beiden oben genannten Optionen werden dann nur auf die nicht heruntergeladenen Episode angewandt",
+	"podcast_kd_tooltip" => "Diese Liste wird immer nur so viele Einträge anzeigen wie angegeben. Änderungen an dieser Option werden bei der nächsten Aktualisierung des Podcasts aktiv",
 	"podcast_auto_download" => "Automatisch neue Episoden herunterladen",
 	"podcast_tooltip_new" => "Dies ist eine neue Episode",
 	"podcast_tooltip_notnew" => "Diese Episode ist nicht neu, wurde aber bisher nicht angezeigt",
@@ -239,9 +239,9 @@ $languages['de'] = array (
 	"albumart_title" => "Album Art",
 	"albumart_getmissing" => "Hole fehlende Cover",
 	"albumart_showall" => "Zeige alle Cover",
-	"albumart_instructions" => "Klicke ein Cover an, um es zu ändern oder ziehen Sie ein Bild von Ihrer Festplatte oder aus einem anderen Browserfenster hierhin",
+	"albumart_instructions" => "Klicken Sie ein Cover an, um es zu ändern oder ziehen Sie ein Bild von Ihrer Festplatte oder aus einem anderen Browserfenster hierhin",
 	"albumart_onlyempty" => "Zeige nur Alben ohne Cover",
-	"albumart_allartists" => "All Künstler/innen",
+	"albumart_allartists" => "Alle Künstler/innen",
 	"albumart_unused" => "Ungenutzte Bilder",
 	"albumart_deleting" => "Lösche...",
 	"albumart_error" => "Das hat nicht funktioniert",
@@ -289,7 +289,7 @@ $languages['de'] = array (
 	// Last.FM
 	"lastfm_loginwindow" => "Log In zu Last.FM",
 	"lastfm_login1" => "Bitte den Button unten anklicken, um die Last.FM Website in einer neuen Registerkarte zu öffnen. Geben Sie Ihre Last.FM Login Daten ein falls nötig und geben dann RompR die Erlaubnis Ihren Account zu nutzen!",
-	"lastfm_login2" => "Sie Können die neue Registerkarte schließen, wenn Sie mit den Eingaben fertig sind, aber schließen Sie nicht dieses Dialogfenster!",
+	"lastfm_login2" => "Sie können die neue Registerkarte schließen, wenn Sie mit den Eingaben fertig sind, aber schließen Sie nicht dieses Dialogfenster!",
 	"lastfm_loginbutton" => "Hier klicken, um sich anzumelden",
 	"lastfm_login3" => "Nachdem Sie sich bei Last.FM angemeldet haben, den OK-Button anklicken, um den Prozess abzuschließen",
 	"lastfm_loginfailed" => "Anmeldung bei Last.FM fehlgeschlagen",
@@ -461,7 +461,6 @@ $languages['de'] = array (
 	"button_playlist" => "Playlist",
 	"button_playman" => "Playlist Verwaltung",
 	"button_mob_history" => "Info Panel History",
-	"config_2columns" => "Benutze 2 Spalten bei Querformat",
 	"label_streamradio" => "Lokal und nationales Radio",
 
 	// Various Plugins, Rating, and Tagging

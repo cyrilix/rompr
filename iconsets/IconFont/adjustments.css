@@ -1,0 +1,49 @@
+#buttons
+{
+    padding-left:40px;
+    /*padding-right:8px;*/
+    padding-top:4px;
+    padding-bottom:6px;
+}
+
+.controlbutton
+{
+    margin:0px;
+    padding:0px;
+    font-size:48px;
+    vertical-align:text-bottom;
+    display:table-cell;
+}
+
+.controlbutton-small
+{
+    margin:0px;
+    padding-bottom:8px;
+    font-size:32px;
+    vertical-align:bottom;
+    display:table-cell;
+}
+
+.shiftleft
+{
+    position:relative;
+    left:-12px;
+}
+
+.shiftleft2
+{
+    position:relative;
+    left:-24px;
+}
+
+.shiftleft3
+{
+    position:relative;
+    left:-32px;
+}
+
+.shiftleft4
+{
+    position:relative;
+    left:-40px;
+}

@@ -19,7 +19,6 @@ $mbid = "";
 $albumpath = "";
 $spotilink = "";
 $small_file = "";
-$main_file = "";
 $big_file = "";
 $base64data = "";
 $delaytime = 1;
@@ -111,7 +110,7 @@ if ($file != "") {
 }
 
 if ($error == 0) {
-    list ($small_file, $main_file, $big_file) = saveImage($fname, $in_collection, $stream);
+    list ($small_file, $big_file) = saveImage($fname, $in_collection, $stream);
 }
 
 // Now that we've attempted to retrieve an image, even if it failed,
@@ -121,7 +120,7 @@ if ($in_collection) {
     // We only put small_file in the image db. The rest can be calculated from that.
     update_image_db($fname, $error, $small_file);
 } else if ($error == 0 && $stream != "") {
-    update_stream_image($stream, $main_file);
+    update_stream_image($stream, $small_file);
 }
 
 if ($download_file != "" && file_exists($download_file)) {
@@ -129,7 +128,7 @@ if ($download_file != "" && file_exists($download_file)) {
     unlink($download_file);
 }
 
-$o = array( 'url' => $main_file, 'origimage' => $big_file, 'delaytime' => $delaytime);
+$o = array( 'url' => $small_file, 'origimage' => $big_file, 'delaytime' => $delaytime);
 header('Content-Type: application/json; charset=utf-8');
 print json_encode($o);
 

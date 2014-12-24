@@ -166,7 +166,11 @@ if (array_key_exists('populate', $_REQUEST)) {
         if ($track['title'] && count($track['links']) > 0) {
             $imgname = getStationImage($track['title']);
             print '<div class="containerbox indent padright wibble menuitem" style="padding-bottom:2px;padding-top:10px">';
-            print '<div class="smallcover fixed"><img class="smallcover fixed" src="'.$imgname.'" /></div>';
+            if ($imgname === null) {
+                print '<div class="fixed"><i class="icon-radio-tower smallcover-svg"></i></div>';
+            } else {
+                print '<div class="smallcover fixed"><img class="smallcover fixed" src="'.$imgname.'" /></div>';
+            }
             print '<div class="expand" style="margin-top:6px"><span style="font-size:120%">'.$track['title'].'</span></div>';
             print '</div>';
             print '<div class="containerbox indent padright bum">';
@@ -209,8 +213,8 @@ if (array_key_exists('populate', $_REQUEST)) {
 <script language="text/javascript">
 function loadBigRadio() {
     if ($("#bbclist").is(':empty')) {
-        makeWaitingIcon("bbcwait");
-        $("#bbclist").load("streamplugins/02_nationalradio.php?populate", function() { stopWaitingIcon("bbcwait")});
+        $("#bbcwait").makeSpinner();
+        $("#bbclist").load("streamplugins/02_nationalradio.php?populate", function() { $("#bbcwait").stopSpinner() });
     }
 }
 
@@ -220,11 +224,11 @@ function changeradiocountry() {
 </script>
 <div class="containerbox menuitem noselection">
 <?php
-print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" onclick="loadBigRadio()" name="bbclist"></div>';
-print '<div class="smallcover fixed"><img height="32px" width="32px" src="'.$ipath.'broadcast-32.png"></div>';
+print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" onclick="loadBigRadio()" name="bbclist"></i></div>';
+print '<div class="fixed"><i class="icon-radio-tower smallcover-svg"></i></div>';
 print '<div class="expand">'.get_int_text('label_streamradio').'</div>';
 ?>
-<img id="bbcwait" height="14px" width="14px" src="newimages/transparent-32x32.png" />
+<i id="bbcwait" class="smallicon invisible"></i>
 </div>
 <div id="bbclist" class="dropmenu"></div>
 
@@ -257,7 +261,7 @@ function getStationImage($name) {
             return 'resources/'.$nospaces.'.png';
         }
     }
-    return $ipath."broadcast.png";
+    return null;
 
 }
 

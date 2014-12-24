@@ -118,8 +118,11 @@ function findClickableBrowserElement(event) {
 }
 
 function onCollectionClicked(event) {
+    debug.log("CLICK",event);
     var clickedElement = findClickableElement(event);
+    debug.log("CLICK",clickedElement,"was clicked");
     if (clickedElement.hasClass("menu")) {
+        debug.log("CLICK","Menu was clicked");
         if (clickedElement.parent().parent().hasClass('browseable')) {
             doFileMenu(event, clickedElement);
         } else {
@@ -279,7 +282,8 @@ function findClickableElement(event) {
     var clickedElement = $(event.target);
     // Search upwards through the parent elements to find the clickable object
     while (!clickedElement.hasClass("clickable") && !clickedElement.hasClass("menu") &&
-            clickedElement.prop("id") != "sources" && clickedElement.prop("id") != "sortable") {
+            clickedElement.prop("id") != "sources" && clickedElement.prop("id") != "sortable" &&
+            !clickedElement.hasClass("mainpane")) {
         clickedElement = clickedElement.parent();
     }
     return clickedElement;
@@ -320,8 +324,8 @@ function doAlbumMenu(event, element, inbrowser) {
                     });
                     if (inbrowser) {
                         $(this).find('.menu').addClass("infoclick plugclickable");
-                        $(this).find('.iconremdb').addClass("infoclick plugclickable").removeClass('clickable')
-                            .prev().html('<img class="infoclick clickbuytrack plugclickable" height="20px" style="vertical-align:middle" src="'+ipath+'cart.png">');
+                        $(this).find('.clickremdb').addClass("infoclick plugclickable").removeClass('clickable')
+                            .prev().html('<i class="icon-basket-circled smallicon infoclick clickbuytrack plugclickable"></i>');
                     }
                 });
             });
@@ -371,28 +375,30 @@ function doFileMenu(event, element) {
 
 function setDraggable(divname) {
 
-    $("#"+divname).draggable({
-        connectToSortable: "#sortable",
-        appendTo: 'body',
-        scroll: false,
-        addClasses: false,
-        helperPos: true,
-        helper: function(event) {
-            var clickedElement = findClickableElement(event);
-            var dragger = document.createElement('div');
-            dragger.setAttribute("id", "dragger");
-            $(dragger).addClass("draggable dragsort containerbox vertical");
-            if (!clickedElement.hasClass("selected")) {
-                if (clickedElement.hasClass("clickalbum")) {
-                    albumSelect(event, clickedElement);
-                } else if (clickedElement.hasClass("clicktrack") || clickedElement.hasClass("clickcue")) {
-                    trackSelect(event, clickedElement);
+    if (layoutProcessor.supportsDragDrop) {
+        $("#"+divname).draggable({
+            connectToSortable: "#sortable",
+            appendTo: 'body',
+            scroll: false,
+            addClasses: false,
+            helperPos: true,
+            helper: function(event) {
+                var clickedElement = findClickableElement(event);
+                var dragger = document.createElement('div');
+                dragger.setAttribute("id", "dragger");
+                $(dragger).addClass("draggable dragsort containerbox vertical");
+                if (!clickedElement.hasClass("selected")) {
+                    if (clickedElement.hasClass("clickalbum")) {
+                        albumSelect(event, clickedElement);
+                    } else if (clickedElement.hasClass("clicktrack") || clickedElement.hasClass("clickcue")) {
+                        trackSelect(event, clickedElement);
+                    }
                 }
+                $(".selected").clone().removeClass("selected").appendTo(dragger);
+                return dragger;
             }
-            $(".selected").clone().removeClass("selected").appendTo(dragger);
-            return dragger;
-        }
-    });
+        });
+    }
 }
 
 function onKeyUp(e) {
@@ -518,5 +524,13 @@ function checkServerTimeOffset() {
             debug.error("TIMECHECK","Failed to read server time");
         }
     });
+}
+
+function ihatefirefox() {
+    if (prefs.search_limit_limitsearch) {
+        $("#mopidysearchdomains").show();
+    } else {
+        $("#mopidysearchdomains").hide();
+    }
 }
 

@@ -2,7 +2,6 @@ var info_spotify = function() {
 
 	var me = "spotify";
     var medebug = "SPOTIFY PLUGIN";
-    // var maxwidth = (layout == "desktop") ? 1200 : 480;
     var maxwidth = 300;
 
     function getTrackHTML(data) {
@@ -27,35 +26,22 @@ var info_spotify = function() {
     	if (data.error) {
     		return '<h3 align="center">'+data.error+'</h3>';
     	}
-        if (layout == "desktop") {
-        	var html = '<div class="containerbox">';
-        	html = html + '<div class="fixed bright">';
-        } else {
-        	var html = '<div class="containerbox vertical">';
-        	html = html + '<div class="stumpy notbright">';
-        }
+        var html = '<div class="containerbox info-detail-layout">';
+        html = html + '<div class="info-box-fixed info-box-list info-border-right">';
         html = html + '<ul><li>'+language.gettext("label_pop")+': '+data.popularity+'</li></ul>'+
         				'<ul><li>'+language.gettext("lastfm_releasedate")+': '+data.release_date+'</li></ul>'+
         				'</div>';
 
-        if (layout == "desktop") {
-	        html = html + '<div class="expand stumpy selecotron">';
-	    } else {
-	        html = html + '<div class="stumpy selecotron">';
-	    }
+        html = html + '<div class="info-box-expand stumpy selecotron">';
 	    html = html + trackListing(data)+'</div>';
-        if (layout == "desktop") {
-	        html = html + '<div class="cleft fixed">';
-	    } else {
-	        html = html + '<div class="stumpy">';
-	    }
+        html = html + '<div class="cleft info-box-fixed">';
     	if (data.images && data.images[0]) {
     		html = html + '<img class="shrinker infoclick clickzoomimage" src="getRemoteImage.php?url='+data.images[0].url+'" ';
-    		var w = $("#artistinformation").width();
+    		var w = $("#infopane").width();
     		var imgwidth = data.images[0].width;
-    		var i = (layout == "desktop") ? 4 : 1.2;
-    		if (imgwidth > (w/i)) imgwidth = w/i;
-    		html = html + 'width="'+imgwidth+'" name="'+data.images[0].width+'" thing="'+i+'"/>';
+    		if (imgwidth > w/layoutProcessor.shrinkerRatio) imgwidth = w/layoutProcessor.shrinkerRatio;
+            imgwidth -= 48;
+    		html = html + 'width="'+imgwidth+'" name="'+data.images[0].width+'"/>';
     	}
     	html = html + '</div>';
     	html = html + '</div>';
@@ -70,45 +56,41 @@ var info_spotify = function() {
     	}
 
     	var h = '<div class="holdingcell">';
-    	h = h + '<div class="standout stleft statsbox"><b>'+language.gettext("label_pop")+': </b>'+data.popularity;
-        h = h + '<div class="containerbox menuitem infoclick clickstartsingleradio" style="padding-left:0px">'+
-        		'<div class="fixed playlisticon" style="vertical-align:middle;padding-right:4px"><img src="'+ipath+'smartradio.png" width="20px" style="vertical-align:middle;padding-right:4px;padding-top:2px;" /></div>'+
+    	h = h + '<div class="standout stleft statsbox"><ul><li><b>'+language.gettext("label_pop")+': </b>'+data.popularity+'</li>';
+        h = h + '<li><div class="containerbox menuitem infoclick clickstartsingleradio" style="padding-left:0px">'+
+        		'<div class="fixed" style="vertical-align:middle;padding-right:4px"><i class="icon-wifi smallicon"></i></div>'+
         		'<div class="fixed">'+language.gettext("label_singleartistradio")+'</div>'+
-                '</div>';
+                '</div></li>';
     	if (player.canPlay('spotify')) {
-	        h = h + '<div class="containerbox menuitem infoclick clickstartradio" style="padding-left:0px">'+
-	        		'<div class="fixed playlisticon" style="vertical-align:middle;padding-right:4px"><img src="'+ipath+'smartradio.png" width="20px" style="vertical-align:middle;padding-right:4px;padding-top:2px;" /></div>'+
+	        h = h + '<li><div class="containerbox menuitem infoclick clickstartradio" style="padding-left:0px">'+
+	        		'<div class="fixed" style="vertical-align:middle;padding-right:4px"><i class="icon-wifi smallicon"></i></div>'+
 	        		'<div class="fixed">'+language.gettext("label_artistradio")+'</div>'+
-	                '</div>';
+	                '</div></li>';
 	    }
-    	h = h + '</div>';
+    	h = h + '</ul></div>';
     	if (data.images && data.images[0]) {
-    		var w = $("#artistinformation").width();
+    		var w = $("#infopane").width();
     		var imgwidth = data.images[0].width;
-    		if (layout == "desktop") {
-    			if (imgwidth > (w/3)) imgwidth = w/3;
-    			h = h + '<img class="stright standout shrinker infoclick clickzoomimage" src="getRemoteImage.php?url='+data.images[0].url+'" width="'+imgwidth+'" name="'+data.images[0].width+'" thing="3"/>';
-    		} else {
-    			if (imgwidth > (w/1.2)) imgwidth = w/1.2;
-    			h = h + '<img class="shrinker infoclick clickzoomimage" src="getRemoteImage.php?url='+data.images[0].url+'" width="'+imgwidth+'" name="'+data.images[0].width+'" thing="1.2"/>';
-    		}
+            if (imgwidth > (w/layoutProcessor.shrinkerRatio)) imgwidth = w/layoutProcessor.shrinkerRatio;
+            imgwidth -= 48;
+            h = h + '<img class="stright standout shrinker infoclick clickzoomimage" src="getRemoteImage.php?url='+data.images[0].url+'" width="'+imgwidth+'" name="'+data.images[0].width+'"/>';
     	}
 
     	h = h + '<div id="spartistinfo"></div>';
     	h = h + '</div>';
-    	h = h + '<div class="containerbox"><div class="fixed"><h3><span class="infoclick clickshowalbums';
+    	h = h + '<div class="containerbox"><div class="fixed"><h3><span class="title-menu infoclick clickshowalbums';
     	if (artistmeta.spotify.showing == "albums") {
     		h = h + ' bsel';
     	}
     	h = h + '">'+language.gettext("label_albumsby")+'</span>' +
     			'&nbsp;&nbsp;|&nbsp;&nbsp;' +
-    			'<span class="infoclick clickshowartists';
+    			'<span class="title-menu infoclick clickshowartists';
     	if (artistmeta.spotify.showing == "artists") {
     		h = h + ' bsel';
     	}
 
     	h = h + '">'+language.gettext("label_related")+'</span></h3></div>' +
-    			'<div class="fixed"><img id="hibbert" height="32px" src="newimages/waiter.png" class="invisible" /></div></div>' +
+    			'<div class="fixed"><i id="hibbert" class="smallcover-svg title-menu invisible"></i></div></div>' +
     			'<div class="holdingcell masonified2" id="artistalbums"></div>';
     	return h;
 
@@ -172,26 +154,26 @@ var info_spotify = function() {
                 	imagePopup.create(element, event, element.attr("src"));
                 } else if (element.hasClass('clickopenalbum')) {
                 	var id = element.parent().next().attr("id");
-                	if (element.attr("src") == ipath+"toggle-open-new.png") {
-	                	element.attr("src",ipath+"toggle-closed-new.png");
-            			element.parent().next().slideToggle('fast', browser.rePoint);
+                	if (element.isOpen()) {
+                        element.toggleClosed();
+            			element.parent().next().menuReveal(browser.rePoint);
                 	} else {
-                		element.attr("src",ipath+"toggle-open-new.png");
+                        element.toggleOpen();
                 		if (element.parent().next().hasClass("filled")) {
-                			element.parent().next().slideToggle('fast', browser.rePoint);
+                			element.parent().next().menuReveal(browser.rePoint);
                 		} else {
             				spotify.album.getInfo(id, self.spotifyAlbumResponse, self.album.spotifyError, true);
             			}
             		}
                 } else if (element.hasClass('clickopenartist')) {
                 	var id = element.parent().next().attr("id");
-                	if (element.attr("src") == ipath+"toggle-open-new.png") {
-	                	element.attr("src",ipath+"toggle-closed-new.png");
-            			element.parent().next().slideToggle('fast', browser.rePoint);
+                	if (element.isOpen()) {
+	                	element.toggleClosed();
+            			element.parent().next().menuReveal(browser.rePoint);
                 	} else {
-                		element.attr("src",ipath+"toggle-open-new.png");
+                		element.toggleOpen();
                 		if (element.parent().next().hasClass("filled")) {
-                			element.parent().next().slideToggle('fast', browser.rePoint);
+                			element.parent().next().menuReveal(browser.rePoint);
                 		} else {
             				spotify.artist.getAlbums(id, 'album,single', self.relatedArtistResponse, self.album.spotifyError, true);
             			}
@@ -216,7 +198,7 @@ var info_spotify = function() {
             }
 
         	this.getAlbums = function() {
-        		$("#hibbert").addClass('spinner').removeClass('invisible');
+        		$("#hibbert").makeSpinner();
 	        	if (artistmeta.spotify.albums === undefined) {
 	        		debug.log(medebug, "Getting Artist Album Info");
 	        		spotify.artist.getAlbums(artistmeta.spotify.id, 'album,single', self.storeAlbums, self.artist.spotifyError, true)
@@ -226,7 +208,7 @@ var info_spotify = function() {
 	        }
 
 	        this.getArtists = function() {
-        		$("#hibbert").addClass('spinner').removeClass('invisible');
+        		$("#hibbert").makeSpinner()
 	        	if (artistmeta.spotify.related === undefined) {
 	        		debug.log(medebug, "Getting Artist Related Info");
 	        		spotify.artist.getRelatedArtists(artistmeta.spotify.id, self.storeArtists, self.artist.spotifyError, true)
@@ -264,14 +246,14 @@ var info_spotify = function() {
 		            		}
 	            		}
 	            		x.append('<img class="masochist infoclick clickable draggable clicktrack" src="'+img+'" width="'+w+'" name="'+data.items[i].uri+'"/>');
-	            		x.append('<div class="tagh albumthing"><img class="menu infoclick clickopenalbum" src="'+ipath+'toggle-closed-new.png"/>&nbsp;<span class="infoclick draggable clickable clicktrack" name="'+data.items[i].uri+'"><b>'+data.items[i].name+'</b></span></div>')
+	            		x.append('<div class="tagh albumthing"><i class="icon-toggle-closed menu infoclick clickopenalbum"></i><span class="title-menu infoclick draggable clickable clicktrack" name="'+data.items[i].uri+'">'+data.items[i].name+'</span></div>')
 	            		x.append('<div class="tagh albumthing invisible" id="'+data.items[i].id+'"></div>')
 	            	}
             		$("#artistalbums").imagesLoaded( function() {
             			$("#artistalbums").slideToggle('fast', function() {
             				$("#artistalbums").masonry({ itemSelector: '.tagholder2', gutter: 0});
             				browser.rePoint();
-			        		$("#hibbert").addClass('invisible').removeClass('spinner');
+			        		$("#hibbert").stopSpinner();
             			});
             		});
 	            }
@@ -295,7 +277,7 @@ var info_spotify = function() {
 		            		}
 	            		}
 	            		x.append('<img class="masochist2 infoclick clickable draggable clicktrack" src="'+img+'" width="'+w+'" name="'+data.items[i].uri+'"/>');
-	            		x.append('<div class="tagh albumthing"><img class="menu infoclick clickopenalbum" src="'+ipath+'toggle-closed-new.png"/>&nbsp;<span class="infoclick clickable draggable clicktrack" name="'+data.items[i].uri+'"><b>'+data.items[i].name+'</b></span></div>')
+	            		x.append('<div class="tagh albumthing"><i class="icon-toggle-closed menu infoclick clickopenalbum"></i><span class="title-menu infoclick clickable draggable clicktrack" name="'+data.items[i].uri+'">'+data.items[i].name+'</span></div>')
 	            		x.append('<div class="tagh albumthing invisible" id="'+data.items[i].id+'"></div>')
 	            	}
 	            	$("#"+id).slideToggle('fast', browser.rePoint);
@@ -322,7 +304,7 @@ var info_spotify = function() {
 		            		}
 	            		}
 	            		x.append('<img class="masochist infoclick clickaddtrack" src="'+img+'" width="'+w+'" name="'+data.artists[i].uri+'"/>');
-	            		x.append('<div class="tagh albumthing"><img class="menu infoclick clickopenartist" src="'+ipath+'toggle-closed-new.png"/>&nbsp;<span class="infoclick clickaddtrack" name="'+data.artists[i].uri+'"><b>'+data.artists[i].name+'</b></span></div>')
+	            		x.append('<div class="tagh albumthing"><i class="icon-toggle-closed menu infoclick clickopenartist"></i><span class="title-menu infoclick clickaddtrack" name="'+data.artists[i].uri+'">'+data.artists[i].name+'</span></div>')
 	            		x.append('<div class="tagh albumthing invisible edged selecotron" id="'+data.artists[i].id+'"></div>')
 	            	}
             		$("#artistalbums").imagesLoaded( function() {
@@ -330,7 +312,7 @@ var info_spotify = function() {
             				$("#artistalbums").masonry({ itemSelector: '.tagholder2', gutter: 0});
             				laidout = true;
             				browser.rePoint();
-			        		$("#hibbert").addClass('invisible').removeClass('spinner');
+			        		$("#hibbert").stopSpinner();
             			});
             		});
 	            }
@@ -570,4 +552,4 @@ var info_spotify = function() {
 	}
 }();
 
-nowplaying.registerPlugin("spotify", info_spotify, ipath+"spotify-logo-big.png", "button_infospotify");
+nowplaying.registerPlugin("spotify", info_spotify, "icon-spotify-circled", "button_infospotify");

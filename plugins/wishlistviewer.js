@@ -59,7 +59,7 @@ var wishlistViewer = function() {
 	    var title = unescapeHtml(trackDiv.children('.expand').html());
 	    var artist = unescapeHtml($(artistDiv.children()[0]).children('.expand').html());
 	    debug.log("DB_TRACKS","Getting Buy Links For",title,artist);
-	    makeWaitingIcon(element);
+	    element.makeSpinner();
 	    var bugger = element.parent();
 	    lastfm.track.getBuylinks({track: title, artist: artist},
 	    	function(data) {

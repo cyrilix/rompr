@@ -41,7 +41,7 @@ foreach ($tk as $t) {
 function add_uri($uri) {
 	global $atpos;
 	debug_print("   Track Uri : ".$uri,"MOPIDY");
-	$p = array( 'uri' => $uri );
+	$p = array( 'uri' => $uri);
 	if ($atpos || $atpos === 0) {
 		$p['at_position'] = (int) $atpos;
 		$atpos++;

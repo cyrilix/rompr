@@ -15,11 +15,11 @@ var info_discogs = function() {
 					u = 'http://'+u;
 				}
 				if (u.match(/wikipedia/i)) {
-					html = html + '<li><img src="'+ipath+'Wikipedia-logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Wikipedia ('+d[1]+')</a></li>';
+					html = html + '<li><i class="icon-wikipedia smallicon menu padright wibble"></i><a href="'+u+'" target="_blank">Wikipedia ('+d[1]+')</a></li>';
 				} else if (u.match(/facebook/i)) {
-					html = html + '<li><img src="newimages/facebook-logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Facebook</a></li>';
+					html = html + '<li><img src="newimages/facebook-logo.png" class="menu padright wibble"></i><a href="'+u+'" target="_blank">Facebook</a></li>';
 				} else {
-					html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">'+d[1]+'</a></li>';
+					html = html + '<li><i class="smallicon menu padright wibble"></i><a href="'+u+'" target="_blank">'+d[1]+'</a></li>';
 				}
 			}
 		}
@@ -166,13 +166,8 @@ var info_discogs = function() {
 			return '<h3 align="center">'+data.error.error+'</h3>';
 		}
 
-        if (layout == "desktop") {
-        	var html = '<div class="containerbox">';
-        	html = html + '<div class="fixed bright">';
-        } else {
-        	var html = '<div class="containerbox vertical">';
-        	html = html + '<div class="stumpy notbright">';
-        }
+        var html = '<div class="containerbox info-detail-layout">';
+    	html = html + '<div class="info-box-fixed info-box-list info-border-right">';
 		if (data.release) {
 			html = html + getStyles(data.release.data.styles);
 		} else {
@@ -196,12 +191,7 @@ var info_discogs = function() {
 
 		html = html + '</div>';
 
-        if (layout == "desktop") {
-        	html = html + '<div class="expand stumpy">';
-        } else {
-        	html = html + '<div class="stumpy">';
-        }
-
+    	html = html + '<div class="info-box-expand stumpy">';
         if (data.master && data.master.data.notes) {
         	var n = data.master.data.notes;
         	n = n.replace(/\n/g, '<br>');
@@ -227,9 +217,9 @@ var info_discogs = function() {
 			html = html + getTracklist(data.master.data.tracklist)
 		}
 
-		if (layout == "desktop" && data.release && data.release.data.videos) {
+		if (layout != "phone" && data.release && data.release.data.videos) {
 			html = html + doVideos(data.release.data.videos);
-		} else if (layout == "desktop" && data.master && data.master.data.videos) {
+		} else if (layout != "phone" && data.master && data.master.data.videos) {
 			html = html + doVideos(data.master.data.videos);
 		}
 
@@ -503,13 +493,8 @@ var info_discogs = function() {
 					return '<h3 align="center">'+data.error+'</h3>';
 				}
 				debug.debug(medebug, "Creating Artist HTML",data);
-				if (layout == "desktop") {
-			        var html = '<div class="containerbox">';
-			        html = html + '<div class="fixed bright">';
-			    } else {
-			        var html = '<div class="containerbox vertical">';
-			        html = html + '<div class="stumpy notbright">';
-			    }
+		        var html = '<div class="containerbox info-detail-layout">';
+		    	html = html + '<div class="info-box-fixed info-box-list info-border-right">';
 
 			    if (data.data.realname && data.data.realname != "") {
 			        html = html + '<br><ul><li><b>'+language.gettext("discogs_realname")+'</b> '+data.data.realname+'</li>';
@@ -538,11 +523,7 @@ var info_discogs = function() {
 			    }
 			    html = html + '</div>';
 
-		        if (layout == "desktop") {
-		        	html = html + '<div class="expand stumpy">';
-		        } else {
-		        	html = html + '<div class="stumpy">';
-		        }
+	        	html = html + '<div class="info-box-expand stumpy">';
 		        html = html + '<div class="holdingcell">';
 		        if (expand) {
 					html = html + '<img class="clickexpandbox infoclick tleft" style="margin:1em" src="newimages/expand-up.png" height="16px" name="'+data.data.id+'">';
@@ -599,8 +580,8 @@ var info_discogs = function() {
 			    }
 
 				html = html + '<div class="mbbox underline">';
-			    html = html + '<img src="'+ipath+'toggle-closed-new.png" class="menu infoclick clickdodiscography" name="'+data.data.id+'">';
-			    html = html + '<b>'+language.gettext("discogs_discography", [data.data.name.toUpperCase()])+'</b></div>';
+			    html = html + '<i class="icon-toggle-closed menu infoclick clickdodiscography" name="'+data.data.id+'"></i>';
+			    html = html + '<span class="title-menu">'+language.gettext("discogs_discography", [data.data.name.toUpperCase()])+'</span></div>';
 			    html = html + '<div name="discography_'+data.data.id+'" class="invisible">';
 			    html = html + '</div>';
 
@@ -614,10 +595,10 @@ var info_discogs = function() {
 				var html = "";
 		    	for (var i in members) {
 		    		html = html + '<div class="mbbox">';
-        			html = html + '<img src="'+ipath+'toggle-closed-new.png" class="menu infoclick clickdoartist" name="'+members[i].id+'">';
+        			html = html + '<i class="icon-toggle-closed menu infoclick clickdoartist" name="'+members[i].id+'"></i>';
         			var n = members[i].name;
         			n = n.replace(/ \(\d+\)$/, '');
-        			html = html + '<b>'+n+'</b>';
+        			html = html + '<span class="title-menu">'+n+'</span>';
         			html = html + '</div>';
 	        		html = html + '<div name="artist_'+members[i].id+'" class="invisible"></div>';
 		    	}
@@ -1195,4 +1176,4 @@ var info_discogs = function() {
 	}
 }();
 
-nowplaying.registerPlugin("discogs", info_discogs, ipath+"discogs-white-2.png", "button_discogs");
+nowplaying.registerPlugin("discogs", info_discogs, "icon-discogs", "button_discogs");

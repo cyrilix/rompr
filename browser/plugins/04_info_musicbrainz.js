@@ -45,13 +45,8 @@ var info_musicbrainz = function() {
 			return '<h3 align="center">'+data.error+'</h3>';
 		}
 
-        if (layout == "desktop") {
-	        var html = '<div class="containerbox">';
-        	html = html + '<div class="fixed bright">';
-        } else {
-	        var html = '<div class="containerbox vertical">';
-        	html = html + '<div class="stumpy notbright">';
-        }
+        var html = '<div class="containerbox info-detail-layout">';
+    	html = html + '<div class="info-box-fixed info-box-list info-border-right">';
         html = html + '<ul><li>'+data.disambiguation+'</li></ul>';
         if (data.type !== null) {
         	html = html + '<ul><li><b>'+language.gettext("title_type")+': </b>'+data.type+'</li></ul>';
@@ -78,11 +73,7 @@ var info_musicbrainz = function() {
         html = html + '<br>'+getURLs(data.relations, true);
         html = html + '</div>';
 
-        if (layout == "desktop") {
-        	html = html + '<div class="expand stumpy">';
-        } else {
-        	html = html + '<div class="stumpy">';
-        }
+    	html = html + '<div class="info-box-expand stumpy">';
         if (expand) {
 			html = html + '<div class="mbbox"><img class="clickexpandbox infoclick tleft" src="newimages/expand-up.png" height="16px" name="'+data.id+'"></div>';
 		}
@@ -121,8 +112,8 @@ var info_musicbrainz = function() {
     	}
 
 		html = html + '<div class="mbbox underline">';
-	    html = html + '<img src="'+ipath+'toggle-closed-new.png" class="menu infoclick clickdodiscography" name="'+data.id+'">';
-	    html = html + '<b>'+language.gettext("discogs_discography", [data.name.toUpperCase()])+'</b></div>';
+	    html = html + '<i class="icon-toggle-closed menu infoclick clickdodiscography" name="'+data.id+'"></i>';
+	    html = html + '<span class="title-menu">'+language.gettext("discogs_discography", [data.name.toUpperCase()])+'</span></div>';
 	    html = html + '<div name="discography_'+data.id+'" class="invisible">';
         html = html + '</div>';
 
@@ -143,8 +134,8 @@ var info_musicbrainz = function() {
     			// The already_done flag is just there because artist can appear multiple times in this data
     			// if they did multiple stints in the band.
 
-				html = html + '<img src="'+ipath+'toggle-closed-new.png" class="menu infoclick clickdoartist" name="'+data[i].artist.id+'">';
-    			html = html + '<b>'+data[i].artist.name+'  </b>'+"AYEARS_"+data[i].artist.id;
+				html = html + '<i class="icon-toggle-closed menu infoclick clickdoartist" name="'+data[i].artist.id+'"></i>';
+    			html = html + '<span class="title-menu">'+data[i].artist.name+'  </span>'+"AYEARS_"+data[i].artist.id;
     			ayears[data[i].artist.id] = doSpan(data[i]);
     			html = html + '</div>';
     			html = html + '<div name="'+data[i].artist.id+'" class="invisible"></div>';
@@ -177,11 +168,11 @@ var info_musicbrainz = function() {
 			}
 			switch (relations[i].type) {
 				case "wikipedia":
-					html = html + '<li><img src="'+ipath+'Wikipedia-logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Wikipedia ('+d[1]+')</a></li>';
+					html = html + '<li><i class="icon-wikipedia smallicon menu padright wibble"></i><a href="'+u+'" target="_blank">Wikipedia ('+d[1]+')</a></li>';
 					break;
 
 				case "wikidata":
-					html = html + '<li><img src="'+ipath+'Wikipedia-logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Wikidata</a></li>';
+					html = html + '<li><i class="icon-wikipedia smallicon menu padright wibble"></i><a href="'+u+'" target="_blank">Wikidata</a></li>';
 					break;
 
 				case "discography":
@@ -201,7 +192,7 @@ var info_musicbrainz = function() {
 					break;
 
 				case "discogs":
-					html = html + '<li><img src="'+ipath+'discogs-white-2.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Discogs</a></li>';
+					html = html + '<li><i class="icon-discogs smallicon menu padright wibble"></i><a href="'+u+'" target="_blank">Discogs</a></li>';
 					break;
 
 				case "official homepage":
@@ -213,7 +204,7 @@ var info_musicbrainz = function() {
 					break;
 
 				case "lyrics":
-					html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_lyrics", [d[1]])+'</a></li>';
+					html = html + '<li><i class="icon-doc-text-1 smallicon menu padright wibble"></i><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_lyrics", [d[1]])+'</a></li>';
 					break;
 
 				case "secondhandsongs":
@@ -226,7 +217,7 @@ var info_musicbrainz = function() {
 
 				case "social network":
 					if (u.match(/last\.fm/i)) {
-						html = html + '<li><img src="'+ipath+'lastfm.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Last.FM</a></li>';
+						html = html + '<li><i class="icon-lastfm-1 smallicon padright wibble"></i><a href="'+u+'" target="_blank">Last.FM</a></li>';
 					} else if (u.match(/facebook\.com/i)) {
 						html = html + '<li><img src="newimages/facebook-logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Facebook</a></li>';
 					} else {
@@ -344,13 +335,8 @@ var info_musicbrainz = function() {
 		if (data.error && data.recording === undefined && data.work === undefined) {
 			return '<h3 align="center">'+data.error.error+'</h3>';
 		}
-		if (layout == "desktop") {
-	        var html = '<div class="containerbox">';
-	        html = html + '<div class="fixed bright">';
-	    } else {
-	        var html = '<div class="containerbox vertical">';
-	        html = html + '<div class="stumpy notbright">';
-	    }
+        var html = '<div class="containerbox info-detail-layout">';
+    	html = html + '<div class="info-box-fixed info-box-list info-border-right">';
 		if (data.recording) {
 			if (data.recording.disambiguation) {
 				html = html + '<ul>'+data.recording.disambiguation+'</ul>';
@@ -382,12 +368,7 @@ var info_musicbrainz = function() {
 		html = html + getURLs(rels, true);
 		html = html + '</div>';
 
-        if (layout == "desktop") {
-        	html = html + '<div class="expand stumpy">';
-        } else {
-        	html = html + '<div class="stumpy">';
-        }
-
+    	html = html + '<div class="info-box-expand stumpy">';
 		if ((data.work && data.work.annotation) || (data.recording && data.recording.annotation)) {
 			var a  = "";
 			if (data.work && data.work.annotation) {
@@ -644,13 +625,8 @@ var info_musicbrainz = function() {
 					return '<h3 align="center">'+data.error+'</h3>';
 				}
 
-		        if (layout == "desktop") {
-		        	var html = '<div class="containerbox">';
-		        	html = html + '<div class="fixed bright">';
-		        } else {
-		        	var html = '<div class="containerbox vertical">';
-		        	html = html + '<div class="stumpy notbright">';
-		        }
+		        var html = '<div class="containerbox info-detail-layout">';
+		    	html = html + '<div class="info-box-fixed info-box-list info-border-right">';
 		        html = html + '<ul><li>'+data.disambiguation+'</li></ul>';
 		        html = html + '<ul><li><b>'+language.gettext("musicbrainz_status")+': </b>';
 		        if (data.status) {
@@ -681,12 +657,7 @@ var info_musicbrainz = function() {
 		        html = html + '<br>'+getURLs(data.relations, true);
 				html = html + '</div>';
 
-		        if (layout == "desktop") {
-			        html = html + '<div class="expand stumpy">';
-			    } else {
-			        html = html + '<div class="stumpy">';
-			    }
-
+		        html = html + '<div class="info-box-expand stumpy">';
 				if (data.annotation) {
 					var a = data.annotation;
 		        	a = a.replace(/\n/, '<br>');
@@ -735,11 +706,7 @@ var info_musicbrainz = function() {
 		        html = html + '</div>';
 		        if (data['cover-art-archive'].artwork == true) {
 		        	debug.log(medebug,"There is cover art available");
-			        if (layout == "desktop") {
-				        html = html + '<div class="cleft fixed" id="coverart">';
-				    } else {
-				        html = html + '<div class="stumpy" id="coverart">';
-				    }
+			        html = html + '<div class="cleft info-box-fixed" id="coverart">';
 			        html = html + getCoverArt();
 			        html = html + '</div>';
 			    }
@@ -1150,4 +1117,4 @@ var info_musicbrainz = function() {
 
 }();
 
-nowplaying.registerPlugin("musicbrainz", info_musicbrainz, ipath+"musicbrainz_logo.png", "button_musicbrainz");
+nowplaying.registerPlugin("musicbrainz", info_musicbrainz, "icon-musicbrainz", "button_musicbrainz");

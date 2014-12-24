@@ -15,10 +15,7 @@ var wikipedia = function() {
 			for (var i in terms) {
 				url = url + i+'='+encodeURIComponent(terms[i])+"&";
 			}
-			url = url + "lang="+wikipedia.getLanguage();
-			if (layout == "phone") {
-				url = url + "&mobile="+layout;
-			}
+			url = url + "lang="+wikipedia.getLanguage()+"&layout="+layout;
 		    $.ajax({
 		        type: "GET",
 		        url: url,
@@ -38,10 +35,7 @@ var wikipedia = function() {
 			for (var i in terms) {
 				url = url + i+'='+encodeURIComponent(terms[i])+"&";
 			}
-			url = url + "lang="+wikipedia.getLanguage();
-			if (layout == "phone") {
-				url = url + "&mobile="+layout;
-			}
+			url = url + "lang="+wikipedia.getLanguage()+"&layout="+layout;
 		    $.ajax({
 		        type: "GET",
 		        url: url,
@@ -57,7 +51,6 @@ var wikipedia = function() {
 		},
 
 		wikiMediaPopup: function(element, event) {
-			var thing = element.attr('name');
 			debug.log("WIKIPEDIA","Clicked element has name",thing);
 			var a = thing.match(/(.*?)\/(.*)/);
 			if (a && a[1] && a[2]) {
@@ -79,10 +72,7 @@ var wikipedia = function() {
 		getWiki: function(link, success, fail) {
 			$("#infopane").css({cursor:'wait'});
 			$("#infopane a").css({cursor:'wait'});
-			var url = "browser/backends/info_wikipedia.php?wiki="+link;
-			if (layout == "phone") {
-				url = url + "&mobile="+layout;
-			}
+			var url = "browser/backends/info_wikipedia.php?wiki="+link+"&layout="+layout;
 		    $.ajax({
 		        type: "GET",
 		        url: url,

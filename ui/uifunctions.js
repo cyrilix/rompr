@@ -1,3 +1,7 @@
+function openAlbumArtManager() {
+    window.open('albumart.php');
+}
+
 function reloadWindow() {
     location.reload(true);
 }
@@ -14,7 +18,8 @@ function saveSelectBoxes(event) {
             break;
 
         case "icontheme":
-            callback = reloadWindow;
+            $("#icontheme-theme").attr("href", "iconsets/"+$("#iconthemeselector").val()+"/theme.css");
+            $("#icontheme-adjustments").attr("href", "iconsets/"+$("#iconthemeselector").val()+"/adjustments.css");
             break;
 
         case "fontsize":
@@ -51,10 +56,6 @@ function togglePref(event) {
     switch (prefname) {
         case 'downloadart':
             coverscraper.toggle($("#"+prefname).is(":checked"));
-            break;
-
-        case 'twocolumnsinlandscape':
-            callback = setBottomPaneSize;
             break;
 
         case 'hide_albumlist':
@@ -163,24 +164,6 @@ function setscrob(e) {
     return false;
 }
 
-function makeWaitingIcon(selector) {
-    if (typeof(selector) == "string") {
-        $("#"+selector).attr("src", "newimages/waiter.png");
-        $("#"+selector).removeClass("nospin");
-        $("#"+selector).addClass("spinner");
-    } else {
-        selector.attr("src", "newimages/waiter.png");
-        selector.removeClass("nospin");
-        selector.addClass("spinner");
-    }
-}
-
-function stopWaitingIcon(selector) {
-    $("#"+selector).attr("src", "newimages/transparent-32x32.png");
-    $("#"+selector).removeClass("spinner");
-    $("#"+selector).addClass("nospin");
-}
-
 function togglePlaylistButtons() {
     if (!$("#playlistbuttons").is(":visible")) {
         // Make the playlist scroller shorter so the window doesn't get a vertical scrollbar
@@ -188,7 +171,7 @@ function togglePlaylistButtons() {
         var newheight = $("#pscroller").height() - 48;
         $("#pscroller").css("height", newheight.toString()+"px");
     }
-    $("#playlistbuttons").slideToggle('fast', playlist.setHeight);
+    $("#playlistbuttons").slideToggle('fast', layoutProcessor.setPlaylistHeight);
     var p = !prefs.playlistcontrolsvisible;
     prefs.save({ playlistcontrolsvisible: p });
     return false;
@@ -271,7 +254,7 @@ function toggleFileSearch() {
     return false;
 }
 
-var imagePopup=function(){
+var imagePopup = function() {
     var wikipopup = null;
     var imagecontainer = null;
     var mousepos = null;
@@ -306,7 +289,7 @@ var imagePopup=function(){
                                   height: '48px',
                                   top: top+'px',
                                   left: left+'px'});
-            wikipopup.append($('<img>', {class: 'spinner', height: '32px', src: 'newimages/waiter.png', style: 'position:relative;top:8px;left:8px'}));
+            wikipopup.append($('<i>', {class: 'icon-spin6 smallcover-svg spinner', style: 'position:relative;top:8px;left:8px'}));
             wikipopup.fadeIn('fast');
             if (source !== undefined) {
                 if (source == image.src) {
@@ -377,7 +360,7 @@ var imagePopup=function(){
                                           src: image.src });
 
                     imagecontainer.fadeIn('slow');
-                    wikipopup.append($('<img>', {src: ipath+'edit-delete.png', height: "12px", class: 'tright', style: 'margin-top:4px;margin-right:4px'}));
+                    wikipopup.append($('<i>', {class: 'icon-cancel-circled playlisticon tright', style: 'margin-top:4px;margin-right:4px'}));
                 }
             );
         },
@@ -426,25 +409,19 @@ var popupWindow = function() {
             $(popup).append('<div id="cheese"></div>');
             $("#cheese").append('<table width="100%"><tr><td width="30px"></td><td align="center"><h2>'+title+
                 '</h2></td><td align="right" width="30px">'+
-                '<img class="clickicon" onclick="popupWindow.close()" src="'+ipath+'edit-delete.png"></td></tr></table>');
+                '<i class="icon-cancel-circled playlisticon clickicon" onclick="popupWindow.close()"></i></td></tr></table>');
             $(popup).append('<div id="popupcontents"></div>');
-            var winsize=getWindowSize();
+            var winsize = getWindowSize();
             var windowScroll = getScrollXY();
-            if (layout == "desktop") {
-                var width = winsize.x - 128;
-                var height = winsize.y - 128;
-            } else {
-                var width = winsize.x - 8;
-                var height = winsize.y - 8;
-            }
-            if (width > w) { width = w; }
-            if (height > h) { height = h; }
-            var x = (winsize.x - width)/2 + windowScroll.x;
-            var y = (winsize.y - height)/2 + windowScroll.y;
-            popup.style.width = parseInt(width) + 'px';
-            userheight = height;
+            var lsize = layoutProcessor.maxPopupSize(winsize);
+            if (lsize.width > w) { lsize.width = w; }
+            if (lsize.height > h) { lsize.height = h; }
+            var x = (winsize.x - lsize.width)/2 + windowScroll.x;
+            var y = (winsize.y - lsize.height)/2 + windowScroll.y;
+            popup.style.width = parseInt(lsize.width) + 'px';
+            userheight = lsize.height;
             if (!shrink) {
-                popup.style.height = parseInt(height) + 'px';
+                popup.style.height = parseInt(lsize.height) + 'px';
             }
             popup.style.top = parseInt(y) + 'px';
             popup.style.left = parseInt(x) + 'px';
@@ -469,23 +446,17 @@ var popupWindow = function() {
             }
         },
         setsize:function() {
-            var winsize=getWindowSize();
+            var winsize = getWindowSize();
             var windowScroll = getScrollXY();
-            if (layout == "desktop") {
-                var width = winsize.x - 128;
-                var height = winsize.y - 128;
-            } else {
-                var width = winsize.x - 8;
-                var height = winsize.y - 8;
-            }
-            if (width > wantedwidth) { width = wantedwidth; }
-            if (height > wantedheight) { height = wantedheight; }
-            var x = (winsize.x - width)/2 + windowScroll.x;
-            var y = (winsize.y - height)/2 + windowScroll.y;
-            popup.style.width = parseInt(width) + 'px';
-            userheight = height;
+            var lsize = layoutProcessor.maxPopupSize(winsize);
+            if (lsize.width > wantedwidth) { lsize.width = wantedwidth; }
+            if (lsize.height > wantedheight) { lsize.height = wantedheight; }
+            var x = (winsize.x - lsize.width)/2 + windowScroll.x;
+            var y = (winsize.y - lsize.height)/2 + windowScroll.y;
+            popup.style.width = parseInt(lsize.width) + 'px';
+            userheight = lsize.height;
             if (!wantshrink) {
-                popup.style.height = parseInt(height) + 'px';
+                popup.style.height = parseInt(lsize.height) + 'px';
             }
             popup.style.top = parseInt(y) + 'px';
             popup.style.left = parseInt(x) + 'px';
@@ -495,11 +466,6 @@ var popupWindow = function() {
         }
     };
 }();
-
-function clearPlaylist() {
-    playlist.clear();
-    $("#clrplst").slideToggle('fast');
-}
 
 function setPlaylistButtons() {
     c = (player.status.xfade === undefined || player.status.xfade === null || player.status.xfade == 0) ? 0 : 1;
@@ -522,7 +488,7 @@ function onStorageChanged(e) {
             $('img[name="'+key+'"]').addClass("notfound");
             $('img[name="'+key+'"]').attr("src", "newimages/album-unknown.png");
         } else {
-            $('img[name="'+key+'"]').attr("src", "albumart/original/"+key+".jpg");
+            $('img[name="'+key+'"]').attr("src", "albumart/small/"+key+".jpg");
             $('img[name="'+key+'"]').removeClass("notexist");
             $('img[name="'+key+'"]').removeClass("notfound");
         }
@@ -654,51 +620,11 @@ function scootTheAlbums() {
     });
 }
 
-function sourcecontrol(source, callback) {
-
-    if (layout == "desktop") {
-        sources = ["albumlist", "filelist", "radiolist"];
-    } else {
-        if (landscape) {
-            sources = ["albumlist", "filelist", "radiolist", "infopane", "chooser", "historypanel", "pluginplaylists", "playlistman", "prefsm"];
-        } else {
-            sources = ["albumlist", "filelist", "radiolist", "infopane", "playlistm", "pluginplaylists", "chooser", "historypanel", "playlistman", "prefsm"];
-        }
-    }
-    if (callback) {
-        sources.push(callback);
-    }
-    for(var i in sources) {
-        if (sources[i] == source) {
-            sources.splice(i, 1);
-            break;
-        }
-    }
-    switchsource(source);
-    return false;
-}
-
 function hidePanel(panel) {
     var is_hidden = $("#"+panel).is(':hidden');
     var new_state = prefs["hide_"+panel];
     debug.log("GENERAL","Hide Panel",panel,is_hidden,new_state);
-    if (layout == "desktop") {
-        if (is_hidden != new_state) {
-            if (new_state && prefs.chooser == panel) {
-                $("#"+panel).fadeOut('fast');
-                var s = ["albumlist", "filelist", "radiolist"];
-                for (var i in s) {
-                    if (s[i] != panel && !prefs["hide_"+s[i]]) {
-                        switchsource(s[i]);
-                        break;
-                    }
-                }
-            }
-            if (!new_state && prefs.chooser == panel) {
-                $("#"+panel).fadeIn('fast');
-            }
-        }
-    }
+    layoutProcessor.hidePanel(panel, is_hidden, new_state);
     if (new_state) {
         switch (panel) {
             case "radiolist":
@@ -745,7 +671,7 @@ function doSomethingUseful(div,text) {
     if (typeof div == "string") {
         html = '<div class="containerbox bar" id= "spinner_'+div+'">';
     }
-    html = html + '<div class="fixed" style="vertical-align:middle;padding-left:8px"><img height="32px" src="newimages/waiter.png" class="spinner"></div>';
+    html = html + '<div class="fixed" style="vertical-align:middle;padding-left:8px"><i class="icon-spin6 smallcover-svg spinner"></i></div>';
     html = html + '<h3 class="expand ucfirst label">'+text+'</h3>';
     html = html + '</div>';
     if (typeof div == "object") {
@@ -807,7 +733,7 @@ function findImageInWindow(key) {
             u != "newimages/album-unknown.png" &&
             u != "newimages/album-unknown-small.png" &&
             u != "newimages/transparent-32x32.png") {
-            result = { url: u, origimage: u.replace(/original/, 'asdownloaded'), delaytime: 100 };
+            result = { url: u, origimage: u.replace(/small/, 'asdownloaded'), delaytime: 100 };
         }
     });
     return result;
@@ -923,11 +849,7 @@ var tagAdder = function() {
         show: function(evt, idx) {
             index = idx;
             var position = getPosition(evt);
-            if (layout == "desktop") {
-                $("#tagadder").css({top: position.y+8, left: position.x+8});
-            } else {
-                $("#tagadder").css({top: position.y+8, left: 0, width: $("#bottompage").width()});
-            }
+            layoutProcessor.setTagAdderPosition(position);
             $("#tagadder").slideToggle('fast');
         },
 
@@ -957,16 +879,6 @@ function chooseNewTag(event) {
     }
     currvalue += value;
     tb.val(currvalue);
-}
-
-function playlistMenuHeader() {
-    var html = "";
-    if (layout == "desktop") {
-        html = html + '<div class="containerbox"><div class="expand"><b>'+language.gettext("menu_playlists")+'</b></div></div>';
-    } else {
-        html = html + '<h3>'+language.gettext("menu_playlists")+'</h3>';
-    }
-    return html;
 }
 
 function addPlugin(label, action) {
@@ -1124,3 +1036,37 @@ var globalPlugins = function() {
     }
 
 }();
+
+function mungeTrackInfo(info) {
+    var npinfo = {};
+    var doctitle = "RompR";
+    if (info.title != "") {
+        npinfo.title = info.title;
+        doctitle = info.title;
+    }
+    var s = info.creator;
+    if (info.type != "stream" || s != "") {
+        if (info.metadata && info.metadata.artists) {
+            var an = new Array();
+            for (var i in info.metadata.artists) {
+                an.push(info.metadata.artists[i].name);
+            }
+            s = concatenate_artist_names(an);
+        }
+    }
+    if (s != "") {
+        npinfo.artist = s;
+        doctitle = doctitle + " . " + s;
+    }
+    if (info.album) {
+        npinfo.album = info.album;
+        if (info.title == "" && s == "" && info.stream != "") {
+            npinfo.stream = info.stream;
+        } else if (info.title == "" && s == "" && info.stream == "" && info.albumartist != "") {
+            npinfo.stream = info.albumartist;
+        }
+    }
+
+    return {doctitle: doctitle, textbits: npinfo};
+
+}

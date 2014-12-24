@@ -5,17 +5,11 @@ include('includes/vars.php');
 include("includes/functions.php");
 $request = $_SERVER['REQUEST_URI'];
 // Custom redirect for album covers that don't exist.
-if (preg_match('/albumart\/small\//', $request) ||
-    preg_match('/prefs\/imagecache\//', $request)) {
-    header("HTTP/1.1 301 Moved Permanently");
-	header("Cache-Control: no-cache, must-revalidate");
-	header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
-	header("Location: ".get_base_url()."/newimages/album-unknown-small.png");
-} elseif (preg_match('/albumart\/original\/firefoxiscrap\/(.*?)---.*/', $request, $matches)) {
+if (preg_match('/albumart\/small\/firefoxiscrap\/(.*?)---.*/', $request, $matches)) {
     header("HTTP/1.1 301 Moved Permanently");
     header("Cache-Control: no-cache, must-revalidate");
     header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
-    header("Location: ".get_base_url()."/albumart/original/".$matches[1].".jpg");
+    header("Location: ".get_base_url()."/albumart/small/".$matches[1].".jpg");
 } elseif (preg_match('/albumart\/asdownloaded\/firefoxiscrap\/(.*?)---.*/', $request, $matches)) {
     header("HTTP/1.1 301 Moved Permanently");
     header("Cache-Control: no-cache, must-revalidate");

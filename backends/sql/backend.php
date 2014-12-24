@@ -300,7 +300,6 @@ function create_new_album($album, $albumai, $spotilink, $image, $date, $searched
 	if (preg_match('#^prefs/imagecache/#', $image)) {
         $image = preg_replace('#_small\.jpg|_original\.jpg#', '', $image);
 		system( 'cp '.$image.'_small.jpg albumart/small/'.$imagekey.'.jpg');
-		system( 'cp '.$image.'_original.jpg albumart/original/'.$imagekey.'.jpg');
 		system( 'cp '.$image.'_asdownloaded.jpg albumart/asdownloaded/'.$imagekey.'.jpg');
 		$image = 'albumart/small/'.$imagekey.'.jpg';
 	}
@@ -618,6 +617,7 @@ function get_imagesearch_info($key) {
 }
 
 function get_album_directory($albumindex, $uri) {
+	global $prefs;
 	$retval = null;
 	// Get album directory by using the Uri of one of its tracks, making sure we choose only local tracks
 	if (!preg_match('/\w+?:album/', $uri)) {
@@ -1454,7 +1454,7 @@ function check_and_update_track($trackobj, $albumindex, $artistindex, $artistnam
             null,
             null,
             0,
-            null
+            $trackobj->getImage()
         );
         $numdone++;
 		check_transaction();

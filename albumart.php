@@ -17,11 +17,12 @@ $layout = "desktop";
 <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
 <meta http-equiv="pragma" content="no-cache" />
 <link rel="stylesheet" type="text/css" href="css/layout.css" />
-<?php
-print '<link id="theme" rel="stylesheet" type="text/css" href="themes/'.$prefs['theme'].'" />'."\n";
-print '<link rel="stylesheet" id="fontsize" type="text/css" href="sizes/'.$prefs['fontsize'].'" />'."\n";
-print '<link rel="stylesheet" id="fontfamily" type="text/css" href="fonts/'.$prefs['fontfamily'].'" />'."\n";
-?>
+<link rel="stylesheet" type="text/css" href="css/albumart.css" />
+<link rel="stylesheet" id="theme" type="text/css" />
+<link rel="stylesheet" id="fontsize" type="text/css" />
+<link rel="stylesheet" id="fontfamily" type="text/css" />
+<link rel="stylesheet" id="icontheme-theme" type="text/css" />
+<link rel="stylesheet" id="icontheme-adjustments" type="text/css" />
 <link type="text/css" href="layouts/desktop/jquery.mCustomScrollbar.css" rel="stylesheet" />
 <script type="text/javascript" src="jquery/jquery-1.8.3-min.js"></script>
 <script type="text/javascript" src="layouts/desktop/jquery.mCustomScrollbar.concat.min.js"></script>
@@ -34,6 +35,12 @@ print '<link rel="stylesheet" id="fontfamily" type="text/css" href="fonts/'.$pre
 include ("includes/globals.php");
 ?>
 <script language="JavaScript">
+$("#theme").attr("href", "themes/"+prefs.theme);
+$("#fontsize").attr("href", "sizes/"+prefs.fontsize);
+$("#fontfamily").attr("href", "fonts/"+prefs.fontfamily);
+$("#icontheme-theme").attr("href", "iconsets/"+prefs.icontheme+"/theme.css");
+$("#icontheme-adjustments").attr("href", "iconsets/"+prefs.icontheme+"/adjustments.css");
+
 <?php
 if ($prefs['debug_enabled']) {
     print "debug.setLevel(8);\n";
@@ -509,7 +516,7 @@ var imageEditor = function() {
                                             '<div id="u" class="tleft bleft bmid clickable bmenu">'+language.gettext("albumart_upload")+'</div>'+
                                             '<div class="tleft bleft bmid clickable"><a href="http://www.google.com/search?q='+phrase+'&hl=en&site=imghp&tbm=isch" target="_blank">'+language.gettext("albumart_newtab")+'</a></div>');
 
-                $("#editcontrols").append(  $('<img>', { class: "tright clickicon", onclick: "imageEditor.close()", src: ipath+"edit-delete.png", style: "height:16px"}));
+                $("#editcontrols").append(  $('<i>', { class: "icon-cancel-circled playlisticon tright clickicon", onclick: "imageEditor.close()"}));
 
                 $("#"+current).addClass("bsel");
 
@@ -518,7 +525,7 @@ var imageEditor = function() {
                 $("#searchphrase").val(phrase);
 
                 var bigsauce = origsauce;
-                var m = origsauce.match(/albumart\/original\/(.*)/);
+                var m = origsauce.match(/albumart\/small\/(.*)/);
                 if (m && m[1]) {
                     bigsauce = 'albumart/asdownloaded/'+m[1];
                 }
@@ -686,8 +693,6 @@ var imageEditor = function() {
                     debug.log("ALBUMART","Local Image ",i, v);
                     $("#fsearch").append($("<img>", {
                                                         id: "img"+(i+100000).toString(),
-                                                        //romprsrc: encodeURIComponent(v),
-                                                        //romprindex: i+100000,
                                                         class: "gimage clickable clickicon clickgimage" ,
                                                         src: v
                                                     })
@@ -802,7 +807,7 @@ function uploadComplete(data) {
     firefoxcrapnesshack++;
 
     imgobj.attr('src', "");
-    imgobj.attr('src', "albumart/original/firefoxiscrap/"+imagekey+"---"+firefoxcrapnesshack.toString());
+    imgobj.attr('src', "albumart/small/firefoxiscrap/"+imagekey+"---"+firefoxcrapnesshack.toString());
 
     debug.log("ALBUMART","Returned big sauce ",data.origimage);
     if (data.origimage) {
@@ -856,7 +861,7 @@ if ($mysqlc || file_exists(ROMPR_XML_COLLECTION)) {
 
 // Do Local Albums
 
-$allfiles = glob("albumart/original/*.jpg");
+$allfiles = glob("albumart/small/*.jpg");
 debug_print("There are ".count($allfiles)." Images", "ALBUMART");
 
 $count = 0;
@@ -940,7 +945,6 @@ function do_covers_xml_style() {
             } else {
                 $src = $album->image->src;
                 if (dirname($src) == "albumart/small") {
-                    $src = "albumart/original/".basename($src);
                     if(($key = array_search($src, $allfiles)) !== false) {
                         unset($allfiles[$key]);
                     }
@@ -987,11 +991,7 @@ function do_covers_db_style() {
             $class = "clickable clickicon clickalbumcover droppable";
             $src = "";
             if ($album['Image'] && $album['Image'] !== "") {
-                if (substr($album['Image'],0,8) == "albumart") {
-                    $src = 'albumart/original/'.$album['ImgKey'].'.jpg';
-                } else {
-                    $src = $album['Image'];
-                }
+                $src = $album['Image'];
                 if(($key = array_search($src, $allfiles)) !== false) {
                     unset($allfiles[$key]);
                 }
@@ -1046,14 +1046,13 @@ function do_radio_stations() {
                 if ($track->album) {
                     $artname = md5(" ".$track->album);
                     $class = "";
-                    $src = $ipath."broadcast.png";
-                    if ($track->image != $ipath."broadcast.png") {
+                    $src = "newimages/broadcast.png";
+                    if ($track->image != "newimages/broadcast.png") {
                         $src = $track->image;
                         if(($key = array_search($src, $allfiles)) !== false) {
                             unset($allfiles[$key]);
                         }
-                    } else if (file_exists("albumart/original/".$artname.".jpg")) {
-                        $src = "albumart/original/".$artname.".jpg";
+                    } else if (file_exists("albumart/small/".$artname.".jpg")) {
                         if(($key = array_search($src, $allfiles)) !== false) {
                             unset($allfiles[$key]);
                         }

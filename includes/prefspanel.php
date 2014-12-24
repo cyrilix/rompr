@@ -179,11 +179,6 @@ print '<div class="pref"><button class="topformbutton" onclick="shortcuts.edit()
 print '<div class="pref">
 <input class="autoset toggle" type="checkbox" id="scrolltocurrent">'.get_int_text('config_autoscroll').'</input>
 </div>';
-if ($layout == "phone") {
-print '<div class="pref">
-<input class="autoset toggle" type="checkbox" id="twocolumnsinlandscape">'.get_int_text('config_2columns').'</input>
-</div>';
-}
 print '<div class="pref">
 <input class="autoset toggle" type="checkbox" id="fullbiobydefault">'.get_int_text('config_fullbio').'</input>
 </div>';
@@ -208,7 +203,7 @@ print '<div class="pref prefsection">'.get_int_text('config_crossfade').'
 
 // Last.FM
 print '<div class="pref textcentre">
-<img src="'.$ipath.'lastfm.png" height="24px" style="vertical-align:middle;margin-right:8px"/><b>'.get_int_text('label_lastfm').'</b>
+<i class="icon-lastfm-1 medicon"></i><b>'.get_int_text('label_lastfm').'</b>
 </div>
 <div class="pref">'.get_int_text('config_lastfmusername').'
 <input class="winkle prefinput" name="user" type="text" size="30" value="'.$prefs['lastfm_user'].'"/><button onclick="lastfmlogin()">'.get_int_text('config_loginbutton').'</button>

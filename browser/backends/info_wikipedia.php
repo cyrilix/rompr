@@ -5,7 +5,7 @@ include ("includes/functions.php");
 include ("international.php");
 $domain = "en";
 $userdomain = false;
-$mobile = array_key_exists('mobile', $_REQUEST) ? true : false;
+$mobile = (array_key_exists('layout', $_REQUEST) && $_REQUEST['layout'] == 'phone') ? true : false;
 // Switch off error reporting prevents us from having to repeatedly check
 // that the objects we're foreaching on actually exist. Errors get dumped
 // to stdout and mess up the xml response. We don't wanna see them.

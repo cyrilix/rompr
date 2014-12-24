@@ -1,0 +1,313 @@
+.tablehundred {
+	width: 100%;
+}
+
+.info-box-fixed
+{
+    -moz-box-flex:0; /* Firefox */
+    -webkit-box-flex:0; /* Safari and Chrome */
+    box-flex:0;
+}
+
+.info-border-right {
+    border-right: 1px solid #454545;
+    padding-right:1em;
+    max-width:240px;
+}
+
+.info-box-expand
+{
+    -moz-box-flex:1.0; /* Firefox */
+    -webkit-box-flex:1.0; /* Safari and Chrome */
+    box-flex:1.0;
+    width:2000px; /* Firefox will ONLY shrink elements in a box layout, not expand them */
+}
+
+.cleft {
+    border-left: 1px solid #454545;
+    padding-left:1em;
+    margin-left:1em;
+}
+
+#infobar
+{
+    width:100%;
+    height:100px;
+    padding-top:4px;
+    padding-bottom:4px;
+    margin:0px;
+    overflow-y:hidden;
+    overflow-x:hidden;
+}
+
+.infobarlayout
+{
+    margin-left:8px;
+    margin-right:8px;
+    margin-top:0px;
+    margin-bottom:0px;
+    padding-top:0px;
+    padding-bottom:2px;
+    padding-left:0px;
+    padding-right:0px;
+    height:90px;
+}
+
+#patrickmoore
+{
+    height:90px;
+    overflow:hidden;
+}
+
+#albumcover
+{
+    padding-left:4px;
+    padding-right:4px;
+    padding-top:4px;
+    padding-bottom:4px;
+    margin:0px;
+    height:82px;
+    z-index:500;
+}
+
+#albumpicture
+{
+    width: auto;
+    height: 82px;
+}
+
+#nowplaying
+{
+    font-size:8pt;
+    padding-top:0px;
+    padding-bottom:0px;
+    white-space:nowrap;
+    height:60px;
+    width:100%;
+}
+
+#nptext
+{
+    width:auto;
+}
+
+#amontobin
+{
+    padding-top:6px;
+}
+
+#infopane
+{
+    height:100%;
+    overflow:auto;
+    position:relative;
+    display:block;
+}
+
+#infocontrols
+{
+    display:block;
+}
+
+#lastfm
+{
+    float:left;
+    margin-left:4px;
+    padding-top:1px;
+}
+
+#stars
+{
+    float:left;
+    margin-right:8px;
+    padding-top:1px;
+}
+
+#subscribe
+{
+    float:left;
+    margin-right:8px;
+    padding-top:1px;
+}
+
+#lastfm img
+{
+    margin-right:4px;
+}
+
+.tag {
+    margin-left:0px;
+    margin-right:1.2em;
+}
+
+.tagremover
+{
+    margin-left:0.5em;
+}
+
+#dbtags {
+    padding-top:0px;
+    padding-left:8px;
+    overflow:hidden;
+    opacity:0.9;
+    font-size:8pt;
+    height:22px;
+    line-height:22px;
+}
+
+#playcount
+{
+    float:left;
+    padding-top:0px;
+    padding-left:8px;
+    overflow:hidden;
+    opacity:0.9;
+    font-size:8pt;
+    height:22px;
+    line-height:22px;
+}
+
+.clicktext
+{
+    font-size:7pt;
+    font-weight:bold;
+}
+
+.topimg
+{
+    margin-right:4px;
+    margin-left:4px;
+    height: 24px;
+    width:24px;
+    font-size:24px;
+    margin-bottom:2px;
+    cursor: pointer;
+    vertical-align:middle;
+}
+
+.smallicon
+{
+    padding:0px;
+    margin:4px;
+    width:16px;
+    height:16px;
+    font-size:16px;
+    vertical-align:middle;
+}
+
+.npicon
+{
+    padding:0px;
+    margin-top:0px;
+    margin-left:0px;
+    margin-bottom:0px;
+    margin-right:4px;
+    height:20px;
+    width:20px;
+    font-size:20px;
+    vertical-align:middle;
+}
+
+.medicon
+{
+    padding:0px;
+    margin:2px;
+    height:24px;
+    width:24px;
+    font-size:24px;
+    vertical-align:middle;
+}
+
+.playlisticon
+{
+    padding:0px;
+    margin-right:4px;
+    margin-bottom:2px;
+    margin-top:2px;
+    width:12px;
+    height:12px;
+    font-size:12px;
+    vertical-align:middle;
+}
+
+.playlisticonr
+{
+    padding:0px;
+    margin-left:4px;
+    margin-right:2px;
+    margin-bottom:2px;
+    margin-top:2px;
+    width:12px;
+    height:12px;
+    font-size:12px;
+    vertical-align:middle;
+}
+
+.bigalarm
+{
+    width: 250px;
+    height: 250px;
+    font-size:250px;
+}
+
+/*-- Styles for drop-down menus --*/
+
+div.topdrop
+{
+    margin:0;
+    padding:0;
+    float:left;
+    position:relative;
+}
+
+div.topdropmenu
+{
+    z-index:1000;
+    max-height:500px;
+    overflow-y:auto;
+    overflow-x:hidden;
+    display:none;
+    position: absolute;
+    opacity:1;
+    padding:6px;
+}
+
+div.normalmenu
+{
+    width:200px;
+}
+
+div.widemenu
+{
+    width:380px;
+}
+
+div.leftmenu
+{
+    top: 30px;
+    left:-12px;
+}
+
+div.rightmenu.widemenu
+{
+    top:30px;
+    left:-340px;
+}
+
+div.rightmenu.normalmenu
+{
+    top:30px;
+    left:-160px;
+}
+
+.icon-discogs.smallcover-svg
+{
+    height:32px;
+    width:78px;
+}
+
+.icon-discogs.smallicon
+{
+    height:16px;
+    width:39px;
+}

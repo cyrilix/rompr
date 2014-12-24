@@ -75,7 +75,7 @@ if (array_key_exists('populate', $_REQUEST)) {
 			if ($link != "") {
 				$items->item($i)->nodeValue = "";
 				$f = $DOM->createDocumentFragment();
-				$f->appendXML('<p><img class="clickable clickicon clickstream" name="http://dir.xiph.org'.$link.'" streamimg="'.$ipath.'icecast.png" src="'.$ipath.'start.png" /></p>');
+				$f->appendXML('<p><i class="icon-no-response-playbutton medicon clickable clickicon clickstream" name="http://dir.xiph.org'.$link.'" streamimg="newimages/icecast.png"></i></p>');
 				$items->item($i)->appendChild($f);
 			}
 		}
@@ -94,7 +94,7 @@ if (array_key_exists('populate', $_REQUEST)) {
 	<?php
 	print '<div class="containerbox"><div class="expand"><b>'.get_int_text("label_searchfor").'</b></div></div>';
 	print '<div class="containerbox"><div class="expand"><input class="sourceform winkle enter" name="searchfor" type="text" /></div>';
-	print '<button class="fixed sourceform" type="submit">'.get_int_text("button_search").'</button></div>';
+	print '<button class="fixed sourceform" type="submit" onclick="makeabadger()">'.get_int_text("button_search").'</button></div>';
 	?>
 	</form>
 	<div class="containerbox fullwidth">
@@ -108,6 +108,7 @@ if (array_key_exists('populate', $_REQUEST)) {
 
 	$('form[name="searchice"]').ajaxForm(function(data) {
 	    $('#icecastlist').html(data);
+	    $("#icewait").stopSpinner();
 	});
 
 	<?php
@@ -121,23 +122,27 @@ if (array_key_exists('populate', $_REQUEST)) {
 ?>
 <script language="text/javascript">
 function refreshMyDrink(path) {
-    makeWaitingIcon("icewait");
+    $("#icewait").makeSpinner();
     if ($("#icecastlist").is(':empty') || path === false) {
-        $("#icecastlist").load("streamplugins/85_iceScraper.php?populate", function() { stopWaitingIcon("icewait") });
+        $("#icecastlist").load("streamplugins/85_iceScraper.php?populate", function() { $("#icewait").stopSpinner() });
     } else {
-        $("#icecastlist").load("streamplugins/85_iceScraper.php?populate=1&path="+path, function() { stopWaitingIcon("icewait") });
+        $("#icecastlist").load("streamplugins/85_iceScraper.php?populate=1&path="+path, function() { $("#icewait").stopSpinner() });
     }
+}
+
+function makeabadger() {
+    $("#icewait").makeSpinner();
 }
 </script>
 <div class="containerbox menuitem noselection">
 <?php
-print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" onclick="refreshMyDrink()" name="icecastlist"></div>';
+print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" onclick="refreshMyDrink()" name="icecastlist"></i></div>';
 ?>
 <?php
-print '<div class="smallcover fixed"><img height="32px" width="32px" src="'.$ipath.'icecast.png"></div>';
+print '<div class="fixed"><i class="icon-icecast smallcover-svg"></i></div>';
 print '<div class="expand">'.get_int_text('label_icecast').'</div>';
 ?>
-<img id="icewait" height="14px" width="14px" src="newimages/transparent-32x32.png" />
+<i id="icewait" class="smallicon invisible"></i>
 </div>
 <div id="icecastlist" class="dropmenu"></div>
 

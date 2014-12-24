@@ -30,7 +30,8 @@ var podcasts = function() {
 			        },
 			        error: function(data, status) {
 			            monitor.stop();
-			            alert("Failed To Download Podcast");
+			            debug.error("PODCASTS", "Podcats Download Failed!",data,status);
+			            infobar.notify(infobar.ERROR, "Failed To Download Podcast");
 			            downloadRunning = false;
 			            checkDownloadQueue();
 			        }
@@ -42,7 +43,7 @@ var podcasts = function() {
 	function podcastDownloadMonitor(track, channel) {
 
 	    var self = this;
-	    var progressdiv = $('img[name="poddownload_'+track+'"]').parent();
+	    var progressdiv = $('i[name="poddownload_'+track+'"]').parent();
 	    progressdiv.html('<div id="podcastdownload" width="100%"></div>');
 	    var pb = new progressBar('podcastdownload', 'horizontal');
 	    var timer;
@@ -80,7 +81,7 @@ var podcasts = function() {
 		for(var i = 0; i < downloadQueue.length; i++) {
 			var track = downloadQueue[i].track;
 			debug.debug("PODCAST DOWNLOAD","Putting Dummy Progress Bar in",track);
-		    $('img[name="poddownload_'+track+'"]').addClass("spinner");
+		    $('i[name="poddownload_'+track+'"]').makeSpinner();
 		}
 	}
 

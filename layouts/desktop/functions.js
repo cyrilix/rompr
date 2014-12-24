@@ -16,7 +16,7 @@ function expandInfo(side) {
 
 function toggleSearch() {
     if (prefs.hide_albumlist) {
-        sourcecontrol("albumlist", grrAnnoyed);
+        layoutProcessor.sourceControl("albumlist", grrAnnoyed);
         ihatefirefox();
         return false;
     }
@@ -27,7 +27,7 @@ function toggleSearch() {
             $("#search").slideDown({duration: 'fast', start: setSearchLabelWidth});
         }
     } else {
-        sourcecontrol("albumlist", grrAnnoyed);
+        layoutProcessor.sourceControl("albumlist", grrAnnoyed);
     }
     $('#sources').mCustomScrollbar("scrollTo", 0, {scrollInertia:20});
     albumScrollOffset = 0;
@@ -37,14 +37,6 @@ function toggleSearch() {
 
 function grrAnnoyed() {
     $("#search").slideDown({duration: 'fast', start: setSearchLabelWidth});
-}
-
-function ihatefirefox() {
-    if (prefs.search_limit_limitsearch) {
-        $("#mopidysearchdomains").show();
-    } else {
-        $("#mopidysearchdomains").hide();
-    }
 }
 
 function doThatFunkyThang() {
@@ -58,10 +50,12 @@ function doThatFunkyThang() {
 
     $("#sources").css("width", sourceswidth.toString()+"%");
     $("#albumcontrols").css("width", sourceswidth.toString()+"%");
+    if (!prefs.hidebrowser) {
+        $("#infopane").css("width", browserwidth.toString()+"%");
+        $("#infocontrols").css("width", browserwidth.toString()+"%");
+    }
     $("#playlist").css("width", playlistwidth.toString()+"%");
     $("#playlistcontrols").css("width", playlistwidth.toString()+"%");
-    $("#infopane").css("width", browserwidth.toString()+"%");
-    $("#infocontrols").css("width", browserwidth.toString()+"%");
 
     if (prefs.sourceshidden != $("#sources").is(':hidden')) {
         $("#sources").toggle("fast");
@@ -73,26 +67,27 @@ function doThatFunkyThang() {
         $("#playlistcontrols").toggle("fast");
     }
 
-    if (prefs.hidebrowser != $("#infopane").is(':hidden')) {
-        $("#infopane").toggle("fast");
-        $("#infocontrols").toggle("fast");
-        if (prefs.hidebrowser) {
-            $("#sourcesresizer").hide();
-        } else {
-            $("#sourcesresizer").show();
-        }
+    var i = (prefs.sourceshidden) ? "icon-angle-double-right" : "icon-angle-double-left";
+    $("#expandleft").removeClass("icon-angle-double-right icon-angle-double-left").addClass(i);
+    i = (prefs.playlisthidden) ? "icon-angle-double-left" : "icon-angle-double-right";
+    $("#expandright").removeClass("icon-angle-double-right icon-angle-double-left").addClass(i);
+    setTopIconSize();
+    if (!prefs.hidebrowser) {
+        browser.rePoint();
     }
-
-    var i = (prefs.sourceshidden) ? ipath+"arrow-right-double.png" : ipath+"arrow-left-double.png";
-    $("#expandleft").attr("src", i);
-    i = (prefs.playlisthidden) ? ipath+"arrow-left-double.png" : ipath+"arrow-right-double.png";
-    $("#expandright").attr("src", i);
-    browser.rePoint();
 }
 
 function hideBrowser() {
-    if (!prefs.hidebrowser) {
+    if (prefs.hidebrowser) {
+        prefs.save({playlistwidthpercent: 50, sourceswidthpercent: 50});
+        $("#infopane").hide();
+        $("#infocontrols").hide();
+        $("#sourcesresizer").hide();
+    } else {
         prefs.save({playlistwidthpercent: 25, sourceswidthpercent: 25});
+        $("#infopane").show();
+        $("#infocontrols").show();
+        $("#sourcesresizer").show();
     }
     doThatFunkyThang();
 }
@@ -101,47 +96,43 @@ function setBottomPaneSize() {
     var ws = getWindowSize();
     // x-position of the notification rollup
     var notpos = ws.x - 340;
-    $("#notifications").css("left", notpos.toString()+"px");
+    $("#notifications").css("left", notpos+"px");
     // Width of the nowplaying area
-    var lp = ws.x - 328;
-    $('#patrickmoore').css("width", lp.toString()+"px");
+    var lp = ws.x - $("#patrickmoore").prev().offset().left - $("#patrickmoore").prev().outerWidth(true) - 16;
+    $('#patrickmoore').css("width", lp+"px");
     // Height of the bottom pane (chooser, info, playlist container)
     var newheight = ws.y - 148;
     // Make sure the dropdown menus don't overflow the window
     // They have max-height as 500 in the css.
-    if (newheight < 500) {
-        $('ul.subnav').each(function() {
-            if ($(this).height() > newheight) {
-                $(this).css('height', newheight.toString()+"px");
-            }
-        });
-    } else {
-        $('ul.subnav').css('height', "");
-    }
-    $("#bottompage").css("height", newheight.toString()+"px");
+    // if (newheight < 500) {
+    //     $('.topdropmenu').each(function() {
+    //         if ($(this).height() > newheight) {
+    //             $(this).css('height', newheight.toString()+"px");
+    //         }
+    //     });
+    // } else {
+    //     $('ul.subnav').css('height', "");
+    // }
+    $("#bottompage").css("height", newheight+"px");
     newheight = null;
-    playlist.setHeight();
+    layoutProcessor.setPlaylistHeight();
+    setTopIconSize();
     infobar.rejigTheText();
     browser.rePoint();
 }
 
-function switchsource(source) {
-
-    var togo = sources.shift();
-    if (togo && typeof togo != "function") {
-        if ($("#"+togo).is(':visible')) {
-            $("#"+togo).fadeOut(200, function() { switchsource(source) });
-        } else {
-            switchsource(source);
+function setTopIconSize() {
+    var imw = (parseInt($('.topimg').css('margin-left')) + parseInt($('.topimg').css('margin-right')));
+    ["#albumcontrols", "#infocontrols", "#playlistcontrols"].forEach( function(div) {
+        if ($(div).is(':visible')) {
+            var numicons = $(div+" .topimg").length;
+            var mw = imw*numicons;
+            var iw = Math.floor(($(div).width() - mw)/numicons);
+            if (iw > 24) iw = 24;
+            if (iw < 2) iw = 2;
+            $(div+" .topimg").css({width: iw+"px", height: iw+"px", "font-size": (iw-2)+"px"});
         }
-    } else {
-        prefs.save({chooser: source});
-        if (typeof togo == "function") {
-            $("#"+source).fadeIn(200, togo);
-        } else {
-            $("#"+source).fadeIn(200);
-        }
-    }
+    });
 }
 
 var shortcuts = function() {
@@ -152,7 +143,6 @@ var shortcuts = function() {
                     button_play: "P",
                     button_volup: "Up",
                     button_voldown: "Down",
-                    button_closewindow: "Escape",
                     button_skipforward: "]",
                     button_skipbackward: "[",
                     button_clearplaylist: "C",
@@ -173,32 +163,35 @@ var shortcuts = function() {
                     button_nextsource: "I",
     };
 
-    var bindings = { button_next: playlist.next,
-                    button_previous: playlist.previous,
-                    button_stop: player.controller.stop,
-                    button_play: infobar.playbutton.clicked,
-                    button_volup: function() { infobar.volumeKey(5) },
-                    button_voldown: function() { infobar.volumeKey(-5) },
-                    button_closewindow: function() { window.open(location, '_self').close() },
-                    button_skipforward: function() { player.skip(10) },
-                    button_skipbackward: function() { player.skip(-10) },
-                    button_clearplaylist: playlist.clear,
-                    button_stopafter: playlist.stopafter,
-                    button_random: function() { playlistControlButton('random') },
-                    button_crossfade: function() { playlistControlButton('crossfade') },
-                    button_repeat: function() { playlistControlButton('repeat') },
-                    button_consume: function() { playlistControlButton('consume') },
-                    button_rateone: function() { nowplaying.setRating(1) },
-                    button_ratetwo: function() { nowplaying.setRating(2) },
-                    button_ratethree: function() { nowplaying.setRating(3) },
-                    button_ratefour: function() { nowplaying.setRating(4) },
-                    button_ratefive: function() { nowplaying.setRating(5) },
-                    button_togglesources: function() { expandInfo('left') },
-                    button_toggleplaylist: function() { expandInfo('right') },
-                    config_hidebrowser: function() { $("#hidebrowser").attr("checked", !$("#hidebrowser").is(':checked')); prefs.save({hidebrowser: $("#hidebrowser").is(':checked')}, hideBrowser) },
-                    button_updatecollection: function(){ checkCollection(true, false) },
-                    button_nextsource: function() { browser.nextSource(1) }
-    };
+    if (typeof playlist !== "undefined") {
+
+        var bindings = { button_next: playlist.next,
+                        button_previous: playlist.previous,
+                        button_stop: player.controller.stop,
+                        button_play: infobar.playbutton.clicked,
+                        button_volup: function() { infobar.volumeKey(5) },
+                        button_voldown: function() { infobar.volumeKey(-5) },
+                        button_skipforward: function() { player.skip(10) },
+                        button_skipbackward: function() { player.skip(-10) },
+                        button_clearplaylist: playlist.clear,
+                        button_stopafter: playlist.stopafter,
+                        button_random: function() { playlistControlButton('random') },
+                        button_crossfade: function() { playlistControlButton('crossfade') },
+                        button_repeat: function() { playlistControlButton('repeat') },
+                        button_consume: function() { playlistControlButton('consume') },
+                        button_rateone: function() { nowplaying.setRating(1) },
+                        button_ratetwo: function() { nowplaying.setRating(2) },
+                        button_ratethree: function() { nowplaying.setRating(3) },
+                        button_ratefour: function() { nowplaying.setRating(4) },
+                        button_ratefive: function() { nowplaying.setRating(5) },
+                        button_togglesources: function() { expandInfo('left') },
+                        button_toggleplaylist: function() { expandInfo('right') },
+                        config_hidebrowser: function() { $("#hidebrowser").attr("checked", !$("#hidebrowser").is(':checked')); prefs.save({hidebrowser: $("#hidebrowser").is(':checked')}, hideBrowser) },
+                        button_updatecollection: function(){ checkCollection(true, false) },
+                        button_nextsource: function() { browser.nextSource(1) }
+        };
+
+    }
 
     function format_keyinput(inpname, hotkey) {
         if (hotkey === null) hotkey = "";
@@ -206,21 +199,21 @@ var shortcuts = function() {
     }
 
     function format_clearbutton(inpname) {
-        return '<td><img class="clickicon buttonclear" name="'+inpname+'" src="'+ipath+'edit-delete.png"></td>';
+        return '<td><i class="icon-cancel-circled playlisticon clickicon buttonclear"></i></td>';
     }
 
     return {
 
         load: function() {
             debug.shout("SHORTCUTS","Loading Key Bindings");
-            $(document).unbind('keydown');
+            $(window).unbind('keydown');
             for (var i in hotkeys) {
                 if (localStorage.getItem('hotkeys.'+i) !== null) {
                     hotkeys[i] = localStorage.getItem('hotkeys.'+i);
                 }
                 if (hotkeys[i] !== "" && bindings[i]) {
                     debug.log("SHORTCUTS","Binding Key For",i);
-                    $(document).bind('keydown', hotkeys[i], bindings[i]);
+                    $(window).bind('keydown', hotkeys[i], bindings[i]);
                 }
             }
         },
@@ -384,8 +377,15 @@ function initUI() {
     $("#playlistresizer").bind("drag", prDrag);
     $("#playlistresizer").bind("dragstop", prDragStop);
     doThatFunkyThang();
-    $("ul.topnav li a").click(function() {
-        $(this).parent().find("ul.subnav").slideToggle('fast', function() {
+
+    $(".topdrop").click(function(ev) {
+        var ours = $(this)[0];
+        $('.topdropmenu').each(function() {
+            if ($(this).is(':visible') && $(this).parent()[0] != ours) {
+                $(this).slideToggle('fast');
+            }
+        });
+        $(this).find('.topdropmenu').slideToggle('fast', function() {
             if ($(this).is(':visible')) {
                 $(this).mCustomScrollbar("update");
                 if ($(this).attr("id") == "hpscr") {
@@ -393,8 +393,9 @@ function initUI() {
                 }
             }
         });
-        return false;
     });
+
+    $(".stayopen").click(function(ev) {ev.stopPropagation() });
 
     shortcuts.load();
     var obj = document.getElementById('volumecontrol');
@@ -414,7 +415,7 @@ function initUI() {
     }, false);
     $(".enter").keyup( onKeyUp );
     $(".lettuce,.tooltip").tipTip({delay: 1000, edgeOffset: 8});
-    $.each([ "#sources", "#infopane", "#pscroller", "#lpscr", "#configpanel", "#hpscr", "#searchscr", ".drop-box", "#plscr", "#ppscr" ], function( index, value ) {
+    $.each([ "#sources", "#infopane", "#pscroller", ".topdropmenu", ".drop-box" ], function( index, value ) {
         addCustomScrollBar(value);
     });
 
@@ -425,3 +426,134 @@ function initUI() {
     } );
 
 }
+
+var layoutProcessor = function() {
+
+    function switchsource(source) {
+
+        var togo = sources.shift();
+        if (togo && typeof togo != "function") {
+            if ($("#"+togo).is(':visible')) {
+                $("#"+togo).fadeOut(200, function() { switchsource(source) });
+            } else {
+                switchsource(source);
+            }
+        } else {
+            prefs.save({chooser: source});
+            if (typeof togo == "function") {
+                $("#"+source).fadeIn(200, togo);
+            } else {
+                $("#"+source).fadeIn(200);
+            }
+        }
+    }
+
+    return {
+
+        shrinkerRatio: 2.5,
+        supportsDragDrop: true,
+
+        afterHistory: function() {
+            setTimeout(function() { $("#infopane").mCustomScrollbar("scrollTo",0) }, 500);
+        },
+
+        addInfoSource: function(name, obj) {
+            $("#chooserbuttons").append($('<i>', {
+                onclick: "browser.switchsource('"+name+"')",
+                title: language.gettext(obj.text),
+                class: obj.icon+' topimg sep dildo',
+                id: "button_source"+name
+            }));
+        },
+
+        setupInfoButtons: function() {
+            $("#button_source"+prefs.infosource).addClass("currentbun");
+            $(".dildo").tipTip({delay: 1000, edgeOffset: 8});
+        },
+
+        goToBrowserPanel: function(panel) {
+            $("#infopane").mCustomScrollbar('update');
+            var sp = $("#"+panel+"information").position();
+            $("#infopane").mCustomScrollbar("scrollTo",sp.top);
+        },
+
+        goToBrowserPlugin: function(panel) {
+            setTimeout( function() { layoutProcessor.goToBrowserPanel(panel) }, 1000);
+        },
+
+        goToBrowserSection: function(section) {
+            $("#infopane").mCustomScrollbar("scrollTo",section);
+        },
+
+        notifyAddTracks: function() { },
+
+        maxPopupSize : function(winsize) {
+            return {width: winsize.x - 128, height: winsize.y - 128};
+        },
+
+        hidePanel: function(panel, is_hidden, new_state) {
+            if (is_hidden != new_state) {
+                if (new_state && prefs.chooser == panel) {
+                    $("#"+panel).fadeOut('fast');
+                    var s = ["albumlist", "filelist", "radiolist"];
+                    for (var i in s) {
+                        if (s[i] != panel && !prefs["hide_"+s[i]]) {
+                            switchsource(s[i]);
+                            break;
+                        }
+                    }
+                }
+                if (!new_state && prefs.chooser == panel) {
+                    $("#"+panel).fadeIn('fast');
+                }
+            }
+        },
+
+        setTagAdderPosition: function(position) {
+            $("#tagadder").css({top: position.y+8, left: position.x-16});
+        },
+
+        setPlaylistHeight: function() {
+            var newheight = $("#bottompage").height() - $("#horse").height();
+            if ($("#playlistbuttons").is(":visible")) {
+                newheight -= $("#playlistbuttons").height();
+            }
+            $("#pscroller").css("height", newheight.toString()+"px");
+            $('#pscroller').mCustomScrollbar("update");
+        },
+
+        playlistLoading: function() {
+            if ($("#lpscr").is(':visible')) {
+                $("#lpscr").slideToggle('fast');
+            }
+            if ($("#ppscr").is(':visible')) {
+                $("#ppscr").slideToggle('fast');
+            }
+        },
+
+        scrollPlaylistToCurrentTrack: function() {
+            $('#pscroller').mCustomScrollbar(
+                "scrollTo",
+                $('div.track[romprid="'+player.status.songid+'"]').offset().top - $('#sortable').offset().top - $('#pscroller').height()/2,
+                { scrollInertia: 0 }
+            );
+        },
+
+        sourceControl: function(source, callback) {
+            sources = ["albumlist", "filelist", "radiolist"];
+            if (callback) {
+                sources.push(callback);
+            }
+            for(var i in sources) {
+                if (sources[i] == source) {
+                    sources.splice(i, 1);
+                    break;
+                }
+            }
+            switchsource(source);
+            return false;
+
+        }
+    }
+
+}();

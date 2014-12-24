@@ -44,9 +44,9 @@ if (array_key_exists('populate', $_REQUEST)) {
             } else {
                 print '<div class="clickable clickradio containerbox padright menuitem" name="'.$file.'">';
             }
-            print '<div class="playlisticon fixed"><img width="20px" height="20px" name="'.md5(" ".$track->album).'" src="'.$track->image.'" /></div>';
+            print '<div class="topimg fixed"><img class="topimg" name="'.md5(" ".$track->album).'" src="'.$track->image.'" /></div>';
             print '<div class="expand stname" style="margin-left:4px">'.utf8_encode($track->album).'</div>';
-            print '<div class="playlisticon fixed clickable clickradioremove clickicon" name="'.$file.'"><img src="'.$ipath.'edit-delete.png"></div>';
+            print '<div class="fixed clickable clickradioremove clickicon" name="'.$file.'"><i class="icon-cancel-circled playlisticon"></i></div>';
             print '</div>';
         }
     }
@@ -64,8 +64,8 @@ if (array_key_exists('populate', $_REQUEST)) {
 ?>
 <div class="containerbox menuitem noselection">
 <?php
-print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" name="yourradiolist"></div>';
-print '<div class="smallcover fixed"><img height="32px" width="32px" src="'.$ipath.'broadcast-32.png"></div>';
+print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" name="yourradiolist"></i></div>';
+print '<div class="fixed"><i class="icon-radio-tower smallcover-svg"></i></div>';
 print '<div class="expand">'.get_int_text('label_yourradio').'</div>';
 ?>
 </div>

@@ -78,8 +78,8 @@ if (array_key_exists('populate', $_REQUEST)) {
 ?>
 <div class="containerbox menuitem noselection">
 <?php
-print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" name="podcastslist"></div>';
-print '<div class="smallcover fixed"><img height="32px" width="32px" src="'.$ipath.'podcast-logo.png"></div>';
+print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" name="podcastslist"></i></div>';
+print '<div class="fixed"><i class="icon-podcast-circled smallcover-svg"></i></div>';
 print '<div class="expand">'.get_int_text('label_podcasts').'<span id="total_unlistened_podcasts"></span><span></span></div>';
 ?>
 </div>

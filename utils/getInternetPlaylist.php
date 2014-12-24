@@ -20,7 +20,7 @@ include ("international.php");
 $url = rawurldecode($_REQUEST['url']);
 $station = (array_key_exists('station', $_REQUEST)) ? rawurldecode($_REQUEST['station']) : "Unknown Internet Stream";
 $creator = "";
-$image = (array_key_exists('image', $_REQUEST)) ? rawurldecode($_REQUEST['image']) : $ipath."broadcast.png";
+$image = (array_key_exists('image', $_REQUEST)) ? rawurldecode($_REQUEST['image']) : "newimages/broadcast.png";
 $usersupplied = (array_key_exists('usersupplied', $_REQUEST)) ? true : false;
 
 debug_print("Getting Internet Stream:","RADIO_PLAYLIST");

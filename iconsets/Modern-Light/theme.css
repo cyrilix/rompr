@@ -1,0 +1,12 @@
+
+ [class^="icon-"], [class*=" icon-"] {
+ 	background-size:contain;
+	background-repeat:no-repeat;
+}
+
+.icon-play-circled { background-image :url('media-playback-start.svg') }
+.icon-pause-circled { background-image :url('media-playback-pause.svg') }
+.icon-fast-backward { background-image :url('media-skip-backward.svg') }
+.icon-fast-forward { background-image :url('media-skip-forward.svg') }
+.icon-stop-1 { background-image :url('media-playback-stop.svg') }
+.icon-to-end-1 { background-image :url('stopafter.svg') }

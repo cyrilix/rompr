@@ -121,14 +121,6 @@ class album {
         }
 
         switch ($this->domain) {
-            // These are mopidy domains
-            case "podcast":
-            case "podcast http":
-                // Some podcasts return album images, which will be $this->image
-                // But not all of them do so we need a fallback.
-                if ($image == "") $image = $ipath."podcast-logo.png";
-                break;
-
             case "youtube":
             case "soundcloud":
                 // Youtube and SoundCloud return album images, but it makes more
@@ -144,6 +136,9 @@ class album {
                 // These are here because they're not classed as streams -
                 // domain will only be bassdrive or oe1 if this is an archive
                 // track, and those make more sense to display as albums.
+            case "podcast":
+                // Some podcasts return album images, which will be $this->image
+                // But not all of them do so we need a fallback.
                 if ($image == "") $image = "newimages/".$this->domain."-logo.png";
                 break;
         }
@@ -274,7 +269,7 @@ class track {
     public function __construct($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
                                 $type, $image, $backendid, $playlistpos, $station,
                                 $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack,
-                                $origimage, $playlist, $lastmodified, $composer, $performers) {
+                                $playlist, $lastmodified, $composer, $performers) {
 
         $this->artist = $artist;
         $this->album = $album;
@@ -287,7 +282,6 @@ class track {
         $this->folder = $directory;
         $this->albumartist = $albumartist;
         $this->disc = $disc === null ? 1 : $disc;
-        $this->original_image = $origimage;
         $this->playlist = $playlist;
         $this->lastmodified = $lastmodified;
         $this->image = $image;
@@ -385,7 +379,7 @@ class musicCollection {
     public function newTrack($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
                                 $type, $image, $backendid, $playlistpos, $station,
                                 $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack,
-                                $origimage, $spotialbum, $spotiartist, $domain, $cuefile, $lastmodified,
+                                $spotialbum, $spotiartist, $domain, $cuefile, $lastmodified,
                                 $linktype, $composer, $performers) {
 
         global $current_album, $current_artist, $abm, $current_domain, $playlist, $prefs, $backend_in_use, $trackbytrack;
@@ -429,7 +423,7 @@ class musicCollection {
             $t = new track($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
                             $type, $image, $backendid, $playlistpos, $station,
                             $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist,
-                            $mbtrack, $origimage, $cuefile, $lastmodified, $composer, $performers);
+                            $mbtrack, $cuefile, $lastmodified, $composer, $performers);
 
             do_track_by_track($sortartist, $album, $domain, $spotialbum, $t);
             return true;
@@ -486,7 +480,7 @@ class musicCollection {
         $t = new track($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
                         $type, $image, $backendid, $playlistpos, $station,
                         $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist,
-                        $mbtrack, $origimage, $cuefile, $lastmodified, $composer, $performers);
+                        $mbtrack, $cuefile, $lastmodified, $composer, $performers);
 
         // Albums are not indexed by name, since we may have 2 or more albums with the same name by multiple artists
 
@@ -611,8 +605,8 @@ function process_file(&$filedata) {
 
     global $numtracks, $totaltime, $prefs, $dbterms, $ipath, $collection;
 
-    list ( $file, $domain, $type, $station, $stream, $origimage )
-        = array ( $filedata['file'], getDomain($filedata['file']), "local", null, "", null );
+    list ( $file, $domain, $type, $station, $stream)
+        = array ( $filedata['file'], getDomain($filedata['file']), "local", null, "");
 
     if ($dbterms['tags'] !== null || $dbterms['rating'] !== null) {
         // If this is a search and we have tags or ratings to search for, check them here.
@@ -729,15 +723,12 @@ function process_file(&$filedata) {
                 $stream,
                 $albumartist) = getStreamInfo($filedata, $domain);
 
-        if ($origimage == null && preg_match('#^albumart/original/#',$image)) {
-            $origimage = "albumart/asdownloaded/".basename($image);
-        }
     }
 
     $collection->newTrack(  $name, $file, $duration, $number, $date, $genre, $artist, $album, $folder,
                             $type, $image, $backendid, $playlistpos, $station,
                             $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack,
-                            $origimage, $spotialbum, $spotiartist, $domain, $playlist, $lastmodified,
+                            $spotialbum, $spotiartist, $domain, $playlist, $lastmodified,
                             $linktype, $composer, $performers);
 
     $numtracks++;
@@ -834,7 +825,7 @@ function getStuffFromXSPF($url) {
         "Unknown Internet Stream",
         getStreamFolder($url),
         "stream",
-        $ipath."broadcast.png",
+        "newimages/broadcast.png",
         getDummyStation($url),
         "",
         ""

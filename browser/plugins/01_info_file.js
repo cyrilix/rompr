@@ -241,4 +241,4 @@ var info_file = function() {
 	}
 }();
 
-nowplaying.registerPlugin("file", info_file, ipath+"audio-x-generic.png", "button_fileinfo");
+nowplaying.registerPlugin("file", info_file, "icon-library", "button_fileinfo");

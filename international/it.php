@@ -462,7 +462,6 @@ $languages['it'] = array (
 	"button_playlist" => "Playlist",
 	"button_playman" => "Gestione Playlist",
 	"button_mob_history" => "Pannello Informazioni Cronologia",
-	"config_2columns" => "Utilizza 2 colonne nella modalità 'landscape'",
 	"label_streamradio" => "Radio Locali e Nazionali",
 
 	// Various Plugins, Rating, and Tagging

@@ -18,11 +18,7 @@ var info_lastfm = function() {
 
     function doTags(taglist) {
     	debug.debug(medebug,"    Doing Tags");
-        var html = '<ul><li><b>'+language.gettext("lastfm_toptags")+'</b></li><li><table';
-        if (layout == "desktop") {
-            html = html + ' width="100%"';
-        }
-        html = html + '>';
+        var html = '<ul><li><b>'+language.gettext("lastfm_toptags")+'</b></li><li><table class="tablehundred">';
         for(var i in taglist) {
             html = html + '<tr><td><a href="'+taglist[i].url+'" target="_blank">'+taglist[i].name+'</a></td>';
         }
@@ -51,16 +47,12 @@ var info_lastfm = function() {
         html = html + '<li class="tiny">'+language.gettext("lastfm_addtagslabel")+'</li>';
         html = html + '<li><input class="enter tiny inbrowser" type="text"></input>';
         html = html + '<button class="infoclick clickaddtags tiny">'+language.gettext("button_add")+'</button>'+
-                        '<img class="tright waiting" id="tagadd'+type+'" height="20px" src="newimages/transparent-32x32.png"></li></ul>';
+                        '<i class="smallicon tright" id="tagadd'+type+'"></i></li></ul>';
         return html;
     }
 
     function doUserTags(name) {
-        var html = '<ul><li><b>'+language.gettext("lastfm_yourtags")+'</b></li><li><table name="'+name+'tagtable"';
-        if (layout == "desktop") {
-            html = html + ' width="100%"';
-        }
-        html = html + '>';
+        var html = '<ul><li><b>'+language.gettext("lastfm_yourtags")+'</b></li><li><table class="tablehundred" name="'+name+'tagtable">';
         html = html + '</table></li></ul>';
         return html;
     }
@@ -89,7 +81,7 @@ var info_lastfm = function() {
 
     function appendTag(table, name, url) {
         var html = '<tr class="newtag"><td><a href="'+url+'" target="_blank">'+name+'</a></td>';
-        html = html + '<td><img class="infoclick clickremovetag" title="'+language.gettext("lastfm_removetag")+'" style="vertical-align:middle" src="'+ipath+'edit-delete.png" height="12px"></td>';
+        html = html + '<td><i class="icon-cancel-circled playlisticon infoclick clickremovetag" title="'+language.gettext("lastfm_removetag")+'"></i></td>';
         $('table[name="'+table+'tagtable"]').append(html);
         $(".newtag").fadeIn('fast', function(){
             $(this).find('[title]').tipTip({delay: 1000, edgeOffset: 8});
@@ -102,22 +94,6 @@ var info_lastfm = function() {
             return formatLastFmError(lfmdata);
         }
         var html = sectionHeader(lfmdata);
-        var bigurl = lfmdata.image("mega");
-        if (layout == "desktop") {
-            var imageurl = lfmdata.image("extralarge");
-        } else {
-            var imageurl = lfmdata.image("extralarge");
-            if (imageurl != '') {
-                html = html + '<img';
-                if (bigurl && bigurl != imageurl) {
-                    html = html + ' class="infoclick clickzoomimage"';
-                }
-                html = html + ' src="getRemoteImage.php?url=' + imageurl + '" />';
-                if (bigurl && bigurl != imageurl) {
-                    html = html + '<input type="hidden" value="getRemoteImage.php?url='+bigurl+'" />';
-                }
-            }
-        }
         html = html + '</ul><br>';
 
         html = html + doTags(lfmdata.tags());
@@ -128,7 +104,9 @@ var info_lastfm = function() {
 
         html = html + '</div><div class="statsbox">';
 
-        if (layout == "desktop" && imageurl != '') {
+        var bigurl = lfmdata.image("mega");
+        var imageurl = lfmdata.image("extralarge");
+        if (imageurl != '') {
             html = html +  '<img class="stright standout'
             if (bigurl && bigurl != imageurl) {
                 html = html + ' infoclick clickzoomimage';
@@ -167,7 +145,7 @@ var info_lastfm = function() {
             return formatLastFmError(lfmdata);
         }
         var html = sectionHeader(lfmdata);
-        html = html + '<br><ul id="buyalbum"><li><b>'+language.gettext("lastfm_buyalbum")+'&nbsp;</b><img class="infoclick clickbuy" height="20px" id="buyalbumbutton" style="vertical-align:middle" src="'+ipath+'cart.png"></li></ul>';
+        html = html + '<br><ul id="buyalbum"><li><b>'+language.gettext("lastfm_buyalbum")+'&nbsp;</b><i class="icon-basket-circled smallicon infoclick clickbuy" id="buyalbumbutton"></i></li></ul>';
         html = html + '</ul><br>';
 
         html = html + doTags(lfmdata.tags());
@@ -177,13 +155,8 @@ var info_lastfm = function() {
         }
 
         html = html + '</div><div class="statsbox">';
-        var imageurl;
-        if (layout == "desktop") {
-            var imageurl = lfmdata.image("large");
-            var bigurl = lfmdata.image("mega");
-        } else {
-            var imageurl = lfmdata.image("medium");
-        }
+        var imageurl = lfmdata.image("large");
+        var bigurl = lfmdata.image("mega");
         if (imageurl != '') {
             html = html +  '<img class="stright standout'
             if (bigurl && bigurl != imageurl) {
@@ -203,7 +176,7 @@ var info_lastfm = function() {
             html = html + '<tr><td>';
             if (tracks[i]['@attr']) { html = html + tracks[i]['@attr'].rank+':'; }
             html = html + '</td><td>'+tracks[i].name+'</td><td>'+formatTimeString(tracks[i].duration)+'</td>';
-            html = html + '<td align="right"><a target="_blank" title="'+language.gettext("lastfm_viewtrack")+'" href="'+tracks[i].url+'"><img src="'+ipath+'lastfm.png" height="12px"></a></td><td align="right">';
+            html = html + '<td align="right"><a target="_blank" title="'+language.gettext("lastfm_viewtrack")+'" href="'+tracks[i].url+'"><i class="icon-lastfm-1 smallicon"></i></a></td><td align="right">';
             html = html + '</td></tr>';
         }
         html = html + '</table>';
@@ -220,7 +193,7 @@ var info_lastfm = function() {
         html = html + '<li name="userloved">';
         html = html +'</li>';
 
-        html = html + '<br><ul id="buytrack"><li><b>'+language.gettext("lastfm_buytrack")+'&nbsp;</b><img class="infoclick clickbuy" height="20px" id="buytrackbutton" style="vertical-align:middle" src="'+ipath+'cart.png"></li></ul>';
+        html = html + '<br><ul id="buytrack"><li><b>'+language.gettext("lastfm_buytrack")+'&nbsp;</b><i class="icon-basket-circled smallicon infoclick clickbuy" id="buytrackbutton"></i></li></ul>';
         html = html + '</ul><br>';
 
         html = html + doTags(lfmdata.tags());
@@ -307,7 +280,7 @@ var info_lastfm = function() {
             }
 
             this.tagAddFailed = function(type, tags) {
-                stopWaitingIcon("tagadd"+type);
+                $("#tagadd"+type).stopSpinner();
                 infobar.notify(infobar.ERROR, language.gettext("lastfm_tagerror"));
                 debug.warn(medebug,"Failed to modify tags",type,tags);
             }
@@ -343,10 +316,10 @@ var info_lastfm = function() {
                 var html = "";
                 if (flag) {
                     html = html + '<b>'+language.gettext("lastfm_loved")+':</b> '+language.gettext("label_yes");
-                    html = html+'&nbsp;&nbsp;&nbsp;<a title="'+language.gettext("lastfm_unlove")+'" href="#" class="infoclick clickunlove"><img src="'+ipath+'lastfm-unlove.png" height="12px"></a>';
+                    html = html+'&nbsp;&nbsp;&nbsp;<i title="'+language.gettext("lastfm_unlove")+'" class="icon-heart-broken smallicon infoclick clickunlove"></i>';
                 } else {
                     html = html + '<li><b>'+language.gettext("lastfm_loved")+':</b> '+language.gettext("label_no");
-                    html = html+'&nbsp;&nbsp;&nbsp;<a title="'+language.gettext("lastfm_lovethis")+'" href="#" class="infoclick clicklove"><img src="'+ipath+'lastfm-love.png" height="12px"></a>';
+                    html = html+'&nbsp;&nbsp;&nbsp;<i title="'+language.gettext("lastfm_lovethis")+'" class="icon-heart smallicon infoclick clicklove"></i>';
                 }
                 $('li[name="userloved"]').html(html);
                 $('li[name="userloved"]').find("[title]").tipTip({delay: 1000, edgeOffset: 8});
@@ -362,8 +335,8 @@ var info_lastfm = function() {
                     var updates = { creator: (parent.playlistinfo.metadata.artists.length == 1) ? self.artist.name() : parent.playlistinfo.creator,
                                     album: self.album.name(),
                                     title: self.track.name(),
-                                    image: self.album.image('medium'),
-                                    origimage: self.album.image('mega') };
+                                    image: self.album.image('mega') ? self.album.image('mega') : self.album.image('medium')
+                                };
                     nowplaying.setLastFMCorrections(parent.currenttrack, updates);
                 } catch(err) {
                     debug.fail(medebug,"Not enough information to send corrections");
@@ -510,12 +483,12 @@ var info_lastfm = function() {
                     },
 
                     somethingfailed: function(data) {
-                        stopWaitingIcon("tagaddartist");
+                        $("#tagaddartist").stopSpinner();
                         debug.warn(medebug,"Something went wrong",data);
                     },
 
                     gotUserTags: function(data) {
-                        stopWaitingIcon("tagaddartist");
+                        $("#tagaddartist").stopSpinner();
                         try {
                             tags = getArray(data.tags.tag);
                         } catch(err) {
@@ -526,7 +499,7 @@ var info_lastfm = function() {
                     },
 
                     addtags: function(tags) {
-                        makeWaitingIcon("tagaddartist");
+                        $("#tagaddartist").makeSpinner();
                         lastfm.artist.addTags({ artist: self.artist.name(),
                                                 tags: tags},
                                                 self.justaddedtags,
@@ -535,7 +508,7 @@ var info_lastfm = function() {
                     },
 
                     removetags: function(tags) {
-                        makeWaitingIcon("tagaddartist");
+                        $("#tagaddartist").makeSpinner();
                         lastfm.artist.removeTag({artist: self.artist.name(),
                                                 tag: tags},
                                                 self.justaddedtags,
@@ -653,12 +626,12 @@ var info_lastfm = function() {
                     },
 
                     somethingfailed: function(data) {
-                        stopWaitingIcon("tagaddalbum");
+                        $("#tagaddalbum").stopSpinner();
                         debug.warn(medebug,"Something went wrong",data);
                     },
 
                     gotUserTags: function(data) {
-                        stopWaitingIcon("tagaddalbum");
+                        $("#tagaddalbum").stopSpinner();
                         try {
                             tags = getArray(data.tags.tag);
                         } catch(err) {
@@ -669,7 +642,7 @@ var info_lastfm = function() {
                     },
 
                     addtags: function(tags) {
-                        makeWaitingIcon("tagaddalbum");
+                        $("#tagaddalbum").makeSpinner();
                         lastfm.album.addTags({  artist: getSearchArtist(),
                                                 album: self.album.name(),
                                                 tags: tags},
@@ -679,7 +652,7 @@ var info_lastfm = function() {
                     },
 
                     removetags: function(tags) {
-                        makeWaitingIcon("tagaddalbum");
+                        $("#tagaddalbum").makeSpinner();
                         lastfm.album.removeTag({    artist: getSearchArtist(),
                                                     album: self.album.name(),
                                                     tag: tags},
@@ -689,7 +662,7 @@ var info_lastfm = function() {
                     },
 
                     unfetteredCapitalism: function() {
-                        makeWaitingIcon("buyalbumbutton");
+                        $("#buyalbumbutton").makeSpinner();
                         lastfm.album.getBuylinks({  album: self.album.name(),
                                                     artist: getSearchArtist()},
                                                 self.album.showBuyLinks,
@@ -698,7 +671,7 @@ var info_lastfm = function() {
 
                     showBuyLinks: function(data) {
                         debug.log(medebug,"Got album buy links",data);
-                        stopWaitingIcon("buyalbumbutton");
+                        $("#buyalbumbutton").stopSpinner();
                         $("#buyalbum").fadeOut('fast', function() {
                             $("#buyalbum").html(getBuyHtml(data));
                             $("#buyalbum").fadeIn("fast");
@@ -707,7 +680,7 @@ var info_lastfm = function() {
 
                     noBuyLinks: function(data) {
                         debug.fail(medebug,"No album buy links",data);
-                        stopWaitingIcon("buyalbumbutton");
+                        $("#buyalbumbutton").stopSpinner();
                         infobar.notify(infobar.NOTIFY, data.message);
                     }
                 }
@@ -814,12 +787,12 @@ var info_lastfm = function() {
                     },
 
                     somethingfailed: function(data) {
-                        stopWaitingIcon("tagaddtrack");
+                        $("#tagaddtrack").stopSpinner();
                         debug.warn(medebug,"Something went wrong",data);
                     },
 
                     gotUserTags: function(data) {
-                        stopWaitingIcon("tagaddtrack");
+                        $("#tagaddtrack").stopSpinner();
                         try {
                             tags = getArray(data.tags.tag);
                         } catch(err) {
@@ -830,7 +803,7 @@ var info_lastfm = function() {
                     },
 
                     addtags: function(tags) {
-                        makeWaitingIcon("tagaddtrack");
+                        $("#tagaddtrack").makeSpinner();
                         lastfm.track.addTags({  artist: self.artist.name(),
                                                 track: self.track.name(),
                                                 tags: tags},
@@ -841,7 +814,7 @@ var info_lastfm = function() {
 
                     removetags: function(tags) {
                         if (findTag2(tags, $('table[name="tracktagtable"]'))) {
-                            makeWaitingIcon("tagaddtrack");
+                            $("#tagaddtrack").makeSpinner();
                             lastfm.track.removeTag({    artist: self.artist.name(),
                                                         track: self.track.name(),
                                                         tag: tags},
@@ -854,7 +827,7 @@ var info_lastfm = function() {
                     },
 
                     unfetteredCapitalism: function() {
-                        makeWaitingIcon("buytrackbutton");
+                        $("#buytrackbutton").makeSpinner();
                         lastfm.track.getBuylinks({  track: self.track.name(),
                                                     artist: self.artist.name()},
                                                 self.track.showBuyLinks,
@@ -863,7 +836,7 @@ var info_lastfm = function() {
 
                     showBuyLinks: function(data) {
                         debug.log(medebug,"Got track buy links",data);
-                        stopWaitingIcon("buytrackbutton");
+                        $("#buytrackbutton").stopSpinner();
                         $("#buytrack").fadeOut('fast', function() {
                             $("#buytrack").html(getBuyHtml(data));
                             $("#buytrack").fadeIn("fast");
@@ -872,7 +845,7 @@ var info_lastfm = function() {
 
                     noBuyLinks: function(data) {
                         debug.fail(medebug,"No track buy links",data);
-                        stopWaitingIcon("buytrackbutton");
+                        $("#buytrackbutton").stopSpinner();
                         infobar.notify(infobar.NOTIFY, data.message);
                     },
 
@@ -1107,4 +1080,4 @@ function lfmDataExtractor(data) {
 
 }
 
-nowplaying.registerPlugin("lastfm", info_lastfm, ipath+"lastfm.png", "button_infolastfm");
+nowplaying.registerPlugin("lastfm", info_lastfm, "icon-lastfm-1", "button_infolastfm");

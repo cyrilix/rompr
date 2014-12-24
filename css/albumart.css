@@ -1,0 +1,60 @@
+#imageeditor {
+    width:99%;
+    margin-right:auto;
+    margin-left:auto;
+    min-height:400px;
+    border: 4px solid #fe6500;
+}
+
+/* Ideally this would all be classed up, but CSS is so fucking clunky */
+
+#origimage {
+    display:-webkit-box;
+    display:-moz-box;
+    display:-o-box;
+    display:box;
+    display:flexbox;
+    display:flex-box;
+
+    -moz-box-flex:1; /* Firefox */
+    -webkit-box-flex:1; /* Safari and Chrome */
+    box-flex:1;
+
+    -ms-flex-align:center;
+    -moz-box-align:center;
+    -webkit-box-align:center;
+    box-align:center;
+
+    border-left: 1px solid #fe6500;
+    margin:8px;
+    padding:8px;
+}
+
+#searchcontent
+{
+    -moz-box-flex:100.0; /* Firefox */
+    -webkit-box-flex:100.0; /* Safari and Chrome */
+    box-flex:100.0;
+    width:2000px; /* Firefox will ONLY shrink elements in a box layout, not expand them */
+}
+
+#brian {
+    padding-left:8px;
+    padding-right:8px;
+}
+
+#editcontrols {
+    padding-right:8px;
+    padding-top:2px;
+    padding-bottom:4px;
+}
+
+#fiddler {
+    position:absolute;
+    height:48px;
+    width:100%;
+    /*background-color:#ffffff;*/
+    border-left: 4px solid #fe6500;
+    border-right: 4px solid #fe6500;
+    left:-4px;
+}

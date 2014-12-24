@@ -14,7 +14,7 @@ var ratingManager = function() {
 			}
 			html = html + '" /></td><td><b>'+tracks[i].Title+'</b><br><i>by</i> <b>'+tracks[i].Artist+
 				'</b><br><i>on</i> <b>'+tracks[i].Album+'</b></td>';
-			html = html + '<td align="center" style="vertical-align:middle"><img class="clickicon infoclick plugclickable clickremrat" src="'+ipath+'edit-delete.png" height="12px" /></td></tr>';
+			html = html + '<td align="center" style="vertical-align:middle"><i class="icon-cancel-circled playlisticon clickicon infoclick plugclickable clickremrat"></i></td></tr>';
 		}
 		html = html + '</table>';
 		holder.html(html);
@@ -60,9 +60,7 @@ var ratingManager = function() {
 	            	data: {action: 'ratlist'},
 	            	dataType: 'json',
 	            	success: function(data) {
-	            		if (layout == "desktop") {
-	            			setDraggable('rmgfoldup');
-	            		}
+            			setDraggable('rmgfoldup');
 	            		ratingManager.doMainLayout(data);
 	            	},
 	            	error: function() {

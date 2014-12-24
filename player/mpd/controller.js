@@ -203,14 +203,7 @@ function playerController() {
 
 	this.reloadPlaylists = function() {
         $.get("player/mpd/loadplaylists.php", function(data) {
-            var html = '';
-            if (layout == "desktop") {
-                html = html + '<table width="100%">';
-            } else {
-                html = html + '<table width="90%">';
-            }
-            html = html + data + "</table>";
-            $("#storedplaylists").html(html);
+            $("#storedplaylists").html(data);
         });
 	}
 
@@ -237,7 +230,6 @@ function playerController() {
 	            self.reloadPlaylists();
 	            infobar.notify(infobar.NOTIFY, language.gettext("label_savedpl", [name]));
 	        });
-	        $("#saveplst").slideToggle('fast');
 	    }
 	}
 
@@ -340,9 +332,7 @@ function playerController() {
 	}
 
 	this.addTracks = function(tracks, playpos, at_pos) {
-		if (layout == "phone") {
-    		infobar.notify(infobar.NOTIFY, language.gettext("label_addingtracks"));
-    	}
+        layoutProcessor.notifyAddTracks();
 		debug.log("MPD","Adding Tracks",tracks,playpos,at_pos);
 		var cmdlist = [];
 		var pl = player.status.playlistlength;

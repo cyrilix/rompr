@@ -23,7 +23,7 @@ if (array_key_exists('populate', $_REQUEST)) {
 
             print '<div class="containerbox menuitem wibble">';
 
-            print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" name="somafm'.$count.'"></div>';
+            print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" name="somafm'.$count.'"></i></div>';
             print '<div class="smallcover fixed"><img height="32px" width="32px" src="getRemoteImage.php?url='.$channel->image.'" /></div>';
 
             print '<div class="expand"><span style="font-size:110%">'.utf8_encode($channel->title).'</span>';
@@ -86,19 +86,19 @@ if (array_key_exists('populate', $_REQUEST)) {
 <script language="text/javascript">
 function loadSomaFM() {
     if ($("#somafmlist").is(':empty')) {
-        makeWaitingIcon("somawait");
-        $("#somafmlist").load("streamplugins/01_somafm.php?populate", function() { stopWaitingIcon("somawait")});
+        $("#somawait").makeSpinner();
+        $("#somafmlist").load("streamplugins/01_somafm.php?populate", function() { $("#somawait").stopSpinner() });
     }
 }
 </script>
 
 <div class="containerbox menuitem noselection">
 <?php
-print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" onclick="loadSomaFM()" name="somafmlist"></div>';
-print '<div class="smallcover fixed"><img height="32px" width="32px" src="'.$ipath.'somafm.png"></div>';
+print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" onclick="loadSomaFM()" name="somafmlist"></i></div>';
+print '<div class="fixed"><i class="icon-somafm smallcover-svg"></i></div>';
 print '<div class="expand">'.get_int_text('label_somafm').'</div>';
 ?>
-<img id="somawait" height="14px" width="14px" src="newimages/transparent-32x32.png" />
+<i id="somawait" class="smallicon invisible"></i>
 </div>
 <div id="somafmlist" class="dropmenu"></div>
 
@@ -115,8 +115,8 @@ function format_listenlink($c, $p, $label) {
         $img = (string) $c->image;
     }
     print '<div class="clickable clickstream indent containerbox padright menuitem" name="'.(string) $p.'" streamimg="getRemoteImage.php?url='.$img.'" streamname="'.$c->title.'">';
+    print '<div class="fixed"><i class="icon-radio-tower smallicon"></i></div>';
     print '<div class="fixed">'.$label.'&nbsp;</div>';
-    print '<div class="playlisticon fixed"><img height="12px" src="'.$ipath.'broadcast-24.png" /></div>';
     switch ($p[0]['format']) {
         case 'mp3':
             print '<div class="expand">MP3</div>';

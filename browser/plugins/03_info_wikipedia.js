@@ -124,10 +124,7 @@ var info_wikipedia = function() {
                 } else if (element.hasClass('clickwikicontents')) {
                 	var section = element.attr('name');
                 	debug.log("WIKI PLUGIN",parent.nowplayingindex,source,"clicked a contents link",section);
-                	if (layout == "desktop") {
-          				//TODO make this work on a phone (no custom scrollbars)
-                		$("#infopane").mCustomScrollbar("scrollTo", section);
-                	}
+                	layoutProcessor.goToBrowserSection(section);
                 }
             }
 
@@ -422,4 +419,4 @@ var info_wikipedia = function() {
 
 }();
 
-nowplaying.registerPlugin("wikipedia", info_wikipedia, ipath+"Wikipedia-logo.png", "button_wikipedia");
+nowplaying.registerPlugin("wikipedia", info_wikipedia, "icon-wikipedia", "button_wikipedia");

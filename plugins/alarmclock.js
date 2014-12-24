@@ -57,7 +57,11 @@ var alarm = function() {
 		setButton: function() {
 			var a = prefs.alarmon ? 1 : 0;
 			$("#button_alarm_on").removeClass("togglebutton-0 togglebutton-1").addClass("togglebutton-"+a);
-			$("#alarmclock").attr("src", ipath+"alarmclock_"+prefs.alarmon+".png");
+			if (prefs.alarmon) {
+				$("#alarmclock").removeClass("icon-alarm icon-alarm-on").addClass("icon-alarm-on");
+			} else {
+				$("#alarmclock").removeClass("icon-alarm icon-alarm-on").addClass("icon-alarm");
+			}
 		},
 
 		setAlarm: function() {
@@ -91,7 +95,7 @@ var alarm = function() {
 					player.controller.play();
 				}
 			}
-			infobar.notify(infobar.NOTIFY,'<img src="'+ipath+'alarmclock_true.png" width="250px"/>');
+			infobar.notify(infobar.NOTIFY,'<i class="icon-alarm-on bigalarm"></i>');
 			alarm.setAlarm();
 		},
 
@@ -135,19 +139,18 @@ var alarm = function() {
 
 		setup: function() {
 			var html =
-				'<li>'+
-				'<a href="#" title="'+language.gettext('button_alarm')+'" class="tooltip"><img id="alarmclock" class="topimg" src="'+ipath+'alarmclock_false.png" height="24px"></a>'+
-				'<ul id="alarmpanel" class="subnav dropshadow" style="left:-62px;width:150px;font-size:10pt"><div style="width:150px;height:191px;background-image:url(\''+ipath+'alarmclock_150.png\')">'+
-				'<div style="height:70px;width:150px"></div>'+
-				'<li><table align="center"><tr>'+
-				'<td align="center"><img src="'+ipath+'arrow-increase.png" width="42px" onmousedown="alarm.startInc(3600)" onmouseup="alarm.stopInc()" onmouseout="alarm.stopInc()" /></td>'+
-				'<td width="2%"></td><td align="center"><img src="'+ipath+'arrow-increase.png" width="42px" onmousedown="alarm.startInc(60)" onmouseup="alarm.stopInc()" onmouseout="alarm.stopInc()" /></td>'+
+				'<div class="topdrop"><i id="alarmclock" class="icon-alarm topimg tooltip" title="'+language.gettext('button_alarm')+'"></i>'+
+				'<div class="topdropmenu dropshadow rightmenu normalmenu stayopen" id="alarmpanel">'+
+				'<div class="noselection">'+
+				'<table align="center"><tr>'+
+				'<td align="center"><i class="icon-increase smallicon clickicon" onmousedown="alarm.startInc(3600)" onmouseup="alarm.stopInc()" onmouseout="alarm.stopInc()"></i></td>'+
+				'<td width="2%"></td><td align="center"><i class="icon-increase smallicon clickicon" onmousedown="alarm.startInc(60)" onmouseup="alarm.stopInc()" onmouseout="alarm.stopInc()" /></i></td>'+
 				'</tr><tr>'+
-				'<td align="center" class="alarmnumbers" id="alarmhours" style="color:#ffffff">12</td><td align="center" width="2%" class="alarmnumbers" style="color:#ffffff">:</td>'+
-				'<td align="center" class="alarmnumbers" id="alarmmins" style="color:#ffffff">00</td></tr><tr>'+
-				'<td align="center"><img src="'+ipath+'arrow-decrease.png" width="42px" onmousedown="alarm.startInc(-3600)" onmouseup="alarm.stopInc()" onmouseout="alarm.stopInc()" /></td>'+
-				'<td width="2%"></td><td align="center"><img src="'+ipath+'arrow-decrease.png" width="42px" onmousedown="alarm.startInc(-60)" onmouseup="alarm.stopInc()" onmouseout="alarm.stopInc()" /></td>'+
-				'</tr></table></li><li>'+
+				'<td align="center" class="alarmnumbers" id="alarmhours">12</td><td align="center" width="2%" class="alarmnumbers">:</td>'+
+				'<td align="center" class="alarmnumbers" id="alarmmins">00</td></tr><tr>'+
+				'<td align="center"><i class="icon-decrease smallicon clickicon" onmousedown="alarm.startInc(-3600)" onmouseup="alarm.stopInc()" onmouseout="alarm.stopInc()" /></td>'+
+				'<td width="2%"></td><td align="center"><i class="icon-decrease smallicon clickicon" onmousedown="alarm.startInc(-60)" onmouseup="alarm.stopInc()" onmouseout="alarm.stopInc()" /></td>'+
+				'</tr></table>'+
 				'<table align="center"><tr><td align="center"><div id="button_alarm_on" onclick="alarm.toggle()" class="togglebutton clickicon togglebuton-0" />';
 				if (prefs.player_backend == "mopidy") {
 					// Volume ramping won't work with MPD because we can't set the volume to zero if playback is stopped. Duh.
@@ -155,7 +158,7 @@ var alarm = function() {
 					html = html + '</td></tr><tr><td align="center">'+language.gettext('config_ramptime')+'&nbsp;<input class="saveotron prefinput winkle" id="alarm_ramptime" type="text" size="2" />';
 				}
 				html = html + '</td></tr><tr><td align="center">'+language.gettext('config_snoozetime')+'&nbsp;<input class="saveotron prefinput winkle" id="alarm_snoozetime" type="text" size="2" />';
-				html = html + '</td></tr></table></li></ul></li>';
+				html = html + '</td></tr></table></div></div></div>';
 
 			$("#righthandtop").prepend(html);
 			html = null;

@@ -38,22 +38,16 @@ function saveImage($fname, $in_collection, $stream) {
     global $convert_path;
     global $download_file;
     debug_print("  Saving Image ".$download_file,"GETALBUMCOVER");
-    $main_file = null;
     $small_file = null;
     $anglofile = null;
     if ($in_collection || $stream != '') {
         debug_print("    Saving image to albumart folder");
-        $main_file = "albumart/original/".$fname.".jpg";
         $small_file = "albumart/small/".$fname.".jpg";
         $anglofile = "albumart/asdownloaded/".$fname.".jpg";
     } else {
         debug_print("    Saving image to image cache");
         $small_file = "prefs/imagecache/".$fname."_small.jpg";
-        $main_file = "prefs/imagecache/".$fname."_original.jpg";
         $anglofile = "prefs/imagecache/".$fname."_asdownloaded.jpg";
-    }
-    if (file_exists($main_file)) {
-        unlink($main_file);
     }
     if (file_exists($small_file)) {
         unlink($small_file);
@@ -66,14 +60,12 @@ function saveImage($fname, $in_collection, $stream) {
     // -alpha remove removes the alpha (transparency) channel if it exists - JPEG doesn't have one of these and
     // trying to resize PNGs with alpha channels and save them as JPEGs gives horrid results with convert
     $o = array();
-    debug_print("Creating file ".$main_file,"SAVEIMAGE");
-    $r = exec( $convert_path."convert \"".$download_file."\" -resize 82x82 -background black -alpha remove -gravity center -extent 82x82 \"".$main_file."\" 2>&1", $o);
     debug_print("Creating file ".$small_file,"SAVEIMAGE");
-    $r = exec( $convert_path."convert \"".$download_file."\" -resize 32x32 -background black -alpha remove -gravity center -extent 32x32 \"".$small_file."\" 2>&1", $o);
+    $r = exec( $convert_path."convert \"".$download_file."\" -resize 82x82 -background black -alpha remove -gravity center -extent 82x82 \"".$small_file."\" 2>&1", $o);
     debug_print("Creating file ".$anglofile,"SAVEIMAGE");
     $r = exec( $convert_path."convert \"".$download_file."\" -background black -alpha remove \"".$anglofile."\" 2>&1", $o);
 
-    return array($small_file, $main_file, $anglofile);
+    return array($small_file, $anglofile);
 }
 
 function check_file($file, $data) {

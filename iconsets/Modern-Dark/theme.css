@@ -1,0 +1,77 @@
+
+ [class^="icon-"], [class*=" icon-"] {
+ 	background-size:contain;
+	background-position: center;
+	background-repeat:no-repeat;
+	display:inline-block;
+}
+
+.button-disabled { opacity: 0.1 }
+
+.icon-play-circled { background-image :url('media-playback-start.svg') }
+.icon-play-circled:hover { background-image :url('media-playback-start-highlight.svg') }
+.icon-pause-circled { background-image :url('media-playback-pause.svg') }
+.icon-pause-circled:hover { background-image :url('media-playback-pause-highlight.svg') }
+.icon-fast-backward { background-image :url('media-skip-backward.svg') }
+.icon-fast-backward:hover { background-image :url('media-skip-backward-highlight.svg') }
+.icon-fast-forward { background-image :url('media-skip-forward.svg') }
+.icon-fast-forward:hover { background-image :url('media-skip-forward-highlight.svg') }
+.icon-stop-1 { background-image :url('media-playback-stop.svg') }
+.icon-stop-1:hover { background-image :url('media-playback-stop-highlight.svg') }
+.icon-to-end-1 { background-image :url('stopafter.svg') }
+.icon-to-end-1:hover { background-image :url('stopafter-highlight.svg') }
+
+.icon-music { background-image: url('collection.svg') }
+.icon-search { background-image: url('system-search.svg') }
+.icon-folder-open-empty { background-image: url('folder.svg') }
+.icon-radio-tower { background-image: url('broadcast-new.svg') }
+.icon-cd { background-image: url('cd_case.svg') }
+.icon-resize-horizontal { background-image: url('resize.svg') }
+.icon-angle-double-left { background-image:url('arrow-left-double.svg') }
+.icon-angle-double-right { background-image:url('arrow-right-double.svg') }
+.icon-menu { background-image: url('pushbutton.svg') }
+.icon-menu-outline { background-image: url('pushbutton-closed-1.svg') }
+.icon-versions { background-image: url('history.svg') }
+.icon-left-circled { background-image: url('backbutton.svg') }
+.icon-right-circled { background-image: url('forwardbutton.svg') }
+.icon-cog-alt { background-image: url('preferences.svg') }
+.icon-trash { background-image: url('edit-clear-list.svg') }
+.icon-wifi { background-image: url('smartradio.svg') }
+.icon-doc-text { background-image: url('playlist.svg') }
+.icon-floppy { background-image: url('document-save.svg') }
+.icon-cancel-circled { background-image: url('edit-delete.svg') }
+.icon-alarm { background-image: url('alarmclock_false.svg') }
+.icon-alarm-on { background-image: url('alarmclock_true.svg') }
+.icon-library { background-image: url('file.svg') }
+.icon-lastfm-1 { background-image: url('lastfm.svg') }
+.icon-wikipedia { background-image: url('wikipedia-logo.svg') }
+.icon-musicbrainz {	background-image: url('musicbrainz_logo.svg') }
+.icon-discogs {	background-image: url('discogs_logo.png') }
+.icon-doc-text-1 { background-image: url('lyrics.svg') }
+.icon-soundcloud-circled { background-image: url( 'soundcloud-logo.svg') }
+.icon-youtube-circled { background-image: url('youtube-logo.svg') }
+.icon-gmusic-circled { background-image: url('gmusic-logo.svg') }
+.icon-spotify-circled { background-image: url('spotify-logo.svg') }
+.icon-podcast-circled { background-image: url('podcast-logo.svg') }
+.icon-internetarchive-circled { background-image: url('internetarchive-logo.svg') }
+.icon-increase { background-image: url('arrow-increase.svg') }
+.icon-decrease { background-image: url('arrow-decrease.svg') }
+.icon-basket-circled { background-image: url('cart.svg') }
+.icon-attention-1 { background-image: url('dialog-error.svg') }
+.icon-info-circled { background-image: url('dialog-information.svg') }
+.icon-download { background-image: url('download-icon.svg') }
+.icon-sun { background-image: url('icon-new.svg') }
+.icon-headphones { background-image: url('headphones.svg') }
+.icon-unlistened { background-image: url('unlistened.svg') }
+.icon-block { background-image: url('lastfm-ban.svg') }
+.icon-heart { background-image: url('lastfm-love.svg') }
+.icon-heart-broken { background-image: url('lastfm-unlove.svg') }
+.icon-refresh { background-image: url('refresh.svg') }
+.icon-somafm { background-image: url('somafm.svg') }
+.icon-icecast { background-image: url('icecast.svg') }
+.icon-no-response-playbutton { background-image :url('media-playback-start.svg') }
+.icon-tags { background-image: url('tag.svg') }
+.icon-volume-up { background-image: url('volume.svg') }
+.icon-toggle-open { background-image: url('toggle-open.svg') }
+.icon-toggle-closed { background-image: url('toggle-closed.svg') }
+.icon-spin6 { background-image: url('spinner.svg') }

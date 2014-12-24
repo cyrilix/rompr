@@ -101,12 +101,12 @@ var genreRadio = function() {
 		},
 
 		modeHtml: function() {
-            return '<img src="'+ipath+'smartradio.png" class="modeimg"/><span class="modespan ucfirst">'+genre+' '+language.gettext('label_radio')+'</span>';
+            return '<i class="icon-wifi modeimg"/></i><span class="modespan ucfirst">'+genre+' '+language.gettext('label_radio')+'</span>';
 		},
 
 		setup: function() {
             var html = '<div class="containerbox dropdown-container spacer">';
-            html = html + '<div class="fixed playlisticon"><img src="'+ipath+'smartradio.png" height="12px" style="vertical-align:middle"></div>';
+            html = html + '<div class="fixed"><i class="icon-wifi smallicon"/></i></div>';
             html = html + '<div class="fixed padright"><span style="vertical-align:middle">'+language.gettext('label_genre')+'</span></div>';
             html = html + '<div class="expand dropdown-holder"><input class="searchterm enter sourceform" id="humphrey" type="text" style="width:100%;font-size:100%;vertical-align:middle" onkeyup="onKeyUp(event)" /></div>';
             html = html + '<button class="fixed" style="margin-left:8px;vertical-align:middle" onclick="playlist.radioManager.load(\'genreRadio\', $(\'#humphrey\').val())">'+language.gettext('button_playradio')+'</button>';

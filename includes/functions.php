@@ -256,7 +256,7 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
     switch ($d) {
         case "spotify":
         case "gmusic":
-            print '<div class="playlisticon fixed"><img height="12px" src="'.$ipath.$d.'-logo.png" /></div>';
+            print '<div class="fixed"><i class="icon-'.$d.'-circled playlisticon"></i></div>';
             break;
 
         case "soundcloud":
@@ -267,14 +267,14 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
                 print '<img class="smallcover fixed" src="'.$image.'" />';
                 print '</div>';
             }
-            print '<div class="playlisticon fixed"><img height="12px" src="'.$ipath.$d.'-logo.png" /></div>';
+            print '<div class="fixed"><i class="icon-'.$d.'-circled playlisticon"></i></div>';
             break;
     }
     if ((string) $name == "") $name = urldecode($url);
     print '<div class="expand">'.$name.'</div>';
     print '<div class="fixed playlistrow2">'.$duration.'</div>';
     if ($lm === null) {
-        print '<div class="iconremdb fixed clickable clickicon clickremdb"><img height="12px" src="'.$ipath.'edit-delete.png" /></div>';
+        print '<div class="fixed clickable clickicon clickremdb"><i class="icon-cancel-circled playlisticonr"></i></div>';
     }
     if ($artist) {
         print '</div><div class="containerbox line">';
@@ -309,19 +309,19 @@ function artistHeader($id, $spotilink, $name, $numalbums = null) {
     print '<div class="noselection fullwidth '.$divtype.'">';
     if ($spotilink) {
         print '<div class="clickable clicktrack draggable containerbox menuitem'.$browseable.'" name="'.$spotilink.'">';
-        print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" name="'.$id.'"></div>';
+        print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" name="'.$id.'"></i></div>';
         $d = getDomain($spotilink);
+        $d = preg_replace('/\+.*/','', $d);
         switch ($d) {
             case "spotify":
-                print '<div class="playlisticon fixed"><img height="12px" src="'.$ipath.'spotify-logo.png" /></div>';
+                print '<div class="fixed"><i class="icon-spotify-circled playlisticon"></i></div>';
                 print '<input type="hidden" value="needsfiltering" />';
                 break;
 
             case "gmusic":
             case "podcast":
-            case "podcast http":
             case "internetarchive":
-                print '<div class="playlisticon fixed"><img height="12px" src="'.$ipath.$d.'-logo.png" /></div>';
+                print '<div class="fixed"><i class="icon-'.$d.'-circled playlisticon"></i></div>';
                 break;
 
         }
@@ -329,7 +329,7 @@ function artistHeader($id, $spotilink, $name, $numalbums = null) {
         print '</div>';
     } else {
         print '<div class="clickable clickalbum draggable containerbox menuitem" name="'.$id.'">';
-        print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" name="'.$id.'"></div>';
+        print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" name="'.$id.'"></i></div>';
         print '<div class="expand">'.$name.'</div>';
         print '</div>';
     }
@@ -355,7 +355,7 @@ function albumHeader($name, $spotilink, $id, $exists, $searched, $imgname, $src,
     } else {
         print '<div class="clickable clickalbum draggable containerbox menuitem" name="'.$id.'">';
     }
-    print '<div class="mh fixed"><img src="'.$ipath.'toggle-closed-new.png" class="menu fixed" name="'.$id.'"></div>';
+    print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" name="'.$id.'"></i></div>';
 
     // For BLOODY FIREFOX only we have to wrap the image in a div of the same size,
     // because firefox won't squash the image horizontally if it's in a box-flex layout.
@@ -370,19 +370,20 @@ function albumHeader($name, $spotilink, $id, $exists, $searched, $imgname, $src,
     print '</div>';
     if ($spotilink) {
         $d = getDomain($spotilink);
+        $d = preg_replace('/\+.*/','', $d);
         switch($d) {
             case "spotify":
             case "gmusic":
-                print '<div class="playlisticon fixed"><img height="12px" src="'.$ipath.$d.'-logo.png" /></div>';
-                break;
-
             case "youtube":
             case "soundcloud":
+            case "internetarchive":
+                print '<div class="fixed"><i class="icon-'.$d.'-circled playlisticon"></i></div>';
+                break;
+
             case "tunein":
             case "radio-de":
             case "dirble":
             case "bassdrive":
-            case "internetarchive":
                 print '<div class="playlisticon fixed"><img height="12px" src="newimages/'.$d.'-logo.png" /></div>';
                 break;
         }
@@ -437,6 +438,7 @@ function get_base_url() {
      * OR
      * https://mysite.com
      */
+    $directory = preg_replace('#/utils$#', '', $directory);
     return $protocol . $host . $directory;
 }
 
@@ -747,7 +749,7 @@ function update_stream_playlist($url, $name, $image, $creator, $title, $type, $f
     $file = "";
     $found = false;
     $x = null;
-    if ($image === null) $image = $ipath."broadcast.png";
+    if ($image === null) $image = "newimages/broadcast.png";
 
     $playlists = glob("prefs/*STREAM*.xspf");
     foreach($playlists as $i => $file) {

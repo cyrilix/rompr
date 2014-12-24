@@ -68,7 +68,7 @@ var recentlyaddedtracks = function() {
 		},
 
         modeHtml: function() {
-            return '<img src="'+ipath+'document-open-folder.png" class="modeimg"><span class="modespan">'+language.gettext("label_recentlyadded_"+mode)+'</span>&nbsp;';
+            return '<i class="icon-doc-text modeimg"></i><span class="modespan">'+language.gettext("label_recentlyadded_"+mode)+'</span>&nbsp;';
         },
 
         stop: function() {
@@ -79,17 +79,17 @@ var recentlyaddedtracks = function() {
 
         setup: function() {
 
-            var html = '<div class="containerbox spacer backhi" onclick="playlist.radioManager.load(\'recentlyaddedtracks\', \'random\')">';
+            var html = '<div class="containerbox spacer backhi dropdown-container" onclick="playlist.radioManager.load(\'recentlyaddedtracks\', \'random\')">';
 
             html = html + '<div class="fixed">';
-            html = html + '<img src="'+ipath+'document-open-folder.png" height="12px" style="vertical-align:middle"></div>';
+            html = html + '<i class="icon-doc-text smallicon"></i></div>';
             html = html + '<div class="expand">&nbsp;&nbsp;&nbsp;'+language.gettext('label_recentlyadded_random')+'</div>';
 
             html = html + '</div>';
-            html = html + '<div class="containerbox spacer backhi" onclick="playlist.radioManager.load(\'recentlyaddedtracks\', \'byalbum\')">';
+            html = html + '<div class="containerbox spacer backhi dropdown-container" onclick="playlist.radioManager.load(\'recentlyaddedtracks\', \'byalbum\')">';
 
             html = html + '<div class="fixed">';
-            html = html + '<img src="'+ipath+'document-open-folder.png" height="12px" style="vertical-align:middle"></div>';
+            html = html + '<i class="icon-doc-text smallicon"></i></div>';
             html = html + '<div class="expand">&nbsp;&nbsp;&nbsp;'+language.gettext('label_recentlyadded_byalbum')+'</div>';
 
             html = html + '</div>';

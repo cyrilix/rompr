@@ -52,7 +52,7 @@ if (array_key_exists('mobile', $_REQUEST)) {
     }
 } else {
     $detect = new Mobile_Detect();
-    if ($detect->isMobile() && !$detect->isTablet()) {
+    if ($detect->isMobile() || $detect->isTablet()) {
         debug_print("Mobile Browser Detected!","INIT");
         $layout = "phone";
     } else {
@@ -155,10 +155,12 @@ $inc = glob("layouts/".$layout."/*.css");
 foreach($inc as $i) {
     print '<link rel="stylesheet" type="text/css" href="'.$i.'" />'."\n";
 }
-print '<link id="theme" rel="stylesheet" type="text/css" href="themes/'.$prefs['theme'].'" />'."\n";
-print '<link rel="stylesheet" id="fontsize" type="text/css" href="sizes/'.$prefs['fontsize'].'" />'."\n";
-print '<link rel="stylesheet" id="fontfamily" type="text/css" href="fonts/'.$prefs['fontfamily'].'" />'."\n";
 ?>
+<link rel="stylesheet" id="theme" type="text/css" />
+<link rel="stylesheet" id="fontsize" type="text/css" />
+<link rel="stylesheet" id="fontfamily" type="text/css" />
+<link rel="stylesheet" id="icontheme-theme" type="text/css" />
+<link rel="stylesheet" id="icontheme-adjustments" type="text/css" />
 <!-- JQuery : http://jquery.com -->
 <script type="text/javascript" src="jquery/jquery-1.8.3-min.js"></script>
 <!-- JQuery AJAX form plugin : http://malsup.com/jquery/form/ -->
@@ -207,6 +209,12 @@ if (file_exists("prefs/prefs.js") && $prefs['lastfm_session_key'] === "") {
 
 <script language="javascript">
 
+$("#theme").attr("href", "themes/"+prefs.theme);
+$("#fontsize").attr("href", "sizes/"+prefs.fontsize);
+$("#fontfamily").attr("href", "fonts/"+prefs.fontfamily);
+$("#icontheme-theme").attr("href", "iconsets/"+prefs.icontheme+"/theme.css");
+$("#icontheme-adjustments").attr("href", "iconsets/"+prefs.icontheme+"/adjustments.css");
+
 function aADownloadFinished() {
     debug.log("INDEX","Album Art Download Has Finished");
 }
@@ -228,9 +236,6 @@ foreach($inc as $i) {
 <script language="javascript">
 
 $(window).ready(function(){
-
-    $("#fontsize").attr({href: "sizes/"+prefs.fontsize});
-    $("#fontfamily").attr({href: "fonts/"+prefs.fontfamily});
 
     // Update the old-style lastfm_session_key variable
     if (typeof lastfm_session_key !== 'undefined') {
@@ -276,11 +281,14 @@ $(window).ready(function(){
     $(".savulon").click(toggleRadio);
     setPrefs();
     checkServerTimeOffset();
-    sourcecontrol(prefs.chooser);
+    setBottomPaneSize();
+    layoutProcessor.sourceControl(prefs.chooser, setSearchLabelWidth);
+    if (prefs.chooser == "searchpane") {
+        ihatefirefox();
+    }
 });
 
 $(window).load(function() {
-    setBottomPaneSize();
     $(window).bind('resize', function() {
         setBottomPaneSize();
     });

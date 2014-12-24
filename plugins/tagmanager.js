@@ -4,7 +4,7 @@ var tagManager = function() {
 	var holders = new Array();
 
 	function putTracks(holder, tracks, title) {
-		var html = '<table align="center" style="border-collapse:collapse;width:96%"><tr class="tagh"><th colspan="2" align="center">'+title+'</th><th width="20px"><img class="clickicon infoclick plugclickable clickdeltag" src="'+ipath+'edit-delete.png" height="16px" /></th></tr>';
+		var html = '<table align="center" style="border-collapse:collapse;width:96%"><tr class="tagh"><th colspan="2" align="center">'+title+'</th><th width="20px"><i class="icon-cancel-circled playlisticon clickicon infoclick plugclickable clickdeltag"></i></th></tr>';
 		for (var i in tracks) {
 			html = html + '<tr class="infoclick draggable clickable clicktrack" name="'+encodeURIComponent(tracks[i].Uri)+'"><td width="40px"><img class="smallcover" src="';
 			if (tracks[i].Image) {
@@ -14,7 +14,7 @@ var tagManager = function() {
 			}
 			html = html + '" /></td><td><b>'+tracks[i].Title+'</b><br><i>by</i> <b>'+tracks[i].Artist+
 				'</b><br><i>on</i> <b>'+tracks[i].Album+'</b></td>';
-			html = html + '<td align="center" style="vertical-align:middle"><img class="clickicon infoclick plugclickable clickremtag" src="'+ipath+'edit-delete.png" height="12px" /></td></tr>';
+			html = html + '<td align="center" style="vertical-align:middle"><i class="icon-cancel-circled playlisticon clickicon infoclick plugclickable clickremtag"></i></td></tr>';
 		}
 		html = html + '</table>';
 		holder.html(html);
@@ -67,9 +67,7 @@ var tagManager = function() {
 	            	data: {action: 'taglist'},
 	            	dataType: 'json',
 	            	success: function(data) {
-	            		if (layout == "desktop") {
-	            			setDraggable('tmgfoldup');
-	            		}
+            			setDraggable('tmgfoldup');
 	            		tagManager.doMainLayout(data);
 	            	},
 	            	error: function() {

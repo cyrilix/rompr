@@ -55,7 +55,6 @@ $prefs = array( "mpd_host" => "localhost",
                 "lastfmlang" => "default",
                 "lastfm_session_key" => "",
                 "user_lang" => "en",
-                "twocolumnsinlandscape" => false,
                 "music_directory_albumart" => "",
                 "mopidy_http_port" => 6680,
                 "search_limit_limitsearch" => false,
@@ -101,6 +100,11 @@ if (file_exists('prefs/prefs')) {
     include("utils/convertprefs.php");
 } else if (file_exists('prefs/prefs.var')) {
     loadPrefs();
+}
+
+if (is_dir('albumart/original')) {
+    system('mv albumart/small albumart/not_used_anymore');
+    system('mv albumart/original albumart/small');
 }
 
 $ipath = "iconsets/".$prefs['icontheme']."/";

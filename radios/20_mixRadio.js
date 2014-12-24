@@ -73,17 +73,17 @@ var mixRadio = function() {
 		},
 
 		modeHtml: function() {
-			return '<img src="'+ipath+'smartradio.png" class="modeimg"/><span class="modespan">'+language.gettext("label_radio_mix")+'</span>';
+			return '<i class="icon-wifi modeimg"/></i><span class="modespan">'+language.gettext("label_radio_mix")+'</span>';
 		},
 
         setup: function() {
 
             if (player.canPlay('spotify')) {
 
-	            var html = '<div class="containerbox spacer backhi" onclick="playlist.radioManager.load(\'mixRadio\', null)">';
+	            var html = '<div class="containerbox spacer backhi dropdown-container" onclick="playlist.radioManager.load(\'mixRadio\', null)">';
 
 	            html = html + '<div class="fixed">';
-	            html = html + '<img src="'+ipath+'spotify-logo.png" height="12px" style="vertical-align:middle"></div>';
+	            html = html + '<i class="icon-spotify-circled smallicon"></i></div>';
 	            html = html + '<div class="expand">&nbsp;&nbsp;&nbsp;'+language.gettext('label_radio_mix')+'</div>';
 
 	            html = html + '</div>';

@@ -63,7 +63,7 @@ var lastfmImporter = function() {
 		row += '<td align="center">'+t.Playcount+'</td>';
 		row += '<td align="center">';
 		if (t.loved) {
-			row += '<img src="'+ipath+'lastfm-love.png" height="20px" />';
+			row += '<i class="icon-heart medicon"></i>';
 		}
 		row += '</td>';
 		row += '<td id="trackfound'+t.key+'"></td>';
@@ -117,15 +117,15 @@ var lastfmImporter = function() {
 		var html = "";
 		var u = data.uri;
 		if (u.match(/spotify:/)) {
-			html = html + '<img height="12px" src="'+ipath+'spotify-logo.png" style="margin-right:1em" />';
+			html = html + '<i class="icon-spotify-circled smallicon" style="margin-right:1em"></i>';
 		} else if (u.match(/soundcloud:/)) {
-			html = html + '<img height="12px" src="'+ipath+'soundcloud-logo.png" style="margin-right:1em" />';
+			html = html + '<i class="icon-soundcloud-circled smallicon" style="margin-right:1em"></i>';
 		} else if (u.match(/youtube:/)) {
-			html = html + '<img height="12px" src="newimages/youtube-logo.png" style="margin-right:1em" />';
+			html = html + '<i class="icon-youtube-circled smallicon" style="margin-right:1em"></i>';
 		} else if (u.match(/leftasrain:/)) {
 			html = html + '<img height="12px" src="newimages/leftasrain.png" style="margin-right:1em" />';
 		} else if (u.match(/gmusic:/)) {
-			html = html + '<img height="12px" src="'+ipath+'gmusic-logo.png" style="margin-right:1em" />';
+			html = html + '<i class="icon-gmusic-circled smallicon" style="margin-right:1em"></i>';
 		}
 		html = html + '<b>'+data.title+'</b><br><i>by </i>';
 		html = html + data.artist+'<br><i>on </i>';
@@ -438,7 +438,7 @@ var lastfmImporter = function() {
 				lastfmImporter.doSqlStuff(data, false);
 			} else {
 				if (databits[data.reqid].data[0].ignore == false) {
-					$("#trackrow"+data.key).append('<td align="center" class="invisible"><img src="'+ipath+'edit-delete.png" class="clickicon plugclickable infoclick removerow" /></td>');
+					$("#trackrow"+data.key).append('<td align="center" class="invisible"><i class="icon-cancel-circled playlisticon clickicon plugclickable infoclick removerow"></i></td>');
 					$("#trackrow"+data.key).append('<td align="center" class="invisible"><button class="plugclickable infoclick importrow">Import</button></td>');
 					$("#trackrow"+data.key).after(html2);
 					$("#trackrow"+data.key+' td:last').fadeIn('fast');

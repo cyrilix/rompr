@@ -50,9 +50,9 @@ var starRadios = function() {
             if (selected.match(/^\dstars/)) {
                 return '<img src="newimages/'+selected+'.png" class="modeimg"/>';
             } else if (selected.match(/^tag/)){
-                return '<img src="'+ipath+'tag.png" class="modeimg"/><span class="modespan">'+selected.replace(/^tag\+/,'')+'</span>';
+                return '<i class="icon-tags modeimg"/><span class="modespan">'+selected.replace(/^tag\+/,'')+'</span>';
             } else {
-                return '<img src="'+ipath+'document-open-folder.png" class="modeimg"/><span class="modespan">'+language.gettext('label_'+selected)+'</span>';
+                return '<i class="icon-doc-text modeimg"/></i><span class="modespan">'+language.gettext('label_'+selected)+'</span>';
             }
         },
 
@@ -93,7 +93,7 @@ var starRadios = function() {
 
                 });
                 html = html + '<div class="containerbox spacer"><div class="containerbox expand">'+
-                                '<div class="fixed playlisticon"><img src="'+ipath+'tag.png" height="12px" style="vertical-align:middle;padding-top:6px"></div>'+
+                                '<div class="fixed"><i class="icon-tags smallicon"></i></div>'+
                                 '<div class="expand dropdown-holder">'+
                                 '<input class="searchterm enter sourceform" id="cynthia" type="text" style="font-size:100%;width:100%"/>'+
                                 '<div class="drop-box dropshadow tagmenu" id="tigger" style="width:100%;position:relative">'+
@@ -107,8 +107,8 @@ var starRadios = function() {
                                 '<button class="fixed" style="margin-left:8px" onclick="playlist.radioManager.load(\'starRadios\', $(\'#cynthia\').val())"><b>'+language.gettext('button_playradio')+'</b></button>'+
                                 '</div></div>';
 
-                html = html + '<div class="containerbox backhi spacer" onclick="playlist.radioManager.load(\'starRadios\', \'neverplayed\')">'+
-                                '<div class="fixed"><img src="'+ipath+'document-open-folder.png" height="12px" style="vertical-align:middle"></div>'+
+                html = html + '<div class="containerbox backhi spacer dropdown-container" onclick="playlist.radioManager.load(\'starRadios\', \'neverplayed\')">'+
+                                '<div class="fixed"><i class="icon-doc-text smallicon"></i></div>'+
                                 '<div class="expand">&nbsp;&nbsp;&nbsp;'+language.gettext('label_neverplayed')+'</div>'+
                                 '</div>';
 

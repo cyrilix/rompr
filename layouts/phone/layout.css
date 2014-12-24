@@ -36,6 +36,25 @@ h2
     border-bottom: 1px solid #dddddd;
 }
 
+#headerbar
+{
+    height:28px;
+    padding:0px;
+    margin:0px;
+    overflow:hidden;
+}
+
+.topimg
+{
+    margin-right:4px;
+    margin-left:4px;
+    height: 22px;
+    width: 22px;
+    margin-bottom:2px;
+    margin-top:4px;
+    cursor: pointer;
+}
+
 #volumecontrol
 {
     z-index:102;
@@ -44,16 +63,292 @@ h2
     width:4em;
 }
 
-#playlistm
+#bottompage
 {
-    height:100%;
-    overflow:auto;
+    top:28px;
+    left:0px;
+    width:100%;
+    position:absolute;
 }
 
-#infopane
+.mainpane
 {
+    position: absolute;
+}
+
+#infobar
+{
+    width:100%;
     height:100%;
-    overflow:auto;
+    overflow-x:hidden;
+    overflow-y:hidden;
+}
+
+@media screen and (max-height: 479px) {
+
+    #geoffreyboycott
+    {
+        padding-top:2px;
+        height:142px;
+    }
+
+    #albumcover
+    {
+        height:140px;
+        float:left;
+        margin-left:6px;
+    }
+
+    #albumpicture
+    {
+        width:auto;
+        height:140px;
+    }
+
+    #cssisshit
+    {
+        overflow:auto;
+    }
+
+    #progress
+    {
+        font-size:6pt;
+        margin-top:12px;
+    }
+
+    #previoustrack
+    {
+        display:none;
+    }
+
+}
+
+@media screen and (min-height: 480px) and (max-height: 750px) {
+
+    #geoffreyboycott
+    {
+        padding-top:2px;
+        margin-bottom:2px;
+    }
+
+    #albumcover
+    {
+        height:228px;
+        margin-top:8px;
+    }
+
+    #albumpicture
+    {
+        width:auto;
+        height:228px;
+        margin-left:auto;
+        margin-right:auto;
+        display:block;
+    }
+
+    #cssisshit
+    {
+        width:100%;
+    }
+
+    #progress
+    {
+        font-size:7pt;
+        margin-top:4px;
+    }
+
+    #previoustrack
+    {
+        text-align:center;
+        display:block;
+    }
+
+}
+
+@media screen and (min-height: 751px) and (max-height: 1024px) {
+
+    #geoffreyboycott
+    {
+        padding-top:2px;
+        margin-bottom:2px;
+    }
+
+    #albumcover
+    {
+        height:320px;
+        margin-top:8px;
+    }
+
+    #albumpicture
+    {
+        width:auto;
+        height:320px;
+        margin-left:auto;
+        margin-right:auto;
+        display:block;
+    }
+
+    #cssisshit
+    {
+        width:100%;
+    }
+
+    #progress
+    {
+        font-size:8pt;
+        margin-top:4px;
+    }
+
+    #previoustrack
+    {
+        text-align:center;
+        display:block;
+    }
+
+}
+
+@media screen and (min-height: 1025px) {
+
+    #geoffreyboycott
+    {
+        padding-top:2px;
+        margin-bottom:2px;
+    }
+
+    #albumcover
+    {
+        height:380px;
+        margin-top:8px;
+    }
+
+    #albumpicture
+    {
+        width:auto;
+        height:380px;
+        margin-left:auto;
+        margin-right:auto;
+        display:block;
+    }
+
+    #cssisshit
+    {
+        width:100%;
+    }
+
+    #progress
+    {
+        font-size:8pt;
+        margin-top:4px;
+    }
+
+    #previoustrack
+    {
+        text-align:center;
+        display:block;
+    }
+
+    #headerbar
+    {
+        height:38px;
+        padding:0px;
+        margin:0px;
+        overflow:hidden;
+    }
+
+    #bottompage
+    {
+        top:38px;
+        width:100%;
+    }
+
+    .topimg
+    {
+        height: 32px;
+        width: 32px;
+    }
+
+    .controlbutton
+    {
+        height:52px;
+        font-size:52px;
+    }
+
+}
+
+#buttons
+{
+    padding-left:0px !important;
+    padding-right:0px !important;
+}
+
+#nowplaying
+{
+    font-size:8pt;
+    white-space:nowrap;
+    width:95%;
+    margin:auto;
+}
+
+#nptext
+{
+    text-align:center;
+}
+
+#lastfm
+{
+    float:left;
+    margin-left:4px;
+    padding-top:1px;
+}
+
+#stars
+{
+    float:left;
+    margin-left:8px;
+    padding-top:1px;
+}
+
+#subscribe
+{
+    float:left;
+    margin-left:4px;
+    padding-top:1px;
+}
+
+#playcount
+{
+    padding-top:0px;
+    padding-left:8px;
+    overflow:hidden;
+    opacity:0.9;
+    font-size:8pt;
+    height:24px;
+    line-height:24px;
+}
+
+#dbtags {
+    padding-top:0px;
+    padding-left:8px;
+    overflow:hidden;
+    opacity:0.9;
+    font-size:8pt;
+    height:22px;
+    line-height:22px;
+}
+
+.tag {
+    margin-left:0px;
+    margin-right:1.2em;
+}
+
+.tagremover
+{
+    margin-left:0.5em;
+}
+
+#lastfm img
+{
+    margin-right:4px;
 }
 
 .menu
@@ -64,37 +359,15 @@ h2
 
 .mh
 {
-    width:1.5em;
     margin-right:1em;
     margin-top:0.5em;
     margin-bottom:0.5em;
 }
 
-#patrickmoore
+#amontobin
 {
-    height:56px;
-    overflow:hidden;
-    margin: 0px;
-    padding: 0px;
-    position:relative;
-    left:-12px;
-}
-
-.playlisticon
-{
-    padding-left:4px;
-    width:28px;
-}
-
-#playbackTime
-{
-	font-size:8pt;
-}
-
-#progress
-{
-	margin-top:4px;
-    font-size:4pt;
+    margin-top:4px;
+    height:48px;
 }
 
 #scrobwrangler
@@ -123,36 +396,9 @@ h2
     padding-top:0px;
 }
 
-#ihatecss
-{
-    margin-top:0px;
-    margin-right:2px;
-    margin-left:4px;
-    padding-top:0px;
-    float:left;
-}
-
 .infotext
 {
 	font-size:8pt;
-}
-
-#infobar
-{
-    height:80px;
-    padding-bottom:0px;
-}
-
-#bottompage
-{
-    top:112px;
-}
-
-#headerbar
-{
-	height:28px;
-    padding-top:0px;
-	overflow:hidden;
 }
 
 #controls
@@ -160,76 +406,10 @@ h2
     padding-top:1px;
 }
 
-#buttons
-{
-    float:left;
-    padding-left:0px;
-    padding-right:0px;
-    padding-top:10px;
-    padding-bottom:0px;
-}
-
-#albumpicture
-{
-    height:48px;
-    width:48px;
-}
-
-#albumcover
-{
-    margin-right:0px;
-    padding-right:4px;
-    width:48px;
-}
-
-.controlbutton
-{
-    height:36px;
-}
-
-.shiftleft
-{
-    position:relative;
-    left:-6px;
-}
-
-.shiftleft2
-{
-    position:relative;
-    left:-12px;
-}
-
-.shiftleft3
-{
-    position:relative;
-    left:-12px;
-}
-
-.shiftleft4
-{
-    position:relative;
-    left:-12px;
-}
-
-#nowplaying
-{
-	font-size:8pt;
-	padding:0px;
-    padding-top:0px;
-	margin-left:4px;
-    height:56px;
-    /*position:relative;*/
-    /*left:-12px;*/
-}
 
 .larger
 {
     font-size:130%;
-}
-
-.frog
-{
-	font-size:6pt;
 }
 
 .playlistrow2
@@ -261,6 +441,8 @@ h2
 .scroller
 {
     -webkit-overflow-scrolling:touch;
+    overflow-y:auto;
+    overflow-x:hidden;
 }
 
 .progressbar_v
@@ -317,4 +499,69 @@ h2
 {
     margin-left:auto;
     margin-right:auto;
+}
+
+.info-detail-layout
+{
+    -moz-box-orient:vertical;
+    -webkit-box-orient:vertical;
+    box-orient:vertical;
+}
+
+.info-box-fixed
+{
+    padding-left: 1em;
+}
+
+.smallicon
+{
+    padding:0px;
+    margin:4px;
+    width:20px;
+    height:20px;
+    vertical-align:middle;
+}
+
+.medicon
+{
+    padding:0px;
+    margin:2px;
+    height:24px;
+    width:24px;
+    vertical-align:middle;
+}
+
+.playlisticon
+{
+    padding:0px;
+    margin-right:4px;
+    margin-bottom:2px;
+    margin-top:2px;
+    width:16px;
+    height:16px;
+    vertical-align:middle;
+}
+
+.playlisticonr
+{
+    padding:0px;
+    margin-left:4px;
+    margin-bottom:2px;
+    margin-top:2px;
+    margin-right:2px;
+    width:16px;
+    height:16px;
+    vertical-align:middle;
+}
+
+.icon-discogs.smallcover-svg
+{
+    height:32px;
+    width:78px;
+}
+
+.icon-discogs.smallicon
+{
+    height:20px;
+    width:49px;
 }

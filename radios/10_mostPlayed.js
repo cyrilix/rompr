@@ -42,7 +42,7 @@ var mostPlayed = function() {
 		},
 
         modeHtml: function() {
-            return '<img src="'+ipath+'document-open-folder.png" class="modeimg"><span class="modespan">'+language.gettext("label_mostplayed")+'</span>&nbsp;';
+            return '<i class="icon-doc-text modeimg"></i><span class="modespan">'+language.gettext("label_mostplayed")+'</span>&nbsp;';
         },
 
         stop: function() {
@@ -52,9 +52,9 @@ var mostPlayed = function() {
 
         setup: function() {
 
-            var html = '<div class="containerbox spacer backhi" onclick="playlist.radioManager.load(\'mostPlayed\', null)">';
+            var html = '<div class="containerbox spacer backhi dropdown-container" onclick="playlist.radioManager.load(\'mostPlayed\', null)">';
             html = html + '<div class="fixed">';
-            html = html + '<img src="'+ipath+'document-open-folder.png" height="12px" style="vertical-align:middle"></div>';
+            html = html + '<i class="icon-doc-text smallicon"></i></div>';
             html = html + '<div class="expand">&nbsp;&nbsp;&nbsp;'+language.gettext('label_mostplayed')+'</div>';
             html = html + '</div>';
             $("#pluginplaylists").append(html);

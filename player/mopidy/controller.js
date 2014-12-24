@@ -222,22 +222,22 @@ function playerController() {
      		switch (protocol) {
      			case "spotify":
                     html = html + '<div class="containerbox menuitem">';
-     				html = html + '<div class="mh fixed"><img src="'+ipath+'toggle-closed-new.png" class="menu fixed" name="pholder'+c+'"></div>'+
+     				html = html + '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" name="pholder'+c+'"></i></div>'+
 						        '<input type="hidden" name="'+this.uri+'">'+
-        				        '<div class="fixed playlisticon"><img height="12px" src="'+ipath+'spotify-logo.png" /></div>'+
+        				        '<div class="fixed"><i class="icon-spotify-circled smallicon"></i></div>'+
 						        '<div class="expand clickable clickloadplaylist">'+this.name+'</div>'+
 						        '</div>'+
 						        '<div id="pholder'+c+'" class="dropmenu notfilled"></div>';
 						        break;
                 case "radio-de":
                    html = html + '<div class="containerbox menuitem clickable clicktrack" name="'+this.uri+'">'+
-                                '<div class="fixed playlisticon"><img height="12px" src="'+ipath+'broadcast-24.png" /></div>'+
+                                '<div class="fixed"><i class="icon-radio-tower smallicon"></i></div>'+
                                 '<div class="expand">'+this.name+'</div>'+
                                 '</div>';
                                 break;
 				default:
 		           html = html + '<div class="containerbox menuitem clickable clicktrack" name="'+this.uri+'">'+
-								'<div class="fixed playlisticon"><img height="12px" src="'+ipath+'document-open-folder.png" /></div>'+
+								'<div class="fixed"><i class="icon-folder-open-empty smallicon"><i></div>'+
 						        '<div class="expand">'+this.name+'</div>'+
 						        '</div>';
 						        break;
@@ -282,9 +282,9 @@ function playerController() {
             if (temp[i].type == "item") {
                 if (temp[i].name.substr(0,1) == "a") {
                     data.backend = prefs.apache_backend;
+                    break;
                 }
             }
-            break;
         }
         if (pladdpos !== null && pladdpos > -1) {
             data.atpos = pladdpos;
@@ -405,7 +405,7 @@ function playerController() {
             mopidy.on("state:offline", disconnected);
             mopidy.connect();
             // For testing and debugging purposes, player.controller.mop is a direct link to mopidy.js
-            // self.mop = mopidy;
+            self.mop = mopidy;
         } else {
             clearTimeout(connecttimer);
             self.connectFailed();
@@ -503,9 +503,9 @@ function playerController() {
     					case "album":
     						var menuid = hex_md5(ref.uri);
     				        html = html + '<div class="containerbox menuitem">'+
-    				        '<div class="mh fixed"><img src="'+ipath+'toggle-closed-new.png" class="menu fixed" name="'+menuid+'"></div>'+
+    				        '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" name="'+menuid+'"></i></div>'+
     				        '<input type="hidden" name="'+ref.uri+'">'+
-    				        '<div class="fixed playlisticon"><img width="16px" src="'+ipath+'folder.png" /></div>'+
+    				        '<div class="fixed"><i class="icon-folder-open-empty smallicon"></i></div>'+
                             // Adding dirs and albums by uri doesn't work, library.lookup returns empty array
                             // '<div class="clickable clicktrack containerbox padright line expand" name="'+encodeURIComponent(ref.uri)+'">'+
                             '<div class="expand">'+ref.name+'</div>'+
@@ -516,7 +516,7 @@ function playerController() {
     				    case "track":
                             if (!ref.name.match(/\[unplayable\]/)) {
         				        html = html + '<div class="clickable clicktrack ninesix indent containerbox padright line" name="'+encodeURIComponent(ref.uri)+'">'+
-        				        '<div class="playlisticon fixed"><img height="16px" src="'+ipath+'audio-x-generic.png" /></div>'+
+        				        '<div class="fixed"><i class="icon-music smallicon"></i></div>'+
         				        '<div class="expand">'+decodeURIComponent(ref.name)+'</div>'+
         				        '</div>';
                             }
@@ -524,9 +524,9 @@ function playerController() {
     					case "playlist":
                             var menuid = hex_md5(ref.uri);
                             html = html + '<div class="containerbox menuitem">'+
-                            '<div class="mh fixed"><img src="'+ipath+'toggle-closed-new.png" class="menu fixed" name="'+menuid+'"></div>'+
+                            '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" name="'+menuid+'"></i></div>'+
                             '<input type="hidden" name="'+ref.uri+'">'+
-                            '<div class="fixed playlisticon"><img width="16px" src="'+ipath+'document-open-folder.png" /></div>'+
+                            '<div class="fixed"><i class="icon-doc-text smallicon"></i></div>'+
     				        '<div class="clickable clicktrack containerbox padright line expand" name="'+encodeURIComponent(ref.uri)+'">'+
     				        '<div class="expand">'+decodeURIComponent(ref.name)+'</div>'+
     				        '</div>'+
@@ -550,12 +550,9 @@ function playerController() {
 	}
 
 	this.loadPlaylist = function(uri) {
-		mopidy.tracklist.clear().then( function() {
-			$.get("player/mopidy/cleanPlaylists.php?command=clear");
-            mopidy.playlists.lookup(uri).then( function(list) {
-                debug.debug("PLAYER","Playlist : ",list);
-                mopidy.tracklist.add(list.tracks);
-            });
+        mopidy.playlists.lookup(uri).then( function(list) {
+            debug.debug("PLAYER","Playlist : ",list);
+            mopidy.tracklist.add(list.tracks);
         });
 	}
 
@@ -746,7 +743,7 @@ function playerController() {
 
 	this.addTracks = function(tracks, playpos, at_pos) {
 		if (tracks.length == 0) return;
-		if (layout == "phone") infobar.notify(infobar.NOTIFY, language.gettext("label_addingtracks"));
+        layoutProcessor.notifyAddTracks();
 		debug.log("PLAYER","Adding Tracks",tracks,playpos,at_pos);
 		// Add the tracks to a single variable. Otherwise if we get one add request
 		// before the previous one has finished the tracks get muddled up
