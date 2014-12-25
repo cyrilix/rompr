@@ -29,6 +29,7 @@ if (!$url) {
 	$convert_path = find_executable("identify");
 	$o = array();
 	$r = exec($convert_path."identify -verbose ".$outfile." | grep Mime");
+	// Testing SVN Client
 	// debug_print("Checking MIME type : ".$r,"TOMATO");
 	if (preg_match('/Mime type:\s+(.*)$/', $r, $o)) {
 		if ($o[1]) {
