@@ -51,22 +51,6 @@
   background-position: center;
 }
 
-/* Nasty nasty hacky hacky for where we're using a png icon
-   for discogs because if we don't do this it throws
-   the alignment out and the spinners don't work */
-
-.icon-discogs.smallcover-svg:before
-{
-  height:32px;
-  width:78px;
-}
-
-.icon-discogs.topimg:before
-{
-  height:24px;
-  width:24px;
-}
-
 .button-disabled { opacity: 0.1 }
 
 .icon-play-circled:before { content: '\e800'; } /* '' */
@@ -75,13 +59,6 @@
 .icon-fast-forward:before { content: '\e83e'; } /* '' */
 .icon-stop-1:before { content: '\e83c'; } /* '' */
 .icon-to-end-1:before { content: '\e83d'; } /* '' */
-
-.icon-0-stars { background-image: url('0stars.svg') }
-.icon-1-stars { background-image: url('1stars.svg') }
-.icon-2-stars { background-image: url('2stars.svg') }
-.icon-3-stars { background-image: url('3stars.svg') }
-.icon-4-stars { background-image: url('4stars.svg') }
-.icon-5-stars { background-image: url('5stars.svg') }
 
 .icon-music:before { content: '\e818'; } /* '' */
 .icon-search:before { content: '\e809'; } /* '' */
@@ -108,49 +85,109 @@
 .icon-lastfm-1:before { content: '\e813'; } /* '' */
 .icon-wikipedia:before { content: '\e831'; } /* '' */
 .icon-musicbrainz:before { content: '\e833'; } /* '' */
-.icon-discogs:before { content: ''; }
-.icon-discogs { background-image: url('discogs_logo.png') }
+.icon-discogs {
+  background-image: url('discogs_logo.png');
+  display: inline-block;
+}
 .icon-doc-text-1:before { content: '\e825'; } /* '' */
 .icon-soundcloud-circled:before { content: '\e844'; } /* '' */
 .icon-youtube:before { content: '\e837'; } /* '' */
-
+.icon-gmusic-circled:before { content: '\e802'; } /* '' */
 .icon-spotify-circled:before { content: '\e812'; } /* '' */
 .icon-podcast-circled:before { content: '\e823'; } /* '' */
-
-
-
+.icon-internetarchive-circled:before { content: '\e854'; } /* '' */
+.icon-increase:before { content: '\e803'; } /* '' */
+.icon-decrease:before { content: '\e804'; } /* '' */
 .icon-basket-circled:before { content: '\e834'; } /* '' */
 .icon-attention-1:before { content: '\e838'; } /* '' */
 .icon-info-circled:before { content: '\e836'; } /* '' */
 .icon-download:before { content: '\e81f'; } /* '' */
 .icon-sun:before { content: '\e828'; } /* '' */
-
-
+.icon-headphones:before { content: '\e805'; } /* '' */
+.icon-unlistened:before { content: '\e84a'; } /* '' */
 .icon-block:before { content: '\e835'; } /* '' */
 .icon-heart:before { content: '\e841'; } /* '' */
 .icon-heart-broken:before { content: '\e842'; } /* '' */
-
-
-
+.icon-refresh:before { content: '\e84b'; } /* '' */
+.icon-somafm {
+  background-image: url('somafm.svg');
+  display: inline-block;
+}
+.icon-icecast {
+  background-image: url('icecast.svg');
+  display: inline-block;
+}
 .icon-no-response-playbutton:before { content: '\e800'; } /* '' */
 .icon-tags:before { content: '\e845'; } /* '' */
 .icon-volume-up:before { content: '\e846'; } /* '' */
-
-
+.icon-toggle-open:before { content: '\e84d'; } /* '' */
+.icon-toggle-closed:before { content: '\e84c'; } /* '' */
 .icon-spin6:before { content: '\e832'; } /* '' */
 
-
-
-
-
-
+.icon-0-stars {
+  background-image: url('0stars.svg');
+  display: inline-block;
+}
+.icon-1-stars {
+  background-image: url('1stars.svg');
+  display: inline-block;
+}
+.icon-2-stars {
+  background-image: url('2stars.svg');
+  display: inline-block;
+}
+.icon-3-stars {
+  background-image: url('3stars.svg');
+  display: inline-block;
+}
+.icon-4-stars {
+  background-image: url('4stars.svg');
+  display: inline-block;
+}
+.icon-5-stars {
+  background-image: url('5stars.svg');
+  display: inline-block;
+}
 .icon-toggle-off:before { content: '\e847'; } /* '' */
 .icon-toggle-on:before { content: '\e848'; } /* '' */
 
-
-
-
+.icon-mp3-audio:before { content: '\e856'; } /* '' */
+.icon-aac-audio {
+  background-image: url('aac-audio.jpg');
+  display: inline-block;
+}
+.icon-flac-audio {
+  background-image: url('flac-audio.svg');
+  display: inline-block;
+}
+.icon-wma-audio:before { content: '\e857'; } /* '' */
+.icon-ogg-audio {
+  background-image: url('ogg-audio.svg');
+  display: inline-block;
+}
+.icon-explicit:before { content: '\e855'; } /* '' */
 .icon-rss:before { content: '\e840'; } /* '' */
+.icon-tick:before { content: '\e84f'; } /* '' */
+img.notexist,img.notfound
+{
+    content: url('compact-disc.svg');
+}
+.dropdown-button {
+  background-image: url('dropdown.svg');
+  background-size:contain;
+  background-repeat:no-repeat;
+  background-position: center;
+  display:inline-block;
+  height:1em;
+  width:1em;
+}
+.icon-bbc-logo:before { content: '\e853'; } /* '' */
+.icon-imdb-logo {
+  background-image: url('imdb-logo.svg');
+  display: inline-block;
+}
+.icon-facebook-logo:before { content: '\e839'; } /* '' */
+.icon-twitter-logo:before { content: '\e850'; } /* '' */
 
 /* Unused so far */
 .icon-lastfm:before { content: '\e806'; } /* '' */
@@ -170,6 +207,5 @@
 .icon-note-beamed:before { content: '\e829'; } /* '' */
 .icon-books:before { content: '\e82c'; } /* '' */
 .icon-multitrack-audio:before { content: '\e82f'; } /* '' */
-.icon-facebook-squared:before { content: '\e839'; } /* '' */
 .icon-play-1:before { content: '\e83a'; } /* '' */
 .icon-pause-1:before { content: '\e83b'; } /* '' */

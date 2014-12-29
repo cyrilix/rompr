@@ -542,7 +542,7 @@ function playerController() {
 			if (where != "filecollection") {
             	$('#'+where).removeClass("notfilled");
             	$('#'+where).menuReveal();
-                element.removeClass('spinner');
+                element.stopSpinner();
             }
 		},
 		consoleError );

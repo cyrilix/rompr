@@ -72,3 +72,18 @@
     position:relative;
     left:-40px;
 }
+
+/* Nasty nasty hacky hacky for where we're using a png icon
+   for discogs because if we don't do this it throws
+   the alignment out and the spinners don't work */
+
+.icon-discogs.smallcover-svg:before
+{
+  height:32px;
+  width:78px;
+}
+
+.menu
+{
+    font-size:140%;
+}

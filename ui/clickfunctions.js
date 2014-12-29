@@ -306,7 +306,7 @@ function doFileMenu(event, element) {
     if (element.isClosed()) {
         if ($('#'+menutoopen).hasClass("notfilled")) {
             if (prefs.player_backend == "mopidy") {
-                element.addClass('spinner');
+                element.makeSpinner();
                 // Hack for browsing in search results
                 var l = element.parent().next().attr("name");
                 if (l === undefined) {
