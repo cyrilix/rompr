@@ -8,8 +8,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
     var imgobj = null;
     var infotext = $('#infotext');
     var statusobj = $('#status');
-    var waitingicon = ['', 'newimages/album-unknown.png'];
-    var blankicon = ['newimages/album-unknown.png', 'newimages/album-unknown.png'];
+    // var blankicon = 'newimages/compact_disc.svg';
     var name = null;
     var artist = null;
     var album = null;
@@ -103,10 +102,9 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
             if (stream == "") {
                 stream = $(this).attr('romprstream') || "";
             }
-            $(this).attr('src', waitingicon[size]);
+            // $(this).attr('src', blankicon);
         });
         debug.log("COVERSCRAPER","Stream is", stream);
-        // Causes a wierd hang in Chrome if you type into the album image search box - WTF??
         animateWaiting();
 
         var options = { key: name,
@@ -119,15 +117,11 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
     }
 
     function animateWaiting() {
-        if (size == 1) {
-            $('img[name="'+name+'"]').removeClass('nospin').addClass('spinner');
-        }
+        $('img[name="'+name+'"]').removeClass('nospin').addClass('spinner');
     }
 
     function stopAnimation() {
-        if (size == 1) {
-            $('img[name="'+name+'"]').removeClass('spinner').addClass('nospin');
-        }
+        $('img[name="'+name+'"]').removeClass('spinner').addClass('nospin');
     }
 
     // Hello
@@ -174,7 +168,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
         stopAnimation();
         debug.log("COVERSCRAPER","No Cover Found. Reverting to the blank icon");
         $.each($('img[name="'+name+'"]'), function() {
-            $(this).attr("src", blankicon[size]);
+            // $(this).attr("src", blankicon);
             // Remove this class to prevent it being searched again
             $(this).removeClass("notexist");
             $(this).removeClass("notfound").addClass("notfound");

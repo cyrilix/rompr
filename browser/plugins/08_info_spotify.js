@@ -14,7 +14,7 @@ var info_spotify = function() {
     	var h = '<div class="holdingcell">';
     	h = h + '<div class="standout stleft statsbox"><b>'+language.gettext("label_pop")+': </b>'+data.popularity+'</div>';
     	if (data.explicit) {
-    		h = h + '<img class="stright standout" src="newimages/advisory.png" />';
+    		h = h + '<i class="icon-explicit stright standout"></i>';
     	}
     	h = h + '</div>';
     	return h;

@@ -254,27 +254,31 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
     }
     $d = getDomain($url);
     switch ($d) {
-        case "spotify":
-        case "gmusic":
-            print '<div class="fixed"><i class="icon-'.$d.'-circled playlisticon"></i></div>';
-            break;
-
         case "soundcloud":
         case "youtube":
-            if ($image == "") $image = "newimages/album-unknown-small.png";
             if ($image !== null) {
                 print '<div class="smallcover fixed">';
-                print '<img class="smallcover fixed" src="'.$image.'" />';
+                print '<img class="smallcover fixed';
+                if ($image == '') {
+                    print ' notfound" />';
+                } else {
+                    print '" src="'.$image.'" />';
+                }
                 print '</div>';
             }
-            print '<div class="fixed"><i class="icon-'.$d.'-circled playlisticon"></i></div>';
+            print '<i class="icon-'.$d.'-circled playlisticon fixed"></i>';
+            break;
+
+        case "spotify":
+        case "gmusic":
+            print '<i class="icon-'.$d.'-circled playlisticon fixed"></i>';
             break;
     }
     if ((string) $name == "") $name = urldecode($url);
     print '<div class="expand">'.$name.'</div>';
     print '<div class="fixed playlistrow2">'.$duration.'</div>';
     if ($lm === null) {
-        print '<div class="fixed clickable clickicon clickremdb"><i class="icon-cancel-circled playlisticonr"></i></div>';
+        print '<i class="icon-cancel-circled playlisticonr fixed clickable clickicon clickremdb"></i>';
     }
     if ($artist) {
         print '</div><div class="containerbox line">';
@@ -287,7 +291,8 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
             print '</div>';
         }
         print '<div class="containerbox line"><div class="tracknumber fixed"></div><div class="expand playlistrow2">';
-        print '<img height="12px" src="newimages/'.trim($rating).'stars.png" />';
+        print '<i class="icon-'.trim($rating).'-stars rating-icon-small"></i>';
+        // print '<img height="12px" src="newimages/'.trim($rating).'stars.png" />';
         print '</div></div>';
     }
     print '</div>';
@@ -300,16 +305,15 @@ function noAlbumTracks() {
 
 function artistHeader($id, $spotilink, $name, $numalbums = null) {
     global $divtype;
-    global $ipath;
-    $browseable = "";
+    $browseable = " ";
     // Browsing doesn't work for spotify artists :(
     // if ($numalbums === 0) {
     //     $browseable = " browseable";
     // }
-    print '<div class="noselection fullwidth '.$divtype.'">';
     if ($spotilink) {
-        print '<div class="clickable clicktrack draggable containerbox menuitem'.$browseable.'" name="'.$spotilink.'">';
-        print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" name="'.$id.'"></i></div>';
+        print '<div class="clickable clicktrack draggable containerbox menuitem'.$browseable.$divtype.'" name="'.$spotilink.'">';
+        // print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" name="'.$id.'"></i></div>';
+        print '<i class="icon-toggle-closed menu mh fixed" name="'.$id.'"></i>';
         $d = getDomain($spotilink);
         $d = preg_replace('/\+.*/','', $d);
         switch ($d) {
@@ -328,14 +332,14 @@ function artistHeader($id, $spotilink, $name, $numalbums = null) {
         print '<div class="expand saname">'.$name.'</div>';
         print '</div>';
     } else {
-        print '<div class="clickable clickalbum draggable containerbox menuitem" name="'.$id.'">';
-        print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" name="'.$id.'"></i></div>';
+        print '<div class="clickable clickalbum draggable containerbox menuitem '.$divtype.'" name="'.$id.'">';
+        // print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" name="'.$id.'"></i></div>';
+        print '<i class="icon-toggle-closed menu mh fixed" name="'.$id.'"></i>';
         print '<div class="expand">'.$name.'</div>';
         print '</div>';
     }
     // Create the drop-down div that will hold this artist's albums
-    print '<div id="'.$id.'" class="dropmenu notfilled"></div>';
-    print "</div>\n";
+    print '<div id="'.$id.'" class="dropmenu notfilled '.$divtype.'"></div>';
 
 }
 
@@ -355,15 +359,15 @@ function albumHeader($name, $spotilink, $id, $exists, $searched, $imgname, $src,
     } else {
         print '<div class="clickable clickalbum draggable containerbox menuitem" name="'.$id.'">';
     }
-    print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" name="'.$id.'"></i></div>';
+    print '<i class="icon-toggle-closed menu mh fixed" name="'.$id.'"></i>';
 
     // For BLOODY FIREFOX only we have to wrap the image in a div of the same size,
     // because firefox won't squash the image horizontally if it's in a box-flex layout.
     print '<div class="smallcover fixed">';
     if ($exists == "no" && $searched == "no") {
-        print '<img class="smallcover fixed notexist" name="'.$imgname.'" src="newimages/album-unknown-small.png" />'."\n";
+        print '<img class="smallcover fixed notexist" name="'.$imgname.'" />'."\n";
     } else  if ($exists == "no" && $searched == "yes") {
-        print '<img class="smallcover fixed notfound" name="'.$imgname.'" src="newimages/album-unknown-small.png" />'."\n";
+        print '<img class="smallcover fixed notfound" name="'.$imgname.'" />'."\n";
     } else {
         print '<img class="smallcover fixed" name="'.$imgname.'" src="'.$src.'" />'."\n";
     }
@@ -377,7 +381,7 @@ function albumHeader($name, $spotilink, $id, $exists, $searched, $imgname, $src,
             case "youtube":
             case "soundcloud":
             case "internetarchive":
-                print '<div class="fixed"><i class="icon-'.$d.'-circled playlisticon"></i></div>';
+                print '<i class="icon-'.$d.'-circled playlisticon fixed"></i>';
                 break;
 
             case "tunein":
@@ -469,9 +473,11 @@ function get_images($dir_path) {
     $funkychicken = array();
     debug_print("    Scanning : ".$dir_path,"GET_IMAGES");
     $globpath = preg_replace('/(\*|\?|\[)/', '[$1]', $dir_path);
+    debug_print("      Glob Path is ".$globpath,"GET_IMAGES");
     $files = glob($globpath."/*.{jpg,png,bmp,gif,jpeg,JPEG,JPG,BMP,GIF,PNG}", GLOB_BRACE);
     foreach($files as $i => $f) {
         $f = preg_replace('/%/', '%25', $f);
+        debug_print("        Found : ".get_base_url()."/".preg_replace('/ /', "%20", $f),"GET_IMAGES");
         array_push($funkychicken, get_base_url()."/".preg_replace('/ /', "%20", $f));
     }
     return $funkychicken;
@@ -637,6 +643,10 @@ print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 <link rel="stylesheet" type="text/css" href="css/layout.css" />
 <link rel="shortcut icon" href="newimages/favicon.ico" />
 <link rel="stylesheet" type="text/css" href="themes/Darkness.css" />
+<style>
+input[type=text] { width: 50% }
+input[type=submit] { width: 40% }
+</style>
 </head>
 <body style="padding:8px;overflow-y:auto">
     <div class="bordered simar dingleberry" style="max-width:40em">
@@ -646,16 +656,16 @@ print '</h3>';
 print '<p>'.get_int_text("setup_labeladdresses").'</p>';
 print '<p class="tiny">'.get_int_text("setup_addressnote").'</p>';
 print '<form name="mpdetails" action="index.php" method="post">';
-print '<p>'.get_int_text("setup_ipaddress").'<br><input type="text" class="winkle" name="mpd_host" value="'.$prefs['mpd_host'].'" /></p>'."\n";
+print '<p>'.get_int_text("setup_ipaddress").'<br><input type="text" name="mpd_host" value="'.$prefs['mpd_host'].'" /></p>'."\n";
 print '<hr class="dingleberry" />';
 print '<h3>'.get_int_text("setup_mpd").'</h3>';
-print '<p>'.get_int_text("setup_port").'<br><input type="text" class="winkle" name="mpd_port" value="'.$prefs['mpd_port'].'" /></p>'."\n";
-print '<p>'.get_int_text("setup_password").'<br><input type="text" class="winkle" name="mpd_password" value="'.$prefs['mpd_password'].'" /></p>'."\n";
+print '<p>'.get_int_text("setup_port").'<br><input type="text" name="mpd_port" value="'.$prefs['mpd_port'].'" /></p>'."\n";
+print '<p>'.get_int_text("setup_password").'<br><input type="text" name="mpd_password" value="'.$prefs['mpd_password'].'" /></p>'."\n";
 print '<p>'.get_int_text("setup_unixsocket").'</p>';
-print '<input type="text" class="winkle" name="unix_socket" value="'.$prefs['unix_socket'].'" /></p>';
+print '<input type="text" name="unix_socket" value="'.$prefs['unix_socket'].'" /></p>';
 print '<hr class="dingleberry" />';
 print '<h3>'.get_int_text("setup_mopidy").'</h3>';
-print '<p>'.get_int_text("setup_mopidyport").'<br><input type="text" class="winkle" name="mopidy_http_port" value="'.$prefs['mopidy_http_port'].'" /></p>'."\n";
+print '<p>'.get_int_text("setup_mopidyport").'<br><input type="text" name="mopidy_http_port" value="'.$prefs['mopidy_http_port'].'" /></p>'."\n";
 if (!class_exists("JSONReader")) {
     print '<p><font color="red">Please READ THE WIKI about Low Memory Mode</font></p>';
 }
@@ -689,16 +699,16 @@ if (array_key_exists('collection_type', $prefs) && $prefs['collection_type'] == 
 }
 print '>Full Database Collection</input></p>';
 print '<p class="tiny">Fast and full featured - requires MySQL Server:</p>';
-print '<p>Server<br><input type="text" class="winkle" name="mysql_host" value="'.$prefs['mysql_host'].'" /></p>'."\n";
-print '<p>Port<br><input type="text" class="winkle" name="mysql_port" value="'.$prefs['mysql_port'].'" /></p>'."\n";
-print '<p>Database<br><input type="text" class="winkle" name="mysql_database" value="'.$prefs['mysql_database'].'" /></p>'."\n";
-print '<p>Username<br><input type="text" class="winkle" name="mysql_user" value="'.$prefs['mysql_user'].'" /></p>'."\n";
-print '<p>Password<br><input type="text" class="winkle" name="mysql_password" value="'.$prefs['mysql_password'].'" /></p>'."\n";
+print '<p>Server<br><input type="text" name="mysql_host" value="'.$prefs['mysql_host'].'" /></p>'."\n";
+print '<p>Port<br><input type="text" name="mysql_port" value="'.$prefs['mysql_port'].'" /></p>'."\n";
+print '<p>Database<br><input type="text" name="mysql_database" value="'.$prefs['mysql_database'].'" /></p>'."\n";
+print '<p>Username<br><input type="text" name="mysql_user" value="'.$prefs['mysql_user'].'" /></p>'."\n";
+print '<p>Password<br><input type="text" name="mysql_password" value="'.$prefs['mysql_password'].'" /></p>'."\n";
 print '<hr class="dingleberry" />';
 print '<h3>Proxy Settings</h3>';
-print '<p>Proxy Server (eg 192.168.3.4:8800)<br><input type="text" class="winkle" name="proxy_host" value="'.$prefs['proxy_host'].'" /></p>'."\n";
-print '<p>Proxy Username<br><input type="text" class="winkle" name="proxy_user" value="'.$prefs['proxy_user'].'" /></p>'."\n";
-print '<p>Proxy Password<br><input type="text" class="winkle" name="proxy_password" value="'.$prefs['proxy_password'].'" /></p>'."\n";
+print '<p>Proxy Server (eg 192.168.3.4:8800)<br><input type="text" name="proxy_host" value="'.$prefs['proxy_host'].'" /></p>'."\n";
+print '<p>Proxy Username<br><input type="text" name="proxy_user" value="'.$prefs['proxy_user'].'" /></p>'."\n";
+print '<p>Proxy Password<br><input type="text" name="proxy_password" value="'.$prefs['proxy_password'].'" /></p>'."\n";
 print '<hr class="dingleberry" />';
 print '<p><input type="checkbox" name="debug_enabled" value="1"';
 if ($prefs['debug_enabled']) {
@@ -707,8 +717,8 @@ if ($prefs['debug_enabled']) {
 print '>'.get_int_text("setup_debug").'</input></p>';
 print '<p>Custom Log File</p>';
 print '<p class=tiny>Rompr debug output will be sent to this file, but PHP error messages will still go to the web server error log. The web server needs write access to this file, it must already exist, and you should ensure it gets rotated as it will get large</p>';
-print '<p><input type="text" class="winkle" style="width:90%" name="custom_logfile" value="'.$prefs['custom_logfile'].'" /></p>';
-print '<p><input type="submit" class="winkle" value="OK" /></p>';
+print '<p><input type="text" style="width:90%" name="custom_logfile" value="'.$prefs['custom_logfile'].'" /></p>';
+print '<p><input type="submit" value="OK" /></p>';
 print'    </form>
     </div>
 </body>
@@ -800,7 +810,7 @@ function update_stream_playlist($url, $name, $image, $creator, $title, $type, $f
 }
 
 function imagePath($image) {
-    return ($image && $image !== "") ? $image : 'newimages/album-unknown-small.png';
+    return ($image) ? $image : '';
 }
 
 function concatenate_artist_names($art) {
@@ -847,6 +857,42 @@ function getYear($date) {
     } else {
         return null;
     }
+}
+
+function audioClass($filetype) {
+    $filetype = strtolower($filetype);
+    switch ($filetype) {
+        case "mp3":
+            return 'icon-mp3-audio';
+            break;
+
+        case "mp4":
+        case "m4a":
+        case "aac":
+        case "aacplus":
+            return 'icon-aac-audio';
+            break;
+
+        case "flac":
+            return 'icon-flac-audio';
+            break;
+
+        case "wma":
+        case "windows media":
+            return 'icon-wma-audio';
+            break;
+
+        case "ogg":
+        case "ogg vorbis":
+            return 'icon-ogg-audio';
+            break;
+
+        default:
+            return 'icon-library';
+            break;
+
+    }
+
 }
 
 ?>

@@ -37,47 +37,6 @@ function setClickHandlers() {
     $('.infotext').unbind('dblclick');
     $('.infotext').dblclick(onBrowserDoubleClicked);
 
-    $(".dropdown-button").unbind('click');
-    $(".dropdown-button").click(onDropdownClicked);
-}
-
-function onDropdownClicked(event) {
-    var dropbox = $(this).prev().find('.drop-box');
-    var where = $(this).attr("id");
-    if (dropbox.is(':visible')) {
-        dropbox.slideToggle('fast', function() {
-            if (layout == "desktop" && where == "poohbear") {
-                $("#ppscr").mCustomScrollbar("update");
-            }
-        });
-    } else {
-        $(".tagmenu-contents").empty();
-        $.ajax({
-            url: "backends/sql/userRatings.php",
-            type: "POST",
-            data: { action: 'gettags' },
-            dataType: 'json',
-            success: function(data) {
-                for (var i in data) {
-                    $(".tagmenu-contents").append('<div class="backhi tagmenu-item">'+data[i]+"</div>");
-                }
-                data = null;
-                dropbox.slideToggle('fast', function() {
-                    if (layout == "desktop") {
-                        dropbox.mCustomScrollbar("update");
-                        if (where == "poohbear") {
-                            $("#ppscr").mCustomScrollbar("update");
-                        }
-                    }
-
-                });
-                $('.tagmenu-item').click(chooseNewTag);
-            },
-            error: function() {
-                debug.error("DB TRACKS", "Failed to get tags");
-            }
-        });
-    }
 }
 
 function onBrowserClicked(event) {
@@ -120,9 +79,7 @@ function findClickableBrowserElement(event) {
 function onCollectionClicked(event) {
     debug.log("CLICK",event);
     var clickedElement = findClickableElement(event);
-    debug.log("CLICK",clickedElement,"was clicked");
     if (clickedElement.hasClass("menu")) {
-        debug.log("CLICK","Menu was clicked");
         if (clickedElement.parent().parent().hasClass('browseable')) {
             doFileMenu(event, clickedElement);
         } else {

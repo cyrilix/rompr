@@ -15,19 +15,23 @@ function setBottomPaneSize() {
     $("#volumecontrol").css("height", v+"px");
     $("#bottompage").css("height", newheight+"px");
     $(".mainpane").css({height: newheight+"px", width: ws.x+"px"});
+    var hack = ws.x - 32;
+    $("#nowplaying").css({width: hack+"px"});
     var t = ws.y - $("#patrickmoore").offset().top;
     $("#patrickmoore").css("height", t+"px");
     var p = $("#nowplaying").height();
-    if ( p > 300 && $("#nptext").is(':visible')) {
+    if (p > 240 && layoutProcessor.myCatHasTwoFish) {
         $("#nptext").hide();
-        $("#playlistm").detach().prependTo("#nowplaying").removeClass('mainpane').css({width: "", left: ""});
+        layoutProcessor.myCatHasTwoFish = false;
+        $("#playlistm").show().detach().prependTo("#nowplaying").removeClass('mainpane').css({width: "", left: ""});
         $("#choose_playlist").hide();
         if (prefs.chooser == "playlistm") {
             layoutProcessor.sourceControl("infobar");
         }
-    } else if (p <= 300 && $("#nptext").is(':hidden')) {
-        $("#playlistm").detach().appendTo("#bottompage").addClass('mainpane').css({width: ws.x+"px", left: ws.x+"px"});
+    } else if (p <= 240 && !layoutProcessor.myCatHasTwoFish) {
+        $("#playlistm").detach().appendTo("#bottompage").addClass('mainpane').css({width: ws.x+"px", left: ws.x+"px"}).hide();
         $("#nptext").show();
+        layoutProcessor.myCatHasTwoFish = true;
         $("#choose_playlist").show();
     }
     // This is called here purely to make sure the 'progress bar' in the
@@ -44,25 +48,6 @@ function setBottomPaneSize() {
     layoutProcessor.scrollPlaylistToCurrentTrack();
     infobar.rejigTheText();
     browser.rePoint();
-}
-
-function swipeyswipe(dir) {
-    var order = ["historypanel", "playlistman", "prefsm"];
-    order.unshift("playlistm");
-    order.unshift("infopane");
-    if (!prefs.hide_radiolist) order.unshift("radiolist")
-    if (!prefs.hide_filelist) order.unshift("filelist")
-    if (!prefs.hide_albumlist)order.unshift("albumlist");
-    order.unshift('infobar');
-    for (var i in order) {
-        if (order[i] == prefs.chooser) {
-            var j = (i*1)+(dir*1);
-            if (j<0) { j=order.length-1; }
-            if (j>=order.length) { j = 0; }
-            layoutProcessor.sourceControl(order[j]);
-            break;
-        }
-    }
 }
 
 function showVolumeControl() {
@@ -90,13 +75,6 @@ function initUI() {
     obj.addEventListener('touchend', function(event) {
         infobar.volumeTouchEnd();
     }, false);
-    $(window).touchwipe({
-        wipeLeft: function() { swipeyswipe(1); },
-        wipeRight: function() { swipeyswipe(-1) },
-        min_move_x: 200,
-        min_move_y: 100,
-        preventDefaultEvents: false
-    });
 }
 
 var layoutProcessor = function() {
@@ -105,6 +83,8 @@ var layoutProcessor = function() {
 
         shrinkerRatio: 1,
         supportsDragDrop: false,
+        hasCustomScrollbars: false,
+        myCatHasTwoFish: true,
 
         afterHistory: function() {
             layoutProcessor.sourceControl('infopane', function() { layoutProcessor.goToBrowserPanel('artist')});
@@ -165,10 +145,12 @@ var layoutProcessor = function() {
         sourceControl: function(source, callback) {
             debug.log("SOURCECONTROL","Calling Up",source);
             var ws = getWindowSize();
-            if (typeof source == "number") {
-
+            if (source == prefs.chooser) {
+                $("#"+source).show().css({top: "0px", left: "0px"});
+                setBottomPaneSize();
+                return;
             }
-            var sources = ["infobar", "albumlist", "searchpane", "filelist", "radiolist", "infopane", "playlistm", "pluginplaylists", "chooser", "historypanel", "playlistman", "prefsm"];
+            var sources = ["infobar", "albumlist", "searchpane", "filelist", "radiolist", "infopane", "playlistm", "pluginplaylistholder", "chooser", "historypanel", "playlistman", "prefsm"];
             if (typeof source == "number") {
                 var temp = source;
                 var newindex = sources.indexOf(prefs.chooser)+source;
@@ -184,19 +166,22 @@ var layoutProcessor = function() {
             } else {
                 var direction = 1;
             }
-            $("#"+source).css({top: "0px", left: (ws.x*direction)+"px"});
+            $("#"+source).show().css({top: "0px", left: (ws.x*direction)+"px"});
             for (var i in sources) {
-                if (sources[i] != source && sources[i] != prefs.chooser && !(sources[i] == "playlistm" && $("#nptext").is(':hidden'))) {
-                    $("#"+sources[i]).css({left: (ws.x*2*direction)+"px"});
+                if (sources[i] != source && sources[i] != prefs.chooser && !(sources[i] == "playlistm" && layoutProcessor.myCatHasTwoFish == false)) {
+                    $("#"+sources[i]).hide();
                 }
             }
             $("#"+prefs.chooser).animate({
                 left: (ws.x*(-direction))+"px"
-            }, 'fast', 'swing');
+            }, 'fast', 'swing', function() {
+                $(this).hide();
+            });
             $("#"+source).animate({
                 left: 0
             }, 'fast', 'swing', function() {
                 prefs.save({chooser: source});
+                setBottomPaneSize();
                 if (callback) {
                     callback();
                 }

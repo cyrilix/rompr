@@ -24,6 +24,31 @@
     display:table-cell;
 }
 
+@media screen and (min-height: 1000px) and (max-height: 1199px) {
+    #buttons {
+        padding-top:14px;
+    }
+}
+
+@media screen and (min-height: 1200px) {
+    .controlbutton {
+        font-size:56px;
+    }
+    .controlbutton-small {
+        font-size:38px;
+        padding-bottom:8px;
+    }
+    #buttons {
+        padding-top:20px;
+    }
+    #playbackTime {
+        margin-top:2px;
+        font-size:14px;
+        line-height:16px;
+        height:16px;
+    }
+}
+
 .shiftleft
 {
     position:relative;

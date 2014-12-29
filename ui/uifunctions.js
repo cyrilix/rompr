@@ -15,23 +15,25 @@ function saveSelectBoxes(event) {
     switch(prefname) {
         case "theme":
             $("#theme").attr({href: 'themes/'+$("#themeselector").val()});
+            setTimeout(setBottomPaneSize, 1000);
             break;
 
         case "icontheme":
             $("#icontheme-theme").attr("href", "iconsets/"+$("#iconthemeselector").val()+"/theme.css");
             $("#icontheme-adjustments").attr("href", "iconsets/"+$("#iconthemeselector").val()+"/adjustments.css");
+            setTimeout(setBottomPaneSize, 1000);
             break;
 
         case "fontsize":
             $("#fontsize").attr({href: "sizes/"+$("#fontsizeselector").val()});
-            setTimeout(setSearchLabelWidth, 2000);
-            setTimeout(infobar.biggerize, 2000);
+            setTimeout(setSearchLabelWidth, 1000);
+            setTimeout(infobar.biggerize, 1000);
             break;
 
         case "fontfamily":
             $("#fontfamily").attr({href: "fonts/"+$("#fontfamilyselector").val()});
-            setTimeout(setSearchLabelWidth, 2000);
-            setTimeout(infobar.biggerize, 2000);
+            setTimeout(setSearchLabelWidth, 1000);
+            setTimeout(infobar.biggerize, 1000);
             break;
 
         case "lastfm_country_code":
@@ -373,13 +375,8 @@ var imagePopup = function() {
 }();
 
 function outputswitch(id) {
-    if ($('#outputbutton'+id).hasClass("togglebutton-0")) {
-        $('#outputbutton'+id).removeClass("togglebutton-0").addClass("togglebutton-1");
-        player.controller.doOutput(id, true);
-    } else {
-        $('#outputbutton'+id).removeClass("togglebutton-1").addClass("togglebutton-0");
-        player.controller.doOutput(id, false);
-    }
+    player.controller.doOutput(id, $('#outputbutton'+id).isToggledOff());
+    $('#outputbutton'+id).switchToggle($('#outputbutton'+id).isToggledOff());
 }
 
 var popupWindow = function() {
@@ -468,10 +465,11 @@ var popupWindow = function() {
 }();
 
 function setPlaylistButtons() {
-    c = (player.status.xfade === undefined || player.status.xfade === null || player.status.xfade == 0) ? 0 : 1;
-    $("#crossfade").removeClass("togglebutton-0 togglebutton-1").addClass("togglebutton-"+c);
+    c = (player.status.xfade === undefined || player.status.xfade === null || player.status.xfade == 0) ? "off" : "on";
+    $("#crossfade").switchToggle(c);
     $.each(['random', 'repeat', 'consume'], function(i,v) {
-        $("#"+v).removeClass("togglebutton-0 togglebutton-1").addClass("togglebutton-"+player.status[v]);
+        // var ic = player.status[v] ? "on" : "off"
+        $("#"+v).switchToggle(player.status[v]);
     });
 }
 
@@ -486,7 +484,7 @@ function onStorageChanged(e) {
             key = key.substring(1,key.length);
             $('img[name="'+key+'"]').removeClass("notexist");
             $('img[name="'+key+'"]').addClass("notfound");
-            $('img[name="'+key+'"]').attr("src", "newimages/album-unknown.png");
+            // $('img[name="'+key+'"]').attr("src", "newimages/compact_disc.svg");
         } else {
             $('img[name="'+key+'"]').attr("src", "albumart/small/"+key+".jpg");
             $('img[name="'+key+'"]').removeClass("notexist");
@@ -729,10 +727,10 @@ function findImageInWindow(key) {
     $.each($('img[name="'+key+'"]'), function() {
         var u = $(this).attr("src");
         if (!$(this).hasClass('notexist') && !$(this).hasClass('notfound') && result === false &&
-            u != "" &&
-            u != "newimages/album-unknown.png" &&
-            u != "newimages/album-unknown-small.png" &&
-            u != "newimages/transparent-32x32.png") {
+            u != ""
+            // && u != "newimages/compact_disc.svg" &&
+            // u != "newimages/transparent-32x32.png"
+            ) {
             result = { url: u, origimage: u.replace(/small/, 'asdownloaded'), delaytime: 100 };
         }
     });
@@ -841,6 +839,88 @@ function removeTrackFromDb(element) {
     });
 }
 
+function populateTagMenu(callback) {
+    $.ajax({
+        url: "backends/sql/userRatings.php",
+        type: "POST",
+        data: { action: 'gettags' },
+        dataType: 'json',
+        success: callback,
+        error: function() {
+            debug.error("DB TRACKS", "Failed to get tags");
+        }
+    });
+}
+
+jQuery.fn.makeTagMenu = function(options) {
+    var settings = $.extend({
+        textboxname: "",
+        labelhtml: "",
+        populatefunction: null,
+        buttontext: null,
+        buttonfunc: null,
+        buttonclass: ""
+    },options);
+
+    this.each(function() {
+        $(this).append(settings.labelhtml);
+        var holder = $('<div>', { class: "expand dropdown-holder"}).appendTo($(this));
+        var textbox = $('<input>', { type: "text", class: "enter", name: settings.textboxname }).appendTo(holder);
+        var dropbox = $('<div>', {class: "drop-box dropshadow tagmenu"}).appendTo(holder);
+        var menucontents = $('<div>', {class: "tagmenu-contents"}).appendTo(dropbox);
+        var button = $('<div>', {class: "fixed dropdown-button"}).appendTo($(this));
+        if (settings.buttontext !== null) {
+            var submitbutton = $('<button>', {class: "fixed"+settings.buttonclass, style: "margin-left: 8px"}).appendTo($(this));
+            submitbutton.html(settings.buttontext);
+            if (settings.buttonfunc) {
+                submitbutton.click(function() {
+                    settings.buttonfunc(textbox.val());
+                });
+            }
+        }
+
+        if (layoutProcessor.hasCustomScrollbars) {
+            dropbox.mCustomScrollbar({
+                theme: (prefs.theme == "Light.css" || prefs.theme == "BrushedAluminium.css" || prefs.theme == "Aqua.css") ? "dark-thick" : "light-thick",
+                scrollInertia: 80,
+                contentTouchScroll: true,
+                advanced: {
+                    updateOnContentResize: true,
+                }
+            });
+        }
+
+        button.click(function(ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            if (dropbox.is(':visible')) {
+                dropbox.slideToggle('fast');
+            } else {
+                var data = settings.populatefunction(function(data) {
+                    menucontents.empty();
+                    for (var i in data) {
+                        var d = $('<div>', {class: "backhi"}).appendTo(menucontents);
+                        d.html(data[i]);
+                        d.click(function() {
+                            var cv = textbox.val();
+                            if (cv != "") {
+                                cv += ",";
+                            }
+                            cv += $(this).html();
+                            textbox.val(cv);
+                        });
+                    }
+                    dropbox.slideToggle('fast', function() {
+                        if (layoutProcessor.hasCustomScrollbars) {
+                            dropbox.mCustomScrollbar("update");
+                        }
+                    });
+                });
+            }
+        });
+    });
+}
+
 var tagAdder = function() {
 
     var index = null;
@@ -853,9 +933,8 @@ var tagAdder = function() {
             $("#tagadder").slideToggle('fast');
         },
 
-        add: function() {
+        add: function(toadd) {
             if (prefs.apache_backend == 'sql') {
-                var toadd = $("#newtags").val();
                 debug.log("TAGADDER","New Tags :",toadd);
                 nowplaying.addTags(index, toadd);
                 $("#tagadder").slideToggle('fast');
@@ -865,21 +944,6 @@ var tagAdder = function() {
         }
     }
 }();
-
-function chooseNewTag(event) {
-    var value = $(this).html();
-    var tb = $(this);
-    while (!tb.hasClass('drop-box')) {
-        tb = tb.parent();
-    }
-    tb = tb.prev();
-    var currvalue = tb.val();
-    if (currvalue != "") {
-        currvalue += ",";
-    }
-    currvalue += value;
-    tb.val(currvalue);
-}
 
 function addPlugin(label, action) {
     $("#specialplugins").append('<div class="fullwidth backhi clickicon noselection menuitem dragsort" onclick="'+action+'">'+label+'</div>');
@@ -1070,3 +1134,46 @@ function mungeTrackInfo(info) {
     return {doctitle: doctitle, textbits: npinfo};
 
 }
+
+function audioClass(filetype) {
+    filetype = filetype.toLowerCase();
+    switch (filetype) {
+        case "mp3":
+            return 'icon-mp3-audio';
+            break;
+
+        case "mp4":
+        case "m4a":
+        case "aac":
+        case "aacplus":
+            return 'icon-aac-audio';
+            break;
+
+        case "flac":
+            return 'icon-flac-audio';
+            break;
+
+        case "wma":
+        case "windows media":
+            return 'icon-wma-audio';
+            break;
+
+        case "ogg":
+        case "ogg vorbis":
+            return 'icon-ogg-audio';
+            break;
+
+        default:
+            return 'icon-library';
+            break;
+
+    }
+}
+
+function displayRating(where, what) {
+    $(where).removeClass("icon-0-stars icon-1-stars icon-2-stars icon-3-stars icon-4-stars icon-5-stars");
+    if (what !== false) {
+        $(where).addClass('icon-'+what+'-stars');
+    }
+}
+

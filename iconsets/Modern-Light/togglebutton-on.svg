@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg2"
+   height="140.13"
+   width="387.13"
+   version="1.1"
+   inkscape:version="0.48.5 r10040"
+   sodipodi:docname="togglebutton-on.svg">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="747"
+     inkscape:window-height="480"
+     id="namedview20"
+     showgrid="false"
+     inkscape:zoom="0.76976725"
+     inkscape:cx="193.565"
+     inkscape:cy="70.065002"
+     inkscape:window-x="896"
+     inkscape:window-y="458"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg2" />
+  <defs
+     id="defs4">
+    <filter
+       id="filter5801"
+       color-interpolation-filters="sRGB"
+       inkscape:label="Invert"
+       x="0"
+       y="0"
+       width="1"
+       height="1"
+       inkscape:menu="Color"
+       inkscape:menu-tooltip="Invert colors">
+      <feGaussianBlur
+         id="feGaussianBlur5803"
+         stdDeviation="6"
+         result="result0"
+         in="SourceAlpha" />
+      <feSpecularLighting
+         id="feSpecularLighting5805"
+         lighting-color="#ffffff"
+         specularConstant="1"
+         result="result1"
+         specularExponent="25"
+         in="result0"
+         surfaceScale="10">
+        <feDistantLight
+           id="feDistantLight5807"
+           elevation="45"
+           azimuth="235" />
+      </feSpecularLighting>
+      <feComposite
+         id="feComposite5809"
+         k4="0"
+         in2="result1"
+         k3="1"
+         k2="1"
+         k1="0"
+         result="result4"
+         in="SourceGraphic"
+         operator="arithmetic" />
+      <feComposite
+         id="feComposite5811"
+         operator="in"
+         result="fbSourceGraphic"
+         in2="SourceAlpha"
+         in="result4" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix3001" />
+      <feColorMatrix
+         id="feColorMatrix3003"
+         type="saturate"
+         values="1"
+         result="fbSourceGraphic"
+         in="fbSourceGraphic" />
+      <feColorMatrix
+         id="feColorMatrix3005"
+         in="fbSourceGraphic"
+         values="-1 0 0 0 1 0 -1 0 0 1 0 0 -1 0 1 0 0 0 1 0 " />
+    </filter>
+    <filter
+       id="filter5825"
+       color-interpolation-filters="sRGB"
+       inkscape:label="Invert"
+       x="0"
+       y="0"
+       width="1"
+       height="1"
+       inkscape:menu="Color"
+       inkscape:menu-tooltip="Invert colors">
+      <feGaussianBlur
+         id="feGaussianBlur5827"
+         stdDeviation="6"
+         result="result0"
+         in="SourceAlpha" />
+      <feSpecularLighting
+         id="feSpecularLighting5829"
+         lighting-color="#ffffff"
+         specularConstant="1"
+         result="result1"
+         specularExponent="25"
+         in="result0"
+         surfaceScale="10">
+        <feDistantLight
+           id="feDistantLight5831"
+           elevation="45"
+           azimuth="235" />
+      </feSpecularLighting>
+      <feComposite
+         id="feComposite5833"
+         k4="0"
+         in2="result1"
+         k3="1"
+         k2="1"
+         k1="0"
+         result="result4"
+         in="SourceGraphic"
+         operator="arithmetic" />
+      <feComposite
+         id="feComposite5835"
+         operator="in"
+         result="fbSourceGraphic"
+         in2="SourceAlpha"
+         in="result4" />
+      <feColorMatrix
+         result="fbSourceGraphicAlpha"
+         in="fbSourceGraphic"
+         values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"
+         id="feColorMatrix2995" />
+      <feColorMatrix
+         id="feColorMatrix2997"
+         type="saturate"
+         values="1"
+         result="fbSourceGraphic"
+         in="fbSourceGraphic" />
+      <feColorMatrix
+         id="feColorMatrix2999"
+         in="fbSourceGraphic"
+         values="-1 0 0 0 1 0 -1 0 0 1 0 0 -1 0 1 0 0 0 1 0 " />
+    </filter>
+  </defs>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <path
+     style="fill:#777677;stroke:#000000;stroke-width:4.072;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter5825);fill-opacity:1"
+     inkscape:connector-curvature="0"
+     stroke-miterlimit="4"
+     transform="matrix(1,0,0,-1,-197.68431,536.99484)"
+     d="m 289.41,409.03 0,0.15625 c -0.43877,-0.01 -0.87137,-0.0312 -1.3125,-0.0312 -31.927,0 -57.812,25.806 -57.812,57.625 0,31.819 25.885,57.594 57.812,57.594 0.44113,0 0.87373,-0.0214 1.3125,-0.0312 v 0.15625 h 201.91 v -0.0625 c 0.1485,0.004 0.28852,0.0312 0.4375,0.0312 0.70368,0 1.4013,-0.0457 2.0938,-0.125 0.0314,5e-5 0.0623,0 0.0937,0 32.184,0 58.281,-25.8 58.281,-57.625 0,-31.825 -26.098,-57.625 -58.281,-57.625 -0.15708,0 -0.31196,-0.001 -0.46875,0 -0.0203,-0.002 -0.0422,0.002 -0.0625,0 -0.54984,-0.0499 -1.0995,-0.0625 -1.6562,-0.0625 -0.14898,0 -0.289,0.0276 -0.4375,0.0312 v -0.0312 h -201.91 z"
+     id="rect2985" />
+  <path
+     style="opacity:0.86666667;fill:#000000;stroke:#171717;filter:url(#filter5801)"
+     inkscape:connector-curvature="0"
+     transform="matrix(0.71775642,0,0,1.2295007,-21.72579,-447.91239)"
+     d="m 521.07,421.29 c 0,25.05 -35.178,45.357 -78.571,45.357 -43.394,0 -78.571,-20.307 -78.571,-45.357 0,-25.05 35.178,-45.357 78.571,-45.357 43.394,0 78.571,20.307 78.571,45.357 z"
+     id="path3787" />
+</svg>

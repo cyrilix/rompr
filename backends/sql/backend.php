@@ -298,7 +298,7 @@ function create_new_album($album, $albumai, $spotilink, $image, $date, $searched
 	// We can't use images from prefs/imagecache because they will eventually get removed.
 
 	if (preg_match('#^prefs/imagecache/#', $image)) {
-        $image = preg_replace('#_small\.jpg|_original\.jpg#', '', $image);
+        $image = preg_replace('#_small\.jpg|_asdownloaded\.jpg#', '', $image);
 		system( 'cp '.$image.'_small.jpg albumart/small/'.$imagekey.'.jpg');
 		system( 'cp '.$image.'_asdownloaded.jpg albumart/asdownloaded/'.$imagekey.'.jpg');
 		$image = 'albumart/small/'.$imagekey.'.jpg';
@@ -711,7 +711,7 @@ function do_artists_from_database($which) {
 					$divtype = ($divtype == "album1") ? "album2" : "album1";
 					ob_start();
 					artistHeader('aartist'.$obj->Artistindex, null, $obj->Artistname);
-					$singleheader['html'] = printHeaders().ob_get_contents().printTrailers();
+					$singleheader['html'] = ob_get_contents();
 					ob_end_clean();
 					return $singleheader;
 				}
@@ -792,7 +792,7 @@ function do_albums_from_database($which, $fragment = false) {
 						$obj->Image,
 						$obj->Year
 					);
-					$singleheader['html'] = printHeaders().ob_get_contents().printTrailers();
+					$singleheader['html'] = ob_get_contents();
 					ob_end_clean();
 					return $singleheader;
 				}
@@ -1474,7 +1474,6 @@ function dumpAlbums($which) {
 
     global $divtype, $prefs;
 
-    print printHeaders();
     $t = substr($which,1,3);
     if ($which == 'aalbumroot' || $which == 'balbumroot') {
     	// Er.. balbumroot is for search results. Why would we ever be here for balbumroot?
@@ -1489,6 +1488,7 @@ function dumpAlbums($which) {
         if ($which == 'aalbumroot' && $prefs['sortcollectionby'] == "album") {
         	do_albums_from_database('aartistroot');
         } else {
+        	$divtype = "album1";
         	do_artists_from_database($which);
         }
     } else  if ($t == "art") {
@@ -1496,7 +1496,6 @@ function dumpAlbums($which) {
     } else {
         do_tracks_from_database($which);
     }
-    print printTrailers();
 }
 
 function createAlbumsList($file, $prefix) {
@@ -1518,23 +1517,6 @@ function getItemsToAdd($which) {
         }
         return get_album_tracks_from_database($matches[1]);
     }
-}
-
-function printHeaders() {
-    return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'.
-           '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">'.
-           '<head>'.
-           '<meta http-equiv="cache-control" content="max-age=0" />'.
-           '<meta http-equiv="cache-control" content="no-cache" />'.
-           '<meta http-equiv="expires" content="0" />'.
-           '<meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />'.
-           '<meta http-equiv="pragma" content="no-cache" />'.
-           '</head>'.
-           '<body>';
-}
-
-function printTrailers() {
-    return '</body></html>';
 }
 
 function send_list_updates($artist_created, $album_created, $ttid, $send = true) {
@@ -1564,7 +1546,7 @@ function send_list_updates($artist_created, $album_created, $ttid, $send = true)
 		} else {
 			array_push($returninfo['inserts'], array( 	'type' => 'insertInto',
 														'where' => 'aalbum'.$albumid,
-														'html' => printHeaders().do_tracks_from_database('aalbum'.$albumid, true).printTrailers()));
+														'html' => do_tracks_from_database('aalbum'.$albumid, true)));
 		}
 	}
 	if ($send) {

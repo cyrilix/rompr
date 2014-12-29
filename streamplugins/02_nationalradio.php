@@ -69,7 +69,7 @@ if (array_key_exists('populate', $_REQUEST)) {
     ksort($genres);
 
     print '<div class="indent">';
-    print '<select id="radioselector" class="topformbutton" onchange="changeradiocountry()">';
+    print '<select id="radioselector" onchange="changeradiocountry()">';
     foreach ($countries as $name => $link) {
         print '<option value="'.$link.'"';
         if ($link == $prefs['radiocountry']) {
@@ -165,7 +165,7 @@ if (array_key_exists('populate', $_REQUEST)) {
 
         if ($track['title'] && count($track['links']) > 0) {
             $imgname = getStationImage($track['title']);
-            print '<div class="containerbox indent padright wibble menuitem" style="padding-bottom:2px;padding-top:10px">';
+            print '<div class="containerbox indent padright menuitem" style="padding-bottom:2px;padding-top:10px">';
             if ($imgname === null) {
                 print '<div class="fixed"><i class="icon-radio-tower smallcover-svg"></i></div>';
             } else {
@@ -178,26 +178,7 @@ if (array_key_exists('populate', $_REQUEST)) {
             print '</div>';
             foreach ($track['links'] as $k) {
                 print '<div class="clickable clickstream indent containerbox padright menuitem" name="'.$k['url'].'" streamname="'.$track['title'].'" streamimg="'.$imgname.'">';
-
-                $littleimg = "";
-                switch($k['type']) {
-                    case "Windows Media":
-                        $littleimg = "newimages/wma_16.png";
-                        break;
-                    case "aacplus":
-                    case 'aacPlus':
-                        $littleimg = "newimages/aac_16.png";
-                        break;
-                    case "mp3":
-                    case "MP3":
-                        $littleimg = "newimages/mp3_16.png";
-                        break;
-                    case "ogg Vorbis":
-                        $littleimg = "newimages/ogg_16.png";
-                        break;
-
-                }
-                print '<div class="fixed"><img src="'.$littleimg.'" style="margin-right:6px"/></div>';
+                print '<div class="fixed"><i class="'.audioClass($k['type']).' smallicon"></i></div>';
                 print '<div class="expand">'.$k['text'].' '.$k['type'].'</div>';
                 print '</div>';
             }
@@ -210,18 +191,6 @@ if (array_key_exists('populate', $_REQUEST)) {
 } else {
 
 ?>
-<script language="text/javascript">
-function loadBigRadio() {
-    if ($("#bbclist").is(':empty')) {
-        $("#bbcwait").makeSpinner();
-        $("#bbclist").load("streamplugins/02_nationalradio.php?populate", function() { $("#bbcwait").stopSpinner() });
-    }
-}
-
-function changeradiocountry() {
-    $("#bbclist").load("streamplugins/02_nationalradio.php?populate=1&country="+$("#radioselector").val());
-}
-</script>
 <div class="containerbox menuitem noselection">
 <?php
 print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" onclick="loadBigRadio()" name="bbclist"></i></div>';

@@ -284,7 +284,8 @@ var nowplaying = function() {
 	                var index = elem.next().val();
 	                if (index == -1) index = findCurrentTrack();
 		            // The image will get updated anyway, but this makes it more responsive
-		            elem.attr("src", "newimages/"+rating+"stars.png");
+		            displayRating(evt.target, rating);
+		            // elem.attr("src", "newimages/"+rating+"stars.png");
 	            }
 				if (index > 0) {
 		            debug.log("NOWPLAYING", "Setting Rating to",rating,"on index",index);

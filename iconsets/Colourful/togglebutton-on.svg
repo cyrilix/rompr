@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg id="svg2" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" height="140.13" width="387.13" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/">
+ <defs id="defs4">
+  <filter id="filter5801" color-interpolation-filters="sRGB">
+   <feGaussianBlur id="feGaussianBlur5803" stdDeviation="6" result="result0" in="SourceAlpha"/>
+   <feSpecularLighting id="feSpecularLighting5805" lighting-color="#ffffff" specularConstant="1" result="result1" specularExponent="25" in="result0" surfaceScale="10">
+    <feDistantLight id="feDistantLight5807" elevation="45" azimuth="235"/>
+   </feSpecularLighting>
+   <feComposite id="feComposite5809" k4="0" in2="result1" k3="1" k2="1" k1="0" result="result4" in="SourceGraphic" operator="arithmetic"/>
+   <feComposite id="feComposite5811" operator="in" result="result2" in2="SourceAlpha" in="result4"/>
+  </filter>
+  <filter id="filter5825" color-interpolation-filters="sRGB">
+   <feGaussianBlur id="feGaussianBlur5827" stdDeviation="6" result="result0" in="SourceAlpha"/>
+   <feSpecularLighting id="feSpecularLighting5829" lighting-color="#ffffff" specularConstant="1" result="result1" specularExponent="25" in="result0" surfaceScale="10">
+    <feDistantLight id="feDistantLight5831" elevation="45" azimuth="235"/>
+   </feSpecularLighting>
+   <feComposite id="feComposite5833" k4="0" in2="result1" k3="1" k2="1" k1="0" result="result4" in="SourceGraphic" operator="arithmetic"/>
+   <feComposite id="feComposite5835" operator="in" result="result2" in2="SourceAlpha" in="result4"/>
+  </filter>
+ </defs>
+ <metadata id="metadata7">
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title/>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <g id="layer1" transform="translate(-197.68431,-396.53641)">
+  <path id="rect2985" d="m289.41,409.03,0,0.15625c-0.43877-0.01-0.87137-0.0312-1.3125-0.0312-31.927,0-57.812,25.806-57.812,57.625s25.885,57.594,57.812,57.594c0.44113,0,0.87373-0.0214,1.3125-0.0312v0.15625h201.91v-0.0625c0.1485,0.004,0.28852,0.0312,0.4375,0.0312,0.70368,0,1.4013-0.0457,2.0938-0.125,0.0314,0.00005,0.0623,0,0.0937,0,32.184,0,58.281-25.8,58.281-57.625s-26.098-57.625-58.281-57.625c-0.15708,0-0.31196-0.001-0.46875,0-0.0203-0.002-0.0422,0.002-0.0625,0-0.54984-0.0499-1.0995-0.0625-1.6562-0.0625-0.14898,0-0.289,0.0276-0.4375,0.0312v-0.0312h-201.91z" transform="matrix(1,0,0,-1,0,933.53125)" filter="url(#filter5825)" stroke="#000" stroke-miterlimit="4" stroke-dasharray="none" stroke-width="0.67199999" fill="#77beda"/>
+  <path id="path3787" opacity="0.86666667" d="m521.07,421.29c0,25.05-35.178,45.357-78.571,45.357-43.394,0-78.571-20.307-78.571-45.357s35.178-45.357,78.571-45.357c43.394,0,78.571,20.307,78.571,45.357z" transform="matrix(0.71775642,0,0,1.2295007,175.95852,-51.375985)" filter="url(#filter5801)" stroke="#171717" fill="#000"/>
+ </g>
+</svg>

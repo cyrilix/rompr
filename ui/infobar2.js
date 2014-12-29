@@ -195,8 +195,7 @@ var infobar = function() {
 
             var top = Math.floor((maxheight - totalheight)/2);
             if (top < 0) top = 0;
-            // $("#nptext").css({top: top+"px", left: $("#albumcover").outerWidth()+"px"});
-            $("#nptext").css("margin-top", top+"px");
+            $("#nptext").css("padding-top", top+"px");
 
             // Make sure the line spacing caused by the <br> is consistent
             if (lines[1]) {
@@ -236,7 +235,7 @@ var infobar = function() {
             return {
                 setSource: function(data) {
                     if (data.image === null || data.image == "") {
-                        aImg.src = "newimages/album-unknown.png";
+                        // aImg.src = "newimages/compact_disc.svg";
                         $("#albumpicture").unbind('click');
                         $("#albumpicture").removeClass('clickicon');
                         $("#albumpicture").attr('class', "notexist");
@@ -301,12 +300,10 @@ var infobar = function() {
                         state = s;
                         switch (state) {
                             case "play":
-                                // $("#playbuttonimg").attr("src", ipath+"media-playback-pause.png");
                                 $(".icon-play-circled").removeClass("icon-play-circled").addClass("icon-pause-circled");
                                 break;
                             case "pause":
                             case "stop":
-                                // $("#playbuttonimg").attr("src", ipath+"media-playback-start.png");
                                 $(".icon-pause-circled").removeClass("icon-pause-circled").addClass("icon-play-circled");
                                 break;
                         }
@@ -368,7 +365,7 @@ var infobar = function() {
                 $("#dbtags").fadeOut('fast');
                 $("#playcount").fadeOut('fast');
                 $("#subscribe").fadeOut('fast');
-                infobar.albumImage.setSource({ image: "newimages/transparent-32x32.png" });
+                infobar.albumImage.setSource({ image: "" });
             } else {
                 infobar.albumImage.setKey(info.key);
                 if (info.trackimage) {

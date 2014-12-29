@@ -4,13 +4,13 @@ var ratingManager = function() {
 	var holders = new Array();
 
 	function putTracks(holder, tracks, title) {
-		var html = '<table align="center" style="border-collapse:collapse;width:96%"><tr class="tagh"><th colspan="3" align="center"><img height="16px" src="newimages/'+title+'stars.png" /></th></tr>';
+		var html = '<table align="center" style="border-collapse:collapse;width:96%"><tr class="tagh"><th colspan="3" align="center"><i class="icon-'+title+'-stars rating-icon-big"></i></th></tr>';
 		for (var i in tracks) {
-			html = html + '<tr class="infoclick draggable clickable clicktrack" name="'+encodeURIComponent(tracks[i].Uri)+'"><td width="40px"><img class="smallcover" src="';
+			html = html + '<tr class="infoclick draggable clickable clicktrack" name="'+encodeURIComponent(tracks[i].Uri)+'"><td width="40px"><img class="smallcover';
 			if (tracks[i].Image) {
-				html = html + tracks[i].Image;
+				html = html + '" src="'+tracks[i].Image;
 			} else {
-				html = html + 'newimages/album-unknown-small.png';
+				html = html + ' notfound';
 			}
 			html = html + '" /></td><td><b>'+tracks[i].Title+'</b><br><i>by</i> <b>'+tracks[i].Artist+
 				'</b><br><i>on</i> <b>'+tracks[i].Album+'</b></td>';

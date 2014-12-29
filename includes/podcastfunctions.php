@@ -311,7 +311,7 @@ function doPodcast($c) {
     print '<div class="containerbox" style="margin-top:4px">';
     print '<table>';
     print '<tr><td align="right" style="vertical-align:middle">'.get_int_text("podcast_display").'&nbsp;&nbsp;</td>';
-    print '<td style="vertical-align:middle"><select name="displaymode" class="topformbutton" onchange="podcasts.changeOption(event)">';
+    print '<td style="vertical-align:middle"><select name="displaymode" onchange="podcasts.changeOption(event)">';
     $options =  '<option value="all">'.get_int_text("podcast_display_all").'</option>'.
                 '<option value="new">'.get_int_text("podcast_display_onlynew").'</option>'.
                 '<option value="unlistened">'.get_int_text("podcast_display_unlistened").'</option>'.
@@ -321,7 +321,7 @@ function doPodcast($c) {
     print '</select></td></tr>';
 
     print '<tr><td align="right" style="vertical-align:middle">'.get_int_text("podcast_refresh").'&nbsp;&nbsp;</td>';
-    print '<td style="vertical-align:middle"><select name="refreshoption" class="topformbutton" onchange="podcasts.changeOption(event)">';
+    print '<td style="vertical-align:middle"><select name="refreshoption" onchange="podcasts.changeOption(event)">';
     $options =  '<option value="never">'.get_int_text("podcast_refresh_never").'</option>'.
                 '<option value="hourly">'.get_int_text("podcast_refresh_hourly").'</option>'.
                 '<option value="daily">'.get_int_text("podcast_refresh_daily").'</option>'.
@@ -335,7 +335,7 @@ function doPodcast($c) {
     print '</select></td></tr>';
 
     print '<tr><td align="right" style="vertical-align:middle">'.get_int_text("podcast_expire").'&nbsp;&nbsp;</td>';
-    print '<td style="vertical-align:middle"><select title="'.get_int_text("podcast_expire_tooltip").'" name="daystokeep" class="topformbutton fridge" onchange="podcasts.changeOption(event)">';
+    print '<td style="vertical-align:middle"><select title="'.get_int_text("podcast_expire_tooltip").'" name="daystokeep" class="fridge" onchange="podcasts.changeOption(event)">';
     $options =  '<option value="0">'.get_int_text("podcast_expire_never").'</option>'.
                 '<option value="7">'.get_int_text("podcast_expire_week").'</option>'.
                 '<option value="14">'.get_int_text("podcast_expire_2week").'</option>'.
@@ -351,7 +351,7 @@ function doPodcast($c) {
     print '</select></td></tr>';
 
     print '<tr><td align="right" style="vertical-align:middle">'.get_int_text("podcast_keep").'&nbsp;&nbsp;</td>';
-    print '<td style="vertical-align:middle"><select title="'.get_int_text("podcast_keep_tooltip").'" name="numtokeep" class="topformbutton fridge" onchange="podcasts.changeOption(event)">';
+    print '<td style="vertical-align:middle"><select title="'.get_int_text("podcast_keep_tooltip").'" name="numtokeep" class="fridge" onchange="podcasts.changeOption(event)">';
     $options =  '<option value="0">'.get_int_text("podcast_keep_0").'</option>'.
                 '<option value="1">1</option>'.
                 '<option value="5">5</option>'.
@@ -461,12 +461,12 @@ function doPodcastHeader($c) {
     if ($aa != '') {
         $aa = $aa . ' - ';
     }
-    print '<div class="containerbox menuitem wibble" style="margin-top:6px">';
+    print '<div class="containerbox menuitem">';
     print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" name="podcast_'.$pm.'"></i></div>';
     print '<div class="smallcover fixed"><img height="32px" width="32px" src="'.$y->image.'" /></div>';
     print '<div class="expand"><b>'.$aa.$y->album.'</b><span class="podnumber"></span><span></span></div>';
     print '</div>';
-    print '<div id="podcast_'.$pm.'" class="indent dropmenu wibble padright">';
+    print '<div id="podcast_'.$pm.'" class="indent dropmenu padright">';
 
 }
 

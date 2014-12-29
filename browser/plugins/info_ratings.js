@@ -21,7 +21,7 @@ var info_ratings = function() {
                     } else {
                         $("#playcount").html("");
                     }
-                    $("#ratingimage").attr("src","newimages/"+trackmeta.usermeta.Rating+"stars.png");
+                    displayRating("#ratingimage", trackmeta.usermeta.Rating);
                     $("#dbtags").html('<span style="margin-right:8px"><b>'+language.gettext("musicbrainz_tags")+'&nbsp;</b><a href="#" class="clicktext" onclick="tagAdder.show(event)">+</a></span>');
                     for(var i = 0; i < trackmeta.usermeta.Tags.length; i++) {
                         $("#dbtags").append('<span class="tag">'+trackmeta.usermeta.Tags[i]+'<span class="tagremover invisible"><a href="#" class="clicktext" onclick="nowplaying.removeTag(event)">x</a></span></span>');
@@ -38,7 +38,7 @@ var info_ratings = function() {
 
             function hideTheInputs() {
                 if (parent.isCurrentTrack()) {
-                    $("#ratingimage").attr("src","newimages/transparent-32x32.png");
+                    displayRating("#ratingimage", false);
                     $("#dbtags").html('');
                     $("#playcount").html('');
                 }
@@ -439,7 +439,7 @@ function updateCollectionDisplay(rdata) {
                     $(rdata.inserts[i].html).prependTo(el);
                     break;
             }
-            $(rdata.inserts[i].html).find('img[src="newimages/album-unknown-small.png"]').each(function() {
+            $(rdata.inserts[i].html).find('img[src="newimages/compact_disc.svg"]').each(function() {
                 debug.log("Getting Image for new album");
                 coverscraper.GetNewAlbumArt($(this).attr('name'));
             });
@@ -466,10 +466,11 @@ function updateCollectionDisplay(rdata) {
     if (rdata && rdata.hasOwnProperty('deletedartists')) {
         debug.debug("DELETED ARTISTS",rdata.deletedartists);
         for (var i in rdata.deletedartists) {
-            var d = $("#"+rdata.deletedartists[i]).parent().remove();
+            var d = $("#"+rdata.deletedartists[i]);
             if (d.length > 0) {
                 debug.log("REMOVING",rdata.deletedartists[i]);
-                d.parent().remove();
+                d.prev().remove();
+                d.remove();
             }
         }
     }

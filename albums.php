@@ -96,7 +96,7 @@ if (array_key_exists('item', $_REQUEST)) {
     print '<div class="separator"></div>';
 } else if (array_key_exists('wishlist', $_REQUEST)) {
     include ("collection/collection.php");
-    include( "collection/dbsearch.php");
+    include("collection/dbsearch.php");
     getWishlist();
     createAlbumsList('prefs/w_list.xml', "w");
     dumpAlbums('walbumroot');

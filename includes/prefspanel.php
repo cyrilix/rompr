@@ -18,7 +18,7 @@ $labia -= 2;
 print '<div class="pref textcentre"><b>'.get_int_text('settings_appearance').'</b></div>';
 
 // Theme
-print '<div class="pref"><div style="display:inline-block;width:'.$labia.'em"><b>'.get_int_text('config_theme').'</b></div><select id="themeselector" class="topformbutton saveomatic">';
+print '<div class="pref"><div style="display:inline-block;width:'.$labia.'em"><b>'.get_int_text('config_theme').'</b></div><select id="themeselector" class="saveomatic">';
 $themes = glob("themes/*.css");
 foreach($themes as $theme) {
     print '<option value="'.basename($theme).'">'.preg_replace('/\.css$/', "", basename($theme)).'</option>';
@@ -26,7 +26,7 @@ foreach($themes as $theme) {
 print '</select></div>';
 
 // Icon Theme
-print '<div class="pref"><div style="display:inline-block;width:'.$labia.'em"><b>'.get_int_text('config_icontheme').'</b></div><select id="iconthemeselector" class="topformbutton saveomatic">';
+print '<div class="pref"><div style="display:inline-block;width:'.$labia.'em"><b>'.get_int_text('config_icontheme').'</b></div><select id="iconthemeselector" class="saveomatic">';
 $themes = glob("iconsets/*");
 foreach($themes as $theme) {
     print '<option value="'.basename($theme).'">'.basename($theme).'</option>';
@@ -34,7 +34,7 @@ foreach($themes as $theme) {
 print '</select></div>';
 
 // Font
-print '<div class="pref"><div style="display:inline-block;width:'.$labia.'em"><b>'.get_int_text('config_fontname').'</b></div><select id="fontfamilyselector" class="topformbutton saveomatic">';
+print '<div class="pref"><div style="display:inline-block;width:'.$labia.'em"><b>'.get_int_text('config_fontname').'</b></div><select id="fontfamilyselector" class="saveomatic">';
 $themes = glob("fonts/*.css");
 foreach($themes as $theme) {
     print '<option value="'.preg_replace("#fonts/#", "", $theme).'">'.preg_replace('/fonts\/(.*?)\.css$/', "$1", $theme).'</option>';
@@ -42,7 +42,7 @@ foreach($themes as $theme) {
 print '</select></div>';
 
 //Font Size
-print '<div class="pref prefsection"><div style="display:inline-block;width:'.$labia.'em"><b>'.get_int_text('config_fontsize').'</b></div><select id="fontsizeselector" class="topformbutton saveomatic">';
+print '<div class="pref prefsection"><div style="display:inline-block;width:'.$labia.'em"><b>'.get_int_text('config_fontsize').'</b></div><select id="fontsizeselector" class="saveomatic">';
 $themes = glob("sizes/*.css");
 foreach($themes as $theme) {
     print '<option value="'.preg_replace("#sizes/#", "", $theme).'">'.preg_replace('/sizes\/\d+-(.*?)\.css$/', "$1", $theme).'</option>';
@@ -74,7 +74,7 @@ print '<div class="pref prefsection">
 // Biography and Language
 print '<div class="pref textcentre ucfirst"><b>'.get_int_text('settings_language').'</b></div>';
 
-print '<div class="pref"><div style="display:inline-block;margin-right:2em"><b>'.get_int_text('settings_interface').'</b></div><select id="langselector" class="topformbutton" onchange="changelanguage()">';
+print '<div class="pref"><div style="display:inline-block;margin-right:2em"><b>'.get_int_text('settings_interface').'</b></div><select id="langselector" onchange="changelanguage()">';
 $langs = glob("international/*.php");
 foreach($langs as $lang) {
     if (basename($lang) != "en.php" && basename($lang) != $interface_language.".php") {
@@ -91,7 +91,7 @@ print '<div class="pref">
 <div><input type="radio" class="topcheck savulon" name="lastfmlang" value="default">'.get_int_text('config_lastfmdefault').'</input></div>
 <div><input type="radio" class="topcheck savulon" name="lastfmlang" value="interface">'.get_int_text('config_lastfminterface').'</input></div>
 <div><input type="radio" class="topcheck savulon" name="lastfmlang" value="browser">'.get_int_text('config_lastfmbrowser').'</input></div>
-<div><input type="radio" class="topcheck savulon" name="lastfmlang" value="user">'.get_int_text('config_lastfmlanguser').'</input><input class="winkle saveotron" id="user_lang" style="width:4em;margin-left:1em" type="text" size="4" /></div>
+<div><input type="radio" class="topcheck savulon" name="lastfmlang" value="user">'.get_int_text('config_lastfmlanguser').'</input><input class="saveotron" id="user_lang" style="width:4em;margin-left:1em" type="text" size="4" /></div>
 <div><span class="tiny">'.get_int_text('config_langinfo').'</span></div>
 </div>';
 
@@ -108,11 +108,11 @@ print '<div class="pref textcentre ucfirst"><b>'.get_int_text('button_local_musi
 print '<div class="pref">
 <input class="autoset toggle" type="checkbox" id="updateeverytime">'.get_int_text('config_updateonstart').'</input>
 </div>
-<div class="pref">
+<div class="pref textcentre">
 <button onclick="checkCollection(true, false)">'.get_int_text('config_updatenow').'</button>
 </div>';
 if ($prefs['player_backend'] == "mpd") {
-    print '<div class="pref">
+    print '<div class="pref textcentre">
     <button onclick="checkCollection(true, true)">'.get_int_text('config_rescan').'</button>
     </div>';
 } else {
@@ -135,7 +135,7 @@ print '<div class="pref indent">
 <input class="autoset toggle" type="checkbox" id="composergenre">'.get_int_text('config_composergenre').'</input>
 </div>';
 print '<div class="pref indent">
-<input class="winkle saveotron prefinput" id="composergenrename" type="text" size="40" />
+<input class="saveotron prefinput" id="composergenrename" type="text" size="40" />
 </div>';
 print '<div class="pref indent">
 <input class="autoset toggle" type="checkbox" id="displaycomposer">'.get_int_text('config_displaycomposer').'</input>
@@ -143,10 +143,10 @@ print '<div class="pref indent">
 
 if ($prefs['apache_backend'] == "sql") {
     print '<div class="pref"><b>'.get_int_text('config_artistfirst').'
-    <input class="winkle saveotron prefinput arraypref" id="artistsatstart" type="text" size="256" />
+    <input class="saveotron prefinput arraypref" id="artistsatstart" type="text" size="256" />
     </b></div>';
     print '<div class="pref"><b>'.get_int_text('config_nosortprefixes').'
-    <input class="winkle saveotron prefinput arraypref" id="nosortprefixes" type="text" size="128" />
+    <input class="saveotron prefinput arraypref" id="nosortprefixes" type="text" size="128" />
     </b></div>';
     print '<div class="pref"><b>'.get_int_text('config_sortcollectionby').'</b>';
     print '<div><input type="radio" class="topcheck savulon" name="sortcollectionby" value="artist">'.get_int_text('label_artist').'</input></div>
@@ -168,13 +168,13 @@ print '<div class="pref">
 </div>
 <div class="pref prefsection">
 <span class="tiny">'.get_int_text('config_musicfolders').'</span>
-<input class="winkle saveotron prefinput" id="music_directory_albumart" type="text" size="40" />
+<input class="saveotron prefinput" id="music_directory_albumart" type="text" size="40" />
 </div>';
 
 // Interface
 print '<div class="pref textcentre"><b>'.get_int_text('settings_interface').'</b></div>';
 if ($layout == "desktop") {
-print '<div class="pref"><button class="topformbutton" onclick="shortcuts.edit()">'.get_int_text('config_editshortcuts').'</button></div>'."\n";
+print '<div class="pref textcentre"><button onclick="shortcuts.edit()">'.get_int_text('config_editshortcuts').'</button></div>'."\n";
 }
 print '<div class="pref">
 <input class="autoset toggle" type="checkbox" id="scrolltocurrent">'.get_int_text('config_autoscroll').'</input>
@@ -198,7 +198,7 @@ print '<div class="pref textcentre"><b>'.get_int_text('config_audiooutputs').'</
 include("player/".$prefs['player_backend']."/outputs.php");
 print '</div>';
 print '<div class="pref prefsection">'.get_int_text('config_crossfade').'
-<input class="winkle saveotron" id="crossfade_duration" type="text" size="3""/>
+<input class="saveotron prefinput" id="crossfade_duration" type="text" size="3""/>
 </div>';
 
 // Last.FM
@@ -206,7 +206,7 @@ print '<div class="pref textcentre">
 <i class="icon-lastfm-1 medicon"></i><b>'.get_int_text('label_lastfm').'</b>
 </div>
 <div class="pref">'.get_int_text('config_lastfmusername').'
-<input class="winkle prefinput" name="user" type="text" size="30" value="'.$prefs['lastfm_user'].'"/><button onclick="lastfmlogin()">'.get_int_text('config_loginbutton').'</button>
+<input class="prefinput" name="user" type="text" size="30" value="'.$prefs['lastfm_user'].'"/><button onclick="lastfmlogin()">'.get_int_text('config_loginbutton').'</button>
 </div>
 <div class="pref">
 <input class="autoset toggle" type="checkbox" id="lastfm_scrobbling">'.get_int_text('config_scrobbling').'</input>
@@ -219,7 +219,7 @@ print '<div class="pref textcentre">
 <input class="autoset toggle" type="checkbox" id="lastfm_autocorrect">'.get_int_text('config_autocorrect').'</input>
 </div>
 <div class="pref prefsection">'.get_int_text('config_tagloved').'
-<input class="winkle prefinput saveotron" id="autotagname" type="text" size="40" />
+<input class="prefinput saveotron" id="autotagname" type="text" size="40" />
 </div>';
 
 // Tags and Ratings

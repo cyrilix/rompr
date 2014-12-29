@@ -101,7 +101,7 @@ function setBottomPaneSize() {
     var lp = ws.x - $("#patrickmoore").prev().offset().left - $("#patrickmoore").prev().outerWidth(true) - 16;
     $('#patrickmoore').css("width", lp+"px");
     // Height of the bottom pane (chooser, info, playlist container)
-    var newheight = ws.y - 148;
+    var newheight = ws.y - $("#bottompage").offset().top;
     // Make sure the dropdown menus don't overflow the window
     // They have max-height as 500 in the css.
     // if (newheight < 500) {
@@ -195,7 +195,7 @@ var shortcuts = function() {
 
     function format_keyinput(inpname, hotkey) {
         if (hotkey === null) hotkey = "";
-        return '<input id="'+inpname+'" class="tleft sourceform buttonchange" type="text" size="16" value="'+hotkey+'"></input>';
+        return '<input id="'+inpname+'" class="tleft buttonchange" type="text" size="16" value="'+hotkey+'"></input>';
     }
 
     function format_clearbutton(inpname) {
@@ -452,6 +452,7 @@ var layoutProcessor = function() {
 
         shrinkerRatio: 2.5,
         supportsDragDrop: true,
+        hasCustomScrollbars: true,
 
         afterHistory: function() {
             setTimeout(function() { $("#infopane").mCustomScrollbar("scrollTo",0) }, 500);
@@ -552,7 +553,6 @@ var layoutProcessor = function() {
             }
             switchsource(source);
             return false;
-
         }
     }
 

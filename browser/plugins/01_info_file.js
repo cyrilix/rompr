@@ -21,7 +21,7 @@ var info_file = function() {
         if (info.file) {
             var f = info.file.match(/^podcast[\:|\+](http.*?)\#/);
             if (f && f[1]) {
-                html = html + '<button class="sourceform" onclick="podcasts.doPodcast(\'filepodiput\')">'+language.gettext('button_subscribe')+'</button>'+
+                html = html + '<button onclick="podcasts.doPodcast(\'filepodiput\')">'+language.gettext('button_subscribe')+'</button>'+
                                 '<input type="hidden" id="filepodiput" value="'+f[1]+'" />';
             }
         }
@@ -56,7 +56,7 @@ var info_file = function() {
             html = html + '<tr><td class="fil">'+language.gettext("info_composers")+'</td><td>'+joinartists(info.Composer)+'</td></tr>';
         }
         if (info.Comment) html = html + '<tr><td class="fil">'+language.gettext("info_comment")+'</td><td>'+info.Comment+'</td></tr>';
-        setBrowserIcon(filetype);
+        browser.setPluginIcon(me, audioClass(filetype));
         return html;
     }
 
@@ -85,35 +85,8 @@ var info_file = function() {
         });
         if (data.composer) html = html + '<tr><td class="fil">'+language.gettext("info_composers")+'</td><td>'+data.composer+'</td></tr>';
         if (data.comments) html = html + '<tr><td class="fil">'+language.gettext("info_comment")+'</td><td>'+data.comments+'</td></tr>';
-        setBrowserIcon(data.format);
+        browser.setPluginIcon(me, audioClass(data.format));
         return html;
-    }
-
-    function setBrowserIcon(filetype) {
-        switch(filetype) {
-            case "mp3":
-            case "MP3":
-                browser.setPluginIcon(me, "newimages/mp3-audio.jpg");
-                break;
-
-            case "mp4":
-            case "m4a":
-            case "aac":
-            case "MP4":
-            case "M4A":
-            case "AAC":
-                browser.setPluginIcon(me, "newimages/aac-audio.jpg");
-                break;
-
-            case "flac":
-            case "FLAC":
-                browser.setPluginIcon(me, "newimages/flac-audio.jpg");
-                break;
-
-            default:
-            	browser.setPluginIcon(me, ipath+"audio-x-generic.png");
-            	break;
-        }
     }
 
 	return {
@@ -149,6 +122,7 @@ var info_file = function() {
                 } else if (element.hasClass("clickremtag")) {
                     nowplaying.removeTag(event, parent.nowplayingindex);
                 } else if (element.hasClass("clickaddtags")) {
+                    // nowplaying.addTags(parent.nowplayingindex, $('[name="infotagadd"]').val());
                     tagAdder.show(event, parent.nowplayingindex);
                 }
             }
@@ -204,7 +178,8 @@ var info_file = function() {
                         html = html + '<tr><td class="fil">Play Count:</td><td>'+trackmeta.usermeta.Playcount;
                         html = html + '</td></tr>';
                     }
-                    html = html + '<tr><td class="fil">Rating:</td><td><img class="infoclick clicksetrating" height="20px" src="newimages/'+trackmeta.usermeta.Rating+'stars.png" />';
+                    html = html + '<tr><td class="fil">Rating:</td><td>';
+                    html = html + '<i class="icon-'+trackmeta.usermeta.Rating+'-stars rating-icon-big infoclick clicksetrating"></i>';
                     html = html + '<input type="hidden" value="'+parent.nowplayingindex+'" />';
                     html = html + '</td></tr>';
                     html = html + '<tr><td class="fil" style="vertical-align:top">Tags:</td><td>';
@@ -212,11 +187,11 @@ var info_file = function() {
                     for(var i = 0; i < trackmeta.usermeta.Tags.length; i++) {
                         html = html + '<tr><td><span class="tag">'+trackmeta.usermeta.Tags[i]+'<span class="tagremover"><a href="#" class="clicktext infoclick clickremtag">x</a></span></span></td></tr>';
                     }
-                    html = html + '<tr><td><a href="#" class="infoclick clickaddtags">ADD TAGS</a></td></tr>';
                     html = html + '</table>';
                     html = html + '</td></tr>';
                 }
                 html = html + '</table>';
+                html = html + '<div class="containerbox dropdown-container infotagadd"><button class="fixed infoclick clickaddtags">'+language.gettext('lastfm_addtags')+'</button></div>';
                 html = html + '</div>';
                 return html;
             }
@@ -225,7 +200,7 @@ var info_file = function() {
 				if (displaying && trackmeta.fileinfo !== undefined) {
                     var data = (trackmeta.fileinfo.player !== null) ? createInfoFromPlayerInfo(trackmeta.fileinfo.player) : createInfoFromBeetsInfo(trackmeta.fileinfo.beets);
                     data = data + self.ratingsInfo();
-	                browser.Update(
+	                if (browser.Update(
                         null,
                         'track',
                         me,
@@ -234,7 +209,14 @@ var info_file = function() {
 	                      link: "",
 	                      data: data
 	                	}
-					);
+					)) {
+                        // $(".infotagadd").makeTagMenu({  labelhtml: '<div class="fixed padright"><b>'+language.gettext('lastfm_addtags')+'</b></div>',
+                        //                                 textboxname: 'infotagadd',
+                        //                                 populatefunction: populateTagMenu,
+                        //                                 buttontext: language.gettext('button_add'),
+                        //                                 buttonclass: ' infoclick clickaddtags'
+                        // });
+                    }
 				}
 			}
 		}

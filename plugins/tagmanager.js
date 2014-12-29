@@ -6,11 +6,11 @@ var tagManager = function() {
 	function putTracks(holder, tracks, title) {
 		var html = '<table align="center" style="border-collapse:collapse;width:96%"><tr class="tagh"><th colspan="2" align="center">'+title+'</th><th width="20px"><i class="icon-cancel-circled playlisticon clickicon infoclick plugclickable clickdeltag"></i></th></tr>';
 		for (var i in tracks) {
-			html = html + '<tr class="infoclick draggable clickable clicktrack" name="'+encodeURIComponent(tracks[i].Uri)+'"><td width="40px"><img class="smallcover" src="';
+			html = html + '<tr class="infoclick draggable clickable clicktrack" name="'+encodeURIComponent(tracks[i].Uri)+'"><td width="40px"><img class="smallcover';
 			if (tracks[i].Image) {
-				html = html + tracks[i].Image;
+				html = html + '" src="'+tracks[i].Image;
 			} else {
-				html = html + 'newimages/album-unknown-small.png';
+				html = html + ' notfound';
 			}
 			html = html + '" /></td><td><b>'+tracks[i].Title+'</b><br><i>by</i> <b>'+tracks[i].Artist+
 				'</b><br><i>on</i> <b>'+tracks[i].Album+'</b></td>';
@@ -55,9 +55,9 @@ var tagManager = function() {
 	        		'</div>');
     			$("#tmgfoldup").append('<div class="containerbox padright noselection">'+
         			'<div class="expand">'+
-            		'<input class="enter sourceform" name="newtagnameinput" type="text" />'+
+            		'<input class="enter" name="newtagnameinput" type="text" />'+
         			'</div>'+
-					'<button class="fixed sourceform" onclick="tagManager.createTag()">'+language.gettext("button_createtag")+'</button>'+
+					'<button class="fixed" onclick="tagManager.createTag()">'+language.gettext("button_createtag")+'</button>'+
     				'</div>');
 			    $("#tmgfoldup .enter").keyup( onKeyUp );
 			    $("#tmgfoldup").append('<div class="noselection fullwidth masonified" id="tagmunger"></div>');

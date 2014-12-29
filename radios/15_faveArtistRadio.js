@@ -65,7 +65,7 @@ var faveArtistRadio = function() {
 
             html = html + '<div class="fixed">';
             html = html + '<i class="icon-wifi smallicon"></i></div>';
-            html = html + '<div class="expand">&nbsp;&nbsp;&nbsp;'+language.gettext('label_radio_fartist')+'</div>';
+            html = html + '<div class="expand">'+language.gettext('label_radio_fartist')+'</div>';
 
             html = html + '</div>';
             $("#pluginplaylists").append(html);

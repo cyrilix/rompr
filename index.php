@@ -189,6 +189,10 @@ foreach($inc as $i) {
 <script type="text/javascript" src="ui/playlist.js"></script>
 <script type="text/javascript" src="ui/coverscraper.js"></script>
 <?php
+$inc = glob("streamplugins/*.js");
+foreach($inc as $i) {
+    print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
+}
 
 if ($prefs['player_backend'] == "mopidy") {
     print'<script type="text/javascript" src="http://'.$prefs['mopidy_http_address'].':'.$prefs['mopidy_http_port'].'/mopidy/mopidy.min.js"></script>'."\n";
@@ -300,6 +304,8 @@ $(window).load(function() {
     $.get('utils/cleancache.php', function() {
         debug.shout("INIT","Cache Has Been Cleaned");
     });
+    $('.combobox').makeTagMenu({textboxname: 'tag', labelhtml: '<div class="fixed searchlabel"><b>'+language.gettext("label_tag")+'</b></div>', populatefunction: populateTagMenu});
+    $('.tagaddbox').makeTagMenu({textboxname: 'newtags', populatefunction: populateTagMenu, buttontext: language.gettext('button_add'), buttonfunc: tagAdder.add});
 });
 
 function showUpdateWindow() {
@@ -343,25 +349,7 @@ include('layouts/'.$layout.'/layout.php');
 print get_int_text("lastfm_addtags").'<br></b>'.get_int_text("lastfm_addtagslabel");
 ?>
     </div>
-    <div class="containerbox padright dropdown-container">
-        <div class="expand dropdown-holder">
-            <input class="searchterm enter sourceform" id="newtags" type="text" style="width:100%;font-size:100%"/>
-            <div class="drop-box dropshadow tagmenu" style="width:100%">
-                <div class="tagmenu-contents">
-                </div>
-            </div>
-        </div>
-        <div class="fixed dropdown-button">
-<?php
-            print '<img src="'.$ipath.'dropdown.png">';
-?>
-        </div>
-        <button class="fixed" style="margin-left:8px" onclick="tagAdder.add()">
-<?php
-print get_int_text("button_add");
-?>
-        </button>
-    </div>
+    <div class="containerbox padright dropdown-container tagaddbox"></div>
 </div>
 
 </body>

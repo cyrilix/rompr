@@ -84,7 +84,7 @@ var mixRadio = function() {
 
 	            html = html + '<div class="fixed">';
 	            html = html + '<i class="icon-spotify-circled smallicon"></i></div>';
-	            html = html + '<div class="expand">&nbsp;&nbsp;&nbsp;'+language.gettext('label_radio_mix')+'</div>';
+	            html = html + '<div class="expand">'+language.gettext('label_radio_mix')+'</div>';
 
 	            html = html + '</div>';
 	            $("#pluginplaylists").append(html);

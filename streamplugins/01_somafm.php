@@ -7,7 +7,7 @@ if (array_key_exists('populate', $_REQUEST)) {
     include ("includes/functions.php");
     include ("international.php");
 
-    print '<div class="containerbox indent padright wibble">';
+    print '<div class="containerbox indent padright">';
     print '<b>'.get_int_text("label_soma").'<br>';
     print '<a href="http://somafm.com" target="_blank">'.get_int_text("label_soma_beg").'</a></b>';
     print '</div>';
@@ -21,7 +21,7 @@ if (array_key_exists('populate', $_REQUEST)) {
         foreach ($x->channel as $channel) {
             debug_print("Channel : ".$channel->title,"SOMAFM");
 
-            print '<div class="containerbox menuitem wibble">';
+            print '<div class="containerbox menuitem">';
 
             print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" name="somafm'.$count.'"></i></div>';
             print '<div class="smallcover fixed"><img height="32px" width="32px" src="getRemoteImage.php?url='.$channel->image.'" /></div>';
@@ -33,18 +33,18 @@ if (array_key_exists('populate', $_REQUEST)) {
             print '</div>';
             print '</div>';
 
-            print '<div id="somafm'.$count.'" class="dropmenu wibble">';
+            print '<div id="somafm'.$count.'" class="dropmenu">';
 
             if ($channel->description) {
-                print '<div class="containerbox indent padright wibble">';
+                print '<div class="containerbox indent padright">';
                 print '<div class="whatdoicallthis bum expand">'.utf8_encode($channel->description).'</div>';
                 print '</div>';
             }
 
-            print '<div class="containerbox indent padright wibble">';
+            print '<div class="containerbox indent padright dropdown-container">';
             if ($channel->twitter) {
                 print '<div class="fixed"><a href="http://twitter.com/@'.$channel->twitter.'" target="_blank">';
-                print '<img width="16px" src="newimages/Twitter-Logo.png" style="margin-right:4px" />';
+                print '<i class="icon-twitter-logo smallicon padright"></i>';
                 print '</a></div>';
             }
             if ($channel->dj) {
@@ -52,12 +52,12 @@ if (array_key_exists('populate', $_REQUEST)) {
             }
             print '</div>';
             if ($channel->listeners) {
-                print '<div class="containerbox indent padright wibble">';
+                print '<div class="containerbox indent padright">';
                 print '<div class="expand"><b>'.get_int_text("lastfm_listeners").' </b>'.$channel->listeners.'</div>';
                 print '</div>';
             }
             if ($channel->lastPlaying) {
-                print '<div class="containerbox indent padright wibble">';
+                print '<div class="containerbox indent padright">';
                 print '<div class="expand"><b>Last Played: </b>'.$channel->lastPlaying.'</div>';
                 print '</div>';
             }
@@ -82,16 +82,6 @@ if (array_key_exists('populate', $_REQUEST)) {
 } else {
 
 ?>
-
-<script language="text/javascript">
-function loadSomaFM() {
-    if ($("#somafmlist").is(':empty')) {
-        $("#somawait").makeSpinner();
-        $("#somafmlist").load("streamplugins/01_somafm.php?populate", function() { $("#somawait").stopSpinner() });
-    }
-}
-</script>
-
 <div class="containerbox menuitem noselection">
 <?php
 print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" onclick="loadSomaFM()" name="somafmlist"></i></div>';

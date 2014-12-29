@@ -72,8 +72,6 @@ a:hover,a:active
     background-image: -moz-linear-gradient(#b4b4b4, #e5e5e5);
     background-image: -webkit-linear-gradient(#b4b4b4, #e5e5e5);
     background-image: -ms-linear-gradient(#b4b4b4, #e5e5e5);
-
-    /*background-color:#b4b4b4;*/
 }
 
 button
@@ -91,6 +89,18 @@ button:hover
 {
     color:#3875d7;
     border:1px solid #ccdcf2;
+}
+
+input
+{
+    border:1px solid #999999;
+    color:#181818;
+}
+
+select 
+{
+    color:#000000;
+    border:1px solid #adadad;    
 }
 
 #notifications
@@ -268,17 +278,6 @@ div.topdropmenu
 .separator
 {
      border-bottom:12px solid #888888;
-}
-
-input.sourceform
-{
-    border:1px solid #999999;
-    color:#181818;
-}
-
-input.topformbutton
-{
-    color:#000000;
 }
 
 /*-- Styles to make the Wikipedia nav boxes look prettier --*/

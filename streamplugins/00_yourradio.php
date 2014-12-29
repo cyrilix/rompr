@@ -9,8 +9,8 @@ if (array_key_exists('populate', $_REQUEST)) {
     print '<div id="anaconda" class="noselection fullwidth">';
 
     print '<div class="containerbox"></div class="expand">'.get_int_text("label_radioinput").'</div></div>';
-    print '<div class="containerbox"><div class="expand"><input class="enter sourceform" name="horace" id="yourradioinput" type="text" /></div>';
-    print '<button class="fixed sourceform" onclick="doInternetRadio(\'yourradioinput\')">'.get_int_text("button_playradio").'</button></div>';
+    print '<div class="containerbox"><div class="expand"><input class="enter" name="horace" id="yourradioinput" type="text" /></div>';
+    print '<button class="fixed" onclick="doInternetRadio(\'yourradioinput\')">'.get_int_text("button_playradio").'</button></div>';
     $playlists = array();
 
     if (file_exists('prefs/radioorder.txt')) {

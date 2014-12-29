@@ -83,14 +83,14 @@ var recentlyaddedtracks = function() {
 
             html = html + '<div class="fixed">';
             html = html + '<i class="icon-doc-text smallicon"></i></div>';
-            html = html + '<div class="expand">&nbsp;&nbsp;&nbsp;'+language.gettext('label_recentlyadded_random')+'</div>';
+            html = html + '<div class="expand">'+language.gettext('label_recentlyadded_random')+'</div>';
 
             html = html + '</div>';
             html = html + '<div class="containerbox spacer backhi dropdown-container" onclick="playlist.radioManager.load(\'recentlyaddedtracks\', \'byalbum\')">';
 
             html = html + '<div class="fixed">';
             html = html + '<i class="icon-doc-text smallicon"></i></div>';
-            html = html + '<div class="expand">&nbsp;&nbsp;&nbsp;'+language.gettext('label_recentlyadded_byalbum')+'</div>';
+            html = html + '<div class="expand">'+language.gettext('label_recentlyadded_byalbum')+'</div>';
 
             html = html + '</div>';
             $("#pluginplaylists").append(html);

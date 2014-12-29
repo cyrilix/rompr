@@ -7,12 +7,12 @@ var wishlistViewer = function() {
 	    var albumDiv = trackDiv.parent();
 	    var albumHeaderDiv = albumDiv.prev();
 	    var albumContainer = albumHeaderDiv.parent();
-	    var artistDiv = albumContainer.parent();
+	    var artistDiv = albumContainer.prev();
 
 	    var title = trackDiv.children('.expand').html();
 	    var album = albumHeaderDiv.children('.expand').html();
 	    album = album.replace(/\s*<span.*$/,'');
-	    var artist = $(artistDiv.children()[0]).children('.expand').html();
+	    var artist = artistDiv.children('.expand').html();
 	    debug.log("DB_TRACKS","Remove track from database",title,album,artist);
 	    // Note: The returninfo method we use for deleting collection tracks doesn't work here
 	    // because that doesn't count albums where the tracks have no URI as visible albums.
@@ -26,15 +26,14 @@ var wishlistViewer = function() {
 	            debug.log("DB TRACKS","Track was removed");
 	            trackDiv.fadeOut('fast', function() {
 	                trackDiv.remove();
-	                if (albumDiv.children().length == 5) {
-	                    // All album dropdowns contain 5 meta- children which are used for cache control
-	                    // JQuery counts these as children
+	                if (albumDiv.children().length == 0) {
 	                    debug.log("DB_TRACK", "Album Div Is Empty");
 	                    albumDiv.remove();
 	                    albumHeaderDiv.fadeOut('fast', function() {
 	                        albumHeaderDiv.remove();
-	                        if (albumContainer.children().length == 5) {
+	                        if (albumContainer.children().length == 0) {
 	                            debug.log("DB_TRACK", "Artist Div Is Empty");
+	                            albumContainer.remove();
 	                            artistDiv.fadeOut('fast', function() {
 	                                artistDiv.remove();
 	                            });

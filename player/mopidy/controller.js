@@ -208,8 +208,8 @@ function playerController() {
     		},consoleError);
     	},consoleError);
     	mopidy.playback.getMute().then(function(m){
-    		var i = (m) ? 1 : 0;
-    		$("#outputbutton0").removeClass("togglebutton-0 togglebutton-1").addClass("togglebutton-"+i);
+            debug.log("MOPIDY","Setting Mute Button to",m);
+            $("#outputbutton0").switchToggle(m);
     	},consoleError);
 	}
 
@@ -775,6 +775,7 @@ function playerController() {
 	}
 
 	this.doOutput = function(id, state) {
+        debug.log("MOPIDY","Setting Mute to",state);
 		if (state) {
 			mopidy.playback.setMute(true);
 		} else {

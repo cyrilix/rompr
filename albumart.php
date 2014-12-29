@@ -18,6 +18,7 @@ $layout = "desktop";
 <meta http-equiv="pragma" content="no-cache" />
 <link rel="stylesheet" type="text/css" href="css/layout.css" />
 <link rel="stylesheet" type="text/css" href="css/albumart.css" />
+<link rel="stylesheet" type="text/css" href="layouts/desktop/layout.css" />
 <link rel="stylesheet" id="theme" type="text/css" />
 <link rel="stylesheet" id="fontsize" type="text/css" />
 <link rel="stylesheet" id="fontfamily" type="text/css" />
@@ -60,8 +61,6 @@ var searchcontent;
 var localimages;
 var allshown = true;
 var firefoxcrapnesshack = 0;
-var origsauce = "";
-var origbigsauce = "";
 var stream = "";
 var theCatSatOnTheMat = null;
 var progress = null;
@@ -299,7 +298,6 @@ $(window).load(function () {
     $.each($(document).find("img").filter(filterImages), function() {
         count++;
         $(this).addClass("notexist");
-        $(this).attr("src", "newimages/album-unknown.png");
     });
     $("#totaltext").html(numcovers+" "+language.gettext("label_albums"));
     covergetter.reset(albums_without_cover);
@@ -352,10 +350,8 @@ function handleDrop(ev) {
                     var srces = data.match(/src\s*=\s*"(.*?)"/);
                     if (srces && srces[1]) {
                         src = srces[1];
-                        origsauce = imgobj.attr("src");
                         debug.log("ALBUMART","Image Source",src);
-                        imgobj.attr("src", "newimages/album-unknown.png");
-                        imgobj.removeClass('nospin').addClass('spinner');
+                        imgobj.removeClass('nospin notexist notfound').addClass('spinner notexist');
                         if (src.match(/image\/.*;base64/)) {
                             debug.log("ALBUMART","Looks like Base64");
                             // For some reason I no longer care about, doing this with jQuery.post doesn't work
@@ -393,9 +389,7 @@ function handleDrop(ev) {
                     debug.log("ALBUMART","Found Files");
                     var files = evt.dataTransfer.files;
                     if (files[0]) {
-                        origsauce = imgobj.attr("src");
-                        imgobj.attr("src", "newimages/album-unknown.png");
-                        imgobj.removeClass('nospin').addClass('spinner');
+                        imgobj.removeClass('nospin notexist notfound').addClass('spinner notexist');
                         // For some reason I no longer care about, doing this with jQuery.post doesn't work
                         var formData = new FormData();
                         formData.append('ufile', files[0]);
@@ -486,7 +480,6 @@ var imageEditor = function() {
                 imgobj = where;
                 imagekey = imgobj.attr('name');
                 stream = imgobj.attr('romprstream');
-                origsauce = imgobj.attr("src");
                 var phrase =  decodeURIComponent(where.prev('input').val());
                 var path =  where.prev('input').prev('input').val();
 
@@ -507,8 +500,8 @@ var imageEditor = function() {
 
                 var uform =                 $('<form>', { id: 'uform', action: 'getalbumcover.php', method: 'post', enctype: 'multipart/form-data' }).appendTo($("#usearch"));
                 uform.append(               $('<input>', { id: 'imagekey', type: 'hidden', name: 'key', value: '' }),
-                                            $('<input>', { name: 'ufile', type: 'file', size: '80', class: 'tleft sourceform', style: 'color:#ffffff' }),
-                                            $('<input>', { type: 'button', class: 'tright topformbutton', value: language.gettext("albumart_uploadbutton"), style: 'width:8em', onclick: "imageEditor.uploadFile()" }),
+                                            $('<input>', { name: 'ufile', type: 'file', size: '80', class: 'tleft', style: 'color:#ffffff' }),
+                                            $('<input>', { type: 'button', class: 'tright', value: language.gettext("albumart_uploadbutton"), style: 'width:8em', onclick: "imageEditor.uploadFile()" }),
                                             '<div class="holdingcell"><p>'+language.gettext("albumart_dragdrop")+'</p></div>');
 
                 $("#editcontrols").append(  '<div id="g" class="tleft bleft clickable bmenu">'+language.gettext("albumart_googlesearch")+'</div>'+
@@ -516,21 +509,20 @@ var imageEditor = function() {
                                             '<div id="u" class="tleft bleft bmid clickable bmenu">'+language.gettext("albumart_upload")+'</div>'+
                                             '<div class="tleft bleft bmid clickable"><a href="http://www.google.com/search?q='+phrase+'&hl=en&site=imghp&tbm=isch" target="_blank">'+language.gettext("albumart_newtab")+'</a></div>');
 
-                $("#editcontrols").append(  $('<i>', { class: "icon-cancel-circled playlisticon tright clickicon", onclick: "imageEditor.close()"}));
+                $("#editcontrols").append(  $('<i>', { class: "icon-cancel-circled smallicon tright clickicon", onclick: "imageEditor.close()"}));
 
                 $("#"+current).addClass("bsel");
 
-                $("#brian").append('<div class="containerbox"><div class="expand"><input type="text" id="searchphrase" class="sourceform" /></div><button class="fixed sourceform" onclick="imageEditor.research()">Search</button></div>');
+                $("#brian").append('<div class="containerbox"><div class="expand"><input type="text" id="searchphrase" /></div><button class="fixed" onclick="imageEditor.research()">Search</button></div>');
 
                 $("#searchphrase").val(phrase);
 
-                var bigsauce = origsauce;
-                var m = origsauce.match(/albumart\/small\/(.*)/);
+                var bigsauce = imgobj.attr("src");
+                var m = bigsauce.match(/albumart\/small\/(.*)/);
                 if (m && m[1]) {
                     bigsauce = 'albumart/asdownloaded/'+m[1];
                 }
                 bigimg.src = bigsauce;
-                origbigsauce = bigsauce;
 
                 imageEditor.search();
                 if (path) {
@@ -559,8 +551,6 @@ var imageEditor = function() {
             }
             position = null;
             savedstate.pos = null;
-            origsauce = null;
-            origbigsauce = null;
         },
 
         save: function() {
@@ -602,7 +592,7 @@ var imageEditor = function() {
                     h = Math.round(bigimg.height * (w/bigimg.width));
                 }
                 $("#origimage").empty().append($("<div>", { id: 'firefoxsucksballs', height: h, width: w }));
-                $("#firefoxsucksballs").append($("<img>", { src: bigimg.src, height: h, width: w }));
+                $("#firefoxsucksballs").append($("<img>", { src: bigimg.src, height: h, width: w, id: 'browns' }));
             }
         },
 
@@ -639,8 +629,6 @@ var imageEditor = function() {
                 var index = start+i;
                 $("#searchresults").append($('<img>', {
                     id: 'img'+index,
-                    // romprsrc: v.link,
-                    // romprindex: index,
                     class: "gimage clickable clickicon clickgimage",
                     src: v.image.thumbnailLink
                 }));
@@ -677,8 +665,14 @@ var imageEditor = function() {
         },
 
         updateBigImg: function(url) {
-            bigimg.src = "";
-            bigimg.src = url;
+            if (typeof url == "string") {
+                $("#browns").removeClass("notfound notexist");
+                bigimg.src = "";
+                bigimg.src = url;
+            } else {
+                $("#browns").removeClass("notfound notexist");
+                if (url || bigimg.src == "") $("#browns").addClass('notfound');
+            }
         },
 
         showError: function(message) {
@@ -717,8 +711,8 @@ var imageEditor = function() {
         },
 
         uploadFile: function() {
-            imgobj.attr('src', 'newimages/album-unknown.png');
-            imageEditor.updateBigImg('newimages/album-unknown.png');
+            imgobj.removeClass('notfound notexist').addClass('notfound');
+            imageEditor.updateBigImg(true);
             startAnimation();
             var formElement = document.getElementById("uform");
             var xhr = new XMLHttpRequest();
@@ -752,8 +746,8 @@ function wobbleMyBottom() {
 
 function updateImage(url, index) {
     clickindex = index;
-    imgobj.attr('src', 'newimages/album-unknown.png');
-    imageEditor.updateBigImg('newimages/album-unknown.png');
+    imgobj.removeClass('notfound notexist').addClass('notfound');
+    imageEditor.updateBigImg(true);
     startAnimation();
     var options = { key: imagekey,
                     src: url,
@@ -784,9 +778,10 @@ function animationStop() {
 
 function searchFail() {
     debug.log("ALBUMART","No Source Found");
-    $('#img'+clickindex).attr('src', 'newimages/imgnotfound.png');
-    imgobj.attr('src', origsauce);
-    imageEditor.updateBigImg(origbigsauce);
+    $('#img'+clickindex).attr('src', 'newimages/imgnotfound.svg');
+    imgobj.removeClass('notfound notexist');
+    if (imgobj.attr("src") == "") imgobj.addClass('notexist');
+    imageEditor.updateBigImg(false);
     animationStop();
     debug.groupend();
 }
@@ -799,11 +794,10 @@ function uploadComplete(data) {
     }
     animationStop();
     debug.log("ALBUMART","Success for",imagekey);
-    if (imgobj.hasClass('notexist') || imgobj.hasClass('notfound')) {
+    if (imgobj.attr("src") == "") {
         covergetter.updateInfo(1);
-        imgobj.removeClass("notexist");
-        imgobj.removeClass("notfound");
     }
+    imgobj.removeClass("notexist notfound");
     firefoxcrapnesshack++;
 
     imgobj.attr('src', "");
@@ -830,8 +824,8 @@ function uploadComplete(data) {
 <table width="100%">
 <?php
 print '<tr><td colspan="3"><h2>'.get_int_text("albumart_title").'</h2></td></tr>';
-print '<tr><td class="outer" id="totaltext"></td><td><div class="invisible" id="progress" style="font-size:12pt"></div></td><td class="outer" align="right"><button id="harold" class="topformbutton">'.get_int_text("albumart_getmissing").'</button></td></tr>';
-print '<tr><td class="outer" id="infotext"></td><td align="center"><div class="inner" id="status">'.get_int_text("albumart_instructions").'</div></td><td class="outer" align="right"><button id="finklestein" class="topformbutton">'.
+print '<tr><td class="outer" id="totaltext"></td><td><div class="invisible" id="progress" style="font-size:12pt"></div></td><td class="outer" align="right"><button id="harold">'.get_int_text("albumart_getmissing").'</button></td></tr>';
+print '<tr><td class="outer" id="infotext"></td><td align="center"><div class="inner" id="status">'.get_int_text("albumart_instructions").'</div></td><td class="outer" align="right"><button id="finklestein">'.
         get_int_text("albumart_onlyempty").'</button></td></tr>';
 ?>
 </table>
@@ -927,7 +921,7 @@ function do_covers_xml_style() {
     foreach($collection->artists->artist as $artist) {
         print '<div class="cheesegrater" name="artistname'.$acount.'">';
         print '<div class="albumsection crackbaby">';
-        print '<div class="tleft"><h2 style="margin:8px">'.$artist->name.'</h2></div><div class="tright rightpad"><button class="topformbutton" style="margin-top:8px" onclick="getNewAlbumArt(\'#album'.$count.'\')">'.get_int_text("albumart_getthese").'</button></div>';
+        print '<div class="tleft"><h2 style="margin:8px">'.$artist->name.'</h2></div><div class="tright rightpad"><button style="margin-top:8px" onclick="getNewAlbumArt(\'#album'.$count.'\')">'.get_int_text("albumart_getthese").'</button></div>';
         print "</div>\n";
         print '<div id="album'.$count.'" class="fullwidth bigholder">';
         print '<div class="containerbox covercontainer" id="covers'.$count.'">';
@@ -941,7 +935,6 @@ function do_covers_xml_style() {
             if ($album->image->exists == "no") {
                 $class = $class . " notexist";
                 $albums_without_cover++;
-                $src = "newimages/album-unknown.png";
             } else {
                 $src = $album->image->src;
                 if (dirname($src) == "albumart/small") {
@@ -978,7 +971,7 @@ function do_covers_db_style() {
     foreach ($alist as $artist) {
         print '<div class="cheesegrater" name="artistname'.$artist['Artistindex'].'">';
         print '<div class="albumsection crackbaby">';
-        print '<div class="tleft"><h2 style="margin:8px">'.$artist['Artistname'].'</h2></div><div class="tright rightpad"><button class="topformbutton" style="margin-top:8px" onclick="getNewAlbumArt(\'#album'.$count.'\')">'.get_int_text("albumart_getthese").'</button></div>';
+        print '<div class="tleft"><h2 style="margin:8px">'.$artist['Artistname'].'</h2></div><div class="tright rightpad"><button style="margin-top:8px" onclick="getNewAlbumArt(\'#album'.$count.'\')">'.get_int_text("albumart_getthese").'</button></div>';
         print "</div>\n";
         print '<div id="album'.$count.'" class="fullwidth bigholder">';
         print '<div class="containerbox covercontainer" id="covers'.$count.'">';
@@ -998,7 +991,6 @@ function do_covers_db_style() {
             } else {
                 $class = $class . " notexist";
                 $albums_without_cover++;
-                $src = "newimages/album-unknown.png";
             }
             print '<input type="hidden" value="'.get_album_directory($album['Albumindex'], $album['Spotilink']).'" />';
             print '<input type="hidden" value="'.rawurlencode($artist['Artistname']." ".munge_album_name($album['Albumname'])).'" />';
@@ -1032,7 +1024,7 @@ function do_radio_stations() {
     if (count($playlists) > 0) {
         print '<div class="cheesegrater" name="radio">';
         print '<div class="albumsection crackbaby">';
-        print '<div class="tleft"><h2 style="margin:8px">Radio Stations</h2></div><div class="tright rightpad"><button class="topformbutton" style="margin-top:8px" onclick="getNewAlbumArt(\'#album'.$count.'\')">'.get_int_text("albumart_getthese").'</button></div>';
+        print '<div class="tleft"><h2 style="margin:8px">Radio Stations</h2></div><div class="tright rightpad"><button style="margin-top:8px" onclick="getNewAlbumArt(\'#album'.$count.'\')">'.get_int_text("albumart_getthese").'</button></div>';
         print "</div>\n";
         print '<div id="album'.$count.'" class="fullwidth bigholder">';
 
@@ -1086,7 +1078,7 @@ function do_unused_images() {
     global $allfiles;
     print '<div class="cheesegrater" name="unused">';
     print '<div class="albumsection crackbaby">';
-    print '<div class="tleft"><h2 style="margin:8px">'.count($allfiles).' '.get_int_text("albumart_unused").'</h2></div><div class="tright rightpad"><button class="topformbutton" style="margin-top:8px" onclick="removeUnusedFiles()">'.get_int_text("albumart_deletethese").'</button></div>';
+    print '<div class="tleft"><h2 style="margin:8px">'.count($allfiles).' '.get_int_text("albumart_unused").'</h2></div><div class="tright rightpad"><button style="margin-top:8px" onclick="removeUnusedFiles()">'.get_int_text("albumart_deletethese").'</button></div>';
     print "</div>\n";
     print '<div id="unusedimages" class="fullwidth bigholder">';
     print '<div class="containerbox covercontainer">';

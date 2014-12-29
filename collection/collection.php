@@ -308,7 +308,7 @@ class track {
                 if ($this->image) {
                     return $this->image;
                 } else {
-                    return "newimages/album-unknown-small.png";
+                    return "";
                 }
                 break;
 

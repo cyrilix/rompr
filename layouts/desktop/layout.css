@@ -53,12 +53,6 @@
     height:90px;
 }
 
-#patrickmoore
-{
-    height:90px;
-    overflow:hidden;
-}
-
 #albumcover
 {
     padding-left:4px;
@@ -86,6 +80,49 @@
     width:100%;
 }
 
+@media screen and (min-height: 1000px) and (max-height: 1199px) {
+    #infobar {
+        height:125px;
+    }
+    .infobarlayout {
+        height:115px;
+    }
+    #albumcover {
+        height: 107px;
+        padding-right:6px;
+    }
+    #albumpicture {
+        height: 107px;
+    }
+    #nowplaying {
+        height: 85px;
+    }
+}
+
+@media screen and (min-height: 1200px) {
+    #infobar {
+        height:150px;
+    }
+    .infobarlayout {
+        height:140px;
+    }
+    #albumcover {
+        height: 132px;
+        padding-right:8px;
+    }
+    #albumpicture {
+        height: 132px;
+    }
+    #nowplaying {
+        height: 110px;
+    }
+}
+
+#patrickmoore
+{
+    overflow:hidden;
+}
+
 #nptext
 {
     width:auto;
@@ -93,7 +130,7 @@
 
 #amontobin
 {
-    padding-top:6px;
+    padding-top:4px;
 }
 
 #infopane
@@ -109,30 +146,17 @@
     display:block;
 }
 
-#lastfm
-{
-    float:left;
-    margin-left:4px;
-    padding-top:1px;
-}
-
-#stars
+.topstats
 {
     float:left;
     margin-right:8px;
-    padding-top:1px;
-}
-
-#subscribe
-{
-    float:left;
-    margin-right:8px;
-    padding-top:1px;
+    margin-top:1px;
 }
 
 #lastfm img
 {
-    margin-right:4px;
+    margin-right:2px;
+    margin-left:2px;
 }
 
 .tag {
@@ -146,8 +170,6 @@
 }
 
 #dbtags {
-    padding-top:0px;
-    padding-left:8px;
     overflow:hidden;
     opacity:0.9;
     font-size:8pt;
@@ -157,9 +179,6 @@
 
 #playcount
 {
-    float:left;
-    padding-top:0px;
-    padding-left:8px;
     overflow:hidden;
     opacity:0.9;
     font-size:8pt;
@@ -291,13 +310,13 @@ div.leftmenu
 div.rightmenu.widemenu
 {
     top:30px;
-    left:-340px;
+    left:-370px;
 }
 
 div.rightmenu.normalmenu
 {
     top:30px;
-    left:-160px;
+    left:-180px;
 }
 
 .icon-discogs.smallcover-svg
@@ -306,8 +325,79 @@ div.rightmenu.normalmenu
     width:78px;
 }
 
-.icon-discogs.smallicon
+.rating-icon-big
 {
-    height:16px;
-    width:39px;
+    height: 20px;
+    width: 100px;
+    font-size:20px;
+    cursor: pointer;
+    vertical-align:middle;
+}
+
+.rating-icon-small
+{
+    height: 14px;
+    width: 70px;
+    font-size:14px;
+    cursor: pointer;
+    vertical-align:middle;
+}
+
+#headerbar
+{
+    padding:0px;
+    margin:0px;
+    width:100%;
+    height:40px;
+}
+
+#bottompage
+{
+    /*position:absolute;*/
+    /*top:148px;*/
+    width:100%;
+    height:80%;
+}
+
+#sources
+{
+    height:100%;
+    overflow:auto;
+}
+
+#progress
+{
+    cursor:pointer;
+    font-size:6pt;
+}
+
+#playbackTime
+{
+    font-weight:bold;
+    font-size:11px;
+    padding-top:1px;
+    height:15px;
+    line-height:15px;
+    text-align:center;
+    width:100%;
+}
+
+#volumecontrol
+{
+    width:12px;
+    height:100%;
+    margin-left:0px;
+    margin-right:0px;
+    font-size:8px;
+}
+
+#notifications
+{
+    position:absolute;
+    width:300px;
+    padding:8px;
+    opacity:0.7;
+    top:0px;
+    display:none;
+    z-index:2000;
 }

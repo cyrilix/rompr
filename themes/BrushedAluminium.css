@@ -29,6 +29,20 @@ a:hover,a:active
     color:#ff4800;
 }
 
+input
+{
+    border:1px solid #999999;
+}
+
+button
+{
+    color:#000000;
+}
+
+select
+{
+    border:1px solid #999999;
+}
 
 
 
@@ -189,16 +203,6 @@ div.topdropmenu
 .separator
 {
      border-bottom:12px solid #888888;
-}
-
-input.sourceform
-{
-    border:1px solid #999999;
-}
-
-input.topformbutton
-{
-    color:#000000;
 }
 
 /*-- Styles to make the Wikipedia nav boxes look prettier --*/

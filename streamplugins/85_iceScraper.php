@@ -93,8 +93,8 @@ if (array_key_exists('populate', $_REQUEST)) {
 	<form name="searchice" action="streamplugins/85_iceScraper.php?populate=1" method="get">
 	<?php
 	print '<div class="containerbox"><div class="expand"><b>'.get_int_text("label_searchfor").'</b></div></div>';
-	print '<div class="containerbox"><div class="expand"><input class="sourceform winkle enter" name="searchfor" type="text" /></div>';
-	print '<button class="fixed sourceform" type="submit" onclick="makeabadger()">'.get_int_text("button_search").'</button></div>';
+	print '<div class="containerbox"><div class="expand"><input class="enter" name="searchfor" type="text" /></div>';
+	print '<button class="fixed" type="submit" onclick="makeabadger()">'.get_int_text("button_search").'</button></div>';
 	?>
 	</form>
 	<div class="containerbox fullwidth">
@@ -120,20 +120,6 @@ if (array_key_exists('populate', $_REQUEST)) {
 <?php
 } else {
 ?>
-<script language="text/javascript">
-function refreshMyDrink(path) {
-    $("#icewait").makeSpinner();
-    if ($("#icecastlist").is(':empty') || path === false) {
-        $("#icecastlist").load("streamplugins/85_iceScraper.php?populate", function() { $("#icewait").stopSpinner() });
-    } else {
-        $("#icecastlist").load("streamplugins/85_iceScraper.php?populate=1&path="+path, function() { $("#icewait").stopSpinner() });
-    }
-}
-
-function makeabadger() {
-    $("#icewait").makeSpinner();
-}
-</script>
 <div class="containerbox menuitem noselection">
 <?php
 print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" onclick="refreshMyDrink()" name="icecastlist"></i></div>';

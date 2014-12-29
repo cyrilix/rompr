@@ -48,8 +48,19 @@ a
 
 input
 {
-    margin-top:2px;
-    padding:1px;
+    font-size:100%;
+    width:100%;
+    margin-bottom:4px;
+    margin-top:4px;
+    padding-top:2px;
+    padding-bottom:2px;
+    padding-left:0px;
+    padding-right:0px;
+}
+
+input[type=checkbox], input[type=radio]
+{
+    width:auto;
 }
 
 select
@@ -57,96 +68,34 @@ select
     margin:2px;
 }
 
+.enter
+{
+    box-sizing: border-box;
+}
+
+button 
+{
+    font-size:100%;
+    margin-bottom:4px;
+    margin-top:4px;
+    margin-left:8px;
+    margin-right:8px;
+    padding-top:2px;
+    padding-bottom:2px;
+    padding-left:6px;
+    padding-right:6px;
+}
+
 /*-- Divs used to create page layout in index.php --*/
-
-#headerbar
-{
-    padding:0px;
-    margin:0px;
-    width:100%;
-    height:40px;
-}
-
-#bottompage
-{
-    position:absolute;
-    top:148px;
-    width:100%;
-    height:80%;
-}
-
-#sources
-{
-    height:100%;
-    overflow:auto;
-}
 
 #playlist
 {
     height:100%;
-    /*overflow:auto;*/
 }
 
 #pscroller
 {
     overflow:auto;
-}
-
-#sortable
-{
-    margin:0px;
-    padding:0px;
-}
-
-/*-- divs used to create infobar layout --*/
-
-
-#progress
-{
-    cursor:pointer;
-    font-size:6pt;
-}
-
-#playbackTime
-{
-    font-weight:bold;
-    font-size:11px;
-    padding-top:1px;
-    height:15px;
-    line-height:15px;
-    text-align:center;
-    width:100%;
-}
-
-.larger
-{
-    font-size:140%;
-}
-
-.npstream
-{
-    font-size: 60%;
-    font-style:italic;
-}
-
-#volumecontrol
-{
-    width:12px;
-    height:100%;
-    margin-left:0px;
-    margin-right:0px;
-    font-size:8px;
-}
-
-#notifications
-{
-    position:absolute;
-    width:300px;
-    padding:8px;
-    opacity:0.7;
-    top:0px;
-    display:none;
-    z-index:2000;
 }
 
 /*-- Classes used to control flow and layout --*/
@@ -378,18 +327,6 @@ select
     font-style:italic;
 }
 
-.wibble
-{
-    padding-bottom:6px;
-}
-
-.dirname
-{
-    padding-bottom:0px;
-    padding-left:12px;
-    font-weight:bold;
-}
-
 .indent
 {
     margin-left:24px;
@@ -484,8 +421,10 @@ select
 .togglebutton
 {
     padding:0px;
-    height:24px;
-    width:24px;
+    height:20px;
+    width:48px;
+    font-size:18px;
+    display:table-cell !important;
 }
 
 .togglediv
@@ -520,16 +459,6 @@ select
 .tgtr
 {
     padding-left:4px;
-}
-
-.togglebutton-0
-{
-    background-image:url('../newimages/button-off-new.png');
-}
-
-.togglebutton-1
-{
-    background-image:url('../newimages/button-on-new.png');
 }
 
 .clickicon
@@ -729,9 +658,6 @@ select
 
 .infosection
 {
-/*    padding-top:4px;
-    padding-bottom:4px;
-*/
     padding-left:12px;
     padding-right:12px;
     margin-bottom:4px;
@@ -755,7 +681,6 @@ select
     padding-bottom:4px;
     display:table;
     width:100%;
-    /*margin-top:8px;*/
 }
 
 .lrspace
@@ -900,25 +825,6 @@ table.motherfucker tr td
     vertical-align:text-top;
 }
 
-input.sourceform
-{
-    font-size:100%;
-    /*border-radius: 2px 2px 2px 2px;*/
-    width:100%;
-    margin-bottom:4px;
-    margin-top:4px;
-}
-
-button.sourceform
-{
-    font-size:100%;
-    /*border-radius: 2px 2px 2px 2px;*/
-    /*width:20%;*/
-    margin-bottom:4px;
-    margin-top:4px;
-    margin-left:8px;
-}
-
 ul.buyalbum li
 {
     font-size:90%;
@@ -1001,17 +907,6 @@ table.navbox
 {
     padding-right:16px;
     margin-right:16px;
-}
-
-.arsecheese
-{
-    border-spacing:0px;
-    border-width:0px;
-}
-
-.winkle
-{
-    color:#000000;
 }
 
 .dingleberry
@@ -1112,7 +1007,6 @@ table.padded tr th {
     line-height:1.8em;
     padding-left:8px;
     padding-right:8px;
-    /*text-align:center;*/
     font-weight:bold;
 }
 
@@ -1497,28 +1391,6 @@ div .thumb
     border-bottom:1px solid #9D5D04;
 }
 
-button{
-    background-image: linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
-    background-image: -o-linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
-    background-image: -moz-linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
-    background-image: -webkit-linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
-    background-image: -ms-linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
-    color:#111177;
-    border-top:1px solid #F6BD12;
-    border-left:1px solid #DBA40B;
-    border-right:1px solid #DBA40B;
-    border-bottom:1px solid #9D5D04;
-    border-radius:4px;
-    padding-top:1px;
-    padding-bottom:1px;
-    opacity:0.8;
-}
-
-button:hover {
-    opacity: 1;
-    color:#881111;
-}
-
 .gradbutton:hover {
     opacity: 1;
     color:#881111;
@@ -1540,7 +1412,6 @@ button:hover {
 .bmid
 {
     border-left:1px solid #fe6500;
-    /*border-right:1px solid #fe6500;*/
 }
 
 .bsel
@@ -1776,12 +1647,16 @@ div.lyrics p
 
 .dropdown-button
 {
-    margin-left:-15px;
+    margin-left:-14px;
+    top:2px;
     cursor:pointer;
-    width:15px;
-    height:15px;
     position:relative;
     overflow:hidden;
+}
+
+.tagmenu
+{
+    width:100%;
 }
 
 #tagdoer
@@ -1871,4 +1746,3 @@ div.lyrics p
 .prefinput {
     width: 95%;
 }
-

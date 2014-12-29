@@ -75,7 +75,7 @@ var info_musicbrainz = function() {
 
     	html = html + '<div class="info-box-expand stumpy">';
         if (expand) {
-			html = html + '<div class="mbbox"><img class="clickexpandbox infoclick tleft" src="newimages/expand-up.png" height="16px" name="'+data.id+'"></div>';
+			html = html + '<div class="mbbox"><i class="icon-expand-up medicon clickexpandbox infoclick tleft" name="'+data.id+'"></i></div>';
 		}
 
         if (data.annotation) {
@@ -168,92 +168,84 @@ var info_musicbrainz = function() {
 			}
 			switch (relations[i].type) {
 				case "wikipedia":
-					html = html + '<li><i class="icon-wikipedia smallicon menu padright wibble"></i><a href="'+u+'" target="_blank">Wikipedia ('+d[1]+')</a></li>';
+					html = html + '<li><i class="icon-wikipedia smallicon padright"></i><a href="'+u+'" target="_blank">Wikipedia ('+d[1]+')</a></li>';
 					break;
 
 				case "wikidata":
-					html = html + '<li><i class="icon-wikipedia smallicon menu padright wibble"></i><a href="'+u+'" target="_blank">Wikidata</a></li>';
+					html = html + '<li><i class="icon-wikipedia smallicon padright"></i><a href="'+u+'" target="_blank">Wikidata</a></li>';
 					break;
 
 				case "discography":
-					html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_externaldiscography", [d[1]])+'</a></li>';
+					html = html + '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_externaldiscography", [d[1]])+'</a></li>';
 					break;
 
 				case "musicmoz":
-					html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Musicmoz</a></li>';
+					html = html + '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">Musicmoz</a></li>';
 					break;
 
 				case "allmusic":
-					html = html + '<li><img src="newimages/allmusic_logo.gif" class="menu padright wibble"><a href="'+u+'" target="_blank">Allmusic</a></li>';
+					html = html + '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">Allmusic</a></li>';
 					break;
 
 				case "BBC Music page":
-					html = html + '<li><img src="newimages/BBC%20logo.jpg" class="menu padright wibble"><a href="'+u+'" target="_blank">BBC Music Page</a></li>';
+					html = html + '<li><i class="icon-bbc-logo smallicon padright"></i><a href="'+u+'" target="_blank">BBC Music Page</a></li>';
 					break;
 
 				case "discogs":
-					html = html + '<li><i class="icon-discogs smallicon menu padright wibble"></i><a href="'+u+'" target="_blank">Discogs</a></li>';
+					html = html + '<li><i class="icon-discogs smallicon padright"></i><a href="'+u+'" target="_blank">Discogs</a></li>';
 					break;
 
 				case "official homepage":
-					html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_officalhomepage", [d[1]])+'</a></li>';
+					html = html + '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_officalhomepage", [d[1]])+'</a></li>';
 					break;
 
 				case "fanpage":
-					html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_fansite", [d[1]])+'</a></li>';
+					html = html + '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_fansite", [d[1]])+'</a></li>';
 					break;
 
 				case "lyrics":
-					html = html + '<li><i class="icon-doc-text-1 smallicon menu padright wibble"></i><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_lyrics", [d[1]])+'</a></li>';
+					html = html + '<li><i class="icon-doc-text-1 smallicon padright"></i><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_lyrics", [d[1]])+'</a></li>';
 					break;
 
 				case "secondhandsongs":
-					html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Secondhand Songs</a></li>';
+					html = html + '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">Secondhand Songs</a></li>';
 					break;
 
 				case "IMDb":
-					html = html + '<li><img src="newimages/imdb-logo.jpg" class="menu padright wibble"><a href="'+u+'" target="_blank">IMDb</a></li>';
+					html = html + '<li><i class="icon-imdb-logo smallicon padright"></i><a href="'+u+'" target="_blank">IMDb</a></li>';
 					break;
 
 				case "social network":
 					if (u.match(/last\.fm/i)) {
-						html = html + '<li><i class="icon-lastfm-1 smallicon padright wibble"></i><a href="'+u+'" target="_blank">Last.FM</a></li>';
+						html = html + '<li><i class="icon-lastfm-1 smallicon padright"></i><a href="'+u+'" target="_blank">Last.FM</a></li>';
 					} else if (u.match(/facebook\.com/i)) {
-						html = html + '<li><img src="newimages/facebook-logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Facebook</a></li>';
+						html = html + '<li><i class="icon-facebook-logo smallicon padright"></i><a href="'+u+'" target="_blank">Facebook</a></li>';
 					} else {
-						html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_social", [d[1]])+'</a></li>';
+						html = html + '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_social", [d[1]])+'</a></li>';
 					}
 					break;
 
 				case "youtube":
-					html = html + '<li><img src="newimages/youtube-logo.gif" class="menu padright wibble"><a href="'+u+'" target="_blank">YouTube</a></li>';
+					html = html + '<li><i class="icon-youtube-circled smallicon padright"></i><a href="'+u+'" target="_blank">YouTube</a></li>';
 					break;
 
 				case "myspace":
-					html = html + '<li><img src="newimages/myspace_logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Myspace</a></li>';
+					html = html + '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">Myspace</a></li>';
 					break;
 
 				case "microblog":
 					if (u.match(/twitter\.com/i)) {
-						html = html + '<li><img src="newimages/Twitter-Logo.png" class="menu padright wibble"><a href="'+u+'" target="_blank">Twitter</a></li>';
+						html = html + '<li><i class="icon-twitter-logo smallicon padright"></i><a href="'+u+'" target="_blank">Twitter</a></li>';
 					} else {
-						html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_microblog", [d[1]])+'</a></li>';
-					}
-					break;
-
-				case "other databases":
-					if (u.match(/rateyourmusic\.com/i)) {
-						html = html + '<li><img src="newimages/rate-your-music.jpg" class="menu padright wibble"><a href="'+u+'" target="_blank">Rate Your Music</a></li>';
-					} else {
-						html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">'+d[1]+'</a></li>';
+						html = html + '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_microblog", [d[1]])+'</a></li>';
 					}
 					break;
 
 				case "review":
 					if (u.match(/bbc\.co\.uk/i)) {
-						html = html + '<li><img src="newimages/BBC logo.jpg" class="menu padright wibble"><a href="'+u+'" target="_blank">BBC Music Review</a></li>';
+						html = html + '<li<i class="icon-bbc-logo smallicon padright"></i><a href="'+u+'" target="_blank">BBC Music Review</a></li>';
 					} else {
-						html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_review", [d[1]])+'</a></li>';
+						html = html + '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_review", [d[1]])+'</a></li>';
 					}
 					break;
 
@@ -262,7 +254,7 @@ var info_musicbrainz = function() {
 
 				default:
 					if (relations[i].url) {
-						html = html + '<li><img src="newimages/transparent-32x32.png" class="menu padright wibble"><a href="'+u+'" target="_blank">'+d[1]+'</a></li>';
+						html = html + '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">'+d[1]+'</a></li>';
 						break;
 					}
 			}
@@ -523,7 +515,7 @@ var info_musicbrainz = function() {
 					var id = element.attr('name');
 					var expandingframe = element.parent().parent().parent().parent();
 					var content = expandingframe.html();
-					content=content.replace(/<img class="clickexpandbox.*?>/, '');
+					content=content.replace(/<i class="icon-expand-up.*?>/, '');
 					var pos = expandingframe.offset();
 					var target = $("#artistfoldup").length == 0 ? "musicbrainz" : "artist";
 					var targetpos = $("#"+target+"foldup").offset();

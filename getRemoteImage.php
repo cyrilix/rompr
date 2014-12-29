@@ -4,8 +4,10 @@ include ("includes/functions.php");
 
 $url = $_REQUEST['url'];
 if (!$url) {
-	header('Content-type: image/png');
-	readfile('newimages/transparent-32x32.png');
+    // header('Content-type: image/svg+xml');
+    // readfile('newimages/compact_disc.svg');
+    header("HTTP/1.1 404 Not Found");
+    exit(0);
 } else {
 	$url = str_replace("https://", "http://", $url);
 	debug_print("Getting Remote Image ".$url,"TOMATO");
@@ -19,8 +21,10 @@ if (!$url) {
 			file_put_contents($outfile, $aagh['contents']);
 		} else {
 			debug_print("Failed to download - status was ".$aagh['status'],"TOMATO");
-	        header('Content-type: image/png');
-	        readfile('newimages/album-unknown-small.png');
+	        // header('Content-type: image/svg+xml');
+	        // readfile('newimages/compact_disc.svg');
+		    header("HTTP/1.1 404 Not Found");
+		    exit(0);
 	        exit(0);
 		}
 	}
@@ -29,7 +33,6 @@ if (!$url) {
 	$convert_path = find_executable("identify");
 	$o = array();
 	$r = exec($convert_path."identify -verbose ".$outfile." | grep Mime");
-	// Testing SVN Client
 	// debug_print("Checking MIME type : ".$r,"TOMATO");
 	if (preg_match('/Mime type:\s+(.*)$/', $r, $o)) {
 		if ($o[1]) {
@@ -45,6 +48,5 @@ if (!$url) {
 	}
 	header('Content-type: '.$mime);
 	readfile($outfile);
-
 }
 ?>

@@ -54,7 +54,7 @@ switch ($_POST['action']) {
 
 	case 'getplaylist':
 		preparePlaylist();
-		doPlaylist();
+		doPlaylist($_POST['playlist']);
 		break;
 
 	case 'repopulate':
@@ -363,7 +363,7 @@ close_transaction();
 
 debug_print("---------------------------END----------------------","USERRATING");
 
-function preparePlaylist($name) {
+function preparePlaylist() {
 	generic_sql_query("DROP TABLE IF EXISTS pltable");
 	generic_sql_query("CREATE TABLE pltable(TTindex INT UNSIGNED NOT NULL UNIQUE)");
 }

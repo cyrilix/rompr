@@ -1,4 +1,3 @@
-
 <body>
 <div id="notifications"></div>
 
@@ -6,15 +5,10 @@
     <div class="infobarlayout tleft bordered">
         <div id="buttons">
 <?php
-// print '<img title="'.get_int_text('button_previous').'" class="clickicon controlbutton lettuce" onclick="playlist.previous()" src="'.$ipath.'media-skip-backward.png">';
 print '<i title="'.get_int_text('button_previous').'" class="icon-fast-backward clickicon controlbutton-small lettuce" onclick="playlist.previous()"></i>';
-// print '<img title="'.get_int_text('button_play').'" class="shiftleft clickicon controlbutton lettuce" onclick="infobar.playbutton.clicked()" id="playbuttonimg" src="'.$ipath.'media-playback-pause.png">';
 print '<i title="'.get_int_text('button_play').'" class="icon-play-circled shiftleft clickicon controlbutton lettuce" onclick="infobar.playbutton.clicked()"></i>';
-// print '<img title="'.get_int_text('button_stop').'" class="shiftleft2 clickicon controlbutton lettuce" onclick="player.controller.stop()" src="'.$ipath.'media-playback-stop.png">';
 print '<i title="'.get_int_text('button_stop').'" class="icon-stop-1 shiftleft2 clickicon controlbutton-small lettuce" onclick="player.controller.stop()"></i>';
-// print '<img title="'.get_int_text('button_stopafter').'" class="shiftleft3 clickicon controlbutton lettuce" onclick="playlist.stopafter()" id="stopafterbutton" src="'.$ipath.'stopafter.png">';
 print '<i title="'.get_int_text('button_stopafter').'" class="icon-to-end-1 shiftleft3 clickicon controlbutton-small lettuce" onclick="playlist.stopafter()" id="stopafterbutton"></i>';
-// print '<img title="'.get_int_text('button_next').'" class="shiftleft4 clickicon controlbutton lettuce" onclick="playlist.next()" src="'.$ipath.'media-skip-forward.png">';
 print '<i title="'.get_int_text('button_next').'" class="icon-fast-forward shiftleft4 clickicon controlbutton-small lettuce" onclick="playlist.next()"></i>';
 ?>
         </div>
@@ -29,33 +23,33 @@ print '<div title="'.get_int_text('button_volume').'" id="volumecontrol" class="
 ?>
     </div>
 
-    <div id="patrickmoore" class="infobarlayout tleft bordered noselection containerbox">
+    <div id="patrickmoore" class="infobarlayout bordered noselection containerbox">
         <div id="albumcover" class="fixed">
             <img id="albumpicture" class="notexist" src="" />
         </div>
-        <div class="expand">
+        <div id="firefoxisshitwrapper" class="expand">
             <div id="nowplaying">
                 <div id="nptext"></div>
             </div>
             <div id="amontobin" class="clearfix">
-                <div id="subscribe" class="invisible">
+                <div id="subscribe" class="invisible topstats">
                     <?php
-                    print '<img title="'.get_int_text('button_subscribe').'" class="clickicon lettuce" onclick="podcasts.doPodcast(\'nppodiput\')" src="newimages/rss.png">';
+                    print '<i title="'.get_int_text('button_subscribe').'" class="icon-rss npicon clickicon lettuce" onclick="podcasts.doPodcast(\'nppodiput\')"></i>';
                     ?>
                     <input type="hidden" id="nppodiput" value="" />
                 </div>
-                <div id="stars" class="invisible">
-                    <img id="ratingimage" onclick="nowplaying.setRating(event)" height="20px" src="newimages/0stars.png">
+                <div id="stars" class="invisible topstats">
+                    <i id="ratingimage" onclick="nowplaying.setRating(event)" class="icon-0-stars rating-icon-big"></i>
                     <input type="hidden" value="-1" />
                 </div>
-                <div id="lastfm" class="invisible">
+                <div id="lastfm" class="invisible topstats">
                     <?php
                     print '<i title="'.get_int_text('button_love').'" class="icon-heart npicon clickicon lettuce" id="love" onclick="nowplaying.love()"></i>';
                     print '<i title="'.get_int_text('button_ban').'" class="icon-block npicon clickicon lettuce" id="ban" onclick="infobar.ban()""></i>';
                     ?>
                 </div>
-                <div id="playcount"></div>
-                <div id="dbtags" class="invisible">
+                <div id="playcount" class="topstats"></div>
+                <div id="dbtags" class="invisible topstats">
                 </div>
             </div>
         </div>
@@ -149,7 +143,7 @@ print '<div class="topdrop"><i class="icon-trash topimg tooltip" title="'.get_in
 <div class="topdropmenu dropshadow rightmenu normalmenu">
 <?php
 print '<div class="prefsection textcentre"><b>'.get_int_text('menu_clearplaylist').'</b></div>';
-print '<button style="width:100%" class="topformbutton" onclick="playlist.clear()">'.get_int_text('button_imsure').'</button>';
+print '<div class="textcentre"><button onclick="playlist.clear()">'.get_int_text('button_imsure').'</button></div>';
 ?>
 </div>
 </div>
@@ -182,8 +176,8 @@ print '<div class="topdrop"><i class="icon-floppy topimg tooltip" title="'.get_i
 <div class="topdropmenu dropshadow rightmenu widemenu">
 <?php
 print '<div class="prefsection textcentre"><b>'.get_int_text('button_saveplaylist').'</b></div>';
-print '<input class="enter sourceform" style="width:280px" name="nigel" id="playlistname" type="text" size="200"/>';
-print '<button class="topformbutton" onclick="player.controller.savePlaylist()">'.get_int_text('button_save').'</button>';
+print '<div class="containerbox"><div class="expand"><input class="enter" id="playlistname" type="text" size="200"/></div>';
+print '<button class="fixed" onclick="player.controller.savePlaylist()">'.get_int_text('button_save').'</button></div>';
 ?>
 </div>
 </div>

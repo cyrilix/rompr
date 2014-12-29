@@ -174,10 +174,21 @@ jQuery.fn.stopSpinner = function() {
     return this.each(function() {
         $(this).removeClass('icon-spin6 spinner');
         if ($(this).attr("originalclass")) {
-            $(this).addClass(this.attr("originalclass"));
+            $(this).addClass($(this).attr("originalclass"));
             $(this).removeAttr("originalclass");
         }
     });
+}
+
+jQuery.fn.switchToggle = function(state) {
+    return this.each(function() {
+        var st = (state == 0 || state == "off" || !state) ? "icon-toggle-off" : "icon-toggle-on";
+        $(this).removeClass("icon-toggle-on icon-toggle-off").addClass(st);
+    });
+}
+
+jQuery.fn.isToggledOff = function() {
+    return this.hasClass('icon-toggle-off');
 }
 
 function formatTimeString(duration) {

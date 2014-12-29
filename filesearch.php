@@ -10,8 +10,8 @@ include ("international.php");
 <form name="filesearch" action="filesearch.php" method="get">
 <?php
 print '<div clas="containerbox"><div class="expand"><b>'.get_int_text("label_filesearch").'</b></div></div>';
-print '<div class="containerbox"><div class="expand"><input class="sourceform winkle" name="searchtitle" type="text" /></div>';
-print '<button class="fixed sourceform" onclick="doSomethingUseful(\'filesearch\', \''.get_int_text("label_searching").'\')" type="submit">'.get_int_text("button_search").'</button></div>';
+print '<div class="containerbox"><div class="expand"><input name="searchtitle" type="text" /></div>';
+print '<button class="fixed" onclick="doSomethingUseful(\'filesearch\', \''.get_int_text("label_searching").'\')" type="submit">'.get_int_text("button_search").'</button></div>';
 ?>
 </form>
 </div>

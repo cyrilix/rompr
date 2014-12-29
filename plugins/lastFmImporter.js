@@ -39,11 +39,11 @@ var lastfmImporter = function() {
 
 		var fancy = $('<tr>', { class: "invisible", id: "trackrow"+t.key,  style: "border-top:1px solid #454545" });
 
-		var row = '<td><img id="imgfound'+t.key+'" class="smallcover" src="';
+		var row = '<td><img id="imgfound'+t.key+'" class="smallcover';
 		if (t.image) {
-			row = row + t.image;
+			row = row + '" src="'+t.image;
 		} else {
-			row += "newimages/album-unknown-small.png";
+			row += " notfound";
 		}
 		row += '" /></td>';
 		row += '<td><b>'+t.title+'</b><br><i>by </i>';
@@ -74,7 +74,7 @@ var lastfmImporter = function() {
 
 	function displayFinishBits() {
 		if ($("#reviewfirst").is(':checked')) {
-			$("#hoobajoob").html('<button class="fixed topformbutton" onclick="lastfmImporter.importEverything()">'+language.gettext("button_importnow")+'</button>');
+			$("#hoobajoob").html('<button class="fixed" onclick="lastfmImporter.importEverything()">'+language.gettext("button_importnow")+'</button>');
 		} else {
 			$("#hoobajoob").html('<h3 align="center">'+language.gettext("label_finished")+'</h3>');
 		}
@@ -117,15 +117,15 @@ var lastfmImporter = function() {
 		var html = "";
 		var u = data.uri;
 		if (u.match(/spotify:/)) {
-			html = html + '<i class="icon-spotify-circled smallicon" style="margin-right:1em"></i>';
+			html = html + '<i class="icon-spotify-circled smallicon"></i>';
 		} else if (u.match(/soundcloud:/)) {
-			html = html + '<i class="icon-soundcloud-circled smallicon" style="margin-right:1em"></i>';
+			html = html + '<i class="icon-soundcloud-circled smallicon"></i>';
 		} else if (u.match(/youtube:/)) {
-			html = html + '<i class="icon-youtube-circled smallicon" style="margin-right:1em"></i>';
+			html = html + '<i class="icon-youtube-circled smallicon"></i>';
 		} else if (u.match(/leftasrain:/)) {
-			html = html + '<img height="12px" src="newimages/leftasrain.png" style="margin-right:1em" />';
+			html = html + '<img class="smallicon" src="newimages/leftasrain.png" />';
 		} else if (u.match(/gmusic:/)) {
-			html = html + '<i class="icon-gmusic-circled smallicon" style="margin-right:1em"></i>';
+			html = html + '<i class="icon-gmusic-circled smallicon"></i>';
 		}
 		html = html + '<b>'+data.title+'</b><br><i>by </i>';
 		html = html + data.artist+'<br><i>on </i>';
@@ -179,7 +179,7 @@ var lastfmImporter = function() {
 	            	'<input type="radio" class="topcheck" name="importc" value="all">'+language.gettext("label_everything")+'</input></div>'+
 
 	            	'<div class="expand">'+language.gettext("label_giveloved")+' '+
-	            	'<select id="goo" class="topformbutton">'+
+	            	'<select id="goo">'+
 	            	'<option value="5">5 '+language.gettext("stars")+'</option>'+
 	            	'<option value="4">4 '+language.gettext("stars")+'</option>'+
 	            	'<option value="3">3 '+language.gettext("stars")+'</option>'+
@@ -191,7 +191,7 @@ var lastfmImporter = function() {
 	            	'<input type="checkbox" class="topcheck" id="wishlist">'+language.gettext("label_addtowish")+'</input>'+
 	            	'</div>'+
 	            	'<div id="domchooser" class="expand clickicon"></div>'+
-	            	'<button class="fixed topformbutton" onclick="lastfmImporter.go()" id="importgo">GO</button>'+
+	            	'<button class="fixed" onclick="lastfmImporter.go()" id="importgo">GO</button>'+
 	            	'</div>');
 
 				if (prefs.player_backend == "mopidy") {
@@ -565,7 +565,7 @@ var lastfmImporter = function() {
 				                debug.log("LASTFM IMPORTER","Success",rdata);
 				                updateCollectionDisplay(rdata);
 				                data.ignore = true;
-								$("#trackrow"+data.key+' td:last').html('<img src="newimages/tick.png" />');
+								$("#trackrow"+data.key+' td:last').html('<i class="icon-tick medicon"></i>');
 								if (callback) setTimeout(callback, 1000);
 							},
 				            error: function(rdata) {

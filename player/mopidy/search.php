@@ -32,5 +32,5 @@ print '</div>';
 print '<button class="fixed" onclick="player.controller.search(\'search\')">'.get_int_text("button_search").'</button>';
 ?>
 </div>
-<div id="searchresultholder" class="noselection fullwidth"></div>
+<div id="searchresultholder" class="noselection"></div>
 </div>

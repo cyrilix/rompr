@@ -49,14 +49,19 @@ var alarm = function() {
 		},
 
 		toggle: function() {
-			prefs.save({alarmon: !prefs.alarmon});
+			prefs.save({alarmon: $("#button_alarm_on").isToggledOff()});
 			alarm.setButton();
 			alarm.setAlarm();
 		},
 
+		toggleramp: function() {
+			prefs.save({alarmramp: $("#alarmramp").isToggledOff()}); 
+			alarm.setButton();
+		},
+
 		setButton: function() {
-			var a = prefs.alarmon ? 1 : 0;
-			$("#button_alarm_on").removeClass("togglebutton-0 togglebutton-1").addClass("togglebutton-"+a);
+			$("#button_alarm_on").switchToggle(prefs.alarmon);
+			$("#alarmramp").switchToggle(prefs.alarmramp);
 			if (prefs.alarmon) {
 				$("#alarmclock").removeClass("icon-alarm icon-alarm-on").addClass("icon-alarm-on");
 			} else {
@@ -151,13 +156,13 @@ var alarm = function() {
 				'<td align="center"><i class="icon-decrease smallicon clickicon" onmousedown="alarm.startInc(-3600)" onmouseup="alarm.stopInc()" onmouseout="alarm.stopInc()" /></td>'+
 				'<td width="2%"></td><td align="center"><i class="icon-decrease smallicon clickicon" onmousedown="alarm.startInc(-60)" onmouseup="alarm.stopInc()" onmouseout="alarm.stopInc()" /></td>'+
 				'</tr></table>'+
-				'<table align="center"><tr><td align="center"><div id="button_alarm_on" onclick="alarm.toggle()" class="togglebutton clickicon togglebuton-0" />';
+				'<table align="center"><tr><td align="right" class="togglediv tgtl">ON</td><td align="left"><div id="button_alarm_on" onclick="alarm.toggle()" class="icon-toggle-off togglebutton clickicon" />';
 				if (prefs.player_backend == "mopidy") {
 					// Volume ramping won't work with MPD because we can't set the volume to zero if playback is stopped. Duh.
-					html = html + '</td></tr><tr><td align="center"><input class="autoset toggle" type="checkbox" id="alarmramp">'+language.gettext('config_alarm_ramp')+'</input>';
-					html = html + '</td></tr><tr><td align="center">'+language.gettext('config_ramptime')+'&nbsp;<input class="saveotron prefinput winkle" id="alarm_ramptime" type="text" size="2" />';
+					html = html + '</td></tr><tr><td align="right" class="togglediv tgtl">'+language.gettext('config_alarm_ramp')+'</td><td align="left"><div class="icon-toggle-off togglebutton clickicon" id="alarmramp" onclick="alarm.toggleramp()">';
+					html = html + '</td></tr><tr><td align="center" colspan="2">'+language.gettext('config_ramptime')+'&nbsp;<input class="saveotron prefinputUsers/bob/Sites/rompr" id="alarm_ramptime" type="text" size="2" />';
 				}
-				html = html + '</td></tr><tr><td align="center">'+language.gettext('config_snoozetime')+'&nbsp;<input class="saveotron prefinput winkle" id="alarm_snoozetime" type="text" size="2" />';
+				html = html + '</td></tr><tr><td align="center" colspan="2">'+language.gettext('config_snoozetime')+'&nbsp;<input class="saveotron prefinputUsers/bob/Sites/rompr" id="alarm_snoozetime" type="text" size="2" />';
 				html = html + '</td></tr></table></div></div></div>';
 
 			$("#righthandtop").prepend(html);

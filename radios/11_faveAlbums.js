@@ -77,7 +77,7 @@ var faveAlbums = function() {
             var html = '<div class="containerbox spacer backhi dropdown-container" onclick="playlist.radioManager.load(\'faveAlbums\', null)">';
             html = html + '<div class="fixed">';
             html = html + '<i class="icon-doc-text smallicon"></i></div>';
-            html = html + '<div class="expand">&nbsp;&nbsp;&nbsp;'+language.gettext('label_favealbums')+'</div>';
+            html = html + '<div class="expand">'+language.gettext('label_favealbums')+'</div>';
             html = html + '</div>';
             $("#pluginplaylists").append(html);
 

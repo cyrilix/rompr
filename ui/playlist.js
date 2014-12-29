@@ -639,21 +639,25 @@ function Playlist() {
                 // An image was supplied - either a local one or supplied by the backend
                 html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover fixed" name="'+tracks[0].key+'" src="'+tracks[0].image+'"/></div>';
             } else {
-                // This is so we can get albumart when we're playing spotify
-                // Once mopidy starts supplying us with images, we can dump this code
-                // Note - this is reuired for when we load a spotify playlist because the albums won't be
-                // present in the window anywhere else
-                var i = findImageInWindow(tracks[0].key);
-                if (i !== false) {
-                    debug.log("PLAYLIST","Playlist using image already in window");
-                    this.updateImages(i);
-                    html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover fixed" name="'+tracks[0].key+'" src="'+i.url+'"/></div>';
+                if (prefs.downloadart) {
+                    // This is so we can get albumart when we're playing spotify
+                    // Once mopidy starts supplying us with images, we can dump this code
+                    // Note - this is reuired for when we load a spotify playlist because the albums won't be
+                    // present in the window anywhere else
+                    var i = findImageInWindow(tracks[0].key);
+                    if (i !== false) {
+                        debug.log("PLAYLIST","Playlist using image already in window");
+                        this.updateImages(i);
+                        html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover fixed" name="'+tracks[0].key+'" src="'+i.url+'"/></div>';
+                    } else {
+                        html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index
+                                    + '"><img class="smallcover updateable notexist fixed clickable clickicon clickrollup" romprname="'+self.index
+                                    +'" name="'+tracks[0].key+'" src=""/></div>';
+                        coverscraper.setCallback(this.updateImages, tracks[0].key);
+                        coverscraper.GetNewAlbumArt(tracks[0].key);
+                    }
                 } else {
-                    html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index
-                                + '"><img class="smallcover updateable notexist fixed clickable clickicon clickrollup" romprname="'+self.index
-                                +'" name="'+tracks[0].key+'" src=""/></div>';
-                    coverscraper.setCallback(this.updateImages, tracks[0].key);
-                    coverscraper.GetNewAlbumArt(tracks[0].key);
+                    html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover fixed notexist" name="'+tracks[0].key+'"/></div>';
                 }
             }
             html = html + '<div class="containerbox vertical expand">';

@@ -15,11 +15,11 @@ var info_discogs = function() {
 					u = 'http://'+u;
 				}
 				if (u.match(/wikipedia/i)) {
-					html = html + '<li><i class="icon-wikipedia smallicon menu padright wibble"></i><a href="'+u+'" target="_blank">Wikipedia ('+d[1]+')</a></li>';
+					html = html + '<li><i class="icon-wikipedia smallicon menu padright"></i><a href="'+u+'" target="_blank">Wikipedia ('+d[1]+')</a></li>';
 				} else if (u.match(/facebook/i)) {
-					html = html + '<li><img src="newimages/facebook-logo.png" class="menu padright wibble"></i><a href="'+u+'" target="_blank">Facebook</a></li>';
+					html = html + '<li><i class="icon-facebook-logo smallicon padright"></i><a href="'+u+'" target="_blank">Facebook</a></li>';
 				} else {
-					html = html + '<li><i class="smallicon menu padright wibble"></i><a href="'+u+'" target="_blank">'+d[1]+'</a></li>';
+					html = html + '<li><i class="icon-noicon smallicon menu padright"></i><a href="'+u+'" target="_blank">'+d[1]+'</a></li>';
 				}
 			}
 		}
@@ -391,7 +391,7 @@ var info_discogs = function() {
 					var id = element.attr('name');
 					var expandingframe = element.parent().parent().parent().parent();
 					var content = expandingframe.html();
-					content=content.replace(/<img class="clickexpandbox.*?>/, '');
+					content=content.replace(/<i class="icon-expand-up.*?>/, '');
 					var pos = expandingframe.offset();
 					var target = $("#artistfoldup").length == 0 ? "discogs" : "artist";
 					var targetpos = $("#"+target+"foldup").offset();
@@ -526,7 +526,7 @@ var info_discogs = function() {
 	        	html = html + '<div class="info-box-expand stumpy">';
 		        html = html + '<div class="holdingcell">';
 		        if (expand) {
-					html = html + '<img class="clickexpandbox infoclick tleft" style="margin:1em" src="newimages/expand-up.png" height="16px" name="'+data.data.id+'">';
+					html = html + '<i class="icon-expand-up medicon clickexpandbox infoclick tleft" name="'+data.data.id+'"></i>';
 				}
 
 		        if (data.data.profile) {

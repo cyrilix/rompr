@@ -16,13 +16,28 @@ h1,h2,h3,h4,h5,h6
 
 button
 {
-    margin:2px;
     background-color:#202020 !important;
-    border:none !important;
+    border:1px solid #dedede;
     background-image:none !important;
-    color:#dddddd !important;
+    color:#dddddd;
     font-weight:bold;
     font-size:110%;
+}
+
+button:hover
+{
+    color:#ff4800;
+}
+
+input
+{
+    border:1px solid #999999;
+    color:#181818;
+}
+
+select
+{
+    border-color:black;
 }
 
 a:link
@@ -208,23 +223,6 @@ div.topdropmenu
      border-bottom:12px solid #888888;
 }
 
-input.sourceform
-{
-    border:1px solid #999999;
-    color:#181818;
-}
-
-input.topformbutton
-{
-    border-color:black;
-    color:#000000;
-}
-
-select.topformbutton
-{
-    border-color:black;
-}
-
 /*-- Styles to make the Wikipedia nav boxes look prettier --*/
 
 th.navbox-title
@@ -318,14 +316,14 @@ tr.clickaddtrack:hover
 
 .drop-box
 {
-    background-color:#090909;
-    color:#fefefe;
+    background-color:#fefefe;
+    color:#090909;
 }
 
 .tagman-hover
 {
     border: 1px solid #fe6500;
-    background-color: #181818 !important;
+    background-color: #ababab !important;
 }
 
 .edged
