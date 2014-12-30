@@ -2,7 +2,7 @@
 
 <div id="notifications"></div>
 <div id="headerbar" class="noborder fullwidth containerbox">
-<div id="albumcontrols" class="fixed noborder">
+<div id="sourcescontrols" class="fixed noborder">
 <?php
 print '<i title="'.get_int_text('button_now_playing').'" onclick="layoutProcessor.sourceControl(\'infobar\')" id="choose_nowplaying" class="icon-play-circled tooltip topimg"></i>';
 print '<i title="'.get_int_text('button_local_music').'" onclick="layoutProcessor.sourceControl(\'albumlist\')" id="choose_albumlist" class="icon-music tooltip topimg"></i>';
@@ -49,8 +49,9 @@ print '<i class="icon-cog-alt topimg tleft" onclick="layoutProcessor.sourceContr
                     </div>
                 </div>
             </div>
-            <div id="patrickmoore" class="containerbox vertical fullwidth">
-                <div id="nowplaying" class="expand">
+            <div id="patrickmoore" class="fullwidth">
+                <div id="nowplayingfiddler"></div>
+                <div id="nowplaying">
                     <div id="nptext"></div>
                 </div>
                 <div id="amontobin">

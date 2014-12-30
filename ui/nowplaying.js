@@ -169,10 +169,6 @@ var nowplaying = function() {
 		newTrack: function(playlistinfo) {
 
 			infobar.setNowPlayingInfo(playlistinfo);
-			// if (playlistinfo.backendid == currentbackendid) {
-			// 	debug.warn("NOWPLAYING","Meet the new track, same as the old track");
-			// 	return;
-			// }
 			if (playlistinfo == playlist.emptytrack) {
 				return;
 			}
@@ -222,17 +218,21 @@ var nowplaying = function() {
 	        }
 
 	        currenttrack++;
+	        var to_populate = null;
 	        for (var i in playlistinfo.metadata.artists) {
 	        	nowplayingindex++;
 	        	playlistinfo.metadata.artists[i].nowplayingindex = nowplayingindex;
+	        	debug.log("NOWPLAYING","Setting Artist",playlistinfo.metadata.artists[i].name,"index",i,"to nowplayingindex",nowplayingindex);
 				history[nowplayingindex] = new trackDataCollection(currenttrack, nowplayingindex, i, playlistinfo);
 				// IF there are multiple artists we will be creating multiple trackdatacollections.
-				// BUT we only tell the first one to poulate - this prevents the others from trying to
-				// populate the album and track info which is shared between them
-				if (i == 0)  {
-					history[nowplayingindex].populate(prefs.infosource, false);
-				}
+				// BUT we only tell the first one to populate - this prevents the others from trying to
+				// populate the album and track info which is shared between them. However we must wait until
+				// we've initialised all the metadata before we start to populate the first artist, otherwise
+				// there's danger of a race resulting in the artistchooser being populated before all the nowplayingindices
+				// have been assigned, resulting in the html containing an undefined value.
+				if (i == 0)  to_populate = nowplayingindex;
 			}
+			history[to_populate].populate(prefs.infosource, false);
 		},
 
 		remove: function(npindex) {
@@ -244,6 +244,7 @@ var nowplaying = function() {
 		},
 
 		switchArtist: function(source, npindex) {
+			debug.log("NOWPLAYING","Asked to switch artist for nowplayingindex",npindex);
 			if (history[npindex] !== undefined) {
 				history[npindex].populate(source, true);
 			} else {

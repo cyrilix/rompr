@@ -50,9 +50,10 @@ function add_uri($uri) {
 }
 
 function add_spotify_artist($t) {
+	global $collection;
 	$params = (array) $t->findexact;
 	$params['uris'] = $t->filterdomain;
-	$collection = doCollection('core.library.find_exact', $params, array("Track"), true);
+	doCollection('core.library.find_exact', $params, array("Track"), true);
     $artistlist = $collection->getSortedArtistList();
     foreach($artistlist as $artistkey) {
 	    $albumlist = array();

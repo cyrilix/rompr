@@ -75,7 +75,6 @@ var infobar = function() {
 
             // Fit the nowplaying text in the panel, always trying to make the best use of the available height
             // We adjust by checking width, since we don't wrap lines as that causes hell with the layout
-
             debug.log("INFOBAR","Biggerizing",npinfo,numlines);
             if (Object.keys(npinfo).length == 0 || $("#nptext").is(':hidden') || $("#infobar").is(':hidden')) {
                 $("#nptext").html("");
@@ -86,11 +85,12 @@ var infobar = function() {
             // by Artist on Album
             if (!numlines) numlines = 2;
             var maxlines =  (npinfo.artist && npinfo.album && npinfo.title) ? 3 : 2;
-            var maxheight = $("#nowplaying").height();
-            if (!npinfo.title  && !npinfo.artist) {
+            var parent = $("#nptext").parent();
+            var maxheight = parent.height();
+            if (!npinfo.title  && !npinfo.artist && parent.attr("id") == "nowplaying") {
                 maxheight = $("#patrickmoore").height() - 8;
             }
-            var maxwidth = $("#nowplaying").width() - 8;
+            var maxwidth = parent.width() - 8;
             var lines = [
                 {weight: (numlines == 2 ? 62 : 46), width: maxwidth+1, text: " "},
                 {weight: (numlines == 2 ? 38 : 26), width: maxwidth+1, text: " "}

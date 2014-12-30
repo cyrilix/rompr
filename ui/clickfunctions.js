@@ -270,6 +270,18 @@ function doAlbumMenu(event, element, inbrowser) {
     }
     var menutoopen = element.attr("name");
     if (element.isClosed()) {
+        var x = $('#'+menutoopen);
+        // If the dropdown doesn't exist then create it
+        if (x.length == 0) {
+            if (element.parent().hasClass('album1')) {
+                var c = 'dropmenu notfilled album1';
+            } else if (element.parent().hasClass('album2')) {
+                var c = 'dropmenu notfilled album2';
+            } else {
+                var c = 'dropmenu notfilled';
+            }
+            var t = $('<div>', {id: menutoopen, class: c}).insertAfter(element.parent());
+        }
         if ($('#'+menutoopen).hasClass("notfilled")) {
             $('#'+menutoopen).load("albums.php?item="+menutoopen, function() {
                 $(this).removeClass("notfilled");

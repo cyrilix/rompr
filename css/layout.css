@@ -122,16 +122,6 @@ button
     float:left;
 }
 
-.column
-{
-    width:22%;
-}
-
-.cmiddle
-{
-    width:56%;
-}
-
 .noborder
 {
     margin:0px;
@@ -1647,8 +1637,8 @@ div.lyrics p
 
 .dropdown-button
 {
-    margin-left:-14px;
-    top:2px;
+    margin-left:-16px;
+    top:1px;
     cursor:pointer;
     position:relative;
     overflow:hidden;

@@ -285,7 +285,6 @@ $(window).ready(function(){
     $(".savulon").click(toggleRadio);
     setPrefs();
     checkServerTimeOffset();
-    setBottomPaneSize();
     layoutProcessor.sourceControl(prefs.chooser, setSearchLabelWidth);
     if (prefs.chooser == "searchpane") {
         ihatefirefox();
@@ -301,6 +300,7 @@ $(window).load(function() {
     if (!prefs.hide_radiolist) {
         podcasts.loadList();
     }
+    setBottomPaneSize();
     $.get('utils/cleancache.php', function() {
         debug.shout("INIT","Cache Has Been Cleaned");
     });
@@ -310,7 +310,7 @@ $(window).load(function() {
 
 function showUpdateWindow() {
     if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < 0.60) {
-        var fnarkle = popupWindow.create(550,800,"fnarkle",true,language.gettext("intro_title"));
+        var fnarkle = popupWindow.create(550,900,"fnarkle",true,language.gettext("intro_title"));
         $("#popupcontents").append('<div id="fnarkler" class="mw-headline"></div>');
         if (layout != "desktop") {
             $("#fnarkler").addClass('tiny');

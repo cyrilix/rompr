@@ -2,7 +2,7 @@
 <div id="notifications"></div>
 
 <div id="infobar">
-    <div class="infobarlayout tleft bordered">
+    <div class="infobarlayout tleft bordered" style="margin-left:12px">
         <div id="buttons">
 <?php
 print '<i title="'.get_int_text('button_previous').'" class="icon-fast-backward clickicon controlbutton-small lettuce" onclick="playlist.previous()"></i>';
@@ -58,8 +58,7 @@ print '<div title="'.get_int_text('button_volume').'" id="volumecontrol" class="
 
 <div id="headerbar" class="noborder fullwidth">
 
-<div id="albumcontrols" class="column noborder tleft">
-<div class="containerbox fullwidth">
+<div id="sourcescontrols" class="column noborder tleft containerbox headercontainer">
 <div class="expand topbox">
 <?php
 print '<i title="'.get_int_text('button_local_music').'" onclick="layoutProcessor.sourceControl(\'albumlist\')" id="choose_albumlist" class="icon-music tooltip topimg"></i>';
@@ -75,11 +74,8 @@ print '<i id="sourcesresizer" class="icon-resize-horizontal topimg" style="curso
 ?>
 </div>
 </div>
-</div>
 
-<div id="infocontrols" class="cmiddle noborder tleft">
-<div class="containerbox fullwidth">
-
+<div id="infopanecontrols" class="cmiddle noborder tleft containerbox headercontainer">
 <div class="fixed topbox">
 <?php
  print '<i title="'.get_int_text('button_togglesources').'" class="icon-angle-double-left tooltip topimg" onclick="expandInfo(\'left\')" id="expandleft"></i>';
@@ -116,10 +112,8 @@ print '<i class="icon-angle-double-right tooltip topimg" title="'.get_int_text('
 ?>
 </div>
 </div>
-</div>
 
-<div id="playlistcontrols" class="column noborder tleft">
-<div class="containerbox fullwidth">
+<div id="playlistcontrols" class="column noborder tleft containerbox headercontainer">
 <div class="expand topbox">
 <?php
 print '<i id="playlistresizer" class="icon-resize-horizontal topimg" style="cursor:move"></i>';
@@ -184,8 +178,6 @@ print '<button class="fixed" onclick="player.controller.savePlaylist()">'.get_in
 
 </div>
 </div>
-</div>
-
 </div>
 
 <div id="bottompage">

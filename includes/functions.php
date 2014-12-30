@@ -312,20 +312,19 @@ function artistHeader($id, $spotilink, $name, $numalbums = null) {
     // }
     if ($spotilink) {
         print '<div class="clickable clicktrack draggable containerbox menuitem'.$browseable.$divtype.'" name="'.$spotilink.'">';
-        // print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" name="'.$id.'"></i></div>';
         print '<i class="icon-toggle-closed menu mh fixed" name="'.$id.'"></i>';
         $d = getDomain($spotilink);
         $d = preg_replace('/\+.*/','', $d);
         switch ($d) {
             case "spotify":
-                print '<div class="fixed"><i class="icon-spotify-circled playlisticon"></i></div>';
+                print '<i class="icon-spotify-circled fixed playlisticon"></i>';
                 print '<input type="hidden" value="needsfiltering" />';
                 break;
 
             case "gmusic":
             case "podcast":
             case "internetarchive":
-                print '<div class="fixed"><i class="icon-'.$d.'-circled playlisticon"></i></div>';
+                print '<i class="icon-'.$d.'-circled fixed playlisticon"></i>';
                 break;
 
         }
@@ -333,14 +332,10 @@ function artistHeader($id, $spotilink, $name, $numalbums = null) {
         print '</div>';
     } else {
         print '<div class="clickable clickalbum draggable containerbox menuitem '.$divtype.'" name="'.$id.'">';
-        // print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" name="'.$id.'"></i></div>';
         print '<i class="icon-toggle-closed menu mh fixed" name="'.$id.'"></i>';
         print '<div class="expand">'.$name.'</div>';
         print '</div>';
     }
-    // Create the drop-down div that will hold this artist's albums
-    print '<div id="'.$id.'" class="dropmenu notfilled '.$divtype.'"></div>';
-
 }
 
 function noAlbumsHeader() {
@@ -398,9 +393,6 @@ function albumHeader($name, $spotilink, $id, $exists, $searched, $imgname, $src,
         print ' <span class="notbold">('.$date.')</span>';
     }
     print '</div></div>';
-
-    // Create the drop-down div that will hold this album's tracks
-    print '<div id="'.$id.'" class="dropmenu notfilled"></div>';
 }
 
 

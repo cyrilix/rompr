@@ -15,38 +15,32 @@ function setBottomPaneSize() {
     $("#volumecontrol").css("height", v+"px");
     $("#bottompage").css("height", newheight+"px");
     $(".mainpane").css({height: newheight+"px", width: ws.x+"px"});
-    var hack = ws.x - 32;
-    $("#nowplaying").css({width: hack+"px"});
-    var t = ws.y - $("#patrickmoore").offset().top;
-    $("#patrickmoore").css("height", t+"px");
-    var p = $("#nowplaying").height();
-    if (p > 240 && layoutProcessor.myCatHasTwoFish) {
-        $("#nptext").hide();
-        layoutProcessor.myCatHasTwoFish = false;
-        $("#playlistm").show().detach().prependTo("#nowplaying").removeClass('mainpane').css({width: "", left: ""});
-        $("#choose_playlist").hide();
-        if (prefs.chooser == "playlistm") {
-            layoutProcessor.sourceControl("infobar");
+    if ($("#infobar").is(':visible')) {
+        var hack = ws.x - 32;
+        var t = ws.y - $("#patrickmoore").offset().top - $("#amontobin").outerHeight(true);
+        if (t > 200 && layoutProcessor.playlistInNowplaying == false) {
+            $("#nowplayingfiddler").css({height: "40px", "margin-bottom": "4px" });
+            $("#nptext").detach().appendTo("#nowplayingfiddler");
+            layoutProcessor.playlistInNowplaying = true;
+            $("#playlistm").show().detach().prependTo("#nowplaying").removeClass('mainpane').css({width: "", left: ""});
+            $("#choose_playlist").hide();
+            if (prefs.chooser == "playlistm") {
+                layoutProcessor.sourceControl("infobar");
+            }
+        } else if (t <= 200 && layoutProcessor.playlistInNowplaying) {
+            $("#playlistm").detach().appendTo("#bottompage").addClass('mainpane').css({width: ws.x+"px", left: ws.x+"px"}).hide();
+            $("#nptext").detach().appendTo("#nowplaying");
+            $("#nowplayingfiddler").css({height: "0px", "margin-bottom": "0px"});
+            layoutProcessor.playlistInNowplaying = false;
+            $("#choose_playlist").show();
         }
-    } else if (p <= 240 && !layoutProcessor.myCatHasTwoFish) {
-        $("#playlistm").detach().appendTo("#bottompage").addClass('mainpane').css({width: ws.x+"px", left: ws.x+"px"}).hide();
-        $("#nptext").show();
-        layoutProcessor.myCatHasTwoFish = true;
-        $("#choose_playlist").show();
+        t = ws.y - $("#patrickmoore").offset().top - $("#amontobin").outerHeight(true) - $("#nowplayingfiddler").outerHeight(true);
+        $("#nowplaying").css({height: t+"px", width: hack+"px"});
+        infobar.updateWindowValues();
+        infobar.rejigTheText();
     }
-    // This is called here purely to make sure the 'progress bar' in the
-    // resized volume control gets updated
-    infobar.updateWindowValues();
-    // Hack for some themes that have a 1 pixel border on nowplaying
-    // or the top of the albums list/info pane.
-    // This causes it to overflow bottompage, and on a mobile device
-    // we get a second scrollbar because of it.
-    // var cockfeature = newheight-2;
-    // $("#infopane").css("height", cockfeature.toString()+"px");
-    // newheight = null;
     layoutProcessor.setPlaylistHeight();
     layoutProcessor.scrollPlaylistToCurrentTrack();
-    infobar.rejigTheText();
     browser.rePoint();
 }
 
@@ -84,7 +78,7 @@ var layoutProcessor = function() {
         shrinkerRatio: 1,
         supportsDragDrop: false,
         hasCustomScrollbars: false,
-        myCatHasTwoFish: true,
+        playlistInNowplaying: false,
 
         afterHistory: function() {
             layoutProcessor.sourceControl('infopane', function() { layoutProcessor.goToBrowserPanel('artist')});
@@ -157,7 +151,7 @@ var layoutProcessor = function() {
                 if (newindex >= sources.length ) return false;
                 if (newindex < 0) return false;
                 source = sources[newindex];
-                if (source == "playlistm" && $("#nptext").is(':hidden')) {
+                if (source == "playlistm" && layoutProcessor.playlistInNowplaying) {
                     source = sources[newindex+temp];
                 }
             }
@@ -168,7 +162,7 @@ var layoutProcessor = function() {
             }
             $("#"+source).show().css({top: "0px", left: (ws.x*direction)+"px"});
             for (var i in sources) {
-                if (sources[i] != source && sources[i] != prefs.chooser && !(sources[i] == "playlistm" && layoutProcessor.myCatHasTwoFish == false)) {
+                if (sources[i] != source && sources[i] != prefs.chooser && !(sources[i] == "playlistm" && layoutProcessor.playlistInNowplaying)) {
                     $("#"+sources[i]).hide();
                 }
             }

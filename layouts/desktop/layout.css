@@ -42,8 +42,7 @@
 
 .infobarlayout
 {
-    margin-left:8px;
-    margin-right:8px;
+    margin-right:12px;
     margin-top:0px;
     margin-bottom:0px;
     padding-top:0px;
@@ -138,11 +137,6 @@
     height:100%;
     overflow:auto;
     position:relative;
-    display:block;
-}
-
-#infocontrols
-{
     display:block;
 }
 
@@ -282,7 +276,6 @@ div.topdrop
 div.topdropmenu
 {
     z-index:1000;
-    max-height:500px;
     overflow-y:auto;
     overflow-x:hidden;
     display:none;
@@ -304,19 +297,19 @@ div.widemenu
 div.leftmenu
 {
     top: 30px;
-    left:-12px;
+    left: 0px;
 }
 
 div.rightmenu.widemenu
 {
     top:30px;
-    left:-370px;
+    left:-366px;
 }
 
 div.rightmenu.normalmenu
 {
     top:30px;
-    left:-180px;
+    left:-188px;
 }
 
 .icon-discogs.smallcover-svg
@@ -351,10 +344,23 @@ div.rightmenu.normalmenu
     height:40px;
 }
 
+.column
+{
+    width:22%;
+}
+
+.cmiddle
+{
+    width:56%;
+}
+
+.headercontainer
+{
+    max-height:36px;
+}
+
 #bottompage
 {
-    /*position:absolute;*/
-    /*top:148px;*/
     width:100%;
     height:80%;
 }

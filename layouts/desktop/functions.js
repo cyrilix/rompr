@@ -1,19 +1,3 @@
-
-function expandInfo(side) {
-    switch(side) {
-        case "left":
-            var p = !prefs.sourceshidden;
-            prefs.save({sourceshidden: p});
-            break;
-        case "right":
-            var p = !prefs.playlisthidden;
-            prefs.save({playlisthidden: p});
-            break;
-    }
-    doThatFunkyThang();
-    return false;
-}
-
 function toggleSearch() {
     if (prefs.hide_albumlist) {
         layoutProcessor.sourceControl("albumlist", grrAnnoyed);
@@ -39,57 +23,107 @@ function grrAnnoyed() {
     $("#search").slideDown({duration: 'fast', start: setSearchLabelWidth});
 }
 
-function doThatFunkyThang() {
+function getPanelWidths() {
     var sourcesweight = (prefs.sourceshidden) ? 0 : 1;
     var playlistweight = (prefs.playlisthidden) ? 0 : 1;
     var browserweight = (prefs.hidebrowser) ? 0 : 1;
+    var sourceswidth = prefs.sourceswidthpercent*sourcesweight;
+    var playlistwidth = prefs.playlistwidthpercent*playlistweight;
+    var browserwidth = (100 - sourceswidth - playlistwidth)*browserweight;
+    if (browserwidth < 0) browserwidth = 0;
+    return ({infopane: browserwidth, sources: sourceswidth, playlist: playlistwidth});
+}
 
-    var browserwidth = (100 - (prefs.playlistwidthpercent*playlistweight) - (prefs.sourceswidthpercent*sourcesweight))*browserweight;
-    var sourceswidth = (100 - (prefs.playlistwidthpercent*playlistweight) - browserwidth)*sourcesweight;
-    var playlistwidth = (100 - sourceswidth - browserwidth)*playlistweight;
-
-    $("#sources").css("width", sourceswidth.toString()+"%");
-    $("#albumcontrols").css("width", sourceswidth.toString()+"%");
-    if (!prefs.hidebrowser) {
-        $("#infopane").css("width", browserwidth.toString()+"%");
-        $("#infocontrols").css("width", browserwidth.toString()+"%");
+function expandInfo(side) {
+    switch(side) {
+        case "left":
+            var p = !prefs.sourceshidden;
+            prefs.save({sourceshidden: p});
+            break;
+        case "right":
+            var p = !prefs.playlisthidden;
+            prefs.save({playlisthidden: p});
+            break;
     }
-    $("#playlist").css("width", playlistwidth.toString()+"%");
-    $("#playlistcontrols").css("width", playlistwidth.toString()+"%");
+    animatePanels();
+    return false;
+}
 
-    if (prefs.sourceshidden != $("#sources").is(':hidden')) {
-        $("#sources").toggle("fast");
-        $("#albumcontrols").toggle("fast");
-    }
-
-    if (prefs.playlisthidden != $("#playlist").is(':hidden')) {
-        $("#playlist").toggle("fast");
-        $("#playlistcontrols").toggle("fast");
-    }
-
+function setExpandIcons() {
     var i = (prefs.sourceshidden) ? "icon-angle-double-right" : "icon-angle-double-left";
     $("#expandleft").removeClass("icon-angle-double-right icon-angle-double-left").addClass(i);
     i = (prefs.playlisthidden) ? "icon-angle-double-left" : "icon-angle-double-right";
-    $("#expandright").removeClass("icon-angle-double-right icon-angle-double-left").addClass(i);
-    setTopIconSize();
-    if (!prefs.hidebrowser) {
-        browser.rePoint();
+    $("#expandright").removeClass("icon-angle-double-right icon-angle-double-left").addClass(i);    
+}
+
+function animatePanels() {
+    var widths = getPanelWidths();
+    widths.speed = { sources: 400, playlist: 400, infopane: 400 };
+    // Ensure that the playlist and playlistcontrols don't get pushed off the edge
+    if ($("#playlist").is(':hidden')) {
+        var w = $("#infopane").width();
+        w -= 12;
+        $("#infopane").css({width: w+"px"});
+        $("#infopanecontrols").css({width: w+"px"});
+    } else {
+        var w = $("#playlist").width();
+        w -= 12;
+        $("#playlist").css({width: w+"px"});
+        $("#playlistcontrols").css({width: w+"px"});
     }
+    $("#sources").animatePanel(widths);
+    $("#sourcescontrols").animatePanel(widths);
+    $("#playlist").animatePanel(widths);
+    $("#playlistcontrols").animatePanel(widths);
+    $("#infopane").animatePanel(widths);
+    $("#infopanecontrols").animatePanel(widths);
+}
+
+jQuery.fn.animatePanel = function(options) {
+    var settings = $.extend({},options);
+    var panel = this.attr("id");
+    var opanel = panel;
+    panel = panel.replace(/controls/,'');
+    if (settings[panel] > 0) {
+        this.show();
+    } 
+    this.animate({width: settings[panel]+"%"}, 
+        {
+            duration: settings.speed[panel],
+            always: function() {
+                if (settings[panel] == 0) {
+                    $(this).hide();
+                } else {
+                    if (opanel == "infopane") browser.rePoint();
+                    if (opanel.match(/controls/)) {
+                        setExpandIcons();
+                        setTopIconSize();
+                    }
+                }
+            }
+        }
+    );
+}
+
+function doThatFunkyThang() {
+    var widths = getPanelWidths();
+    $("#sources").css("width", widths.sources+"%");
+    $("#sourcescontrols").css("width", widths.sources+"%");
+    $("#infopane").css("width", widths.infopane+"%");
+    $("#infopanecontrols").css("width", widths.infopane+"%");
+    $("#playlist").css("width", widths.playlist+"%");
+    $("#playlistcontrols").css("width", widths.playlist+"%");
+    setTopIconSize();
+    browser.rePoint();
 }
 
 function hideBrowser() {
     if (prefs.hidebrowser) {
         prefs.save({playlistwidthpercent: 50, sourceswidthpercent: 50});
-        $("#infopane").hide();
-        $("#infocontrols").hide();
-        $("#sourcesresizer").hide();
     } else {
         prefs.save({playlistwidthpercent: 25, sourceswidthpercent: 25});
-        $("#infopane").show();
-        $("#infocontrols").show();
-        $("#sourcesresizer").show();
     }
-    doThatFunkyThang();
+    animatePanels();
 }
 
 function setBottomPaneSize() {
@@ -102,19 +136,9 @@ function setBottomPaneSize() {
     $('#patrickmoore').css("width", lp+"px");
     // Height of the bottom pane (chooser, info, playlist container)
     var newheight = ws.y - $("#bottompage").offset().top;
-    // Make sure the dropdown menus don't overflow the window
-    // They have max-height as 500 in the css.
-    // if (newheight < 500) {
-    //     $('.topdropmenu').each(function() {
-    //         if ($(this).height() > newheight) {
-    //             $(this).css('height', newheight.toString()+"px");
-    //         }
-    //     });
-    // } else {
-    //     $('ul.subnav').css('height', "");
-    // }
+    var mh = newheight - 32;
+    $('.topdropmenu').css('max-height', mh+"px");
     $("#bottompage").css("height", newheight+"px");
-    newheight = null;
     layoutProcessor.setPlaylistHeight();
     setTopIconSize();
     infobar.rejigTheText();
@@ -123,7 +147,7 @@ function setBottomPaneSize() {
 
 function setTopIconSize() {
     var imw = (parseInt($('.topimg').css('margin-left')) + parseInt($('.topimg').css('margin-right')));
-    ["#albumcontrols", "#infocontrols", "#playlistcontrols"].forEach( function(div) {
+    ["#sourcescontrols", "#infopanecontrols", "#playlistcontrols"].forEach( function(div) {
         if ($(div).is(':visible')) {
             var numicons = $(div+" .topimg").length;
             var mw = imw*numicons;
@@ -272,23 +296,31 @@ function srDrag(event, ui) {
     var size = getWindowSize();
     if (ui.offset.left < 120) { ui.offset.left = 120; }
     prefs.sourceswidthpercent = ((ui.offset.left+8)/size.x)*100;
+    if (prefs.sourceswidthpercent + prefs.playlistwidthpercent > 100 || prefs.hidebrowser) {
+        prefs.playlistwidthpercent = 100 - prefs.sourceswidthpercent;
+    }
     doThatFunkyThang();
     $(this).data('draggable').position.left = 0;
 }
 
 function srDragStop(event, ui) {
     prefs.save({sourceswidthpercent: prefs.sourceswidthpercent});
+    prefs.save({playlistwidthpercent: prefs.playlistwidthpercent})
 }
 
 function prDrag(event, ui) {
     var size = getWindowSize();
     if ((size.x - ui.offset.left) < 120) { ui.offset.left = size.x - 120; }
     prefs.playlistwidthpercent = (((size.x - ui.offset.left))/size.x)*100;
+    if (prefs.sourceswidthpercent + prefs.playlistwidthpercent > 100 || prefs.hidebrowser) {
+        prefs.sourceswidthpercent = 100 - prefs.playlistwidthpercent;
+    }
     doThatFunkyThang();
     $(this).data('draggable').position.left = 0;
 }
 
 function prDragStop(event, ui) {
+    prefs.save({sourceswidthpercent: prefs.sourceswidthpercent});
     prefs.save({playlistwidthpercent: prefs.playlistwidthpercent})
 }
 
@@ -376,8 +408,7 @@ function initUI() {
     });
     $("#playlistresizer").bind("drag", prDrag);
     $("#playlistresizer").bind("dragstop", prDragStop);
-    doThatFunkyThang();
-
+    animatePanels();
     $(".topdrop").click(function(ev) {
         var ours = $(this)[0];
         $('.topdropmenu').each(function() {

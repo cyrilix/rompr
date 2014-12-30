@@ -281,7 +281,7 @@ var browser = function() {
         },
 
         reDo: function(index, source) {
-            if (index == history[displaypointer].mastercollection.nowplayingindex && source == prefs.infosource) {
+            if (history[displaypointer].mastercollection && index == history[displaypointer].mastercollection.nowplayingindex && source == prefs.infosource) {
                 debug.log("BROWSER","Re-displaying data for",source,"index",index);
                 displayTheData(displaypointer, true, true, true);
             }
@@ -423,8 +423,8 @@ var browser = function() {
         },
 
         rePoint: function() {
-
             var w = $("#infopane").width();
+            if (prefs.hidebrowser || w == 0) { return }
             var h = $(".masonified");
             if (h.length > 0) {
                 var t = $(".tagholder");

@@ -84,7 +84,7 @@ h2
     overflow-y:hidden;
 }
 
-@media screen and (max-width: 350px) {
+@media screen and (max-width: 350px) and (max-height: 400px) {
     .controlbutton {
         width:38px !important;
         height:38px !important;
@@ -93,17 +93,16 @@ h2
         width:32px !important;
         height:32px !important;
     }
-/*    #albumcover
+    #albumcover
     {
         height:100px !important;
-        margin-left:6px;
     }
+
     #albumpicture
     {
-        width:auto;
         height:100px !important;
     }
-*/}
+}
 
 @media screen and (max-height: 378px) {
 
@@ -185,7 +184,7 @@ h2
 
 }
 
-@media screen and (min-height: 501px) and (max-height: 640px) {
+@media screen and (min-height: 501px) and (max-height: 700px) {
 
     #geoffreyboycott
     {
@@ -227,7 +226,7 @@ h2
 
 }
 
-@media screen and (min-height: 641px) and (max-height: 1024px) {
+@media screen and (min-height: 701px) and (max-height: 1024px) {
 
     #geoffreyboycott
     {
@@ -422,6 +421,11 @@ h2
 {
     margin-top:4px;
     height:48px;
+}
+
+#nowplayingfiddler
+{
+    height: 0px;
 }
 
 #scrobwrangler
@@ -641,3 +645,7 @@ h2
 
 }
 
+.trackgroup
+{
+    white-space:normal;
+}
