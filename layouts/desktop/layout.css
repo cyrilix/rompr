@@ -282,6 +282,7 @@ div.topdropmenu
     position: absolute;
     opacity:1;
     padding:6px;
+    max-height:540px;
 }
 
 div.normalmenu

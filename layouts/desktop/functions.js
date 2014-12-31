@@ -138,8 +138,6 @@ function setBottomPaneSize() {
     $('#patrickmoore').css("width", lp+"px");
     // Height of the bottom pane (chooser, info, playlist container)
     var newheight = ws.y - $("#bottompage").offset().top;
-    var mh = newheight - 32;
-    $('.topdropmenu').css('max-height', mh+"px");
     $("#bottompage").css("height", newheight+"px");
     layoutProcessor.setPlaylistHeight();
     setTopIconSize();
