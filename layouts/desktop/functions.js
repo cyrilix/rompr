@@ -34,6 +34,8 @@ function getPanelWidths() {
     return ({infopane: browserwidth, sources: sourceswidth, playlist: playlistwidth});
 }
 
+/* Testing SVN Client */
+
 function expandInfo(side) {
     switch(side) {
         case "left":
