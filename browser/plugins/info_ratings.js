@@ -151,7 +151,7 @@ var info_ratings = function() {
                     data: data,
                     dataType: 'json',
                     success: function(rdata) {
-                        debug.log("RATING PLUGIN","Success",rdata);
+                        debug.log("RATING PLUGIN","Success");
                         if (rdata) {
                             trackmeta.usermeta = rdata.metadata;
                             doThingsWithData();
@@ -400,11 +400,22 @@ var faveFinder = function() {
                 throttle = null;
             }
         }
-
+ 
     }
 
 }();
 
+function findPosition(key) {
+    // The key is the id of a dropdown div.  But that div won't exist if the dropdown hasn't been
+    // opened. So we see if it does, and if it doesn't then we use the name attribute of the
+    // toggle arrow button to locate the position.
+    if ($("#"+key).length > 0) { 
+        return $("#"+key);
+    } else {
+        return $('i[name="'+key+'"]').parent()
+    }
+}
+ 
 function updateCollectionDisplay(rdata) {
     // rdata contains an HTML fragment to insert into the collection
     // and a marker for where to insert it. Otherwise we would have
@@ -415,28 +426,26 @@ function updateCollectionDisplay(rdata) {
     debug.log("RATING PLUGIN","Update Display",rdata);
     if (rdata && rdata.hasOwnProperty('inserts')) {
         for (var i in rdata.inserts) {
-            var el = "#"+rdata.inserts[i].where;
             switch (rdata.inserts[i].type) {
                 case 'insertAfter':
-                    debug.log("RATING PLUGIN", "insertAfter",el);
-                    if (el.match(/aartist/)) {
-                        var d = $(el).parent();
-                        $(rdata.inserts[i].html).insertAfter(d);
-                    } else {
-                        $(rdata.inserts[i].html).insertAfter(el);
-                    }
+                    // insertAfter is something to insert into a list - either the main list of
+                    // artists or an artist's album dropdown.
+                    debug.log("RATING PLUGIN", "insertAfter",rdata.inserts[i].where);
+                    $(rdata.inserts[i].html).insertAfter(findPosition(rdata.inserts[i].where));
                     break;
 
                 case 'insertInto':
-                    debug.log("RATING PLUGIN", "insertInto",el);
-                    if (!$(el).hasClass('notfilled')) {
-                        $(el).html(rdata.inserts[i].html);
-                    }
+                    // insertInto is html to replace the contents of a div.
+                    // This will be a track listing for an album and we always return all tracks.
+                    debug.log("RATING PLUGIN", "insertInto",rdata.inserts[i].where);
+                    $("#"+rdata.inserts[i].where).html(rdata.inserts[i].html);
                     break;
 
                 case 'insertAtStart':
-                    debug.log("RATING PLUGIN", "insertAtStart",el);
-                    $(rdata.inserts[i].html).prependTo(el);
+                    // insertAtStart tells us to insert the html at the beginning of the specified dropdown.
+                    // In this case if the dropdown doesn't exist we must do nothing
+                    debug.log("RATING PLUGIN", "insertAtStart",rdata.inserts[i].where);
+                    $(rdata.inserts[i].html).prependTo($('#'+rdata.inserts[i].where));
                     break;
             }
             $(rdata.inserts[i].html).find('img[src="newimages/compact_disc.svg"]').each(function() {
@@ -455,23 +464,16 @@ function updateCollectionDisplay(rdata) {
     if (rdata && rdata.hasOwnProperty('deletedalbums')) {
         debug.debug("DELETED ALBUMS",rdata.deletedalbums);
         for (var i in rdata.deletedalbums) {
-            var d = $("#"+rdata.deletedalbums[i]);
-            if (d.length > 0) {
-                debug.log("REMOVING",rdata.deletedalbums[i]);
-                d.prev().remove();
-                d.remove();
-            }
+            debug.log("REMOVING",rdata.deletedalbums[i]);
+            $("#"+rdata.deletedalbums[i]).remove();
+            findPosition(rdata.deletedalbums[i]).remove();
         }
     }
     if (rdata && rdata.hasOwnProperty('deletedartists')) {
         debug.debug("DELETED ARTISTS",rdata.deletedartists);
         for (var i in rdata.deletedartists) {
-            var d = $("#"+rdata.deletedartists[i]);
-            if (d.length > 0) {
-                debug.log("REMOVING",rdata.deletedartists[i]);
-                d.prev().remove();
-                d.remove();
-            }
+            $("#"+rdata.deletedartists[i]).remove();
+            findPosition(rdata.deletedartists[i]).remove();
         }
     }
     if (rdata && rdata.hasOwnProperty('stats')) {
