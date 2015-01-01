@@ -80,7 +80,7 @@ function onCollectionClicked(event) {
     debug.log("CLICK",event);
     var clickedElement = findClickableElement(event);
     if (clickedElement.hasClass("menu")) {
-        if (clickedElement.parent().parent().hasClass('browseable')) {
+        if (clickedElement.parent().hasClass('browseable')) {
             doFileMenu(event, clickedElement);
         } else {
             doAlbumMenu(event, clickedElement, false);
@@ -316,13 +316,23 @@ function doFileMenu(event, element) {
     }
     var menutoopen = element.attr("name");
     if (element.isClosed()) {
+        var x = $('#'+menutoopen);
+        // If the dropdown doesn't exist then create it
+        if (x.length == 0) {
+            var c = 'dropmenu notfilled';
+            var t = $('<div>', {id: menutoopen, class: c}).insertAfter(element.parent());
+        }
+        element.toggleOpen();
         if ($('#'+menutoopen).hasClass("notfilled")) {
             if (prefs.player_backend == "mopidy") {
                 element.makeSpinner();
-                // Hack for browsing in search results
-                var l = element.parent().next().attr("name");
-                if (l === undefined) {
-                    l = decodeURIComponent(element.parent().parent().attr("name"))
+                // Hack for browsing in search results - the 'browseable' class is added to albums
+                // that are returned from search results with no tracks and therefore
+                // only exists in the search panel so that's how we know where we are
+                if (element.parent().hasClass('browseable')) {
+                    var l = decodeURIComponent(element.parent().attr("name"));
+                } else {
+                    var l = element.next().attr("name");
                 }
                 player.controller.browse(l, menutoopen, element);
             } else {
@@ -334,7 +344,6 @@ function doFileMenu(event, element) {
         } else {
             $('#'+menutoopen).menuReveal();
         }
-        element.toggleOpen();
     } else {
         $('#'+menutoopen).menuHide();
         element.toggleClosed();

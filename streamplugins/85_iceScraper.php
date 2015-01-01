@@ -120,12 +120,10 @@ if (array_key_exists('populate', $_REQUEST)) {
 <?php
 } else {
 ?>
-<div class="containerbox menuitem noselection">
+<div class="containerbox menuitem noselection multidrop">
 <?php
-print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" onclick="refreshMyDrink()" name="icecastlist"></i></div>';
-?>
-<?php
-print '<div class="fixed"><i class="icon-icecast smallcover-svg"></i></div>';
+print '<i class="icon-toggle-closed menu mh fixed" onclick="refreshMyDrink()" name="icecastlist"></i>';
+print '<i class="icon-icecast fixed smallcover-svg"></i>';
 print '<div class="expand">'.get_int_text('label_icecast').'</div>';
 ?>
 <i id="icewait" class="smallicon invisible"></i>

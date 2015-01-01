@@ -62,10 +62,10 @@ if (array_key_exists('populate', $_REQUEST)) {
 <?php
 } else {
 ?>
-<div class="containerbox menuitem noselection">
+<div class="containerbox menuitem noselection multidrop">
 <?php
-print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" name="yourradiolist"></i></div>';
-print '<div class="fixed"><i class="icon-radio-tower smallcover-svg"></i></div>';
+print '<i class="icon-toggle-closed mh menu fixed" name="yourradiolist"></i>';
+print '<i class="icon-radio-tower fixed smallcover-svg"></i>';
 print '<div class="expand">'.get_int_text('label_yourradio').'</div>';
 ?>
 </div>

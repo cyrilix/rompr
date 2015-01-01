@@ -222,22 +222,22 @@ function playerController() {
      		switch (protocol) {
      			case "spotify":
                     html = html + '<div class="containerbox menuitem">';
-     				html = html + '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" name="pholder'+c+'"></i></div>'+
+     				html = html + '<i class="icon-toggle-closed mh menu fixed" name="pholder'+c+'"></i>'+
 						        '<input type="hidden" name="'+this.uri+'">'+
-        				        '<div class="fixed"><i class="icon-spotify-circled smallicon"></i></div>'+
+        				        '<i class="icon-spotify-circled fixed smallicon"></i>'+
 						        '<div class="expand clickable clickloadplaylist">'+this.name+'</div>'+
-						        '</div>'+
-						        '<div id="pholder'+c+'" class="dropmenu notfilled"></div>';
+						        '</div>';
+						        // '<div id="pholder'+c+'" class="dropmenu notfilled"></div>';
 						        break;
                 case "radio-de":
                    html = html + '<div class="containerbox menuitem clickable clicktrack" name="'+this.uri+'">'+
-                                '<div class="fixed"><i class="icon-radio-tower smallicon"></i></div>'+
+                                '<i class="icon-radio-tower fixed smallicon"></i>'+
                                 '<div class="expand">'+this.name+'</div>'+
                                 '</div>';
                                 break;
 				default:
 		           html = html + '<div class="containerbox menuitem clickable clicktrack" name="'+this.uri+'">'+
-								'<div class="fixed"><i class="icon-folder-open-empty smallicon"><i></div>'+
+								'<i class="icon-folder-open-empty fixed smallicon"><i>'+
 						        '<div class="expand">'+this.name+'</div>'+
 						        '</div>';
 						        break;
@@ -503,20 +503,20 @@ function playerController() {
     					case "album":
     						var menuid = hex_md5(ref.uri);
     				        html = html + '<div class="containerbox menuitem">'+
-    				        '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" name="'+menuid+'"></i></div>'+
+    				        '<i class="icon-toggle-closed menu mh fixed" name="'+menuid+'"></i>'+
     				        '<input type="hidden" name="'+ref.uri+'">'+
-    				        '<div class="fixed"><i class="icon-folder-open-empty smallicon"></i></div>'+
+    				        '<i class="icon-folder-open-empty fixed smallicon"></i>'+
                             // Adding dirs and albums by uri doesn't work, library.lookup returns empty array
                             // '<div class="clickable clicktrack containerbox padright line expand" name="'+encodeURIComponent(ref.uri)+'">'+
                             '<div class="expand">'+ref.name+'</div>'+
                             // '</div>'+
-    				        '</div>'+
-    				        '<div id="'+menuid+'" class="dropmenu notfilled"></div>';
+    				        '</div>';
+    				        // '<div id="'+menuid+'" class="dropmenu notfilled"></div>';
     				        break;
     				    case "track":
                             if (!ref.name.match(/\[unplayable\]/)) {
         				        html = html + '<div class="clickable clicktrack ninesix indent containerbox padright line" name="'+encodeURIComponent(ref.uri)+'">'+
-        				        '<div class="fixed"><i class="icon-music smallicon"></i></div>'+
+        				        '<i class="icon-music fixed smallicon"></i>'+
         				        '<div class="expand">'+decodeURIComponent(ref.name)+'</div>'+
         				        '</div>';
                             }
@@ -524,14 +524,14 @@ function playerController() {
     					case "playlist":
                             var menuid = hex_md5(ref.uri);
                             html = html + '<div class="containerbox menuitem">'+
-                            '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" name="'+menuid+'"></i></div>'+
+                            '<i class="icon-toggle-closed mh menu fixed" name="'+menuid+'"></i>'+
                             '<input type="hidden" name="'+ref.uri+'">'+
-                            '<div class="fixed"><i class="icon-doc-text smallicon"></i></div>'+
+                            '<i class="icon-doc-text fixed smallicon"></i>'+
     				        '<div class="clickable clicktrack containerbox padright line expand" name="'+encodeURIComponent(ref.uri)+'">'+
     				        '<div class="expand">'+decodeURIComponent(ref.name)+'</div>'+
     				        '</div>'+
-                            '</div>'+
-                            '<div id="'+menuid+'" class="dropmenu notfilled"></div>';
+                            '</div>';
+                            // '<div id="'+menuid+'" class="dropmenu notfilled"></div>';
     				        break;
     				}
     			});
@@ -541,8 +541,8 @@ function playerController() {
 			$("#"+where).html(html);
 			if (where != "filecollection") {
             	$('#'+where).removeClass("notfilled");
-            	$('#'+where).menuReveal();
                 element.stopSpinner();
+            	$('#'+where).menuReveal();
             }
 		},
 		consoleError );

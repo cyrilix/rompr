@@ -227,7 +227,7 @@ button
     padding-left:8px;
     padding-right:0px;
     padding-top:0px;
-    padding-bottom:2px;
+    padding-bottom:4px;
 }
 
 .fullwidth
@@ -1735,4 +1735,10 @@ div.lyrics p
 
 .prefinput {
     width: 95%;
+}
+
+.multidrop
+{
+    margin-top:4px;
+    margin-bottom:4px;
 }

@@ -4,7 +4,7 @@ function download_file($src, $fname, $convert_path) {
     global $error;
 
     $download_file = "albumart/".$fname;
-    debug_print("   Downloading Image ".$src." to ".$fname,"GETALBUMCOVER");
+    debug_print("   Downloading Image ".$src." to ".$download_file,"GETALBUMCOVER");
 
     if (file_exists($download_file)) {
         unlink ($download_file);

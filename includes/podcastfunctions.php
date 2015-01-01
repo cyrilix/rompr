@@ -283,7 +283,7 @@ function doPodcast($c) {
     print '<i title="'.get_int_text("podcast_download_all").'" class="icon-download smallicon clickable clickicon podgroupload tleft fridge" name="podgroupload_'.$pm.'" style="margin-right:4px"></i>';
     print '<i title="'.get_int_text("podcast_mark_all").'" class="icon-headphones smallicon clickable clickicon podgrouplisten tleft fridge" name="podgrouplisten_'.$pm.'" style="margin-right:4px"></i>';
     print '</div>';
-    print '<div class="dropmenu bordered" id="podconf_'.$pm.'" style="margin-bottom:4px;';
+    print '<div class="dropmenu" id="podconf_'.$pm.'" style="margin-bottom:4px;';
     if ((array_key_exists('channel', $_REQUEST) && $_REQUEST['channel'] == $pm) &&
         array_key_exists('option', $_REQUEST)) {
         // Don't rehide the config panel if we're choosing something from it
@@ -407,9 +407,9 @@ function doPodcast($c) {
         print '<div class="clickable clicktrack item" name="'.htmlspecialchars_decode($item->link).'">';
         print '<div class="containerbox">';
         if ($item->new == "yes") {
-            print '<div class="fixed"><i title="'.get_int_text("podcast_tooltip_new").'" class="icon-sun newpodicon fridge"></i></div>';
+            print '<i title="'.get_int_text("podcast_tooltip_new").'" class="icon-sun fixed newpodicon fridge"></i>';
         } else if ($item->listened == "no") {
-            print '<div class="fixed"><i title="'.get_int_text("podcast_tooltip_notnew").'" class="icon-unlistened oldpodicon fridge"></i></div>';
+            print '<i title="'.get_int_text("podcast_tooltip_notnew").'" class="icon-unlistened fixed oldpodicon fridge"></i>';
         }
         print '<div class="podtitle expand">'.$item->title.'</div></div>';
         print '<div class="whatdoicallthis padright clearfix"><span class="tleft"><i>'.$item->pubdate.'</i></span>';
@@ -462,8 +462,8 @@ function doPodcastHeader($c) {
         $aa = $aa . ' - ';
     }
     print '<div class="containerbox menuitem">';
-    print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" name="podcast_'.$pm.'"></i></div>';
-    print '<div class="smallcover fixed"><img height="32px" width="32px" src="'.$y->image.'" /></div>';
+    print '<i class="icon-toggle-closed menu mh fixed" name="podcast_'.$pm.'"></i>';
+    print '<div class="smallcover fixed"><img class="smallcover" src="'.$y->image.'" /></div>';
     print '<div class="expand"><b>'.$aa.$y->album.'</b><span class="podnumber"></span><span></span></div>';
     print '</div>';
     print '<div id="podcast_'.$pm.'" class="indent dropmenu padright">';

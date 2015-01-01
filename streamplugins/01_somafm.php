@@ -23,8 +23,8 @@ if (array_key_exists('populate', $_REQUEST)) {
 
             print '<div class="containerbox menuitem">';
 
-            print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" name="somafm'.$count.'"></i></div>';
-            print '<div class="smallcover fixed"><img height="32px" width="32px" src="getRemoteImage.php?url='.$channel->image.'" /></div>';
+            print '<i class="icon-toggle-closed menu mh fixed" name="somafm'.$count.'"></i>';
+            print '<div class="smallcover fixed"><img class="smallcover" src="getRemoteImage.php?url='.$channel->image.'" /></div>';
 
             print '<div class="expand"><span style="font-size:110%">'.utf8_encode($channel->title).'</span>';
             if ($channel->genre) {
@@ -82,10 +82,10 @@ if (array_key_exists('populate', $_REQUEST)) {
 } else {
 
 ?>
-<div class="containerbox menuitem noselection">
+<div class="containerbox menuitem noselection multidrop">
 <?php
-print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" onclick="loadSomaFM()" name="somafmlist"></i></div>';
-print '<div class="fixed"><i class="icon-somafm smallcover-svg"></i></div>';
+print '<i class="icon-toggle-closed mh menu fixed" onclick="loadSomaFM()" name="somafmlist"></i>';
+print '<i class="icon-somafm fixed smallcover-svg"></i>';
 print '<div class="expand">'.get_int_text('label_somafm').'</div>';
 ?>
 <i id="somawait" class="smallicon invisible"></i>
@@ -105,7 +105,7 @@ function format_listenlink($c, $p, $label) {
         $img = (string) $c->image;
     }
     print '<div class="clickable clickstream indent containerbox padright menuitem" name="'.(string) $p.'" streamimg="getRemoteImage.php?url='.$img.'" streamname="'.$c->title.'">';
-    print '<div class="fixed"><i class="icon-radio-tower smallicon"></i></div>';
+    print '<i class="icon-radio-tower fixed smallicon"></i>';
     print '<div class="fixed">'.$label.'&nbsp;</div>';
     switch ($p[0]['format']) {
         case 'mp3':

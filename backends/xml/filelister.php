@@ -76,19 +76,19 @@ function doFileHTML($item) {
 	global $ipath;
     if ($item->type == 'directory') {
         print '<div class="clickable clickalbum draggable containerbox menuitem" name="'.$item->id.'">';
-        print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" name="'.$item->id.'"></i></div>';
-        print '<div class="fixed playlisticon"><i class="icon-folder-open-empty smallicon"></i></div>';
+        print '<i class="icon-toggle-closed menu mh fixed" name="'.$item->id.'"></i>';
+        print '<i class="icon-folder-open-empty fixed smallicon"></i>';
         print '<div class="expand">'.$item->name.'</div>';
         print '</div>';
-        print '<div id="'.$item->id.'" class="dropmenu notfilled"></div>';
+        // print '<div id="'.$item->id.'" class="dropmenu notfilled"></div>';
     } else if ($item->type == 'cue') {
         print '<div class="clickable clickcue ninesix draggable indent containerbox padright line" name="'.$item->url.'">';
-        print '<div class="fixed"><i class="icon-music smallicon"></i></div>';
+        print '<i class="icon-music fixed smallicon"></i>';
         print '<div class="expand">'.$item->name.'</div>';
         print '</div>';
     } else {
         print '<div class="clickable clicktrack ninesix draggable indent containerbox padright line" name="'.$item->url.'">';
-        print '<div class="fixed"><i class="icon-music smallicon"></i></div>';
+        print '<i class="icon-music fixed smallicon"></i>';
         print '<div class="expand">'.$item->name.'</div>';
         print '</div>';
     }

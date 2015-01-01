@@ -76,10 +76,10 @@ if (array_key_exists('populate', $_REQUEST)) {
 } else {
 
 ?>
-<div class="containerbox menuitem noselection">
+<div class="containerbox menuitem noselection multidrop">
 <?php
-print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" name="podcastslist"></i></div>';
-print '<div class="fixed"><i class="icon-podcast-circled smallcover-svg"></i></div>';
+print '<i class="icon-toggle-closed mh menu fixed" name="podcastslist"></i>';
+print '<i class="icon-podcast-circled fixed smallcover-svg"></i>';
 print '<div class="expand">'.get_int_text('label_podcasts').'<span id="total_unlistened_podcasts"></span><span></span></div>';
 ?>
 </div>

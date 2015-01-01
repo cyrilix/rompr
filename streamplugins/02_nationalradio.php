@@ -167,9 +167,9 @@ if (array_key_exists('populate', $_REQUEST)) {
             $imgname = getStationImage($track['title']);
             print '<div class="containerbox indent padright menuitem" style="padding-bottom:2px;padding-top:10px">';
             if ($imgname === null) {
-                print '<div class="fixed"><i class="icon-radio-tower smallcover-svg"></i></div>';
+                print '<i class="icon-radio-tower fixed smallcover-svg"></i>';
             } else {
-                print '<div class="smallcover fixed"><img class="smallcover fixed" src="'.$imgname.'" /></div>';
+                print '<div class="smallcover fixed"><img class="smallcover" src="'.$imgname.'" /></div>';
             }
             print '<div class="expand" style="margin-top:6px"><span style="font-size:120%">'.$track['title'].'</span></div>';
             print '</div>';
@@ -178,7 +178,7 @@ if (array_key_exists('populate', $_REQUEST)) {
             print '</div>';
             foreach ($track['links'] as $k) {
                 print '<div class="clickable clickstream indent containerbox padright menuitem" name="'.$k['url'].'" streamname="'.$track['title'].'" streamimg="'.$imgname.'">';
-                print '<div class="fixed"><i class="'.audioClass($k['type']).' smallicon"></i></div>';
+                print '<i class="'.audioClass($k['type']).' fixed smallicon"></i>';
                 print '<div class="expand">'.$k['text'].' '.$k['type'].'</div>';
                 print '</div>';
             }
@@ -191,10 +191,10 @@ if (array_key_exists('populate', $_REQUEST)) {
 } else {
 
 ?>
-<div class="containerbox menuitem noselection">
+<div class="containerbox menuitem noselection multidrop">
 <?php
-print '<div class="mh fixed"><i class="icon-toggle-closed menu fixed" onclick="loadBigRadio()" name="bbclist"></i></div>';
-print '<div class="fixed"><i class="icon-radio-tower smallcover-svg"></i></div>';
+print '<i class="icon-toggle-closed mh menu fixed" onclick="loadBigRadio()" name="bbclist"></i>';
+print '<i class="icon-radio-tower fixed smallcover-svg"></i>';
 print '<div class="expand">'.get_int_text('label_streamradio').'</div>';
 ?>
 <i id="bbcwait" class="smallicon invisible"></i>
