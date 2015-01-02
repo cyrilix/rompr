@@ -21,7 +21,7 @@ if ($is_connected) {
     for ($i = 0; $i < count($outputdata); $i++) {
         print '<tr><td>'.$outputdata[$i]['outputname'].'</td>';
         $icon = ($outputdata[$i]['outputenabled'] == 1) ? "on" : "off";
-        print '<td><div id="outputbutton'.$i.'" style="margin-left:12px" onclick="outputswitch('.$i.')" class="togglebutton clickicon icon-toggle-'$icon.'"></div></td></tr>';
+        print '<td><div id="outputbutton'.$i.'" style="margin-left:12px" onclick="outputswitch('.$i.')" class="togglebutton clickicon icon-toggle-'.$icon.'"></div></td></tr>';
     }
     print '</table>';
 }
