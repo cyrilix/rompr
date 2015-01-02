@@ -313,12 +313,6 @@ div.rightmenu.normalmenu
     left:-188px;
 }
 
-.icon-discogs.smallcover-svg
-{
-    height:32px;
-    width:78px;
-}
-
 .rating-icon-big
 {
     height: 20px;
@@ -408,3 +402,39 @@ div.rightmenu.normalmenu
     display:none;
     z-index:2000;
 }
+
+.menuitem
+{
+    font-weight:bold;
+    margin:0px;
+    padding-left:8px;
+    padding-right:0px;
+    padding-top:2px;
+    padding-bottom:2px;
+    box-align:center;
+    -moz-box-align:center;
+    -webkit-box-align:center;
+}
+
+.mh
+{
+    margin-right:6px;
+    display:block;
+    margin-top:2px;
+    margin-bottom:2px;
+}
+
+.menu
+{
+    width:14px;
+    height: 14px;
+    vertical-align:middle;
+    cursor:pointer;
+}
+
+.ninesix
+{
+    font-size:96%;
+    padding-top:2px;
+}
+

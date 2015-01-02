@@ -797,7 +797,7 @@ function Playlist() {
         this.header = function() {
             var html = "";
             html = html + '<div name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="item clickable clickplaylist sortable containerbox menuitem playlisttitle">';
-            var image = (tracks[0].image) ? tracks[0].image : "newimages/broadcast.png";
+            var image = (tracks[0].image) ? tracks[0].image : "newimages/broadcast.svg";
             html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" name="'+tracks[0].key+'"" src="'+image+'"/></div>';
             html = html + '<div class="containerbox vertical expand">';
             html = html + '<div class="line">'+tracks[0].creator+'</div>';

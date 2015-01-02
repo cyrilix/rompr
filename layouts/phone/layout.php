@@ -21,7 +21,7 @@ print '<i class="icon-volume-up topimg" onclick="showVolumeControl()"></i>';
 <div id="volumecontrol"><div id="volume"></div></div>
 </div>
 <?php
-print '<i id="choose_playlist" class="icon-doc-text topimg tleft" onclick="layoutProcessor.sourceControl(\'playlistm\')"></i>';
+print '<i id="choose_playlist" class="icon-doc-text topimg tleft playlistchoose" onclick="layoutProcessor.sourceControl(\'playlistm\')"></i>';
 print '<i class="icon-cog-alt topimg tleft" onclick="layoutProcessor.sourceControl(\'chooser\')"></i>';
 ?>
 </div>
@@ -127,7 +127,7 @@ foreach($sp as $p) {
             print '<div id="choose_albumlist" class="chooser"><a href="#" onclick="layoutProcessor.sourceControl(\'albumlist\')">'.get_int_text('button_local_music').'</a></div>';
             print '<div id="choose_filelist" class="chooser"><a href="#" onclick="layoutProcessor.sourceControl(\'filelist\')">'.get_int_text('button_file_browser').'</a></div>';
             print '<div id="choose_radiolist" class="chooser"><a href="#" onclick="layoutProcessor.sourceControl(\'radiolist\')">'.get_int_text('button_internet_radio').'</a></div>';
-            print '<div id="chooseplaylist" class="chooser"><a href="#" onclick="layoutProcessor.sourceControl(\'playlistm\')">'.get_int_text('button_playlist').'</a></div>';
+            print '<div id="chooseplaylist" class="chooser playlistchoose"><a href="#" onclick="layoutProcessor.sourceControl(\'playlistm\')">'.get_int_text('button_playlist').'</a></div>';
             print '<div class="chooser"><a href="#" onclick="layoutProcessor.sourceControl(\'playlistman\')">'.get_int_text('button_playman').'</a></div>';
             print '<div class="chooser"><a href="#" onclick="layoutProcessor.sourceControl(\'pluginplaylistholder\')">'.get_int_text('label_pluginplaylists').'</a></div>';
             print '<div class="chooser"><a href="#" onclick="layoutProcessor.sourceControl(\'prefsm\')">'.get_int_text('button_prefs').'</a></div>';

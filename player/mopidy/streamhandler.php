@@ -12,7 +12,7 @@ function is_stream($domain, $filedata) {
 	}
 }
 
-	// Mopidy Stream Handling Functions
+// Mopidy Stream Handling Functions
 function getStreamInfo($filedata, $domain) {
 
     list (  $track_found,
@@ -48,22 +48,26 @@ function getStreamInfo($filedata, $domain) {
             $album = array_key_exists('Album', $filedata) ? $filedata['Album'] : $album;
             $name = array_key_exists('Title', $filedata) ? $filedata['Title'] : "";
             $artist = array_key_exists('Artist', $filedata) ? $filedata['Artist'] : "";
+            $image = "newimages/podcast-logo.svg";
             $type = "podcast";
         }
 
         // Pretty up the images for some mopidy stream domains
         switch ($domain) {
-            case "tunein":
             case "radio-de":
             case "dirble":
             case "audioaddict":
-            case "oe1":
                 $image = "newimages/".$domain."-logo.png";
+                break;
+
+            case "oe1":
+            case "tunein":
+                $image = "newimages/".$domain."-logo.svg";
                 break;
 
             case "http":
                 if ($filedata['Title'] == 'Bassdrive - Worldwide Drum and Bass Radio') {
-                    $image = "newimages/bassdrive4.png";
+                    $image = "newimages/bassdrive-logo.svg";
                 }
                 break;
         }

@@ -165,7 +165,7 @@ if (array_key_exists('populate', $_REQUEST)) {
 
         if ($track['title'] && count($track['links']) > 0) {
             $imgname = getStationImage($track['title']);
-            print '<div class="containerbox indent padright menuitem" style="padding-bottom:2px;padding-top:10px">';
+            print '<div class="containerbox indent padright menuitem">';
             if ($imgname === null) {
                 print '<i class="icon-radio-tower fixed smallcover-svg"></i>';
             } else {
@@ -173,15 +173,17 @@ if (array_key_exists('populate', $_REQUEST)) {
             }
             print '<div class="expand" style="margin-top:6px"><span style="font-size:120%">'.$track['title'].'</span></div>';
             print '</div>';
-            print '<div class="containerbox indent padright bum">';
+            print '<div class="containerbox padright bum">';
             print '<div class="smallcoverpadder fixed"></div><div class="expand">'.implode(' ', $track['meta']).'</div>';
             print '</div>';
             foreach ($track['links'] as $k) {
                 print '<div class="clickable clickstream indent containerbox padright menuitem" name="'.$k['url'].'" streamname="'.$track['title'].'" streamimg="'.$imgname.'">';
+                print '<div class="smallicon fixed"></div>';
                 print '<i class="'.audioClass($k['type']).' fixed smallicon"></i>';
                 print '<div class="expand">'.$k['text'].' '.$k['type'].'</div>';
                 print '</div>';
             }
+            print '<div style="border-top:1px solid #999999"></div>';
         }
     }
 

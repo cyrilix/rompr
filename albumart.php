@@ -1038,8 +1038,8 @@ function do_radio_stations() {
                 if ($track->album) {
                     $artname = md5(" ".$track->album);
                     $class = "";
-                    $src = "newimages/broadcast.png";
-                    if ($track->image != "newimages/broadcast.png") {
+                    $src = "newimages/broadcast.svg";
+                    if ($track->image != "newimages/broadcast.svg") {
                         $src = $track->image;
                         if(($key = array_search($src, $allfiles)) !== false) {
                             unset($allfiles[$key]);

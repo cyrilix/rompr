@@ -404,17 +404,40 @@ h2
     margin-right:4px;
 }
 
+.menuitem
+{
+    font-weight:bold;
+    margin:0px;
+    padding-left:8px;
+    padding-right:0px;
+    padding-top:6px;
+    padding-bottom:6px;
+    box-align:center;
+    -moz-box-align:center;
+    -webkit-box-align:center;
+}
+
 .menu
 {
 	width:1.5em;
 	height:1.5em;
+    vertical-align:middle;
+    cursor:pointer;
 }
 
 .mh
 {
-    margin-right:1em;
+    margin-right:2em;
+    display:block;
     margin-top:0.5em;
     margin-bottom:0.5em;
+}
+
+.ninesix
+{
+    font-size:96%;
+    padding-top:4px;
+    padding-bottom:4px;
 }
 
 #amontobin
@@ -618,12 +641,6 @@ h2
     width:20px;
     font-size:20px;
     vertical-align:middle;
-}
-
-.icon-discogs.smallcover-svg
-{
-    height:32px;
-    width:78px;
 }
 
 .rating-icon-big

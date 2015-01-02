@@ -127,7 +127,7 @@ class album {
                 // sense to use them as track images. This is handled in the track
                 // object BUT $this->image will also be set to the same image because
                 // mopidy returns it as an album image, so this is a kind of hacky thing.
-                $image = "newimages/".$this->domain."-logo.png";
+                $image = "newimages/".$this->domain."-logo.svg";
                 break;
 
             case "internetarchive":
@@ -139,7 +139,7 @@ class album {
             case "podcast":
                 // Some podcasts return album images, which will be $this->image
                 // But not all of them do so we need a fallback.
-                if ($image == "") $image = "newimages/".$this->domain."-logo.png";
+                if ($image == "") $image = "newimages/".$this->domain."-logo.svg";
                 break;
         }
 
@@ -825,7 +825,7 @@ function getStuffFromXSPF($url) {
         "Unknown Internet Stream",
         getStreamFolder($url),
         "stream",
-        "newimages/broadcast.png",
+        "newimages/broadcast.svg",
         getDummyStation($url),
         "",
         ""

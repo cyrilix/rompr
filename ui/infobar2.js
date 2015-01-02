@@ -66,6 +66,15 @@ var infobar = function() {
         }
     }
 
+    function getRealUrl(url) {
+        var r = url.match(/getRemoteImage\.php\?url=(.*)/);
+        if (r && r[1]) {
+            return r[1];
+        } else {
+            return url;
+        }
+    }
+
     return {
         NOTIFY: 0,
         ERROR: 1,
@@ -219,6 +228,7 @@ var infobar = function() {
                 debug.log("ALBUMPICTURE","Image Loaded",$(this).attr("src"));
                 $("#albumpicture").attr('class', "clickicon");
                 $("#albumpicture").attr("src", $(this).attr("src")).fadeIn('fast');
+                $("#albumpicture").unbind('click');
                 $("#albumpicture").click(infobar.albumImage.displayOriginalImage);
                 infobar.biggerize();
             }
@@ -234,16 +244,27 @@ var infobar = function() {
 
             return {
                 setSource: function(data) {
-                    if (data.image === null || data.image == "") {
-                        // aImg.src = "newimages/compact_disc.svg";
+                    debug.log("ALBUMPICTURE","New source",data.image,"current is",aImg.src);
+                    if (data.image === null) {
+                        // null means playlist.emptytrack. Just fade it out in case we start playing the same album again - 
+                        // settings the source to the same url won't trigger the onload event
+                        $("#albumpicture").fadeOut('fast');
+                    } else if (data.image == "") {
+                        // No album image was supplied
                         $("#albumpicture").unbind('click');
                         $("#albumpicture").removeClass('clickicon');
                         $("#albumpicture").attr('class', "notexist");
+                        $("#albumpicture").attr('src','');
+                        if ($("#albumpicture").is(':hidden')) {
+                            $("#albumpicture").fadeIn('fast');
+                        }
                     } else {
-                        var re = new RegExp(data.image+'$');
-                        if (!re.test(aImg.src)) {
+                        var re = new RegExp(getRealUrl(data.image)+'$');
+                        if (!re.test(getRealUrl(aImg.src))) {
                             debug.log("ALBUMPICTURE","Source is being set to ",data.image);
                             aImg.src = data.image;
+                        } else if ($("#albumpicture").is(':hidden')) {
+                            $("#albumpicture").fadeIn('fast');
                         }
                     }
                 },
@@ -360,17 +381,15 @@ var infobar = function() {
             }
             if (info == playlist.emptytrack) {
                 debug.log("INFOBAR","Fading out Album Picture")
-                $("#albumpicture").fadeOut('fast');
                 $("#stars").fadeOut('fast');
                 $("#dbtags").fadeOut('fast');
                 $("#playcount").fadeOut('fast');
                 $("#subscribe").fadeOut('fast');
-                infobar.albumImage.setSource({ image: "" });
+                infobar.albumImage.setSource({ image: null });
             } else {
                 infobar.albumImage.setKey(info.key);
                 if (info.trackimage) {
                     infobar.albumImage.setSource({ image: info.trackimage });
-
                 } else {
                     infobar.albumImage.setSource({ image: info.image });
                 }

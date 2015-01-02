@@ -23,7 +23,7 @@ function setBottomPaneSize() {
             $("#nptext").detach().appendTo("#nowplayingfiddler");
             layoutProcessor.playlistInNowplaying = true;
             $("#playlistm").show().detach().prependTo("#nowplaying").removeClass('mainpane').css({width: "", left: ""});
-            $("#choose_playlist").hide();
+            $(".playlistchoose").hide();
             if (prefs.chooser == "playlistm") {
                 layoutProcessor.sourceControl("infobar");
             }
@@ -32,7 +32,7 @@ function setBottomPaneSize() {
             $("#nptext").detach().appendTo("#nowplaying");
             $("#nowplayingfiddler").css({height: "0px", "margin-bottom": "0px"});
             layoutProcessor.playlistInNowplaying = false;
-            $("#choose_playlist").show();
+            $(".playlistchoose").show();
         }
         t = ws.y - $("#patrickmoore").offset().top - $("#amontobin").outerHeight(true) - $("#nowplayingfiddler").outerHeight(true);
         $("#nowplaying").css({height: t+"px", width: hack+"px"});

@@ -75,7 +75,7 @@ if (array_key_exists('populate', $_REQUEST)) {
 			if ($link != "") {
 				$items->item($i)->nodeValue = "";
 				$f = $DOM->createDocumentFragment();
-				$f->appendXML('<p><i class="icon-no-response-playbutton medicon clickable clickicon clickstream" name="http://dir.xiph.org'.$link.'" streamimg="newimages/icecast.png"></i></p>');
+				$f->appendXML('<p><i class="icon-no-response-playbutton medicon clickable clickicon clickstream" name="http://dir.xiph.org'.$link.'" streamimg="newimages/icecast.svg"></i></p>');
 				$items->item($i)->appendChild($f);
 			}
 		}

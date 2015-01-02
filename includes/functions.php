@@ -751,7 +751,7 @@ function update_stream_playlist($url, $name, $image, $creator, $title, $type, $f
     $file = "";
     $found = false;
     $x = null;
-    if ($image === null) $image = "newimages/broadcast.png";
+    if ($image === null) $image = "newimages/broadcast.svg";
 
     $playlists = glob("prefs/*STREAM*.xspf");
     foreach($playlists as $i => $file) {
