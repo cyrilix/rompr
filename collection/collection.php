@@ -106,7 +106,6 @@ class album {
 
         // It is NOT used when creating the collection display - the images are read from
         // the database in that case.
-
         $image = "";
         $artname = $this->getKey();
         if ($this->image) {
@@ -136,10 +135,15 @@ class album {
                 // These are here because they're not classed as streams -
                 // domain will only be bassdrive or oe1 if this is an archive
                 // track, and those make more sense to display as albums.
+                if ($image == "") $image = "newimages/".$this->domain."-logo.svg";
+                break;
+
             case "podcast":
+            case "podcast+http":
+            case "podcast http":
                 // Some podcasts return album images, which will be $this->image
                 // But not all of them do so we need a fallback.
-                if ($image == "") $image = "newimages/".$this->domain."-logo.svg";
+                if ($image == "") $image = "newimages/podcast-logo.svg";
                 break;
         }
 
