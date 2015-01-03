@@ -122,8 +122,6 @@ var lastfmImporter = function() {
 			html = html + '<i class="icon-soundcloud-circled smallicon"></i>';
 		} else if (u.match(/youtube:/)) {
 			html = html + '<i class="icon-youtube-circled smallicon"></i>';
-		} else if (u.match(/leftasrain:/)) {
-			html = html + '<img class="smallicon" src="newimages/leftasrain.png" />';
 		} else if (u.match(/gmusic:/)) {
 			html = html + '<i class="icon-gmusic-circled smallicon"></i>';
 		}

@@ -54,14 +54,14 @@ function getStreamInfo($filedata, $domain) {
 
         // Pretty up the images for some mopidy stream domains
         switch ($domain) {
-            case "radio-de":
-            case "dirble":
             case "audioaddict":
                 $image = "newimages/".$domain."-logo.png";
                 break;
 
             case "oe1":
             case "tunein":
+            case "radio-de":
+            case "dirble":
                 $image = "newimages/".$domain."-logo.svg";
                 break;
 
