@@ -7,7 +7,7 @@ var prefsInLocalStorage = ["sourceshidden", "playlisthidden", "infosource", "pla
                             "shownupdatewindow", "scrolltocurrent", "volume", "alarm_ramptime", "alarm_snoozetime",
                             "lastfmlang", "user_lang", "fontsize", "fontfamily", "alarmtime", "alarmon", "synctags",
                             "synclove", "synclovevalue", "alarmramp", "radiomode", "radioparam", "onthefly",
-                            "theme", "icontheme"];
+                            "theme", "icontheme", "coversize"];
 
 <?php
 $searchlimits = array(  "local" => "Local Files",

@@ -1,23 +1,7 @@
-@font-face {
-  font-family: 'rompr';
-  src: url('rompr.eot?55361223');
-  src: url('rompr.eot?55361223#iefix') format('embedded-opentype'),
-       url('rompr.woff?55361223') format('woff'),
-       url('rompr.ttf?55361223') format('truetype'),
-       url('rompr.svg?55361223#rompr') format('svg');
+@font-face { font-family: 'rompr'; src: url('rompr.eot'); src: url('rompr.eot?#iefix') format('embedded-opentype'), url('rompr.woff') format('woff'), url('rompr.ttf') format('truetype'), url('rompr.svg') format('svg');
   font-weight: normal;
   font-style: normal;
 }
-/* Chrome hack: SVG is rendered more smooth in Windozze. 100% magic, uncomment if you need it. */
-/* Note, that will break hinting! In other OS-es font will be not as sharp as it could be */
-/*
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-  @font-face {
-    font-family: 'rompr';
-    src: url('../font/rompr.svg?55361223#rompr') format('svg');
-  }
-}
-*/
 
  [class^="icon-"]:before, [class*=" icon-"]:before {
   font-family: "rompr";
@@ -27,7 +11,6 @@
 
   display: inline-block;
   text-decoration: inherit;
-  margin-right: .2em;
   text-align: center;
 
   /* For safety - reset parent styles, that can break glyph codes*/
@@ -37,12 +20,6 @@
   /* fix buttons height, for twitter bootstrap */
   line-height: 1em;
 
-  /* Animation center compensation - margins should be symmetric */
-  /* remove if not needed */
-  margin-left: .2em;
-
-  /* Uncomment for 3D effect */
-  /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
 }
 
 [class^="icon-"], [class*=" icon-"] {
@@ -86,7 +63,7 @@
 .icon-wikipedia:before { content: '\e831'; } /* '' */
 .icon-musicbrainz:before { content: '\e833'; } /* '' */
 .icon-discogs {
-  background-image: url('discogs_logo.png');
+  background-image: url('discogs-logo.svg');
   display: inline-block;
 }
 .icon-doc-text-1:before { content: '\e825'; } /* '' */
@@ -120,8 +97,14 @@
 .icon-no-response-playbutton:before { content: '\e800'; } /* '' */
 .icon-tags:before { content: '\e845'; } /* '' */
 .icon-volume-up:before { content: '\e846'; } /* '' */
-.icon-toggle-open:before { content: '\e84d'; } /* '' */
-.icon-toggle-closed:before { content: '\e84c'; } /* '' */
+.icon-toggle-open:before { 
+  content: '\e83a';
+  -ms-transform: rotate(90deg); /* IE 9 */
+  -webkit-transform: rotate(90deg); /* Chrome, Safari, Opera */
+  transform: rotate(90deg);
+
+ } /* '' */
+.icon-toggle-closed:before { content: '\e83a'; } /* '' */
 .icon-spin6:before { content: '\e832'; } /* '' */
 
 .icon-0-stars {

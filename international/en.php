@@ -556,6 +556,7 @@ $languages['en'] = array (
 	"button_nextsource" => "Info Panel - Cycle Source",
 	"button_now_playing" => "Now Playing",
 	"button_infopanel" => "Info Panel",
+	"config_coversize" => "ALBUM COVER SIZE",
 
 	//CHANGED in 0.60
 	"config_country" => "COUNTRY (for Last.FM and Spotify)",

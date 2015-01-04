@@ -157,7 +157,14 @@ function playerController() {
         mopidy.on("event:trackPlaybackResumed", trackPlaybackResumed);
         mopidy.on("event:seeked", seeked);
 		mopidy.on("event:tracklistChanged", tracklistChanged);
+        mopidy.on("event:volumeChanged", volumeChanged);
 	}
+
+    function volumeChanged(v) {
+        debug.log("MOPIDY","Volume was changed to",v);
+        player.status.volume = v;
+        infobar.updateWindowValues();
+    }
 
 	function setStatusValues(tl_track) {
 		if (tl_track) {

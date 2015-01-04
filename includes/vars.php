@@ -93,7 +93,8 @@ $prefs = array( "mpd_host" => "localhost",
                 "sortcollectionby" => "artist",
                 "lowmemorymode" => false,
                 "alarm_ramptime" => 30,
-                "alarm_snoozetime" => 8
+                "alarm_snoozetime" => 8,
+                "coversize" => "10-Small.css"
                 );
 
 if (file_exists('prefs/prefs')) {

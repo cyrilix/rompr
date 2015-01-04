@@ -202,6 +202,11 @@ div.topdropmenu
     background-color:#e7e7e7;
 }
 
+.configtitle
+{
+    background-color:#f8f8f8;
+}
+
 .prefsection
 {
     border-bottom: 1px solid #cccccc;

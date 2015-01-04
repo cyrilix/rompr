@@ -483,7 +483,7 @@ var imageEditor = function() {
                 var phrase =  decodeURIComponent(where.prev('input').val());
                 var path =  where.prev('input').prev('input').val();
 
-                bigdiv.append($('<div>', { id: "searchcontent", style: "padding:8px"}));
+                bigdiv.append($('<div>', { id: "searchcontent" }));
                 bigdiv.append($('<div>', { id: "origimage"}));
 
                 $("#searchcontent").append( $('<div>', {id: "editcontrols", class: "fullwidth holdingcell"}),
@@ -500,7 +500,7 @@ var imageEditor = function() {
 
                 var uform =                 $('<form>', { id: 'uform', action: 'getalbumcover.php', method: 'post', enctype: 'multipart/form-data' }).appendTo($("#usearch"));
                 uform.append(               $('<input>', { id: 'imagekey', type: 'hidden', name: 'key', value: '' }),
-                                            $('<input>', { name: 'ufile', type: 'file', size: '80', class: 'tleft', style: 'color:#ffffff' }),
+                                            $('<input>', { name: 'ufile', type: 'file', size: '80', class: 'tleft' }),
                                             $('<input>', { type: 'button', class: 'tright', value: language.gettext("albumart_uploadbutton"), style: 'width:8em', onclick: "imageEditor.uploadFile()" }),
                                             '<div class="holdingcell"><p>'+language.gettext("albumart_dragdrop")+'</p></div>');
 
@@ -643,7 +643,7 @@ var imageEditor = function() {
 
             });
             $(".gimage").css("height", "120px");
-            $("#searchresultsholder").append('<div id="morebutton" style="width:80%;display:table" class="gradbutton bigbutton" onclick="imageEditor.search()"><b>'+language.gettext("albumart_showmore")+'</b></div>');
+            $("#searchresultsholder").append('<div id="morebutton" class="gradbutton bigbutton" onclick="imageEditor.search()"><b>'+language.gettext("albumart_showmore")+'</b></div>');
 
         },
 
@@ -677,7 +677,7 @@ var imageEditor = function() {
 
         showError: function(message) {
             $("#morebutton").remove();
-            $("#searchresults").append('<div id="morebutton" style="width:80%;display:table" class="gradbutton"><b>'+language.gettext("albumart_googleproblem")+' "'+message+'"</b></div>');
+            $("#searchresults").append('<div id="morebutton" class="gradbutton"><b>'+language.gettext("albumart_googleproblem")+' "'+message+'"</b></div>');
         },
 
         gotLocalImages: function(data) {
@@ -824,7 +824,7 @@ function uploadComplete(data) {
 <table width="100%">
 <?php
 print '<tr><td colspan="3"><h2>'.get_int_text("albumart_title").'</h2></td></tr>';
-print '<tr><td class="outer" id="totaltext"></td><td><div class="invisible" id="progress" style="font-size:12pt"></div></td><td class="outer" align="right"><button id="harold">'.get_int_text("albumart_getmissing").'</button></td></tr>';
+print '<tr><td class="outer" id="totaltext"></td><td><div class="invisible" id="progress"></div></td><td class="outer" align="right"><button id="harold">'.get_int_text("albumart_getmissing").'</button></td></tr>';
 print '<tr><td class="outer" id="infotext"></td><td align="center"><div class="inner" id="status">'.get_int_text("albumart_instructions").'</div></td><td class="outer" align="right"><button id="finklestein">'.
         get_int_text("albumart_onlyempty").'</button></td></tr>';
 ?>
@@ -833,13 +833,13 @@ print '<tr><td class="outer" id="infotext"></td><td align="center"><div class="i
 </div>
 <div id="wobblebottom">
 
-<div id="artistcoverslist" class="tleft noborder" style="width:20%">
+<div id="artistcoverslist" class="tleft noborder">
     <div class="noselection fullwidth">
 <?php
 if ($mysqlc || file_exists(ROMPR_XML_COLLECTION)) {
-    print '<div class="containerbox menuitem clickable clickselectartist selected" id="allartists"><div class="expand" style="padding-top:2px;padding-bottom:2px">'.get_int_text("albumart_allartists").'</div></div>';
-    print '<div class="containerbox menuitem clickable clickselectartist" id="radio"><div class="expand" style="padding-top:2px;padding-bottom:2px">'.get_int_text("label_yourradio").'</div></div>';
-    print '<div class="containerbox menuitem clickable clickselectartist" id="unused"><div class="expand" style="padding-top:2px;padding-bottom:2px">'.get_int_text("albumart_unused").'</div></div>';
+    print '<div class="containerbox menuitem clickable clickselectartist selected" id="allartists"><div class="expand" class="artistrow">'.get_int_text("albumart_allartists").'</div></div>';
+    print '<div class="containerbox menuitem clickable clickselectartist" id="radio"><div class="expand" class="artistrow">'.get_int_text("label_yourradio").'</div></div>';
+    print '<div class="containerbox menuitem clickable clickselectartist" id="unused"><div class="expand" class="artistrow">'.get_int_text("albumart_unused").'</div></div>';
     if ($mysqlc) {
         do_artists_db_style();
     } else {
@@ -849,7 +849,7 @@ if ($mysqlc || file_exists(ROMPR_XML_COLLECTION)) {
 ?>
     </div>
 </div>
-<div id="coverslist" class="tleft noborder" style="width:80%">
+<div id="coverslist" class="tleft noborder">
 
 <?php
 
@@ -896,7 +896,7 @@ function do_artists_xml_style() {
     foreach($collection->artists->artist as $artist) {
         print '<div class="containerbox menuitem clickable clickselectartist';
         print '" id="artistname'.$acount.'">';
-        print '<div class="expand" style="padding-top:2px;padding-bottom:2px">'.$artist->name.'</div>';
+        print '<div class="expand" class="artistrow">'.$artist->name.'</div>';
         print '</div>';
         $acount++;
     }
@@ -907,7 +907,7 @@ function do_artists_db_style() {
     foreach ($alist as $artist) {
         print '<div class="containerbox menuitem clickable clickselectartist';
         print '" id="artistname'.$artist['Artistindex'].'">';
-        print '<div class="expand" style="padding-top:2px;padding-bottom:2px">'.$artist['Artistname'].'</div>';
+        print '<div class="expand" class="artistrow">'.$artist['Artistname'].'</div>';
         print '</div>';
     }
 }
@@ -921,7 +921,7 @@ function do_covers_xml_style() {
     foreach($collection->artists->artist as $artist) {
         print '<div class="cheesegrater" name="artistname'.$acount.'">';
         print '<div class="albumsection crackbaby">';
-        print '<div class="tleft"><h2 style="margin:8px">'.$artist->name.'</h2></div><div class="tright rightpad"><button style="margin-top:8px" onclick="getNewAlbumArt(\'#album'.$count.'\')">'.get_int_text("albumart_getthese").'</button></div>';
+        print '<div class="tleft"><h2>'.$artist->name.'</h2></div><div class="tright rightpad"><button onclick="getNewAlbumArt(\'#album'.$count.'\')">'.get_int_text("albumart_getthese").'</button></div>';
         print "</div>\n";
         print '<div id="album'.$count.'" class="fullwidth bigholder">';
         print '<div class="containerbox covercontainer" id="covers'.$count.'">';
@@ -971,7 +971,7 @@ function do_covers_db_style() {
     foreach ($alist as $artist) {
         print '<div class="cheesegrater" name="artistname'.$artist['Artistindex'].'">';
         print '<div class="albumsection crackbaby">';
-        print '<div class="tleft"><h2 style="margin:8px">'.$artist['Artistname'].'</h2></div><div class="tright rightpad"><button style="margin-top:8px" onclick="getNewAlbumArt(\'#album'.$count.'\')">'.get_int_text("albumart_getthese").'</button></div>';
+        print '<div class="tleft"><h2>'.$artist['Artistname'].'</h2></div><div class="tright rightpad"><button onclick="getNewAlbumArt(\'#album'.$count.'\')">'.get_int_text("albumart_getthese").'</button></div>';
         print "</div>\n";
         print '<div id="album'.$count.'" class="fullwidth bigholder">';
         print '<div class="containerbox covercontainer" id="covers'.$count.'">';
@@ -1024,7 +1024,7 @@ function do_radio_stations() {
     if (count($playlists) > 0) {
         print '<div class="cheesegrater" name="radio">';
         print '<div class="albumsection crackbaby">';
-        print '<div class="tleft"><h2 style="margin:8px">Radio Stations</h2></div><div class="tright rightpad"><button style="margin-top:8px" onclick="getNewAlbumArt(\'#album'.$count.'\')">'.get_int_text("albumart_getthese").'</button></div>';
+        print '<div class="tleft"><h2>Radio Stations</h2></div><div class="tright rightpad"><button onclick="getNewAlbumArt(\'#album'.$count.'\')">'.get_int_text("albumart_getthese").'</button></div>';
         print "</div>\n";
         print '<div id="album'.$count.'" class="fullwidth bigholder">';
 
@@ -1078,7 +1078,7 @@ function do_unused_images() {
     global $allfiles;
     print '<div class="cheesegrater" name="unused">';
     print '<div class="albumsection crackbaby">';
-    print '<div class="tleft"><h2 style="margin:8px">'.count($allfiles).' '.get_int_text("albumart_unused").'</h2></div><div class="tright rightpad"><button style="margin-top:8px" onclick="removeUnusedFiles()">'.get_int_text("albumart_deletethese").'</button></div>';
+    print '<div class="tleft"><h2>'.count($allfiles).' '.get_int_text("albumart_unused").'</h2></div><div class="tright rightpad"><button onclick="removeUnusedFiles()">'.get_int_text("albumart_deletethese").'</button></div>';
     print "</div>\n";
     print '<div id="unusedimages" class="fullwidth bigholder">';
     print '<div class="containerbox covercontainer">';

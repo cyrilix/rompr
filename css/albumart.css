@@ -36,6 +36,7 @@
     -webkit-box-flex:100.0; /* Safari and Chrome */
     box-flex:100.0;
     width:2000px; /* Firefox will ONLY shrink elements in a box layout, not expand them */
+    padding:8px;
 }
 
 #brian {
@@ -57,4 +58,45 @@
     border-left: 4px solid #fe6500;
     border-right: 4px solid #fe6500;
     left:-4px;
+}
+
+#artistcoverslist
+{
+    overflow-y:auto;
+    height:100%;
+    width:20%;
+}
+
+#coverslist
+{
+    overflow-y:auto;
+    height:100%;
+    width:80%;
+}
+
+#progress
+{
+    font-size:12pt;
+}
+
+.artistrow
+{
+    padding-top:2px;
+    padding-bottom:2px;
+}
+
+.albumsection .tleft h2
+{
+    margin:8px;
+}
+
+.albumsection .tleft button
+{
+    margin-top:8px;
+}
+
+#morebutton
+{
+    width:80%;
+    display:table;
 }

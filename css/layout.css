@@ -5,6 +5,8 @@ body
     font-size:8pt;
     margin:0px;
     overflow:hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 body,p,h1,h2,h3,h4,table,td,th,ul,ol,textarea,input
@@ -107,9 +109,29 @@ button
     margin-bottom:8px;
 }
 
-.prefsection
+.configtitle
 {
-    padding-bottom:8px;
+    padding-top:2px;
+    padding-bottom:4px;
+    margin-bottom:4px;
+    font-size:110%;
+}
+
+.pref span
+{
+    display:inline-block;
+    width:40%;
+    padding-right:6px;
+}
+
+.pref b
+{
+    display:block;
+}
+
+.pref select
+{
+    width: 50%;
 }
 
 .tright
@@ -199,6 +221,21 @@ button
     padding-right:0px;
     padding-top:0px;
     padding-bottom:4px;
+}
+
+.dropmenu.marged
+{
+    margin-bottom:4px;
+}
+
+.dropmenu.visible
+{
+    display:block;
+}
+
+.bumpad
+{
+  padding-bottom:4px;
 }
 
 .fullwidth
@@ -668,18 +705,6 @@ table.motherfucker tr td
 #wobblebottom
 {
     height:80%;
-}
-
-#artistcoverslist
-{
-    overflow-y:auto;
-    height:100%;
-}
-
-#coverslist
-{
-    overflow-y:auto;
-    height:100%;
 }
 
 .popupwindow
@@ -1706,4 +1731,14 @@ div.lyrics p
 {
     margin-top:4px;
     margin-bottom:4px;
+}
+
+.podoptions
+{
+  margin-top:4px;
+}
+
+.podoptions td
+{
+    vertical-align:middle;
 }

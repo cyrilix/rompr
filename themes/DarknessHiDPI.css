@@ -1,8 +1,21 @@
-body
-{
-    color:#000000;
-    background-color:#181818;
+
+html {
+  background: #101010 url("bg.jpg");
+  background-image: -webkit-radial-gradient(50% 150px, circle cover, rgba(200, 125, 0, 0.0980392) 12%, rgba(0, 0, 0, 0.2) 51%), url("bg.jpg");
+  background-image: -moz-radial-gradient(50% 150px, circle cover, rgba(200, 125, 0, 0.0980392) 12%, rgba(0, 0, 0, 0.2) 51%), url("bg.jpg");
+  background-image: -ms-radial-gradient(50% 150px, circle cover, rgba(200, 125, 0, 0.0980392) 12%, rgba(0, 0, 0, 0.2) 51%), url("bg.jpg");
+  background-image: -o-radial-gradient(50% 150px, circle cover, rgba(200, 125, 0, 0.0980392) 12%, rgba(0, 0, 0, 0.2) 51%), url("bg.jpg");
+  background-image: radial-gradient(50% 150px, circle cover, rgba(200, 125, 0, 0.0980392) 12%, rgba(0, 0, 0, 0.2) 51%), url("bg.jpg");
+  background-repeat: no-repeat, repeat;
+  background-attachment: fixed;
+  min-height: 100%;
 }
+
+span.controlbutton:hover {
+    text-shadow: 0 0 15px #F19700;
+    color: #FFF;
+}
+
 
 body,p,h1,h2,h3,h4,table,td,th,ul,ol,textarea,input
 {
@@ -55,19 +68,37 @@ a:hover,a:active
     color:#ff4800;
 }
 
-#headerbar
-{
-    background-color:#181818;
-}
-
 /*-- divs used to create infobar layout --*/
 
 .bordered
 {
-    border-left:1px solid #000000;
     border-bottom:1px solid #343434;
-    border-right:1px solid #343434;
-    border-top:1px solid #000000;
+}
+.infobarlayout
+{
+    margin: 0px;
+    padding-right: 12px;
+}
+
+#volumecontrol
+{
+    height:98%;
+    width:18px;
+}
+.progressbar_v
+{
+    width:auto;
+    border-radius:5px;
+}
+.progressbar_v:hover
+{
+    border-color:#666;
+    box-shadow: 0 0 15px #666;
+}
+.progressbar:hover
+{
+    border-color:#666;
+    box-shadow: 0 0 15px #666;
 }
 
 #notifications
@@ -169,6 +200,7 @@ div.clickable.selected:hover
 .infowiki
 {
     background-color:#181818;
+    background-color:rgba(24, 24, 24, 0.4);
 }
 
 .infoslideshow

@@ -195,6 +195,12 @@ div.topdropmenu
     border-top:none;
 }
 
+.configtitle
+{
+    background-image:url('../newimages/silver1.jpg');
+}
+
+
 .prefsection
 {
     border-bottom: 1px solid #ffffff;

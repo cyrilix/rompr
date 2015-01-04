@@ -1,30 +1,51 @@
 #buttons
 {
-    padding-left:40px;
-    /*padding-right:8px;*/
+    padding-left:24px;
+    padding-right:24px;
     padding-top:4px;
     padding-bottom:6px;
 }
 
-.controlbutton
+.controlbutton,.controlbutton-small
 {
     margin:0px;
     padding:0px;
-    font-size:48px;
-    vertical-align:text-bottom;
-    display:table-cell;
-}
-
-.controlbutton-small
-{
-    margin:0px;
-    padding-bottom:8px;
-    font-size:32px;
+    font-size:38px;
     vertical-align:bottom;
     display:table-cell;
 }
 
+.controlbutton:hover,.controlbutton-small:hover
+{
+    color: #FFF;
+    text-shadow: 0 0 15px #C16700;
+    
+}
+
+.controlbutton:before
+{
+    margin-top:0px;
+    margin-bottom:0px;
+    margin-left:2px;
+    margin-right:2px;    
+}
+
+.controlbutton-small:before
+{
+    margin-top:0px;
+    margin-bottom:0px;
+    margin-left:2px;
+    margin-right:2px;        
+}
+
 @media screen and (min-height: 1000px) and (max-height: 1199px) {
+    .controlbutton {
+        font-size:44px;
+    }
+    .controlbutton-small {
+        font-size:38px;
+        padding-bottom:2px;
+    }
     #buttons {
         padding-top:14px;
     }
@@ -36,7 +57,7 @@
     }
     .controlbutton-small {
         font-size:38px;
-        padding-bottom:8px;
+        padding-bottom:10px;
     }
     #buttons {
         padding-top:20px;
@@ -49,30 +70,6 @@
     }
 }
 
-.shiftleft
-{
-    position:relative;
-    left:-12px;
-}
-
-.shiftleft2
-{
-    position:relative;
-    left:-24px;
-}
-
-.shiftleft3
-{
-    position:relative;
-    left:-32px;
-}
-
-.shiftleft4
-{
-    position:relative;
-    left:-40px;
-}
-
 /* Nasty nasty hacky hacky for where we're using a png icon
    for discogs because if we don't do this it throws
    the alignment out and the spinners don't work */
@@ -80,10 +77,40 @@
 .icon-discogs.smallcover-svg:before
 {
   height:32px;
-  width:78px;
+  width:32px;
 }
 
-.menu
+#headerbar:hover i.topimg:before
 {
-    font-size:140%;
+    text-shadow:0 0 3px #AAA;
+    opacity:0.2;
 }
+#headerbar i.topimg:hover:before
+{
+    opacity:1;
+    text-shadow:0 0 15px #C16700;
+}
+
+
+/*i.topimg:before
+{
+    transition:all 0.2s;
+}
+
+#headerbar i.topimg:hover:before 
+{
+    font-size:150%;
+    transition:all 0.3s;
+    line-height:50%;
+}
+*/
+.topimg
+{
+  margin-top:0px;
+}
+
+.progressbar
+{
+   border-radius: 0.4em;
+}
+

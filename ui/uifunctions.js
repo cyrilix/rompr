@@ -40,6 +40,10 @@ function saveSelectBoxes(event) {
             prefobj.country_userset = true;
             break;
 
+        case "coversize":
+            $("#albumcoversize").attr({href: "coversizes/"+$("#coversizeselector").val()});
+            break;
+
     }
     prefs.save(prefobj, callback);
 }

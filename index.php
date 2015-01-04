@@ -161,6 +161,7 @@ foreach($inc as $i) {
 <link rel="stylesheet" id="fontfamily" type="text/css" />
 <link rel="stylesheet" id="icontheme-theme" type="text/css" />
 <link rel="stylesheet" id="icontheme-adjustments" type="text/css" />
+<link rel="stylesheet" id="albumcoversize" type="text/css" />
 <!-- JQuery : http://jquery.com -->
 <script type="text/javascript" src="jquery/jquery-1.8.3-min.js"></script>
 <!-- JQuery AJAX form plugin : http://malsup.com/jquery/form/ -->
@@ -218,6 +219,7 @@ $("#fontsize").attr("href", "sizes/"+prefs.fontsize);
 $("#fontfamily").attr("href", "fonts/"+prefs.fontfamily);
 $("#icontheme-theme").attr("href", "iconsets/"+prefs.icontheme+"/theme.css");
 $("#icontheme-adjustments").attr("href", "iconsets/"+prefs.icontheme+"/adjustments.css");
+$("#albumcoversize").attr("href", "coversizes/"+prefs.coversize);
 
 function aADownloadFinished() {
     debug.log("INDEX","Album Art Download Has Finished");

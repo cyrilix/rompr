@@ -270,9 +270,13 @@ div.topdropmenu
     border-right:1px solid #9a9a9a;
 }
 
-.prefsection
+.configtitle
 {
-    border-bottom: 1px solid #ffffff;
+    background-image: linear-gradient(#E5E5E5, #b3b3b3);
+    background-image: -o-linear-gradient(#E5E5E5, #b3b3b3);
+    background-image: -moz-linear-gradient(#E5E5E5, #b3b3b3);
+    background-image: -webkit-linear-gradient(#E5E5E5, #b3b3b3);
+    background-image: -ms-linear-gradient(#E5E5E5, #b3b3b3);
 }
 
 .separator
