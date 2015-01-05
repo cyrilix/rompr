@@ -34,8 +34,6 @@ function getPanelWidths() {
     return ({infopane: browserwidth, sources: sourceswidth, playlist: playlistwidth});
 }
 
-/* Testing SVN Client */
-
 function expandInfo(side) {
     switch(side) {
         case "left":
@@ -99,7 +97,7 @@ jQuery.fn.animatePanel = function(options) {
                     if (opanel == "infopane") browser.rePoint();
                     if (opanel.match(/controls/)) {
                         setExpandIcons();
-                        setTopIconSize();
+                        setTopIconSize(["#"+opanel]);
                     }
                 }
             }
@@ -115,8 +113,9 @@ function doThatFunkyThang() {
     $("#infopanecontrols").css("width", widths.infopane+"%");
     $("#playlist").css("width", widths.playlist+"%");
     $("#playlistcontrols").css("width", widths.playlist+"%");
-    setTopIconSize();
-    browser.rePoint();
+    // Sadly, Firefox is just too damn slow for this to work
+    // Why can't everyone just use Chrome?
+    // if (isChrome) setTopIconSize();
 }
 
 function hideBrowser() {
@@ -140,21 +139,22 @@ function setBottomPaneSize() {
     var newheight = ws.y - $("#bottompage").offset().top;
     $("#bottompage").css("height", newheight+"px");
     layoutProcessor.setPlaylistHeight();
-    setTopIconSize();
+    setTopIconSize(["#sourcescontrols", "#infopanecontrols", "#playlistcontrols"]);
     infobar.rejigTheText();
     browser.rePoint();
 }
 
-function setTopIconSize() {
-    var imw = (parseInt($('.topimg').css('margin-left')) + parseInt($('.topimg').css('margin-right')));
-    ["#sourcescontrols", "#infopanecontrols", "#playlistcontrols"].forEach( function(div) {
+function setTopIconSize(panels) {
+    var imw = (parseInt($('.topimg').first().css('margin-left')) + parseInt($('.topimg').first().css('margin-right')));
+    panels.forEach( function(div) {
         if ($(div).is(':visible')) {
-            var numicons = $(div+" .topimg").length;
+            var icons = $(div+" .topimg");
+            var numicons = icons.length;
             var mw = imw*numicons;
             var iw = Math.floor(($(div).width() - mw)/numicons);
             if (iw > 24) iw = 24;
             if (iw < 2) iw = 2;
-            $(div+" .topimg").css({width: iw+"px", height: iw+"px", "font-size": (iw-2)+"px"});
+            icons.css({width: iw+"px", height: iw+"px", "font-size": (iw-2)+"px"});
         }
     });
 }
@@ -300,12 +300,15 @@ function srDrag(event, ui) {
         prefs.playlistwidthpercent = 100 - prefs.sourceswidthpercent;
     }
     doThatFunkyThang();
+    setTopIconSize(["#sourcescontrols", "#infopanecontrols"]);
     $(this).data('draggable').position.left = 0;
 }
 
 function srDragStop(event, ui) {
+    setTopIconSize(["#sourcescontrols", "#infopanecontrols", "#playlistcontrols"]);
+    browser.rePoint();
     prefs.save({sourceswidthpercent: prefs.sourceswidthpercent});
-    prefs.save({playlistwidthpercent: prefs.playlistwidthpercent})
+    prefs.save({playlistwidthpercent: prefs.playlistwidthpercent});
 }
 
 function prDrag(event, ui) {
@@ -316,10 +319,13 @@ function prDrag(event, ui) {
         prefs.sourceswidthpercent = 100 - prefs.playlistwidthpercent;
     }
     doThatFunkyThang();
+    setTopIconSize(["#infopanecontrols", "#playlistcontrols"]);
     $(this).data('draggable').position.left = 0;
 }
 
 function prDragStop(event, ui) {
+    setTopIconSize(["#sourcescontrols", "#infopanecontrols", "#playlistcontrols"]);
+    browser.rePoint();
     prefs.save({sourceswidthpercent: prefs.sourceswidthpercent});
     prefs.save({playlistwidthpercent: prefs.playlistwidthpercent})
 }
@@ -457,6 +463,7 @@ function initUI() {
     } );
 
 }
+
 
 var layoutProcessor = function() {
 

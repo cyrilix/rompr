@@ -229,7 +229,7 @@ var playlist = new Playlist();
 var player = new multiProtocolController();
 var lastfm = new LastFM(prefs.lastfm_user);
 var coverscraper = new coverScraper(0, false, false, prefs.downloadart);
-
+var isChrome = isChrome();
 </script>
 
 <?php

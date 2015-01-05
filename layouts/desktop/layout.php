@@ -107,7 +107,7 @@ print '<i class="icon-angle-double-right tooltip topimg fixed topbox" title="'.g
 
 <div id="playlistcontrols" class="column noborder tleft containerbox headercontainer">
 <?php
-print '<div class="expand topbox"><i id="playlistresizer" class="icon-resize-horizontal topimg" style="cursor:move"></i></div>';
+print '<div class="expand"><i id="playlistresizer" class="icon-resize-horizontal topimg topbox" style="cursor:move"></i></div>';
 ?>
 <div class="fixed topbox" id="righthandtop">
 

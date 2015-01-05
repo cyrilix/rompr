@@ -257,3 +257,14 @@ String.prototype.capitalize = function() {
 String.prototype.initcaps = function() {
     return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
 }
+
+function isChrome(){
+    var windowChrome = !!window.chrome;
+    if(!windowChrome){
+        // Chrome iOS specific test
+        var pattern = /crios/i;
+        return pattern.test(window.navigator.userAgent);
+    }else{
+        return windowChrome;
+    }
+}
