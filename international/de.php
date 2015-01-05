@@ -40,13 +40,6 @@ $languages['de'] = array (
 	"button_volume" => "Ziehen um Lautstärke einzustellen",
 	"button_closewindow" => "Fenster schließen",
 
-	// Titles for drop-down menus
-	"menu_history" => "HISTORY",
-	"menu_config" => "KONFIGURATION",
-	"menu_clearplaylist" => "LÖSCHE PLAYLIST",
-	"menu_saveplaylist" => "SICHERE PLAYLIST UNTER",
-	"menu_playlists" => "PLAYLISTS",
-
 	// Configuration menu entries
 	"config_language" => "SPRACHE",
 	"config_theme" => "AUSSEHEN",

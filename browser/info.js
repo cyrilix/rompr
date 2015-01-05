@@ -124,7 +124,7 @@ var browser = function() {
 
         var html;
         var bits = ["artist","album","track"];
-        html = '<div class="prefsection textcentre"><b>'+language.gettext("menu_history")+'</b></div>';
+        html = '<div class="configtitle textcentre"><b>'+language.gettext("button_history")+'</b></div>';
         html = html + '<table class="histable" width="100%">';
         for (var i = 1; i < history.length; i++) {
             var clas="top";

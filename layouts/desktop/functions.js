@@ -493,7 +493,7 @@ var layoutProcessor = function() {
             $("#chooserbuttons").append($('<i>', {
                 onclick: "browser.switchsource('"+name+"')",
                 title: language.gettext(obj.text),
-                class: obj.icon+' topimg sep dildo',
+                class: obj.icon+' topimg sep dildo fixed',
                 id: "button_source"+name
             }));
         },

@@ -1,4 +1,9 @@
 .smallcover
 {
-	width:48px;
+	width:44px;
+}
+
+#sortable .smallcover
+{
+	width: 64px;
 }

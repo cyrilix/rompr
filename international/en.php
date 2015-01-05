@@ -40,13 +40,6 @@ $languages['en'] = array (
 	"button_volume" => "Drag to change volume",
 	"button_closewindow" => "Close Window",
 
-	// Titles for drop-down menus
-	"menu_history" => "HISTORY",
-	"menu_config" => "CONFIGURATION",
-	"menu_clearplaylist" => "CLEAR PLAYLIST",
-	"menu_saveplaylist" => "SAVE PLAYLIST AS",
-	"menu_playlists" => "PLAYLISTS",
-
 	// Configuration menu entries
 	"config_language" => "LANGUAGE",
 	"config_theme" => "THEME",

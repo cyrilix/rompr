@@ -140,7 +140,7 @@ foreach($sp as $p) {
 
         <div id="pluginplaylistholder" class="containerbox vertical scroller mainpane invisible">
 <?php
-        print '<div class="containerbox spacer prefsection"><div class="expand textcentre"><b>'.get_int_text('label_pluginplaylists').'</b></div></div>';
+        print '<div class="containerbox spacer configtitle"><div class="expand textcentre"><b>'.get_int_text('label_pluginplaylists').'</b></div></div>';
 ?>
         <div class="pref"><div id="pluginplaylists"></div></div>
         </div>
@@ -148,7 +148,7 @@ foreach($sp as $p) {
         <div id="playlistman" class="noborder scroller mainpane invisible">
             <div class="pref containerbox dropdown-container"><div class="fixed padright">
 <?php
-                print get_int_text('menu_saveplaylist');
+                print get_int_text('button_saveplaylist');
 ?>
                 </div><div class="expand"><input id="playlistname" type="text" size="200"/></div>
 <?php
@@ -158,7 +158,7 @@ foreach($sp as $p) {
             <div class="pref">
                 <div id="playlistslist">
 <?php
-                    print '<div class="prefsection textcentre"><b>'.get_int_text("menu_playlists").'</b></div>';
+                    print '<div class="configtitle textcentre"><b>'.get_int_text("button_loadplaylist").'</b></div>';
                     print '<div id="storedplaylists"></div>';
 ?>
                 </div>

@@ -30,12 +30,6 @@ h2
     margin-bottom:12px;
 }
 
-.prefsection
-{
-    padding-bottom:4px;
-    border-bottom: 1px solid #dddddd;
-}
-
 #headerbar
 {
     height:32px;
@@ -416,9 +410,11 @@ h2
     padding-right:0px;
     padding-top:6px;
     padding-bottom:6px;
-    box-align:center;
+/*    box-align:center;
     -moz-box-align:center;
+*/    
     -webkit-box-align:center;
+    align-items: center;
 }
 
 .menu
@@ -583,9 +579,11 @@ h2
 
 .info-detail-layout
 {
-    -moz-box-orient:vertical;
-    -webkit-box-orient:vertical;
+/*    -moz-box-orient:vertical;
     box-orient:vertical;
+*/    
+    -webkit-box-orient:vertical;
+    flex-direction: column;
 }
 
 .info-box-fixed

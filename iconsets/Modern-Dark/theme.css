@@ -40,6 +40,10 @@
 .icon-doc-text { background-image: url('playlist.svg') }
 .icon-floppy { background-image: url('document-save.svg') }
 .icon-cancel-circled { background-image: url('edit-delete.svg') }
+.icon-plus { 
+	background-image: url('add.svg');
+  	opacity:0.7;
+}
 .icon-alarm { background-image: url('alarmclock_false.svg') }
 .icon-alarm-on { background-image: url('alarmclock_true.svg') }
 .icon-library { background-image: url('file.svg') }

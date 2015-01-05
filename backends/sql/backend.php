@@ -323,8 +323,12 @@ function checkImage($imagekey) {
 
 function increment_value($ttid, $attribute, $value) {
 
-	debug_print("Incrementing ".$attribute." by ".$value." for TTID ".$ttid, "MYSQL");
-	if ($stmt = sql_prepare_query("UPDATE ".$attribute."table SET ".$attribute."=".$attribute."+? WHERE TTindex=?", $value, $ttid)) {
+	// Increment_value doesn't 'increment' as such - it's used for setting values on tracks without
+	// unhiding them. It's used for Playcount, which was originally an 'increment' type function but
+	// that changed because multiple rompr instances cause multiple increments
+
+	debug_print("(Increment) Setting ".$attribute." to ".$value." for TTID ".$ttid, "MYSQL");
+	if ($stmt = sql_prepare_query("UPDATE ".$attribute."table SET ".$attribute."=? WHERE TTindex=?", $value, $ttid)) {
 		if ($stmt->rowCount() == 0) {
 			debug_print("  Update affected 0 rows, creating new value","MYSQL");
 			if ($stmt = sql_prepare_query("INSERT INTO ".$attribute."table (TTindex, ".$attribute.") VALUES (?, ?)", $ttid, $value)) {

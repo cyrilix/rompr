@@ -4,9 +4,12 @@
 
 .info-box-fixed
 {
-    -moz-box-flex:0; /* Firefox */
-    -webkit-box-flex:0; /* Safari and Chrome */
+/*    -moz-box-flex:0;
     box-flex:0;
+*/
+    -webkit-box-flex:0;
+    flex-grow: 0;
+    flex-shrink:0;
 }
 
 .info-border-right {
@@ -17,10 +20,15 @@
 
 .info-box-expand
 {
-    -moz-box-flex:1.0; /* Firefox */
-    -webkit-box-flex:1.0; /* Safari and Chrome */
+/*    -moz-box-flex:1.0;
     box-flex:1.0;
-    width:2000px; /* Firefox will ONLY shrink elements in a box layout, not expand them */
+    width:2000px;
+*/    
+    -webkit-box-flex:1.0;
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: auto;
+
 }
 
 .cleft {
@@ -411,9 +419,11 @@ div.rightmenu.normalmenu
     padding-right:0px;
     padding-top:2px;
     padding-bottom:2px;
-    box-align:center;
+/*    box-align:center;
     -moz-box-align:center;
+*/
     -webkit-box-align:center;
+    align-items: center;
 }
 
 .mh

@@ -96,6 +96,9 @@ switch ($_POST['action']) {
 		break;
 
 	case 'inc':
+		// NOTE : 'inc' does not do what you might expect.
+		// This is not an 'increment' function, it still does a SET but it will create a hidden track
+		// if the track can't be found, compare to SET which creates a new unhidden track.
 		if ($artist === null ||
 			$title === null ||
 			$attributes == null) {
@@ -138,7 +141,7 @@ switch ($_POST['action']) {
 			foreach ($ttids as $ttid) {
 				debug_print("Doing an INCREMENT action - Found TTID ".$ttid,"USERRATING");
 				foreach ($attributes as $pair) {
-					debug_print("Incrementing ".$pair["attribute"]." by ".$pair["value"],"USERRATING");
+					debug_print("Setting ".$pair["attribute"]." to ".$pair["value"],"USERRATING");
 					increment_value($ttid, $pair["attribute"], $pair["value"]);
 				}
 				$returninfo['metadata'] = get_all_data($ttid);

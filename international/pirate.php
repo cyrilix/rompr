@@ -38,13 +38,6 @@ $languages['pirate'] = array (
 	"button_ban" => "'Tis a scurvy dog!",
 	"button_volume" => "Ye minstrel's lungs",
 
-	// Titles for drop-down menus
-	"menu_history" => "OLD THINGS",
-	"menu_config" => "YE WHEELHOUSE",
-	"menu_clearplaylist" => "BURN T' MINSTRELS",
-	"menu_saveplaylist" => "BURY IT AN' DRAW A MAP",
-	"menu_playlists" => "MINSTREL's PROGRAMS",
-
 	// Configuration menu entries
 	"config_language" => "SPEAKS",
 	"config_theme" => "YE COLOURS",

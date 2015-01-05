@@ -68,31 +68,26 @@ print '<i title="'.get_int_text('button_internet_radio').'" onclick="layoutProce
 print '<i title="'.get_int_text('button_albumart').'" onclick="openAlbumArtManager()" id="choose_radiolist" class="icon-cd tooltip topimg"></i>';
 ?>
 </div>
-<div class="fixed topbox">
 <?php
-print '<i id="sourcesresizer" class="icon-resize-horizontal topimg" style="cursor:move"></i>';
+print '<i id="sourcesresizer" class="icon-resize-horizontal topimg fixed topbox" style="cursor:move"></i>';
 ?>
-</div>
 </div>
 
 <div id="infopanecontrols" class="cmiddle noborder tleft containerbox headercontainer">
-<div class="fixed topbox">
 <?php
- print '<i title="'.get_int_text('button_togglesources').'" class="icon-angle-double-left tooltip topimg" onclick="expandInfo(\'left\')" id="expandleft"></i>';
+ print '<i title="'.get_int_text('button_togglesources').'" class="icon-angle-double-left tooltip topimg fixed topbox" onclick="expandInfo(\'left\')" id="expandleft"></i>';
  ?>
-</div>
 
-<div class="expand containerbox center topbox">
-<div id="chooserbuttons" class="noborder fixed">
+<div id="chooserbuttons" class="noborder expand center topbox containerbox">
 <?php
-print '<div class="topdrop"><i class="icon-menu topimg"></i>';
+print '<div class="topdrop fixed"><i class="icon-menu topimg"></i>';
 ?>
 <div class="topdropmenu dropshadow leftmenu normalmenu">
     <div id="specialplugins" class="clearfix"></div>
 </div>
 </div>
 <?php
-print '<div class="topdrop"><i class="icon-versions topimg tooltip" title="'.get_int_text('button_history').'"></i>';
+print '<div class="topdrop fixed"><i class="icon-versions topimg tooltip" title="'.get_int_text('button_history').'"></i>';
 ?>
 <div class="topdropmenu dropshadow leftmenu widemenu" id="hpscr">
     <div id="historypanel" class="clearfix"></div>
@@ -100,25 +95,20 @@ print '<div class="topdrop"><i class="icon-versions topimg tooltip" title="'.get
 </div>
 
 <?php
-print '<i title="'.get_int_text('button_back').'" id="backbutton" class="icon-left-circled topimg tooltip button-disabled"></i>';
-print '<i title="'.get_int_text('button_forward').'" id="forwardbutton" class="icon-right-circled tooltip topimg button-disabled"></i>';
+print '<i title="'.get_int_text('button_back').'" id="backbutton" class="icon-left-circled topimg tooltip button-disabled fixed"></i>';
+print '<i title="'.get_int_text('button_forward').'" id="forwardbutton" class="icon-right-circled tooltip topimg button-disabled fixed"></i>';
 ?>
-</div>
 </div>
 
-<div class="fixed topbox">
 <?php
-print '<i class="icon-angle-double-right tooltip topimg" title="'.get_int_text('button_toggleplaylist').'" onclick="expandInfo(\'right\')" id="expandright"></i>';
+print '<i class="icon-angle-double-right tooltip topimg fixed topbox" title="'.get_int_text('button_toggleplaylist').'" onclick="expandInfo(\'right\')" id="expandright"></i>';
 ?>
-</div>
 </div>
 
 <div id="playlistcontrols" class="column noborder tleft containerbox headercontainer">
-<div class="expand topbox">
 <?php
-print '<i id="playlistresizer" class="icon-resize-horizontal topimg" style="cursor:move"></i>';
+print '<div class="expand topbox"><i id="playlistresizer" class="icon-resize-horizontal topimg" style="cursor:move"></i></div>';
 ?>
-</div>
 <div class="fixed topbox" id="righthandtop">
 
 <?php
@@ -136,7 +126,7 @@ print '<div class="topdrop"><i class="icon-trash topimg tooltip" title="'.get_in
 ?>
 <div class="topdropmenu dropshadow rightmenu normalmenu">
 <?php
-print '<div class="prefsection textcentre"><b>'.get_int_text('menu_clearplaylist').'</b></div>';
+print '<div class="configtitle textcentre"><b>'.get_int_text('button_clearplaylist').'</b></div>';
 print '<div class="textcentre"><button onclick="playlist.clear()">'.get_int_text('button_imsure').'</button></div>';
 ?>
 </div>
@@ -147,7 +137,7 @@ print '<div class="topdrop"><i class="icon-wifi topimg tooltip" title="'.get_int
 ?>
 <div class="topdropmenu dropshadow rightmenu widemenu stayopen" id="ppscr">
 <?php
-print '<div class="prefsection textcentre"><b>'.get_int_text('label_pluginplaylists').'</b></div>';
+print '<div class="configtitle textcentre"><b>'.get_int_text('label_pluginplaylists').'</b></div>';
 ?>
 <div class="clearfix containerbox vertical" id="pluginplaylists"></div>
 </div>
@@ -158,7 +148,7 @@ print '<div class="topdrop"><i class="icon-doc-text topimg tooltip" title="'.get
 ?>
 <div class="topdropmenu dropshadow rightmenu widemenu stayopen" id="lpscr">
 <?php
-print '<div class="prefsection textcentre"><b>'.get_int_text('button_loadplaylist').'</b></div>';
+print '<div class="configtitle textcentre"><b>'.get_int_text('button_loadplaylist').'</b></div>';
 ?>
 <div class="clearfix selecotron" id="storedplaylists"></div>
 </div>
@@ -169,7 +159,7 @@ print '<div class="topdrop"><i class="icon-floppy topimg tooltip" title="'.get_i
 ?>
 <div class="topdropmenu dropshadow rightmenu widemenu">
 <?php
-print '<div class="prefsection textcentre"><b>'.get_int_text('button_saveplaylist').'</b></div>';
+print '<div class="configtitle textcentre"><b>'.get_int_text('button_saveplaylist').'</b></div>';
 print '<div class="containerbox"><div class="expand"><input class="enter" id="playlistname" type="text" size="200"/></div>';
 print '<button class="fixed" onclick="player.controller.savePlaylist()">'.get_int_text('button_save').'</button></div>';
 ?>

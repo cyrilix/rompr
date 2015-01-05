@@ -107,6 +107,10 @@ function trackDataCollection(currenttrack, nowplayingindex, artistindex, playlis
 		collections['ratings'].setMeta(action, type, value);
 	}
 
+	this.getMeta = function(meta) {
+		return collections['ratings'].getMeta(meta);
+	}
+
 	// Create the data collections we need
 
 	this.populate = function(source, isartistswitch) {
@@ -317,7 +321,7 @@ var nowplaying = function() {
 
 		removeTag: function(event, index) {
 			if (!index) index = findCurrentTrack();
-            var tag = $(event.target).parent().parent().text();
+            var tag = $(event.target).parent().text();
             tag = tag.replace(/x$/,'');
 			if (index > 0) {
 	            debug.log("NOWPLAYING", "Removing tag",tag,"from index",index);
@@ -330,7 +334,8 @@ var nowplaying = function() {
 
 		incPlaycount: function(index) {
 			if (!index) index = findCurrentTrack();
-			history[index].setMeta('inc', 'Playcount', 1);
+			var p = parseInt(history[index].getMeta("Playcount"));
+			history[index].setMeta('inc', 'Playcount', p+1);
 		},
 
 		love: function() {

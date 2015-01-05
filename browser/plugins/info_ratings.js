@@ -15,16 +15,16 @@ var info_ratings = function() {
 			var displaying = false;
 
             function doThingsWithData() {
-                if (parent.isCurrentTrack() && trackmeta.usermeta !== null) {
+                if (parent.isCurrentTrack() && trackmeta.usermeta) {
                     if (trackmeta.usermeta.Playcount) {
                         $("#playcount").html("<b>PLAYS :</b>&nbsp;"+trackmeta.usermeta.Playcount);
                     } else {
                         $("#playcount").html("");
                     }
                     displayRating("#ratingimage", trackmeta.usermeta.Rating);
-                    $("#dbtags").html('<span style="margin-right:8px"><b>'+language.gettext("musicbrainz_tags")+'&nbsp;</b><a href="#" class="clicktext" onclick="tagAdder.show(event)">+</a></span>');
+                    $("#dbtags").html('<span style="margin-right:8px"><b>'+language.gettext("musicbrainz_tags")+'&nbsp;</b><i class="icon-plus clickicon playlisticon" onclick="tagAdder.show(event)"></i></span>');
                     for(var i = 0; i < trackmeta.usermeta.Tags.length; i++) {
-                        $("#dbtags").append('<span class="tag">'+trackmeta.usermeta.Tags[i]+'<span class="tagremover invisible"><a href="#" class="clicktext" onclick="nowplaying.removeTag(event)">x</a></span></span>');
+                        $("#dbtags").append('<span class="tag">'+trackmeta.usermeta.Tags[i]+'<i class="icon-cancel-circled clickicon tagremover playlisticon" onclick="nowplaying.removeTag(event)" style="display:none"></i></span>');
                     }
                     $(".tag").hover( function() {
                         $(this).children().show();
@@ -138,6 +138,22 @@ var info_ratings = function() {
                         faveFinder.findThisOne(data, self, true, false, []);
                     }
                 }
+            }
+
+            this.getMeta = function(meta) {
+                if (prefs.apache_backend == "sql") {
+                    if (trackmeta.usermeta) {
+                        if (trackmeta.usermeta[meta]) {
+                            return trackmeta.usermeta[meta];
+                        } else {
+                            return 0;
+                        }
+                    } else {
+                        return 0;
+                    }
+                } else {
+                    return 0;
+                }                
             }
 
             this.updateDatabase = function(data) {

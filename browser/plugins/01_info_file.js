@@ -122,7 +122,6 @@ var info_file = function() {
                 } else if (element.hasClass("clickremtag")) {
                     nowplaying.removeTag(event, parent.nowplayingindex);
                 } else if (element.hasClass("clickaddtags")) {
-                    // nowplaying.addTags(parent.nowplayingindex, $('[name="infotagadd"]').val());
                     tagAdder.show(event, parent.nowplayingindex);
                 }
             }
@@ -182,16 +181,16 @@ var info_file = function() {
                     html = html + '<i class="icon-'+trackmeta.usermeta.Rating+'-stars rating-icon-big infoclick clicksetrating"></i>';
                     html = html + '<input type="hidden" value="'+parent.nowplayingindex+'" />';
                     html = html + '</td></tr>';
-                    html = html + '<tr><td class="fil" style="vertical-align:top">Tags:</td><td>';
+                    html = html + '<tr><td class="fil" style="vertical-align:top">'+language.gettext("musicbrainz_tags")+'</td><td>';
                     html = html + '<table>';
                     for(var i = 0; i < trackmeta.usermeta.Tags.length; i++) {
-                        html = html + '<tr><td><span class="tag">'+trackmeta.usermeta.Tags[i]+'<span class="tagremover"><a href="#" class="clicktext infoclick clickremtag">x</a></span></span></td></tr>';
+                        html = html + '<tr><td><span class="tag">'+trackmeta.usermeta.Tags[i]+'<i class="icon-cancel-circled clickicon tagremover playlisticon" onclick="nowplaying.removeTag(event)"></i></span></td></tr>';
                     }
+                    html = html + '<tr><td><i class="icon-plus infoclick smallicon clickaddtags"></i></td></tr>';
                     html = html + '</table>';
                     html = html + '</td></tr>';
                 }
                 html = html + '</table>';
-                html = html + '<div class="containerbox dropdown-container infotagadd"><button class="fixed infoclick clickaddtags">'+language.gettext('lastfm_addtags')+'</button></div>';
                 html = html + '</div>';
                 return html;
             }
@@ -200,7 +199,7 @@ var info_file = function() {
 				if (displaying && trackmeta.fileinfo !== undefined) {
                     var data = (trackmeta.fileinfo.player !== null) ? createInfoFromPlayerInfo(trackmeta.fileinfo.player) : createInfoFromBeetsInfo(trackmeta.fileinfo.beets);
                     data = data + self.ratingsInfo();
-	                if (browser.Update(
+	                browser.Update(
                         null,
                         'track',
                         me,
@@ -209,14 +208,7 @@ var info_file = function() {
 	                      link: "",
 	                      data: data
 	                	}
-					)) {
-                        // $(".infotagadd").makeTagMenu({  labelhtml: '<div class="fixed padright"><b>'+language.gettext('lastfm_addtags')+'</b></div>',
-                        //                                 textboxname: 'infotagadd',
-                        //                                 populatefunction: populateTagMenu,
-                        //                                 buttontext: language.gettext('button_add'),
-                        //                                 buttonclass: ' infoclick clickaddtags'
-                        // });
-                    }
+					);
 				}
 			}
 		}

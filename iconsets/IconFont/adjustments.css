@@ -80,6 +80,12 @@
   width:32px;
 }
 
+.icon-musicbrainz.topimg
+{
+    /* naughty naughty */
+    width:36px !important;
+}
+
 #headerbar:hover i.topimg:before
 {
     text-shadow:0 0 3px #AAA;
@@ -90,7 +96,6 @@
     opacity:1;
     text-shadow:0 0 15px #C16700;
 }
-
 
 /*i.topimg:before
 {

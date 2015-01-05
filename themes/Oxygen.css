@@ -254,11 +254,6 @@ div.topdropmenu
     background-image: -ms-linear-gradient(#dfdfdf, #b4b4b4);
 }
 
-.prefsection
-{
-    border-bottom: 1px solid #cccccc;
-}
-
 .separator
 {
      border-bottom:12px solid #888888;

@@ -38,13 +38,6 @@ $languages['fr'] = array (
 	"button_ban" => "Bannir",
 	"button_volume" => "Régler le volume",
 
-	// Titles for drop-down menus
-	"menu_history" => "HISTORIQUE",
-	"menu_config" => "CONFIGURATION",
-	"menu_clearplaylist" => "VIDER PLAYLIST",
-	"menu_saveplaylist" => "SAUVER PLAYLIST ...",
-	"menu_playlists" => "PLAYLISTS",
-
 	// Configuration menu entries
 	"config_language" => "LANGAGE",
 	"config_theme" => "THEME",

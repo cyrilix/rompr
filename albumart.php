@@ -591,8 +591,8 @@ var imageEditor = function() {
                     w = $("#coverslist").width() - 340;
                     h = Math.round(bigimg.height * (w/bigimg.width));
                 }
-                $("#origimage").empty().append($("<div>", { id: 'firefoxsucksballs', height: h, width: w }));
-                $("#firefoxsucksballs").append($("<img>", { src: bigimg.src, height: h, width: w, id: 'browns' }));
+
+                $("#origimage").empty().append($("<img>", { src: bigimg.src, height: h, width: w, id: 'browns' }));
             }
         },
 

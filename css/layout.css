@@ -170,24 +170,30 @@ button
 .containerbox
 {
     display:-webkit-box;
-    display:-moz-box;
+/*    display:-moz-box;
     display:-o-box;
     display:box;
     display:flexbox;
     display:flex-box;
+*/
+    display: flex;
 }
 
 .vertical
 {
-    -moz-box-orient:vertical;
     -webkit-box-orient:vertical;
+/*    -moz-box-orient:vertical;
     box-orient:vertical;
+*/
+    flex-direction: column;
 }
 
 .center {
-    box-pack:center;
-    -moz-box-pack:center;
     -webkit-box-pack:center;
+/*    box-pack:center;
+    -moz-box-pack:center;
+*/
+    justify-content: center;
 }
 
 .title-menu
@@ -200,17 +206,24 @@ button
 
 .expand
 {
-    -moz-box-flex:1.0; /* Firefox */
-    -webkit-box-flex:1.0; /* Safari and Chrome */
+    -webkit-box-flex:1.0;
+/*    -moz-box-flex:1.0;
     box-flex:1.0;
-    width:2000px; /* Firefox will ONLY shrink elements in a box layout, not expand them */
+    width:2000px;
+*/
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: auto;
 }
 
 .fixed
 {
-    -moz-box-flex:0; /* Firefox */
-    -webkit-box-flex:0; /* Safari and Chrome */
+    -webkit-box-flex:0;
+/*    -moz-box-flex:0;
     box-flex:0;
+*/
+    flex-grow: 0;
+    flex-shrink:0;
 }
 
 .dropmenu
@@ -341,10 +354,12 @@ button
 
 .line
 {
-    padding-bottom:2px;
-    box-align:center;
-    -moz-box-align:center;
     -webkit-box-align:center;
+    padding-bottom:2px;
+/*    box-align:center;
+    -moz-box-align:center;
+*/
+    align-items: center;
 }
 
 /*-- divs and classes used in the playlist --*/
@@ -757,23 +772,6 @@ table.motherfucker tr td
 .underlined
 {
     margin-bottom:8px;
-}
-
-#branding
-{
-    display:inline-block;
-    padding-left:8px;
-    padding-right:8px;
-}
-
-.albumimg
-{
-    margin-left:8px;
-    margin-right:8px;
-    margin-top:8px;
-    box-align:center;
-    -moz-box-align:center;
-    -webkit-box-align:center;
 }
 
 #status
@@ -1601,9 +1599,11 @@ div.lyrics p
 
 .dropdown-container
 {
-    box-align:center;
+/*    box-align:center;
     -moz-box-align:center;
+*/
     -webkit-box-align:center;
+    align-items: center;
 }
 
 .dropdown-holder

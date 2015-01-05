@@ -611,9 +611,9 @@ function Playlist() {
                     html = html + '>'+format_tracknum(tracks[trackpointer].tracknumber)+'</div>';
                 }
                 if (l.substring(0, 7) == "spotify") {
-                    html = html + '<div class="fixed"><i class="icon-spotify-circled playlisticon"></i></div>';
+                    html = html + '<i class="icon-spotify-circled playlisticon fixed"></i>';
                 } else if (l.substring(0, 6) == "gmusic") {
-                    html = html + '<div class="playlisticon fixed"><i class="icon-gmusic-circled playlisticon"></i></div>';
+                    html = html + '<i class="icon-gmusic-circled playlisticon fixed"></i>';
                 }
                 if (showartist) {
                     html = html + '<div class="containerbox vertical expand">';
@@ -624,7 +624,7 @@ function Playlist() {
                     html = html + '<div class="expand line">'+tracks[trackpointer].title+'</div>';
                 }
                 html = html + '<div class="tiny fixed">'+formatTimeString(tracks[trackpointer].duration)+'</div>';
-                html = html + '<div class="fixed clickable clickicon clickremovetrack" romprid="'+tracks[trackpointer].backendid+'"><i class="icon-cancel-circled playlisticonr"></i></div>';
+                html = html + '<i class="icon-cancel-circled playlisticonr fixed clickable clickicon clickremovetrack" romprid="'+tracks[trackpointer].backendid+'"></i>';
                 html = html + '</div>';
             }
             // Close the rollup div we added in the header
@@ -666,6 +666,7 @@ function Playlist() {
             html = html + '</div>';
 
             html = html + '<div class="containerbox vertical fixed">';
+            // These next two currently need wrapping in divs for the sake of Safari
             if (tracks[0].spotify && tracks[0].spotify.album && tracks[0].spotify.album.substring(0,7) == "spotify" && prefs.apache_backend == "sql") {
                 html = html + '<div class="fixed clickable clickicon clickaddwholealbum" name="'+self.index+'"><i class="icon-music playlisticonr"></i></div>';
             }
@@ -782,7 +783,7 @@ function Playlist() {
             var html = self.header();
             for (var trackpointer in tracks) {
                 html = html + '<div name="'+tracks[trackpointer].playlistpos+'" romprid="'+tracks[trackpointer].backendid+'" class="booger clickable clickplaylist containerbox playlistitem menuitem">';
-                html = html + '<div class="fixed"><i class="icon-radio-tower playlisticon"></i></div>';
+                html = html + '<i class="icon-radio-tower playlisticon fixed"></i>';
                 html = html + '<div class="containerbox vertical expand">';
                 html = html + '<div class="playlistrow2 line">'+tracks[trackpointer].stream+'</div>';
                 html = html + '<div class="tiny line">'+tracks[trackpointer].location+'</div>';
