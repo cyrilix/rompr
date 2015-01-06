@@ -182,11 +182,11 @@ var info_file = function() {
                     html = html + '<input type="hidden" value="'+parent.nowplayingindex+'" />';
                     html = html + '</td></tr>';
                     html = html + '<tr><td class="fil" style="vertical-align:top">'+language.gettext("musicbrainz_tags")+'</td><td>';
-                    html = html + '<table>';
+                    html = html + '<table cellpadding="0" cellspacing="0">';
                     for(var i = 0; i < trackmeta.usermeta.Tags.length; i++) {
-                        html = html + '<tr><td><span class="tag">'+trackmeta.usermeta.Tags[i]+'<i class="icon-cancel-circled clickicon tagremover playlisticon" onclick="nowplaying.removeTag(event)"></i></span></td></tr>';
+                        html = html + '<tr><td><span>'+trackmeta.usermeta.Tags[i]+'<i class="icon-cancel-circled clickicon tagremover playlisticon" onclick="nowplaying.removeTag(event)"></i></span></td></tr>';
                     }
-                    html = html + '<tr><td><i class="icon-plus infoclick smallicon clickaddtags"></i></td></tr>';
+                    html = html + '<tr><td><i class="icon-plus infoclick smallicon clickaddtags" style="margin:0"></i></td></tr>';
                     html = html + '</table>';
                     html = html + '</td></tr>';
                 }

@@ -60,7 +60,7 @@ var browser = function() {
 
     function waitingBanner(which) {
         var html = '<div class="containerbox infosection menuitem">';
-        html = html + '<h3 class="expand ucfirst">'+language.gettext("label_"+which)+' : '+language.gettext("info_gettinginfo")+'</h3>';
+        html = html + '<h2 class="expand"><span class="ucfirst">'+language.gettext("label_"+which)+'</span> : '+language.gettext("info_gettinginfo")+'</h2>';
         html = html + '<div class="fixed" style="vertical-align:middle"><i class="icon-spin6 smallcover-svg spinner"></i></div>';
         html = html + '</div>';
         return html;

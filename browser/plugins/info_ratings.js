@@ -22,7 +22,7 @@ var info_ratings = function() {
                         $("#playcount").html("");
                     }
                     displayRating("#ratingimage", trackmeta.usermeta.Rating);
-                    $("#dbtags").html('<span style="margin-right:8px"><b>'+language.gettext("musicbrainz_tags")+'&nbsp;</b><i class="icon-plus clickicon playlisticon" onclick="tagAdder.show(event)"></i></span>');
+                    $("#dbtags").html('<span><b>'+language.gettext("musicbrainz_tags")+'</b></span><i class="icon-plus clickicon playlisticon" onclick="tagAdder.show(event)" style="margin-left:2px;margin-top:0px;margin-right:0px"></i>');
                     for(var i = 0; i < trackmeta.usermeta.Tags.length; i++) {
                         $("#dbtags").append('<span class="tag">'+trackmeta.usermeta.Tags[i]+'<i class="icon-cancel-circled clickicon tagremover playlisticon" onclick="nowplaying.removeTag(event)" style="display:none"></i></span>');
                     }
