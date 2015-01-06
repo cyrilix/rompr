@@ -226,6 +226,11 @@ button
     flex-shrink:0;
 }
 
+.selfcentered
+{
+    align-self:center;
+}
+
 .dropmenu
 {
     display:none;
@@ -1583,7 +1588,7 @@ div.lyrics p
 {
     z-index:1500;
     position:absolute;
-    padding-right:4px;
+    padding-right:8px;
     padding-bottom:4px;
 }
 
@@ -1620,7 +1625,7 @@ div.lyrics p
     overflow:auto;
     background-color:#ffffff;
     color:#000000;
-    line-height:1.5em;
+    line-height:1.3em;
     padding-left:8px;
     cursor:pointer;
 }
@@ -1632,6 +1637,7 @@ div.lyrics p
     cursor:pointer;
     position:relative;
     overflow:hidden;
+    margin-right:4px;
 }
 
 .tagmenu

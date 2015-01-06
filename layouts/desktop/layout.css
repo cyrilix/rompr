@@ -419,11 +419,20 @@ div.rightmenu.normalmenu
     padding-right:0px;
     padding-top:2px;
     padding-bottom:2px;
-/*    box-align:center;
-    -moz-box-align:center;
-*/
     -webkit-box-align:center;
     align-items: center;
+}
+
+.playlistalbum
+{
+    font-weight:bold;
+    margin:0px;
+    padding-left:4px;
+    padding-right:0px;
+    padding-top:2px;
+    padding-bottom:2px;
+    -webkit-box-align:stretch;
+    align-items: stretch;
 }
 
 .mh

@@ -342,7 +342,6 @@ h2
 
 #nowplaying
 {
-    font-size:8pt;
     white-space:nowrap;
     margin:auto;
 }
@@ -410,11 +409,20 @@ h2
     padding-right:0px;
     padding-top:6px;
     padding-bottom:6px;
-/*    box-align:center;
-    -moz-box-align:center;
-*/    
     -webkit-box-align:center;
     align-items: center;
+}
+
+.playlistalbum
+{
+    font-weight:bold;
+    margin:0px;
+    padding-left:4px;
+    padding-right:0px;
+    padding-top:6px;
+    padding-bottom:6px;
+    -webkit-box-align:stretch;
+    align-items: stretch;
 }
 
 .menu
@@ -476,11 +484,6 @@ h2
     margin-right:2px;
     margin-left:4px;
     padding-top:0px;
-}
-
-.infotext
-{
-	font-size:8pt;
 }
 
 #controls
@@ -671,4 +674,9 @@ h2
 .trackgroup
 {
     white-space:normal;
+}
+
+.dropdown-button
+{
+    margin-left:-20px !important;
 }

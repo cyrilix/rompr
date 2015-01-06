@@ -491,7 +491,7 @@ function remove_tag($ttid, $tag) {
 
 function list_tags() {
 	$tags = array();
-	if ($result = generic_sql_query("SELECT Name FROM Tagtable ORDER BY Name")) {
+	if ($result = generic_sql_query("SELECT Name FROM Tagtable ORDER BY LOWER(Name)")) {
 		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			array_push($tags, $obj->Name);
 		}

@@ -113,7 +113,9 @@ var layoutProcessor = function() {
         hidePanel: function(panel, is_hidden, new_state) { },
 
         setTagAdderPosition: function(position) {
-            $("#tagadder").css({top: position.y+8, left: 0, width: $("#bottompage").width()});
+            var ws = getWindowSize();
+            var wa = parseInt($("#tagadder").css("padding-left")) + parseInt($("#tagadder").css("padding-right"));
+            $("#tagadder").css({top: "0px", left: "0px", width: (ws.x-wa)+"px", height: ws.y+"px"});
         },
 
         setPlaylistHeight: function() {

@@ -306,7 +306,7 @@ $(window).load(function() {
     $.get('utils/cleancache.php', function() {
         debug.shout("INIT","Cache Has Been Cleaned");
     });
-    $('.combobox').makeTagMenu({textboxname: 'tag', labelhtml: '<div class="fixed searchlabel"><b>'+language.gettext("label_tag")+'</b></div>', populatefunction: populateTagMenu});
+    $('.combobox').makeTagMenu({textboxextraclass: 'searchterm', textboxname: 'tag', labelhtml: '<div class="fixed searchlabel"><b>'+language.gettext("label_tag")+'</b></div>', populatefunction: populateTagMenu});
     $('.tagaddbox').makeTagMenu({textboxname: 'newtags', populatefunction: populateTagMenu, buttontext: language.gettext('button_add'), buttonfunc: tagAdder.add});
 });
 
@@ -348,7 +348,7 @@ include('layouts/'.$layout.'/layout.php');
 <div id="tagadder" class="funkymusic dropmenu dropshadow">
     <div class="configtitle textcentre" style="padding-top:4px"><b>
 <?php
-print get_int_text("lastfm_addtags").'</b></div><div>'.get_int_text("lastfm_addtagslabel");
+print get_int_text("lastfm_addtags").'</b><i class="icon-cancel-circled clickicon playlisticonr tright" onclick="tagAdder.close()"></i></div><div>'.get_int_text("lastfm_addtagslabel");
 ?>
     </div>
     <div class="containerbox padright dropdown-container tagaddbox"></div>

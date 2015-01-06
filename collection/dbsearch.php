@@ -157,7 +157,7 @@ function getWishlist() {
 				'Album' => $obj->Albumname
 			);
 			process_file($filedata);
-		}
+		}backends
 	}
 
 	$qstring = "SELECT Tracktable.*, Artisttable.* FROM Tracktable JOIN Artisttable USING (Artistindex) WHERE Albumindex IS NULL AND Uri IS NULL AND Hidden = 0";
@@ -170,7 +170,7 @@ function getWishlist() {
 				'Track' => $obj->TrackNo,
 				'Time' => $obj->Duration,
 				'Last-Modified' => $obj->LastModified,
-				'Image' => $obj->Image,
+				'Image' => "",
 				'Album' => ""
 			);
 			process_file($filedata);

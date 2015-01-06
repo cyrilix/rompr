@@ -232,6 +232,7 @@ var info_spotify = function() {
             	if (artistmeta.spotify.showing == "albums" && displaying && data) {
 	            	debug.log(medebug,"Doing Albums For Artist",data);
 	            	$("#artistalbums").empty().hide();
+                    $("#artistalbums").empty();
             		var w = browser.calcMWidth();;
 	            	for (var i in data.items) {
 	            		var x = $('<div>', {class: 'tagholder2 selecotron'}).appendTo($("#artistalbums"));
@@ -252,7 +253,7 @@ var info_spotify = function() {
             		$("#artistalbums").imagesLoaded( function() {
             			$("#artistalbums").slideToggle('fast', function() {
             				$("#artistalbums").masonry({ itemSelector: '.tagholder2', gutter: 0});
-            				browser.rePoint();
+            			     browser.rePoint();
 			        		$("#hibbert").stopSpinner();
             			});
             		});

@@ -42,6 +42,7 @@ function saveSelectBoxes(event) {
 
         case "coversize":
             $("#albumcoversize").attr({href: "coversizes/"+$("#coversizeselector").val()});
+            setTimeout(browser.rePoint, 1000);
             break;
 
     }
@@ -859,6 +860,7 @@ function populateTagMenu(callback) {
 jQuery.fn.makeTagMenu = function(options) {
     var settings = $.extend({
         textboxname: "",
+        textboxetxraclass: "",
         labelhtml: "",
         populatefunction: null,
         buttontext: null,
@@ -867,9 +869,13 @@ jQuery.fn.makeTagMenu = function(options) {
     },options);
 
     this.each(function() {
+        var tbc = "enter";
+        if (settings.textboxextraclass != "") {
+            tbc = tbc + " "+settings.textboxextraclass;
+        }
         $(this).append(settings.labelhtml);
         var holder = $('<div>', { class: "expand dropdown-holder"}).appendTo($(this));
-        var textbox = $('<input>', { type: "text", class: "enter", name: settings.textboxname }).appendTo(holder);
+        var textbox = $('<input>', { type: "text", class: tbc, name: settings.textboxname }).appendTo(holder);
         var dropbox = $('<div>', {class: "drop-box dropshadow tagmenu"}).appendTo(holder);
         var menucontents = $('<div>', {class: "tagmenu-contents"}).appendTo(dropbox);
         var button = $('<div>', {class: "fixed dropdown-button"}).appendTo($(this));
@@ -934,6 +940,10 @@ var tagAdder = function() {
             index = idx;
             var position = getPosition(evt);
             layoutProcessor.setTagAdderPosition(position);
+            $("#tagadder").slideToggle('fast');
+        },
+
+        close: function() {
             $("#tagadder").slideToggle('fast');
         },
 

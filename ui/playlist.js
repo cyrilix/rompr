@@ -634,7 +634,7 @@ function Playlist() {
 
         this.header = function() {
             var html = "";
-            html = html + '<div name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="item clickable clickplaylist sortable containerbox menuitem playlisttitle">';
+            html = html + '<div name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="item clickable clickplaylist sortable containerbox playlistalbum playlisttitle">';
             if (tracks[0].image && tracks[0].image != "") {
                 // An image was supplied - either a local one or supplied by the backend
                 html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover fixed" name="'+tracks[0].key+'" src="'+tracks[0].image+'"/></div>';
@@ -660,17 +660,17 @@ function Playlist() {
                     html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover fixed notexist" name="'+tracks[0].key+'"/></div>';
                 }
             }
-            html = html + '<div class="containerbox vertical expand">';
-            html = html + '<div class="line">'+self.artist+'</div>';
-            html = html + '<div class="line">'+self.album+'</div>';
+            html = html + '<div class="containerbox vertical expand selfcentered">';
+            html = html + '<div class="bumpad">'+self.artist+'</div>';
+            html = html + '<div class="bumpad">'+self.album+'</div>';
             html = html + '</div>';
 
             html = html + '<div class="containerbox vertical fixed">';
             // These next two currently need wrapping in divs for the sake of Safari
+            html = html + '<div class="expand clickable clickicon clickremovealbum" name="'+self.index+'"><i class="icon-cancel-circled playlisticonr"></i></div>';
             if (tracks[0].spotify && tracks[0].spotify.album && tracks[0].spotify.album.substring(0,7) == "spotify" && prefs.apache_backend == "sql") {
                 html = html + '<div class="fixed clickable clickicon clickaddwholealbum" name="'+self.index+'"><i class="icon-music playlisticonr"></i></div>';
             }
-            html = html + '<div class="fixed clickable clickicon clickremovealbum" name="'+self.index+'"><i class="icon-cancel-circled playlisticonr"></i></div>';
             html = html + '</div>';
             html = html + '</div>';
             html = html + '<div class="trackgroup';
@@ -797,16 +797,16 @@ function Playlist() {
 
         this.header = function() {
             var html = "";
-            html = html + '<div name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="item clickable clickplaylist sortable containerbox menuitem playlisttitle">';
+            html = html + '<div name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="item clickable clickplaylist sortable containerbox playlistalbum playlisttitle">';
             var image = (tracks[0].image) ? tracks[0].image : "newimages/broadcast.svg";
             html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" name="'+tracks[0].key+'"" src="'+image+'"/></div>';
-            html = html + '<div class="containerbox vertical expand">';
-            html = html + '<div class="line">'+tracks[0].creator+'</div>';
-            html = html + '<div class="line">'+tracks[0].album+'</div>';
+            html = html + '<div class="containerbox vertical expand selfcentered">';
+            html = html + '<div class="bumpad">'+tracks[0].creator+'</div>';
+            html = html + '<div class="bumpad">'+tracks[0].album+'</div>';
             html = html + '</div>';
             html = html + '<div class="containerbox vertical fixed">';
-            html = html + '<div class="clickable clickicon clickaddfave" name="'+self.index+'"><i class="icon-radio-tower playlisticonr"></i></div>';
-            html = html + '<div class="clickable clickicon clickremovealbum" name="'+self.index+'"><i class="icon-cancel-circled playlisticonr"></i></div>';
+            html = html + '<div class="clickable clickicon clickremovealbum expand" name="'+self.index+'"><i class="icon-cancel-circled playlisticonr"></i></div>';
+            html = html + '<div class="clickable clickicon clickaddfave fixed" name="'+self.index+'"><i class="icon-radio-tower playlisticonr"></i></div>';
             html = html + '</div>';
             html = html + '</div>';
             html = html + '<div class="trackgroup';
