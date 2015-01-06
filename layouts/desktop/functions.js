@@ -113,9 +113,6 @@ function doThatFunkyThang() {
     $("#infopanecontrols").css("width", widths.infopane+"%");
     $("#playlist").css("width", widths.playlist+"%");
     $("#playlistcontrols").css("width", widths.playlist+"%");
-    // Sadly, Firefox is just too damn slow for this to work
-    // Why can't everyone just use Chrome?
-    // if (isChrome) setTopIconSize();
 }
 
 function hideBrowser() {
