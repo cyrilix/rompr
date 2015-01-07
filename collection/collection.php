@@ -604,6 +604,41 @@ class musicCollection {
 
 }
 
+function munge_youtube_track_into_artist($t) {
+    // Risky, but mopidy-youtube doesn't return artists (for obvious reasons)
+    if (preg_match('/^(.*?)\s*-\s*/', $t, $matches)) {
+        if ($matches[1] !== "") {
+            return $matches[1];
+        } else {
+            return "Youtube";
+        }
+    } else {
+        return "Youtube";
+    }
+}
+
+function munge_youtube_track_into_album($t) {
+    // Even riskier, but mopidy-youtube doesn't return albums except 'Youtube' (for obvious reasons)
+    if (preg_match('/^.*?\s*-\s*(.*?)\s*-\s*/', $t, $matches)) {
+        if ($matches[1] !== "") {
+            return $matches[1];
+        } else {
+            return "Youtube";
+        }
+    } else {
+        return "Youtube";
+    }
+}
+
+function munge_youtube_track_into_title($t) {
+    // Risky as fuck!
+    if (preg_match('/^.*?\s*-\s*.*?\s*-\s*(.*?)$/', $t, $matches)) {
+        return $matches[1];
+    } else {
+        return $t;
+    }    
+}
+
 function process_file(&$filedata) {
 
     global $numtracks, $totaltime, $prefs, $dbterms, $collection;
@@ -620,10 +655,18 @@ function process_file(&$filedata) {
 
     // Track Name
     $name = (array_key_exists('Title', $filedata)) ? unwanted_array($filedata['Title']) : rawurldecode(basename($file));
+    // Album Name
+    $album = (array_key_exists('Album', $filedata)) ? unwanted_array($filedata['Album']) : rawurldecode(basename(dirname($file)));
     // Track Artist(s)
     $artist = (array_key_exists('Artist', $filedata)) ? $filedata['Artist'] : rawurldecode(basename(dirname(dirname($file))));
     // Track Number
     $number = (array_key_exists('Track', $filedata)) ? format_tracknum(ltrim(unwanted_array($filedata['Track']), '0')) : format_tracknum(rawurldecode(basename($file)));
+
+    if ($album == "Youtube") {
+        $album = munge_youtube_track_into_album($name);
+        $name = munge_youtube_track_into_title($name);
+    }
+
     // Track Duration
     $duration = (array_key_exists('Time', $filedata)) ? unwanted_array($filedata['Time']) : 0;
     // Album Artist(s)
@@ -632,8 +675,6 @@ function process_file(&$filedata) {
     $spotialbum = (array_key_exists('SpotiAlbum',$filedata)) ? $filedata['SpotiAlbum'] : null;
     // Album Image
     $image = (array_key_exists('Image', $filedata)) ? $filedata['Image'] : null;
-    // Album Name
-    $album = (array_key_exists('Album', $filedata)) ? unwanted_array($filedata['Album']) : rawurldecode(basename(dirname($file)));
     // Date
     $date = (array_key_exists('Date',$filedata)) ? unwanted_array($filedata['Date']) : null;
     // Backend-Supplied LastModified Date
@@ -666,6 +707,9 @@ function process_file(&$filedata) {
     // Capture tracks where the basename/dirname route didn't work
     if ($artist == "." || $artist == "" || $artist == " & ") {
         $artist = ucfirst(getDomain(urldecode($file)));
+        if ($artist == "Youtube") {
+            $artist = munge_youtube_track_into_artist(unwanted_array($filedata['Title']));
+        }
     }
     if ($album == ".") {
         $album = '';

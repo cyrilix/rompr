@@ -87,7 +87,7 @@ switch ($_POST['action']) {
 							$artist,
 							$album,
 							$albumartist,
-							false);
+							forcedUriOnly(false, getDomain($uri)));
 		if (count($ttids) > 0) {
 			print json_encode(get_all_data(array_shift($ttids)));
 		} else {
@@ -106,12 +106,12 @@ switch ($_POST['action']) {
 			header('HTTP/1.0 403 Forbidden');
 			exit(0);
 		}
-		$ttids = find_item(	null,
+		$ttids = find_item(	forcedUriOnly(false,getDomain($uri)) ? $uri : null,
 							$title,
 							$artist,
 							$album,
 							$albumartist,
-							false);
+							forcedUriOnly(false,getDomain($uri)));
 
 		if (count($ttids) == 0) {
 			debug_print("Doing an INCREMENT action - Found NOTHING so creating hidden track","USERRATING");
@@ -215,12 +215,12 @@ switch ($_POST['action']) {
 			exit(0);
 		}
 
-		$ttids = find_item(	$urionly ? $uri : null,
+		$ttids = find_item(	forcedUriOnly($urionly, getDomain($uri)) ? $uri : null,
 							$title,
 							$artist,
 							$album,
 							$albumartist,
-							$urionly);
+							forcedUriOnly($urionly, getDomain($uri)));
 
 		if (count($ttids) == 0 && $dontcreate == false) {
 
@@ -294,7 +294,7 @@ switch ($_POST['action']) {
 							$artist,
 							$album,
 							$albumartist,
-							false);
+							forcedUriOnly(false, getDomain($uri)));
 		if (count($ttids) > 0) {
 			foreach ($ttids as $ttid) {
 				foreach ($attributes as $pair) {
@@ -365,6 +365,21 @@ switch ($_POST['action']) {
 close_transaction();
 
 debug_print("---------------------------END----------------------","USERRATING");
+
+function forcedUriOnly($u,$d) {
+
+	// Some mopidy backends - YouTube and SoundCloud - can return the same artist/album/track info
+	// for multiple different tracks. This gives us a problem because find_item will thinkk they're the same.
+	// So for those backends we always force urionly to be true
+	debug_print("Checking the spanner monkey : ".$d,"USERRATINGS");
+
+	if ($u || $d == "youtube" || $d == "soundcloud") {
+		return true;
+	} else {
+		return false;
+	}
+
+}
 
 function preparePlaylist() {
 	generic_sql_query("DROP TABLE IF EXISTS pltable");
