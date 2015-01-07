@@ -26,7 +26,7 @@ var info_spotify = function() {
     	if (data.error) {
     		return '<h3 align="center">'+data.error+'</h3>';
     	}
-        var html = '<div class="containerbox info-detail-layout">';
+        var html = '<div class="containerbox standout info-detail-layout">';
         html = html + '<div class="info-box-fixed info-box-list info-border-right">';
         html = html + '<ul><li>'+language.gettext("label_pop")+': '+data.popularity+'</li></ul>'+
         				'<ul><li>'+language.gettext("lastfm_releasedate")+': '+data.release_date+'</li></ul>'+
@@ -251,11 +251,13 @@ var info_spotify = function() {
 	            		x.append('<div class="tagh albumthing invisible" id="'+data.items[i].id+'"></div>')
 	            	}
             		$("#artistalbums").imagesLoaded( function() {
-            			$("#artistalbums").slideToggle('fast', function() {
-            				$("#artistalbums").masonry({ itemSelector: '.tagholder2', gutter: 0});
-            			     browser.rePoint();
-			        		$("#hibbert").stopSpinner();
-            			});
+                        if (displaying) {
+                			$("#artistalbums").slideToggle('fast', function() {
+                				$("#artistalbums").masonry({ itemSelector: '.tagholder2', gutter: 0});
+                			     browser.rePoint();
+    			        		$("#hibbert").stopSpinner();
+                			});
+                        }
             		});
 	            }
             }
@@ -309,12 +311,13 @@ var info_spotify = function() {
 	            		x.append('<div class="tagh albumthing invisible edged selecotron" id="'+data.artists[i].id+'"></div>')
 	            	}
             		$("#artistalbums").imagesLoaded( function() {
-            			$("#artistalbums").slideToggle('fast', function() {
-            				$("#artistalbums").masonry({ itemSelector: '.tagholder2', gutter: 0});
-            				laidout = true;
-            				browser.rePoint();
-			        		$("#hibbert").stopSpinner();
-            			});
+                        if (displaying) {
+                			$("#artistalbums").slideToggle('fast', function() {
+                				$("#artistalbums").masonry({ itemSelector: '.tagholder2', gutter: 0});
+                				browser.rePoint();
+    			        		$("#hibbert").stopSpinner();
+                			});
+                        }
             		});
 	            }
             }

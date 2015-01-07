@@ -162,20 +162,27 @@ var layoutProcessor = function() {
             } else {
                 var direction = 1;
             }
-            $("#"+source).show().css({top: "0px", left: (ws.x*direction)+"px"});
+            
+            var mt = (ws.x*direction)+"px";
+            debug.log("SOURCECONTROL","Moving",source,"to",mt);
+            $("#"+source).css({top: "0px", left: mt}).show();
             for (var i in sources) {
                 if (sources[i] != source && sources[i] != prefs.chooser && !(sources[i] == "playlistm" && layoutProcessor.playlistInNowplaying)) {
                     $("#"+sources[i]).hide();
                 }
             }
+
+            debug.log("SOURCECONTROL","Moving",source,"to",0);
+            var mt = (ws.x*(-direction))+"px";
+            debug.log("SOURCECONTROL","Moving",prefs.chooser,"to",mt);
             $("#"+prefs.chooser).animate({
-                left: (ws.x*(-direction))+"px"
-            }, 'fast', 'swing', function() {
+                left: mt
+            }, 500, 'linear', function() {
                 $(this).hide();
             });
             $("#"+source).animate({
                 left: 0
-            }, 'fast', 'swing', function() {
+            }, 500, 'linear', function() {
                 prefs.save({chooser: source});
                 setBottomPaneSize();
                 if (callback) {
@@ -183,8 +190,6 @@ var layoutProcessor = function() {
                 }
             });
         }
-
-
 
     }
 

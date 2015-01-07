@@ -232,7 +232,6 @@ function alistheader($nart, $nalb, $ntra, $tim) {
 }
 
 function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duration, $lm, $image) {
-    global $ipath;
     if ($artist || $rating > 0) {
         print '<div class="clickable clicktrack ninesix draggable indent containerbox vertical padright" name="'.$url.'">';
         print '<div class="containerbox line">';
@@ -344,7 +343,6 @@ function noAlbumsHeader() {
 
 function albumHeader($name, $spotilink, $id, $exists, $searched, $imgname, $src, $date, $numtracks = null) {
     global $prefs;
-    global $ipath;
     $browseable = "";
     if ($numtracks === 0) {
         $browseable = " browseable";
@@ -745,8 +743,6 @@ print '<h3 align="center">Rompr encountered an error while checking your '.ucfir
 }
 
 function update_stream_playlist($url, $name, $image, $creator, $title, $type, $fname) {
-
-    global $ipath;
 
     $file = "";
     $found = false;

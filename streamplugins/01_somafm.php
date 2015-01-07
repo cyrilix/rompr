@@ -96,7 +96,6 @@ print '<div class="expand">'.get_int_text('label_somafm').'</div>';
 }
 
 function format_listenlink($c, $p, $label) {
-    global $ipath;
     $img = (string) $c->xlimage;
     if (!$img) {
         $img = (string) $c->largeimage;

@@ -73,7 +73,6 @@ class mpdlistthing {
 }
 
 function doFileHTML($item) {
-	global $ipath;
     if ($item->type == 'directory') {
         print '<div class="clickable clickalbum draggable containerbox menuitem" name="'.$item->id.'">';
         print '<i class="icon-toggle-closed menu mh fixed" name="'.$item->id.'"></i>';

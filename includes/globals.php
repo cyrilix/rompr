@@ -158,7 +158,6 @@ print "    of: '".get_int_text("label_of")."',\n";
 print "    by: '".get_int_text("label_by")."',\n";
 print "    on: '".get_int_text("label_on")."'\n";
 print "};\n";
-print 'var ipath = "'.$ipath.'";'."\n";
 print 'var mopidy_version = "'.ROMPR_MOPIDY_MIN_VERSION.'";'."\n";
 ?>
 var lastfm_api_key = "15f7532dff0b8d84635c757f9f18aaa3";

@@ -1,7 +1,6 @@
 <?php
 
 function getNewPodcast($url) {
-    global $ipath;
     debug_print("Getting podcast ".$url,"PODCASTS");
     // iTunes links normally link to the same XML feed as the RSS link, so fixup the protocol and hope
     $url = preg_replace('#^itpc://#', 'http://', $url);
@@ -268,7 +267,6 @@ function removePodcast($name) {
 }
 
 function doPodcast($c) {
-    global $ipath;
     $y = simplexml_load_file($c.'/info.xml');
     $pm = basename($c);
     $aa = $y->albumartist;
@@ -454,7 +452,6 @@ function doPodcast($c) {
 }
 
 function doPodcastHeader($c) {
-    global $ipath;
     $y = simplexml_load_file($c.'/info.xml');
     $pm = basename($c);
     $aa = $y->albumartist;

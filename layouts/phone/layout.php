@@ -94,7 +94,7 @@ include("player/".$prefs['player_backend']."/search.php");
 <?php
 if ($prefs['player_backend'] == "mpd") {
             print '<div style="padding-left:12px;padding-top:4px">
-                <a title="Search Files" href="#" onclick="toggleFileSearch()"><img class="topimg" height="20px" src="'.$ipath.'system-search.png"></a>
+<i title="'.get_int_text('button_searchfiles').'" onclick="toggleFileSearch()" class="icon-search topimg lettuce"></i>
             </div>
             <div id="filesearch" class="invisible searchbox selecotron"></div>';
 }

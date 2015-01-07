@@ -108,8 +108,6 @@ if (is_dir('albumart/original')) {
     system('mv albumart/original albumart/small');
 }
 
-$ipath = "iconsets/".$prefs['icontheme']."/";
-
 if ($prefs['debug_enabled']) {
 
     $debug_colours = array(

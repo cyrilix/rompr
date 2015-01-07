@@ -289,7 +289,6 @@ function create_new_album($album, $albumai, $spotilink, $image, $date, $searched
 	global $mysqlc;
 	global $album_created;
 	global $error;
-	global $ipath;
 	$retval = null;
 
 	// See if the image needs to be archived.
@@ -314,7 +313,6 @@ function create_new_album($album, $albumai, $spotilink, $image, $date, $searched
 }
 
 function checkImage($imagekey) {
-	global $ipath;
 	if (file_exists('albumart/small/'.$imagekey.'.jpg')) {
 		return 1;
 	}

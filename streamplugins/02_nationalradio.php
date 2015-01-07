@@ -206,8 +206,7 @@ print '<div class="expand">'.get_int_text('label_streamradio').'</div>';
 <?php
 }
 
-function DOMinnerHTML(DOMNode $element)
-{
+function DOMinnerHTML(DOMNode $element) {
     $innerHTML = "";
     $children  = $element->childNodes;
 
@@ -220,7 +219,6 @@ function DOMinnerHTML(DOMNode $element)
 }
 
 function getStationImage($name) {
-    global $ipath;
     $nospaces = preg_replace('/ /','_',$name);
     if (file_exists('prefs/userimages/'.$nospaces.'.png')) {
         return 'prefs/userimages/'.$nospaces.'.png';

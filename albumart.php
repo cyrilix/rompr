@@ -1017,7 +1017,6 @@ function do_radio_stations() {
     global $count;
     global $albums_without_cover;
     global $allfiles;
-    global $ipath;
 
     $playlists = glob("prefs/USERSTREAM*.xspf");
     if (count($playlists) > 0) {

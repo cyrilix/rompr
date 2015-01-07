@@ -96,7 +96,6 @@ class album {
     }
 
     public function getImage($size) {
-        global $ipath;
 
         // Return image for an album
 
@@ -607,7 +606,7 @@ class musicCollection {
 
 function process_file(&$filedata) {
 
-    global $numtracks, $totaltime, $prefs, $dbterms, $ipath, $collection;
+    global $numtracks, $totaltime, $prefs, $dbterms, $collection;
 
     list ( $file, $domain, $type, $station, $stream)
         = array ( $filedata['file'], getDomain($filedata['file']), "local", null, "");
@@ -745,7 +744,6 @@ function getStuffFromXSPF($url) {
     global $xspf_loaded;
     global $stream_xspfs;
     global $podcasts;
-    global $ipath;
 
     // Preload all the stream and podcast playlists (on the first time we need them)
     // - saves time later as we don't have to read them in every time.
