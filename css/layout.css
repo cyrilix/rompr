@@ -430,6 +430,11 @@ div.item
     font-weight:normal;
 }
 
+.tracktime
+{
+    margin-left:4px;
+}
+
 .togglebutton
 {
     padding:0px;

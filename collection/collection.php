@@ -606,7 +606,7 @@ class musicCollection {
 
 function munge_youtube_track_into_artist($t) {
     // Risky, but mopidy-youtube doesn't return artists (for obvious reasons)
-    if (preg_match('/^(.*?)\s*-\s*/', $t, $matches)) {
+    if (preg_match('/^(.*?)\s*[-|\|+]\s*/', $t, $matches)) {
         if ($matches[1] !== "") {
             return $matches[1];
         } else {
@@ -619,20 +619,25 @@ function munge_youtube_track_into_artist($t) {
 
 function munge_youtube_track_into_album($t) {
     // Even riskier, but mopidy-youtube doesn't return albums except 'Youtube' (for obvious reasons)
-    if (preg_match('/^.*?\s*-\s*(.*?)\s*-\s*/', $t, $matches)) {
+    if (preg_match('/^.*?\s*[-|\|+]\s*(.*?)\s+[-|\|+]\s+/', $t, $matches)) {
         if ($matches[1] !== "") {
             return $matches[1];
-        } else {
-            return "Youtube";
         }
-    } else {
-        return "Youtube";
     }
+
+    if (preg_match('/^.*?\s*[-|\|+]\s*(.*?)\s+[\(|\[]*full album[\)|\]]*/i', $t, $matches)) {
+        if ($matches[1] !== "") {
+            return $matches[1];
+        }
+    }
+
+    return "Youtube";
+
 }
 
 function munge_youtube_track_into_title($t) {
     // Risky as fuck!
-    if (preg_match('/^.*?\s*-\s*.*?\s*-\s*(.*?)$/', $t, $matches)) {
+    if (preg_match('/^.*?\s*[-|\|+]\s*.*?\s+[-|\|+]\s+(.*?)$/', $t, $matches)) {
         return $matches[1];
     } else {
         return $t;

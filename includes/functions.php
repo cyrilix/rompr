@@ -275,7 +275,7 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
     }
     if ((string) $name == "") $name = urldecode($url);
     print '<div class="expand">'.$name.'</div>';
-    print '<div class="fixed playlistrow2">'.$duration.'</div>';
+    print '<div class="fixed playlistrow2 tracktime">'.$duration.'</div>';
     if ($lm === null) {
         print '<i class="icon-cancel-circled playlisticonr fixed clickable clickicon clickremdb"></i>';
     }
@@ -613,6 +613,9 @@ function get_browser_language() {
 }
 
 function getDomain($d) {
+    if ($d === null || $d == "") {
+        return "local";
+    }
     $d = urldecode($d);
     $a = substr($d,0,strpos($d, ":"));
     if ($a == "") {
