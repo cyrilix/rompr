@@ -1,6 +1,6 @@
 body
 {
-    background-color:#e8ebf0;
+    background-color:#aaaaaa;
 }
 
 body,p,h1,h2,h3,h4,table,td,th,ul,ol,textarea,input
@@ -53,7 +53,7 @@ a:hover,a:active
 
 #sources
 {
-    color: #dddddd;
+    color: #eeeeee !important;
 }
 
 #sources h3, #sources td
@@ -130,7 +130,7 @@ body.mobile #infobar
     color:#000000;
 }
 
-button
+button, input[type="button"]
 {
     background-image: linear-gradient(#999999, #cccccc, #999999);
     background-image: -o-linear-gradient(#999999, #cccccc, #999999);
@@ -142,7 +142,13 @@ button
     border-radius:1em;
 }
 
-button:hover
+.crackbaby button, .albumcovers .infosection button
+{
+    background-image:none !important;
+    background-color:transparent !important;
+}
+
+button:hover, input[type="button"]:hover
 {
     color:#ff4800;
     text-shadow: 0 0 15px #ff4800;
@@ -172,7 +178,13 @@ select
 
 #notifications
 {
-    background-color:#ccdcf2;
+    background-image: linear-gradient(#999999, #cccccc, #999999);
+    background-image: -o-linear-gradient(#999999, #cccccc, #999999);
+    background-image: -moz-linear-gradient(#999999, #cccccc, #999999);
+    background-image: -webkit-linear-gradient(#999999, #cccccc, #999999);
+    background-image: -ms-linear-gradient(#999999, #cccccc, #999999);
+    border-bottom-left-radius:1em;
+    border-bottom-right-radius:1em;
 }
 
 a.album:visited
@@ -210,17 +222,15 @@ div.clickable.selected:hover
 
 .playlistcurrentitem
 {
-    color:#ff4800;
+    font-weight:bold;
+    font-size:120%;
+    text-shadow: 0 0 15px #ff4800;
 }
 
 .playlistcurrenttitle
 {
-    color:#ff4800;
-}
-
-.item
-{
-    /*border-top:1px solid #000000;*/
+    text-shadow: 0 0 15px #ff4800;
+    font-weight:bold;
 }
 
 .inbrowser
@@ -275,6 +285,10 @@ div.clickable.selected:hover
     background-image: -ms-linear-gradient(#ffffff, #aaaaaa);
 }
 
+#wobblebottom {
+    background-color:#aaaaaa;
+}
+
 .infoslideshow
 {
     background-color:#000000;
@@ -284,12 +298,23 @@ div.clickable.selected:hover
 
 .crackbaby
 {
-    background-color:#adb4cd;
+    background-image: linear-gradient(#999999, #eeeeee, #999999);
+    background-image: -o-linear-gradient(#999999, #eeeeee, #999999);
+    background-image: -moz-linear-gradient(#999999, #eeeeee, #999999);
+    background-image: -webkit-linear-gradient(#999999, #eeeeee, #999999);
+    background-image: -ms-linear-gradient(#999999, #eeeeee, #999999);
+    border-radius:3em;
+    padding-left:1em;
+    box-sizing:border-box;
 }
 
 #albumcovers
 {
-    background-color:#adb4cd;
+    background-image: linear-gradient(#ffffff, #aaaaaa);
+    background-image: -o-linear-gradient(#ffffff, #aaaaaa);
+    background-image: -moz-linear-gradient(#ffffff, #aaaaaa);
+    background-image: -webkit-linear-gradient(#ffffff, #aaaaaa);
+    background-image: -ms-linear-gradient(#ffffff, #aaaaaa);
 }
 
 .popupwindow
@@ -453,12 +478,26 @@ table.tracklist {
 }
 
 table.histable tr:hover {
-    background-color:#ccdcf2;
+    font-size:105%;
+    text-shadow: 0 0 15px #ff4800;
+    transition:0.1s;
+}
+
+table.histable tr
+{
+    transition: 0.2s;
 }
 
 .backhi:hover {
-    background-color:#ccdcf2;
+    font-size:105%;
+    text-shadow: 0 0 15px #ff4800;
     cursor:pointer;
+    transition:0.1s;
+}
+
+.backhi
+{
+    transitiion:0.2s;
 }
 
 tr.clickaddtrack:hover
@@ -476,4 +515,19 @@ tr.clickaddtrack:hover
 span.clickartistchoose:hover
 {
     color:#000000;
+}
+
+.albumthing
+{
+    background-color: #f0f0f0;
+}
+
+.topimg
+{
+    opacity:0.8;
+}
+
+.topimg:not(.button-disabled):hover
+{
+    opacity:1;
 }

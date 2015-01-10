@@ -499,7 +499,7 @@ var imageEditor = function() {
 
                 var uform =                 $('<form>', { id: 'uform', action: 'getalbumcover.php', method: 'post', enctype: 'multipart/form-data' }).appendTo($("#usearch"));
                 uform.append(               $('<input>', { id: 'imagekey', type: 'hidden', name: 'key', value: '' }),
-                                            $('<input>', { name: 'ufile', type: 'file', size: '80', class: 'tleft' }),
+                                            $('<input>', { name: 'ufile', type: 'file', size: '80', class: 'tleft inbrowser' }),
                                             $('<input>', { type: 'button', class: 'tright', value: language.gettext("albumart_uploadbutton"), style: 'width:8em', onclick: "imageEditor.uploadFile()" }),
                                             '<div class="holdingcell"><p>'+language.gettext("albumart_dragdrop")+'</p></div>');
 

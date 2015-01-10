@@ -308,7 +308,7 @@ var info_spotify = function() {
 	            		}
 	            		x.append('<img class="masochist infoclick clickaddtrack" src="'+img+'" width="'+w+'" name="'+data.artists[i].uri+'"/>');
 	            		x.append('<div class="tagh albumthing"><i class="icon-toggle-closed menu infoclick clickopenartist"></i><span class="title-menu infoclick clickaddtrack" name="'+data.artists[i].uri+'">'+data.artists[i].name+'</span></div>')
-	            		x.append('<div class="tagh albumthing invisible edged selecotron" id="'+data.artists[i].id+'"></div>')
+	            		x.append('<div class="tagh albumthing invisible edged selecotron dropshadow" id="'+data.artists[i].id+'"></div>')
 	            	}
             		$("#artistalbums").imagesLoaded( function() {
                         if (displaying) {

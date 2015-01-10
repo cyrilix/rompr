@@ -74,7 +74,7 @@ a:hover,a:active
     background-image: -ms-linear-gradient(#b4b4b4, #e5e5e5);
 }
 
-button
+button, input[type="button"]
 {
     background-image: linear-gradient(#ccdcf2, #c0d0e7);
     background-image: -o-linear-gradient(#ccdcf2, #c0d0e7);
@@ -85,7 +85,7 @@ button
     border:1px solid #adadad;
 }
 
-button:hover
+button:hover, input[type="button"]:hover
 {
     color:#3875d7;
     border:1px solid #ccdcf2;

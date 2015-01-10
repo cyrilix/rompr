@@ -14,7 +14,7 @@ h1,h2,h3,h4,h5,h6
     color:#eeeeee;
 }
 
-button
+button, input[type="button"]
 {
     background-color:#202020 !important;
     border:1px solid #dedede;
@@ -24,7 +24,7 @@ button
     font-size:110%;
 }
 
-button:hover
+button:hover, input[type="button"]:hover
 {
     color:#ff4800;
     border:1px solid #ff4800;
@@ -111,12 +111,16 @@ div.clickable.selected:hover
 
 .playlistcurrentitem
 {
-    color:#cc0000;
+    font-size:110%
+    text-shadow 0 0 15px #ffffff;
+    transition:0.5s;
+    color:#ffffff;
 }
 
 .playlistcurrenttitle
 {
-    color:#cc0000;
+    font-size:125%
+    text-shadow 0 0 20px #ffffff;
 }
 
 .item
@@ -289,7 +293,12 @@ th.tlheader
 }
 
 .backhi:hover {
-    background-color:#454545;
+    color:#ff4800;
+    cursor:pointer;
+}
+
+table.histable tr:hover {
+    background-color:#ff4800;
     cursor:pointer;
 }
 

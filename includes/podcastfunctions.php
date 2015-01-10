@@ -409,7 +409,7 @@ function doPodcast($c) {
             continue;
         }
 
-        print '<div class="clickable clicktrack item" name="'.htmlspecialchars_decode($item->link).'">';
+        print '<div class="clickable clicktrack item podcastitem" name="'.htmlspecialchars_decode($item->link).'">';
         print '<div class="containerbox">';
         if ($item->new == "yes") {
             print '<i title="'.get_int_text("podcast_tooltip_new").'" class="icon-sun fixed newpodicon fridge"></i>';

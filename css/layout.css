@@ -1022,10 +1022,6 @@ table.histable tr td {
     padding-right:8px;
 }
 
-table.histable tr:hover {
-    background-color:#454545;
-}
-
 table.histable tr.current
 {
     font-weight:bold;
@@ -1735,4 +1731,9 @@ div.lyrics p
 .podoptions td
 {
     vertical-align:middle;
+}
+
+.podcastitem
+{
+    margin-bottom:2em;
 }
