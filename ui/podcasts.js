@@ -297,7 +297,7 @@ var podcasts = function() {
 				var confpanel = id.replace(/podcast_/, 'podconf_');
 				if ($("#"+confpanel).find('.podautodown').is(':checked')) {
 					obj.each(function() {
-						$(this).parent().parent().parent().find('.poddownload').click();
+						$(this).parent().parent().find('.poddownload').click();
 					});
 				}
 
@@ -342,7 +342,6 @@ var podcasts = function() {
 				updatenext = null;
 			}
 		}
-
 	}
 
 }();

@@ -51,7 +51,7 @@ a:hover,a:active
     color: #dddddd;
 }
 
-#sources
+#sources, #sources p
 {
     color: #eeeeee !important;
 }
