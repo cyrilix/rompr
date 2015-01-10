@@ -102,7 +102,6 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
             if (stream == "") {
                 stream = $(this).attr('romprstream') || "";
             }
-            // $(this).attr('src', blankicon);
         });
         debug.log("COVERSCRAPER","Stream is", stream);
         animateWaiting();
@@ -145,7 +144,12 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
             angle = 0;
             stopAnimation();
             $.each($('img[name="'+name+'"]'), function() {
-                $(this).attr("src", data.url);
+                // Use large images for playlist and nowplaying
+                if ($(this).hasClass("clickrollup") || $(this).attr("id") == "albumpicture") {
+                    $(this).attr("src", data.origimage);
+                } else {
+                    $(this).attr("src", data.url);
+                }
                 $(this).removeClass("notexist");
                 $(this).removeClass("notfound");
             });

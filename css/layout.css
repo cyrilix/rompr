@@ -1663,9 +1663,10 @@ div.lyrics p
 {
     background-color:#f9f9f9;
     margin-top:0px;
-    margin-left:0px;
+    margin-left:2px;
+    margin-right:2px;
     margin-bottom:0px;
-    padding:8px;
+    padding:4px;
     text-align:center;
 }
 

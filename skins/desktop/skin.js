@@ -13,7 +13,7 @@ function toggleSearch() {
     } else {
         layoutProcessor.sourceControl("albumlist", grrAnnoyed);
     }
-    $('#sources').mCustomScrollbar("scrollTo", 0, {scrollInertia:20});
+    $('#sources').mCustomScrollbar("scrollTo", 0, {scrollInertia:200});
     albumScrollOffset = 0;
     ihatefirefox();
     return false;
@@ -21,6 +21,19 @@ function toggleSearch() {
 
 function grrAnnoyed() {
     $("#search").slideDown({duration: 'fast', start: setSearchLabelWidth});
+}
+
+function doSomethingClever() {
+    if ($("#albumlist").is(':hidden')) {
+        layoutProcessor.sourceControl("albumlist");
+        if ($("#search").is(':visible')) {
+            $("#search").slideToggle('fast');
+        }
+    } else {
+        if ($("#search").is(':visible')) {
+            $('#sources').mCustomScrollbar("scrollTo", '#fothergill', {scrollInertia:200});
+        }
+    }
 }
 
 function getPanelWidths() {
@@ -220,7 +233,7 @@ var shortcuts = function() {
     }
 
     function format_clearbutton(inpname) {
-        return '<td><i class="icon-cancel-circled playlisticon clickicon buttonclear"></i></td>';
+        return '<td><i class="icon-cancel-circled playlisticon clickicon buttonclear" name="'+inpname+'"></i></td>';
     }
 
     return {

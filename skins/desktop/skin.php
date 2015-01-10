@@ -61,7 +61,7 @@ print '<div title="'.get_int_text('button_volume').'" id="volumecontrol" class="
 <div id="sourcescontrols" class="column noborder tleft containerbox headercontainer">
 <div class="expand topbox">
 <?php
-print '<i title="'.get_int_text('button_local_music').'" onclick="layoutProcessor.sourceControl(\'albumlist\')" id="choose_albumlist" class="icon-music tooltip topimg"></i>';
+print '<i title="'.get_int_text('button_local_music').'" onclick="doSomethingClever()" id="choose_albumlist" class="icon-music tooltip topimg"></i>';
 print '<i title="'.get_int_text('button_searchmusic').'" onclick="toggleSearch()" id="choose_searcher" class="icon-search topimg tooltip"></i>';
 print '<i title="'.get_int_text('button_file_browser').'" onclick="layoutProcessor.sourceControl(\'filelist\')" id="choose_filelist" class="icon-folder-open-empty tooltip topimg"></i>';
 print '<i title="'.get_int_text('button_internet_radio').'" onclick="layoutProcessor.sourceControl(\'radiolist\')" id="choose_radiolist" class="icon-radio-tower tooltip topimg"></i>';

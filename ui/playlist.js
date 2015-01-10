@@ -644,18 +644,11 @@ function Playlist() {
                     // Once mopidy starts supplying us with images, we can dump this code
                     // Note - this is required for when we load a spotify playlist because the albums won't be
                     // present in the window anywhere else
-                    var i = findImageInWindow(tracks[0].key);
-                    if (i !== false) {
-                        debug.log("PLAYLIST","Playlist using image already in window");
-                        this.updateImages(i);
-                        html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover fixed" name="'+tracks[0].key+'" src="'+i.url+'"/></div>';
-                    } else {
-                        html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index
-                                    + '"><img class="smallcover updateable notexist fixed clickable clickicon clickrollup" romprname="'+self.index
-                                    +'" name="'+tracks[0].key+'" src=""/></div>';
-                        coverscraper.setCallback(this.updateImages, tracks[0].key);
-                        coverscraper.GetNewAlbumArt(tracks[0].key);
-                    }
+                    html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index
+                                + '"><img class="smallcover updateable notexist fixed clickable clickicon clickrollup" romprname="'+self.index
+                                +'" name="'+tracks[0].key+'" src=""/></div>';
+                    coverscraper.setCallback(this.updateImages, tracks[0].key);
+                    coverscraper.GetNewAlbumArt(tracks[0].key);
                 } else {
                     html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover fixed notexist" name="'+tracks[0].key+'"/></div>';
                 }
@@ -700,9 +693,9 @@ function Playlist() {
 
         this.updateImages = function(data) {
             for (var trackpointer in tracks) {
-                tracks[trackpointer].image = data.url;
+                tracks[trackpointer].image = data.origimage;
             }
-            infobar.albumImage.setSecondarySource( {key: tracks[0].key, image: data.url });
+            infobar.albumImage.setSecondarySource( {key: tracks[0].key, image: data.origimage });
         }
 
         this.getFirst = function() {

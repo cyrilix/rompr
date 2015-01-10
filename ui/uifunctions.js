@@ -727,18 +727,13 @@ function doBuyTable(values) {
 }
 
 function findImageInWindow(key) {
-    var result = false;
     $.each($('img[name="'+key+'"]'), function() {
         var u = $(this).attr("src");
-        if (!$(this).hasClass('notexist') && !$(this).hasClass('notfound') && result === false &&
-            u != ""
-            // && u != "newimages/compact_disc.svg" &&
-            // u != "newimages/transparent-32x32.png"
-            ) {
-            result = { url: u, origimage: u.replace(/small/, 'asdownloaded'), delaytime: 100 };
+        if (!$(this).hasClass('notexist') && !$(this).hasClass('notfound') && u != "") {
+            return { url: u, origimage: u.replace(/small/, 'asdownloaded'), delaytime: 100 };
         }
     });
-    return result;
+    return false;
 }
 
 function handleDropRadio(ev) {

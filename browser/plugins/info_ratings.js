@@ -439,7 +439,7 @@ function updateCollectionDisplay(rdata) {
     // (a) take a long time and
     // (b) cause any opened dropdowns to be mysteriously closed
     //      - which would just look shit.
-    debug.log("RATING PLUGIN","Update Display",rdata);
+    debug.log("RATING PLUGIN","Update Display");
     if (rdata && rdata.hasOwnProperty('inserts')) {
         for (var i in rdata.inserts) {
             switch (rdata.inserts[i].type) {

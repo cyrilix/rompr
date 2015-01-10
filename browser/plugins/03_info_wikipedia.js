@@ -55,7 +55,7 @@ var info_wikipedia = function() {
 		// Remove inline colour styles on elements.
 		// We do background color twice because some elements have been found
 		// to have 2 background color styles applied.
-		if (prefs.theme == "Darkness.css" || prefs.theme == "TheBlues.css") {
+		if (prefs.theme == "Darkness.css" || prefs.theme == "TheBlues.css" || prefs.theme == "DarknessHiDPI.css" ) {
 			jq.find('[style*=background-color]').removeInlineCss('background-color');
 			jq.find('[style*=background-color]').removeInlineCss('background-color');
 			jq.find('[style*=background]').removeInlineCss('background');
@@ -65,10 +65,6 @@ var info_wikipedia = function() {
 		jq.find("li[class|='nv']").remove();
 
 		return jq.html();
-
-		// The original PHP formatter had these, but I'm not sure they're needed
-		// //<a class="external text" href="//en.wikipedia.org/w/index.php?title=Special:Book&amp;bookcmd=render_collection&amp;colltitle=Book:Deep_Purple&amp;writer=rl">Download PDF</a>
-		// $html = preg_replace( '/(<a .*? href=".*?Special\:Book.*?")/', '$1 target="_blank"', $html );
 
 	}
 

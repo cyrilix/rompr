@@ -472,3 +472,13 @@ div.rightmenu.normalmenu
     margin-top:4px;
     margin-bottom:4px;
 }
+
+#keybindtable
+{
+    margin-bottom:1em;
+}
+
+.buttonchange
+{
+    text-align:center;
+}
