@@ -111,7 +111,7 @@ div.clickable.selected:hover
 
 .playlistcurrentitem
 {
-    font-size:110%
+    font-size:110%;
     text-shadow 0 0 15px #ffffff;
     transition:0.5s;
     color:#ffffff;
