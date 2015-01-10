@@ -161,15 +161,6 @@ img.notexist,img.notfound
 {
     content: url('compact-disc.svg');
 }
-.dropdown-button {
-  background-image: url('dropdown.svg');
-  background-size:contain;
-  background-repeat:no-repeat;
-  background-position: center;
-  display:inline-block;
-  height:1em;
-  width:1em;
-}
 .icon-bbc-logo:before { content: '\e853'; } /* '' */
 .icon-imdb-logo {
   background-image: url('imdb-logo.svg');

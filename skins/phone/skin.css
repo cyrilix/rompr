@@ -58,17 +58,9 @@ h2
     width:4em;
 }
 
-#bottompage
-{
-    top:32px;
-    left:0px;
-    width:100%;
-    position:absolute;
-}
-
 .mainpane
 {
-    position: absolute;
+    width:100%;
 }
 
 #infobar
@@ -351,18 +343,16 @@ h2
     text-align:center;
 }
 
-#lastfm
-{
-    float:left;
-    margin-left:4px;
-    padding-top:1px;
-}
-
 #subscribe
 {
     float:left;
     margin-left:4px;
-    padding-top:1px;
+}
+
+#lastfm
+{
+    float:left;
+    margin-left:4px;
 }
 
 #playcount
@@ -372,7 +362,7 @@ h2
     overflow:hidden;
     opacity:0.9;
     font-size:8pt;
-    height:24px;
+    height:25px;
     line-height:24px;
 }
 
@@ -451,7 +441,7 @@ h2
 #amontobin
 {
     margin-top:4px;
-    height:48px;
+    height:50px;
 }
 
 #nowplayingfiddler
@@ -468,13 +458,6 @@ h2
 .infobarlayout
 {
     height:70px;
-}
-
-#lastfm
-{
-    margin-top:0px;
-    margin-right:2px;
-    margin-left:4px;
 }
 
 #stars
@@ -582,9 +565,6 @@ h2
 
 .info-detail-layout
 {
-/*    -moz-box-orient:vertical;
-    box-orient:vertical;
-*/    
     -webkit-box-orient:vertical;
     flex-direction: column;
 }
@@ -680,3 +660,20 @@ h2
 {
     margin-left:-20px !important;
 }
+
+.indent
+{
+    margin-left:24px;
+}
+
+.padright
+{
+    padding-right:4px;
+}
+
+.multidrop
+{
+    margin-top:4px;
+    margin-bottom:4px;
+}
+

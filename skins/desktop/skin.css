@@ -4,9 +4,6 @@
 
 .info-box-fixed
 {
-/*    -moz-box-flex:0;
-    box-flex:0;
-*/
     -webkit-box-flex:0;
     flex-grow: 0;
     flex-shrink:0;
@@ -20,10 +17,6 @@
 
 .info-box-expand
 {
-/*    -moz-box-flex:1.0;
-    box-flex:1.0;
-    width:2000px;
-*/    
     -webkit-box-flex:1.0;
     flex-grow: 1;
     flex-shrink: 1;
@@ -153,6 +146,13 @@
     float:left;
     margin-right:8px;
     margin-top:1px;
+}
+
+#lastfm
+{
+    float:left;
+    margin-left:4px;
+    padding-top:1px;
 }
 
 #lastfm img
@@ -457,3 +457,18 @@ div.rightmenu.normalmenu
     padding-top:2px;
 }
 
+.indent
+{
+    margin-left:24px;
+}
+
+.padright
+{
+    padding-right:4px;
+}
+
+.multidrop
+{
+    margin-top:4px;
+    margin-bottom:4px;
+}

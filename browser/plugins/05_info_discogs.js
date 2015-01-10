@@ -217,9 +217,9 @@ var info_discogs = function() {
 			html = html + getTracklist(data.master.data.tracklist)
 		}
 
-		if (layout != "phone" && data.release && data.release.data.videos) {
+		if (skin != "phone" && data.release && data.release.data.videos) {
 			html = html + doVideos(data.release.data.videos);
-		} else if (layout != "phone" && data.master && data.master.data.videos) {
+		} else if (skin != "phone" && data.master && data.master.data.videos) {
 			html = html + doVideos(data.master.data.videos);
 		}
 

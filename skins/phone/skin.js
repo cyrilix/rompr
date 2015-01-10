@@ -9,12 +9,11 @@ function toggleSearch() {
 
 function setBottomPaneSize() {
     var ws = getWindowSize();
-    var newheight = ws.y-$("#bottompage").offset().top;
+    var newheight = ws.y-$("#headerbar").outerHeight(true);
     // Set the height of the volume control bar
     var v = newheight - 32;
     $("#volumecontrol").css("height", v+"px");
-    $("#bottompage").css("height", newheight+"px");
-    $(".mainpane").css({height: newheight+"px", width: ws.x+"px"});
+    $(".mainpane").css({height: newheight+"px"});
     if ($("#infobar").is(':visible')) {
         var hack = ws.x - 32;
         var t = ws.y - $("#patrickmoore").offset().top - $("#amontobin").outerHeight(true);
@@ -22,13 +21,13 @@ function setBottomPaneSize() {
             $("#nowplayingfiddler").css({height: "40px", "margin-bottom": "4px" });
             $("#nptext").detach().appendTo("#nowplayingfiddler");
             layoutProcessor.playlistInNowplaying = true;
-            $("#playlistm").show().detach().prependTo("#nowplaying").removeClass('mainpane').css({width: "", left: ""});
+            $("#playlistm").detach().prependTo("#nowplaying").removeClass('mainpane').css({height: "100%"}).show();
             $(".playlistchoose").hide();
             if (prefs.chooser == "playlistm") {
                 layoutProcessor.sourceControl("infobar");
             }
         } else if (t <= 200 && layoutProcessor.playlistInNowplaying) {
-            $("#playlistm").detach().appendTo("#bottompage").addClass('mainpane').css({width: ws.x+"px", left: ws.x+"px"}).hide();
+            $("#playlistm").detach().appendTo("body").addClass('mainpane').css({height: newheight+"px"}).hide();
             $("#nptext").detach().appendTo("#nowplaying");
             $("#nowplayingfiddler").css({height: "0px", "margin-bottom": "0px"});
             layoutProcessor.playlistInNowplaying = false;
@@ -139,56 +138,17 @@ var layoutProcessor = function() {
         },
 
         sourceControl: function(source, callback) {
-            debug.log("SOURCECONTROL","Calling Up",source);
-            var ws = getWindowSize();
             if (source == prefs.chooser) {
-                $("#"+source).show().css({top: "0px", left: "0px"});
-                setBottomPaneSize();
+                $("#"+source).show(); 
                 return;
             }
-            var sources = ["infobar", "albumlist", "searchpane", "filelist", "radiolist", "infopane", "playlistm", "pluginplaylistholder", "chooser", "historypanel", "playlistman", "prefsm"];
-            if (typeof source == "number") {
-                var temp = source;
-                var newindex = sources.indexOf(prefs.chooser)+source;
-                if (newindex >= sources.length ) return false;
-                if (newindex < 0) return false;
-                source = sources[newindex];
-                if (source == "playlistm" && layoutProcessor.playlistInNowplaying) {
-                    source = sources[newindex+temp];
-                }
+            $("#"+prefs.chooser).hide();
+            $("#"+source).show(); 
+            prefs.save({chooser: source});
+            setBottomPaneSize();
+            if (callback) {
+                callback();
             }
-            if (sources.indexOf(source) < sources.indexOf(prefs.chooser)) {
-                var direction = -1;
-            } else {
-                var direction = 1;
-            }
-            
-            var mt = (ws.x*direction)+"px";
-            debug.log("SOURCECONTROL","Moving",source,"to",mt);
-            $("#"+source).css({top: "0px", left: mt}).show();
-            for (var i in sources) {
-                if (sources[i] != source && sources[i] != prefs.chooser && !(sources[i] == "playlistm" && layoutProcessor.playlistInNowplaying)) {
-                    $("#"+sources[i]).hide();
-                }
-            }
-
-            debug.log("SOURCECONTROL","Moving",source,"to",0);
-            var mt = (ws.x*(-direction))+"px";
-            debug.log("SOURCECONTROL","Moving",prefs.chooser,"to",mt);
-            $("#"+prefs.chooser).animate({
-                left: mt
-            }, 500, 'linear', function() {
-                $(this).hide();
-            });
-            $("#"+source).animate({
-                left: 0
-            }, 500, 'linear', function() {
-                prefs.save({chooser: source});
-                setBottomPaneSize();
-                if (callback) {
-                    callback();
-                }
-            });
         }
 
     }

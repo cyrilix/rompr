@@ -55,7 +55,7 @@ var tagManager = function() {
 	        		'</div>');
     			$("#tmgfoldup").append('<div class="containerbox padright noselection">'+
         			'<div class="expand">'+
-            		'<input class="enter" name="newtagnameinput" type="text" />'+
+            		'<input class="enter inbrowser" name="newtagnameinput" type="text" />'+
         			'</div>'+
 					'<button class="fixed" onclick="tagManager.createTag()">'+language.gettext("button_createtag")+'</button>'+
     				'</div>');

@@ -65,9 +65,51 @@ input[type=checkbox], input[type=radio]
     width:auto;
 }
 
+input[type=text]
+{
+    padding: 0px 2px;
+    height: 2em;
+    border: 0px none;
+    border-radius: 0 0;
+}
+
 select
 {
-    margin:2px;
+    width:115%;
+    background-color:transparent;
+    border:0px none;
+    margin:0px;
+    height:2em;
+    font-size:100%;
+    -webkit-appearance:none;
+}
+
+select:hover{
+    cursor:pointer;
+}
+
+.selectholder
+{
+    background:#fff url('../newimages/blobdown2.svg') right 2px center no-repeat;
+    overflow:hidden;
+    width:50%;
+    margin-top:4px;
+    margin-bottom:4px;
+    padding-left:2px;
+}
+
+.selectholder:hover{
+    background:#fff url('../newimages/blobdown2-hi.svg') right 2px center no-repeat;    
+}
+
+.combobox-entry
+{
+    background:#fff url('../newimages/blobdown2.svg') right 2px center no-repeat;    
+}
+
+.combobox-entry:hover
+{
+    background:#fff url('../newimages/blobdown2-hi.svg') right 2px center no-repeat;    
 }
 
 .enter
@@ -86,6 +128,7 @@ button
     padding-bottom:2px;
     padding-left:6px;
     padding-right:6px;
+    height:2em;
 }
 
 /*-- Divs used to create page layout in index.php --*/
@@ -117,21 +160,17 @@ button
     font-size:110%;
 }
 
-.pref span
+.divlabel
 {
-    display:inline-block;
-    width:40%;
+    width:41%;
     padding-right:6px;
+    font-weight:bold;
 }
 
-.pref b
+.pref .selectholder
 {
-    display:block;
-}
-
-.pref select
-{
-    width: 50%;
+    margin-bottom:0px;
+    margin-left: 1em;
 }
 
 .tright
@@ -170,29 +209,17 @@ button
 .containerbox
 {
     display:-webkit-box;
-/*    display:-moz-box;
-    display:-o-box;
-    display:box;
-    display:flexbox;
-    display:flex-box;
-*/
     display: flex;
 }
 
 .vertical
 {
     -webkit-box-orient:vertical;
-/*    -moz-box-orient:vertical;
-    box-orient:vertical;
-*/
     flex-direction: column;
 }
 
 .center {
     -webkit-box-pack:center;
-/*    box-pack:center;
-    -moz-box-pack:center;
-*/
     justify-content: center;
 }
 
@@ -207,10 +234,6 @@ button
 .expand
 {
     -webkit-box-flex:1.0;
-/*    -moz-box-flex:1.0;
-    box-flex:1.0;
-    width:2000px;
-*/
     flex-grow: 1;
     flex-shrink: 1;
     flex-basis: auto;
@@ -219,9 +242,6 @@ button
 .fixed
 {
     -webkit-box-flex:0;
-/*    -moz-box-flex:0;
-    box-flex:0;
-*/
     flex-grow: 0;
     flex-shrink:0;
 }
@@ -318,11 +338,6 @@ button
     display:block;
 }
 
-.padright
-{
-    padding-right:4px;
-}
-
 .whatdoicallthis
 {
     padding-left:0px;
@@ -335,11 +350,6 @@ button
 .bum
 {
     font-style:italic;
-}
-
-.indent
-{
-    margin-left:24px;
 }
 
 .selected
@@ -361,9 +371,6 @@ button
 {
     -webkit-box-align:center;
     padding-bottom:2px;
-/*    box-align:center;
-    -moz-box-align:center;
-*/
     align-items: center;
 }
 
@@ -1582,13 +1589,6 @@ div.lyrics p
     padding-bottom:0.2em;
 }
 
-#lastfm
-{
-    float:left;
-    margin-left:4px;
-    padding-top:1px;
-}
-
 .funkymusic
 {
     z-index:1500;
@@ -1609,9 +1609,6 @@ div.lyrics p
 
 .dropdown-container
 {
-/*    box-align:center;
-    -moz-box-align:center;
-*/
     -webkit-box-align:center;
     align-items: center;
 }
@@ -1623,7 +1620,7 @@ div.lyrics p
 
 .drop-box
 {
-    position:absolute;
+    position:relative;
     z-index:3000;
     display:none;
     max-height:15em;
@@ -1635,19 +1632,10 @@ div.lyrics p
     cursor:pointer;
 }
 
-.dropdown-button
-{
-    margin-left:-16px;
-    top:1px;
-    cursor:pointer;
-    position:relative;
-    overflow:hidden;
-    margin-right:4px;
-}
-
 .tagmenu
 {
     width:100%;
+    box-sizing:border-box;
 }
 
 #tagdoer
@@ -1736,12 +1724,6 @@ div.lyrics p
 
 .prefinput {
     width: 95%;
-}
-
-.multidrop
-{
-    margin-top:4px;
-    margin-bottom:4px;
 }
 
 .podoptions

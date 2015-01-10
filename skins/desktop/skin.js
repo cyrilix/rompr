@@ -461,7 +461,6 @@ function initUI() {
 
 }
 
-
 var layoutProcessor = function() {
 
     function switchsource(source) {

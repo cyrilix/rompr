@@ -68,7 +68,7 @@ if (array_key_exists('populate', $_REQUEST)) {
     ksort($countries);
     ksort($genres);
 
-    print '<div class="indent">';
+    print '<div class="indent"><div class="selectholder" style="width:95%">';
     print '<select id="radioselector" onchange="changeradiocountry()">';
     foreach ($countries as $name => $link) {
         print '<option value="'.$link.'"';
@@ -84,7 +84,7 @@ if (array_key_exists('populate', $_REQUEST)) {
         }
         print '>'.$name.'</option>';
     }
-    print '</select></div>';
+    print '</select></div></div>';
 
     $getstr = $prefs['radiocountry'];
     $content = url_get_contents($getstr);
@@ -177,7 +177,7 @@ if (array_key_exists('populate', $_REQUEST)) {
             print '<div class="smallcoverpadder fixed"></div><div class="expand">'.implode(' ', $track['meta']).'</div>';
             print '</div>';
             foreach ($track['links'] as $k) {
-                print '<div class="clickable clickstream indent containerbox padright menuitem" name="'.$k['url'].'" streamname="'.$track['title'].'" streamimg="'.$imgname.'">';
+                print '<div class="clickable clickstream containerbox padright menuitem" name="'.$k['url'].'" streamname="'.$track['title'].'" streamimg="'.$imgname.'">';
                 print '<div class="smallicon fixed"></div>';
                 print '<i class="'.audioClass($k['type']).' fixed smallicon"></i>';
                 print '<div class="expand">'.$k['text'].' '.$k['type'].'</div>';

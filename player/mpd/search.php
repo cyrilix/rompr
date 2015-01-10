@@ -8,7 +8,7 @@ $sterms = array(
     "label_composer" => "composer",
     "label_performer" => "performer"
 );
-include("layouts/search.php");
+include("skins/search.php");
 ?>
 <div class="indent containerbox padright">
     <div class="expand"></div>

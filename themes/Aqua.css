@@ -89,18 +89,22 @@ button:hover
 {
     color:#3875d7;
     border:1px solid #ccdcf2;
+    text-shadow: 0 0 15px #3875d7;
 }
 
 input
 {
-    border:1px solid #999999;
     color:#181818;
+}
+
+input.inbrowser, div.inbrowser
+{
+    border: 1px solid #888888;
 }
 
 select 
 {
     color:#000000;
-    border:1px solid #adadad;    
 }
 
 #notifications

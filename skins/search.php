@@ -24,7 +24,7 @@ if ($prefs['apache_backend'] == "sql") {
 <div class="containerbox padright dropdown-container">
 <?php
 print '<div class="fixed searchlabel"><b>'.get_int_text("label_rating").'</b></div>
-        <div class="expand">
+        <div class="expand selectholder">
         <select name="searchrating">
         <option value="5">5 '.get_int_text('stars').'</option>
         <option value="4">4 '.get_int_text('stars').'</option>

@@ -8,8 +8,8 @@ if (array_key_exists('populate', $_REQUEST)) {
     include ("international.php");
     print '<div id="anaconda" class="noselection fullwidth">';
 
-    print '<div class="containerbox"></div class="expand">'.get_int_text("label_radioinput").'</div></div>';
-    print '<div class="containerbox"><div class="expand"><input class="enter" name="horace" id="yourradioinput" type="text" /></div>';
+    print '<div class="containerbox indent"><div class="expand">'.get_int_text("label_radioinput").'</div></div>';
+    print '<div class="containerbox indent"><div class="expand"><input class="enter" name="horace" id="yourradioinput" type="text" /></div>';
     print '<button class="fixed" onclick="doInternetRadio(\'yourradioinput\')">'.get_int_text("button_playradio").'</button></div>';
     $playlists = array();
 

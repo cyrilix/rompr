@@ -306,20 +306,22 @@ function doPodcast($c) {
     print '<input type="hidden" class="podnextupdate" value="'.$nextupdate.'" />';
     print '<input type="hidden" class="podauto" value="'.$y->autodownload.'" />';
 
-    print '<div class="containerbox podoptions">';
-    print '<table>';
-    print '<tr><td align="right">'.get_int_text("podcast_display").'&nbsp;&nbsp;</td>';
-    print '<td><select name="displaymode" onchange="podcasts.changeOption(event)">';
+    print '<div class="containerbox vertical podoptions">';
+    print '<div class="containerbox fixed dropdown-container"><div class="divlabel">'.get_int_text("podcast_display").'</div>';
+    print '<div class="selectholder">';
+    print '<select name="displaymode" onchange="podcasts.changeOption(event)">';
     $options =  '<option value="all">'.get_int_text("podcast_display_all").'</option>'.
                 '<option value="new">'.get_int_text("podcast_display_onlynew").'</option>'.
                 '<option value="unlistened">'.get_int_text("podcast_display_unlistened").'</option>'.
                 '<option value="downloadednew">'.get_int_text("podcast_display_downloadnew").'</option>'.
                 '<option value="downloaded">'.get_int_text("podcast_display_downloaded").'</option>';
     print preg_replace('/(<option value="'.$y->displaymode.'")/', '$1 selected', $options);
-    print '</select></td></tr>';
+    print '</select>';
+    print '</div></div>';
 
-    print '<tr><td align="right">'.get_int_text("podcast_refresh").'&nbsp;&nbsp;</td>';
-    print '<td><select name="refreshoption" onchange="podcasts.changeOption(event)">';
+    print '<div class="containerbox fixed dropdown-container"><div class="divlabel">'.get_int_text("podcast_refresh").'</div>';
+    print '<div class="selectholder">';
+    print '<select name="refreshoption" onchange="podcasts.changeOption(event)">';
     $options =  '<option value="never">'.get_int_text("podcast_refresh_never").'</option>'.
                 '<option value="hourly">'.get_int_text("podcast_refresh_hourly").'</option>'.
                 '<option value="daily">'.get_int_text("podcast_refresh_daily").'</option>'.
@@ -330,10 +332,12 @@ function doPodcast($c) {
         $opt = "never";
     }
     print preg_replace('/(<option value="'.$opt.'")/', '$1 selected', $options);
-    print '</select></td></tr>';
+    print '</select>';
+    print '</div></div>';
 
-    print '<tr><td align="right">'.get_int_text("podcast_expire").'&nbsp;&nbsp;</td>';
-    print '<td><select title="'.get_int_text("podcast_expire_tooltip").'" name="daystokeep" class="fridge" onchange="podcasts.changeOption(event)">';
+    print '<div class="containerbox fixed dropdown-container"><div class="divlabel">'.get_int_text("podcast_expire").'</div>';
+    print '<div class="selectholder">';
+    print '<select title="'.get_int_text("podcast_expire_tooltip").'" name="daystokeep" class="fridge" onchange="podcasts.changeOption(event)">';
     $options =  '<option value="0">'.get_int_text("podcast_expire_never").'</option>'.
                 '<option value="7">'.get_int_text("podcast_expire_week").'</option>'.
                 '<option value="14">'.get_int_text("podcast_expire_2week").'</option>'.
@@ -346,10 +350,12 @@ function doPodcast($c) {
         $opt = "0";
     }
     print preg_replace('/(<option value="'.$opt.'")/', '$1 selected', $options);
-    print '</select></td></tr>';
+    print '</select>';
+    print '</div></div>';
 
-    print '<tr><td align="right">'.get_int_text("podcast_keep").'&nbsp;&nbsp;</td>';
-    print '<td><select title="'.get_int_text("podcast_keep_tooltip").'" name="numtokeep" class="fridge" onchange="podcasts.changeOption(event)">';
+    print '<div class="containerbox fixed dropdown-container"><div class="divlabel">'.get_int_text("podcast_keep").'</div>';
+    print '<div class="selectholder">';
+    print '<select title="'.get_int_text("podcast_keep_tooltip").'" name="numtokeep" class="fridge" onchange="podcasts.changeOption(event)">';
     $options =  '<option value="0">'.get_int_text("podcast_keep_0").'</option>'.
                 '<option value="1">1</option>'.
                 '<option value="5">5</option>'.
@@ -363,17 +369,18 @@ function doPodcast($c) {
         $opt = "0";
     }
     print preg_replace('/(<option value="'.$opt.'")/', '$1 selected', $options);
-    print '</select></td></tr>';
-    print '</table></div>';
+    print '</select>';
+    print '</div></div>';
+    print '</div>';
 
-    print '<div class="containerbox bumpad">';
+    print '<div class="containerbox fixed bumpad">';
     print '<input title="'.get_int_text("podcast_kd_tooltip").'" type="checkbox" class="topcheck fridge" name="keepdownloaded" onclick="podcasts.changeOption(event)"';
     if ($y->keepdownloaded == "true") {
         print ' checked';
     }
     print '>'.get_int_text("podcast_keep_downloaded").'</input></div>';
 
-    print '<div class="containerbox bumpad">';
+    print '<div class="containerbox fixed bumpad">';
     print '<input type="checkbox" class="topcheck podautodown" name="autodownload" onclick="podcasts.changeOption(event)"';
     if ($y->autodownload == "true") {
         print ' checked';

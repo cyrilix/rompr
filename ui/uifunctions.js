@@ -473,7 +473,6 @@ function setPlaylistButtons() {
     c = (player.status.xfade === undefined || player.status.xfade === null || player.status.xfade == 0) ? "off" : "on";
     $("#crossfade").switchToggle(c);
     $.each(['random', 'repeat', 'consume'], function(i,v) {
-        // var ic = player.status[v] ? "on" : "off"
         $("#"+v).switchToggle(player.status[v]);
     });
 }
@@ -869,16 +868,15 @@ jQuery.fn.makeTagMenu = function(options) {
     },options);
 
     this.each(function() {
-        var tbc = "enter";
-        if (settings.textboxextraclass != "") {
+        var tbc = "enter combobox-entry";
+        if (settings.textboxextraclass) {
             tbc = tbc + " "+settings.textboxextraclass;
         }
         $(this).append(settings.labelhtml);
-        var holder = $('<div>', { class: "expand dropdown-holder"}).appendTo($(this));
+        var holder = $('<div>', { class: "expand"}).appendTo($(this));
         var textbox = $('<input>', { type: "text", class: tbc, name: settings.textboxname }).appendTo(holder);
-        var dropbox = $('<div>', {class: "drop-box dropshadow tagmenu"}).appendTo(holder);
+        var dropbox = $('<div>', {class: "drop-box tagmenu dropshadow"}).appendTo(holder);
         var menucontents = $('<div>', {class: "tagmenu-contents"}).appendTo(dropbox);
-        var button = $('<div>', {class: "fixed dropdown-button"}).appendTo($(this));
         if (settings.buttontext !== null) {
             var submitbutton = $('<button>', {class: "fixed"+settings.buttonclass, style: "margin-left: 8px"}).appendTo($(this));
             submitbutton.html(settings.buttontext);
@@ -900,32 +898,36 @@ jQuery.fn.makeTagMenu = function(options) {
             });
         }
 
-        button.click(function(ev) {
+        textbox.click(function(ev) {
             ev.preventDefault();
             ev.stopPropagation();
-            if (dropbox.is(':visible')) {
-                dropbox.slideToggle('fast');
-            } else {
-                var data = settings.populatefunction(function(data) {
-                    menucontents.empty();
-                    for (var i in data) {
-                        var d = $('<div>', {class: "backhi"}).appendTo(menucontents);
-                        d.html(data[i]);
-                        d.click(function() {
-                            var cv = textbox.val();
-                            if (cv != "") {
-                                cv += ",";
-                            }
-                            cv += $(this).html();
-                            textbox.val(cv);
-                        });
-                    }
-                    dropbox.slideToggle('fast', function() {
-                        if (layoutProcessor.hasCustomScrollbars) {
-                            dropbox.mCustomScrollbar("update");
+            var position = getPosition(ev);
+            var elemright = textbox.width() + textbox.offset().left;
+            if (position.x > elemright - 24) {
+                if (dropbox.is(':visible')) {
+                    dropbox.slideToggle('fast');
+                } else {
+                    var data = settings.populatefunction(function(data) {
+                        menucontents.empty();
+                        for (var i in data) {
+                            var d = $('<div>', {class: "backhi"}).appendTo(menucontents);
+                            d.html(data[i]);
+                            d.click(function() {
+                                var cv = textbox.val();
+                                if (cv != "") {
+                                    cv += ",";
+                                }
+                                cv += $(this).html();
+                                textbox.val(cv);
+                            });
                         }
+                        dropbox.slideToggle('fast', function() {
+                            if (layoutProcessor.hasCustomScrollbars) {
+                                dropbox.mCustomScrollbar("update");
+                            }
+                        });
                     });
-                });
+                }
             }
         });
     });

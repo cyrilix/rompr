@@ -10,7 +10,7 @@ $sterms = array(
     "label_performer" => "performer",
     "label_anything" => "any"
 );
-include("layouts/search.php");
+include("skins/search.php");
 
 print '<div class="containerbox padright dropdown-container" style="padding-top:4px">';
 print '<input class="autoset toggle" type="checkbox" id="search_limit_limitsearch">'.get_int_text("label_limitsearch").'</input>';

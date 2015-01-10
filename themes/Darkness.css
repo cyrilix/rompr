@@ -27,17 +27,13 @@ button
 button:hover
 {
     color:#ff4800;
+    border:1px solid #ff4800;
+    text-shadow: 0 0 15px #ff4800;
 }
 
 input
 {
-    border:1px solid #999999;
     color:#181818;
-}
-
-select
-{
-    border-color:black;
 }
 
 a:link
@@ -152,7 +148,6 @@ div.clickable.selected:hover
 
 .infosection
 {
-    /*background-color:#000000;*/
     border-top:1px solid #000000;
 }
 

@@ -52,8 +52,8 @@ if (array_key_exists('populate', $_REQUEST)) {
 
         print '<div id="fruitbat" class="noselection fullwidth">';
         print '<div id="cocksausage">';
-        print '<div class="containerbox"><div class="expand">'.get_int_text("podcast_entrybox").'</div></div>';
-        print '<div class="containerbox"><div class="expand"><input class="enter" name="ginger" id="podcastsinput" type="text" /></div>';
+        print '<div class="containerbox indent"><div class="expand">'.get_int_text("podcast_entrybox").'</div></div>';
+        print '<div class="containerbox indent"><div class="expand"><input class="enter" name="ginger" id="podcastsinput" type="text" /></div>';
         print '<button class="fixed" onclick="podcasts.doPodcast(\'podcastsinput\')">'.get_int_text("label_retrieve").'</button></div>';
         print '</div>';
 

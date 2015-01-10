@@ -642,7 +642,7 @@ function Playlist() {
                 if (prefs.downloadart) {
                     // This is so we can get albumart when we're playing spotify
                     // Once mopidy starts supplying us with images, we can dump this code
-                    // Note - this is reuired for when we load a spotify playlist because the albums won't be
+                    // Note - this is required for when we load a spotify playlist because the albums won't be
                     // present in the window anywhere else
                     var i = findImageInWindow(tracks[0].key);
                     if (i !== false) {

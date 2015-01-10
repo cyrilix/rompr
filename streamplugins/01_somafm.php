@@ -103,7 +103,7 @@ function format_listenlink($c, $p, $label) {
     if (!$img) {
         $img = (string) $c->image;
     }
-    print '<div class="clickable clickstream indent containerbox padright menuitem" name="'.(string) $p.'" streamimg="getRemoteImage.php?url='.$img.'" streamname="'.$c->title.'">';
+    print '<div class="clickable clickstream menuitem indent containerbox padright" name="'.(string) $p.'" streamimg="getRemoteImage.php?url='.$img.'" streamname="'.$c->title.'">';
     print '<i class="icon-radio-tower fixed smallicon"></i>';
     print '<div class="fixed">'.$label.'&nbsp;</div>';
     switch ($p[0]['format']) {

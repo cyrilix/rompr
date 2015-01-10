@@ -1,46 +1,49 @@
 <?php
 
+// There may appear to be a lot of unnecessary divs wrapping around things here
+// but it makes it work in Safari. DO NOT CHANGE IT!
+
 print '<div class="textcentre configtitle"><b>'.get_int_text('settings_appearance').'</b></div>';
 
 // Theme
-print '<div class="pref"><span><b>'.get_int_text('config_theme').'</b></span><select id="themeselector" class="saveomatic">';
+print '<div class="pref containerbox dropdown-container"><div class="divlabel">'.get_int_text('config_theme').'</div><div class="selectholder"><select id="themeselector" class="saveomatic">';
 $themes = glob("themes/*.css");
 foreach($themes as $theme) {
     print '<option value="'.basename($theme).'">'.preg_replace('/\.css$/', "", basename($theme)).'</option>';
 }
-print '</select></div>';
+print '</select></div></div>';
 
 // Icon Theme
-print '<div class="pref"><span><b>'.get_int_text('config_icontheme').'</b></span><select id="iconthemeselector" class="saveomatic">';
+print '<div class="pref containerbox dropdown-container"><div class="divlabel">'.get_int_text('config_icontheme').'</div><div class="selectholder"><select id="iconthemeselector" class="saveomatic">';
 $themes = glob("iconsets/*");
 foreach($themes as $theme) {
     print '<option value="'.basename($theme).'">'.basename($theme).'</option>';
 }
-print '</select></div>';
+print '</select></div></div>';
 
 // Font
-print '<div class="pref"><span><b>'.get_int_text('config_fontname').'</b></span><select id="fontfamilyselector" class="saveomatic">';
+print '<div class="pref containerbox dropdown-container"><div class="divlabel">'.get_int_text('config_fontname').'</div><div class="selectholder"><select id="fontfamilyselector" class="saveomatic">';
 $themes = glob("fonts/*.css");
 foreach($themes as $theme) {
     print '<option value="'.preg_replace("#fonts/#", "", $theme).'">'.preg_replace('/fonts\/(.*?)\.css$/', "$1", $theme).'</option>';
 }
-print '</select></div>';
+print '</select></div></div>';
 
 //Font Size
-print '<div class="pref"><span><b>'.get_int_text('config_fontsize').'</b></span><select id="fontsizeselector" class="saveomatic">';
+print '<div class="pref containerbox dropdown-container"><div class="divlabel">'.get_int_text('config_fontsize').'</div><div class="selectholder"><select id="fontsizeselector" class="saveomatic">';
 $themes = glob("sizes/*.css");
 foreach($themes as $theme) {
     print '<option value="'.preg_replace("#sizes/#", "", $theme).'">'.preg_replace('/sizes\/\d+-(.*?)\.css$/', "$1", $theme).'</option>';
 }
-print '</select></div>';
+print '</select></div></div>';
 
 // Album Cover Size
-print '<div class="pref"><span><b>'.get_int_text('config_coversize').'</b></span><select id="coversizeselector" class="saveomatic">';
+print '<div class="pref containerbox dropdown-container"><div class="divlabel">'.get_int_text('config_coversize').'</div><div class="selectholder"><select id="coversizeselector" class="saveomatic">';
 $themes = glob("coversizes/*.css");
 foreach($themes as $theme) {
     print '<option value="'.preg_replace("#coversizes/#", "", $theme).'">'.preg_replace('/coversizes\/\d+-(.*?)\.css$/', "$1", $theme).'</option>';
 }
-print '</select></div>';
+print '</select></div></div>';
 
 // Sources Panel Hiding
 print '<div class="textcentre configtitle"><b>'.get_int_text('settings_panels').'</b></div>';
@@ -53,7 +56,7 @@ print '<div class="pref">
 print '<div class="pref">';
 print '<input class="autoset toggle" type="checkbox" id="hide_radiolist">'.get_int_text('config_hideradio').'</input>
 </div>';
-if ($layout == "desktop") {
+if ($skin == "desktop") {
 print '<div class="pref">
 <input class="autoset toggle" type="checkbox" id="hidebrowser">'.get_int_text('config_hidebrowser').'</input>
 </div>';
@@ -62,7 +65,7 @@ print '<div class="pref">
 // Biography and Language
 print '<div class="textcentre ucfirst configtitle"><b>'.get_int_text('settings_language').'</b></div>';
 
-print '<div class="pref"><span><b>'.get_int_text('settings_interface').'</b></span><select id="langselector" onchange="changelanguage()">';
+print '<div class="pref containerbox dropdown-container"><div class="divlabel">'.get_int_text('settings_interface').'</div><div class="selectholder"><select id="langselector" onchange="changelanguage()">';
 $langs = glob("international/*.php");
 foreach($langs as $lang) {
     if (basename($lang) != "en.php" && basename($lang) != $interface_language.".php") {
@@ -72,10 +75,10 @@ foreach($langs as $lang) {
 foreach($langname as $key => $value) {
     print '<option value="'.$key.'">'.$value.'</option>';
 }
-print '</select></div>';
+print '</select></div></div>';
 
 print '<div class="pref">
-<b>'.get_int_text("config_lastfmlang").'</b>
+<b>'.get_int_text("config_lastfmlang").'</b><br/>
 <input type="radio" class="topcheck savulon" name="lastfmlang" value="default">'.get_int_text('config_lastfmdefault').'</input><br/>
 <input type="radio" class="topcheck savulon" name="lastfmlang" value="interface">'.get_int_text('config_lastfminterface').'</input><br/>
 <input type="radio" class="topcheck savulon" name="lastfmlang" value="browser">'.get_int_text('config_lastfmbrowser').'</input><br/>
@@ -83,13 +86,12 @@ print '<div class="pref">
 <div class="tiny">'.get_int_text('config_langinfo').'</div>
 </div>';
 
-print '<div class="pref"><span><b>'.get_int_text('config_country').'</b></span><select class="prefinput saveomatic" id="lastfm_country_codeselector">';
+print '<div class="pref containerbox dropdown-container"><div class="divlabel">'.get_int_text('config_country').'</div><div class="selectholder"><select class="saveomatic" id="lastfm_country_codeselector">';
 $x = simplexml_load_file('iso3166.xml');
 foreach($x->CountryEntry as $i => $c) {
     print '<option value="'.$c->CountryCode.'">'.mb_convert_case($c->CountryName, MB_CASE_TITLE, "UTF-8")."</option>\n";
 }
-print '</select>
-</div>';
+print '</select></div></div>';
 
 // Local Music Options
 print '<div class="textcentre ucfirst configtitle"><b>'.get_int_text('button_local_music').'</b></div>';
@@ -134,7 +136,6 @@ if ($prefs['apache_backend'] == "sql") {
 print '<div class="pref">
 <input class="autoset toggle" type="checkbox" id="sortbydate">'.get_int_text('config_sortbydate').'</input><br/>
 <input class="autoset toggle" type="checkbox" id="notvabydate">'.get_int_text('config_notvabydate').'</input><br/>
-<div class="tiny">'.get_int_text('config_dateinfo').'</div>
 </div>';
 
 print '<div class="pref">
@@ -162,7 +163,7 @@ print '<div class="pref">
 
 // Interface
 print '<div class="textcentre configtitle"><b>'.get_int_text('settings_interface').'</b></div>';
-if ($layout == "desktop") {
+if ($skin != "phone") {
 print '<div class="pref textcentre"><button onclick="shortcuts.edit()">'.get_int_text('config_editshortcuts').'</button></div>'."\n";
 }
 print '<div class="pref">
@@ -217,11 +218,11 @@ print '<div class="textcentre configtitle">
 <input class="autoset toggle" type="checkbox" id="synctags">'.get_int_text('config_synctags').'</input>';
 ?>
 </div>
-<div class="pref">
+<div class="pref containerbox dropdown-container">
 <?php
-print '<input class="autoset toggle" type="checkbox" id="synclove">'.get_int_text('config_loveis').'</input>'."\n";
+print '<div class="divlabel"><input class="autoset toggle" type="checkbox" id="synclove">'.get_int_text('config_loveis').'</input></div>';
 ?>
-<select id="synclovevalueselector" class="saveomatic">
+<div class="selectholder"><select id="synclovevalueselector" class="saveomatic">
 <?php
 print '<option value="5">5 '.get_int_text('stars').'</option>
 <option value="4">4 '.get_int_text('stars').'</option>
@@ -230,7 +231,7 @@ print '<option value="5">5 '.get_int_text('stars').'</option>
 <option value="1">1 '.get_int_text('star').'</option>';
 ?>
 </select>
-</div>
+</div></div>
 <?php
 }
 ?>

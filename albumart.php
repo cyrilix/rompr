@@ -17,16 +17,16 @@ set_time_limit(240);
 <meta http-equiv="pragma" content="no-cache" />
 <link rel="stylesheet" type="text/css" href="css/layout.css" />
 <link rel="stylesheet" type="text/css" href="css/albumart.css" />
-<link rel="stylesheet" type="text/css" href="layouts/desktop/layout.css" />
+<link rel="stylesheet" type="text/css" href="skins/desktop/skin.css" />
 <link rel="stylesheet" id="theme" type="text/css" />
 <link rel="stylesheet" id="fontsize" type="text/css" />
 <link rel="stylesheet" id="fontfamily" type="text/css" />
 <link rel="stylesheet" id="icontheme-theme" type="text/css" />
 <link rel="stylesheet" id="icontheme-adjustments" type="text/css" />
-<link type="text/css" href="layouts/desktop/jquery.mCustomScrollbar.css" rel="stylesheet" />
+<link type="text/css" href="css/jquery.mCustomScrollbar.css" rel="stylesheet" />
 <script type="text/javascript" src="jquery/jquery-1.8.3-min.js"></script>
-<script type="text/javascript" src="layouts/desktop/jquery.mCustomScrollbar.concat.min.js"></script>
-<script type="text/javascript" src="layouts/desktop/functions.js"></script>
+<script type="text/javascript" src="jquery/jquery.mCustomScrollbar.concat.min.js"></script>
+<script type="text/javascript" src="skins/desktop/skin.js"></script>
 <script type="text/javascript" src="ui/functions.js"></script>
 <script type="text/javascript" src="ui/uifunctions.js"></script>
 <script type="text/javascript" src="ui/debug.js"></script>
@@ -49,7 +49,7 @@ if ($prefs['debug_enabled']) {
 }
 ?>
 
-var layout = "desktop";
+var skin = "desktop";
 var imagekey = '';
 var imgobj = null;
 var useLocalStorage = false;

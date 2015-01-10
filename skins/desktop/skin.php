@@ -218,7 +218,7 @@ print '<div id="artistinformation" class="infotext noselection"><h2 align="cente
 
 <div id="playlist" class="column noborder tright">
 <?php
-include("layouts/playlist.php");
+include("skins/playlist.php");
 ?>
 </div>
 </div>

@@ -15,7 +15,7 @@ var wikipedia = function() {
 			for (var i in terms) {
 				url = url + i+'='+encodeURIComponent(terms[i])+"&";
 			}
-			url = url + "lang="+wikipedia.getLanguage()+"&layout="+layout;
+			url = url + "lang="+wikipedia.getLanguage()+"&layout="+skin;
 		    $.ajax({
 		        type: "GET",
 		        url: url,
@@ -35,7 +35,7 @@ var wikipedia = function() {
 			for (var i in terms) {
 				url = url + i+'='+encodeURIComponent(terms[i])+"&";
 			}
-			url = url + "lang="+wikipedia.getLanguage()+"&layout="+layout;
+			url = url + "lang="+wikipedia.getLanguage()+"&layout="+skin;
 		    $.ajax({
 		        type: "GET",
 		        url: url,
@@ -72,7 +72,7 @@ var wikipedia = function() {
 		getWiki: function(link, success, fail) {
 			$("#infopane").css({cursor:'wait'});
 			$("#infopane a").css({cursor:'wait'});
-			var url = "browser/backends/info_wikipedia.php?wiki="+link+"&layout="+layout;
+			var url = "browser/backends/info_wikipedia.php?wiki="+link+"&layout="+skin;
 		    $.ajax({
 		        type: "GET",
 		        url: url,

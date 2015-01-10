@@ -40,17 +40,12 @@ button
 button:hover
 {
     color:#ff4800;
+    text-shadow: 0 0 15px #ff4800;
 }
 
 input
 {
-    border:1px solid #999999;
     color:#181818;
-}
-
-select
-{
-    border-color:black;
 }
 
 a:link

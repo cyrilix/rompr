@@ -30,7 +30,6 @@ a:hover,a:active
 
 input
 {
-    border:1px solid #999999;
     color:#181818;
 }
 
@@ -39,10 +38,20 @@ button
     color:#000000;
 }
 
+button:hover
+{
+    color:#ff4800;
+    text-shadow: 0 0 15px #ff4800;
+}
+
 select
 {
-    border:1px solid #999999;
     color:#181818;
+}
+
+input.inbrowser, div.inbrowser
+{
+    border: 1px solid #888888;
 }
 
 #infobar

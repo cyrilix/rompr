@@ -26,7 +26,7 @@ $searchlimits = array(  "local" => "Local Files",
                         "radio_de" => "Radio.de",
                         );
 
-print "var layout = '".$layout."';\n";
+print "var skin = '".$skin."';\n";
 print 'var prefs = '.json_encode($prefs)."\n";
 ?>
 
@@ -36,7 +36,7 @@ prefs.updateLocal = function() {
             prefs[p] = JSON.parse(localStorage.getItem("prefs."+p));
         }
     });
-    if (layout == "phone") {
+    if (skin == "phone") {
         prefs.clickmode = 'single';
     }
 }

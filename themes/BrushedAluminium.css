@@ -29,22 +29,21 @@ a:hover,a:active
     color:#ff4800;
 }
 
-input
-{
-    border:1px solid #999999;
-}
-
 button
 {
     color:#000000;
 }
 
-select
+button:hover
 {
-    border:1px solid #999999;
+    color:#ff4800;
+    text-shadow: 0 0 15px #ff4800;
 }
 
-
+input.inbrowser, div.inbrowser
+{
+    border: 1px solid #888888;
+}
 
 #notifications
 {

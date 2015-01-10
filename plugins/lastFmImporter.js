@@ -176,7 +176,7 @@ var lastfmImporter = function() {
 	            	'<input type="radio" class="topcheck" name="importc" value="both">'+language.gettext("label_tagandlove")+'</input><br>'+
 	            	'<input type="radio" class="topcheck" name="importc" value="all">'+language.gettext("label_everything")+'</input></div>'+
 
-	            	'<div class="expand">'+language.gettext("label_giveloved")+' '+
+	            	'<div class="expand"><div class="containerbox dropdown-container"><div class="divlabel">'+language.gettext("label_giveloved")+'</div><div class="selectholder inbrowser">'+
 	            	'<select id="goo">'+
 	            	'<option value="5">5 '+language.gettext("stars")+'</option>'+
 	            	'<option value="4">4 '+language.gettext("stars")+'</option>'+
@@ -184,7 +184,7 @@ var lastfmImporter = function() {
 	            	'<option value="2">2 '+language.gettext("stars")+'</option>'+
 	            	'<option value="1">1 '+language.gettext("stars")+'</option>'+
 	            	'<option value="0">'+language.gettext("norating")+'</option>'+
-	            	'</select><br>'+
+	            	'</select></div></div>'+
 	            	'<input type="checkbox" class="topcheck" id="reviewfirst">'+language.gettext("label_review")+'</input><br>'+
 	            	'<input type="checkbox" class="topcheck" id="wishlist">'+language.gettext("label_addtowish")+'</input>'+
 	            	'</div>'+

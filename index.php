@@ -41,26 +41,32 @@ if (array_key_exists('setup', $_REQUEST)) {
 
 include 'utils/Mobile_Detect.php';
 if (array_key_exists('mobile', $_REQUEST)) {
-    $layout = ($_REQUEST['mobile'] == "phone") ? "phone" : "desktop";
-    debug_print("Request asked for layout: ".$layout,"INIT");
-} else if(array_key_exists('layout', $_REQUEST)) {
-    $layout = $_REQUEST['layout'];
-    debug_print("Request asked for layout: ".$layout,"INIT");
-    if (!is_dir('layouts/'.$layout)) {
-        print '<h3>Layout '.$layout.' does not exist!</h3>';
+    $skin = ($_REQUEST['mobile'] == "phone") ? "phone" : "desktop";
+    debug_print("Request asked for skin: ".$skin,"INIT");
+} else if(array_key_exists('skin', $_REQUEST)) {
+    $skin = $_REQUEST['skin'];
+    debug_print("Request asked for skin: ".$skin,"INIT");
+    if (!is_dir('skins/'.$skin)) {
+        print '<h3>Skin '.$skin.' does not exist!</h3>';
         exit(0);
     }
 } else {
     $detect = new Mobile_Detect();
     if ($detect->isMobile() || $detect->isTablet()) {
         debug_print("Mobile Browser Detected!","INIT");
-        $layout = "phone";
+        $skin = "phone";
     } else {
         debug_print("Not a mobile browser","INIT");
-        $layout = "desktop";
+        $skin = "desktop";
     }
 }
-debug_print("Using layout : ".$layout,"INIT");
+debug_print("Using skin : ".$skin,"INIT");
+if (file_exists('skins/'.$skin.'/skin.requires')) {
+    debug_print("Loading Skin Requirements File","INIT");
+    $skinrequires = file('skins/'.$skin.'/skin.requires');
+} else {
+    $skinrequires = array();
+}
 
 //
 // Find mopidy's HTTP interface, if present or ignore this check
@@ -151,9 +157,14 @@ debug_print("=================****==================","STARTED UP");
 <link rel="stylesheet" type="text/css" href="tiptip/tipTip.css" />
 <link type="text/css" href="jqueryui1.8.16/css/start/jquery-ui-1.8.23.custom.css" rel="stylesheet" />
 <?php
-$inc = glob("layouts/".$layout."/*.css");
-foreach($inc as $i) {
-    print '<link rel="stylesheet" type="text/css" href="'.$i.'" />'."\n";
+print '<link rel="stylesheet" type="text/css" href="skins/'.$skin.'/skin.css" />'."\n";
+foreach ($skinrequires as $s) {
+    $s = trim($s);
+    $ext = strtolower(pathinfo($s, PATHINFO_EXTENSION));
+    if ($ext == "css") {
+        debug_print("Including Skin Requirement ".$s,"INIT");
+        print '<link rel="stylesheet" type="text/css" href="'.$s.'" />'."\n";
+    }
 }
 ?>
 <link rel="stylesheet" id="theme" type="text/css" />
@@ -233,10 +244,15 @@ var isChrome = isChrome();
 </script>
 
 <?php
-$inc = glob("layouts/".$layout."/*.js");
-foreach($inc as $i) {
-    print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
+foreach ($skinrequires as $s) {
+    $s = trim($s);
+    $ext = strtolower(pathinfo($s, PATHINFO_EXTENSION));
+    if ($ext == "js") {
+        debug_print("Including Skin Requirement ".$s,"INIT");
+        print '<script type="text/javascript" src="'.$s.'"></script>'."\n";
+    }
 }
+print '<script type="text/javascript" src="skins/'.$skin.'/skin.js"></script>'."\n";
 ?>
 
 <script language="javascript">
@@ -314,14 +330,11 @@ function showUpdateWindow() {
     if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < 0.60) {
         var fnarkle = popupWindow.create(550,900,"fnarkle",true,language.gettext("intro_title"));
         $("#popupcontents").append('<div id="fnarkler" class="mw-headline"></div>');
-        if (layout != "desktop") {
-            $("#fnarkler").addClass('tiny');
-        }
         $("#fnarkler").append('<p align="center">'+language.gettext("intro_welcome")+' 0.60</p>');
-        if (layout != "desktop") {
-            $("#fnarkler").append('<p align="center">'+language.gettext("intro_viewingmobile")+' <a href="/rompr/?layout=desktop">/rompr/?layout=desktop</a></p>');
+        if (skin != "desktop") {
+            $("#fnarkler").append('<p align="center">'+language.gettext("intro_viewingmobile")+' <a href="/rompr/?skin=desktop">/rompr/?skin=desktop</a></p>');
         } else {
-            $("#fnarkler").append('<p align="center">'+language.gettext("intro_viewmobile")+' <a href="/rompr/?layout=phone">/rompr/?layout=phone</a></p>');
+            $("#fnarkler").append('<p align="center">'+language.gettext("intro_viewmobile")+' <a href="/rompr/?skin=phone">/rompr/?skin=phone</a></p>');
         }
         $("#fnarkler").append('<p align="center">'+language.gettext("intro_basicmanual")+' <a href="https://sourceforge.net/p/rompr/wiki/Basic%20Manual/" target="_blank">http://sourceforge.net/p/rompr/wiki/Basic%20Manual/</a></p>');
         $("#fnarkler").append('<p align="center">'+language.gettext("intro_forum")+' <a href="https://sourceforge.net/p/rompr/discussion/" target="_blank">http://sourceforge.net/p/rompr/discussion/</a></p>');
@@ -341,8 +354,8 @@ function showUpdateWindow() {
 </head>
 
 <?php
-debug_print("Including layouts/".$layout.'/layout.php',"LAYOUT");
-include('layouts/'.$layout.'/layout.php');
+debug_print("Including skins/".$skin.'/skin.php',"LAYOUT");
+include('skins/'.$skin.'/skin.php');
 ?>
 
 <div id="tagadder" class="funkymusic dropmenu dropshadow">
@@ -364,6 +377,7 @@ foreach($inc as $i) {
 $inc = glob("browser/plugins/*.js");
 ksort($inc);
 foreach($inc as $i) {
+    debug_print("Including Plugin ".$i,"INIT");
     print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
 }
 $inc = glob("radios/*.js");
@@ -371,9 +385,10 @@ ksort($inc);
 foreach($inc as $i) {
     print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
 }
-if ($layout == "desktop") {
+if ($skin == "desktop") {
     $inc = glob("plugins/*.js");
     foreach($inc as $i) {
+        debug_print("Including Plugin ".$i,"INIT");
         print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
     }
 }

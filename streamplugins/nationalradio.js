@@ -1,10 +1,14 @@
 function loadBigRadio() {
     if ($("#bbclist").is(':empty')) {
-        $("#bbcwait").makeSpinner();
-        $("#bbclist").load("streamplugins/02_nationalradio.php?populate", function() { $("#bbcwait").stopSpinner() });
+    	loadBigRadioHtml('populate');
     }
 }
 
 function changeradiocountry() {
-    $("#bbclist").load("streamplugins/02_nationalradio.php?populate=1&country="+$("#radioselector").val());
+	loadBigRadioHtml("populate=1&country="+$("#radioselector").val());
+}
+
+function loadBigRadioHtml(qstring) {
+    $("#bbcwait").makeSpinner();
+    $("#bbclist").load("streamplugins/02_nationalradio.php?"+qstring, function() { $("#bbcwait").stopSpinner() });
 }
