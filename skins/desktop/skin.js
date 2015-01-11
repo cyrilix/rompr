@@ -148,6 +148,11 @@ function setBottomPaneSize() {
     // Height of the bottom pane (chooser, info, playlist container)
     var newheight = ws.y - $("#bottompage").offset().top;
     $("#bottompage").css("height", newheight+"px");
+    if (newheight < 540) {
+        $('.topdropmenu').css('height',newheight+"px");
+    } else {
+        $('.topdropmenu').css('height', "");
+    }
     layoutProcessor.setPlaylistHeight();
     setTopIconSize(["#sourcescontrols", "#infopanecontrols", "#playlistcontrols"]);
     infobar.rejigTheText();
