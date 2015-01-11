@@ -92,7 +92,8 @@ function outputPlaylist() {
             }
             foreach ($c as $i => $comp) {
                 if (($track->type != "stream" && $comp != "") || ($track->type == "stream" && $comp != $track->album && $comp != "")) {
-                    if ($comp == $track->albumobject->artist) {
+                    if (preg_match('/'.preg_quote($track->albumobject->artist).'/', $comp)) {
+                    // if ($comp == $track->albumobject->artist) {
                         $doalbumartist = false;
                         array_unshift($info['metadata']['artists'], array( "name" => $comp, "musicbrainz_id" => $m[$i]));
                     } else {

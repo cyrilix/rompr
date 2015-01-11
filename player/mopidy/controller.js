@@ -161,6 +161,9 @@ function playerController() {
 	}
 
     function volumeChanged(v) {
+        if (typeof v == "object") {
+            v = v.volume;
+        }
         debug.log("MOPIDY","Volume was changed to",v);
         player.status.volume = v;
         infobar.updateWindowValues();

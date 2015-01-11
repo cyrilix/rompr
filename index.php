@@ -154,7 +154,6 @@ debug_print("=================****==================","STARTED UP");
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <link rel="stylesheet" type="text/css" href="css/layout.css" />
-<link rel="stylesheet" type="text/css" href="tiptip/tipTip.css" />
 <link type="text/css" href="jqueryui1.8.16/css/start/jquery-ui-1.8.23.custom.css" rel="stylesheet" />
 <?php
 print '<link rel="stylesheet" type="text/css" href="skins/'.$skin.'/skin.css" />'."\n";
@@ -184,8 +183,6 @@ foreach ($skinrequires as $s) {
 <script type="text/javascript" src="jquery/jquery.jsonp-2.3.1.min.js"></script>
 <!-- JQuery scrollTO plugin : http://demos.flesler.com/jquery/scrollTo/ -->
 <script type="text/javascript" src="jquery/jquery.scrollTo-1.4.3.1-min.js"></script>
-<!-- TipTip jQuery tooltip plugin : http://code.drewwilson.com/entry/tiptip-jquery-plugin -->
-<script type="text/javascript" src="tiptip/jquery.tipTip.js"></script>
 <!-- MD5 hashing algorith : http://pajhome.org.uk/crypt/md5 -->
 <script type="text/javascript" src="jshash-2.2/md5-min.js"></script>
 <!-- Masonry layout engine : http://masonry.desandro.com/ -->

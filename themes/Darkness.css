@@ -97,7 +97,7 @@ a.album:hover,a.album:active
     border-left:1px solid #444444;
 }
 
-div.clickable:hover
+div.clickable:hover, .infoclick:hover
 {
     color:#ff4800;
 }
@@ -113,8 +113,13 @@ div.clickable.selected:hover
 {
     font-size:110%;
     text-shadow: 0 0 15px #ffffff;
-    transition:0.5s;
+    transition:all 0.5s;
     color:#ffffff;
+}
+
+.playlistitem
+{
+    transition: all 0.6s;
 }
 
 .playlistcurrenttitle

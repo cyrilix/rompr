@@ -225,7 +225,7 @@ var infobar = function() {
             $("#albumpicture").attr('class', "notfound");
 
             aImg.onload = function() {
-                debug.log("ALBUMPICTURE","Image Loaded",$(this).attr("src"));
+                debug.debug("ALBUMPICTURE","Image Loaded",$(this).attr("src"));
                 $("#albumpicture").attr('class', "clickicon");
                 $("#albumpicture").attr("src", $(this).attr("src")).fadeIn('fast');
                 $("#albumpicture").unbind('click');
@@ -233,7 +233,7 @@ var infobar = function() {
                 infobar.biggerize();
             }
             aImg.onerror = function() {
-                debug.log("ALBUMPICTURE","Image Failed To Load",$(this).attr("src"));
+                debug.warn("ALBUMPICTURE","Image Failed To Load",$(this).attr("src"));
                 $('img[name="'+$(this).attr('name')+'"]').addClass("notfound");
                 $("#albumpicture").attr('class', "notexist");
                 $("#albumpicture").fadeOut('fast');
@@ -244,7 +244,7 @@ var infobar = function() {
 
             return {
                 setSource: function(data) {
-                    debug.log("ALBUMPICTURE","New source",data.image,"current is",aImg.src);
+                    debug.debug("ALBUMPICTURE","New source",data.image,"current is",aImg.src);
                     if (data.image === null) {
                         // null means playlist.emptytrack. Just fade it out in case we start playing the same album again - 
                         // settings the source to the same url won't trigger the onload event
@@ -261,7 +261,7 @@ var infobar = function() {
                     } else {
                         var re = new RegExp(getRealUrl(data.image)+'$');
                         if (!re.test(getRealUrl(aImg.src))) {
-                            debug.log("ALBUMPICTURE","Source is being set to ",data.image);
+                            debug.shout("ALBUMPICTURE","Source is being set to ",data.image);
                             aImg.src = data.image;
                         } else if ($("#albumpicture").is(':hidden')) {
                             $("#albumpicture").fadeIn('fast');

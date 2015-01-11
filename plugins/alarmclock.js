@@ -94,6 +94,7 @@ var alarm = function() {
 				if (prefs.alarmramp) {
 					uservol = player.status.volume;
 					volinc = uservol/prefs.alarm_ramptime;
+					debug.log("ALARM","User Volume is",uservol,"increment step is",volinc);
 					player.controller.volume(0, player.controller.play);
 					ramptimer = setTimeout(alarm.volRamp, 1000);
 				} else {
@@ -109,9 +110,9 @@ var alarm = function() {
 			var v = player.status.volume + volinc;
 			debug.log("ALARM","Setting volume to",v);
 			if (v >= uservol) {
-				player.controller.volume(uservol,infobar.updateWindowValues);
+				player.controller.volume(uservol);
 			} else {
-				player.controller.volume(v, infobar.updateWindowValues);
+				player.controller.volume(v);
 				ramptimer = setTimeout(alarm.volRamp, 1000);
 			}
 		},
@@ -132,12 +133,12 @@ var alarm = function() {
 				clearTimeout(alarmtimer);
 				clearTimeout(inctimer);
 				if (prefs.alarmramp) {
-					player.controller.volume(uservol,infobar.updateWindowValues);
+					player.controller.volume(uservol);
 				}
 				alarmtimer = setTimeout(alarm.Ding, prefs.alarm_snoozetime*60000);
 				$("#alarmclock").effect('pulsate', {times: (prefs.alarm_snoozetime*6)}, 10000);
 				snoozing = true;
-				debug.log("ALARM","Alarm will go off in",prefs.alarm_snoozetime,"seconds");
+				debug.log("ALARM","Alarm will go off in",prefs.alarm_snoozetime,"minutes");
 				infobar.notify(infobar.NOTIFY, "Snoozing....");
 			}
 		},

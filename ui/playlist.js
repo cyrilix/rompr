@@ -623,7 +623,7 @@ function Playlist() {
                 } else {
                     html = html + '<div class="expand line">'+tracks[trackpointer].title+'</div>';
                 }
-                html = html + '<div class="tiny fixed">'+formatTimeString(tracks[trackpointer].duration)+'</div>';
+                html = html + '<div class="tracktime tiny fixed">'+formatTimeString(tracks[trackpointer].duration)+'</div>';
                 html = html + '<i class="icon-cancel-circled playlisticonr fixed clickable clickicon clickremovetrack" romprid="'+tracks[trackpointer].backendid+'"></i>';
                 html = html + '</div>';
             }

@@ -149,7 +149,7 @@ a.album:hover,a.album:active
     border-left:1px solid #444444;
 }
 
-div.clickable:hover
+div.clickable:hover, .infoclick:hover
 {
     color:#3875d7;
 }

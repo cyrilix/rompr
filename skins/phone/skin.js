@@ -7,6 +7,12 @@ function toggleSearch() {
     ihatefirefox();
 }
 
+// Dummy function - we don't use tiptip in the mobile version because, well, you don't hover
+// over stuff so what's the point?
+jQuery.fn.tipTip = function() {
+    return this;
+}
+
 function setBottomPaneSize() {
     var ws = getWindowSize();
     var newheight = ws.y-$("#headerbar").outerHeight(true);

@@ -127,16 +127,25 @@ var info_lastfm = function() {
         html = html + '</div>';
 
         var similies = lfmdata.similar();
-        html = html + '<div id="similarartists" class="bordered"><h3 align="center">'+language.gettext("lastfm_simar")+'</h3>';
-        html = html + '<table width="100%" cellspacing="0" cellpadding="0"><tr><td align="center"><div class="smlrtst">';
-        for(var i in similies) {
-            html = html + '<div class="simar">';
-            html = html + '<table><tr><td align="center"><img class="infoclick clickzoomimage" src="getRemoteImage.php?url='+lfmdata.similarimage(i, "medium")+'"><input type="hidden" value="getRemoteImage.php?url='+lfmdata.similarimage(i, "mega")+'" /></td></tr>';
-            html = html + '<tr><td align="center"><a href="'+similies[i].url+'" target="_blank">'+similies[i].name+'</a></td></tr>';
-            html = html + '</table>';
-            html = html + '</div>';
+        if (similies.length > 0) {
+            html = html + '<div id="similarartists" class="bordered"><h3 align="center">'+language.gettext("lastfm_simar")+'</h3>';
+            html = html + '<table width="100%" cellspacing="0" cellpadding="0"><tr><td align="center"><div class="smlrtst">';
+            for(var i in similies) {
+                html = html + '<div class="simar">';
+                html = html + '<table><tr><td align="center">';
+                var mi = lfmdata.similarimage(i, "medium");
+                var bi = lfmdata.similarimage(i, "mega");
+                if (!bi) bi = mi;
+                if (mi) {
+                    html = html + '<img class="infoclick clickzoomimage" src="getRemoteImage.php?url='+lfmdata.similarimage(i, "medium")+'"><input type="hidden" value="getRemoteImage.php?url='+lfmdata.similarimage(i, "mega")+'" />';
+                }
+                html = html + '</td></tr>';
+                html = html + '<tr><td align="center"><a href="'+similies[i].url+'" target="_blank">'+similies[i].name+'</a></td></tr>';
+                html = html + '</table>';
+                html = html + '</div>';
+            }
+            html = html + '</div></td></tr></table></div>';
         }
-        html = html + '</div></td></tr></table></div>';
         return html;
     }
 
@@ -361,7 +370,8 @@ var info_lastfm = function() {
 					},
 
 		            lfmResponseHandler: function(data) {
-						debug.mark(medebug,parent.nowplayingindex,"got artist data for",artistmeta.name,data);
+						debug.mark(medebug,parent.nowplayingindex,"got artist data for",artistmeta.name);
+                        debug.debug(medebug,data);
 		                if (data) {
 		                    if (data.error) {
 		                        artistmeta.lastfm = {artist: data};
@@ -539,7 +549,8 @@ var info_lastfm = function() {
                     },
 
                     lfmResponseHandler: function(data) {
-                        debug.mark(medebug,"Got Album Info for",albummeta.name, data);
+                        debug.mark(medebug,"Got Album Info for",albummeta.name);
+                        debug.debug(medebug, data);
                         if (data) {
                             if (data.error) {
                                 albummeta.lastfm = {album: data};
@@ -703,7 +714,8 @@ var info_lastfm = function() {
                     },
 
                     lfmResponseHandler: function(data) {
-                        debug.mark(medebug,parent.nowplayingindex,"Got Track Info for",trackmeta.name, data);
+                        debug.mark(medebug,parent.nowplayingindex,"Got Track Info for",trackmeta.name);
+                        debug.debug(medebug, data);
                         if (data) {
                             if (data.error) {
                                 trackmeta.lastfm = {track: data};

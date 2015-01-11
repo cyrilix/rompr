@@ -439,7 +439,7 @@ div.item
 
 .tracktime
 {
-    margin-left:4px;
+    margin-left:4px !important;
 }
 
 .togglebutton

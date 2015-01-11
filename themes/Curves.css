@@ -25,7 +25,8 @@ a:visited
 
 a:hover,a:active
 {
-    color:#ff4800;
+    text-shadow: 0 0 15px #ff4800;
+    cursor:pointer;
 }
 
 #infobar
@@ -194,7 +195,8 @@ a.album:visited
 
 a.album:hover,a.album:active
 {
-    color:#ff4800;
+    text-shadow: 0 0 15px #ff4800;
+    cursor:pointer;
 }
 
 #filemenu
@@ -202,9 +204,10 @@ a.album:hover,a.album:active
     border-left:1px solid #444444;
 }
 
-div.clickable:hover
+div.clickable:hover, .infoclick:hover
 {
-    color:#ff4800;
+    text-shadow: 0 0 15px #ff4800;
+    cursor:pointer;
 }
 
 div.clickable.selected:hover
@@ -225,6 +228,12 @@ div.clickable.selected:hover
     font-weight:bold;
     font-size:120%;
     text-shadow: 0 0 15px #ff4800;
+    transition:all 0.3s;
+}
+
+.playlistitem
+{
+    transition: all 0.4s;
 }
 
 .playlistcurrenttitle
@@ -480,24 +489,24 @@ table.tracklist {
 table.histable tr:hover {
     font-size:105%;
     text-shadow: 0 0 15px #ff4800;
-    transition:0.1s;
+    transition:all 0.1s;
 }
 
 table.histable tr
 {
-    transition: 0.2s;
+    transition:all 0.2s;
 }
 
 .backhi:hover {
     font-size:105%;
     text-shadow: 0 0 15px #ff4800;
     cursor:pointer;
-    transition:0.1s;
+    transition:all 0.1s;
 }
 
 .backhi
 {
-    transitiion:0.2s;
+    transition:all 0.2s;
 }
 
 tr.clickaddtrack:hover

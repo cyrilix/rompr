@@ -228,11 +228,12 @@ var info_spotify = function() {
 	        }
 
             this.doAlbums = function(data) {
-            	debug.log(medebug,"DoAlbums",artistmeta.spotify.showing, displaying, data);
+            	debug.log(medebug,"DoAlbums",artistmeta.spotify.showing, displaying);
             	if (artistmeta.spotify.showing == "albums" && displaying && data) {
+                    var images = {};
+                    var imgcount = 0;
 	            	debug.log(medebug,"Doing Albums For Artist",data);
 	            	$("#artistalbums").empty().hide();
-                    $("#artistalbums").empty();
             		var w = browser.calcMWidth();;
 	            	for (var i in data.items) {
 	            		var x = $('<div>', {class: 'tagholder2 selecotron'}).appendTo($("#artistalbums"));
@@ -246,20 +247,30 @@ var info_spotify = function() {
 		            			}
 		            		}
 	            		}
-	            		x.append('<img class="masochist infoclick clickable draggable clicktrack" src="'+img+'" width="'+w+'" name="'+data.items[i].uri+'"/>');
+                        images['masimg_'+imgcount] = img;
+	            		x.append('<img id="masimg_'+imgcount+'" class="masochist infoclick clickable draggable clicktrack" src="" width="'+w+'" name="'+data.items[i].uri+'"/>');
 	            		x.append('<div class="tagh albumthing"><i class="icon-toggle-closed menu infoclick clickopenalbum"></i><span class="title-menu infoclick draggable clickable clicktrack" name="'+data.items[i].uri+'">'+data.items[i].name+'</span></div>')
 	            		x.append('<div class="tagh albumthing invisible" id="'+data.items[i].id+'"></div>')
+                        imgcount++;
 	            	}
-            		$("#artistalbums").imagesLoaded( function() {
-                        if (displaying) {
-                			$("#artistalbums").slideToggle('fast', function() {
-                				$("#artistalbums").masonry({ itemSelector: '.tagholder2', gutter: 0});
-                			     browser.rePoint();
-    			        		$("#hibbert").stopSpinner();
-                			});
-                        }
-            		});
+                    // This may seems like a faff - creeating the images and then setting their src attributes afterwards
+                    // but in rare cases, if we don't do this, the images load before we set up the imagesLoaded handler
+                    // and then the imagesloaded event never fires.
+                    $("#artistalbums").imagesLoaded( self.doBlockLayout );
+                    $("#artistalbums").find('img').each( function() {
+                        $(this).attr('src', images[$(this).attr('id')]);
+                    });
 	            }
+            }
+
+            this.doBlockLayout = function() {
+                if (displaying) {
+                    $("#artistalbums").slideDown('fast', function() {
+                        $("#artistalbums").masonry({ itemSelector: '.tagholder2', gutter: 0});
+                         browser.rePoint();
+                        $("#hibbert").stopSpinner();
+                    });
+                }
             }
 
             this.relatedArtistResponse = function(data) {
@@ -292,6 +303,8 @@ var info_spotify = function() {
             this.doArtists = function(data) {
             	if (artistmeta.spotify.showing == "artists" && displaying && data) {
 	            	debug.log(medebug,"Doing Related Artists",data);
+                    var images = {};
+                    var imgcount = 0;
 	            	$("#artistalbums").empty().hide();
             		var w = browser.calcMWidth();;
 	            	for (var i in data.artists) {
@@ -306,19 +319,16 @@ var info_spotify = function() {
 		            			}
 		            		}
 	            		}
-	            		x.append('<img class="masochist infoclick clickaddtrack" src="'+img+'" width="'+w+'" name="'+data.artists[i].uri+'"/>');
+                        images['masimg_'+imgcount] = img;
+	            		x.append('<img id="masimg_'+imgcount+'" class="masochist infoclick clickaddtrack" src="" width="'+w+'" name="'+data.artists[i].uri+'"/>');
 	            		x.append('<div class="tagh albumthing"><i class="icon-toggle-closed menu infoclick clickopenartist"></i><span class="title-menu infoclick clickaddtrack" name="'+data.artists[i].uri+'">'+data.artists[i].name+'</span></div>')
 	            		x.append('<div class="tagh albumthing invisible edged selecotron dropshadow" id="'+data.artists[i].id+'"></div>')
+                        imgcount++;
 	            	}
-            		$("#artistalbums").imagesLoaded( function() {
-                        if (displaying) {
-                			$("#artistalbums").slideToggle('fast', function() {
-                				$("#artistalbums").masonry({ itemSelector: '.tagholder2', gutter: 0});
-                				browser.rePoint();
-    			        		$("#hibbert").stopSpinner();
-                			});
-                        }
-            		});
+                    $("#artistalbums").imagesLoaded( self.doBlockLayout );
+                    $("#artistalbums").find('img').each( function() {
+                        $(this).attr('src', images[$(this).attr('id')]);
+                    });
 	            }
             }
 
@@ -351,7 +361,8 @@ var info_spotify = function() {
                     },
 
                     spotifyResponse: function(data) {
-                    	debug.log(medebug, "Got Spotify Track Data",data);
+                    	debug.log(medebug, "Got Spotify Track Data");
+                        debug.debug(medebug, data);
                     	if (trackmeta.spotify.track === undefined) {
 	                    	trackmeta.spotify.track = data;
 	                    }
@@ -415,7 +426,8 @@ var info_spotify = function() {
 			        },
 
                     spotifyResponse: function(data) {
-                    	debug.log(medebug, "Got Spotify Album Data",data);
+                    	debug.log(medebug, "Got Spotify Album Data");
+                        debug.debug(medebug, data);
                     	albummeta.spotify.album = data;
                     	self.album.doBrowserUpdate();
                     },
@@ -468,7 +480,8 @@ var info_spotify = function() {
 			        },
 
                     spotifyResponse: function(data) {
-                    	debug.log(medebug, "Got Spotify Artist Data",data);
+                    	debug.log(medebug, "Got Spotify Artist Data");
+                        debug.debug(medebug, data);
                     	artistmeta.spotify.artist = data;
                     	self.artist.doBrowserUpdate();
                     	self.album.populate();

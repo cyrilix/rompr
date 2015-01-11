@@ -957,7 +957,7 @@ var tagAdder = function() {
 }();
 
 function addPlugin(label, action) {
-    $("#specialplugins").append('<div class="fullwidth backhi clickicon noselection menuitem dragsort" onclick="'+action+'">'+label+'</div>');
+    $("#specialplugins").append('<div class="backhi clickicon noselection menuitem" onclick="'+action+'">'+label+'</div>');
 }
 
 function joinartists(ob) {

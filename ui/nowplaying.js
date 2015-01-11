@@ -204,22 +204,33 @@ var nowplaying = function() {
 			}
 
 			// See if we can copy album and track data
-			for (var j = nowplayingindex; j > 0; j--) {
-				if (history[j] !== undefined) {
-		            var newalbumartist = (playlistinfo.albumartist == "") ? playlistinfo.creator : playlistinfo.albumartist;
-		            var albumartist = (history[j].playlistinfo.albumartist == "") ? history[j].playlistinfo.creator : history[j].playlistinfo.albumartist;
-		            if (newalbumartist == albumartist) {
-		            	if (playlistinfo.metadata.album.name == history[j].playlistinfo.metadata.album.name) {
-		            		debug.log("NOWPLAYING","Using album info from",j);
-		            		playlistinfo.metadata.album = history[j].playlistinfo.metadata.album;
-		            		if (playlistinfo.metadata.track.name == history[j].playlistinfo.metadata.track.name) {
-			            		debug.log("NOWPLAYING","Using track info from",j);
-		            			playlistinfo.metadata.track = history[j].playlistinfo.metadata.track;
-		            		}
-		            	}
-		            }
+			var fa = false;
+			var ft = false;
+			tcheck: {
+				for (var j = nowplayingindex; j > 0; j--) {
+					if (history[j] !== undefined) {
+			            var newalbumartist = (playlistinfo.albumartist == "") ? playlistinfo.creator : playlistinfo.albumartist;
+			            var albumartist = (history[j].playlistinfo.albumartist == "") ? history[j].playlistinfo.creator : history[j].playlistinfo.albumartist;
+			            if (newalbumartist == albumartist) {
+			            	if (playlistinfo.metadata.album.name == history[j].playlistinfo.metadata.album.name) {
+			            		if (!fa) {
+				            		debug.log("NOWPLAYING","Using album info from",j);
+				            		playlistinfo.metadata.album = history[j].playlistinfo.metadata.album;
+				            		fa = true;
+				            	}
+			            		if (!ft && playlistinfo.metadata.track.name == history[j].playlistinfo.metadata.track.name) {
+				            		debug.log("NOWPLAYING","Using track info from",j);
+			            			playlistinfo.metadata.track = history[j].playlistinfo.metadata.track;
+			            			ft = true;
+			            		}
+			            		if (fa && ft) {
+			            			break tcheck;
+			            		}
+			            	}
+			            }
+			        }
 		        }
-	        }
+		    }
 
 	        currenttrack++;
 	        var to_populate = null;

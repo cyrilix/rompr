@@ -80,7 +80,7 @@ window.debug = (function() {
 			if (level > 6) {
 				var args = Array.prototype.slice.call(arguments);
 				var module = args.shift();
-				var colour = '#22fe00';
+				var colour = '#009933';
 				if (colours[module]) { colour = colours[module] }
 				doTheLogging("color:"+colour, module, 'log', args);
 			}
