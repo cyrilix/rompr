@@ -116,7 +116,8 @@ div.clickable.selected:hover
 {
     font-weight:bold;
     font-size:120%;
-    text-shadow: 0 0 15px #ffffff;
+    border-left:8px solid yellow;
+    color:#eeeeee;
     transition:all 0.2s;
 }
 
@@ -127,8 +128,9 @@ div.clickable.selected:hover
 
 .playlistcurrenttitle
 {
-    text-shadow: 0 0 15px #ffffff;
+    text-shadow: 0px 0px 20px #cccccc;
     font-weight:bold;
+    color:#eeeeee;
 }
 
 .inbrowser

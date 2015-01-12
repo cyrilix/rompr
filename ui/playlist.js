@@ -646,7 +646,7 @@ function Playlist() {
                     // present in the window anywhere else
                     html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index
                                 + '"><img class="smallcover updateable notexist fixed clickable clickicon clickrollup" romprname="'+self.index
-                                +'" name="'+tracks[0].key+'" src=""/></div>';
+                                +'" name="'+tracks[0].key+'" /></div>';
                     coverscraper.setCallback(this.updateImages, tracks[0].key);
                     coverscraper.GetNewAlbumArt(tracks[0].key);
                 } else {
