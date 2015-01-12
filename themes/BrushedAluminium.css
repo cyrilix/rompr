@@ -283,3 +283,20 @@ span.clickartistchoose:hover
 {
     color:#000000;
 }
+
+#fiddler {
+    border-left: 4px solid #fe6500;
+    border-right: 4px solid #fe6500;
+}
+
+.highlighted {
+    border-top: 4px solid #fe6800 !important;
+    border-left: 4px solid #fe6800 !important;
+    border-right: 4px solid #fe6800 !important;
+    border-radius:2px !important;
+}
+
+#imageeditor
+{
+    border: 4px solid #fe6500;
+}

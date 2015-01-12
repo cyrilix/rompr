@@ -458,7 +458,7 @@ var imageEditor = function() {
                 debug.log("IMAGEEDITOR","Parent position has moved");
                 imageEditor.close();
                 position = newpos;
-                bigdiv = $('<div>', {id: "imageeditor", class: "containerbox covercontainer"}).insertAfter(position);
+                bigdiv = $('<div>', {id: "imageeditor", class: "containerbox"}).insertAfter(position);
                 bigdiv.bind('click', imageEditor.onGoogleSearchClicked);
                 start = 1;
             }

@@ -342,3 +342,12 @@ span.clickartistchoose:hover
 {
     background: transparent !important;
 }
+
+.highlighted {
+    background-color:rgba(0,0,0,0.3);
+}
+
+#imageeditor
+{
+    background-color:rgba(0,0,0,0.3);
+}

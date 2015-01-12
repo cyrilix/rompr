@@ -504,7 +504,8 @@ div.item
 
 .infotext
 {
-    margin:8px;
+    margin:4px;
+    padding:4px;
 }
 
 #similarartists
@@ -1350,11 +1351,6 @@ div .thumb
      100%{
           opacity: 1;
      }
-}
-
-.highlighted {
-    border: 4px solid #fe6800 !important;
-    border-radius:2px !important;
 }
 
 .bigbutton {
