@@ -1361,7 +1361,6 @@ div .thumb
     padding:8px;
     margin-top:8px;
     margin-bottom:4px;
-    border-radius: 4px;
     margin-left:auto;
     margin-right:auto;
 }
@@ -1370,21 +1369,10 @@ div .thumb
     text-align: center;
     opacity:0.7;
     cursor:pointer;
-    background-image: linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
-    background-image: -o-linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
-    background-image: -moz-linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
-    background-image: -webkit-linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
-    background-image: -ms-linear-gradient(bottom, #9E5E05 10%, #DBA40B 50%, #F5BC11 90%);
-    color:#111177;
-    border-top:1px solid #F6BD12;
-    border-left:1px solid #DBA40B;
-    border-right:1px solid #DBA40B;
-    border-bottom:1px solid #9D5D04;
 }
 
 .gradbutton:hover {
     opacity: 1;
-    color:#881111;
 }
 
 .closet {

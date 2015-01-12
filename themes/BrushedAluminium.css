@@ -32,9 +32,16 @@ a:hover,a:active
 button
 {
     color:#000000;
+    border: 1px solid #000000;
 }
 
-button:hover
+.gradbutton
+{
+    border: 1px solid #000000;
+    background-image:url('../newimages/silver2.jpg');
+}
+
+button:hover, .gradbutton:hover
 {
     color:#ff4800;
     text-shadow: 0 0 15px #ff4800;

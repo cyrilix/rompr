@@ -27,7 +27,7 @@ h1,h2,h3,h4,h5,h6
     color:#eeeeee;
 }
 
-button
+button, .gradbutton
 {
     background-color:#202020 !important;
     border:1px solid #dedede;
@@ -37,7 +37,7 @@ button
     font-size:110%;
 }
 
-button:hover
+button:hover, .gradbutton:hover
 {
     color:#ff4800;
     text-shadow: 0 0 15px #ff4800;

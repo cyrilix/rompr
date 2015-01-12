@@ -131,7 +131,7 @@ body.mobile #infobar
     color:#000000;
 }
 
-button, input[type="button"]
+button, input[type="button"], .gradbutton
 {
     background-image: linear-gradient(#999999, #cccccc, #999999);
     background-image: -o-linear-gradient(#999999, #cccccc, #999999);
@@ -149,7 +149,7 @@ button, input[type="button"]
     background-color:transparent !important;
 }
 
-button:hover, input[type="button"]:hover
+button:hover, input[type="button"]:hover, .gradbutton:hover
 {
     color:#ff4800;
     text-shadow: 0 0 15px #ff4800;

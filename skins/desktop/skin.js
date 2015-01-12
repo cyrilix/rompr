@@ -439,6 +439,10 @@ function initUI() {
         });
         $(this).find('.topdropmenu').slideToggle('fast', function() {
             if ($(this).is(':visible')) {
+                var avheight = $("#bottompage").height() - 16;
+                var conheight = $(this).children().first().children('.mCSB_container').height();
+                var nh = Math.min(avheight, conheight);
+                $(this).css({height: nh+"px", "max-height":''});
                 $(this).mCustomScrollbar("update");
                 if ($(this).attr("id") == "hpscr") {
                     $('#hpscr').mCustomScrollbar("scrollTo", '.current', {scrollInertia:0});

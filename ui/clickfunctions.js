@@ -77,7 +77,6 @@ function findClickableBrowserElement(event) {
 }
 
 function onCollectionClicked(event) {
-    debug.log("CLICK",event);
     var clickedElement = findClickableElement(event);
     if (clickedElement.hasClass("menu")) {
         if (clickedElement.parent().hasClass('browseable')) {
@@ -381,7 +380,6 @@ function setDraggable(divname) {
 
 function onKeyUp(e) {
     if (e.keyCode == 13) {
-        debug.debug("CLICKFUNCTIONS","Key Up",e.target.name);
         if ($(e.target).next("button").length > 0) {
             $(e.target).next("button").click();
         } else {

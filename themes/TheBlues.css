@@ -37,9 +37,17 @@ input
 button
 {
     color:#000000;
+    border: 1px solid #000000;
 }
 
-button:hover
+.gradbutton
+{
+    color: #ffffff;
+    background-color: #181850;
+    border: 1px solid #000000;
+}
+
+button:hover, .gradbutton:hover
 {
     color:#ff4800;
     border:1px solid #ff4800;

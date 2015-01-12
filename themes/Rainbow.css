@@ -1,6 +1,6 @@
 body
 {
-    background-image: radial-gradient(circle farthest-side at top left, yellow, orange, red);
+    background-image: radial-gradient(circle farthest-side at top left, red, orange, yellow, green, blue, indigo, violet);
 }
 
 body,p,h1,h2,h3,h4,table,td,th,ul,ol,textarea,input
@@ -37,7 +37,7 @@ a:hover,a:active
 
 button, input[type="button"], .gradbutton
 {
-    background-image: radial-gradient(circle farthest-side at center, yellow, orange, red);
+    background-image: radial-gradient(circle farthest-side at center, red, orange, yellow, green, blue, indigo, violet);
     color:#000000;
     border:1px solid #000000;
 }
@@ -72,7 +72,7 @@ select
 
 #notifications
 {
-    background-image: radial-gradient(circle farthest-side at top left, yellow, orange, red);
+    background-image: radial-gradient(circle farthest-side at top left, red, orange, yellow, green, blue, indigo, violet);
 }
 
 a.album:visited
@@ -155,7 +155,7 @@ div.clickable.selected:hover
 
 .infosection
 {
-    background-image: radial-gradient(circle farthest-side at top left, yellow, orange, red);
+    background-image: radial-gradient(circle farthest-side at top left, red, orange, yellow, green, blue, indigo, violet);
 }
 
 .translucent
@@ -167,13 +167,13 @@ div.clickable.selected:hover
 
 .crackbaby
 {
-    background-image: radial-gradient(circle farthest-side at top left, yellow, orange, red);
+    background-image: radial-gradient(circle farthest-side at top left, red, orange, yellow, green, blue, indigo, violet);
     box-sizing:border-box;
 }
 
 .popupwindow
 {
-    background-image: radial-gradient(circle farthest-side at top left, yellow, orange, red);
+    background-image: radial-gradient(circle farthest-side at top left, red, orange, yellow, green, blue, indigo, violet);
     border-left:1px solid yellow;
     border-bottom:1px solid red;
     border-right:1px solid red;
@@ -189,7 +189,7 @@ div.clickable.selected:hover
 
 div.topdropmenu
 {
-    background-image: radial-gradient(circle farthest-side at top left, yellow, orange, red);
+    background-image: radial-gradient(circle farthest-side at top left, red, orange, yellow, green, blue, indigo, violet);
     border-left:1px solid yellow;
     border-bottom:1px solid red;
     border-right:1px solid red;
@@ -197,7 +197,7 @@ div.topdropmenu
 
 .configtitle
 {
-    background-image: radial-gradient(circle farthest-side at top left, yellow, orange, red);
+    background-image: radial-gradient(circle farthest-side at top left, red, orange, yellow, green, blue, indigo, violet);
 }
 
 body.mobile .configtitle

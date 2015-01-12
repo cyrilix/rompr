@@ -36,9 +36,21 @@ input
 button
 {
     color:#000000;
+    border: 1px solid #000000;
 }
 
-button:hover
+.gradbutton
+{
+    color: #000000;
+    background-image: linear-gradient(#dfdfdf, #b9b9b9);
+    background-image: -o-linear-gradient(#dfdfdf, #b9b9b9);
+    background-image: -moz-linear-gradient(#dfdfdf, #b9b9b9);
+    background-image: -webkit-linear-gradient(#dfdfdf, #b9b9b9);
+    background-image: -ms-linear-gradient(#dfdfdf, #b9b9b9);
+    border: 1px solid #000000;
+}
+
+button:hover, .gradbutton:hover
 {
     color:#ff4800;
     text-shadow: 0 0 15px #ff4800;
