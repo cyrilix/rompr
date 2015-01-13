@@ -432,10 +432,9 @@ function get_base_url() {
      * OR
      * https://mysite.com
      */
-    // return $protocol . $host . $directory;
-
-    // Ignore the directory
-    return $protocol.$host;
+    $directory = preg_replace('#/utils$#', '', $directory);
+    $directory = preg_replace('#/streamplugins$#', '', $directory);
+    return $protocol . $host . $directory;
 }
 
 function scan_for_images($albumpath) {
