@@ -90,7 +90,7 @@ var tagManager = function() {
 				holders[i].droppable({
 					addClasses: false,
 					drop: tagManager.dropped,
-					hoverClass: 'tagman-hover'
+					hoverClass: 'highlighted'
 				});
 			}
             tmg.slideToggle('fast', function() {
@@ -110,7 +110,7 @@ var tagManager = function() {
 			holders[tagname].droppable({
 				addClasses: false,
 				drop: tagManager.dropped,
-				hoverClass: 'tagman-hover'
+				hoverClass: 'highlighted'
 			});
 			$("#tagmunger").masonry('prepended', holders[tagname]);
 			browser.rePoint();

@@ -110,7 +110,7 @@ div.clickable:hover, .infoclick:hover
 
 div.clickable.selected:hover
 {
-    color:#555555;
+    color:#ffffff;
 }
 
 .selected
@@ -277,13 +277,8 @@ table.tracklist {
 
 .funkymusic
 {
+    background-image: radial-gradient(circle farthest-side at top left, yellow, orange, red);
     background-color:yellow;
-    border-radius:1em;
-}
-
-.tagmenu
-{
-    border-radius:1em;
 }
 
 table.histable tr:hover {
@@ -301,7 +296,7 @@ table.histable tr
 .backhi:hover {
     font-size:105%;
     text-shadow: 0 0 15px #ffffff;
-    color:#ffffff;
+    color:#ff4800;
     cursor:pointer;
     transition:all 0.1s;
 }
@@ -321,11 +316,6 @@ tr.clickaddtrack:hover
     border-left:1px solid red;
     border-right:1px solid red;
     border-bottom:1px solid red;
-}
-
-span.clickartistchoose:hover
-{
-    color:#000000;
 }
 
 .albumthing
@@ -349,6 +339,11 @@ span.clickartistchoose:hover
     text-shadow:0 0 15px #ffffff;
 }
 
+.bmid
+{
+    border-left:2px solid #ff4800;
+}
+
 #fiddler
 {
     background: transparent !important;
@@ -367,3 +362,15 @@ span.clickartistchoose:hover
 {
     background-color:rgba(0,0,0,0.2);    
 }
+
+.tagholder table tr th {
+    background-color:rgba(255,255,255,0.5);
+    border-bottom:1px solid #cccccc;
+}
+
+#artistchooser
+{
+    background-color:rgba(0,0,0,0.3);
+    color:#aaaaaa;    
+}
+

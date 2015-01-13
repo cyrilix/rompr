@@ -40,7 +40,7 @@ function trackDataCollection(currenttrack, nowplayingindex, artistindex, playlis
 		if (playlistinfo.metadata.artists.length > 1) {
 			var htmlarr = new Array();;
 			for (var i in playlistinfo.metadata.artists) {
-				var html = '<span class="infoclick clickartistchoose';
+				var html = '<span class="infoclick clickartistchoose bleft';
 				if (i == self.artistindex) {
 					html = html + ' bsel'
 				}
@@ -48,7 +48,7 @@ function trackDataCollection(currenttrack, nowplayingindex, artistindex, playlis
 				'<input type="hidden" value="'+playlistinfo.metadata.artists[i].nowplayingindex+'" />';
 				htmlarr.push(html);
 			}
-			$("#artistchooser").html(htmlarr.join('&nbsp;|&nbsp;'));
+			$("#artistchooser").html(htmlarr.join('&nbsp;<font color="#ff4800">|</font>&nbsp;'));
 			$("#artistchooser").stop().slideDown('fast');
 		}
 	}

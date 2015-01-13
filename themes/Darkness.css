@@ -107,6 +107,11 @@ div.clickable.selected:hover
     color:#dddddd;
 }
 
+.selected
+{
+    background-color:#CC5500;
+}
+
 /*-- divs and classes used in the playlist --*/
 
 .playlistcurrentitem
@@ -329,22 +334,11 @@ tr.clickaddtrack:hover
     color:#090909;
 }
 
-.tagman-hover
-{
-    border: 1px solid #fe6500;
-    background-color: #ababab !important;
-}
-
 .edged
 {
     border-left:1px solid #dddddd;
     border-right:1px solid #dddddd;
     border-bottom:1px solid #dddddd;
-}
-
-span.clickartistchoose:hover
-{
-    color:#888888;
 }
 
 #fiddler {
@@ -362,4 +356,21 @@ span.clickartistchoose:hover
 #imageeditor
 {
     border: 4px solid #fe6500;
+}
+
+.bsel
+{
+    color:#ff4800;
+}
+
+.bmid
+{
+    border-left:2px solid #ff4800;
+}
+
+#artistchooser
+{
+    border-bottom:1px solid #777777;
+    border-top:1px solid #777777;
+    color:#555555;    
 }

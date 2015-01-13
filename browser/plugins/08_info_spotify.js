@@ -78,18 +78,17 @@ var info_spotify = function() {
 
     	h = h + '<div id="spartistinfo"></div>';
     	h = h + '</div>';
-    	h = h + '<div class="containerbox"><div class="fixed"><h3><span class="title-menu infoclick clickshowalbums';
+    	h = h + '<div class="containerbox"><div class="fixed infoclick clickshowalbums bleft';
     	if (artistmeta.spotify.showing == "albums") {
     		h = h + ' bsel';
     	}
-    	h = h + '">'+language.gettext("label_albumsby")+'</span>' +
-    			'&nbsp;&nbsp;|&nbsp;&nbsp;' +
-    			'<span class="title-menu infoclick clickshowartists';
+    	h = h + '">'+language.gettext("label_albumsby") + '</div>' +
+    			'<div class="fixed infoclick clickshowartists bleft bmid';
     	if (artistmeta.spotify.showing == "artists") {
     		h = h + ' bsel';
     	}
 
-    	h = h + '">'+language.gettext("label_related")+'</span></h3></div>' +
+    	h = h + '">'+language.gettext("label_related")+'</div>' +
     			'<div class="fixed"><i id="hibbert" class="smallcover-svg title-menu invisible"></i></div></div>' +
     			'<div class="holdingcell masonified2" id="artistalbums"></div>';
     	return h;

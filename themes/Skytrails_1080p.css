@@ -96,9 +96,7 @@ select
 
 #notifications
 {
-    border-bottom:1px solid #ffffff;
-    border-left:1px solid #ffffff;
-    border-right:1px solid #ffffff;
+    background-image:linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.5));
 }
 
 a.album:visited
@@ -127,14 +125,13 @@ div.clickable:hover, .infoclick:hover
 
 div.clickable.selected:hover
 {
-    color:#555555;
+    color:#ffffff;
 }
 
 .selected
 {
-    background-color:#ff4800;
+    background-color:rgba(255,72,0,0.7);
 }
-
 
 /*-- divs and classes used in the playlist --*/
 
@@ -209,7 +206,7 @@ div.clickable.selected:hover
     color:white;
 }
 
-.popupwindow td, .popupwindow h2
+.popupwindow td, .popupwindow h2, .popupwindow p
 {
     color:white;
 }
@@ -234,7 +231,7 @@ div.topdropmenu td
 
 .configtitle
 {
-    background-color:rgba(255,255,255,0.5);
+    background-image:linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.2));
 }
 
 body.mobile .configtitle
@@ -303,7 +300,8 @@ table.tracklist {
 
 .funkymusic
 {
-    background-color:yellow;
+    background-color:rgba(65,65,85,0.9);
+    color:white;
 }
 
 table.histable tr:hover {
@@ -343,11 +341,6 @@ tr.clickaddtrack:hover
     border-right:1px solid white;
 }
 
-span.clickartistchoose:hover
-{
-    color:#000000;
-}
-
 .topimg
 {
     opacity:0.8;
@@ -360,8 +353,13 @@ span.clickartistchoose:hover
 
 .bsel
 {
-    color:#ffffff;
-    text-shadow:0 0 15px #ffffff;
+    color:#000000;
+    text-shadow:0 0 15px #666666;
+}
+
+.bmid
+{
+    border-left:2px solid #ff4800;
 }
 
 #fiddler
@@ -376,4 +374,15 @@ span.clickartistchoose:hover
 #imageeditor
 {
     background-color:rgba(255,255,255,0.4);
+}
+
+.tagholder table tr th {
+    background-color:rgba(255,255,255,0.5);
+    border-bottom:1px solid #333333;
+}
+
+#artistchooser
+{
+    background-color:rgba(255,255,255,0.2);
+    color:#777777;    
 }

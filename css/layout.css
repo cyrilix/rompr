@@ -347,14 +347,14 @@ button
     font-weight:normal;
 }
 
+.whatdoicallthis strong
+{
+    font-weight: normal;
+}
+
 .bum
 {
     font-style:italic;
-}
-
-.selected
-{
-    background-color:#CC5500;
 }
 
 .bold
@@ -1386,20 +1386,13 @@ div .thumb
     padding-right:8px;
 }
 
-.bmid
-{
-    border-left:1px solid #fe6500;
-}
-
 .bsel
 {
-    color:#ff8800;
     font-size:110%;
 }
 
 .bleft:hover
 {
-    color:#ff0000;
     cursor:pointer;
 }
 
@@ -1517,12 +1510,7 @@ div.lyrics p
     padding-right:6px;
     padding-bottom:2px;
     padding-top:1px;
-    background: -moz-radial-gradient(center, ellipse cover, rgba(255,40,25,0.81) 0%, rgba(232,22,18,0.81) 49%, rgba(212,7,12,0) 91%, rgba(208,4,11,0) 100%); /* FF3.6+ */
-    background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(255,40,25,0.81)), color-stop(49%,rgba(232,22,18,0.81)), color-stop(91%,rgba(212,7,12,0)), color-stop(100%,rgba(208,4,11,0))); /* Chrome,Safari4+ */
-    background: -webkit-radial-gradient(center, ellipse cover, rgba(255,40,25,0.81) 0%,rgba(232,22,18,0.81) 49%,rgba(212,7,12,0) 91%,rgba(208,4,11,0) 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-radial-gradient(center, ellipse cover, rgba(255,40,25,0.81) 0%,rgba(232,22,18,0.81) 49%,rgba(212,7,12,0) 91%,rgba(208,4,11,0) 100%); /* Opera 12+ */
-    background: -ms-radial-gradient(center, ellipse cover, rgba(255,40,25,0.81) 0%,rgba(232,22,18,0.81) 49%,rgba(212,7,12,0) 91%,rgba(208,4,11,0) 100%); /* IE10+ */
-    background: radial-gradient(ellipse at center, rgba(255,40,25,0.81) 0%,rgba(232,22,18,0.81) 49%,rgba(212,7,12,0) 91%,rgba(208,4,11,0) 100%); /* W3C */
+    text-shadow:0 0 5px red, 0 0 10px red, 0 0 20px red, 0 0 30px red;
 }
 
 .unlistenedpod
@@ -1534,12 +1522,7 @@ div.lyrics p
     padding-right:6px;
     padding-bottom:2px;
     padding-top:1px;
-    background: -moz-radial-gradient(center, ellipse cover, rgba(255,103,15,1) 0%, rgba(255,103,15,1) 43%, rgba(255,103,15,0.27) 66%, rgba(255,103,15,0.27) 100%); /* FF3.6+ */
-    background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(255,103,15,1)), color-stop(43%,rgba(255,103,15,1)), color-stop(66%,rgba(255,103,15,0.27)), color-stop(100%,rgba(255,103,15,0.27))); /* Chrome,Safari4+ */
-    background: -webkit-radial-gradient(center, ellipse cover, rgba(255,103,15,1) 0%,rgba(255,103,15,1) 43%,rgba(255,103,15,0.27) 66%,rgba(255,103,15,0.27) 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-radial-gradient(center, ellipse cover, rgba(255,103,15,1) 0%,rgba(255,103,15,1) 43%,rgba(255,103,15,0.27) 66%,rgba(255,103,15,0.27) 100%); /* Opera 12+ */
-    background: -ms-radial-gradient(center, ellipse cover, rgba(255,103,15,1) 0%,rgba(255,103,15,1) 43%,rgba(255,103,15,0.27) 66%,rgba(255,103,15,0.27) 100%); /* IE10+ */
-    background: radial-gradient(ellipse at center, rgba(255,103,15,1) 0%,rgba(255,103,15,1) 43%,rgba(255,103,15,0.27) 66%,rgba(255,103,15,0.27) 100%); /* W3C */
+    text-shadow:0 0 5px orange, 0 0 10px orange, 0 0 20px orange, 0 0 30px orange;
 }
 
 .podtitle
@@ -1628,22 +1611,11 @@ div.lyrics p
 .tagholder
 {
     margin-top: 12px;
-}
-
-.tagholder table tr th
-{
-    border-bottom:1px solid #cccccc;
-    background-color:#e8ebf0;
-}
-
-.tagman-hover
-{
-    background-color:#e1e4ea;
+    box-sizing:border-box;
 }
 
 .albumthing
 {
-    background-color:#f9f9f9;
     margin-top:0px;
     margin-left:2px;
     margin-right:2px;
@@ -1694,12 +1666,10 @@ div.lyrics p
 {
     font-weight:bold;
     text-align:center;
-    border-bottom:1px solid #555555;
-    border-top:1px solid #555555;
-    color:#555555;
     width:98%;
     margin-right:auto;
     margin-left:auto;
+    margin-top:4px;
     margin-bottom:2px;
     padding-bottom:4px;
     padding-top:4px;

@@ -423,13 +423,8 @@ function doPodcast($c) {
         }
         print '</div>';
         if ($y->daysLive > -1 && $item->listened == "no" && !is_dir('prefs/podcasts/'.$pm.'/'.$item->key)) {
-            // debug_print("Podcast days Live is ".$y->daysLive,"PODCASTS");
             $pubtime = strtotime((string) $item->pubdate);
-            // debug_print("Podcast pub date is ".$item->pubdate,"PODCASTS");
-            // debug_print("Podcast pub time is ".$pubtime,"PODCASTS");
             $expiretime = $pubtime + (($y->daysLive) * 86400);
-            // debug_print("Podcast expire time is ".$expiretime,"PODCASTS");
-            // debug_print("time is ".time(),"PODCASTS");
             $timeleft = format_time2($expiretime - time());
             if ($expiretime < time()) {
                 print '<div><b>'.get_int_text("podcast_expired").'</b></div>';
@@ -442,6 +437,9 @@ function doPodcast($c) {
         $d = (string) $item->description;
         $d = preg_replace('/(<a href=.*?)>/', '$1 target="_blank">', $d);
         $d = preg_replace('/(<a rel="nofollow" href=.*?)>/', '$1 target="_blank">', $d);
+        $d = preg_replace('/style\s*=\s*\".*?\"/', '', $d);
+        $d = preg_replace('/<p>\s*<\/p>/', '', $d);
+        $d = preg_replace('/<p>&nbsp;<\/p>/', '', $d);
         print '<div class="whatdoicallthis">'.$d.'</div>';
         print '<div class="clearfix" name="podcontrols_'.$pm.'">';
         if (is_dir('prefs/podcasts/'.$pm.'/'.$item->key)) {

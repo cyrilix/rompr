@@ -487,6 +487,7 @@ function Playlist() {
                 if (!prefs.hide_radiolist) {
                     $("#yourradiolist").load("streamplugins/00_yourradio.php?populate");
                 }
+                infobar.notify(infobar.NOTIFY,"Added To Your Radio Stations");
             });
     }
 

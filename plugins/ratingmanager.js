@@ -83,7 +83,7 @@ var ratingManager = function() {
 				holders[i].droppable({
 					addClasses: false,
 					drop: ratingManager.dropped,
-					hoverClass: 'tagman-hover'
+					hoverClass: 'highlighted'
 				});
 			}
             rmg.slideToggle('fast', function() {

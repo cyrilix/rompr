@@ -44,6 +44,8 @@ print '<i class="icon-cog-alt topimg tleft" onclick="layoutProcessor.sourceContr
                     </td></tr>
                 </table>
                 <div id="progress"></div>
+                <div id="playbackTime">§
+                </div>
             </div>
         </div>
     </div>

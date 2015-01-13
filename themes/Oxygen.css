@@ -154,6 +154,11 @@ div.clickable.selected:hover
     color:#dddddd;
 }
 
+.selected
+{
+    background-color:#CC5500;
+}
+
 /*-- divs and classes used in the playlist --*/
 
 .playlistcurrentitem
@@ -358,11 +363,6 @@ tr.clickaddtrack:hover
     border-bottom:1px solid #222222;
 }
 
-span.clickartistchoose:hover
-{
-    color:#000000;
-}
-
 #fiddler {
     border-left: 4px solid #fe6500;
     border-right: 4px solid #fe6500;
@@ -378,4 +378,32 @@ span.clickartistchoose:hover
 #imageeditor
 {
     border: 4px solid #fe6500;
+}
+
+.tagholder table tr th {
+    background-color:rgba(0,0,0,0.5);
+    border-bottom:1px solid #000000;
+    color:#ffffff;
+}
+
+.bsel
+{
+    color:#ff4800;
+}
+
+.bmid
+{
+    border-left:2px solid #ff4800;
+}
+
+.albumthing
+{
+    background-color:#f9f9f9;    
+}
+
+#artistchooser
+{
+    border-bottom:1px solid #777777;
+    border-top:1px solid #777777;
+    color:#555555;    
 }

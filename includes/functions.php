@@ -432,8 +432,10 @@ function get_base_url() {
      * OR
      * https://mysite.com
      */
-    $directory = preg_replace('#/utils$#', '', $directory);
-    return $protocol . $host . $directory;
+    // return $protocol . $host . $directory;
+
+    // Ignore the directory
+    return $protocol.$host;
 }
 
 function scan_for_images($albumpath) {

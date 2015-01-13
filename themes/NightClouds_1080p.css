@@ -96,9 +96,7 @@ select
 
 #notifications
 {
-    border-bottom:1px solid #ffffff;
-    border-left:1px solid #ffffff;
-    border-right:1px solid #ffffff;
+    background-color:rgba(0,0,0,0.9);
 }
 
 a.album:visited
@@ -127,14 +125,13 @@ div.clickable:hover, .infoclick:hover
 
 div.clickable.selected:hover
 {
-    color:#555555;
+    color:#ffffff;
 }
 
 .selected
 {
-    background-color:#ff4800;
+    background-color:rgba(255,72,0,0.6);
 }
-
 
 /*-- divs and classes used in the playlist --*/
 
@@ -291,13 +288,13 @@ table.tracklist {
 
 .funkymusic
 {
-    background-color:yellow;
+    background-color:rgba(0,0,0,0.9);
 }
 
 table.histable tr:hover {
     font-size:105%;
     text-shadow: 0 0 15px #ffffff;
-    color:#ffffff;
+    color:#ff4800;
     transition:all 0.1s;
 }
 
@@ -309,7 +306,7 @@ table.histable tr
 .backhi:hover {
     font-size:105%;
     text-shadow: 0 0 15px #ffffff;
-    color:#ffffff;
+    color:#ff4800;
     cursor:pointer;
     transition:all 0.1s;
 }
@@ -331,11 +328,6 @@ tr.clickaddtrack:hover
     border-right:1px solid yellow;
 }
 
-span.clickartistchoose:hover
-{
-    color:#000000;
-}
-
 .topimg
 {
     opacity:0.8;
@@ -352,6 +344,11 @@ span.clickartistchoose:hover
     text-shadow:0 0 15px #ffffff;
 }
 
+.bmid
+{
+    border-left:2px solid #ff4800;
+}
+
 #fiddler
 {
     background: transparent !important;
@@ -364,4 +361,15 @@ span.clickartistchoose:hover
 #imageeditor
 {
     background-color:rgba(255,255,255,0.2);
+}
+
+.tagholder table tr th {
+    background-color:rgba(0,0,0,0.5);
+    border-bottom:1px solid #000000;
+}
+
+#artistchooser
+{
+    background-color:rgba(0,0,0,0.4);
+    color:#555555;    
 }
