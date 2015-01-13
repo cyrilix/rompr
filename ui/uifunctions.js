@@ -6,6 +6,11 @@ function reloadWindow() {
     location.reload(true);
 }
 
+function forceCollectionReload() {
+    albumslistexists = true;
+    checkCollection(false, false);
+}
+
 function saveSelectBoxes(event) {
     var prefobj = new Object();
     var prefname = $(event.target).attr("id").replace(/selector/,'');
@@ -84,6 +89,21 @@ function togglePref(event) {
         case 'search_limit_limitsearch':
             callback = weaselBurrow;
             break;
+
+        case 'ignore_unplayable':
+        case 'sortbycomposer':
+        case 'composergenre':
+            $("#donkeykong").effect('pulsate', {times: 3}, 500);
+            break;
+
+        case "sortbydate":
+        case "notvabydate":
+            if (prefs.apache_backend == "xml") {
+                $("#donkeykong").effect('pulsate', {times: 3}, 500);
+            } else {
+                callback = forceCollectionReload;
+            }
+            break;
     }
     prefs.save(prefobj, callback);
 }
@@ -99,10 +119,7 @@ function toggleRadio(event) {
             break;
 
         case 'sortcollectionby':
-            callback = function() {
-                albumslistexists = true;
-                checkCollection(false, false);
-            }
+            callback = forceCollectionReload;
             break;
     }
     prefs.save(prefobj, callback);
@@ -115,17 +132,35 @@ function saveTextBoxes() {
 
 function doTheSave() {
     var felakuti = new Object;
+    var callback = null;
     $(".saveotron").each( function() {
         if ($(this).hasClass("arraypref")) {
             felakuti[$(this).attr("id")] = $(this).attr("value").split(',');
         } else {
             felakuti[$(this).attr("id")] = $(this).attr("value");
         }
+        switch ($(this).attr("id")) {
+            case "composergenrename":
+                if (felakuti.composergenrename != prefs.composergenrename) {
+                    $("#donkeykong").effect('pulsate', {times: 3}, 500);
+                }
+                break;
+
+            case "artistsatstart":
+            case "nosortprefixes":
+                if (felakuti.artistsatstart != prefs.artistsatstart ||
+                    felakuti.nosortprefixes != prefs.nosortprefixes) {
+                    callback = forceCollectionReload;
+                }
+                break;
+
+
+        }
     });
     if (felakuti.crossfade_duration != player.status.xfade && player.status.xfade !== undefined && player.status.xfade !== null && player.status.xfade > 0) {
         player.controller.setCrossfade(felakuti.crossfade_duration);
     }
-    prefs.save(felakuti);
+    prefs.save(felakuti, callback);
 }
 
 function setPrefs() {

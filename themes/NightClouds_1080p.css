@@ -4,9 +4,10 @@ body
     background-size:cover;
     background-repeat:no-repeat;
 }
-.album1
+
+#sources
 {
-    background-color:rgba(0,0,0,0.1);
+    background-color:rgba(0,0,0,0.2);
 }
 
 .album2
@@ -14,9 +15,14 @@ body
     background-color:rgba(0,0,0,0.2);
 }
 
-#pscroller, .infotext
+#playlist, #playlistm
 {
     background-color:rgba(0,0,0,0.2);
+}
+
+#infopane
+{
+    background-color:rgba(0,0,0,0.4);
 }
 
 .albumthing

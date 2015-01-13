@@ -4,11 +4,18 @@
 // b) If we do it at page load time Chrome's page preload feature
 //    can result in two of them running simultanesouly, which
 //    produces 'cannot stat' errors.
+
 chdir('..');
 include("includes/vars.php");
 include("includes/functions.php");
 
 debug_print("Checking Cache","CACHE CLEANER");
+
+// DO NOT REDUCE the values for musicbrainz or discogs
+// - we have to follow their API rules and as we don't check
+// expiry headers at all we need to keep everything for a month
+// otherwise they will ban us. Don't spoil it for everyone.
+
 // One Month
 clean_cache_dir('prefs/jsoncache/musicbrainz/', 2592000);
 // One Month
@@ -19,7 +26,7 @@ clean_cache_dir('prefs/jsoncache/wikipedia/', 2592000);
 clean_cache_dir('prefs/jsoncache/lastfm/', 2592000);
 // One Month
 clean_cache_dir('prefs/jsoncache/spotify/', 2592000);
-// Six Months
+// Six Months - after all, lyrics are small and don't change
 clean_cache_dir('prefs/jsoncache/lyrics/', 15552000);
 // Two weeks (or it can get REALLY big)
 clean_cache_dir('prefs/imagecache/', 1296000);

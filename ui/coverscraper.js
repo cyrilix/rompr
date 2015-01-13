@@ -102,6 +102,11 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
             if (stream == "") {
                 stream = $(this).attr('romprstream') || "";
             }
+            if ($(this).attr("src") != undefined) {
+                debug.log("COVERSCRAPER","Cover already present");
+                doNextImage(1);
+                return 0;
+            }
         });
         debug.log("COVERSCRAPER","Stream is", stream);
         animateWaiting();
@@ -172,7 +177,6 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
         stopAnimation();
         debug.log("COVERSCRAPER","No Cover Found. Reverting to the blank icon");
         $.each($('img[name="'+name+'"]'), function() {
-            // $(this).attr("src", blankicon);
             // Remove this class to prevent it being searched again
             $(this).removeClass("notexist");
             $(this).removeClass("notfound").addClass("notfound");

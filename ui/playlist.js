@@ -238,6 +238,7 @@ function Playlist() {
 
         if (ui.item.hasClass("draggable")) {
             // Something dragged from the albums list
+            debug.log("PLAYLIST","Something was dropped from the albums list");
             var tracks = new Array();
             $.each($('.selected').filter(removeOpenItems), function (index, element) {
                 var uri = $(element).attr("name");
@@ -299,7 +300,9 @@ function Playlist() {
         // Filter out artist and album items whose dropdowns have been populated -
         // In these cases the individual tracks will exist and will be selected
         // (and might only have partial selections even if the header is selected)
-        if ($("#"+$(this).attr('name')).hasClass('notfilled') || $(this).hasClass('onefile')) {
+        if ($("#"+$(this).attr('name')).length == 0) {
+            return true;
+        } else if ($("#"+$(this).attr('name')).hasClass('notfilled') || $(this).hasClass('onefile')) {
             return true;
         } else {
             return false;

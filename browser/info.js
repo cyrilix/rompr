@@ -259,10 +259,16 @@ var browser = function() {
                 if (waitingon[type]) {
                     debug.log("BROWSER", "  .. and we are going to display it");
                     if (data.data !== null && (source == "file" || data.name !== "")) {
+                        if ($("#"+type+"information").is(':hidden')) {
+                            $("#"+type+"information").show();
+                        }
                         $("#"+type+"information").html(banner(data, (collection === null) ? type : collection.bannertitle(), panelclosed[type], source)+data.data);
                         $("#"+type+"information").find("[title]").tipTip({delay:1000, edgeOffset: 8});
                     } else {
                         $("#"+type+"information").html("");
+                        if ($("#"+type+"information").is(':visible')) {
+                            $("#"+type+"information").hide();
+                        }
                     }
                     waitingon[type] = false;
                     if (type == 'artist' && displaypointer == history.length-1) {

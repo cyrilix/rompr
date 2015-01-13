@@ -1,4 +1,3 @@
-
 function LastFM(user) {
 
     var lastfm_secret="3ddf4cb9937e015ca4f30296a918a2b0";

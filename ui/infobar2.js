@@ -579,6 +579,7 @@ var infobar = function() {
         createProgressBar: function() {
             progressbar = new progressBar('progress', 'horizontal');
             volumecontrol = new progressBar('volume', 'vertical');
+            $("#progress").click( infobar.seek );
         },
 
         setProgress: function(percent, progress, duration) {

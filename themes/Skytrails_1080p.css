@@ -1,28 +1,33 @@
 body
 {
-    background-image:url("sunsetbirds.jpg");
+    background-image:url("skytrailscrop.jpg");
     background-size:cover;
     background-repeat:no-repeat;
 }
 
 #sources
 {
-    background-color:rgba(0,0,0,0.2);
+    background-color:rgba(255,255,255,0.2);
 }
 
 .album2
 {
-    background-color:rgba(0,0,0,0.2);
+    background-color:rgba(255,255,255,0.2);
 }
 
-#playlist, #playlistm, #infopane
+#playlist, #playlistm
 {
-    background-color:rgba(0,0,0,0.2);
+    background-color:rgba(255,255,255,0.3);
+}
+
+#infopane
+{
+    background-color:rgba(255,255,255,0.4);    
 }
 
 .albumthing
 {
-    background-color:rgba(0,0,0,0.1);    
+    background-color:rgba(255,255,255,0.1);    
 }
 
 #artistbio, #spartistinfo
@@ -32,17 +37,17 @@ body
 
 body,p,h1,h2,h3,h4,table,td,th,ul,ol,textarea,input
 {
-    color:#eeeeee;
+    color:#000000;
 }
 
 a:link
 {
-    color:yellow;
+    color:#ff4800;
 }
 
 a:visited
 {
-    color:yellow;
+    color:#ff4800;
 }
 
 a:hover,a:active
@@ -53,16 +58,16 @@ a:hover,a:active
 
 .infowiki
 {
-    color:white;
+    color:black;
 }
 
 /*-- divs used to create infobar layout --*/
 
 button, input[type="button"], .gradbutton
 {
-    color:#dddddd;
-    background-color:transparent;
-    border:1px solid #aaaaaa;
+    color:#000000;
+    background-color:rgba(255,255,255,0.5);    
+    border:1px solid #222222;
 }
 
 .crackbaby button, .albumcovers .infosection button
@@ -137,8 +142,8 @@ div.clickable.selected:hover
 {
     font-weight:bold;
     font-size:120%;
-    border-left:8px solid white;
-    color:#eeeeee;
+    border-left:8px solid #ff4800;
+    color:#ff4800;
     transition:all 0.2s;
 }
 
@@ -151,7 +156,7 @@ div.clickable.selected:hover
 {
     text-shadow: 0px 0px 20px #cccccc;
     font-weight:bold;
-    color:#eeeeee;
+    color:#ff4800;
 }
 
 .inbrowser
@@ -178,7 +183,7 @@ div.clickable.selected:hover
 
 .infosection
 {
-    background-color:rgba(0,0,0,0.5);
+    background-color:rgba(255,255,255,0.4);
     background-size:cover;
     background-repeat:no-repeat;
 }
@@ -192,7 +197,7 @@ div.clickable.selected:hover
 
 .crackbaby
 {
-    background-color:rgba(0,0,0,0.5);
+    background-color:rgba(255,255,255,0.4);
     box-sizing:border-box;
     background-size:cover;
     background-repeat:no-repeat;
@@ -200,7 +205,13 @@ div.clickable.selected:hover
 
 .popupwindow
 {
-    background-color:rgba(0,0,0,0.8);
+    background-color:rgba(65,65,85,0.9);
+    color:white;
+}
+
+.popupwindow td, .popupwindow h2
+{
+    color:white;
 }
 
 .underlined
@@ -212,12 +223,18 @@ div.clickable.selected:hover
 
 div.topdropmenu
 {
-    background-color:rgba(0,0,0,0.9);
+    background-color:rgba(65,65,85,0.9);
+    color:white;
+}
+
+div.topdropmenu td
+{
+    color:white;    
 }
 
 .configtitle
 {
-    background-color:rgba(0,0,0,1);
+    background-color:rgba(255,255,255,0.5);
 }
 
 body.mobile .configtitle
@@ -276,12 +293,12 @@ table.tracklist {
 
 .underline
 {
-    border-bottom: 1px solid yellow;
+    border-bottom: 1px solid black;
 }
 
 .infosection h2
 {
-    border-bottom:2px solid white;
+    border-bottom:2px solid black;
 }
 
 .funkymusic
@@ -292,7 +309,7 @@ table.tracklist {
 table.histable tr:hover {
     font-size:105%;
     text-shadow: 0 0 15px #ffffff;
-    color:#ffffff;
+    color:#000000;
     transition:all 0.1s;
 }
 
@@ -304,7 +321,7 @@ table.histable tr
 .backhi:hover {
     font-size:105%;
     text-shadow: 0 0 15px #ffffff;
-    color:#ffffff;
+    color:#ff4800;
     cursor:pointer;
     transition:all 0.1s;
 }
@@ -321,9 +338,9 @@ tr.clickaddtrack:hover
 
 .edged
 {
-    border-left:1px solid yellow;
-    border-bottom:1px solid yellow;
-    border-right:1px solid yellow;
+    border-left:1px solid white;
+    border-bottom:1px solid white;
+    border-right:1px solid white;
 }
 
 span.clickartistchoose:hover
@@ -353,10 +370,10 @@ span.clickartistchoose:hover
 }
 
 .highlighted {
-    background-color:rgba(255,255,255,0.2) !important;
+    background-color:rgba(255,255,255,0.4);
 }
 
 #imageeditor
 {
-    background-color:rgba(255,255,255,0.2);
+    background-color:rgba(255,255,255,0.4);
 }

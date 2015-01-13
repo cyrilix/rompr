@@ -265,10 +265,6 @@ $(window).ready(function(){
         window.addEventListener("storage", onStorageChanged, false);
     }
 
-    if (prefs.playlistcontrolsvisible) {
-        $("#playlistbuttons").slideToggle('fast', setBottomPaneSize);
-    }
-
     if (prefs.country_userset == false) {
         // Have to pull this data in via the webserver as it's cross-domain
         // It's helpful and important to get the country code set, as many users won't see it
@@ -283,14 +279,10 @@ $(window).ready(function(){
     setClickHandlers();
     $("#sortable").click(onPlaylistClicked);
     infobar.createProgressBar();
-    $("#progress").click( infobar.seek );
     globalPlugins.initialise();
     initUI();
     browser.createButtons();
     setChooserButtons();
-    if (prefs.hide_albumlist) {
-        $("#search").show({complete: setSearchLabelWidth});
-    }
     if (!prefs.hide_radiolist) {
         $("#yourradiolist").load("streamplugins/00_yourradio.php?populate");
     }
@@ -310,6 +302,9 @@ $(window).load(function() {
     $(window).bind('resize', function() {
         setBottomPaneSize();
     });
+    if (prefs.playlistcontrolsvisible) {
+        $("#playlistbuttons").show();
+    }
     player.controller.initialise();
     showUpdateWindow();
     if (!prefs.hide_radiolist) {

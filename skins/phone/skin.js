@@ -84,6 +84,7 @@ var layoutProcessor = function() {
         supportsDragDrop: false,
         hasCustomScrollbars: false,
         playlistInNowplaying: false,
+        usesKeyboard: false,
 
         afterHistory: function() {
             layoutProcessor.sourceControl('infopane', function() { layoutProcessor.goToBrowserPanel('artist')});
