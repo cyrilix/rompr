@@ -266,6 +266,16 @@ function removePodcast($name) {
     system('rm -fR prefs/podcasts/'.$name, $retval);
 }
 
+function format_text($d) {
+    $d = preg_replace('/(<a href=.*?)>/', '$1 target="_blank">', $d);
+    $d = preg_replace('/(<a rel="nofollow" href=.*?)>/', '$1 target="_blank">', $d);
+    $d = preg_replace('/style\s*=\s*\".*?\"/', '', $d);
+    $d = preg_replace('/<p>\s*<\/p>/', '', $d);
+    $d = preg_replace('/<p>&nbsp;<\/p>/', '', $d);
+    $d = preg_replace('/\n|\r\n/', '<br>', $d);
+    return $d;
+}
+
 function doPodcast($c) {
     $y = simplexml_load_file($c.'/info.xml');
     $pm = basename($c);
@@ -273,7 +283,7 @@ function doPodcast($c) {
     if ($aa != '') {
         $aa = $aa . ' - ';
     }
-    print '<div class="whatdoicallthis">'.$y->description.'</div>';
+    print '<div class="whatdoicallthis">'.format_text((string) $y->description).'</div>';
     print '<div class="clearfix bumpad">';
     print '<i title="'.get_int_text("podcast_delete").'" class="icon-cancel-circled smallicon clickable clickicon podremove tright fridge" name="podremove_'.$pm.'"></i>';
     print '<i title="'.get_int_text("podcast_configure").'" class="icon-cog-alt smallicon clickable clickicon podconf tleft fridge" name="podconf_'.$pm.'"></i>';
@@ -434,13 +444,7 @@ function doPodcast($c) {
                 print '<div><b>'.get_int_text("podcast_timeleft", array($timeleft))."</b></div>";
             }
         }
-        $d = (string) $item->description;
-        $d = preg_replace('/(<a href=.*?)>/', '$1 target="_blank">', $d);
-        $d = preg_replace('/(<a rel="nofollow" href=.*?)>/', '$1 target="_blank">', $d);
-        $d = preg_replace('/style\s*=\s*\".*?\"/', '', $d);
-        $d = preg_replace('/<p>\s*<\/p>/', '', $d);
-        $d = preg_replace('/<p>&nbsp;<\/p>/', '', $d);
-        print '<div class="whatdoicallthis">'.$d.'</div>';
+        print '<div class="whatdoicallthis">'.format_text((string) $item->description).'</div>';
         print '<div class="clearfix" name="podcontrols_'.$pm.'">';
         if (is_dir('prefs/podcasts/'.$pm.'/'.$item->key)) {
             print '<i class="icon-floppy smallicon tleft fridge" title="'.get_int_text("podcast_tooltip_downloaded").'"></i>';
@@ -465,7 +469,13 @@ function doPodcastHeader($c) {
     }
     print '<div class="containerbox menuitem">';
     print '<i class="icon-toggle-closed menu mh fixed" name="podcast_'.$pm.'"></i>';
-    print '<div class="smallcover fixed"><img class="smallcover" src="'.$y->image.'" /></div>';
+    $i = getDomain($y->image);
+    if ($i == "http" || $i == "https") {
+        $img = "getRemoteImage.php?url=".$y->image;
+    } else {
+        $img = $y->image;
+    }
+    print '<div class="smallcover fixed"><img class="smallcover" src="'.$img.'" /></div>';
     print '<div class="expand"><b>'.$aa.$y->album.'</b><span class="podnumber"></span><span></span></div>';
     print '</div>';
     print '<div id="podcast_'.$pm.'" class="indent dropmenu padright">';

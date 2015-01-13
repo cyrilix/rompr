@@ -498,10 +498,11 @@ var imageEditor = function() {
                 $("#searchresultsholder").append($('<div>', {id: "searchresults", class: "fullwidth holdingcell"}));
 
                 var uform =                 $('<form>', { id: 'uform', action: 'getalbumcover.php', method: 'post', enctype: 'multipart/form-data' }).appendTo($("#usearch"));
-                uform.append(               $('<input>', { id: 'imagekey', type: 'hidden', name: 'key', value: '' }),
-                                            $('<input>', { name: 'ufile', type: 'file', size: '80', class: 'tleft inbrowser' }),
-                                            $('<input>', { type: 'button', class: 'tright', value: language.gettext("albumart_uploadbutton"), style: 'width:8em', onclick: "imageEditor.uploadFile()" }),
-                                            '<div class="holdingcell"><p>'+language.gettext("albumart_dragdrop")+'</p></div>');
+                var fdiv =                  $('<div>', {class: "containerbox dropdown-container"}).appendTo(uform);
+                fdiv.append(                $('<input>', { id: 'imagekey', type: 'hidden', name: 'key', value: '' }),
+                                            $('<input>', { type: 'button', class: 'fixed', value: language.gettext("albumart_uploadbutton"), style: 'width:8em', onclick: "imageEditor.uploadFile()" }),
+                                            $('<input>', { name: 'ufile', type: 'file', size: '80', class: 'expand inbrowser', style: "margin-left:8px" }));
+                $("#usearch").append(      '<div class="holdingcell"><p>'+language.gettext("albumart_dragdrop")+'</p></div>');
 
                 $("#editcontrols").append(  '<div id="g" class="tleft bleft clickable bmenu">'+language.gettext("albumart_googlesearch")+'</div>'+
                                             '<div id="f" class="tleft bleft bmid clickable bmenu">'+language.gettext("albumart_local")+'</div>'+
