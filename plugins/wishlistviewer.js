@@ -63,7 +63,7 @@ var wishlistViewer = function() {
 	    lastfm.track.getBuylinks({track: title, artist: artist},
 	    	function(data) {
 	    		bugger.fadeOut('fast', function() {
-		    		bugger.html('<div class="standout"><ul>'+getBuyHtml(data)+'</ul></div>');
+		    		bugger.html('<div class="standout"><ul>'+lastfm.getBuyLinks(data)+'</ul></div>');
 		    		bugger.slideToggle('fast');
 	    		});
 	    	},

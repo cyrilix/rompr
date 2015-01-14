@@ -27,7 +27,7 @@
     -webkit-box-flex:100.0;
     flex-grow: 10;
     flex-shrink: 10;
-    flex-basis: auto;  
+    flex-basis: auto; 
     padding:8px;
 }
 
@@ -98,4 +98,48 @@
 {
     width:80%;
     display:table;
+}
+
+.flasher {
+     -webkit-animation: flash 1s linear infinite;
+     -moz-animation: flash 1s linear infinite;
+     animation: flash 1s linear infinite;
+}
+
+.noflash {
+    opacity: 1;
+}
+
+@-webkit-keyframes flash{
+     0%{
+          opacity: 1;
+     }
+     50%{
+          opacity: 0;
+     }
+     100%{
+          opacity: 1;
+     }
+}
+@-moz-keyframes flash{
+     0%{
+          opacity: 1;
+     }
+     50%{
+          opacity: 0;
+     }
+     100%{
+          opacity: 1;
+     }
+}
+@keyframes flash{
+     0%{
+          opacity: 1;
+     }
+     50%{
+          opacity: 0;
+     }
+     100%{
+          opacity: 1;
+     }
 }

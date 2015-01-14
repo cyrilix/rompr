@@ -137,28 +137,6 @@ function hideBrowser() {
     animatePanels();
 }
 
-function setBottomPaneSize() {
-    var ws = getWindowSize();
-    // x-position of the notification rollup
-    var notpos = ws.x - 340;
-    $("#notifications").css("left", notpos+"px");
-    // Width of the nowplaying area
-    var lp = ws.x - $("#patrickmoore").prev().offset().left - $("#patrickmoore").prev().outerWidth(true) - 16;
-    $('#patrickmoore').css("width", lp+"px");
-    // Height of the bottom pane (chooser, info, playlist container)
-    var newheight = ws.y - $("#bottompage").offset().top;
-    $("#bottompage").css("height", newheight+"px");
-    if (newheight < 540) {
-        $('.topdropmenu').css('height',newheight+"px");
-    } else {
-        $('.topdropmenu').css('height', "");
-    }
-    layoutProcessor.setPlaylistHeight();
-    setTopIconSize(["#sourcescontrols", "#infopanecontrols", "#playlistcontrols"]);
-    infobar.rejigTheText();
-    browser.rePoint();
-}
-
 function setTopIconSize(panels) {
     var imw = (parseInt($('.topimg').first().css('margin-left')) + parseInt($('.topimg').first().css('margin-right')));
     panels.forEach( function(div) {
@@ -234,131 +212,6 @@ function addCustomScrollBar(value) {
     });
 }
 
-function initUI() {
-    $("#sortable").disableSelection();
-    $("#sortable").sortable({
-        items: ".sortable",
-        axis: 'y',
-        containment: '#sortable',
-        scroll: true,
-        scrollSpeed: 10,
-        tolerance: 'pointer',
-        scrollparent: "#pscroller",
-        customscrollbars: true,
-        scrollSensitivity: 60,
-        start: function(event, ui) {
-            ui.item.css("background", "#555555");
-            ui.item.css("opacity", "0.7")
-        },
-        stop: playlist.dragstopped
-    });
-
-    $("#yourradiolist").sortable({
-        items: ".clickradio,.clickstream",
-        axis: "y",
-        containment: "#yourradiolist",
-        scroll: true,
-        scrollSpeed: 10,
-        tolerance: 'pointer',
-        stop: saveRadioOrder
-    });
-
-    setDraggable('collection');
-    setDraggable('filecollection');
-    setDraggable('search');
-    setDraggable('filesearch');
-    setDraggable('artistinformation');
-    setDraggable('albuminformation');
-    setDraggable('storedplaylists');
-
-    // Make the entire playlist area accept drops from the collection
-    $("#pscroller").droppable({
-        //accept: ".draggable",
-        addClasses: false,
-        greedy: true,
-        drop: playlist.draggedToEmpty,
-        hoverClass: "highlighted"
-    });
-
-    // We have to set the sortable as droppable, even though the draggables
-    // are connected to it. This means we can set the 'greedy' option.
-    // Otherwise the drop event bubbles up when we drop over the sortable
-    // and the pscroller event captures it first.
-    $("#sortable").droppable({
-        //accept: ".draggable",
-        addClasses: false,
-        greedy: true,
-        drop: function() {},
-    });
-
-    $("#sourcesresizer").draggable({
-        containment: '#headerbar',
-        axis: 'x'
-    });
-    $("#sourcesresizer").bind("drag", srDrag);
-    $("#sourcesresizer").bind("dragstop", srDragStop);
-    $("#playlistresizer").draggable({
-        containment: 'headerbar',
-        axis: 'x'
-    });
-    $("#playlistresizer").bind("drag", prDrag);
-    $("#playlistresizer").bind("dragstop", prDragStop);
-    animatePanels();
-    $(".topdrop").click(function(ev) {
-        var ours = $(this)[0];
-        $('.topdropmenu').each(function() {
-            if ($(this).is(':visible') && $(this).parent()[0] != ours) {
-                $(this).slideToggle('fast');
-            }
-        });
-        $(this).find('.topdropmenu').slideToggle('fast', function() {
-            if ($(this).is(':visible')) {
-                var avheight = $("#bottompage").height() - 16;
-                var conheight = $(this).children().first().children('.mCSB_container').height();
-                var nh = Math.min(avheight, conheight);
-                $(this).css({height: nh+"px", "max-height":''});
-                $(this).mCustomScrollbar("update");
-                if ($(this).attr("id") == "hpscr") {
-                    $('#hpscr').mCustomScrollbar("scrollTo", '.current', {scrollInertia:0});
-                }
-            }
-        });
-    });
-
-    $(".stayopen").click(function(ev) {ev.stopPropagation() });
-
-    shortcuts.load();
-    var obj = document.getElementById('volumecontrol');
-    obj.addEventListener('mousedown', function(event) {
-        event.preventDefault();
-        infobar.volumeTouch(event);
-    }, false);
-    obj.addEventListener('mousemove', function(event) {
-        event.preventDefault();
-        infobar.volumeMouseMove(event);
-    }, false);
-    obj.addEventListener('mouseup', function(event) {
-        infobar.volumeDragEnd(event);
-    }, false);
-    obj.addEventListener('mouseout', function(event) {
-        infobar.volumeTouchEnd(event);
-    }, false);
-    $(".enter").keyup( onKeyUp );
-    $(".lettuce,.tooltip").tipTip({delay: 1000, edgeOffset: 8});
-    $.each([ "#sources", "#infopane", "#pscroller", ".topdropmenu", ".drop-box" ], function( index, value ) {
-        addCustomScrollBar(value);
-    });
-
-    $("#mopidysearcher input").keyup( function(event) {
-        if (event.keyCode == 13) {
-            player.controller.search('search');
-        }
-    } );
-    if (prefs.hide_albumlist) {
-        $("#search").show({complete: setSearchLabelWidth});
-    }
-}
-
 var layoutProcessor = function() {
 
     function switchsource(source) {
@@ -395,14 +248,14 @@ var layoutProcessor = function() {
             $("#chooserbuttons").append($('<i>', {
                 onclick: "browser.switchsource('"+name+"')",
                 title: language.gettext(obj.text),
-                class: obj.icon+' topimg sep dildo fixed',
+                class: obj.icon+' topimg sep fixed',
                 id: "button_source"+name
             }));
         },
 
         setupInfoButtons: function() {
             $("#button_source"+prefs.infosource).addClass("currentbun");
-            $(".dildo").tipTip({delay: 1000, edgeOffset: 8});
+            $("#chooserbuttons .topimg").tipTip({delay: 1000, edgeOffset: 8});
         },
 
         goToBrowserPanel: function(panel) {
@@ -486,7 +339,153 @@ var layoutProcessor = function() {
             }
             switchsource(source);
             return false;
+        },
+
+        adjustLayout: function() {
+            var ws = getWindowSize();
+            // x-position of the notification rollup
+            var notpos = ws.x - 340;
+            $("#notifications").css("left", notpos+"px");
+            // Width of the nowplaying area
+            var lp = ws.x - $("#patrickmoore").prev().offset().left - $("#patrickmoore").prev().outerWidth(true) - 16;
+            $('#patrickmoore').css("width", lp+"px");
+            // Height of the bottom pane (chooser, info, playlist container)
+            var newheight = ws.y - $("#bottompage").offset().top;
+            $("#bottompage").css("height", newheight+"px");
+            if (newheight < 540) {
+                $('.topdropmenu').css('height',newheight+"px");
+            } else {
+                $('.topdropmenu').css('height', "");
+            }
+            layoutProcessor.setPlaylistHeight();
+            setTopIconSize(["#sourcescontrols", "#infopanecontrols", "#playlistcontrols"]);
+            infobar.rejigTheText();
+            browser.rePoint();
+        },
+
+        initialise: function() {
+            $("#sortable").disableSelection();
+            $("#sortable").sortable({
+                items: ".sortable",
+                axis: 'y',
+                containment: '#sortable',
+                scroll: true,
+                scrollSpeed: 10,
+                tolerance: 'pointer',
+                scrollparent: "#pscroller",
+                customscrollbars: true,
+                scrollSensitivity: 60,
+                start: function(event, ui) {
+                    ui.item.css("background", "#555555");
+                    ui.item.css("opacity", "0.7")
+                },
+                stop: playlist.dragstopped
+            });
+
+            $("#yourradiolist").sortable({
+                items: ".clickradio,.clickstream",
+                axis: "y",
+                containment: "#yourradiolist",
+                scroll: true,
+                scrollSpeed: 10,
+                tolerance: 'pointer',
+                stop: saveRadioOrder
+            });
+
+            setDraggable('collection');
+            setDraggable('filecollection');
+            setDraggable('search');
+            setDraggable('filesearch');
+            setDraggable('artistinformation');
+            setDraggable('albuminformation');
+            setDraggable('storedplaylists');
+
+            // Make the entire playlist area accept drops from the collection
+            $("#pscroller").droppable({
+                //accept: ".draggable",
+                addClasses: false,
+                greedy: true,
+                drop: playlist.draggedToEmpty,
+                hoverClass: "highlighted"
+            });
+
+            // We have to set the sortable as droppable, even though the draggables
+            // are connected to it. This means we can set the 'greedy' option.
+            // Otherwise the drop event bubbles up when we drop over the sortable
+            // and the pscroller event captures it first.
+            $("#sortable").droppable({
+                //accept: ".draggable",
+                addClasses: false,
+                greedy: true,
+                drop: function() {},
+            });
+
+            $("#sourcesresizer").draggable({
+                containment: '#headerbar',
+                axis: 'x'
+            });
+            $("#sourcesresizer").bind("drag", srDrag);
+            $("#sourcesresizer").bind("dragstop", srDragStop);
+            $("#playlistresizer").draggable({
+                containment: 'headerbar',
+                axis: 'x'
+            });
+            $("#playlistresizer").bind("drag", prDrag);
+            $("#playlistresizer").bind("dragstop", prDragStop);
+            animatePanels();
+            $(".topdrop").click(function(ev) {
+                var ours = $(this)[0];
+                $('.topdropmenu').each(function() {
+                    if ($(this).is(':visible') && $(this).parent()[0] != ours) {
+                        $(this).slideToggle('fast');
+                    }
+                });
+                $(this).find('.topdropmenu').slideToggle('fast', function() {
+                    if ($(this).is(':visible')) {
+                        var avheight = $("#bottompage").height() - 16;
+                        var conheight = $(this).children().first().children('.mCSB_container').height();
+                        var nh = Math.min(avheight, conheight);
+                        $(this).css({height: nh+"px", "max-height":''});
+                        $(this).mCustomScrollbar("update");
+                        if ($(this).attr("id") == "hpscr") {
+                            $('#hpscr').mCustomScrollbar("scrollTo", '.current', {scrollInertia:0});
+                        }
+                    }
+                });
+            });
+
+            $(".stayopen").click(function(ev) {ev.stopPropagation() });
+
+            shortcuts.load();
+            var obj = document.getElementById('volumecontrol');
+            obj.addEventListener('mousedown', function(event) {
+                event.preventDefault();
+                infobar.volumeTouch(event);
+            }, false);
+            obj.addEventListener('mousemove', function(event) {
+                event.preventDefault();
+                infobar.volumeMouseMove(event);
+            }, false);
+            obj.addEventListener('mouseup', function(event) {
+                infobar.volumeDragEnd(event);
+            }, false);
+            obj.addEventListener('mouseout', function(event) {
+                infobar.volumeTouchEnd(event);
+            }, false);
+            $(".enter").keyup( onKeyUp );
+            $(".lettuce,.tooltip").tipTip({delay: 1000, edgeOffset: 8});
+            $.each([ "#sources", "#infopane", "#pscroller", ".topdropmenu", ".drop-box" ], function( index, value ) {
+                addCustomScrollBar(value);
+            });
+
+            $("#mopidysearcher input").keyup( function(event) {
+                if (event.keyCode == 13) {
+                    player.controller.search('search');
+                }
+            } );
+            if (prefs.hide_albumlist) {
+                $("#search").show({complete: setSearchLabelWidth});
+            }
         }
     }
-
 }();

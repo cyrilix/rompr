@@ -45,6 +45,8 @@ function getNewPodcast($url) {
     $displaymode = "all";
     $autodownload = "false";
     $keepdownloaded = "false";
+    $sortmode = "newestfirst";
+    $hidedescriptions = "false";
     $daystokeep = 0;
     $numtokeep = 0;
     $daysLive = -1;
@@ -55,6 +57,8 @@ function getNewPodcast($url) {
         $daystokeep = $oldinfo->daystokeep;
         $numtokeep = $oldinfo->numtokeep;
         $keepdownloaded = $oldinfo->keepdownloaded;
+        $sortmode = $oldinfo->sortmode;
+        $hidedescriptions = $oldinfo->hidedescriptions;
     } else {
         if ($ppg && $ppg->seriesDetails) {
             $refreshoption = $ppg->seriesDetails[0]->attributes()->frequency;
@@ -90,6 +94,8 @@ function getNewPodcast($url) {
     $x->addChild('image', $image);
     $x->addChild('album', htmlspecialchars($album));
     $x->addChild('refreshoption', $refreshoption);
+    $x->addChild('sortmode', $sortmode);
+    $x->addChild('hidedescriptions', $hidedescriptions);
     $x->addChild('displaymode', $displaymode);
     $x->addChild('daystokeep', $daystokeep);
     $x->addChild('numtokeep', $numtokeep);
@@ -381,6 +387,16 @@ function doPodcast($c) {
     print preg_replace('/(<option value="'.$opt.'")/', '$1 selected', $options);
     print '</select>';
     print '</div></div>';
+
+    print '<div class="containerbox fixed dropdown-container"><div class="divlabel">'.get_int_text("podcast_sortmode").'</div>';
+    print '<div class="selectholder">';
+    print '<select name="sortmode" onchange="podcasts.changeOption(event)">';
+    $options =  '<option value="newestfirst">'.get_int_text("podcast_newestfirst").'</option>'.
+                '<option value="oldestfirst">'.get_int_text("podcast_oldestfirst").'</option>';
+    print preg_replace('/(<option value="'.$y->sortmode.'")/', '$1 selected', $options);
+    print '</select>';
+    print '</div></div>';
+
     print '</div>';
 
     print '<div class="containerbox fixed bumpad">';
@@ -397,67 +413,86 @@ function doPodcast($c) {
     }
     print '>'.get_int_text("podcast_auto_download").'</input></div>';
 
-    print '</div>';
-    foreach($y->trackList->track as $item) {
-        if ($item->deleted == "yes") {
-            continue;
-        }
-
-        if ($y->displaymode == "downloadednew" &&
-            (!is_dir('prefs/podcasts/'.$pm.'/'.$item->key) && $item->new == "no"))
-        {
-            continue;
-        }
-        if ($y->displaymode == "new" && $item->new == "no") {
-            continue;
-        }
-        if ($y->displaymode == "unlistened" && $item->listened == "yes") {
-            // Track cannot be new and unlistened, that can't happen because it makes no sense
-            continue;
-        }
-        if ($y->displaymode == "downloaded" && !is_dir('prefs/podcasts/'.$pm.'/'.$item->key)) {
-            continue;
-        }
-
-        print '<div class="clickable clicktrack item podcastitem" name="'.htmlspecialchars_decode($item->link).'">';
-        print '<div class="containerbox">';
-        if ($item->new == "yes") {
-            print '<i title="'.get_int_text("podcast_tooltip_new").'" class="icon-sun fixed newpodicon fridge"></i>';
-        } else if ($item->listened == "no") {
-            print '<i title="'.get_int_text("podcast_tooltip_notnew").'" class="icon-unlistened fixed oldpodicon fridge"></i>';
-        }
-        print '<div class="podtitle expand">'.$item->title.'</div></div>';
-        print '<div class="whatdoicallthis padright clearfix"><span class="tleft"><i>'.$item->pubdate.'</i></span>';
-        if ($item->duration != 0) {
-            print '<span class="tright">'.format_time($item->duration).'</span>';
-        }
-        print '</div>';
-        if ($y->daysLive > -1 && $item->listened == "no" && !is_dir('prefs/podcasts/'.$pm.'/'.$item->key)) {
-            $pubtime = strtotime((string) $item->pubdate);
-            $expiretime = $pubtime + (($y->daysLive) * 86400);
-            $timeleft = format_time2($expiretime - time());
-            if ($expiretime < time()) {
-                print '<div><b>'.get_int_text("podcast_expired").'</b></div>';
-            } else if ($expiretime - time() < 86400) {
-                print '<div><b><font color="red">'.get_int_text("podcast_timeleft", array($timeleft))."</font></b></div>";
-            } else {
-                print '<div><b>'.get_int_text("podcast_timeleft", array($timeleft))."</b></div>";
-            }
-        }
-        print '<div class="whatdoicallthis">'.format_text((string) $item->description).'</div>';
-        print '<div class="clearfix" name="podcontrols_'.$pm.'">';
-        if (is_dir('prefs/podcasts/'.$pm.'/'.$item->key)) {
-            print '<i class="icon-floppy smallicon tleft fridge" title="'.get_int_text("podcast_tooltip_downloaded").'"></i>';
-        } else {
-            print '<i class="icon-download smallicon clickable clickicon tleft poddownload fridge" title="'.get_int_text("podcast_tooltip_download").'" name="poddownload_'.$item->key.'"></i>';
-        }
-        if ($item->listened == "no") {
-            print '<i class="icon-headphones smallicon clickable clickicon tleft podmarklistened fridge" title="'.get_int_text("podcast_tooltip_mark").'" name="podmarklistened_'.$item->key.'"></i>';
-        }
-        print '<i class="icon-cancel-circled smallicon clickable clickicon tright podtrackremove fridge" title="'.get_int_text("podcast_tooltip_delepisode").'" name="podtrackremove_'.$item->key.'" ></i>';
-        print '</div>';
-        print '</div>';
+    print '<div class="containerbox fixed bumpad">';
+    print '<input type="checkbox" class="topcheck fridge" name="hidedescriptions" onclick="podcasts.changeOption(event)"';
+    if ($y->hidedescriptions == "true") {
+        print ' checked';
     }
+    print '>'.get_int_text("podcast_hidedescriptions").'</input></div>';
+
+    print '</div>';
+    if ($y->sortmode == "oldestfirst") {
+        for ($i = count($y->trackList->track)-1; $i >=0; $i--) {
+            format_episode($y, $y->trackList->track[$i], $pm);
+        }
+    } else {
+        foreach($y->trackList->track as $item) {
+            format_episode($y, $item, $pm);
+        }
+    }
+}
+
+function format_episode(&$y, &$item, $pm) {
+    if ($item->deleted == "yes") {
+        return;
+    }
+    if ($y->displaymode == "downloadednew" &&
+        (!is_dir('prefs/podcasts/'.$pm.'/'.$item->key) && $item->new == "no"))
+    {
+        return;
+    }
+    if ($y->displaymode == "new" && $item->new == "no") {
+        return;
+    }
+    if ($y->displaymode == "unlistened" && $item->listened == "yes") {
+        // Track cannot be new and unlistened, that can't happen because it makes no sense
+        return;
+    }
+    if ($y->displaymode == "downloaded" && !is_dir('prefs/podcasts/'.$pm.'/'.$item->key)) {
+        return;
+    }
+    print '<div class="clickable clicktrack item podcastitem" name="'.htmlspecialchars_decode($item->link).'">';
+    print '<div class="containerbox">';
+    if ($item->new == "yes") {
+        print '<i title="'.get_int_text("podcast_tooltip_new").'" class="icon-sun fixed newpodicon fridge"></i>';
+    } else if ($item->listened == "no") {
+        print '<i title="'.get_int_text("podcast_tooltip_notnew").'" class="icon-unlistened fixed oldpodicon fridge"></i>';
+    }
+    print '<div class="podtitle expand">'.$item->title.'</div></div>';
+    print '<div class="whatdoicallthis padright clearfix"><span class="tleft"><i>'.$item->pubdate.'</i></span>';
+    if ($item->duration != 0) {
+        print '<span class="tright">'.format_time($item->duration).'</span>';
+    }
+    print '</div>';
+    if ($y->daysLive > -1 && $item->listened == "no" && !is_dir('prefs/podcasts/'.$pm.'/'.$item->key)) {
+        $pubtime = strtotime((string) $item->pubdate);
+        $expiretime = $pubtime + (($y->daysLive) * 86400);
+        $timeleft = format_time2($expiretime - time());
+        if ($expiretime < time()) {
+            print '<div><b>'.get_int_text("podcast_expired").'</b></div>';
+        } else if ($expiretime - time() < 86400) {
+            print '<div><b><font color="red">'.get_int_text("podcast_timeleft", array($timeleft))."</font></b></div>";
+        } else {
+            print '<div><b>'.get_int_text("podcast_timeleft", array($timeleft))."</b></div>";
+        }
+    }
+    if ($y->hidedescriptions == "true") {
+        // Testing for true because podcasts subscribed with rompr < 0.60 won't have this option set at all
+    } else {
+        print '<div class="whatdoicallthis">'.format_text((string) $item->description).'</div>';
+    }
+    print '<div class="clearfix" name="podcontrols_'.$pm.'">';
+    if (is_dir('prefs/podcasts/'.$pm.'/'.$item->key)) {
+        print '<i class="icon-floppy smallicon tleft fridge" title="'.get_int_text("podcast_tooltip_downloaded").'"></i>';
+    } else {
+        print '<i class="icon-download smallicon clickable clickicon tleft poddownload fridge" title="'.get_int_text("podcast_tooltip_download").'" name="poddownload_'.$item->key.'"></i>';
+    }
+    if ($item->listened == "no") {
+        print '<i class="icon-headphones smallicon clickable clickicon tleft podmarklistened fridge" title="'.get_int_text("podcast_tooltip_mark").'" name="podmarklistened_'.$item->key.'"></i>';
+    }
+    print '<i class="icon-cancel-circled smallicon clickable clickicon tright podtrackremove fridge" title="'.get_int_text("podcast_tooltip_delepisode").'" name="podtrackremove_'.$item->key.'" ></i>';
+    print '</div>';
+    print '</div>';
 }
 
 function doPodcastHeader($c) {

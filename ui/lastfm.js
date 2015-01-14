@@ -15,6 +15,38 @@ function LastFM(user) {
         logged_in = true;
     }
 
+    this.getBuyLinks = function(data) {
+        var html = "";
+        if (data.affiliations) {
+            if (data.affiliations.physicals) {
+                html = html + '<li><b>'+language.gettext("lastfm_buyoncd")+'</b></li>';
+                html = html + doBuyTable(getArray(data.affiliations.physicals.affiliation));
+            }
+            if (data.affiliations.downloads) {
+                html = html + '<li><b>'+language.gettext("lastfm_download")+'</b></li>';
+                html = html + doBuyTable(getArray(data.affiliations.downloads.affiliation));
+            }
+        }
+        return html;
+    }
+
+    function doBuyTable(values) {
+        var html = "";
+        for(var i in values) {
+            html = html + '<li><img width="12px" src="'+values[i].supplierIcon+'">&nbsp;<a href="'+values[i].buyLink+'" target="_blank">'+
+                            values[i].supplierName+'</a>';
+            if (values[i].price) {
+                if (values[i].price.formatted) {
+                    html = html + '    '+values[i].price.formatted;
+                } else {
+                    html = html + '    '+values[i].price.amount;
+                }
+            }
+            html = html +'</li>';
+        }
+        return html;
+    }
+
     this.setThrottling = function(t) {
         throttleTime = Math.max(500,t);
     }
@@ -278,7 +310,7 @@ function LastFM(user) {
                 LastFMSignedRequest(
                     options,
                     function() {
-                        $("#ban").effect('pulsate', {times: 1}, 2000);
+                        $("#ban").makeFlasher({flashtime:2, repeats: 1});
                         infobar.notify(infobar.NOTIFY, language.gettext("label_banned")+" "+options.track);
                     },
                     function() {

@@ -30,7 +30,7 @@ var podcasts = function() {
 			        },
 			        error: function(data, status) {
 			            monitor.stop();
-			            debug.error("PODCASTS", "Podcats Download Failed!",data,status);
+			            debug.error("PODCASTS", "Podcast Download Failed!",data,status);
 			            infobar.notify(infobar.ERROR, "Failed To Download Podcast");
 			            downloadRunning = false;
 			            checkDownloadQueue();

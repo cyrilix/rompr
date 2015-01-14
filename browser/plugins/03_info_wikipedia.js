@@ -10,6 +10,7 @@ var info_wikipedia = function() {
 
 		// Remove unwanted edit links
 		jq.find("span.editsection").remove();
+		jq.find("a.edit-page").remove();
 
 		// Make external links open in a new tab
 		jq.find("a[href^='http:']").attr("target", "_blank");

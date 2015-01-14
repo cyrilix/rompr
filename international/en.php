@@ -550,6 +550,10 @@ $languages['en'] = array (
 	"button_now_playing" => "Now Playing",
 	"button_infopanel" => "Info Panel",
 	"config_coversize" => "ALBUM COVER SIZE",
+	"podcast_sortmode" => "Sort Order",
+	"podcast_newestfirst" => "Newest First",
+	"podcast_oldestfirst" => "Oldest First",
+	"podcast_hidedescriptions" => "Hide Descriptions",
 
 	//CHANGED in 0.60
 	"config_country" => "COUNTRY (for Last.FM and Spotify)",

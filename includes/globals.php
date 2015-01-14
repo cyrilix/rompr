@@ -36,7 +36,7 @@ prefs.updateLocal = function() {
             prefs[p] = JSON.parse(localStorage.getItem("prefs."+p));
         }
     });
-    if (skin == "phone") {
+    if (skin == "phone" && localStorage.getItem('prefs.clickmode') == null) {
         prefs.clickmode = 'single';
     }
 }

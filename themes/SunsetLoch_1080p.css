@@ -1,21 +1,53 @@
 body
 {
-    background-image: radial-gradient(circle farthest-side at top left, yellow, orange, red);
+    background-image:url("sunset_loch.jpg");
+    background-size:cover;
+    background-repeat:no-repeat;
+}
+
+#sources
+{
+    background-color:rgba(0,0,0,0.4);
+}
+
+.album2
+{
+    background-color:rgba(0,0,0,0.2);
+}
+
+#playlist, #playlistm
+{
+    background-color:rgba(0,0,0,0.4);
+}
+
+#infopane
+{
+    background-color:rgba(0,0,0,0.5);    
+}
+
+.albumthing
+{
+    background-color:rgba(0,0,0,0.1);    
+}
+
+#artistbio, #spartistinfo
+{
+    padding:4px;
 }
 
 body,p,h1,h2,h3,h4,table,td,th,ul,ol,textarea,input
 {
-    color:#000000;
+    color:#eeeeee;
 }
 
 a:link
 {
-    color:#0b0080;
+    color:yellow;
 }
 
 a:visited
 {
-    color:#0b0080;
+    color:yellow;
 }
 
 a:hover,a:active
@@ -24,31 +56,18 @@ a:hover,a:active
     cursor:pointer;
 }
 
+.infowiki
+{
+    color:white;
+}
+
 /*-- divs used to create infobar layout --*/
-
-.bordered
-{
-    border-left:1px solid orange;
-    border-bottom:1px solid yellow;
-    border-right:1px solid yellow;
-    border-top:1px solid orange;
-}
-
-.album1
-{
-    background-color:rgba(0,0,0,0.1);
-}
-
-.album2
-{
-    background-color:rgba(0,0,0,0.2);
-}
 
 button, input[type="button"], .gradbutton
 {
-    background-image: radial-gradient(circle farthest-side at center, yellow, orange, red);
-    color:#000000;
-    border:1px solid #000000;
+    color:#dddddd;
+    background-color:transparent;
+    border:1px solid #aaaaaa;
 }
 
 .crackbaby button, .albumcovers .infosection button
@@ -61,17 +80,13 @@ button, input[type="button"], .gradbutton
 button:hover, input[type="button"]:hover
 {
     color:#ffffff;
+    border:1px solid #ffffff;
     text-shadow: 0 0 15px #ffffff;
 }
 
 input
 {
     color:#181818;
-}
-
-input.inbrowser, div.inbrowser
-{
-    border: 1px solid #000000;
 }
 
 select 
@@ -81,7 +96,7 @@ select
 
 #notifications
 {
-    background-image: radial-gradient(circle farthest-side at top left, yellow, orange, red);
+    background-color:rgba(0,0,0,0.9);
 }
 
 a.album:visited
@@ -98,7 +113,7 @@ a.album:hover,a.album:active
 
 #filemenu
 {
-    border-left:1px solid orange;
+    border-left:1px solid white;
 }
 
 div.clickable:hover, .infoclick:hover
@@ -115,9 +130,8 @@ div.clickable.selected:hover
 
 .selected
 {
-    background-color:#ff4800;
+    background-color:rgba(255,72,0,0.5);
 }
-
 
 /*-- divs and classes used in the playlist --*/
 
@@ -125,7 +139,7 @@ div.clickable.selected:hover
 {
     font-weight:bold;
     font-size:120%;
-    border-left:8px solid yellow;
+    border-left:8px solid white;
     color:#eeeeee;
     transition:all 0.2s;
 }
@@ -140,6 +154,11 @@ div.clickable.selected:hover
     text-shadow: 0px 0px 20px #cccccc;
     font-weight:bold;
     color:#eeeeee;
+    background-color:rgba(0,0,0,0.1);
+}
+
+.playlisttitle{
+    background-color:rgba(0,0,0,0.1);
 }
 
 .inbrowser
@@ -166,7 +185,9 @@ div.clickable.selected:hover
 
 .infosection
 {
-    background-image: radial-gradient(circle farthest-side at top left, yellow, orange, red);
+    background-color:rgba(0,0,0,0.5);
+    background-size:cover;
+    background-repeat:no-repeat;
 }
 
 .translucent
@@ -178,17 +199,15 @@ div.clickable.selected:hover
 
 .crackbaby
 {
-    background-image: radial-gradient(circle farthest-side at top left, yellow, orange, red);
+    background-color:rgba(0,0,0,0.5);
     box-sizing:border-box;
+    background-size:cover;
+    background-repeat:no-repeat;
 }
 
 .popupwindow
 {
-    background-image: radial-gradient(circle farthest-side at top left, yellow, orange, red);
-    border-left:1px solid yellow;
-    border-bottom:1px solid red;
-    border-right:1px solid red;
-    border-top:1px solid yellow;
+    background-color:rgba(0,0,0,0.8);
 }
 
 .underlined
@@ -200,15 +219,12 @@ div.clickable.selected:hover
 
 div.topdropmenu
 {
-    background-image: radial-gradient(circle farthest-side at top left, yellow, orange, red);
-    border-left:1px solid yellow;
-    border-bottom:1px solid red;
-    border-right:1px solid red;
+    background-color:rgba(0,0,0,0.9);
 }
 
 .configtitle
 {
-    background-image: radial-gradient(circle farthest-side at top left, yellow, orange, red);
+    background-color:rgba(0,0,0,1);
 }
 
 body.mobile .configtitle
@@ -267,18 +283,17 @@ table.tracklist {
 
 .underline
 {
-    border-bottom: 1px solid orange;
+    border-bottom: 1px solid yellow;
 }
 
 .infosection h2
 {
-    border-bottom:2px solid orange;
+    border-bottom:2px solid white;
 }
 
 .funkymusic
 {
-    background-image: radial-gradient(circle farthest-side at top left, yellow, orange, red);
-    background-color:yellow;
+    background-color:rgba(0,0,0,0.8);
 }
 
 table.histable tr:hover {
@@ -313,14 +328,9 @@ tr.clickaddtrack:hover
 
 .edged
 {
-    border-left:1px solid red;
-    border-right:1px solid red;
-    border-bottom:1px solid red;
-}
-
-.albumthing
-{
-    background-color:transparent;
+    border-left:1px solid yellow;
+    border-bottom:1px solid yellow;
+    border-right:1px solid yellow;
 }
 
 .topimg
@@ -350,22 +360,17 @@ tr.clickaddtrack:hover
 }
 
 .highlighted {
-    background-color:rgba(0,0,0,0.3);
+    background-color:rgba(255,255,255,0.2) !important;
 }
 
 #imageeditor
 {
-    background-color:rgba(0,0,0,0.3);
-}
-
-#artistcoverslist
-{
-    background-color:rgba(0,0,0,0.2);    
+    background-color:rgba(255,255,255,0.2);
 }
 
 .tagholder table tr th {
-    background-color:rgba(255,255,255,0.5);
-    border-bottom:1px solid #cccccc;
+    background-color:rgba(0,0,0,0.5);
+    border-bottom:1px solid #000000;
 }
 
 #artistchooser
@@ -382,18 +387,19 @@ tr.clickaddtrack:hover
 
 .dropshadow
 {
-    -webkit-box-shadow: 7px 7px 5px rgba(50, 50, 50, 0.6);
-    -moz-box-shadow:    7px 7px 5px rgba(50, 55, 50, 0.6);
-    box-shadow:         7px 7px 5px rgba(50, 50, 50, 0.6);
+    -webkit-box-shadow: 7px 7px 5px rgba(0, 0, 0, 0.4);
+    -moz-box-shadow:    7px 7px 5px rgba(0, 0, 0, 0.4);
+    box-shadow:         7px 7px 5px rgba(0, 0, 0, 0.4);
 }
 
 .progressbar
 {
-    border:1px solid #414141;
+    border:1px solid #666666;
 }
 
 .progressbar_v
 {
-    border:1px solid #414141;
+    border:1px solid #666666;
 }
+
 

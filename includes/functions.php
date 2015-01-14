@@ -17,7 +17,6 @@ function format_for_disc($filename) {
     return $filename;
 }
 
-
 function format_tracknum($tracknum) {
     $matches = array();
     if (preg_match('/^\s*0*(\d+)/', $tracknum, $matches)) {
@@ -26,9 +25,6 @@ function format_tracknum($tracknum) {
     if (preg_match('/0*(\d+) of \d+/i', $tracknum, $matches)) {
         return $matches[1];
     }
-    // if (preg_match('/0*(\d+)\..*?$/', $tracknum, $matches)) {
-    //     return $matches[1];
-    // }
     return '';
 }
 
@@ -133,77 +129,9 @@ function munge_album_name($name) {
     return $b;
 }
 
-function really_munge_album_name($name) {
-    $b = preg_replace('/\[.*?\]/', "", $name);                  // Anything inside [  ]
-    $b = preg_replace('/\(.*?\)/', "", $b);                     // Anything inside (  )
-    $b = preg_replace('/\d\d\d\d(-|–)\d\d-\d\d/', "", $b);          // A date, US format
-    $b = preg_replace('/\d\d-\d\d(-|–)\d\d\d\d/', "", $b);          // A date, UK format
-    $b = preg_replace('/\d\d\d\d\s*(-|–)\s*\d\d\d\d/', "", $b);               // A year range
-    $b = preg_replace('/\d\d\d\d\s*(-|–)\s*\d\d/', "", $b);               // A year range
-    $b = preg_replace('/\d\d\s*(-|–)\s*\d\d\d\d/', "", $b);               // A year range
-    $b = preg_replace('/\d\d\s*(-|–)\s*\d\d/', "", $b);               // A year range
-    $b = preg_replace('/\d\d\d\d/', "", $b);                    // A year
-    $b = preg_replace('/\s+-\s*$/', "", $b);                    // Chops any stray - off the end that could have been left by the previous
-    $b = preg_replace('#^\s+#', '', $b);
-    return $b;
-}
-
-function remove_punctuation($name) {
-    $b = preg_replace('# / #', '/', $name);
-    $b = preg_replace('#\!|\$|\%|\*|-|_|=|\+|\;|:|\'|"|,|\.+|<|>|\?|\\\|/|•|&|’|\)|\(| and|…|‐|\#|“|”|–#i', '', $b);
-    $b = preg_replace('#\s+#', ' ', $b);
-    $b = preg_replace('#\s+$#', '', $b);
-    $b = preg_replace('#^\s+#', '', $b);
-    return $b;
-}
-
-function remove_some_stuff($name) {
-    $b = preg_replace('# \w+? Edition$#i', '', $name);
-    $b = preg_replace('#\s+$#', '', $b);
-    $b = preg_replace('#^\s+#', '', $b);
-    return $b;
-}
-
-function noDefiniteArticles($name) {
-    $b = preg_replace('/the |, the/i', '', $name);
-    $b = preg_replace('#\s+#', ' ', $b);
-    $b = preg_replace('#\s+$#', '', $b);
-    $b = preg_replace('#^\s+#', '', $b);
-    return $b;
-}
-
 function sanitsizeDiscogsResult($name) {
     $b = preg_replace('/\* /',' ', $name);
     return $b;
-}
-
-function deJazzify($name) {
-    $b = preg_replace('/ quintet| quartet| trio| sextet/i', '', $name);
-    return $b;
-}
-
-function normalizeChars($s) {
-    $replace = array(
-        'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'Ae', 'Å'=>'A', 'Æ'=>'A', 'Ă'=>'A',
-        'à'=>'a', 'á'=>'a', 'â'=>'a', 'ã'=>'a', 'ä'=>'ae', 'å'=>'a', 'ă'=>'a', 'æ'=>'ae',
-        'þ'=>'b', 'Þ'=>'B',
-        'Ç'=>'C', 'ç'=>'c',
-        'È'=>'E', 'É'=>'E', 'Ê'=>'E', 'Ë'=>'E',
-        'è'=>'e', 'é'=>'e', 'ê'=>'e', 'ë'=>'e',
-        'Ğ'=>'G', 'ğ'=>'g',
-        'Ì'=>'I', 'Í'=>'I', 'Î'=>'I', 'Ï'=>'I', 'İ'=>'I', 'ı'=>'i', 'ì'=>'i', 'í'=>'i', 'î'=>'i', 'ï'=>'i',
-        'Ñ'=>'N', 'ń'=>'n',
-        'Ò'=>'O', 'Ó'=>'O', 'Ô'=>'O', 'Õ'=>'O', 'Ö'=>'Oe', 'Ø'=>'O', 'ö'=>'oe', 'ø'=>'o',
-        'ð'=>'o', 'ñ'=>'n', 'ò'=>'o', 'ó'=>'o', 'ô'=>'o', 'õ'=>'o',
-        'Š'=>'S', 'š'=>'s', 'Ş'=>'S', 'ș'=>'s', 'Ș'=>'S', 'ş'=>'s', 'ß'=>'ss',
-        'ț'=>'t', 'Ț'=>'T',
-        'Ù'=>'U', 'Ú'=>'U', 'Û'=>'U', 'Ü'=>'Ue',
-        'ù'=>'u', 'ú'=>'u', 'û'=>'u', 'ü'=>'ue',
-        'Ý'=>'Y',
-        'ý'=>'y', 'ý'=>'y', 'ÿ'=>'y',
-        'Ž'=>'Z', 'ž'=>'z'
-    );
-    return strtr($s, $replace);
 }
 
 function findItem($x, $which) {

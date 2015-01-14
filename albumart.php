@@ -768,12 +768,10 @@ function updateImage(url, index) {
 
 function startAnimation() {
     imgobj.removeClass('nospin').addClass('spinner');
-    $('#img'+clickindex).removeClass('noflash').addClass('flasher');
 }
 
 function animationStop() {
     imgobj.removeClass('spinner').addClass('nospin');
-    $('#img'+clickindex).removeClass('flasher').addClass('noflash');
 }
 
 function searchFail() {

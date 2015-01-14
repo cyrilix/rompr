@@ -368,3 +368,26 @@ tr.clickaddtrack:hover
     background-color:rgba(0,0,0,0.3);
     color:#aaaaaa;    
 }
+
+.currentbun
+{
+    border-bottom:1px solid #000000;
+    padding-bottom:2px;
+}
+
+.dropshadow
+{
+    -webkit-box-shadow: 7px 7px 5px rgba(0, 0, 0, 0.5);
+    -moz-box-shadow:    7px 7px 5px rgba(0, 0, 0, 0.5);
+    box-shadow:         7px 7px 5px rgba(0, 0, 0, 0.5);
+}
+
+.progressbar
+{
+    border:1px solid #414141;
+}
+
+.progressbar_v
+{
+    border:1px solid #414141;
+}

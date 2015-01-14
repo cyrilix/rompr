@@ -52,7 +52,7 @@ if (array_key_exists('mobile', $_REQUEST)) {
     }
 } else {
     $detect = new Mobile_Detect();
-    if ($detect->isMobile() || $detect->isTablet()) {
+    if ($detect->isMobile() && !$detect->isTablet()) {
         debug_print("Mobile Browser Detected!","INIT");
         $skin = "phone";
     } else {
@@ -154,7 +154,6 @@ debug_print("=================****==================","STARTED UP");
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <link rel="stylesheet" type="text/css" href="css/layout.css" />
-<link type="text/css" href="jqueryui1.8.16/css/start/jquery-ui-1.8.23.custom.css" rel="stylesheet" />
 <?php
 print '<link rel="stylesheet" type="text/css" href="skins/'.$skin.'/skin.css" />'."\n";
 foreach ($skinrequires as $s) {
@@ -176,13 +175,8 @@ foreach ($skinrequires as $s) {
 <script type="text/javascript" src="jquery/jquery-1.8.3-min.js"></script>
 <!-- JQuery AJAX form plugin : http://malsup.com/jquery/form/ -->
 <script type="text/javascript" src="jquery/jquery.form.js"></script>
-<!-- JQuery UI plugin : http://jqueryui.com. Heavily modified to make dragging work more easily and to function -->
-<!-- with the custom scrollbar plugin (now almost certainly doesn't work without it) -->
-<script type="text/javascript" src="jqueryui1.8.16/js/jquery-ui-min.js"></script>
 <!-- JQuery JSONP Plugin. My saviour : https://github.com/jaubourg/jquery-jsonp -->
 <script type="text/javascript" src="jquery/jquery.jsonp-2.3.1.min.js"></script>
-<!-- JQuery scrollTO plugin : http://demos.flesler.com/jquery/scrollTo/ -->
-<script type="text/javascript" src="jquery/jquery.scrollTo-1.4.3.1-min.js"></script>
 <!-- MD5 hashing algorith : http://pajhome.org.uk/crypt/md5 -->
 <script type="text/javascript" src="jshash-2.2/md5-min.js"></script>
 <!-- Masonry layout engine : http://masonry.desandro.com/ -->
@@ -237,7 +231,6 @@ var playlist = new Playlist();
 var player = new multiProtocolController();
 var lastfm = new LastFM(prefs.lastfm_user);
 var coverscraper = new coverScraper(0, false, false, prefs.downloadart);
-var isChrome = isChrome();
 </script>
 
 <?php
@@ -280,7 +273,7 @@ $(window).ready(function(){
     $("#sortable").click(onPlaylistClicked);
     infobar.createProgressBar();
     globalPlugins.initialise();
-    initUI();
+    layoutProcessor.initialise();
     browser.createButtons();
     setChooserButtons();
     if (!prefs.hide_radiolist) {
@@ -300,7 +293,7 @@ $(window).ready(function(){
 
 $(window).load(function() {
     $(window).bind('resize', function() {
-        setBottomPaneSize();
+        layoutProcessor.adjustLayout();
     });
     if (prefs.playlistcontrolsvisible) {
         $("#playlistbuttons").show();
@@ -310,7 +303,7 @@ $(window).load(function() {
     if (!prefs.hide_radiolist) {
         podcasts.loadList();
     }
-    setBottomPaneSize();
+    layoutProcessor.adjustLayout();
     $.get('utils/cleancache.php', function() {
         debug.shout("INIT","Cache Has Been Cleaned");
     });

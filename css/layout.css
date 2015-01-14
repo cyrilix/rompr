@@ -498,18 +498,6 @@ div.item
     cursor:pointer;
 }
 
-.amid
-{
-    vertical-align:middle;
-}
-
-.noclick
-{
-    cursor:default;
-}
-
-/*-- For Wikipedia and Last.FM pages --*/
-
 .infotext
 {
     margin-left:4px;
@@ -587,11 +575,6 @@ div.item
     width:100%
 }
 
-.wotsit
-{
-    display:inline-block;
-}
-
 .statsbox
 {
     margin-left:0px;
@@ -620,14 +603,6 @@ div.item
     display:none;
     z-index:1001;
     opacity:0.75;
-    border-radius: 10px 10px 10px 10px;
-}
-
-.dropshadow
-{
-    -webkit-box-shadow: 7px 7px 5px rgba(50, 50, 50, 0.6);
-    -moz-box-shadow:    7px 7px 5px rgba(50, 55, 50, 0.6);
-    box-shadow:         7px 7px 5px rgba(50, 50, 50, 0.6);
 }
 
 #dragger
@@ -1217,31 +1192,6 @@ div .thumb
      animation: pulseit 4s ease infinite;
 }
 
-@-webkit-keyframes fadeit{
-     0%{
-          opacity:1;
-     }
-     100%{
-          opacity:0;
-     }
-}
-@-moz-keyframes fadeit{
-     0%{
-          opacity:1;
-     }
-     100%{
-          opacity:0;
-     }
-}
-@keyframes fadeit{
-     0%{
-          opacity:1;
-     }
-     100%{
-          opacity:0;
-     }
-}
-
 @-webkit-keyframes pulseit{
      0%{
           opacity:1;
@@ -1319,50 +1269,6 @@ div .thumb
      }
 }
 
-.flasher {
-     -webkit-animation: flash 1s linear infinite;
-     -moz-animation: flash 1s linear infinite;
-     animation: flash 1s linear infinite;
-}
-
-.noflash {
-    opacity: 1;
-}
-
-@-webkit-keyframes flash{
-     0%{
-          opacity: 1;
-     }
-     50%{
-          opacity: 0;
-     }
-     100%{
-          opacity: 1;
-     }
-}
-@-moz-keyframes flash{
-     0%{
-          opacity: 1;
-     }
-     50%{
-          opacity: 0;
-     }
-     100%{
-          opacity: 1;
-     }
-}
-@keyframes flash{
-     0%{
-          opacity: 1;
-     }
-     50%{
-          opacity: 0;
-     }
-     100%{
-          opacity: 1;
-     }
-}
-
 .bigbutton {
     padding:8px;
     margin-top:8px;
@@ -1407,7 +1313,6 @@ div .thumb
 .progressbar
 {
     width:95%;
-    border:1px solid #414141;
     height:1em;
     margin-right:auto;
     margin-left:auto;
@@ -1416,7 +1321,6 @@ div .thumb
 .progressbar_v
 {
     height:100%;
-    border:1px solid #414141;
     width:12px;
     margin-right:auto;
     margin-left:auto;
@@ -1495,12 +1399,6 @@ div.lyrics p
     font-size:110%;
 }
 
-.currentbun
-{
-    border-bottom:1px solid #fe6500;
-    padding-bottom:2px;
-}
-
 .clearfix:after
 {
    content: " ";
@@ -1511,7 +1409,6 @@ div.lyrics p
 
 .newpod
 {
-    border-radius:1em;
     font-weight:bold;
     margin-left:1em;
     padding-left:6px;
@@ -1523,7 +1420,6 @@ div.lyrics p
 
 .unlistenedpod
 {
-    border-radius:1em;
     font-weight:bold;
     margin-left:1em;
     padding-left:6px;
@@ -1700,4 +1596,24 @@ div.lyrics p
 .podcastitem
 {
     margin-bottom:2em;
+}
+
+#scprog
+{
+    position:absolute;
+    width:2px;
+    top:0px;
+    opacity:0.6;
+    background-color:black;
+    z-index:100;
+    left:0px;
+    transition-property: left;
+    transition-duration: 1s;
+    transition-timing-function: linear;
+}
+
+#gosblin
+{
+    width:100%;
+    height:auto;
 }

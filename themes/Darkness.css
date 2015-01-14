@@ -374,3 +374,30 @@ tr.clickaddtrack:hover
     border-top:1px solid #777777;
     color:#555555;    
 }
+
+.currentbun
+{
+    border-bottom:1px solid #fe6500;
+    padding-bottom:2px;
+}
+
+.dropshadow
+{
+    -webkit-box-shadow: 7px 7px 5px rgba(0, 0, 0, 0.9);
+    -moz-box-shadow:    7px 7px 5px rgba(0, 0, 0, 0.9);
+    box-shadow:         7px 7px 5px rgba(0, 0, 0, 0.9);
+}
+
+.progressbar
+{
+    border:1px solid #414141;
+}
+
+.progressbar_v
+{
+    border-left:1px solid #000000;
+    border-bottom:1px solid #343434;
+    border-right:1px solid #343434;
+    border-top:1px solid #000000;
+}
+

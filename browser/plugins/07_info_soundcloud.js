@@ -30,8 +30,8 @@ var info_soundcloud = function() {
 
         html = html + '<div class="info-box-expand stumpy">';
 		html = html + '<div id="similarartists" class="bordered" style="position:relative">'+
-                    '<div id="scprog" class="infowiki" style="position:absolute;width:2px;top:0px;opacity:0.6;z-index:100;left:0px"></div>'+
-                    '<canvas style="position:relative;left:64px" id="gosblin"></canvas>'+
+                    '<div id="scprog"></div>'+
+                    '<img id="gosblin" />'+
                     '</div>';
         var d = formatSCMessyBits(data.description);
         d = d.replace(/\n/g, "</p><p>");
@@ -230,6 +230,7 @@ var info_soundcloud = function() {
 																		}
 								);
 								if (accepted) {
+									debug.log("SOUNDCLOUD PLUGIN","Getting Track Waveform",formatSCMessyBits(trackmeta.soundcloud.track.waveform_url));
 							        scImg.onload = self.track.doSCImageStuff;
 							        scImg.src = "getRemoteImage.php?url="+formatSCMessyBits(trackmeta.soundcloud.track.waveform_url);
 								}
@@ -238,75 +239,47 @@ var info_soundcloud = function() {
 		            },
 
 				    doSCImageStuff: function() {
-				        var bgColor = $(".infowiki").css('background-color');
-				        var rgbvals = /rgb\((.+),(.+),(.+)\)/i.exec(bgColor);
+				    	// The soundcloud waveform is a png where the waveform itself is transparent
+				    	// and has a grey-ish border. We want an image with a gradient for the waveform
+				    	// and a transparent border.
 				        tempcanvas.width = scImg.width;
 				        tempcanvas.height = scImg.height;
 				        var ctx = tempcanvas.getContext("2d");
+		                ctx.clearRect(0,0,tempcanvas.width,tempcanvas.height);
+
+		                // Fill tempcanvas with a linear gradient
+		                var gradient = ctx.createLinearGradient(0,0,0,tempcanvas.height);
+		                gradient.addColorStop(0,'rgba(255,82,0,1)');
+		                gradient.addColorStop(0.6,'rgba(150, 48, 0, 1)');
+		                gradient.addColorStop(1,'rgba(100, 25, 0, 0.1)');
+		                ctx.fillStyle = gradient;
+		                ctx.fillRect(0,0,tempcanvas.width,tempcanvas.height);
+
+		                // Plop the image over the top.
 				        ctx.drawImage(scImg,0,0,tempcanvas.width,tempcanvas.height);
+
+				        // Now translate all the grey pixels into transparent ones
 				        var pixels = ctx.getImageData(0,0,tempcanvas.width,tempcanvas.height);
 				        var data = pixels.data;
 				        for (var i = 0; i<data.length; i += 4) {
-				            data[i] = parseInt(rgbvals[1]);
-				            data[i+1] = parseInt(rgbvals[2]);
-				            data[i+2] = parseInt(rgbvals[3]);
+				        	if (data[i] == data[i+1] && data[i+1] == data[i+2]) {
+				        		data[i+3] = 0;
+				        	}
 				        }
 				        ctx.clearRect(0,0,tempcanvas.width,tempcanvas.height);
 				        ctx.putImageData(pixels,0,0);
-				        // We can't jump directly to the drawing of the image - we have to return from the
-				        // onload routine first, otherwise the image width and height seem to get messed up
-				        setTimeout(self.track.secondRoutine, 250);
-				    },
-
-				    checkSize: function() {
-				    	// Browsers don't fire resize events when a div gets resized, hence we have to poll
-				    	if ($("#similarartists").width() != wi) {
-				    		self.track.drawSCWaveform()
-				    	} else {
-			                setTimeout(self.track.checkSize, 1000);
-			            }
-				    },
-
-		           	secondRoutine: function() {
-		    			if (displaying) {
-			        		scImg.onload = self.track.drawSCWaveform;
-			        		scImg.src = tempcanvas.toDataURL();
-			    		}
-		    		},
-
-				    drawSCWaveform: function() {
-				        if (displaying) {
-				            wi = $("#similarartists").width();
-				            w = Math.round(wi*0.95);
-				            var l = Math.round((wi-w)/2);
-				            var h = Math.round((w/scImg.width)*(scImg.height*0.7));
-				            var c = document.getElementById("gosblin");
-				            if (c) {
-				                c.style.left = l.toString()+"px";
-				                c.width = w;
-				                c.height = h;
-				                var ctx = c.getContext("2d");
-				                ctx.clearRect(0,0,c.width,c.height);
-				                var gradient = ctx.createLinearGradient(0,0,0,h);
-				                gradient.addColorStop(0,'#ff6600');
-				                gradient.addColorStop(0.5,'#882200');
-				                gradient.addColorStop(1,'#222222');
-				                ctx.fillStyle = gradient;
-				                ctx.fillRect(0,0,w,h);
-				                ctx.drawImage(scImg,0,0,w,h);
-				                $("#scprog").css({height: h.toString()+"px"});
-				                setTimeout(self.track.checkSize, 1000);
-				            }
-				        }
+			            $("#gosblin").attr("src", tempcanvas.toDataURL());
 				    },
 
 					updateProgress: function(percent) {
 						if (displaying) {
-						    var p = $("#gosblin").position();
-						    if (p) {
-						        var w = Math.round($("#gosblin").width()*percent/100)+p.left;
-						        $("#scprog").stop().animate({left: w.toString()+"px"}, 1000, "linear");
-						    }
+					        var w = Math.round($("#similarartists").width()*percent/100);
+							if (percent == 0) {
+								var h = 0;								
+							} else {
+								var h = $("#similarartists").height() - 8;
+							}
+					        $("#scprog").css({left: w+"px", height: h+"px"});
 						}
 					}
 				}

@@ -3,5 +3,7 @@ jquery/jquery.mCustomScrollbar.concat.min.js
 jquery/keycode.js
 jquery/jquery.tipTip.js
 ui/hotkeys.js
+jqueryui1.8.16/js/jquery-ui-min.js
 css/jquery.mCustomScrollbar.css
 css/tipTip.css
+jqueryui1.8.16/css/start/jquery-ui-1.8.23.custom.css

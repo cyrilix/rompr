@@ -74,19 +74,6 @@ function cloneObject(obj) {
     return clone;
 }
 
-function clearSelection() {
-    /* Really wierd behaviour. If some text is selected when we change the contents of
-     * a panel in the browser, Chrome's CPU usage climbs and climbs.
-     * Perhaps a Chrome bug, but not tested in other browsers. This function gets called
-     * to clear any selected text before we do anything.
-     */
-    if ( document.selection ) {
-        document.selection.empty();
-    } else if ( window.getSelection ) {
-        window.getSelection().removeAllRanges();
-    }
-}
-
 function rawurlencode (str) {
     str = (str+'').toString();
     return encodeURIComponent(str).replace(/!/g, '%21').replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29').replace(/\*/g, '%2A');
@@ -180,6 +167,38 @@ jQuery.fn.stopSpinner = function() {
     });
 }
 
+jQuery.fn.makeFlasher = function(options) {
+    var settings = $.extend({
+        flashtime: 4,
+        easing: "ease",
+        repeats: "infinite"
+    }, options);
+
+    return this.each(function() {
+        var anistring = "pulseit "+settings.flashtime+"s "+settings.easing+" "+settings.repeats;
+        $(this).css({"-webkit-animation": "",
+                    "-moz-animation": "",
+                    "animation": "",
+                    "opacity": ""});
+        // Without this the animation won't re-run unless we put a delay in here,
+        // which is far from ideal. As is this, but it's better.
+        $(this).hide().show();
+        $(this).css({"-webkit-animation": anistring,
+                    "-moz-animation": anistring,
+                    "animation": anistring});
+    });
+}
+
+jQuery.fn.stopFlasher = function() {
+    return this.each(function() {
+        $(this).css({"-webkit-animation": "",
+                    "-moz-animation": "",
+                    "animation": "",
+                    "opacity": 1
+        });
+    });
+}
+
 jQuery.fn.switchToggle = function(state) {
     return this.each(function() {
         var st = (state == 0 || state == "off" || !state) ? "icon-toggle-off" : "icon-toggle-on";
@@ -256,15 +275,4 @@ String.prototype.capitalize = function() {
 
 String.prototype.initcaps = function() {
     return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
-}
-
-function isChrome(){
-    var windowChrome = !!window.chrome;
-    if(!windowChrome){
-        // Chrome iOS specific test
-        var pattern = /crios/i;
-        return pattern.test(window.navigator.userAgent);
-    }else{
-        return windowChrome;
-    }
 }

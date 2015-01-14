@@ -304,3 +304,20 @@ tr.clickaddtrack:hover
     border-top:1px solid #777777;
     color:#555555;    
 }
+
+.currentbun
+{
+    border-bottom:1px solid #fe6500;
+    padding-bottom:2px;
+}
+
+.progressbar
+{
+    border:1px solid #414141;
+}
+
+.progressbar_v
+{
+    border:1px solid #414141;
+}
+

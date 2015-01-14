@@ -20,13 +20,13 @@ function saveSelectBoxes(event) {
     switch(prefname) {
         case "theme":
             $("#theme").attr({href: 'themes/'+$("#themeselector").val()});
-            setTimeout(setBottomPaneSize, 1000);
+            setTimeout(layoutProcessor.adjustLayout, 1000);
             break;
 
         case "icontheme":
             $("#icontheme-theme").attr("href", "iconsets/"+$("#iconthemeselector").val()+"/theme.css");
             $("#icontheme-adjustments").attr("href", "iconsets/"+$("#iconthemeselector").val()+"/adjustments.css");
-            setTimeout(setBottomPaneSize, 1000);
+            setTimeout(layoutProcessor.adjustLayout, 1000);
             break;
 
         case "fontsize":
@@ -93,13 +93,13 @@ function togglePref(event) {
         case 'ignore_unplayable':
         case 'sortbycomposer':
         case 'composergenre':
-            $("#donkeykong").effect('pulsate', {times: 3}, 500);
+            $("#donkeykong").makeFlasher({flashtime: 0.5, repeats: 3});
             break;
 
         case "sortbydate":
         case "notvabydate":
             if (prefs.apache_backend == "xml") {
-                $("#donkeykong").effect('pulsate', {times: 3}, 500);
+                $("#donkeykong").makeFlasher({flashtime: 0.5, repeats: 3});
             } else {
                 callback = forceCollectionReload;
             }
@@ -142,7 +142,7 @@ function doTheSave() {
         switch ($(this).attr("id")) {
             case "composergenrename":
                 if (felakuti.composergenrename != prefs.composergenrename) {
-                    $("#donkeykong").effect('pulsate', {times: 3}, 500);
+                    $("#donkeykong").makeFlasher({flashtime:0.5, repeats: 3});
                 }
                 break;
 
@@ -154,12 +154,16 @@ function doTheSave() {
                 }
                 break;
 
-
+            case "crossfade_duration":
+                if (felakuti.crossfade_duration != player.status.xfade && 
+                    player.status.xfade !== undefined && 
+                    player.status.xfade !== null && 
+                    player.status.xfade > 0) {
+                    callback = function() { player.controller.setCrossfade(felakuti.crossfade_duration) }
+                }
+                break;
         }
     });
-    if (felakuti.crossfade_duration != player.status.xfade && player.status.xfade !== undefined && player.status.xfade !== null && player.status.xfade > 0) {
-        player.controller.setCrossfade(felakuti.crossfade_duration);
-    }
     prefs.save(felakuti, callback);
 }
 
@@ -729,38 +733,6 @@ function setChooserButtons() {
     }
 }
 
-function getBuyHtml(data) {
-    var html = "";
-    if (data.affiliations) {
-        if (data.affiliations.physicals) {
-            html = html + '<li><b>'+language.gettext("lastfm_buyoncd")+'</b></li>';
-            html = html + doBuyTable(getArray(data.affiliations.physicals.affiliation));
-        }
-        if (data.affiliations.downloads) {
-            html = html + '<li><b>'+language.gettext("lastfm_download")+'</b></li>';
-            html = html + doBuyTable(getArray(data.affiliations.downloads.affiliation));
-        }
-    }
-    return html;
-}
-
-function doBuyTable(values) {
-    var html = "";
-    for(var i in values) {
-        html = html + '<li><img width="12px" src="'+values[i].supplierIcon+'">&nbsp;<a href="'+values[i].buyLink+'" target="_blank">'+
-                        values[i].supplierName+'</a>';
-        if (values[i].price) {
-            if (values[i].price.formatted) {
-                html = html + '    '+values[i].price.formatted;
-            } else {
-                html = html + '    '+values[i].price.amount;
-            }
-        }
-        html = html +'</li>';
-    }
-    return html;
-}
-
 function findImageInWindow(key) {
     $.each($('img[name="'+key+'"]'), function() {
         var u = $(this).attr("src");
@@ -802,7 +774,7 @@ function progressBar(divname, orientation) {
         var highr = Math.round(180 + percent/1.5);
         var highg= Math.round(90 + percent/1.5);
 
-        var rgbs = "rgba("+lowr+","+lowg+",0,0.75) 0%,rgba("+highr+","+highg+",0,1) "+percent+"%,rgba(0,0,0,1) "+percent+"%,rgba(0,0,0,1) 100%)";
+        var rgbs = "rgba("+lowr+","+lowg+",0,0.75) 0%,rgba("+highr+","+highg+",0,1) "+percent+"%,rgba(0,0,0,0.1) "+percent+"%,rgba(0,0,0,0.1) 100%)";
         var gradients = new Array();
 
         // Web standards. Don'cha love 'em?
@@ -821,7 +793,7 @@ function progressBar(divname, orientation) {
             gradients.push("-o-linear-gradient(bottom, "+rgbs);
             gradients.push("-ms-linear-gradient(bottom, "+rgbs);
         }
-        rgbs = "color-stop(0%,rgba("+lowr+","+lowg+",0,0.75)), color-stop("+percent+"%,rgba("+highr+","+highg+",0,1)), color-stop("+percent+"%,rgba(0,0,0,1)), color-stop(100%,rgba(0,0,0,1)))";
+        rgbs = "color-stop(0%,rgba("+lowr+","+lowg+",0,0.75)), color-stop("+percent+"%,rgba("+highr+","+highg+",0,1)), color-stop("+percent+"%,rgba(0,0,0,0.1)), color-stop(100%,rgba(0,0,0,0.1)))";
         if (orientation == "horizontal") {
             gradients.push("-webkit-gradient(linear, left top, right top, "+rgbs);
         } else {

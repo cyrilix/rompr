@@ -684,7 +684,7 @@ var info_lastfm = function() {
                         debug.log(medebug,"Got album buy links",data);
                         $("#buyalbumbutton").stopSpinner();
                         $("#buyalbum").fadeOut('fast', function() {
-                            $("#buyalbum").html(getBuyHtml(data));
+                            $("#buyalbum").html(lastfm.getBuyLinks(data));
                             $("#buyalbum").fadeIn("fast");
                         });
                     },
@@ -850,7 +850,7 @@ var info_lastfm = function() {
                         debug.log(medebug,"Got track buy links",data);
                         $("#buytrackbutton").stopSpinner();
                         $("#buytrack").fadeOut('fast', function() {
-                            $("#buytrack").html(getBuyHtml(data));
+                            $("#buytrack").html(lastfm.getBuyLinks(data));
                             $("#buytrack").fadeIn("fast");
                         });
                     },

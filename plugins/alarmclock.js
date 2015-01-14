@@ -124,8 +124,7 @@ var alarm = function() {
 				player.controller.pause();
 				snoozing = false;
 				infobar.notify(infobar.NOTIFY, "Snooze OFF");
-				$("#alarmclock").stop(true, true);
-				$("#alarmclock").css("opacity", 1);
+				$("#alarmclock").stopFlasher();
 				alarm.setAlarm();
 			} else {
 				debug.log("ALARM","Snoozing");
@@ -136,7 +135,7 @@ var alarm = function() {
 					player.controller.volume(uservol);
 				}
 				alarmtimer = setTimeout(alarm.Ding, prefs.alarm_snoozetime*60000);
-				$("#alarmclock").effect('pulsate', {times: (prefs.alarm_snoozetime*6)}, 10000);
+				$("#alarmclock").makeFlasher({flashtime: 10, repeats: prefs.alarm_snoozetime*6});
 				snoozing = true;
 				debug.log("ALARM","Alarm will go off in",prefs.alarm_snoozetime,"minutes");
 				infobar.notify(infobar.NOTIFY, "Snoozing....");

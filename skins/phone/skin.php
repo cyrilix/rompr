@@ -103,6 +103,7 @@ if ($prefs['player_backend'] == "mpd") {
 </div>
 
 <div id="infopane" class="infowiki scroller mainpane invisible">
+    <div class="containerbox headercontainer"><div id="chooserbuttons" class="noborder expand center topbox containerbox"></div></div>
     <div id="artistchooser" class="infotext invisible"></div>
 <?php
     print '<div id="artistinformation" class="infotext"><h2 align="center">'.get_int_text('label_emptyinfo').'</h2></div>';
@@ -127,6 +128,7 @@ include($p);
     print '<div id="choose_albumlist" class="chooser"><a href="#" onclick="layoutProcessor.sourceControl(\'albumlist\')">'.get_int_text('button_local_music').'</a></div>';
     print '<div id="choose_filelist" class="chooser"><a href="#" onclick="layoutProcessor.sourceControl(\'filelist\')">'.get_int_text('button_file_browser').'</a></div>';
     print '<div id="choose_radiolist" class="chooser"><a href="#" onclick="layoutProcessor.sourceControl(\'radiolist\')">'.get_int_text('button_internet_radio').'</a></div>';
+    print '<div class="chooser"><a href="#" onclick="layoutProcessor.sourceControl(\'infopane\')">'.get_int_text('button_infopanel').'</a></div>';
     print '<div id="chooseplaylist" class="chooser playlistchoose"><a href="#" onclick="layoutProcessor.sourceControl(\'playlistm\')">'.get_int_text('button_playlist').'</a></div>';
     print '<div class="chooser"><a href="#" onclick="layoutProcessor.sourceControl(\'playlistman\')">'.get_int_text('button_playman').'</a></div>';
     print '<div class="chooser"><a href="#" onclick="layoutProcessor.sourceControl(\'pluginplaylistholder\')">'.get_int_text('label_pluginplaylists').'</a></div>';

@@ -308,7 +308,7 @@ var nowplaying = function() {
 					if (prefs.synclove && lastfm.isLoggedIn() && rating >= prefs.synclovevalue) {
 						history[index].love();
 						if (index == currenttrack) {
-			            	$("#love").effect('pulsate', {times: 1}, 2000);
+			            	$("#love").makeFlasher({flashtime:2, repeats: 1});
 			            }
 					}
 				}
@@ -351,7 +351,7 @@ var nowplaying = function() {
 		love: function() {
 			if (lastfm.isLoggedIn()) {
 				history[findCurrentTrack()].love();
-	            $("#love").effect('pulsate', {times: 1}, 2000);
+	            $("#love").makeFlasher({flashtime:2, repeats: 1});
 			}
 			if (prefs.synclove) {
 				history[findCurrentTrack()].setMeta('set', 'Rating', prefs.synclovevalue);
