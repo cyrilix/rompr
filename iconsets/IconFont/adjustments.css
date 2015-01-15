@@ -11,8 +11,8 @@
     margin:0px;
     padding:0px;
     font-size:38px;
-    vertical-align:bottom;
-    display:table-cell;
+    vertical-align:middle;
+    display:inline-flex;
 }
 
 .controlbutton:hover,.controlbutton-small:hover
@@ -44,7 +44,6 @@
     }
     .controlbutton-small {
         font-size:38px;
-        padding-bottom:6px;
     }
     #buttons {
         padding-top:14px;
@@ -57,7 +56,6 @@
     }
     .controlbutton-small {
         font-size:38px;
-        padding-bottom:18px;
     }
     #buttons {
         padding-top:20px;
@@ -80,12 +78,6 @@
   width:32px;
 }
 
-.icon-musicbrainz.topimg
-{
-    /* naughty naughty */
-    width:36px !important;
-}
-
 #headerbar:hover i.topimg:before
 {
     text-shadow:0 0 3px #AAA;
@@ -97,18 +89,6 @@
     text-shadow:0 0 15px #C16700;
 }
 
-/*i.topimg:before
-{
-    transition:all 0.2s;
-}
-
-#headerbar i.topimg:hover:before 
-{
-    font-size:150%;
-    transition:all 0.3s;
-    line-height:50%;
-}
-*/
 .topimg
 {
   margin-top:0px;
