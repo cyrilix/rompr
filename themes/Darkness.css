@@ -401,3 +401,7 @@ tr.clickaddtrack:hover
     border-top:1px solid #000000;
 }
 
+.podcastitem
+{
+    border-top:1px solid #cccccc;
+}

@@ -111,7 +111,6 @@ if ($url) {
 		$output = '<?xml version="1.0" encoding="utf-8"?>'."\n".
 		          "<playlist>\n".
 		          "<playlisturl>".htmlspecialchars($url)."</playlisturl>\n".
-		          // "<addedbyrompr>true</addedbyrompr>\n".
 				  '<trackList>'."\n";
 		$output = $output . $tl;
 		$output = $output . "</trackList>\n</playlist>\n";

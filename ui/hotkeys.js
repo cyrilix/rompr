@@ -75,7 +75,7 @@ var shortcuts = function() {
                     hotkeys[i] = localStorage.getItem('hotkeys.'+i);
                 }
                 if (hotkeys[i] !== "" && bindings[i]) {
-                    debug.log("SHORTCUTS","Binding Key For",i);
+                    debug.log("SHORTCUTS","Binding Key",hotkeys[i],"For",i);
                     $(window).bind('keydown', hotkeys[i], bindings[i]);
                 }
             }
@@ -83,7 +83,7 @@ var shortcuts = function() {
 
         edit: function() {
             $("#configpanel").slideToggle('fast');
-            var keybpu = popupWindow.create(400,600,"keybpu",true,language.gettext("title_keybindings"));
+            var keybpu = popupWindow.create(400,1024,"keybpu",true,language.gettext("title_keybindings"));
             $("#popupcontents").append('<table align="center" cellpadding="2" id="keybindtable" width="90%"></table>');
             for (var i in hotkeys) {
                 $("#keybindtable").append('<tr><td width="50%" align="right">'+language.gettext(i).initcaps()+'</td><td>'+format_keyinput(i, hotkeys[i])+'</td>'+format_clearbutton(i)+'</tr>');
@@ -96,7 +96,14 @@ var shortcuts = function() {
         change: function(ev) {
             ev.preventDefault();
             ev.stopPropagation();
-            $(ev.target).val(KeyCode.hot_key(KeyCode.translate_event(ev)));
+            var key = KeyCode.hot_key(KeyCode.translate_event(ev));
+            for (var name in hotkeys) {
+                if (hotkeys[name] == key) {
+                    infobar.notify(infobar.ERROR, "Key '"+key+"' is already used by '"+language.gettext(name)+"'");
+                    return false;
+                }
+            }
+            $(ev.target).val(key);
             shortcuts.save()
         },
 
@@ -116,8 +123,14 @@ var shortcuts = function() {
             shortcuts.load();
         },
 
-        add: function(name, binding) {
-            hotkeys[name] = "";
+        add: function(name, binding, hotkey) {
+            for (var nom in hotkeys) {
+                if (hotkeys[nom] == hotkey) {
+                    debug.warn("HOTKEYS","Plugin trying to add hotkey",hotkey,"for",name,"but this already used by",nom);
+                    hotkey = "";
+                }
+            }
+            hotkeys[name] = hotkey;
             bindings[name] = binding;
         }
     }

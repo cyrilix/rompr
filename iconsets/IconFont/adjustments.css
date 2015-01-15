@@ -119,3 +119,7 @@
    border-radius: 0.4em;
 }
 
+.npicon
+{
+    height: auto !important;
+}

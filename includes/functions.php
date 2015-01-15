@@ -720,12 +720,12 @@ function update_stream_playlist($url, $name, $image, $creator, $title, $type, $f
             "</playlist>";
 
         debug_print("Creating new playlist for stream ".$url);
-
-        $fp = fopen('prefs/'.$fname.'_'.md5($url).'.xspf', 'w');
-        if ($fp) {
-          fwrite($fp, $xml);
+        $newname = 'prefs/'.$fname.'_'.md5($url).'.xspf';
+        if (file_exists($newname)) {
+            debug_print("Stream Playlist already exists!","STREAMS");
+        } else {
+            file_put_contents($newname, $xml);
         }
-        fclose($fp);
     }
 }
 

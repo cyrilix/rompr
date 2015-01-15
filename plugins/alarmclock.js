@@ -170,7 +170,7 @@ var alarm = function() {
 			alarm.setBoxes();
 			alarm.setButton();
 			alarm.setAlarm();
-			shortcuts.add('button_alarmsnooze', alarm.snooze);
+			shortcuts.add('button_alarmsnooze', alarm.snooze, "B");
 		}
 
 	}

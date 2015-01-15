@@ -180,13 +180,28 @@ jQuery.fn.makeFlasher = function(options) {
                     "-moz-animation": "",
                     "animation": "",
                     "opacity": ""});
-        // Without this the animation won't re-run unless we put a delay in here,
+        // Without this the animation won't re-run (unless we put a delay in here),
         // which is far from ideal. As is this, but it's better.
         $(this).hide().show();
+        $(this).on('animationend', flashStopper);
+        $(this).on('webkitAnimationEnd', flashStopper);
+        $(this).on('oanimationend', flashStopper);
+        $(this).on('MSAnimationEnd', flashStopper);
         $(this).css({"-webkit-animation": anistring,
                     "-moz-animation": anistring,
                     "animation": anistring});
     });
+}
+
+function flashStopper() {
+    $(this).css({"-webkit-animation": "",
+                "-moz-animation": "",
+                "animation": "",
+                "opacity": ""});
+    $(this).off('animationend', flashStopper);
+    $(this).off('webkitAnimationEnd', flashStopper);
+    $(this).off('oanimationend', flashStopper);
+    $(this).off('MSAnimationEnd', flashStopper);
 }
 
 jQuery.fn.stopFlasher = function() {
@@ -194,7 +209,7 @@ jQuery.fn.stopFlasher = function() {
         $(this).css({"-webkit-animation": "",
                     "-moz-animation": "",
                     "animation": "",
-                    "opacity": 1
+                    "opacity": ""
         });
     });
 }

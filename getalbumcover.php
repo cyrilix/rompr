@@ -120,7 +120,7 @@ if ($in_collection) {
     // We only put small_file in the image db. The rest can be calculated from that.
     update_image_db($fname, $error, $small_file);
 } else if ($error == 0 && $stream != "") {
-    update_stream_image($stream, $small_file);
+    update_stream_image($stream, $big_file);
 }
 
 if ($download_file != "" && file_exists($download_file)) {

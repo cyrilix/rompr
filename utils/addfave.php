@@ -24,7 +24,7 @@ foreach($playlists as $i => $file) {
 			$n = (string) $track->album;
 			$stncount++;
 		}
-    	if($track->album == $station) {
+    	if((string) $track->album == $station) {
 	        debug_print("Found Station in ".$file, "ADDFAVE");
 	        $found = true;
 	        if ($uri && $track->location == $uri) {
@@ -58,7 +58,11 @@ if (!$found) {
 			  "</playlist>\n";
 
 	$newname = "prefs/USERSTREAM_".md5($station).".xspf";
-	file_put_contents($newname, $output);
+	if (file_exists($newname)) {
+		debug_print("Fave Already Exists!","ADDFAVE");
+	} else {
+		file_put_contents($newname, $output);
+	}
 }
 
 ?>

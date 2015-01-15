@@ -349,3 +349,7 @@ tr.clickaddtrack:hover
     box-shadow:         7px 7px 5px rgba(0, 0, 0, 0.6);
 }
 
+.podcastitem
+{
+    border-top:1px solid #cccccc;
+}

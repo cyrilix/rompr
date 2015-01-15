@@ -3,6 +3,7 @@
     margin-right:auto;
     margin-left:auto;
     min-height:400px;
+    margin-bottom: 8px;
 }
 
 /* Ideally this would all be classed up, but CSS is so fucking clunky */

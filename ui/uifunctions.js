@@ -270,7 +270,7 @@ function playUserStream(xspf) {
         success: playlist.newInternetRadioStation,
         error: function(data, status) {
             playlist.repopulate();
-            alert(language.gettext("label_tunefailed"));
+            infobar.notify(infobar.ERROR, language.gettext("label_tunefailed"));
         }
     } );
 }
@@ -525,23 +525,11 @@ function onStorageChanged(e) {
         debug.log("GENERAL","Updating album image for key",key,e);
         if (key.substring(0,1) == "!") {
             key = key.substring(1,key.length);
-            $('img[name="'+key+'"]').removeClass("notexist");
-            $('img[name="'+key+'"]').addClass("notfound");
-            // $('img[name="'+key+'"]').attr("src", "newimages/compact_disc.svg");
+            $('img[name="'+key+'"]').removeClass("notexist").addClass("notfound");
         } else {
-            $('img[name="'+key+'"]').attr("src", "albumart/small/"+key+".jpg");
-            $('img[name="'+key+'"]').removeClass("notexist");
-            $('img[name="'+key+'"]').removeClass("notfound");
-        }
-    } else if (e.key == "podcast" && e.newValue == "true") {
-        debug.log("GENERAL", "Podcasts have been updated");
-        localStorage.setItem("podcastresponse", "OK");
-        if (!prefs.hide_radiolist) {
-            podcasts.loadList();
-            switchsource('radiolist');
-            if ($("#podcastslist").is(':hidden')) {
-                $("#podcastslist").prev().find('.menu').click();
-            }
+            $('img[name="'+key+'"]').removeClass("notexist notfound").attr("src", "").hide().show();
+            var fch = Math.random()*1000;
+            $('img[name="'+key+'"]').attr("src", "albumart/asdownloaded/firefoxiscrap/"+key+"---"+fch.toString());
         }
     }
 }

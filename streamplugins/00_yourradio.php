@@ -40,11 +40,15 @@ if (array_key_exists('populate', $_REQUEST)) {
             $x = simplexml_load_file($file);
             $track = $x->trackList->track[0];
             if ($x->playlisturl && (string) $x->playlisturl != "") {
-                print '<div class="clickable clickstream containerbox padright menuitem" name="'.(string) $x->playlisturl.'" streamimg="'.(string) $track->image.'" streamname="'.$track->album.'">';
+                print '<div class="clickable clickstream containerbox padright menuitem dropdown-container" name="'.(string) $x->playlisturl.'" streamimg="'.(string) $track->image.'" streamname="'.$track->album.'">';
             } else {
-                print '<div class="clickable clickradio containerbox padright menuitem" name="'.$file.'">';
+                print '<div class="clickable clickradio containerbox padright menuitem dropdown-container" name="'.$file.'">';
             }
-            print '<div class="topimg fixed"><img class="topimg" name="'.md5(" ".$track->album).'" src="'.$track->image.'" /></div>';
+            $c = $track->creator;
+            if ($c == "" || $c == null) {
+                $c = "Radio";
+            }
+            print '<div class="smallcover fixed"><img class="smallcover" name="'.md5($c." ".$track->album).'" src="'.$track->image.'" /></div>';
             print '<div class="expand stname" style="margin-left:4px">'.utf8_encode($track->album).'</div>';
             print '<div class="fixed clickable clickradioremove clickicon" name="'.$file.'"><i class="icon-cancel-circled playlisticon"></i></div>';
             print '</div>';

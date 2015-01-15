@@ -96,7 +96,8 @@ select
 
 #notifications
 {
-    background-image:linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.5));
+    background-color:rgba(65,65,85,0.9);
+    color:#ffffff;
 }
 
 a.album:visited
@@ -414,3 +415,7 @@ tr.clickaddtrack:hover
     border:1px solid #414141;
 }
 
+.podcastitem
+{
+    border-top:1px solid #000000;
+}

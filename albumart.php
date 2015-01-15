@@ -1033,7 +1033,11 @@ function do_radio_stations() {
             $x = simplexml_load_file($file);
             foreach($x->trackList->track as $i => $track) {
                 if ($track->album) {
-                    $artname = md5(" ".$track->album);
+                    $c = $track->creator;
+                    if ($c == "" || $c == null) {
+                        $c = "Radio";
+                    }
+                    $artname = md5($c." ".$track->album);
                     $class = "";
                     $src = "newimages/broadcast.svg";
                     if ($track->image != "newimages/broadcast.svg") {
