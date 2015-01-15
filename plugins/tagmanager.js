@@ -12,7 +12,7 @@ var tagManager = function() {
 			} else {
 				html = html + ' notfound';
 			}
-			html = html + '" /></td><td><b>'+tracks[i].Title+'</b><br><i>by</i> <b>'+tracks[i].Artist+
+			html = html + '" /></td><td class="dan"><b>'+tracks[i].Title+'</b><br><i>by</i> <b>'+tracks[i].Artist+
 				'</b><br><i>on</i> <b>'+tracks[i].Album+'</b></td>';
 			html = html + '<td align="center" style="vertical-align:middle"><i class="icon-cancel-circled playlisticon clickicon infoclick plugclickable clickremtag"></i></td></tr>';
 		}
@@ -59,7 +59,12 @@ var tagManager = function() {
         			'</div>'+
 					'<button class="fixed" onclick="tagManager.createTag()">'+language.gettext("button_createtag")+'</button>'+
     				'</div>');
-			    $("#tmgfoldup .enter").keyup( onKeyUp );
+    			$("#tmgfoldup").append('<div class="containerbox padright noselection">'+
+        			'<div class="expand">'+
+            		'<input class="enter inbrowser" name="tfilterinput" type="text" />'+
+        			'</div>'+
+					'<button class="fixed" onclick="tagManager.filter()">'+language.gettext("button_search")+'</button>'+
+    				'</div>');
 			    $("#tmgfoldup").append('<div class="noselection fullwidth masonified" id="tagmunger"></div>');
 	            $.ajax({
 	            	url: 'backends/sql/userRatings.php',
@@ -67,7 +72,7 @@ var tagManager = function() {
 	            	data: {action: 'taglist'},
 	            	dataType: 'json',
 	            	success: function(data) {
-            			setDraggable('tmgfoldup');
+            			setDraggable('tmgfoldup');';'
 	            		tagManager.doMainLayout(data);
 	            	},
 	            	error: function() {
@@ -75,6 +80,7 @@ var tagManager = function() {
 	            		tmg.slideToggle('fast');
 	            	}
 	            });
+			    $("#tmgfoldup .enter").keyup( onKeyUp );
 	        } else {
 	        	browser.goToPlugin("tmg");
 	        }
@@ -209,10 +215,32 @@ var tagManager = function() {
 		close: function() {
 			tmg = null;
 			holders = [];
+		},
+
+		filter: function() {
+			var term = $('[name=tfilterinput]').val();
+			if (term == "") {
+				debug.log("TAG MANAGER","Showing Everything");
+				$("#tagmunger tr").show();
+			} else {
+				debug.log("TAG MANAGER","Filtering on",term);
+				var re = new RegExp(term, "i");
+				$.each($("#tagmunger .clicktrack"), function() {
+					var cont = $(this).children('.dan').html();
+					if (re.test(cont)) {
+						if ($(this).is(':hidden')) {
+							$(this).show();
+						}
+					} else {
+						if ($(this).is(':visible')) {
+							$(this).hide();
+						}
+					}
+				});
+			}
+			browser.rePoint();
 		}
-
 	}
-
 }();
 
 addPlugin(language.gettext("label_tagmanager"), "tagManager.open()");

@@ -44,7 +44,6 @@ $languages['it'] = array (
 	"config_language" => "LINGUA",
 	"config_theme" => "TEMA",
 	"config_hidealbumlist" => "Nascondi Collezione Musicale",
-	"config_keepsearch" => "...ma mantieni visibile le funzioni di Ricerca",
 	"config_hidefileslist" => "Nascondi Elenco File",
 	"config_hidelastfm" => "Nascondi le Stazioni Last.FM",
 	"config_hideradio" => "Nascondi le Stazioni Radio",

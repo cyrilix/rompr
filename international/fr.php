@@ -42,7 +42,6 @@ $languages['fr'] = array (
 	"config_language" => "LANGAGE",
 	"config_theme" => "THEME",
 	"config_hidealbumlist" => "Masquer Liste Musicale Locale",
-	"config_keepsearch" => "...mais Conserver Recherche Visible",
 	"config_hidefileslist" => "Masque Liste Fichiers",
 	"config_hidelastfm" => "Masquer Stations Last.FM",
 	"config_hideradio" => "Masquer Stations Radio",

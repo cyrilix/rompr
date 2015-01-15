@@ -42,7 +42,6 @@ $languages['pirate'] = array (
 	"config_language" => "SPEAKS",
 	"config_theme" => "YE COLOURS",
 	"config_hidealbumlist" => "Bury t' list o' shantys",
-	"config_keepsearch" => "...but keep ye telescope",
 	"config_hidefileslist" => "Bury t' list o' files",
 	"config_hidelastfm" => "Bury t' minstrels o' t' red ball",
 	"config_hideradio" => "Bury t' wireless",

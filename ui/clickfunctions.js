@@ -380,6 +380,7 @@ function setDraggable(divname) {
 
 function onKeyUp(e) {
     if (e.keyCode == 13) {
+        debug.log("KEYUP","Enter was pressed");
         if ($(e.target).next("button").length > 0) {
             $(e.target).next("button").click();
         } else {

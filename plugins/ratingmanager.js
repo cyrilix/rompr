@@ -12,7 +12,7 @@ var ratingManager = function() {
 			} else {
 				html = html + ' notfound';
 			}
-			html = html + '" /></td><td><b>'+tracks[i].Title+'</b><br><i>by</i> <b>'+tracks[i].Artist+
+			html = html + '" /></td><td class="dan"><b>'+tracks[i].Title+'</b><br><i>by</i> <b>'+tracks[i].Artist+
 				'</b><br><i>on</i> <b>'+tracks[i].Album+'</b></td>';
 			html = html + '<td align="center" style="vertical-align:middle"><i class="icon-cancel-circled playlisticon clickicon infoclick plugclickable clickremrat"></i></td></tr>';
 		}
@@ -53,6 +53,14 @@ var ratingManager = function() {
 	        	$("#rmgfoldup").append('<div class="containerbox padright">'+
 	        		'<div class="expand"><b>'+language.gettext("label_ratingmanagertop")+'</b></div>'+
 	        		'</div>');
+
+    			$("#rmgfoldup").append('<div class="containerbox padright noselection">'+
+        			'<div class="expand">'+
+            		'<input class="enter inbrowser" name="filterinput" type="text" />'+
+        			'</div>'+
+					'<button class="fixed" onclick="ratingManager.filter()">'+language.gettext("button_search")+'</button>'+
+    				'</div>');
+    			
 			    $("#rmgfoldup").append('<div class="noselection fullwidth masonified" id="ratmunger"></div>');
 	            $.ajax({
 	            	url: 'backends/sql/userRatings.php',
@@ -68,10 +76,10 @@ var ratingManager = function() {
 	            		rmg.slideToggle('fast');
 	            	}
 	            });
+	            $('#rmgfoldup .enter').keyup(onKeyUp);
 	        } else {
 	        	browser.goToPlugin("rmg");
 	        }
-
 		},
 
 		doMainLayout: function(data) {
@@ -171,6 +179,30 @@ var ratingManager = function() {
 		close: function() {
 			rmg = null;
 			holders = [];
+		},
+
+		filter: function() {
+			var term = $('[name=filterinput]').val();
+			if (term == "") {
+				debug.log("RATING MANAGER","Showing Everything");
+				$("#ratmunger tr").show();
+			} else {
+				debug.log("RATING MANAGER","Filtering on",term);
+				var re = new RegExp(term, "i");
+				$.each($("#ratmunger .clicktrack"), function() {
+					var cont = $(this).children('.dan').html();
+					if (re.test(cont)) {
+						if ($(this).is(':hidden')) {
+							$(this).show();
+						}
+					} else {
+						if ($(this).is(':visible')) {
+							$(this).hide();
+						}
+					}
+				});
+			}
+			browser.rePoint();
 		}
 
 	}

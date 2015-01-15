@@ -396,6 +396,7 @@ var layoutProcessor = function() {
             setDraggable('filecollection');
             setDraggable('search');
             setDraggable('filesearch');
+            setDraggable("podcastslist");
             setDraggable('artistinformation');
             setDraggable('albuminformation');
             setDraggable('storedplaylists');

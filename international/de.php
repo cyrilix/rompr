@@ -44,7 +44,6 @@ $languages['de'] = array (
 	"config_language" => "SPRACHE",
 	"config_theme" => "AUSSEHEN",
 	"config_hidealbumlist" => "Verstecke Musik Sammlung",
-	"config_keepsearch" => "... aber Suchfenster offen lassen",
 	"config_hidefileslist" => "Verstecke Dateiliste",
 	"config_hidelastfm" => "Verstecke Last.FM Radiosender",
 	"config_hideradio" => "Verstecke Radiosender",

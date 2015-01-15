@@ -451,7 +451,7 @@ function format_episode(&$y, &$item, $pm) {
     if ($y->displaymode == "downloaded" && !is_dir('prefs/podcasts/'.$pm.'/'.$item->key)) {
         return;
     }
-    print '<div class="clickable clicktrack item podcastitem" name="'.htmlspecialchars_decode($item->link).'">';
+    print '<div class="clickable clicktrack item podcastitem draggable" name="'.htmlspecialchars_decode($item->link).'">';
     print '<div class="containerbox">';
     if ($item->new == "yes") {
         print '<i title="'.get_int_text("podcast_tooltip_new").'" class="icon-sun fixed newpodicon fridge"></i>';
