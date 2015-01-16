@@ -373,8 +373,7 @@ var infobar = function() {
                             case "play":
                                 $(".icon-play-circled").removeClass("icon-play-circled").addClass("icon-pause-circled");
                                 break;
-                            case "pause":
-                            case "stop":
+                            default:
                                 $(".icon-pause-circled").removeClass("icon-pause-circled").addClass("icon-play-circled");
                                 break;
                         }

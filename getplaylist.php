@@ -113,6 +113,10 @@ function outputPlaylist() {
             do_albumartist($track, $info);
         }
 
+        if (count($info['metadata']['artists']) == 0) {
+            array_push($info['metadata']['artists'], array( "name" => "", "musicbrainz_id" => ""));
+        }
+
 
         // if ($prefs['displaycomposer'] &&
         //     ($track->composer !== null || $track->performers !== null) &&

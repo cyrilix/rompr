@@ -245,7 +245,7 @@ var nowplaying = function() {
 				// we've initialised all the metadata before we start to populate the first artist, otherwise
 				// there's danger of a race resulting in the artistchooser being populated before all the nowplayingindices
 				// have been assigned, resulting in the html containing an undefined value.
-				if (i == 0)  to_populate = nowplayingindex;
+				if (i == 0) to_populate = nowplayingindex;
 			}
 			history[to_populate].populate(prefs.infosource, false);
 		},
