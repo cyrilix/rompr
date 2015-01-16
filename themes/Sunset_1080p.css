@@ -5,7 +5,7 @@ body
     background-repeat:no-repeat;
 }
 
-#sources
+#sources, .mainpane
 {
     background-color:rgba(0,0,0,0.2);
 }
@@ -15,7 +15,7 @@ body
     background-color:rgba(0,0,0,0.2);
 }
 
-#playlist, #playlistm, #infopane
+#playlist, #infopane
 {
     background-color:rgba(0,0,0,0.2);
 }

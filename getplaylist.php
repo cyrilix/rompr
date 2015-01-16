@@ -79,84 +79,39 @@ function outputPlaylist() {
         // Metadata such as scrobbles and ratings will still use the Album Artist
 
         if ($prefs['displaycomposer']) {
-            // If the user has chosen to display Composer/Perfomer information
-            // Then we do them in order Composer - Performers - Album Artist when the Genre matches the one set
-            // in the prefs, or Album Artist - Composer - Performers when it doesn't.
-            if  (!$prefs['composergenre'] || !$track->genre ||
-                ($track->genre && strtolower($track->genre) != strtolower($prefs['composergenrename']))) {
-                if (!($track->type == "stream" && $track->albumobject->artist == "Radio") && 
-                    strtolower($track->albumobject->artist) != "various artists" && 
-                    strtolower($track->albumobject->artist) != "various") {
-                    if (artist_not_found_yet($track->albumobject->artist)) {
-                        array_push($info['metadata']['artists'], array( "name" => $track->albumobject->artist, "musicbrainz_id" => unwanted_array($track->musicbrainz_albumartistid)));
-                    }
-                }
-            }
-            $c = getArray($track->composer);
-            foreach ($c as $comp) {
-                if (artist_not_found_yet($comp)) {
-                    array_push($info['metadata']['artists'], array( "name" => $comp, "musicbrainz_id" => ""));
-                }
-            }
-            $c = getArray($track->performers);
-            foreach ($c as $comp) {
-                if (artist_not_found_yet($comp)) {
-                    array_push($info['metadata']['artists'], array( "name" => $comp, "musicbrainz_id" => ""));
-                }
+            // The user has chosen to display Composer/Perfomer information
+            // Here check:
+            // a) There is composer/performer information AND
+            // bi) Specific Genre Selected, Track Has Genre, Genre Matches Specific Genre OR
+            // bii) No Specific Genre Selected, Track Has Genre
+            if (($track->composer !== null || $track->performers !== null) &&
+                (($prefs['composergenre'] && $track->genre && strtolower($track->genre) == strtolower($prefs['composergenrename'])) ||
+                (!$prefs['composergenre'] && $track->genre)))
+            {
+                // Track Genre matches selected 'Sort By Composer' Genre
+                // Display Compoer - Performer - AlbumArtist
+                do_composers($track, $info);
+                do_performers($track, $info);
+                // The album artist probably won't be required in this case, but use it just in case
+                do_albumartist($track, $info);
+                // Don't do track artist as with things tagged like this this is usually rubbish
+            } else {
+                // Track Genre Does Not Match Selected 'Sort By Composer' Genre
+                // Or there is no composer/performer info
+                // Do Track Artist - Album Artist - Composer - Performer
+                do_track_artists($track, $info);
+                do_albumartist($track, $info);
+                do_composers($track, $info);
+                do_performers($track, $info);
             }
             if ($track->composer !== null || $track->performers !== null) {
                 $info['metadata']['iscomposer'] = 'true';
             }
-            if (!($track->type == "stream" && $track->albumobject->artist == "Radio") && 
-                strtolower($track->albumobject->artist) != "various artists" && 
-                strtolower($track->albumobject->artist) != "various") {
-                if (artist_not_found_yet($track->albumobject->artist)) {
-                    array_push($info['metadata']['artists'], array( "name" => $track->albumobject->artist, "musicbrainz_id" => unwanted_array($track->musicbrainz_albumartistid)));
-                }
-            }
-        }
-
-        if ($prefs['displaycomposer'] &&
-            ($track->composer !== null || $track->performers !== null) &&
-            (
-                ($prefs['composergenre'] && $track->genre && strtolower($track->genre) == strtolower($prefs['composergenrename'])) ||
-                !$prefs['composergenre'])
-            ) 
-        {
-            // If the user has chosen to display Composer/Performer info AND
-            // there is such info to use AND 
-            // the genre matches the setting for sorting in the Collection
-            // Then we don't use Track Artist info because those tags are usually messy
         } else {
-
-            // Add track artist info
-
-            $c = getArray($track->artist);
-            $m = getArray($track->musicbrainz_artistid);
-            while (count($m) < count($c)) {
-                array_push($m, "");
-            }
-            foreach ($c as $i => $comp) {
-                if (($track->type != "stream" && $comp != "") || ($track->type == "stream" && $comp != $track->album && $comp != "")) {
-                    if (artist_not_found_yet($comp)) {
-                        array_push($info['metadata']['artists'], array( "name" => $comp, "musicbrainz_id" => $m[$i]));
-                    }
-                }
-            }
-
-            // Add Album Artist info, just in case
-            if (!($track->type == "stream" && $track->albumobject->artist == "Radio") && 
-                strtolower($track->albumobject->artist) != "various artists" && 
-                strtolower($track->albumobject->artist) != "various") {
-                if (artist_not_found_yet($track->albumobject->artist)) {
-                    array_push($info['metadata']['artists'], array( "name" => $track->albumobject->artist, "musicbrainz_id" => unwanted_array($track->musicbrainz_albumartistid)));
-                }
-            }
+            // The user does not want Composer/Performer information
+            do_track_artists($track, $info);
+            do_albumartist($track, $info);
         }
-        if (count($info['metadata']['artists']) == 0) {
-            array_push($info['metadata']['artists'], array( "name" => "", "musicbrainz_id" => ""));
-        }
-
 
 
         // if ($prefs['displaycomposer'] &&
@@ -216,6 +171,52 @@ function artist_not_found_yet($a) {
     } else {
         array_push($foundartists, $s);
         return true;
+    }
+}
+
+function do_composers(&$track, &$info) {
+    $c = getArray($track->composer);
+    foreach ($c as $comp) {
+        if (artist_not_found_yet($comp)) {
+            array_push($info['metadata']['artists'], array( "name" => $comp, "musicbrainz_id" => "", "type" => "composer"));
+        }
+    }
+}
+
+function do_performers(&$track, &$info) {
+    $c = getArray($track->performers);
+    foreach ($c as $comp) {
+        if (artist_not_found_yet($comp)) {
+            array_push($info['metadata']['artists'], array( "name" => $comp, "musicbrainz_id" => "", "type" => "performer"));
+        }
+    }
+}
+
+function do_albumartist(&$track, &$info) {
+    $albumartist = null;
+    if (!($track->type == "stream" && $track->albumobject->artist == "Radio") && 
+        strtolower($track->albumobject->artist) != "various artists" && 
+        strtolower($track->albumobject->artist) != "various") 
+    {
+        $albumartist = $track->albumobject->artist;
+    }
+    if ($albumartist !== null && artist_not_found_yet($albumartist)) {
+        array_push($info['metadata']['artists'], array( "name" => $albumartist, "musicbrainz_id" => unwanted_array($track->musicbrainz_albumartistid), "type" => "albumartist"));
+    }
+}
+
+function do_track_artists(&$track, &$info) {
+    $c = getArray($track->artist);
+    $m = getArray($track->musicbrainz_artistid);
+    while (count($m) < count($c)) {
+        array_push($m, "");
+    }
+    foreach ($c as $i => $comp) {
+        if (($track->type != "stream" && $comp != "") || ($track->type == "stream" && $comp != $track->album && $comp != "")) {
+            if (artist_not_found_yet($comp)) {
+                array_push($info['metadata']['artists'], array( "name" => $comp, "musicbrainz_id" => $m[$i], "type" => "artist"));
+            }
+        }
     }
 }
 

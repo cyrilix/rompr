@@ -10,12 +10,17 @@ body
     background-color:rgba(0,0,0,0.4);
 }
 
+.mainpane
+{
+    background-color:rgba(0,0,0,0.3);
+}
+
 .album2
 {
     background-color:rgba(0,0,0,0.2);
 }
 
-#playlist, #playlistm
+#playlist
 {
     background-color:rgba(0,0,0,0.4);
 }

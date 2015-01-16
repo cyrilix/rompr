@@ -2,17 +2,26 @@
 {
     padding-left:24px;
     padding-right:24px;
-    padding-top:4px;
+    padding-top:16px;
     padding-bottom:6px;
 }
 
-.controlbutton,.controlbutton-small
+.controlbutton
 {
     margin:0px;
     padding:0px;
     font-size:38px;
     vertical-align:middle;
     display:inline-flex;
+}
+
+.controlbutton-small
+{
+    margin:0px;
+    padding:0px;
+    font-size:30px;
+    vertical-align:middle;
+    display:inline-flex;    
 }
 
 .controlbutton:hover,.controlbutton-small:hover
@@ -38,6 +47,18 @@
     margin-right:2px;        
 }
 
+@media screen and (min-height: 540px) and (max-height: 999px) {
+    .controlbutton {
+        font-size:42px;
+    }
+    .controlbutton-small {
+        font-size:34px;
+    }
+    #buttons {
+        padding-top:12px;
+    }
+}
+
 @media screen and (min-height: 1000px) and (max-height: 1199px) {
     .controlbutton {
         font-size:44px;
@@ -46,7 +67,7 @@
         font-size:38px;
     }
     #buttons {
-        padding-top:14px;
+        padding-top:18px;
     }
 }
 
@@ -81,7 +102,7 @@
 #headerbar:hover i.topimg:before
 {
     text-shadow:0 0 3px #AAA;
-    opacity:0.2;
+    opacity:0.4;
 }
 #headerbar i.topimg:hover:before
 {

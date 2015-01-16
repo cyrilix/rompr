@@ -1107,40 +1107,6 @@ var globalPlugins = function() {
 
 }();
 
-function mungeTrackInfo(info) {
-    var npinfo = {};
-    var doctitle = "RompR";
-    if (info.title != "") {
-        npinfo.title = info.title;
-        doctitle = info.title;
-    }
-    var s = info.creator;
-    if (info.type != "stream" || s != "") {
-        if (info.metadata && info.metadata.artists) {
-            var an = new Array();
-            for (var i in info.metadata.artists) {
-                an.push(info.metadata.artists[i].name);
-            }
-            s = concatenate_artist_names(an);
-        }
-    }
-    if (s != "") {
-        npinfo.artist = s;
-        doctitle = doctitle + " . " + s;
-    }
-    if (info.album) {
-        npinfo.album = info.album;
-        if (info.title == "" && s == "" && info.stream != "") {
-            npinfo.stream = info.stream;
-        } else if (info.title == "" && s == "" && info.stream == "" && info.albumartist != "") {
-            npinfo.stream = info.albumartist;
-        }
-    }
-
-    return {doctitle: doctitle, textbits: npinfo};
-
-}
-
 function audioClass(filetype) {
     filetype = filetype.toLowerCase();
     switch (filetype) {

@@ -1497,7 +1497,8 @@ div.lyrics p
     background-color:#ffffff;
     color:#000000;
     line-height:1.3em;
-    padding-left:8px;
+    padding-left:4px;
+    padding-right:4px;
     cursor:pointer;
 }
 
@@ -1506,6 +1507,13 @@ div.lyrics p
     width:100%;
     box-sizing:border-box;
 }
+
+.tagmenu-contents .backhi:hover
+{
+    color:#ffffff !important;
+    background-color:#000000 !important;
+}
+
 
 #tagdoer
 {

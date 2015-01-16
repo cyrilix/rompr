@@ -40,12 +40,62 @@ var infobar = function() {
     }();
 
     function setTheText(info) {
-        debug.log("INFOBAR","Setting now playing info");
         var stuff = mungeTrackInfo(info);
         document.title = stuff.doctitle;
         npinfo = stuff.textbits
         debug.log("INFOBAR","Now Playing Info",npinfo);
         infobar.biggerize(2);
+    }
+
+    function mungeTrackInfo(info) {
+        var npinfo = {};
+        var doctitle = "RompR";
+        if (info.title != "") {
+            npinfo.title = info.title;
+            doctitle = info.title;
+        }
+        var s = info.creator;
+        if (info.type != "stream" || s != "") {
+            if (info.metadata && info.metadata.artists) {
+                s = "";
+                var prevtype = "";
+                for (var i in info.metadata.artists) {
+                    var joinstring = ", ";
+                    if (info.metadata.artists[i].type == "performer" && prevtype != "performer") {
+                        joinstring = " : ";
+                    }
+                    if (i == info.metadata.artists.length - 1) {
+                        joinstring = " & ";
+                    }
+                    if (i == 0) {
+                        joinstring = "";
+                    }
+                    s = s + joinstring + info.metadata.artists[i].name;
+                    prevtype = info.metadata.artists[i].type;
+                }
+
+                // var an = new Array();
+                // for (var i in info.metadata.artists) {
+                //     an.push(info.metadata.artists[i].name);
+                // }
+                // s = concatenate_artist_names(an);
+            }
+        }
+        if (s != "") {
+            npinfo.artist = s;
+            doctitle = doctitle + " . " + s;
+        }
+        if (info.album) {
+            npinfo.album = info.album;
+            if (info.title == "" && s == "" && info.stream != "") {
+                npinfo.stream = info.stream;
+            } else if (info.title == "" && s == "" && info.stream == "" && info.albumartist != "") {
+                npinfo.stream = info.albumartist;
+            }
+        }
+
+        return {doctitle: doctitle, textbits: npinfo};
+
     }
 
     function getWidth(text, fontsize) {
