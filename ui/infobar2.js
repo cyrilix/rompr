@@ -61,6 +61,7 @@ var infobar = function() {
                 var prevtype = "";
                 for (var i in info.metadata.artists) {
                     var joinstring = ", ";
+                    var afterstring = "";
                     if (info.metadata.artists[i].type == "performer" && prevtype != "performer") {
                         joinstring = " : ";
                     }
@@ -70,15 +71,18 @@ var infobar = function() {
                     if (i == 0) {
                         joinstring = "";
                     }
-                    s = s + joinstring + info.metadata.artists[i].name;
+                    if (info.metadata.artists[i].type == "composer" &&
+                        !info.metadata.artists[i].name.match(/composer/i) &&
+                        prevtype != "composer") {
+                        if (s == "") {
+                            afterstring = " ("+language.gettext('label_composer')+")";
+                        } else {
+                            joinstring = " : "
+                            afterstring = " ("+language.gettext('label_composer')+")";                        }
+                    }
+                    s = s + joinstring + info.metadata.artists[i].name + afterstring;
                     prevtype = info.metadata.artists[i].type;
                 }
-
-                // var an = new Array();
-                // for (var i in info.metadata.artists) {
-                //     an.push(info.metadata.artists[i].name);
-                // }
-                // s = concatenate_artist_names(an);
             }
         }
         if (s != "") {
@@ -125,6 +129,26 @@ var infobar = function() {
         }
     }
 
+    function splitLongLine(lines, tosplit) {
+        var middle = Math.floor(lines[tosplit].text.length / 2);
+        var before = lines[tosplit].text.lastIndexOf(', ', middle);
+        var after = lines[tosplit].text.indexOf(', ', middle + 1);
+
+        if (before == -1 || (after != -1 && middle - before >= after - middle)) {
+            middle = after;
+        } else {
+            middle = before;
+        }
+        var retval = lines[tosplit].text.substr(middle + 1);
+        var spliggo = lines[tosplit].text.substr(0, middle)+",";
+        if (spliggo.length < 6 || retval.length > spliggo.length*1.5) {
+            return null;
+        } else {
+            lines[tosplit].text = spliggo;
+            return retval;
+        }
+    }
+
     return {
         NOTIFY: 0,
         ERROR: 1,
@@ -146,6 +170,7 @@ var infobar = function() {
             var maxlines =  (npinfo.artist && npinfo.album && npinfo.title) ? 3 : 2;
             var parent = $("#nptext").parent();
             var maxheight = parent.height();
+            var splittext = null;
             if (!npinfo.title  && !npinfo.artist && parent.attr("id") == "nowplaying") {
                 maxheight = $("#patrickmoore").height() - 8;
             }
@@ -175,6 +200,9 @@ var infobar = function() {
             } else {
                 lines[1].text = frequentLabels.by+" "+npinfo.artist;
                 lines[2].text = frequentLabels.on+" "+npinfo.album;
+                if (lines[1].text.length >= lines[2].text.length*2) {
+                    splittext = splitLongLine(lines,1);
+                }
             }
 
             if (lines[1].text == " " && numlines == 2) {
@@ -195,7 +223,15 @@ var infobar = function() {
                     // The 0.6666 comes in because the font height is 2/3rds of the line height,
                     // or to put it another way the line height is 1.5x the font height
                     lines[i].height = Math.round((maxheight/100)*lines[i].weight*0.6666);
-                    lines[i].width = getWidth(lines[i].text, lines[i].height);
+                    if (i == 0 || numlines == 2 || splittext == null) {
+                        lines[i].width = getWidth(lines[i].text, lines[i].height);
+                    } else {
+                        if (i == 1) {
+                            lines[i].width = getWidth(lines[i].text, lines[i].height);
+                        } else {
+                            lines[i].width = getWidth(splittext+" "+lines[2].text, lines[i].height);
+                        }
+                    }
                     totalheight += Math.round(lines[i].height*1.5);
                 }
             }
@@ -220,7 +256,7 @@ var infobar = function() {
                 }
             }
 
-            // Min line neight is 7 pixels. This isn't completely safe but tests show it always seems to fit
+            // Min line neight is 7 pixels. This isn't completely safe but it'll just run off the edge if it's too long
             totalheight = 0;
             for (var i in lines) {
                 if (lines[i].height < 7) {
@@ -240,8 +276,15 @@ var infobar = function() {
                     lines[1].text = '<i>'+npinfo.stream+'</i>';
                 }
             } else {
-                lines[1].text = '<i>'+frequentLabels.by+"</i> <b>"+npinfo.artist+'</b>';
-                lines[2].text = '<i>'+frequentLabels.on+"</i> <b>"+npinfo.album+'</b>';
+                if (splittext) {
+                    var n = [{text: npinfo.artist}];
+                    splittext = splitLongLine(n,0);
+                    lines[1].text = '<i>'+frequentLabels.by+"</i> <b>"+n[0].text+'</b>';
+                    lines[2].text = '<b>'+splittext+'</b> <i>'+frequentLabels.on+"</i> <b>"+npinfo.album+'</b>';
+                } else {
+                    lines[1].text = '<i>'+frequentLabels.by+"</i> <b>"+npinfo.artist+'</b>';
+                    lines[2].text = '<i>'+frequentLabels.on+"</i> <b>"+npinfo.album+'</b>';
+                }
             }
 
             var html = "";

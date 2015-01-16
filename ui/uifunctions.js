@@ -104,6 +104,7 @@ function togglePref(event) {
                 callback = forceCollectionReload;
             }
             break;
+
     }
     prefs.save(prefobj, callback);
 }
@@ -801,14 +802,6 @@ function preventDefault(ev) {
     return false;
 }
 
-function playlistScrolled(el) {
-    if (el.attr("id") == "pscroller") {
-        playlistScrollOffset = -mcs.top;
-    } else if (el.attr("id") == "sources") {
-        albumScrollOffset = -mcs.top;
-    }
-}
-
 function removeTrackFromDb(element) {
     var trackDiv = element.parent();
     if (!trackDiv.hasClass('clicktrack')) {
@@ -932,11 +925,11 @@ var tagAdder = function() {
             index = idx;
             var position = getPosition(evt);
             layoutProcessor.setTagAdderPosition(position);
-            $("#tagadder").slideToggle('fast');
+            $("#tagadder").fadeIn('fast');
         },
 
         close: function() {
-            $("#tagadder").slideToggle('fast');
+            $("#tagadder").fadeOut('fast');
         },
 
         add: function(toadd) {

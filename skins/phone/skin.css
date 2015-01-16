@@ -55,7 +55,7 @@ h2
     z-index:102;
     position:absolute;
     display: none;
-    width:4em;
+    width:3em;
 }
 
 .mainpane
@@ -521,7 +521,6 @@ h2
 .progressbar_v
 {
     height:100%;
-    border:1px solid #414141;
     width:2em;
     margin-right:auto;
     margin-left:auto;

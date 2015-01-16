@@ -4,8 +4,9 @@ function toggleSearch() {
         ihatefirefox();
         return false;
     }
+    var albumScrollOffset = $("#sources .mCSB_container").position().top;
     if ($("#albumlist").is(':visible')) {
-        if (albumScrollOffset < 20) {
+        if (albumScrollOffset > -90) {
             $("#search").slideToggle({duration: 'fast', start: setSearchLabelWidth});
         } else {
             $("#search").slideDown({duration: 'fast', start: setSearchLabelWidth});
@@ -14,7 +15,6 @@ function toggleSearch() {
         layoutProcessor.sourceControl("albumlist", grrAnnoyed);
     }
     $('#sources').mCustomScrollbar("scrollTo", 0, {scrollInertia:200});
-    albumScrollOffset = 0;
     ihatefirefox();
     return false;
 }
@@ -31,7 +31,7 @@ function doSomethingClever() {
         }
     } else {
         if ($("#search").is(':visible')) {
-            $('#sources').mCustomScrollbar("scrollTo", '#fothergill', {scrollInertia:200});
+            $('#sources').mCustomScrollbar("scrollTo", $('#fothergill').prev().position().top, {scrollInertia:200});
         }
     }
 }
@@ -199,15 +199,12 @@ function prDragStop(event, ui) {
 
 function addCustomScrollBar(value) {
     $(value).mCustomScrollbar({
-        theme: (prefs.theme == "Light.css" || prefs.theme == "BrushedAluminium.css" || prefs.theme == "Aqua.css") ? "dark-thick" : "light-thick",
+        theme: "light-thick",
         scrollInertia: 80,
         contentTouchScroll: true,
         advanced: {
             updateOnContentResize: true,
             autoScrollOnFocus: false
-        },
-        callbacks: {
-            whileScrolling: function(){ playlistScrolled(this); }
         }
     });
 }

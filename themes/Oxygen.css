@@ -435,3 +435,13 @@ tr.clickaddtrack:hover
 {
     border-top:1px solid #000000;
 }
+
+.mCSB_draggerRail
+{
+    background:rgba(0,0,0,0.1) !important;
+}
+
+.mCSB_dragger_bar
+{
+    background:rgba(0,0,0,0.75) !important;
+}

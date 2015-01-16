@@ -168,6 +168,4 @@ var last_selected_element = null;
 var textSaveTimer = null;
 var scrobwrangler = null;
 var serverTimeOffset = 0;
-var playlistScrollOffset = 0;
-var albumScrollOffset = 0;
 </script>

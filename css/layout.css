@@ -1514,6 +1514,30 @@ div.lyrics p
     background-color:#000000 !important;
 }
 
+.drop-box .mCSB_draggerRail
+{
+    background:rgba(0,0,0,0.1) !important;
+}
+
+.drop-box .mCSB_dragger_bar
+{
+    background:rgba(0,0,0,0.75) !important;
+}
+
+.drop-box .backhi
+{
+    transition: all 0s !important;
+}
+
+.drop-box .backhi:hover
+{
+    transition: all 0s !important;
+}
+
+.combobox-entry
+{
+    cursor: pointer;
+}
 
 #tagdoer
 {

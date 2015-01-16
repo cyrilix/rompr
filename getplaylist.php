@@ -116,50 +116,7 @@ function outputPlaylist() {
         if (count($info['metadata']['artists']) == 0) {
             array_push($info['metadata']['artists'], array( "name" => "", "musicbrainz_id" => ""));
         }
-
-
-        // if ($prefs['displaycomposer'] &&
-        //     ($track->composer !== null || $track->performers !== null) &&
-        //     (
-        //         ($prefs['composergenre'] && $track->genre && strtolower($track->genre) == strtolower($prefs['composergenrename'])) ||
-        //         !$prefs['composergenre'])
-        //     ) {
-        //     $c = getArray($track->composer);
-        //     foreach ($c as $comp) {
-        //         array_push($info['metadata']['artists'], array( "name" => $comp, "musicbrainz_id" => ""));
-        //     }
-        //     $c = getArray($track->performers);
-        //     foreach ($c as $comp) {
-        //         array_push($info['metadata']['artists'], array( "name" => $comp, "musicbrainz_id" => ""));
-        //     }
-        //     $info['metadata']['iscomposer'] = 'true';
-        // } else {
-        //     $doalbumartist = ($track->type == "stream" && $track->albumobject->artist == "Radio") ? false : true;
-        //     $c = getArray($track->artist);
-        //     $m = getArray($track->musicbrainz_artistid);
-        //     while (count($m) < count($c)) {
-        //         array_push($m, "");
-        //     }
-        //     foreach ($c as $i => $comp) {
-        //         if (($track->type != "stream" && $comp != "") || ($track->type == "stream" && $comp != $track->album && $comp != "")) {
-        //             if (preg_match('/'.preg_quote($track->albumobject->artist).'/', $comp)) {
-        //                 $doalbumartist = false;
-        //                 array_unshift($info['metadata']['artists'], array( "name" => $comp, "musicbrainz_id" => $m[$i]));
-        //             } else {
-        //                 array_push($info['metadata']['artists'], array( "name" => $comp, "musicbrainz_id" => $m[$i]));
-        //             }
-        //         }
-        //     }
-        //     if ($doalbumartist && strtolower($track->albumobject->artist) != "various artists" && strtolower($track->albumobject->artist) != "various") {
-        //         array_push($info['metadata']['artists'], array( "name" => $track->albumobject->artist, "musicbrainz_id" => unwanted_array($track->musicbrainz_albumartistid)));
-        //     }
-        //     if (count($info['metadata']['artists']) == 0) {
-        //         array_push($info['metadata']['artists'], array( "name" => "", "musicbrainz_id" => ""));
-        //     }
-        // }
-
         array_push($output, $info);
-
     }
     $o = json_encode($output);
     print $o;
@@ -181,8 +138,9 @@ function artist_not_found_yet($a) {
 function do_composers(&$track, &$info) {
     $c = getArray($track->composer);
     foreach ($c as $comp) {
+
         if (artist_not_found_yet($comp)) {
-            array_push($info['metadata']['artists'], array( "name" => $comp, "musicbrainz_id" => "", "type" => "composer"));
+            array_push($info['metadata']['artists'], array( "name" => $comp, "musicbrainz_id" => "", "type" => "composer", "ignore" => "false"));
         }
     }
 }
@@ -190,8 +148,24 @@ function do_composers(&$track, &$info) {
 function do_performers(&$track, &$info) {
     $c = getArray($track->performers);
     foreach ($c as $comp) {
-        if (artist_not_found_yet($comp)) {
-            array_push($info['metadata']['artists'], array( "name" => $comp, "musicbrainz_id" => "", "type" => "performer"));
+        // When doing composer and performers these are often duplicates of album artists or track artists
+        // in that case we'd rather display the performer (and we don't want to display both) because the 'Performer' tag
+        // often includes details like 'Cannonball Adderley (Saxophone)';
+        $toremove = null;
+        foreach($info['metadata']['artists'] as $i => $artist) {
+            if ($artist['type'] == "albumartist" || $artist['type'] == "artist") {
+                if (preg_match('/^'.preg_quote($artist['name']).'/i', $comp)) {
+                    $toremove = $i;
+                    break;
+                }
+            }
+        }
+        if ($toremove !== null) {
+            array_splice($info['metadata']['artists'], $toremove, 1);
+        }
+
+        if ($toremove !== null || artist_not_found_yet($comp)) {
+            array_push($info['metadata']['artists'], array( "name" => $comp, "musicbrainz_id" => "", "type" => "performer", "ignore" => "false"));
         }
     }
 }
@@ -205,7 +179,7 @@ function do_albumartist(&$track, &$info) {
         $albumartist = $track->albumobject->artist;
     }
     if ($albumartist !== null && artist_not_found_yet($albumartist)) {
-        array_push($info['metadata']['artists'], array( "name" => $albumartist, "musicbrainz_id" => unwanted_array($track->musicbrainz_albumartistid), "type" => "albumartist"));
+        array_push($info['metadata']['artists'], array( "name" => $albumartist, "musicbrainz_id" => unwanted_array($track->musicbrainz_albumartistid), "type" => "albumartist", "ignore" => "false"));
     }
 }
 
@@ -218,7 +192,7 @@ function do_track_artists(&$track, &$info) {
     foreach ($c as $i => $comp) {
         if (($track->type != "stream" && $comp != "") || ($track->type == "stream" && $comp != $track->album && $comp != "")) {
             if (artist_not_found_yet($comp)) {
-                array_push($info['metadata']['artists'], array( "name" => $comp, "musicbrainz_id" => $m[$i], "type" => "artist"));
+                array_push($info['metadata']['artists'], array( "name" => $comp, "musicbrainz_id" => $m[$i], "type" => "artist", "ignore" => "false"));
             }
         }
     }
