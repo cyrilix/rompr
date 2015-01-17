@@ -66,7 +66,7 @@ var infobar = function() {
                         joinstring = " : ";
                     }
                     if (i == info.metadata.artists.length - 1) {
-                        joinstring = " & ";
+                        joinstring = (info.metadata.artists.length == 2 && prevtype == "artist" && info.metadata.artists[i].type == "albumartist") ? " / " : " & ";
                     }
                     if (i == 0) {
                         joinstring = "";
@@ -78,7 +78,8 @@ var infobar = function() {
                             afterstring = " ("+language.gettext('label_composer')+")";
                         } else {
                             joinstring = " : "
-                            afterstring = " ("+language.gettext('label_composer')+")";                        }
+                            afterstring = " ("+language.gettext('label_composer')+")";
+                        }
                     }
                     s = s + joinstring + info.metadata.artists[i].name + afterstring;
                     prevtype = info.metadata.artists[i].type;

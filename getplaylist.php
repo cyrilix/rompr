@@ -148,7 +148,7 @@ function do_composers(&$track, &$info) {
 function do_performers(&$track, &$info) {
     $c = getArray($track->performers);
     foreach ($c as $comp) {
-        // When doing composer and performers these are often duplicates of album artists or track artists
+        // When doing performers these are often duplicates of album artists or track artists
         // in that case we'd rather display the performer (and we don't want to display both) because the 'Performer' tag
         // often includes details like 'Cannonball Adderley (Saxophone)';
         $toremove = null;
