@@ -21,6 +21,7 @@ function playerController() {
     var firstconnection = true;
     var connecttimer = null;
     var addingTracks = false;
+    var dead = false;
 
     function mopidyStateChange(data) {
         debug.shout("PLAYER","Mopidy State Change",data);
@@ -337,6 +338,10 @@ function playerController() {
         infobar.removenotify();
         checkMopidyVersion();
         isReady = true;
+        if (dead) {
+            dead = false;
+            $("#artistinformation").html('<h2 align="center">'+language.gettext('label_emptyinfo')+'</h2>');
+        }
     	mopidy.playback.getCurrentTlTrack().then( function(data) {
     		debug.log("PLAYER","Current tl_track is",data);
     		if (data) {
@@ -423,6 +428,7 @@ function playerController() {
 	}
 
     this.connectFailed = function(flag) {
+        dead = true;
         var msg = 'Could not connect to mopidy at '+prefs.mopidy_http_address+":"+prefs.mopidy_http_port;
         if (flag) {
             msg += ' (API not found)';
