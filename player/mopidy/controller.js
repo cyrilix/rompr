@@ -403,7 +403,7 @@ function playerController() {
     this.initialise = function() {
         debug.shout("PLAYER","Connecting to Mopidy HTTP frontend");
         debug.log("PLAYER","ws://"+prefs.mopidy_http_address+":"+prefs.mopidy_http_port+"/mopidy/ws/");
-        connecttimer = setTimeout(self.connectFailed,5000);
+        connecttimer = setTimeout(self.connectFailed,10000);
         // Just checking here to see - mopidy may not actually be accessible
         if (typeof(Mopidy) != "undefined") {
             mopidy = new Mopidy({
@@ -415,15 +415,19 @@ function playerController() {
             mopidy.on("state:offline", disconnected);
             mopidy.connect();
             // For testing and debugging purposes, player.controller.mop is a direct link to mopidy.js
-            self.mop = mopidy;
+            // self.mop = mopidy;
         } else {
             clearTimeout(connecttimer);
-            self.connectFailed();
+            self.connectFailed(true);
         }
 	}
 
-    this.connectFailed = function() {
-        $("#artistinformation").html('<h2 align="center">Could not connect to mopidy at '+prefs.mopidy_http_address+":"+prefs.mopidy_http_port+'</h2>');
+    this.connectFailed = function(flag) {
+        var msg = 'Could not connect to mopidy at '+prefs.mopidy_http_address+":"+prefs.mopidy_http_port;
+        if (flag) {
+            msg += ' (API not found)';
+        }
+        $("#artistinformation").html('<h2 align="center">'+msg+'</h2>');
         infobar.notify(infobar.PERMERROR,
             language.gettext("mopidy_down")+'<br><a href="#" onclick="player.controller.reConnect()">Click To Reconnect</a>');
     }
