@@ -465,14 +465,14 @@ function joinartists($artists, $key) {
     $art = array();
     foreach($artists as $a) {
         if (property_exists($a, $key)) {
-            if (preg_match('/ & /', $a->{$key}) || preg_match('/ and /i', $a->{$key})) {
-                // This might be a problem in Mopidy BUT Spotify tracks are coming back with eg
-                // artist[0] = King Tubby, artist[1] = Johnny Clarke, artist[2] = King Tubby & Johnny Clarke
-                $art = array( $a->{$key} );
-                break;
-            } else {
+            // if (preg_match('/ & /', $a->{$key}) || preg_match('/ and /i', $a->{$key})) {
+            //     // This might be a problem in Mopidy BUT Spotify tracks are coming back with eg
+            //     // artist[0] = King Tubby, artist[1] = Johnny Clarke, artist[2] = King Tubby & Johnny Clarke
+            //     $art = array( $a->{$key} );
+            //     break;
+            // } else {
                 array_push($art, $a->{$key});
-            }
+            // }
         } else {
             array_push($art, "");
         }

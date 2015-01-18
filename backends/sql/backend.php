@@ -810,8 +810,12 @@ function do_albums_from_database($which, $fragment = false) {
 }
 
 function get_list_of_albums($aid) {
+	global $prefs;
 	$vals = array();
-	$qstring = "SELECT * FROM Albumtable WHERE AlbumArtistindex = '".$aid."' GROUP BY ImgKey ORDER BY LOWER(Albumname)";
+
+	$qstring = "SELECT * FROM Albumtable WHERE AlbumArtistindex = '".$aid."' AND ";
+	$qstring .= "Albumindex IN (SELECT Albumindex FROM Tracktable WHERE Tracktable.Albumindex = Albumtable.Albumindex AND Tracktable.Uri IS NOT NULL AND Tracktable.Hidden = 0)";
+	$qstring .= ' ORDER BY LOWER(Albumname)';
 	if ($result = generic_sql_query($qstring)) {
 		while ($v = $result->fetch(PDO::FETCH_ASSOC)) {
 			array_push($vals, $v);

@@ -32,6 +32,7 @@ set_time_limit(240);
 <script type="text/javascript" src="ui/debug.js"></script>
 <script type="text/javascript" src="ui/coverscraper.js"></script>
 <?php
+$skin = "desktop";
 include ("includes/globals.php");
 ?>
 <script language="JavaScript">
@@ -49,7 +50,6 @@ if ($prefs['debug_enabled']) {
 }
 ?>
 
-var skin = "desktop";
 var imagekey = '';
 var imgobj = null;
 var useLocalStorage = false;
@@ -1040,12 +1040,8 @@ function do_radio_stations() {
                     $artname = md5($c." ".$track->album);
                     $class = "";
                     $src = "newimages/broadcast.svg";
-                    if ($track->image != "newimages/broadcast.svg") {
-                        $src = $track->image;
-                        if(($key = array_search($src, $allfiles)) !== false) {
-                            unset($allfiles[$key]);
-                        }
-                    } else if (file_exists("albumart/small/".$artname.".jpg")) {
+                    if ($track->image) {
+                        $src = preg_replace('/asdownloaded/', 'small', $track->image);
                         if(($key = array_search($src, $allfiles)) !== false) {
                             unset($allfiles[$key]);
                         }

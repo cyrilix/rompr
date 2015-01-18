@@ -6,6 +6,11 @@ var mixRadio = function() {
 	var tuner;
 
 	function getFaveArtists() {
+		if (populating) {
+			debug.warn("FAVE ARTIST RADIO","Asked to populate but already doing so!");
+			return false;
+		}
+		populating = true;
 		idhunting = -1;
         $.ajax({
             type: "POST",
@@ -46,21 +51,21 @@ var mixRadio = function() {
 
 	return {
 
-		populate: function(p, flag) {
+		populate: function(p, numtracks) {
 			if (!populating) {
 				debug.shout("MIX RADIO","Populating");
 				fartists = new Array();
 				tuner = new spotifyRadio();
-				tuner.sending = 10;
+				tuner.sending = numtracks;
 				tuner.running = true;
 				tuner.artistindex = 0;
-				populating = true;
 				numfartists = 0;
 				getFaveArtists();
 			} else {
 				debug.shout("MIX RADIO","RePopulating");
-				if (tuner.sending <= 0) {
-					tuner.sending = 10;
+				var a = tuner.sending;
+				tuner.sending += (numtracks - tuner.sending);
+				if (a == 0 && tuner.sending > 0) {
 					tuner.startSending();
 				}
 			}

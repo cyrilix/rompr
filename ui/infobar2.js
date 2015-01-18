@@ -62,24 +62,24 @@ var infobar = function() {
                 for (var i in info.metadata.artists) {
                     var joinstring = ", ";
                     var afterstring = "";
-                    if (info.metadata.artists[i].type == "performer" && prevtype != "performer") {
+                    if (info.metadata.artists[i].type == "performer" && prevtype != "performer" && prevtype != "composer") {
                         joinstring = " : ";
                     }
                     if (i == info.metadata.artists.length - 1) {
                         joinstring = (info.metadata.artists.length == 2 && prevtype == "artist" && info.metadata.artists[i].type == "albumartist") ? " / " : " & ";
                     }
-                    if (i == 0) {
-                        joinstring = "";
-                    }
-                    if (info.metadata.artists[i].type == "composer" &&
-                        !info.metadata.artists[i].name.match(/composer/i) &&
-                        prevtype != "composer") {
-                        if (s == "") {
-                            afterstring = " ("+language.gettext('label_composer')+")";
-                        } else {
-                            joinstring = " : "
+                    if (info.metadata.artists[i].type == "composer") {
+                        if (!info.metadata.artists[i].name.match(/composer/i)) {
                             afterstring = " ("+language.gettext('label_composer')+")";
                         }
+                        if (prevtype == "composer") {
+                            joinstring = ", "
+                        } else {
+                            joinstring = " : "
+                        }
+                    }
+                    if (i == 0) {
+                        joinstring = "";
                     }
                     s = s + joinstring + info.metadata.artists[i].name + afterstring;
                     prevtype = info.metadata.artists[i].type;
@@ -142,7 +142,7 @@ var infobar = function() {
         }
         var retval = lines[tosplit].text.substr(middle + 1);
         var spliggo = lines[tosplit].text.substr(0, middle)+",";
-        if (spliggo.length < 6 || retval.length > spliggo.length*1.5) {
+        if (spliggo.length < 6) {
             return null;
         } else {
             lines[tosplit].text = spliggo;

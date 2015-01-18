@@ -1,6 +1,11 @@
 <?php
 include("includes/vars.php");
 
+// SVN versions of this release had composergenrename as a string but it's now an arry
+if (!is_array($prefs['composergenrename'])) {
+    $prefs['composergenrename'] = array($prefs['composergenrename']);
+}
+
 debug_print("=================****==================","INIT");
 
 include("includes/functions.php");

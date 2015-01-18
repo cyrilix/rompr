@@ -170,7 +170,7 @@ class plsFile {
 			}
 			if (preg_match('/Title/', $bits[0])) {
 				$tracks[$pointer]['title'] = $bits[1];
-			}
+			} 
 		}
 		if (array_key_exists('title', $tracks[0])) {
 			$this->station = checkStationAgain($this->station, $tracks[0]['title']);
@@ -192,7 +192,7 @@ class plsFile {
 				$output = $output . xmlnode('title', "");
 				$output = $output . xmlnode('type', "stream");
 				$output = $output . xmlnode('image', $this->image);
-			    if ($this->tracks[$i]['title'] != "") {
+			    if (array_key_exists('title', $this->tracks[$i]) && $this->tracks[$i]['title'] != "") {
 					$output = $output . xmlnode('stream', $this->tracks[$i]['title']);
 				} else {
 					$output = $output . xmlnode('stream', "");

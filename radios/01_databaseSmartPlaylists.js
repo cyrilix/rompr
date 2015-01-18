@@ -4,46 +4,46 @@ var starRadios = function() {
     var populating = false;
     var selected;
 
-    function getSmartPlaylistTracks(action, playlist) {
+    function getSmartPlaylistTracks(action, playlist,numtracks) {
         if (populating) {
             debug.warn("STARRADIOS", "Asked to populate but already doing so!")
             return false;
         }
         populating = true;
+        debug.shout("STAR RADIOS", action,playlist,numtracks);
         $.ajax({
             type: "POST",
             dataType: "json",
-            data: { action: action, playlist: playlist },
+            data: { action: action, playlist: playlist, numtracks: numtracks },
             url: "backends/sql/userRatings.php",
-            success: starRadios.Go,
+            success: starRadios.gotTracks,
             fail: starRadios.Fail
         });
     }
 
 	return {
 
-		populate: function(s, flag) {
-            debug.log("STARRADIOS","Populate Called with ",s,running);
-            if (s) {
-                switch(s) {
+		populate: function(param, numtracks) {
+            debug.log("STARRADIOS","Populate Called with",param,numtracks);
+            if (param !== false) {
+                switch(param) {
                     case '1stars':
                     case '2stars':
                     case '3stars':
                     case '4stars':
                     case '5stars':
                     case 'neverplayed':
-                        selected = s;
+                        selected = param;
                         break;
 
                     default:
-                        selected = 'tag+'+s;
+                        selected = 'tag+'+param;
                         break;
                 }
 
             }
-            if (flag) running = flag;
-            debug.shout("STAR RADIOS", "Populating",selected);
-			getSmartPlaylistTracks(running ? "repopulate" : "getplaylist", selected);
+            running = true;
+			getSmartPlaylistTracks((param === false) ? "repopulate" : "getplaylist", selected, numtracks);
 		},
 
         modeHtml: function() {
@@ -59,25 +59,27 @@ var starRadios = function() {
 
         stop: function() {
             running = false;
-            populating = false;
+            selected = null;
         },
 
-        Go: function(data) {
+        gotTracks: function(data) {
+            populating = false;
             if (data.length > 0) {
                 debug.log("SMARTPLAYLIST","Got tracks",data);
-                running = true;
-                populating = false;
-                player.controller.addTracks(data, playlist.playFromEnd(), null);
+                if (running) player.controller.addTracks(data, playlist.playFromEnd(), null);
             } else {
                 debug.warn("SMARTPLAYLIST","Got NO tracks",data);
                 infobar.notify(infobar.NOTIFY,language.gettext('label_gotnotracks'));
                 playlist.radioManager.stop();
+                running = false;
             }
         },
 
         Fail: function() {
             infobar.notify(infobar.NOTIFY,language.gettext('label_gotnotracks'));
             playlist.radioManager.stop();
+            populating = false;
+            running = false;
         },
 
         tagPopulate: function(tags) {

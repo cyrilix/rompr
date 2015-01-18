@@ -322,10 +322,6 @@ var browser = function() {
             }
         },
 
-        setPluginIcon: function(source, icon) {
-            sources[source].icon = icon;
-        },
-
         // This function is for links which are followed internally by one of the panels
         // eg wikipedia
         speciaUpdate: function(source, panel, data) {

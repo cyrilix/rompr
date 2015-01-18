@@ -93,7 +93,7 @@ foreach($x->CountryEntry as $i => $c) {
 }
 print '</select></div></div>';
 
-// Local Music Options
+// Collection Options
 print '<div class="textcentre ucfirst configtitle"><b>'.get_int_text('button_local_music').'</b></div>';
 print '<div class="pref">
 <input class="autoset toggle" type="checkbox" id="updateeverytime">'.get_int_text('config_updateonstart').'</input>
@@ -115,7 +115,7 @@ print '<div class="pref indent">
 <input class="autoset toggle" type="checkbox" id="composergenre">'.get_int_text('config_composergenre').'</input>
 </div>';
 print '<div class="pref indent">
-<input class="saveotron prefinput" id="composergenrename" type="text" size="40" />
+<input class="saveotron prefinput arraypref" id="composergenrename" type="text" size="40" />
 </div>';
 print '<div class="pref textcentre">
 <button id="donkeykong" onclick="checkCollection(true, false)">'.get_int_text('config_updatenow').'</button>

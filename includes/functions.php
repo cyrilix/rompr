@@ -815,4 +815,14 @@ function audioClass($filetype) {
 
 }
 
+function checkComposerGenre($genre, $pref) {
+    $gl = strtolower($genre);
+    foreach ($pref as $g) {
+        if ($gl == strtolower($g)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 ?>

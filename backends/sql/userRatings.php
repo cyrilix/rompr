@@ -54,11 +54,11 @@ switch ($_POST['action']) {
 
 	case 'getplaylist':
 		preparePlaylist();
-		doPlaylist($_POST['playlist']);
+		if ($_POST['numtracks'] > 0) doPlaylist($_POST['playlist'], $_POST['numtracks']);
 		break;
 
 	case 'repopulate':
-		doPlaylist($_POST['playlist']);
+		doPlaylist($_POST['playlist'], $_POST['numtracks']);
 		break;
 
 	case 'taglist':
@@ -386,7 +386,7 @@ function preparePlaylist() {
 	generic_sql_query("CREATE TABLE pltable(TTindex INT UNSIGNED NOT NULL UNIQUE)");
 }
 
-function doPlaylist($playlist, $limit = 10) {
+function doPlaylist($playlist, $limit) {
 	debug_print("Loading Playlist ".$playlist,"RATINGS");
 	$sqlstring = "";
 	$tags = null;

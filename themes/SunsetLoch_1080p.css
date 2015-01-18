@@ -5,7 +5,7 @@ body
     background-repeat:no-repeat;
 }
 
-#sources
+#sources, #artistcoverslist
 {
     background-color:rgba(0,0,0,0.4);
 }

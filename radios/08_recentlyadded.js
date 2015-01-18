@@ -3,6 +3,7 @@ var recentlyaddedtracks = function() {
 	var running = false;
 	var populating = false;
 	var tracks = new Array();
+    var tracksneeded = 0;
 	var mode;
 
 	function getTracks() {
@@ -30,6 +31,7 @@ var recentlyaddedtracks = function() {
             fail: function() {
                 infobar.notify(infobar.NOTIFY,language.gettext('label_gotnotracks'));
                 playlist.radioManager.stop();
+                populating = false;
             }
         });
 
@@ -38,10 +40,9 @@ var recentlyaddedtracks = function() {
 	function addTracks() {
 		if (running) {
 			var t = new Array();
-			var c = 10;
-			while (c > 0 && tracks.length > 0) {
+			while (tracksneeded > 0 && tracks.length > 0) {
 				t.push({type: 'uri', name: tracks.shift()});
-				c--;
+				tracksneeded--;
 			}
 			if (t.length > 0) {
 				player.controller.addTracks(t, playlist.playFromEnd(), null);
@@ -53,13 +54,13 @@ var recentlyaddedtracks = function() {
 
 	return {
 
-		populate: function(s, flag) {
-			if (s && s != mode) {
-				mode = s;
+		populate: function(param, numtracks) {
+			if (param && param != mode) {
+				mode = param;
 				tracks = new Array();
 			}
-			if (flag) running = flag;
-			debug.shout("RECENTLY ADDED", "Populating");
+            tracksneeded += (numtracks - tracksneeded);
+			debug.shout("RECENTLY ADDED", "Populating",param,numtracks);
 			if (tracks.length == 0) {
 				getTracks();
 			} else {
@@ -73,7 +74,6 @@ var recentlyaddedtracks = function() {
 
         stop: function() {
             running = false;
-            opulating = false;
             tracks = new Array();
         },
 

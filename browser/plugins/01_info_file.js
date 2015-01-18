@@ -13,6 +13,9 @@ var info_file = function() {
             if (n) {
                 filetype = n[n.length-1];
                 filetype = filetype.toLowerCase();
+                if (filetype.match(/\/|\?|\=/)) {
+                    filetype = "";
+                }
             }
         }
         if (file == "null") file = "";
@@ -56,7 +59,6 @@ var info_file = function() {
             html = html + '<tr><td class="fil">'+language.gettext("info_composers")+'</td><td>'+joinartists(info.Composer)+'</td></tr>';
         }
         if (info.Comment) html = html + '<tr><td class="fil">'+language.gettext("info_comment")+'</td><td>'+info.Comment+'</td></tr>';
-        browser.setPluginIcon(me, audioClass(filetype));
         return html;
     }
 
@@ -85,7 +87,6 @@ var info_file = function() {
         });
         if (data.composer) html = html + '<tr><td class="fil">'+language.gettext("info_composers")+'</td><td>'+data.composer+'</td></tr>';
         if (data.comments) html = html + '<tr><td class="fil">'+language.gettext("info_comment")+'</td><td>'+data.comments+'</td></tr>';
-        browser.setPluginIcon(me, audioClass(data.format));
         return html;
     }
 

@@ -5,12 +5,12 @@ var singleArtistRadio = function() {
 
 	return {
 
-		populate: function(p, flag) {
+		populate: function(p, numtracks) {
 			if (p && p != artist) {
 				debug.shout("ARTIST RADIO","Populating",p);
 				artist = p;
 				tuner = new searchRadio();
-				tuner.sending = 10;
+				tuner.sending = numtracks;
 				tuner.running = true;
 				tuner.artistindex = 0;
 				tuner.newArtist(artist);
@@ -18,10 +18,12 @@ var singleArtistRadio = function() {
 				setTimeout(tuner.startSending, 10000);
 			} else {
 				debug.log("FAVE ARTIST RADIO","RePopulating");
-				if (tuner.sending <= 0) {
-					tuner.sending = 10;
+				var a = tuner.sending;
+				tuner.sending += (numtracks - tuner.sending);
+				if (a == 0 && tuner.sending > 0) {
 					tuner.startSending();
 				}
+				tuner.running = true;
 			}
 		},
 

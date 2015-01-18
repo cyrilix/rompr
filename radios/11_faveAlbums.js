@@ -3,6 +3,7 @@ var faveAlbums = function() {
     var running = false;
     var populating = false;
     var tracks = new Array();
+    var tracksneeded = 0;
 
     function getTracks() {
         if (populating) {
@@ -29,6 +30,7 @@ var faveAlbums = function() {
             fail: function() {
                 infobar.notify(infobar.NOTIFY,language.gettext('label_gotnotracks'));
                 playlist.radioManager.stop();
+                populating = false;
             }
         });
 
@@ -37,10 +39,9 @@ var faveAlbums = function() {
     function addTracks() {
         if (running) {
             var t = new Array();
-            var c = 10;
-            while (c > 0 && tracks.length > 0) {
+            while (tracksneeded > 0 && tracks.length > 0) {
                 t.push({type: 'uri', name: tracks.shift()});
-                c--;
+                tracksneeded--;
             }
             if (t.length > 0) {
                 player.controller.addTracks(t, playlist.playFromEnd(), null);
@@ -52,8 +53,8 @@ var faveAlbums = function() {
 
 	return {
 
-		populate: function(s, flag) {
-            if (flag) running = flag;
+		populate: function(s, numtracks) {
+            tracksneeded += (numtracks - tracksneeded);
             debug.shout("FAVEALBUMS", "Populating");
             if (tracks.length == 0) {
                 getTracks();
@@ -68,7 +69,6 @@ var faveAlbums = function() {
 
         stop: function() {
             running = false;
-            populating = false;
             tracks = new Array();
         },
 

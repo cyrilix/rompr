@@ -1,11 +1,18 @@
 var genreRadio = function() {
 
+	var populating = false;
 	var running = false;
 	var genre;
 	var tracks;
 	var tuner;
+	var tracksneeded = 0;
 
 	function searchForTracks(genre) {
+		if (populating) {
+			debug.warn("GENRE RADIO","Asked to populate but already doing so!");
+			return false;
+		}
+		populating = true;
 		var domains = new Array();
 		// Am finding some mopidy backends don't support search by genre
 		// and actually return an error instead of failing gracefully
@@ -19,20 +26,22 @@ var genreRadio = function() {
 		player.controller.rawsearch({genre: [genre]}, domains, genreRadio.checkResults);
 	}
 
-	function sendTracks(num) {
+	function sendTracks() {
 		if (running) {
-			if (tuner && tracks.length > 0 && Math.random < 0.3) {
+			if (tracks.length == 0 || (tuner && Math.random() < 0.4)) {
 				// prioritise sending of tracks returned by search rather tham
 				// tracks found by spotify radio, as search will include other sources
-				if (tuner.sending <= 0) {
-					tuner.sending = 10;
-					tuner.startSending;
+				if (tuner && tuner.sending <= 0) {
+					debug.shout("GENRE RADIO","Asking Spotify Tuner To Send",tracksneeded,"Tracks");
+					tuner.sending = tracksneeded;
+					tuner.startSending();
+					tracksneeded = 0;
 				}
 			} else {
 				var ta = new Array();
-				while (tracks.length > 0 && num > 0) {
+				while (tracks.length > 0 &&  tracksneeded > 0) {
 					ta.push(tracks.shift());
-					num--;
+					tracksneeded--;
 				}
 				if (ta.length > 0) {
 					player.controller.addTracks(ta, playlist.playFromEnd(), null);
@@ -43,7 +52,7 @@ var genreRadio = function() {
 
 	return {
 
-		populate: function(g,f) {
+		populate: function(g,numtracks) {
 			if (g) {
 				debug.log("GENRE RADIO","Populating Genre",g);
 				running = true;
@@ -51,16 +60,17 @@ var genreRadio = function() {
 				genre = g;
 				searchForTracks(g);
 				tuner = null;
+				tracksneeded = numtracks;
 			} else {
 				debug.log("GENRE RADIO","Repopulating");
-				if (tuner === null || (tuner && tuner.sending <= 0)) {
-					sendTracks(10);
-				}
+				tracksneeded += (numtracks - tracksneeded);
+				sendTracks();
 			}
 		},
 
 		checkResults: function(data) {
 			debug.log("GENRE RADIO","Search Results",data);
+			running = true;
 			for (var i in data) {
 				if (data[i].tracks) {
 					for (var k = 0; k < data[i].tracks.length; k++) {
@@ -83,7 +93,7 @@ var genreRadio = function() {
 				return;
 			}
 			tracks.sort(randomsort);
-			sendTracks(10);
+			sendTracks();
 		},
 
 		fail: function() {
@@ -93,11 +103,11 @@ var genreRadio = function() {
 		},
 
 		stop: function() {
-			running = false;
 			if (tuner) {
 				tuner.sending = 0;
 				tuner.running = false;
 			}
+			populating = false;
 		},
 
 		modeHtml: function() {

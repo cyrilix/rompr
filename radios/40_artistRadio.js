@@ -14,11 +14,11 @@ var artistRadio = function() {
 
 	return {
 
-		populate: function(artist, flag) {
+		populate: function(artist, numtracks) {
 			if (artist) {
 				debug.shout("ARTIST RADIO","Populating with",artist);
 				tuner = new spotifyRadio();
-				tuner.sending = 10;
+				tuner.sending = numtracks;
 				tuner.running = true;
 				tuner.artistindex = 0;
 				if (artist.substr(0,15) == "spotify:artist:") {
@@ -30,8 +30,9 @@ var artistRadio = function() {
 				}
 			} else {
 				debug.log("ARTIST RADIO", "Repopulating");
-				if (tuner.sending <= 0) {
-					tuner.sending = 10;
+				var a = tuner.sending;
+				tuner.sending += (numtracks - tuner.sending);
+				if (a == 0 && tuner.sending > 0) {
 					tuner.startSending();
 				}
 			}

@@ -85,7 +85,7 @@ function outputPlaylist() {
             // bi) Specific Genre Selected, Track Has Genre, Genre Matches Specific Genre OR
             // bii) No Specific Genre Selected, Track Has Genre
             if (($track->composer !== null || $track->performers !== null) &&
-                (($prefs['composergenre'] && $track->genre && strtolower($track->genre) == strtolower($prefs['composergenrename'])) ||
+                (($prefs['composergenre'] && $track->genre && checkComposerGenre($track->genre, $prefs['composergenrename'])) ||
                 (!$prefs['composergenre'] && $track->genre)))
             {
                 // Track Genre matches selected 'Sort By Composer' Genre
@@ -101,8 +101,8 @@ function outputPlaylist() {
                 // Do Track Artist - Album Artist - Composer - Performer
                 do_track_artists($track, $info);
                 do_albumartist($track, $info);
-                do_composers($track, $info);
                 do_performers($track, $info);
+                do_composers($track, $info);
             }
             if ($track->composer !== null || $track->performers !== null) {
                 $info['metadata']['iscomposer'] = 'true';
@@ -138,7 +138,6 @@ function artist_not_found_yet($a) {
 function do_composers(&$track, &$info) {
     $c = getArray($track->composer);
     foreach ($c as $comp) {
-
         if (artist_not_found_yet($comp)) {
             array_push($info['metadata']['artists'], array( "name" => $comp, "musicbrainz_id" => "", "type" => "composer", "ignore" => "false"));
         }

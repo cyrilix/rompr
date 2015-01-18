@@ -362,11 +362,7 @@ function Playlist() {
             if (self.currentTrack) {
                 currentalbum = i;
                 scrollToCurrentTrack();
-                // finaltrack-1 prevents radios that add tracks slowly from trying to do multiple simultaneous
-                // populates.
-                if (self.currentTrack.playlistpos == finaltrack-1) {
-                    playlist.radioManager.repopulate();
-                }
+                playlist.radioManager.repopulate();
                 break;
             }
         }
@@ -502,6 +498,9 @@ function Playlist() {
         var oldconsume = null;
         var oldbuttonstate = null;
         var inited = false;
+        var chunksize = 10;
+        var rptimer = null;
+        var firstcheck = true;
 
         return {
 
@@ -516,11 +515,6 @@ function Playlist() {
                         for(var i in radios) {
                             debug.log("RADIO MANAGER","Activating Plugin",i);
                             radios[i].setup();
-                            if (prefs.radiomode == i) {
-                                debug.mark("RADIOMANAGER","Found saved radio playlist state",prefs.radiomode, prefs.radioparam);
-                                radios[i].populate(prefs.radioparam, true);
-                                mode = prefs.radiomode;
-                            }
                         }
                     }
                     inited = true;
@@ -528,13 +522,17 @@ function Playlist() {
             },
 
             load: function(which, param) {
-                debug.log("PLAYLIST","Loading Smart",which);
+                debug.mark("RADIO MANAGER","Loading Smart",which,param);
+                if (mode == which && (!param || param == prefs.radioparam)) {
+                    debug.log("RADIO MANAGER", " .. that radio is already playing");
+                    return false;
+                }
                 playlist.waiting();
                 if ((mode && mode != which) || (mode && param && param != prefs.radioparam)) {
                     radios[mode].stop();
                 }
                 mode = which;
-                radios[which].populate(param, false);
+                radios[which].populate(param, chunksize);
                 prefs.save({radiomode: which, radioparam: param});
                 layoutProcessor.playlistLoading();
                 if (player.status.consume == 0 && prefs.consumeradio) {
@@ -548,17 +546,34 @@ function Playlist() {
             },
 
             repopulate: function() {
-                if (mode) {
-                    radios[mode].populate();
+                clearTimeout(rptimer);
+                if (mode == null && prefs.radiomode && radios[prefs.radiomode]) {
+                    debug.mark("RADIOMANAGER","Found saved radio playlist state",prefs.radiomode, prefs.radioparam);
+                    // Do this with a setTimeout to avoid the situation where the playlist hasn't yet loaded
+                    if (firstcheck && player.status.state != "play") {
+                        infobar.playbutton.clicked();
+                    }
+                    playlist.radioManager.load(prefs.radiomode, prefs.radioparam);
+                } else {
+                    rptimer = setTimeout(playlist.radioManager.actuallyRepopulate, 2000);
+                }
+                firstcheck = false;
+            },
+
+            actuallyRepopulate: function() {
+                var fromend = playlist.getfinaltrack()+1 - playlist.currentTrack.playlistpos;
+                debug.log("RADIO MANAGER","Repopulate Check : ",playlist.getfinaltrack(),playlist.currentTrack.playlistpos,fromend,chunksize,mode)
+                if (fromend < chunksize && mode) {
+                    radios[mode].populate(false, chunksize - fromend);
                 }
             },
 
             stop: function() {
                 if (mode) {
                     radios[mode].stop();
-                    playlist.repopulate();
-                    mode = null;
                     prefs.save({radiomode: '', radioparam: ''});
+                    mode = null;
+                    playlist.repopulate();
                     if (prefs.consumeradio) {
                         if (oldconsume != player.status.consume) {
                             player.controller.toggleConsume();

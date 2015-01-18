@@ -107,7 +107,7 @@ class album {
         // the database in that case.
         $image = "";
         $artname = $this->getKey();
-        if ($this->image) {
+        if ($this->image && $this->image !== "") {
             $image = $this->image;
         }
 
@@ -407,7 +407,7 @@ class musicCollection {
         }
 
         if ($prefs['sortbycomposer'] && $composer !== null) {
-            if ($prefs['composergenre'] && $genre && strtolower($genre) == strtolower($prefs['composergenrename'])) {
+            if ($prefs['composergenre'] && $genre && checkComposerGenre($genre, $prefs['composergenrename'])) {
                 $sortartist = $composer;
             } else if (!$prefs['composergenre']) {
                 $sortartist = $composer;

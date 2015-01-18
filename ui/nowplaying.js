@@ -15,6 +15,9 @@ function trackDataCollection(currenttrack, nowplayingindex, artistindex, playlis
 		if (collections['soundcloud'] !== undefined) {
 			collections['soundcloud'].progressUpdate(percent);
 		}
+		// if (collections['lyrics'] !== undefined) {
+		// 	collections['lyrics'].progressUpdate(percent);
+		// }
 	}
 
 	function startSource(source) {

@@ -76,36 +76,31 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
 
         name = formObjects.shift();
 
-        if ($('[name="'+name+'"]').length == 0) {
+        if (name === null || $('[name="'+name+'"]').length == 0) {
             doNextImage(1);
             return 0;
         }
 
         debug.log("COVERSCRAPER","Getting Cover for", name);
 
-        var i = findImageInWindow(name);
-        if (i !== false) {
-            debug.log("COVERSCRAPER","Using image already in window");
-            finaliseImage(i,1);
-            return 0;
-        }
-
         if (sendUpdates) {
             var x = $('img[name="'+name+'"]').prev('input').val();
             statusobj.empty().html(language.gettext("albumart_getting")+" "+decodeURIComponent(x));
             var percent = ((numAlbums - formObjects.length)/numAlbums)*100;
             progress.setProgress(percent.toFixed(2));
+         } else {
+            var i = findImageInWindow(name);
+            if (i !== false) {
+                debug.log("COVERSCRAPER","Using image already in window");
+                finaliseImage(i,1);
+                return 0;
+            }
          }
 
         var stream = "";
         $.each($('[name="'+name+'"]'), function() {
             if (stream == "") {
                 stream = $(this).attr('romprstream') || "";
-            }
-            if ($(this).attr("src") != undefined) {
-                debug.log("COVERSCRAPER","Cover already present");
-                doNextImage(1);
-                return 0;
             }
         });
         debug.log("COVERSCRAPER","Stream is", stream);
@@ -192,6 +187,14 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
     }
 
     this.clearCallbacks = function() {
+        for (var i in callbacks) {
+            for (var j in formObjects) {
+                if (formObjects[j] == i) {
+                    formObjects[j] = null;
+                    break;
+                }
+            }
+        }
         callbacks = new Array();
     }
 

@@ -3,16 +3,16 @@ var mostPlayed = function() {
 	var running = false;
     var populating = false;
 
-    function getSmartPlaylistTracks(action) {
+    function getSmartPlaylistTracks(action, numtracks) {
         if (populating) {
-            debug.warn("STARRADIOS", "Asked to populate but already doing so!")
+            debug.warn("MOST PLAYED", "Asked to populate but already doing so!")
             return false;
         }
         populating = true;
         $.ajax({
             type: "POST",
             dataType: "json",
-            data: { action: action, playlist: "mostplayed" },
+            data: { action: action, playlist: "mostplayed", numtracks: numtracks },
             url: "backends/sql/userRatings.php",
             success: function(data) {
                 if (data.length > 0) {
@@ -28,17 +28,17 @@ var mostPlayed = function() {
                 debug.error("MOST PLAYED","Database fail");
                 infobar.notify(infobar.NOTIFY,language.gettext('label_gotnotracks'));
                 playlist.radioManager.stop();
+                populating = false;
             }
         });
     }
 
 	return {
 
-		populate: function(s, flag) {
+		populate: function(s, numtracks) {
             if (s) selected = s;
-            if (flag) running = flag;
             debug.shout("MOST PLAYED", "Populating");
-			getSmartPlaylistTracks(running ? "repopulate" : "getplaylist");
+			getSmartPlaylistTracks((s === false) ? "repopulate" : "getplaylist", numtracks);
 		},
 
         modeHtml: function() {
@@ -47,7 +47,6 @@ var mostPlayed = function() {
 
         stop: function() {
             running = false;
-            populating = false;
         },
 
         setup: function() {

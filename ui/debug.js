@@ -15,7 +15,7 @@ window.debug = (function() {
 		var string = module;
 
 		if (ignoring[module]) {
-			css = "color:#cccccc";
+			return true;
 		} else if (highlighting[module]) {
 			css = "font-weight:bold";
 		}

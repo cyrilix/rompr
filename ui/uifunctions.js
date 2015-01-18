@@ -970,9 +970,9 @@ function joinartists(ob) {
                 var flub = ""+ob[i].name;
                 // This might be a problem in Mopidy BUT Spotify tracks are coming back with eg
                 // artist[0] = King Tubby, artist[1] = Johnny Clarke, artist[2] = King Tubby & Johnny Clarke
-                if (flub.match(/ & /) || flub.match(/ and /i)) {
-                    return flub;
-                }
+                // if (flub.match(/ & /) || flub.match(/ and /i)) {
+                //     return flub;
+                // }
                 t.push(flub);
             }
             return concatenate_artist_names(t);
