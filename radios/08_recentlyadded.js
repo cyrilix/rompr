@@ -45,7 +45,7 @@ var recentlyaddedtracks = function() {
 				tracksneeded--;
 			}
 			if (t.length > 0) {
-				player.controller.addTracks(t, playlist.playFromEnd(), null);
+				player.controller.addTracks(t, playlist.radioManager.playbackStartPos(), null);
 			} else {
                 playlist.radioManager.stop();
 			}
@@ -68,8 +68,8 @@ var recentlyaddedtracks = function() {
 			}
 		},
 
-        modeHtml: function() {
-            return '<i class="icon-doc-text modeimg"></i><span class="modespan">'+language.gettext("label_recentlyadded_"+mode)+'</span>&nbsp;';
+        modeHtml: function(param) {
+            return '<i class="icon-doc-text modeimg"></i><span class="modespan">'+language.gettext("label_recentlyadded_"+param)+'</span>&nbsp;';
         },
 
         stop: function() {

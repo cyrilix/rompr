@@ -144,7 +144,7 @@ var nowplaying = function() {
 	var plugins = new Array();
     var currenttrack = 0;
     var nowplayingindex = 0;
-    // var currentbackendid = -1;
+    var currentbackendid = -1;
 
     function findCurrentTrack() {
     	for (var i in history) {
@@ -175,6 +175,9 @@ var nowplaying = function() {
 
 		newTrack: function(playlistinfo) {
 
+			if (currentbackendid == playlistinfo.backendid) {
+				return;
+			}
 			infobar.setNowPlayingInfo(playlistinfo);
 			if (playlistinfo == playlist.emptytrack) {
 				return;

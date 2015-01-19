@@ -321,8 +321,6 @@ function albumHeader($name, $spotilink, $id, $exists, $searched, $imgname, $src,
     print '</div></div>';
 }
 
-
-
 function get_base_url() {
 
     // I found this function on CleverLogic:

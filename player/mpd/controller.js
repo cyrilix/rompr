@@ -77,7 +77,6 @@ function playerController() {
             checkCollection(false, false);
         }
 		self.reloadPlaylists();
-        playlist.radioManager.init();
     }
 
 	this.command = function(cmd, callback) {
@@ -330,6 +329,11 @@ function playerController() {
 	    var new_value = (player.status.consume == 0) ? 1 : 0;
 	    self.command("command=consume&arg="+new_value);
 	}
+
+    this.checkConsume = function(state, callback) {
+        self.command("command=consume&arg="+state);
+        if (callback) callback(state);
+    }
 
 	this.addTracks = function(tracks, playpos, at_pos) {
         layoutProcessor.notifyAddTracks();

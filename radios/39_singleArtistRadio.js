@@ -32,8 +32,8 @@ var singleArtistRadio = function() {
 			tuner.running = false;
 		},
 
-		modeHtml: function() {
-			return '<i class="icon-wifi modeimg"/></i><span class="modespan ucfirst">'+artist+" "+language.gettext("label_radio")+'</span>';
+		modeHtml: function(a) {
+			return '<i class="icon-wifi modeimg"/></i><span class="modespan ucfirst">'+a+" "+language.gettext("label_radio")+'</span>';
 		},
 
         setup: function() {

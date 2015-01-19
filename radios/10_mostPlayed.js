@@ -2,6 +2,7 @@ var mostPlayed = function() {
 
 	var running = false;
     var populating = false;
+    var started = false;
 
     function getSmartPlaylistTracks(action, numtracks) {
         if (populating) {
@@ -19,7 +20,7 @@ var mostPlayed = function() {
                     debug.debug("SMARTPLAYLIST","Got tracks",data);
                     running = true;
                     populating = false;
-                    player.controller.addTracks(data, playlist.playFromEnd(), null);
+                    player.controller.addTracks(data, playlist.radioManager.playbackStartPos(), null);
                 } else {
                     playlist.radioManager.stop();
                 }
@@ -36,17 +37,18 @@ var mostPlayed = function() {
 	return {
 
 		populate: function(s, numtracks) {
-            if (s) selected = s;
             debug.shout("MOST PLAYED", "Populating");
-			getSmartPlaylistTracks((s === false) ? "repopulate" : "getplaylist", numtracks);
+			getSmartPlaylistTracks(started ? "repopulate" : "getplaylist", numtracks);
+            started = true;
 		},
 
-        modeHtml: function() {
+        modeHtml: function(p) {
             return '<i class="icon-doc-text modeimg"></i><span class="modespan">'+language.gettext("label_mostplayed")+'</span>&nbsp;';
         },
 
         stop: function() {
             running = false;
+            started = false;
         },
 
         setup: function() {

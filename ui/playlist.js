@@ -162,20 +162,23 @@ function Playlist() {
             $("#pltime").html("");
         }
 
-        playlist.radioManager.setHeader();
-
         for (var i in tracklist) {
             $("#sortable").append(tracklist[i].getHTML());
         }
         makeFictionalCharacter();
         layoutProcessor.setPlaylistHeight();
 
+        self.radioManager.init();
+        self.radioManager.setHeader();
         self.findCurrentTrack();
         if (finaltrack == -1) {
             // Playlist is empty
             debug.log("PLAYLIST","Playlist is empty");
             nowplaying.newTrack(self.emptytrack);
             infobar.setProgress(0,-1,-1);
+            self.radioManager.repopulate()
+        } else if (self.currentTrack == null) {
+            self.radioManager.repopulate()
         }
         player.controller.postLoadActions();
 
@@ -381,6 +384,7 @@ function Playlist() {
 
     this.stopped = function() {
         infobar.setProgress(0,-1,-1);
+        self.currentTrack = null;
     }
 
     this.trackchanged = function() {
@@ -391,7 +395,7 @@ function Playlist() {
     }
 
     this.stopafter = function() {
-        if (self.currentTrack.type == "stream") {
+        if (self.currentTrack && self.currentTrack.type == "stream") {
             infobar.notify(infobar.ERROR, language.gettext("label_notforradio"));
         } else if (player.status.state == "play") {
             if (player.status.single == 0) {
@@ -500,7 +504,7 @@ function Playlist() {
         var inited = false;
         var chunksize = 10;
         var rptimer = null;
-        var firstcheck = true;
+        var startplaybackfrom = -1;
 
         return {
 
@@ -515,56 +519,89 @@ function Playlist() {
                         for(var i in radios) {
                             debug.log("RADIO MANAGER","Activating Plugin",i);
                             radios[i].setup();
+                            if (prefs.radiomode == i) {
+                                debug.mark("RADIOMANAGER","Found saved radio playlist state",prefs.radiomode, prefs.radioparam);
+                                playlist.radioManager.load(prefs.radiomode, prefs.radioparam, true);
+                            }
                         }
                     }
                     inited = true;
                 }
             },
 
-            load: function(which, param) {
+            load: function(which, param, isonload) {
                 debug.mark("RADIO MANAGER","Loading Smart",which,param);
                 if (mode == which && (!param || param == prefs.radioparam)) {
                     debug.log("RADIO MANAGER", " .. that radio is already playing");
                     return false;
                 }
-                playlist.waiting();
                 if ((mode && mode != which) || (mode && param && param != prefs.radioparam)) {
                     radios[mode].stop();
                 }
-                mode = which;
-                radios[which].populate(param, chunksize);
                 prefs.save({radiomode: which, radioparam: param});
+                mode = which;
                 layoutProcessor.playlistLoading();
-                if (player.status.consume == 0 && prefs.consumeradio) {
+                if (prefs.consumeradio) {
                     oldbuttonstate = $("#playlistbuttons").is(":visible");
-                    oldconsume = player.status.consume;
-                    player.controller.toggleConsume();
-                    if (!$("#playlistbuttons").is(":visible")) {
+                    player.controller.checkConsume(1, playlist.radioManager.beffuddle);
+                    if (!oldbuttonstate) {
                         togglePlaylistButtons();
                     }
                 }
+                if (playlist.getfinaltrack == -1) {
+                    startplaybackfrom = 0;
+                    playlist.radioManager.actuallyRepopulate();
+                } else {
+                    if (isonload) {
+                        switch (player.status.state) {
+                            case "stop":
+                                startplaybackfrom = 0;
+                                player.controller.clearPlaylist();
+                                break;
+                            case "pause":
+                                startplaybackfrom = -1;
+                                infobar.playbutton.clicked();
+                                break;
+                            case "play":
+                                startplaybackfrom = -1;
+                                break;
+                        }
+                    } else {
+                        startplaybackfrom = 0;
+                        player.controller.clearPlaylist();
+                    }
+                }
+            },
+
+            beffuddle: function(originalstate) {
+                oldconsume = originalstate;
+            },
+
+            playbackStartPos: function() {
+                var a = startplaybackfrom;
+                startplaybackfrom = -1;
+                return a;
             },
 
             repopulate: function() {
+                // The timer is a mechanism to stop us repeatedly calling this when
+                // lots of asynchronous stuff is happening at once. There are several routes
+                // that call into this function to handle all the cases we need to handle
+                // but we only want to act on one of them.
                 clearTimeout(rptimer);
-                if (mode == null && prefs.radiomode && radios[prefs.radiomode]) {
-                    debug.mark("RADIOMANAGER","Found saved radio playlist state",prefs.radiomode, prefs.radioparam);
-                    // Do this with a setTimeout to avoid the situation where the playlist hasn't yet loaded
-                    if (firstcheck && player.status.state != "play") {
-                        infobar.playbutton.clicked();
-                    }
-                    playlist.radioManager.load(prefs.radiomode, prefs.radioparam);
-                } else {
-                    rptimer = setTimeout(playlist.radioManager.actuallyRepopulate, 2000);
-                }
-                firstcheck = false;
+                rptimer = setTimeout(playlist.radioManager.actuallyRepopulate, 2000);
             },
 
             actuallyRepopulate: function() {
-                var fromend = playlist.getfinaltrack()+1 - playlist.currentTrack.playlistpos;
-                debug.log("RADIO MANAGER","Repopulate Check : ",playlist.getfinaltrack(),playlist.currentTrack.playlistpos,fromend,chunksize,mode)
+                if (playlist.currentTrack) {
+                    var fromend = playlist.getfinaltrack()+1 - playlist.currentTrack.playlistpos;
+                } else {
+                    var fromend = playlist.getfinaltrack()+1;
+                }
+                debug.log("RADIO MANAGER","Repopulate Check : ",playlist.getfinaltrack(),fromend,chunksize,mode)
                 if (fromend < chunksize && mode) {
-                    radios[mode].populate(false, chunksize - fromend);
+                    playlist.waiting();
+                    radios[mode].populate(prefs.radioparam, chunksize - fromend);
                 }
             },
 
@@ -575,9 +612,7 @@ function Playlist() {
                     mode = null;
                     playlist.repopulate();
                     if (prefs.consumeradio) {
-                        if (oldconsume != player.status.consume) {
-                            player.controller.toggleConsume();
-                        }
+                        player.controller.checkConsume(oldconsume, false);
                         if (oldbuttonstate == false && $("#playlistbuttons").is(":visible")) {
                             togglePlaylistButtons();
                         }
@@ -588,8 +623,10 @@ function Playlist() {
             setHeader: function() {
                 var html = '';
                 if (mode) {
-                    html = radios[mode].modeHtml() +
-                        '<i class="icon-cancel-circled playlisticon clickicon" style="margin-left:8px" onclick="playlist.radioManager.stop()"></i>';
+                    var x = radios[mode].modeHtml(prefs.radioparam);
+                    if (x) {
+                        html = x + '<i class="icon-cancel-circled playlisticon clickicon" style="margin-left:8px" onclick="playlist.radioManager.stop()"></i>';
+                    }
                 }
                 $("#plmode").html(html);
             }

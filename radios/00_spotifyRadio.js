@@ -93,7 +93,7 @@ function spotifyRadio() {
 				self.sending--;
 	        	myself.cansend = false;
 				debug.shout("SPOTIRADIO ALBUM",name,"is sending a track!",self.sending,"left");
-	        	player.controller.addTracks([tracks.shift()], playlist.playFromEnd(), null);
+	        	player.controller.addTracks([tracks.shift()], playlist.radioManager.playbackStartPos(), null);
 	        	setTimeout(myself.allowsend, 30000);
 			} else {
 				debug.debug("SPOTIRADIO ALBUM",name,"was asked for a track but doesn't have any or is locked");

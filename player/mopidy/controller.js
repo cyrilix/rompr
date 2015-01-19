@@ -389,7 +389,6 @@ function playerController() {
                     // as a collection build. This might not be bad but it probably would be.
                     self.reloadPlaylists();
                 }
-    			playlist.radioManager.init();
             });
             self.cancelSingle();
             firstconnection = false;
@@ -420,7 +419,7 @@ function playerController() {
             mopidy.on("state:offline", disconnected);
             mopidy.connect();
             // For testing and debugging purposes, player.controller.mop is a direct link to mopidy.js
-            // self.mop = mopidy;
+            self.mop = mopidy;
         } else {
             clearTimeout(connecttimer);
             self.connectFailed(true);
@@ -760,6 +759,18 @@ function playerController() {
 			setPlaylistButtons();
 		});
 	}
+
+    this.checkConsume = function(state, callback) {
+        mopidy.tracklist.getConsume().then(function(cs) {
+            mopidy.tracklist.setConsume(state == 1 ? true : false).then(function() {
+                mopidy.tracklist.getConsume().then(function(data) {
+                    player.status.consume = (data) ? 1 : 0;
+                    setPlaylistButtons();
+                    if (callback) callback(cs ? 1 : 0);
+                });
+            });
+        });
+    }
 
 	this.addTracks = function(tracks, playpos, at_pos) {
 		if (tracks.length == 0) return;

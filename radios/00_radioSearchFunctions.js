@@ -30,7 +30,7 @@ function searchRadio() {
 					for (var k in data[j].tracks) {
 						if (data[j].tracks[k].hasOwnProperty('artists')) {
 							for (var l in data[j].tracks[k].artists) {
-								if (data[j].tracks[k].artists[l].name.toLowerCase() == name.toLowerCase()) {
+								if (data[j].tracks[k].artists[l].name.removePunctuation().toLowerCase() == name.removePunctuation().toLowerCase()) {
 									tracks.push({type: 'uri', name: data[j].tracks[k].uri});
 									break;
 								}
@@ -53,7 +53,7 @@ function searchRadio() {
 			debug.log("SEARCHRADIO",name,"is sending a track");
 			if (self.running && tracks && tracks.length > 0) {
 				self.sending--;
-        		player.controller.addTracks([tracks.shift()], playlist.playFromEnd(), null);
+        		player.controller.addTracks([tracks.shift()], playlist.radioManager.playbackStartPos(), null);
         	}
 		}
 	}

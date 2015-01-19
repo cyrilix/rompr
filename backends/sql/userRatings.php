@@ -54,9 +54,6 @@ switch ($_POST['action']) {
 
 	case 'getplaylist':
 		preparePlaylist();
-		if ($_POST['numtracks'] > 0) doPlaylist($_POST['playlist'], $_POST['numtracks']);
-		break;
-
 	case 'repopulate':
 		doPlaylist($_POST['playlist'], $_POST['numtracks']);
 		break;

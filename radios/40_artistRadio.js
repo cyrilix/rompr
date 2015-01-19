@@ -15,7 +15,7 @@ var artistRadio = function() {
 	return {
 
 		populate: function(artist, numtracks) {
-			if (artist) {
+			if (artist && artist != artistname) {
 				debug.shout("ARTIST RADIO","Populating with",artist);
 				tuner = new spotifyRadio();
 				tuner.sending = numtracks;
@@ -38,18 +38,19 @@ var artistRadio = function() {
 			}
 		},
 
-		modeHtml: function() {
-			return '<i class="icon-wifi modeimg"/></i><span class="modespan">'+artistname+'&nbsp;'+language.gettext("label_radio")+'</span>';
+		modeHtml: function(a) {
+			return '<i class="icon-wifi modeimg"/></i><span class="modespan">'+a+' '+language.gettext("label_radio")+'</span>';
 		},
 
 		stop: function() {
 			tuner.sending = 0;
 			tuner.running = false;
+			artistname = "";
 		},
 
 		gotArtists: function(data) {
 			for (var i in data.artists.items) {
-				if (data.artists.items[i].name.toLowerCase() == artistname.toLowerCase()) {
+				if (data.artists.items[i].name.removePunctuation().toLowerCase() == artistname.removePunctuation().toLowerCase()) {
 					artistname = data.artists.items[i].name;
 					tuner.newArtist(artistname, data.artists.items[i].id, true);
 					return;

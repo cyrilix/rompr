@@ -44,7 +44,7 @@ var faveAlbums = function() {
                 tracksneeded--;
             }
             if (t.length > 0) {
-                player.controller.addTracks(t, playlist.playFromEnd(), null);
+                player.controller.addTracks(t, playlist.radioManager.playbackStartPos(), null);
             } else {
                 playlist.radioManager.stop();
             }
@@ -63,7 +63,7 @@ var faveAlbums = function() {
             }
 		},
 
-        modeHtml: function() {
+        modeHtml: function(p) {
             return '<i class="icon-doc-text modeimg"></i><span class="modespan">'+language.gettext("label_favealbums")+'</span>&nbsp;';
         },
 

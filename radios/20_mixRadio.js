@@ -77,7 +77,7 @@ var mixRadio = function() {
 			populating = false;
 		},
 
-		modeHtml: function() {
+		modeHtml: function(p) {
 			return '<i class="icon-wifi modeimg"/></i><span class="modespan">'+language.gettext("label_radio_mix")+'</span>';
 		},
 

@@ -291,3 +291,8 @@ String.prototype.capitalize = function() {
 String.prototype.initcaps = function() {
     return this.charAt(0).toUpperCase() + this.slice(1).toLowerCase();
 }
+
+String.prototype.removePunctuation = function() {
+    var punctRE = /[\u2000-\u206F\u2E00-\u2E7F\\'!"#\$%&\(\)\*\+,\-\.\/:;<=>\?@\[\]\^_`\{\|\}~]/g;
+    return this.replace(/\s*\&\s*/, ' and ').replace(punctRE,'').replace(/\s+/g, ' ');
+}

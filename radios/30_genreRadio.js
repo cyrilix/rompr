@@ -29,13 +29,13 @@ var genreRadio = function() {
 	function sendTracks() {
 		if (running) {
 			if (tracks.length == 0 || (tuner && Math.random() < 0.4)) {
-				// prioritise sending of tracks returned by search rather tham
+				// prioritise sending of tracks returned by search rather than
 				// tracks found by spotify radio, as search will include other sources
 				if (tuner && tuner.sending <= 0) {
 					debug.shout("GENRE RADIO","Asking Spotify Tuner To Send",tracksneeded,"Tracks");
 					tuner.sending = tracksneeded;
-					tuner.startSending();
 					tracksneeded = 0;
+					tuner.startSending();
 				}
 			} else {
 				var ta = new Array();
@@ -44,7 +44,7 @@ var genreRadio = function() {
 					tracksneeded--;
 				}
 				if (ta.length > 0) {
-					player.controller.addTracks(ta, playlist.playFromEnd(), null);
+					player.controller.addTracks(ta, playlist.radioManager.playbackStartPos(), null);
 				}
 			}
 		}
@@ -53,7 +53,7 @@ var genreRadio = function() {
 	return {
 
 		populate: function(g,numtracks) {
-			if (g) {
+			if (g && g != genre) {
 				debug.log("GENRE RADIO","Populating Genre",g);
 				running = true;
 				tracks = new Array();
@@ -63,7 +63,7 @@ var genreRadio = function() {
 				tracksneeded = numtracks;
 			} else {
 				debug.log("GENRE RADIO","Repopulating");
-				tracksneeded += (numtracks - tracksneeded);
+				tracksneeded += (numtracks - tracksneeded - tuner.sending);
 				sendTracks();
 			}
 		},
@@ -110,8 +110,8 @@ var genreRadio = function() {
 			populating = false;
 		},
 
-		modeHtml: function() {
-            return '<i class="icon-wifi modeimg"/></i><span class="modespan ucfirst">'+genre+' '+language.gettext('label_radio')+'</span>';
+		modeHtml: function(g) {
+            return '<i class="icon-wifi modeimg"/></i><span class="modespan ucfirst">'+g+' '+language.gettext('label_radio')+'</span>';
 		},
 
 		setup: function() {
