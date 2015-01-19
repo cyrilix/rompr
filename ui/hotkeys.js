@@ -1,11 +1,81 @@
 var shortcuts = function() {
 
-    var hotkeys = { button_next: "Right",
-                    button_previous: "Left",
+    var key_names = {
+          8: "backspace",
+          9: "tab",
+          10: "return",
+          13: "return",
+          16: "shift",
+          17: "ctrl",
+          18: "alt",
+          19: "pause",
+          20: "capslock",
+          27: "esc",
+          32: "space",
+          33: "pageup",
+          34: "pagedown",
+          35: "end",
+          36: "home",
+          37: "left",
+          38: "up",
+          39: "right",
+          40: "down",
+          45: "insert",
+          46: "del",
+          59: ";",
+          61: "=",
+          96: "0",
+          97: "1",
+          98: "2",
+          99: "3",
+          100: "4",
+          101: "5",
+          102: "6",
+          103: "7",
+          104: "8",
+          105: "9",
+          106: "*",
+          107: "+",
+          109: "-",
+          110: ".",
+          111: "/",
+          112: "f1",
+          113: "f2",
+          114: "f3",
+          115: "f4",
+          116: "f5",
+          117: "f6",
+          118: "f7",
+          119: "f8",
+          120: "f9",
+          121: "f10",
+          122: "f11",
+          123: "f12",
+          144: "numlock",
+          145: "scroll",
+          173: "-",
+          186: ";",
+          187: "=",
+          188: ",",
+          189: "-",
+          190: ".",
+          191: "/",
+          192: "`",
+          219: "[",
+          220: "\\",
+          221: "]",
+          222: "'",
+          225: "enter"
+    };
+
+    var modifiers = ['alt', 'ctrl', 'shift'];
+
+    var hotkeys = { button_next: ".",
+                    button_previous: ",",
                     button_stop: "Space",
                     button_play: "P",
-                    button_volup: "Up",
-                    button_voldown: "Down",
+                    button_volup: "=",
+                    button_voldown: "-",
                     button_skipforward: "]",
                     button_skipbackward: "[",
                     button_clearplaylist: "C",
@@ -26,35 +96,31 @@ var shortcuts = function() {
                     button_nextsource: "I",
     };
 
-    if (typeof playlist !== "undefined") {
-
-        var bindings = { button_next: playlist.next,
-                        button_previous: playlist.previous,
-                        button_stop: player.controller.stop,
-                        button_play: infobar.playbutton.clicked,
-                        button_volup: function() { infobar.volumeKey(5) },
-                        button_voldown: function() { infobar.volumeKey(-5) },
-                        button_skipforward: function() { player.skip(10) },
-                        button_skipbackward: function() { player.skip(-10) },
-                        button_clearplaylist: playlist.clear,
-                        button_stopafter: playlist.stopafter,
-                        button_random: function() { playlistControlButton('random') },
-                        button_crossfade: function() { playlistControlButton('crossfade') },
-                        button_repeat: function() { playlistControlButton('repeat') },
-                        button_consume: function() { playlistControlButton('consume') },
-                        button_rateone: function() { nowplaying.setRating(1) },
-                        button_ratetwo: function() { nowplaying.setRating(2) },
-                        button_ratethree: function() { nowplaying.setRating(3) },
-                        button_ratefour: function() { nowplaying.setRating(4) },
-                        button_ratefive: function() { nowplaying.setRating(5) },
-                        button_togglesources: function() { expandInfo('left') },
-                        button_toggleplaylist: function() { expandInfo('right') },
-                        config_hidebrowser: function() { $("#hidebrowser").attr("checked", !$("#hidebrowser").is(':checked')); prefs.save({hidebrowser: $("#hidebrowser").is(':checked')}, hideBrowser) },
-                        button_updatecollection: function(){ checkCollection(true, false) },
-                        button_nextsource: function() { browser.nextSource(1) }
-        };
-
-    }
+    var bindings = { button_next: playlist.next,
+                    button_previous: playlist.previous,
+                    button_stop: player.controller.stop,
+                    button_play: infobar.playbutton.clicked,
+                    button_volup: function() { infobar.volumeKey(5) },
+                    button_voldown: function() { infobar.volumeKey(-5) },
+                    button_skipforward: function() { player.skip(10) },
+                    button_skipbackward: function() { player.skip(-10) },
+                    button_clearplaylist: playlist.clear,
+                    button_stopafter: playlist.stopafter,
+                    button_random: function() { playlistControlButton('random') },
+                    button_crossfade: function() { playlistControlButton('crossfade') },
+                    button_repeat: function() { playlistControlButton('repeat') },
+                    button_consume: function() { playlistControlButton('consume') },
+                    button_rateone: function() { nowplaying.setRating(1) },
+                    button_ratetwo: function() { nowplaying.setRating(2) },
+                    button_ratethree: function() { nowplaying.setRating(3) },
+                    button_ratefour: function() { nowplaying.setRating(4) },
+                    button_ratefive: function() { nowplaying.setRating(5) },
+                    button_togglesources: function() { expandInfo('left') },
+                    button_toggleplaylist: function() { expandInfo('right') },
+                    config_hidebrowser: function() { $("#hidebrowser").attr("checked", !$("#hidebrowser").is(':checked')); prefs.save({hidebrowser: $("#hidebrowser").is(':checked')}, hideBrowser) },
+                    button_updatecollection: function(){ checkCollection(true, false) },
+                    button_nextsource: function() { browser.nextSource(1) }
+    };
 
     function format_keyinput(inpname, hotkey) {
         if (hotkey === null) hotkey = "";
@@ -65,11 +131,31 @@ var shortcuts = function() {
         return '<td><i class="icon-cancel-circled playlisticon clickicon buttonclear" name="'+inpname+'"></i></td>';
     }
 
+    function unbind() {
+        for (var i in hotkeys) {
+            if (hotkeys[i] !== "" && bindings[i]) {
+                $(window).unbind('keydown', bindings[i]);
+            }
+        }
+    }
+
+    function getHotkeyString(event) {
+        var key = key_names[event.which] || String.fromCharCode(event.which);
+        var pieces = [];
+        for(var i in modifiers) {
+            if (event[modifiers[i]+"Key"] && modifiers[i] != key) {
+                pieces.push(modifiers[i].initcaps());
+            }
+        }
+        pieces.push(key.initcaps());
+        return pieces.join('+');
+    }
+
     return {
 
         load: function() {
             debug.shout("SHORTCUTS","Loading Key Bindings");
-            $(window).unbind('keydown');
+            unbind();
             for (var i in hotkeys) {
                 if (localStorage.getItem('hotkeys.'+i) !== null) {
                     hotkeys[i] = localStorage.getItem('hotkeys.'+i);
@@ -96,7 +182,8 @@ var shortcuts = function() {
         change: function(ev) {
             ev.preventDefault();
             ev.stopPropagation();
-            var key = KeyCode.hot_key(KeyCode.translate_event(ev));
+            debug.log("KEYCODE",ev);
+            var key = getHotkeyString(ev);
             for (var name in hotkeys) {
                 if (hotkeys[name] == key) {
                     infobar.notify(infobar.ERROR, "Key '"+key+"' is already used by '"+language.gettext(name)+"'");
