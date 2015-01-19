@@ -182,7 +182,6 @@ var shortcuts = function() {
         change: function(ev) {
             ev.preventDefault();
             ev.stopPropagation();
-            debug.log("KEYCODE",ev);
             var key = getHotkeyString(ev);
             for (var name in hotkeys) {
                 if (hotkeys[name] == key) {
