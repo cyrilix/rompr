@@ -85,7 +85,7 @@
     width:100%;
 }
 
-@media screen and (min-height: 1000px) and (max-height: 1199px) {
+@media screen and (min-height: 900px) and (max-height: 1039px) {
     #infobar {
         height:125px;
     }
@@ -104,7 +104,7 @@
     }
 }
 
-@media screen and (min-height: 1200px) {
+@media screen and (min-height: 1040px) {
     #infobar {
         height:150px;
     }
