@@ -21,6 +21,7 @@ h2
     font-size:130%;
     padding-bottom:1em;
     text-align:center;
+    cursor:pointer;
 }
 
 .pref
@@ -82,7 +83,7 @@ h2
     width:100%;
 }
 
-@media screen and (max-width: 350px) and (max-height: 400px) {
+@media screen and (max-width: 350px) and (orientation: landscape) {
     .controlbutton {
         width:38px !important;
         height:38px !important;
@@ -104,7 +105,7 @@ h2
     }
 }
 
-@media screen and (max-height: 378px) {
+@media screen and (max-height: 378px) and (orientation: landscape) {
 
     #geoffreyboycott
     {
@@ -136,11 +137,44 @@ h2
         margin-top:12px;
     }
 
-    #previoustrack
-    {
-        display:none;
-    }
 }
+
+@media screen and (max-height: 378px) and (orientation: portrait) {
+
+    #geoffreyboycott
+    {
+        padding-top:2px;
+        margin-bottom:2px;
+    }
+
+    #albumcover
+    {
+        height:130px;
+        margin-top:8px;
+    }
+
+    #albumpicture
+    {
+        width:auto;
+        height:130px;
+        margin-left:auto;
+        margin-right:auto;
+        display:block;
+    }
+
+    #cssisshit
+    {
+        width:100%;
+    }
+
+    #progress
+    {
+        font-size:6pt;
+        margin-top:4px;
+    }
+
+}
+
 
 @media screen and (min-height: 379px) and (max-height: 500px) {
 
@@ -175,13 +209,6 @@ h2
         font-size:7pt;
         margin-top:4px;
     }
-
-    #previoustrack
-    {
-        text-align:center;
-        display:block;
-    }
-
 }
 
 @media screen and (min-height: 501px) and (max-height: 700px) {
@@ -216,12 +243,6 @@ h2
     {
         font-size:7pt;
         margin-top:4px;
-    }
-
-    #previoustrack
-    {
-        text-align:center;
-        display:block;
     }
 
 }
@@ -260,12 +281,6 @@ h2
         margin-top:4px;
     }
 
-    #previoustrack
-    {
-        text-align:center;
-        display:block;
-    }
-
 }
 
 @media screen and (min-height: 1025px) {
@@ -300,12 +315,6 @@ h2
     {
         font-size:8pt;
         margin-top:4px;
-    }
-
-    #previoustrack
-    {
-        text-align:center;
-        display:block;
     }
 
     #headerbar

@@ -210,12 +210,6 @@ var shortcuts = function() {
         },
 
         add: function(name, binding, hotkey) {
-            for (var nom in hotkeys) {
-                if (hotkeys[nom] == hotkey) {
-                    debug.warn("HOTKEYS","Plugin trying to add hotkey",hotkey,"for",name,"but this already used by",nom);
-                    hotkey = "";
-                }
-            }
             hotkeys[name] = hotkey;
             bindings[name] = binding;
         }

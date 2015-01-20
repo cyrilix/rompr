@@ -715,9 +715,9 @@ function setChooserButtons() {
     var s = ["albumlist", "filelist", "radiolist"];
     for (var i in s) {
         if (prefs["hide_"+s[i]]) {
-            $("#choose_"+s[i]).fadeOut('fast');
+            $(".choose_"+s[i]).fadeOut('fast');
         } else {
-            $("#choose_"+s[i]).fadeIn('fast');
+            $(".choose_"+s[i]).fadeIn('fast');
         }
     }
 }

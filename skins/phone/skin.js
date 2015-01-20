@@ -118,7 +118,7 @@ var layoutProcessor = function() {
                     $("#nptext").detach().appendTo("#nowplayingfiddler");
                     layoutProcessor.playlistInNowplaying = true;
                     $("#playlistm").detach().prependTo("#nowplaying").removeClass('mainpane').css({height: "100%"}).show();
-                    $(".playlistchoose").hide();
+                    $(".choose_playlist").hide();
                     if (prefs.chooser == "playlistm") {
                         layoutProcessor.sourceControl("infobar");
                     }
@@ -127,7 +127,7 @@ var layoutProcessor = function() {
                     $("#nptext").detach().appendTo("#nowplaying");
                     $("#nowplayingfiddler").css({height: "0px", "margin-bottom": "0px"});
                     layoutProcessor.playlistInNowplaying = false;
-                    $(".playlistchoose").show();
+                    $(".choose_playlist").show();
                 }
                 t = ws.y - $("#patrickmoore").offset().top - $("#amontobin").outerHeight(true) - $("#nowplayingfiddler").outerHeight(true);
                 $("#nowplaying").css({height: t+"px", width: hack+"px"});
@@ -140,22 +140,51 @@ var layoutProcessor = function() {
         },
 
         initialise: function() {
-            var obj = document.getElementById('volumecontrol');
-            obj.addEventListener('touchstart', function(event) {
-                if (event.targetTouches.length == 1) {
-                    infobar.volumeTouch(event.targetTouches[0]);
 
-                }
-            }, false);
-            obj.addEventListener('touchmove', function(event) {
+            $('#volumecontrol').bind('touchstart', function(event) {
                 event.preventDefault();
-                if (event.targetTouches.length == 1) {
-                    infobar.volumeTouch(event.targetTouches[0]);
+                event.stopPropagation();
+                if (event.originalEvent.targetTouches.length == 1) {
+                    infobar.volumeTouch(event.originalEvent.targetTouches[0]);
+                    return false;
                 }
-            }, false);
-            obj.addEventListener('touchend', function(event) {
+            }).bind('touchmove', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                if (event.originalEvent.targetTouches.length == 1) {
+                    infobar.volumeTouch(event.originalEvent.targetTouches[0]);
+                    return false;
+                }
+            }).bind('touchend', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
                 infobar.volumeTouchEnd();
-            }, false);
+                return false;
+            });
+            if (!prefs.checkSet('clickmode')) {
+                prefs.clickmode = 'single';
+            }
+            setControlClicks();
+            $('.choose_nowplaying').click(function(){layoutProcessor.sourceControl('infobar')});
+            $('.choose_albumlist').click(function(){layoutProcessor.sourceControl('albumlist')});
+            $('.choose_searcher').click(toggleSearch);
+            $('.choose_filelist').click(function(){layoutProcessor.sourceControl('filelist')});
+            $('.choose_radiolist').click(function(){layoutProcessor.sourceControl('radiolist')});
+            $('.choose_infopanel').click(function(){layoutProcessor.sourceControl('infopane')});
+            $('.choose_playlistman').click(function(){layoutProcessor.sourceControl('playlistman')});
+            $('.choose_pluginplaylists').click(function(){layoutProcessor.sourceControl('pluginplaylistholder')});
+            $('.choose_prefs').click(function(){layoutProcessor.sourceControl('prefsm')});
+            $('.choose_history').click(function(){layoutProcessor.sourceControl('historypanel')});
+            $('.icon-rss.npicon').click(function(){podcasts.doPodcast('nppodiput')});
+            $('#love').click(nowplaying.love);
+            $('#ban').click(infobar.ban);
+            $('.icon-volume-up.topimg').click(showVolumeControl);
+            $('.icon-cog-alt.topimg').click(function(){layoutProcessor.sourceControl('chooser')});
+            $('.choose_playlist').click(function(){layoutProcessor.sourceControl('playlistm')});
+            $("#ratingimage").click(nowplaying.setRating);
+            $(".choose_filesearch").click(toggleFileSearch);
+            $("#playlistname").parent().next('button').click(player.controller.savePlaylist);
+            $('.clear_playlist').click(playlist.clear);
         }
 
     }

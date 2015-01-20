@@ -36,19 +36,6 @@ $skin = "desktop";
 include ("includes/globals.php");
 ?>
 <script language="JavaScript">
-$("#theme").attr("href", "themes/"+prefs.theme);
-$("#fontsize").attr("href", "sizes/"+prefs.fontsize);
-$("#fontfamily").attr("href", "fonts/"+prefs.fontfamily);
-$("#icontheme-theme").attr("href", "iconsets/"+prefs.icontheme+"/theme.css");
-$("#icontheme-adjustments").attr("href", "iconsets/"+prefs.icontheme+"/adjustments.css");
-
-<?php
-if ($prefs['debug_enabled']) {
-    print "debug.setLevel(8);\n";
-} else {
-    print "debug.setLevel(0);\n";
-}
-?>
 
 var imagekey = '';
 var imgobj = null;

@@ -39,6 +39,14 @@ function setClickHandlers() {
 
 }
 
+function setControlClicks() {
+    $('i[title="'+language.gettext('button_previous')+'"]').click(playlist.previous);
+    $('i[title="'+language.gettext('button_play')+'"]').click(infobar.playbutton.clicked);
+    $('i[title="'+language.gettext('button_stop')+'"]').click(player.controller.stop);
+    $('i[title="'+language.gettext('button_stopafter')+'"]').click(playlist.stopafter);
+    $('i[title="'+language.gettext('button_next')+'"]').click(playlist.next);
+}
+
 function onBrowserClicked(event) {
     var clickedElement = findClickableBrowserElement(event);
     if (clickedElement.hasClass("infoclick")) {

@@ -1,14 +1,6 @@
 
 <script language="javascript">
 
-var prefsInLocalStorage = ["sourceshidden", "playlisthidden", "infosource", "playlistcontrolsvisible",
-                            "sourceswidthpercent", "playlistwidthpercent", "downloadart", "clickmode", "chooser",
-                            "hide_albumlist", "hide_filelist", "hide_radiolist", "hidebrowser",
-                            "shownupdatewindow", "scrolltocurrent", "volume", "alarm_ramptime", "alarm_snoozetime",
-                            "lastfmlang", "user_lang", "fontsize", "fontfamily", "alarmtime", "alarmon", "synctags",
-                            "synclove", "synclovevalue", "alarmramp", "radiomode", "radioparam", "onthefly",
-                            "theme", "icontheme", "coversize"];
-
 <?php
 $searchlimits = array(  "local" => "Local Files",
                         "spotify" => "Spotify",
@@ -30,14 +22,54 @@ print "var skin = '".$skin."';\n";
 print 'var prefs = '.json_encode($prefs)."\n";
 ?>
 
-prefs.updateLocal = function() {
-    prefsInLocalStorage.forEach(function(p) {
-        if (localStorage.getItem("prefs."+p) != null && localStorage.getItem("prefs."+p) != "") {
-            prefs[p] = JSON.parse(localStorage.getItem("prefs."+p));
+prefs.prefsInLocalStorage = ["sourceshidden", "playlisthidden", "infosource", "playlistcontrolsvisible",
+                            "sourceswidthpercent", "playlistwidthpercent", "downloadart", "clickmode", "chooser",
+                            "hide_albumlist", "hide_filelist", "hide_radiolist", "hidebrowser",
+                            "shownupdatewindow", "scrolltocurrent", "volume", "alarm_ramptime", "alarm_snoozetime",
+                            "lastfmlang", "user_lang", "fontsize", "fontfamily", "alarmtime", "alarmon", "synctags",
+                            "synclove", "synclovevalue", "alarmramp", "radiomode", "radioparam", "onthefly",
+                            "theme", "icontheme", "coversize"];
+
+// Update old pre-JSON prefs
+if (localStorage.getItem("prefs.prefversion") == null) {
+    for (var i in window.localStorage) {
+        if (i.match(/^prefs\.(.*)/)) {
+            var val = localStorage.getItem(i);
+            if (val === "true") {
+                val = true;
+            }
+            if (val === "false") {
+                val = false;
+            }
+            localStorage.setItem(i, JSON.stringify(val));
         }
-    });
-    if (skin == "phone" && localStorage.getItem('prefs.clickmode') == null) {
-        prefs.clickmode = 'single';
+    }
+    localStorage.setItem('prefs.prefversion', JSON.stringify(2));
+}
+
+// Read in locally saved prefs
+prefs.prefsInLocalStorage.forEach(function(p) {
+    if (localStorage.getItem("prefs."+p) != null && localStorage.getItem("prefs."+p) != "") {
+        prefs[p] = JSON.parse(localStorage.getItem("prefs."+p));
+    }
+});
+
+$("#albumcoversize").attr("href", "coversizes/"+prefs.coversize);
+$("#theme").attr("href", "themes/"+prefs.theme);
+$("#fontsize").attr("href", "sizes/"+prefs.fontsize);
+$("#fontfamily").attr("href", "fonts/"+prefs.fontfamily);
+$("#icontheme-theme").attr("href", "iconsets/"+prefs.icontheme+"/theme.css");
+$("#icontheme-adjustments").attr("href", "iconsets/"+prefs.icontheme+"/adjustments.css");
+
+prefs.checkSet = function(key) {
+    if (prefs.prefsInLocalStorage.indexOf(key) > -1) {
+        if (localStorage.getItem("prefs."+key) != null && localStorage.getItem("prefs."+key) != "") {
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
     }
 }
 
@@ -46,7 +78,7 @@ prefs.save = function(options, callback) {
     var postSave = false;
     for (var i in options) {
         prefs[i] = options[i];
-        if (prefsInLocalStorage.indexOf(i) > -1) {
+        if (prefs.prefsInLocalStorage.indexOf(i) > -1) {
             debug.log("PREFS", "Setting",i,"to",options[i],"in local storage");
             localStorage.setItem("prefs."+i, JSON.stringify(options[i]));
         } else {
@@ -63,24 +95,6 @@ prefs.save = function(options, callback) {
         });
     } else if (callback) {
         callback();
-    }
-}
-
-function convertPrefs() {
-    if (localStorage.getItem("prefs.prefversion") == null) {
-        for (var i in window.localStorage) {
-            if (i.match(/^prefs\.(.*)/)) {
-                var val = localStorage.getItem(i);
-                if (val === "true") {
-                    val = true;
-                }
-                if (val === "false") {
-                    val = false;
-                }
-                localStorage.setItem(i, JSON.stringify(val));
-            }
-        }
-        localStorage.setItem('prefs.prefversion', JSON.stringify(2));
     }
 }
 
@@ -114,13 +128,6 @@ print "    var tags = ".json_encode($translations);
     }
 }();
 
-convertPrefs();
-prefs.updateLocal();
-if (prefs.infosource == "slideshow") {
-    // slideshow plugin has been removed since last.fm have removed artist.getImages from their API
-    prefs.infosource = "lastfm";
-}
-
 <?php
 if ($prefs['apache_backend'] == "sql") {
     print "var albumslistexists = ".check_albumslist().";\n";
@@ -137,12 +144,6 @@ if (file_exists(ROMPR_FILEBROWSER_LIST) || $prefs['player_backend'] == "mopidy")
 } else {
     print "var fileslistexists = false;\n";
 }
-if (preg_match('#^/usr/share/rompr/#', $_SERVER['SCRIPT_FILENAME'])) {
-    print "var debinstall = true;\n";
-} else {
-    print "var debinstall = false;\n";
-}
-
 if ($prefs['debug_enabled']) {
     print "debug.setLevel(8);\n";
 } else {

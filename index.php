@@ -185,8 +185,9 @@ foreach ($skinrequires as $s) {
 <!-- MD5 hashing algorith : http://pajhome.org.uk/crypt/md5 -->
 <script type="text/javascript" src="jshash-2.2/md5-min.js"></script>
 <!-- Masonry layout engine : http://masonry.desandro.com/ -->
-<script type="text/javascript" src="jquery/masonry.pkgd.min.js"></script>
 <script type="text/javascript" src="jquery/imagesloaded.pkgd.min.js"></script>
+<script type="text/javascript" src="jquery/masonry.pkgd.min.js"></script>
+<script type="text/javascript" src="ui/readyhandlers.js"></script>
 <script type="text/javascript" src="ui/debug.js"></script>
 <script type="text/javascript" src="ui/functions.js"></script>
 <script type="text/javascript" src="ui/uifunctions.js"></script>
@@ -201,139 +202,28 @@ $inc = glob("streamplugins/*.js");
 foreach($inc as $i) {
     print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
 }
-
 if ($prefs['player_backend'] == "mopidy") {
     print'<script type="text/javascript" src="http://'.$prefs['mopidy_http_address'].':'.$prefs['mopidy_http_port'].'/mopidy/mopidy.min.js"></script>'."\n";
 }
 print'<script type="text/javascript" src="player/'.$prefs['player_backend'].'/controller.js"></script>'."\n";
-
 ?>
 <script type="text/javascript" src="player/player.js"></script>
 
 <?php
 include('includes/globals.php');
-if (file_exists("prefs/prefs.js") && $prefs['lastfm_session_key'] === "") {
-    print '<script type="text/javascript" src="prefs/prefs.js"></script>'."\n";
-} else if (file_exists("prefs/prefs.js") && $prefs['lastfm_session_key'] !== "") {
-    system('rm prefs/prefs.js');
-}
 ?>
 
 <script language="javascript">
 
-$("#theme").attr("href", "themes/"+prefs.theme);
-$("#fontsize").attr("href", "sizes/"+prefs.fontsize);
-$("#fontfamily").attr("href", "fonts/"+prefs.fontfamily);
-$("#icontheme-theme").attr("href", "iconsets/"+prefs.icontheme+"/theme.css");
-$("#icontheme-adjustments").attr("href", "iconsets/"+prefs.icontheme+"/adjustments.css");
-$("#albumcoversize").attr("href", "coversizes/"+prefs.coversize);
-
 function aADownloadFinished() {
     debug.log("INDEX","Album Art Download Has Finished");
 }
-
 var playlist = new Playlist();
 var player = new multiProtocolController();
 var lastfm = new LastFM(prefs.lastfm_user);
 var coverscraper = new coverScraper(0, false, false, prefs.downloadart);
 </script>
 
-<?php
-foreach ($skinrequires as $s) {
-    $s = trim($s);
-    $ext = strtolower(pathinfo($s, PATHINFO_EXTENSION));
-    if ($ext == "js") {
-        debug_print("Including Skin Requirement ".$s,"INIT");
-        print '<script type="text/javascript" src="'.$s.'"></script>'."\n";
-    }
-}
-print '<script type="text/javascript" src="skins/'.$skin.'/skin.js"></script>'."\n";
-?>
-
-<script language="javascript">
-
-$(window).ready(function(){
-
-    // Update the old-style lastfm_session_key variable
-    if (typeof lastfm_session_key !== 'undefined') {
-        prefs.save({lastfm_session_key: lastfm_session_key});
-    }
-
-    if ("localStorage" in window && window["localStorage"] != null) {
-        window.addEventListener("storage", onStorageChanged, false);
-    }
-
-    if (prefs.country_userset == false) {
-        // Have to pull this data in via the webserver as it's cross-domain
-        // It's helpful and important to get the country code set, as many users won't see it
-        // and it's necessary for the Spotify info panel to return accurate data
-        $.getJSON("utils/getgeoip.php", function(result){
-            debug.shout("GET COUNTRY", 'Country:',result.country,'Code:',result.country_code);
-            $("#lastfm_country_codeselector").val(result.country_code);
-            prefs.save({lastfm_country_code: result.country_code});
-        });
-    }
-
-    setClickHandlers();
-    $("#sortable").click(onPlaylistClicked);
-    infobar.createProgressBar();
-    globalPlugins.initialise();
-    layoutProcessor.initialise();
-    browser.createButtons();
-    setChooserButtons();
-    if (!prefs.hide_radiolist) {
-        $("#yourradiolist").load("streamplugins/00_yourradio.php?populate");
-    }
-    $(".toggle").click(togglePref);
-    $(".saveotron").keyup(saveTextBoxes);
-    $(".saveomatic").change(saveSelectBoxes);
-    $(".savulon").click(toggleRadio);
-    setPrefs();
-    checkServerTimeOffset();
-    layoutProcessor.sourceControl(prefs.chooser, setSearchLabelWidth);
-    if (prefs.chooser == "searchpane") {
-        ihatefirefox();
-    }
-});
-
-$(window).load(function() {
-    $(window).bind('resize', function() {
-        layoutProcessor.adjustLayout();
-    });
-    if (prefs.playlistcontrolsvisible) {
-        $("#playlistbuttons").show();
-    }
-    player.controller.initialise();
-    showUpdateWindow();
-    if (!prefs.hide_radiolist) {
-        podcasts.loadList();
-    }
-    layoutProcessor.adjustLayout();
-    $.get('utils/cleancache.php', function() {
-        debug.shout("INIT","Cache Has Been Cleaned");
-    });
-    $('.combobox').makeTagMenu({textboxextraclass: 'searchterm', textboxname: 'tag', labelhtml: '<div class="fixed searchlabel"><b>'+language.gettext("label_tag")+'</b></div>', populatefunction: populateTagMenu});
-    $('.tagaddbox').makeTagMenu({textboxname: 'newtags', populatefunction: populateTagMenu, buttontext: language.gettext('button_add'), buttonfunc: tagAdder.add});
-});
-
-</script>
-</head>
-
-<?php
-debug_print("Including skins/".$skin.'/skin.php',"LAYOUT");
-include('skins/'.$skin.'/skin.php');
-?>
-
-<div id="tagadder" class="funkymusic dropmenu dropshadow">
-    <div class="configtitle textcentre" style="padding-top:4px"><b>
-<?php
-print get_int_text("lastfm_addtags").'</b><i class="icon-cancel-circled clickicon playlisticonr tright" onclick="tagAdder.close()"></i></div><div>'.get_int_text("lastfm_addtagslabel");
-?>
-    </div>
-    <div class="containerbox padright dropdown-container tagaddbox"></div>
-</div>
-
-</body>
 <script type="text/javascript" src="ui/podcasts.js"></script>
 <?php
 $inc = glob("browser/helpers/*.js");
@@ -360,5 +250,35 @@ if ($skin == "desktop") {
 }
 ?>
 <script type="text/javascript" src="browser/info.js"></script>
+
+<?php
+foreach ($skinrequires as $s) {
+    $s = trim($s);
+    $ext = strtolower(pathinfo($s, PATHINFO_EXTENSION));
+    if ($ext == "js") {
+        debug_print("Including Skin Requirement ".$s,"INIT");
+        print '<script type="text/javascript" src="'.$s.'"></script>'."\n";
+    }
+}
+print '<script type="text/javascript" src="skins/'.$skin.'/skin.js"></script>'."\n";
+?>
+
+</head>
+
+<?php
+debug_print("Including skins/".$skin.'/skin.php',"LAYOUT");
+include('skins/'.$skin.'/skin.php');
+?>
+
+<div id="tagadder" class="funkymusic dropmenu dropshadow">
+    <div class="configtitle textcentre" style="padding-top:4px"><b>
+<?php
+print get_int_text("lastfm_addtags").'</b><i class="icon-cancel-circled clickicon playlisticonr tright" onclick="tagAdder.close()"></i></div><div>'.get_int_text("lastfm_addtagslabel");
+?>
+    </div>
+    <div class="containerbox padright dropdown-container tagaddbox"></div>
+</div>
+
+</body>
 </html>
 

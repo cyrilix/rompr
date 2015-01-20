@@ -455,23 +455,24 @@ var layoutProcessor = function() {
             $(".stayopen").click(function(ev) {ev.stopPropagation() });
 
             shortcuts.load();
-            var obj = document.getElementById('volumecontrol');
-            obj.addEventListener('mousedown', function(event) {
+            $("#volumecontrol").bind('mousedown', function(event){
                 event.preventDefault();
                 infobar.volumeTouch(event);
-            }, false);
-            obj.addEventListener('mousemove', function(event) {
+                return false;
+            }).bind('mousemove', function(event) {
                 event.preventDefault();
                 infobar.volumeMouseMove(event);
-            }, false);
-            obj.addEventListener('mouseup', function(event) {
+                return false;                
+            }).bind('mouseup', function(event) {
+                event.preventDefault();
                 infobar.volumeDragEnd(event);
-            }, false);
-            obj.addEventListener('mouseout', function(event) {
+                return false;                
+            }).bind('mouseout', function(event) {
+                event.preventDefault();
                 infobar.volumeTouchEnd(event);
-            }, false);
+                return false;
+            });
             $(".enter").keyup( onKeyUp );
-            $(".lettuce,.tooltip").tipTip({delay: 1000, edgeOffset: 8});
             $.each([ "#sources", "#infopane", "#pscroller", ".topdropmenu", ".drop-box" ], function( index, value ) {
                 addCustomScrollBar(value);
             });
@@ -484,6 +485,23 @@ var layoutProcessor = function() {
             if (prefs.hide_albumlist) {
                 $("#search").show({complete: setSearchLabelWidth});
             }
+            setControlClicks();
+            $('.choose_albumlist').click(doSomethingClever);
+            $('.choose_searcher').click(toggleSearch);
+            $('.choose_filelist').click(function(){layoutProcessor.sourceControl('filelist')});
+            $('.choose_radiolist').click(function(){layoutProcessor.sourceControl('radiolist')});
+            $('.open_albumart').click(openAlbumArtManager);
+            $('#love').click(nowplaying.love);
+            $('#ban').click(infobar.ban);
+            $("#ratingimage").click(nowplaying.setRating);
+            $('.icon-rss.npicon').click(function(){podcasts.doPodcast('nppodiput')});
+            $('#expandleft').click(function(){expandInfo('left')});
+            $('#expandright').click(function(){expandInfo('right')});
+            $('.clear_playlist').click(playlist.clear);
+            $("#playlistname").parent().next('button').click(player.controller.savePlaylist);
+            $(".choose_filesearch").click(toggleFileSearch);
+
+            $(".lettuce,.tooltip").tipTip({delay: 1000, edgeOffset: 8});
         }
     }
 }();

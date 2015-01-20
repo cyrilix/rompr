@@ -8,7 +8,7 @@ print '<i onclick="togglePlaylistButtons()" title="'.get_int_text('button_playli
 <td align="right" id="pltime"></td>
 <td align="right" style="width:17px">
 <?php
-print '<i onclick="playlist.clear()" title="'.get_int_text('button_clearplaylist').'" class="icon-trash playlisticon clickicon lettuce"></i>';
+print '<i title="'.get_int_text('button_clearplaylist').'" class="icon-trash playlisticon clickicon lettuce clear_playlist"></i>';
 ?>
 </td>
 </tr>

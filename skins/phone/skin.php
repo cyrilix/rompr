@@ -4,25 +4,25 @@
 <div id="headerbar" class="noborder fullwidth containerbox">
 <div id="sourcescontrols" class="fixed noborder">
 <?php
-print '<i title="'.get_int_text('button_now_playing').'" onclick="layoutProcessor.sourceControl(\'infobar\')" id="choose_nowplaying" class="icon-play-circled tooltip topimg"></i>';
-print '<i title="'.get_int_text('button_local_music').'" onclick="layoutProcessor.sourceControl(\'albumlist\')" id="choose_albumlist" class="icon-music tooltip topimg"></i>';
-print '<i title="'.get_int_text('button_searchmusic').'" onclick="toggleSearch()" id="choose_searcher" class="icon-search topimg tooltip"></i>';
-print '<i title="'.get_int_text('button_file_browser').'" onclick="layoutProcessor.sourceControl(\'filelist\')" id="choose_filelist" class="icon-folder-open-empty tooltip topimg"></i>';
-print '<i title="'.get_int_text('button_internet_radio').'" onclick="layoutProcessor.sourceControl(\'radiolist\')" id="choose_radiolist" class="icon-radio-tower tooltip topimg"></i>';
-print '<i title="'.get_int_text('button_infopanel').'" onclick="layoutProcessor.sourceControl(\'infopane\')" id="choose_infopanel" class="icon-info-circled tooltip topimg"></i>';
+print '<i class="icon-play-circled topimg choose_nowplaying"></i>';
+print '<i class="icon-music topimg choose_albumlist"></i>';
+print '<i class="icon-search topimg choose_searcher"></i>';
+print '<i class="icon-folder-open-empty topimg choose_filelist"></i>';
+print '<i class="icon-radio-tower topimg choose_radiolist"></i>';
+print '<i class="icon-info-circled topimg choose_infopanel"></i>';
 ?>
 </div>
 <div class="expand"></div>
 <div id="playlistcontrols" class="fixed noborder">
 <div class="tleft">
 <?php
-print '<i class="icon-volume-up topimg" onclick="showVolumeControl()"></i>';
+print '<i class="icon-volume-up topimg"></i>';
 ?>
 <div id="volumecontrol"><div id="volume"></div></div>
 </div>
 <?php
-print '<i id="choose_playlist" class="icon-doc-text topimg tleft playlistchoose" onclick="layoutProcessor.sourceControl(\'playlistm\')"></i>';
-print '<i class="icon-cog-alt topimg tleft" onclick="layoutProcessor.sourceControl(\'chooser\')"></i>';
+print '<i class="icon-doc-text topimg tleft choose_playlist"></i>';
+print '<i class="icon-cog-alt topimg tleft"></i>';
 ?>
 </div>
 </div>
@@ -35,16 +35,16 @@ print '<i class="icon-cog-alt topimg tleft" onclick="layoutProcessor.sourceContr
                 <table align="center" cellpadding="8" width="100%">
                     <tr><td align="center">
                         <?php
-                        print '<i title="'.get_int_text('button_previous').'" class="icon-fast-backward clickicon controlbutton-small lettuce" onclick="playlist.previous()"></i>';
-                        print '<i title="'.get_int_text('button_play').'" class="icon-play-circled shiftleft clickicon controlbutton lettuce" onclick="infobar.playbutton.clicked()"></i>';
-                        print '<i title="'.get_int_text('button_stop').'" class="icon-stop-1 shiftleft2 clickicon controlbutton-small lettuce" onclick="player.controller.stop()"></i>';
-                        print '<i title="'.get_int_text('button_stopafter').'" class="icon-to-end-1 shiftleft3 clickicon controlbutton-small lettuce" onclick="playlist.stopafter()" id="stopafterbutton"></i>';
-                        print '<i title="'.get_int_text('button_next').'" class="icon-fast-forward shiftleft4 clickicon controlbutton-small lettuce" onclick="playlist.next()"></i>';
+                        print '<i title="'.get_int_text('button_previous').'" class="icon-fast-backward clickicon controlbutton-small"></i>';
+                        print '<i title="'.get_int_text('button_play').'" class="icon-play-circled shiftleft clickicon controlbutton"></i>';
+                        print '<i title="'.get_int_text('button_stop').'" class="icon-stop-1 shiftleft2 clickicon controlbutton-small"></i>';
+                        print '<i title="'.get_int_text('button_stopafter').'" class="icon-to-end-1 shiftleft3 clickicon controlbutton-small" id="stopafterbutton"></i>';
+                        print '<i title="'.get_int_text('button_next').'" class="icon-fast-forward shiftleft4 clickicon controlbutton-small"></i>';
                         ?>
                     </td></tr>
                 </table>
                 <div id="progress"></div>
-                <div id="playbackTime">§
+                <div id="playbackTime">
                 </div>
             </div>
         </div>
@@ -57,18 +57,18 @@ print '<i class="icon-cog-alt topimg tleft" onclick="layoutProcessor.sourceContr
         <div id="amontobin">
             <div id="subscribe" class="invisible">
                 <?php
-                print '<i title="'.get_int_text('button_subscribe').'" class="icon-rss npicon clickicon lettuce" onclick="podcasts.doPodcast(\'nppodiput\')"></i>';
+                print '<i class="icon-rss npicon clickicon"></i>';
                 ?>
                 <input type="hidden" id="nppodiput" value="" />
             </div>
             <div id="stars" class="invisible">
-                <i id="ratingimage" onclick="nowplaying.setRating(event)" class="icon-0-stars rating-icon-big"></i>
+                <i id="ratingimage" class="icon-0-stars rating-icon-big"></i>
                 <input type="hidden" value="-1" />
             </div>
             <div id="lastfm" class="invisible">
                 <?php
-                print '<i title="'.get_int_text('button_love').'" class="icon-heart npicon clickicon lettuce" id="love" onclick="nowplaying.love()"></i>';
-                print '<i title="'.get_int_text('button_ban').'" class="icon-block npicon clickicon lettuce" id="ban" onclick="infobar.ban()""></i>';
+                print '<i class="icon-heart npicon clickicon" id="love"></i>';
+                print '<i class="icon-block npicon clickicon" id="ban"></i>';
                 ?>
             </div>
             <div id="playcount"></div>
@@ -94,7 +94,7 @@ include("player/".$prefs['player_backend']."/search.php");
 <?php
 if ($prefs['player_backend'] == "mpd") {
     print '<div style="padding-left:12px;padding-top:4px">
-<i title="'.get_int_text('button_searchfiles').'" onclick="toggleFileSearch()" class="icon-search topimg lettuce"></i>
+<i class="icon-search topimg choose_filesearch"></i>
     </div>
     <div id="filesearch" class="invisible searchbox selecotron"></div>';
 }
@@ -124,16 +124,17 @@ include($p);
 
 <div id="chooser" class="noborder scroller mainpane invisible">
 <?php
-    print '<div id="choose_infobar" class="chooser"><a href="#" onclick="layoutProcessor.sourceControl(\'infobar\')">'.get_int_text('button_now_playing').'</a></div>';
-    print '<div id="choose_albumlist" class="chooser"><a href="#" onclick="layoutProcessor.sourceControl(\'albumlist\')">'.get_int_text('button_local_music').'</a></div>';
-    print '<div id="choose_filelist" class="chooser"><a href="#" onclick="layoutProcessor.sourceControl(\'filelist\')">'.get_int_text('button_file_browser').'</a></div>';
-    print '<div id="choose_radiolist" class="chooser"><a href="#" onclick="layoutProcessor.sourceControl(\'radiolist\')">'.get_int_text('button_internet_radio').'</a></div>';
-    print '<div class="chooser"><a href="#" onclick="layoutProcessor.sourceControl(\'infopane\')">'.get_int_text('button_infopanel').'</a></div>';
-    print '<div id="chooseplaylist" class="chooser playlistchoose"><a href="#" onclick="layoutProcessor.sourceControl(\'playlistm\')">'.get_int_text('button_playlist').'</a></div>';
-    print '<div class="chooser"><a href="#" onclick="layoutProcessor.sourceControl(\'playlistman\')">'.get_int_text('button_playman').'</a></div>';
-    print '<div class="chooser"><a href="#" onclick="layoutProcessor.sourceControl(\'pluginplaylistholder\')">'.get_int_text('label_pluginplaylists').'</a></div>';
-    print '<div class="chooser"><a href="#" onclick="layoutProcessor.sourceControl(\'prefsm\')">'.get_int_text('button_prefs').'</a></div>';
-    print '<div class="chooser penbehindtheear"><a href="#" onclick="layoutProcessor.sourceControl(\'historypanel\')">'.get_int_text('button_mob_history').'</a></div>';
+    print '<div class="chooser choose_nowplaying">'.get_int_text('button_now_playing').'</div>';
+    print '<div class="chooser choose_albumlist">'.get_int_text('button_local_music').'</div>';
+    print '<div class="chooser choose_searcher">'.get_int_text('button_searchmusic').'</div>';
+    print '<div class="chooser choose_filelist">'.get_int_text('button_file_browser').'</div>';
+    print '<div class="chooser choose_radiolist">'.get_int_text('button_internet_radio').'</div>';
+    print '<div class="chooser choose_infopanel">'.get_int_text('button_infopanel').'</div>';
+    print '<div class="chooser choose_playlist">'.get_int_text('button_playlist').'</div>';
+    print '<div class="chooser choose_playlistman">'.get_int_text('button_playman').'</div>';
+    print '<div class="chooser choose_pluginplaylists">'.get_int_text('label_pluginplaylists').'</div>';
+    print '<div class="chooser choose_prefs">'.get_int_text('button_prefs').'</div>';
+    print '<div class="chooser choose_history">'.get_int_text('button_mob_history').'</div>';
 ?>
 </div>
 
@@ -148,15 +149,15 @@ print '<div class="containerbox spacer configtitle"><div class="expand textcentr
 </div>
 
 <div id="playlistman" class="noborder scroller mainpane invisible">
-    <div class="pref containerbox dropdown-container"><div class="fixed padright">
 <?php
-        print get_int_text('button_saveplaylist');
+if ($prefs['playuer_backend'] == "mpd") {
+    print '<div class="pref containerbox dropdown-container"><div class="fixed padright">';
+    print get_int_text('button_saveplaylist');
+    print '</div><div class="expand"><input id="playlistname" type="text" size="200"/></div>';
+    print '<button class="fixed">'.get_int_text('button_save').'</button>';
+    print '</div>';
+}
 ?>
-        </div><div class="expand"><input id="playlistname" type="text" size="200"/></div>
-<?php
-        print '<button class="fixed" onclick="player.controller.savePlaylist()">'.get_int_text('button_save').'</button>';
-?>
-    </div>
     <div class="pref">
         <div id="playlistslist">
 <?php
