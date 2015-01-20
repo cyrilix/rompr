@@ -147,13 +147,10 @@ function do_composers(&$track, &$info) {
 function do_performers(&$track, &$info) {
     $c = getArray($track->performers);
     foreach ($c as $comp) {
-        // When doing performers these are often duplicates of album artists or track artists
-        // in that case we'd rather display the performer (and we don't want to display both) because the 'Performer' tag
-        // often includes details like 'Cannonball Adderley (Saxophone)';
         $toremove = null;
         foreach($info['metadata']['artists'] as $i => $artist) {
             if ($artist['type'] == "albumartist" || $artist['type'] == "artist") {
-                if (preg_match('/^'.preg_quote($artist['name']).'/i', $comp)) {
+                if (strtolower($artist['name'] ==  strtolower($comp))) {
                     $toremove = $i;
                     break;
                 }
