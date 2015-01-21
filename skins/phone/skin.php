@@ -38,7 +38,7 @@ print '<i class="icon-cog-alt topimg tleft"></i>';
                         print '<i title="'.get_int_text('button_previous').'" class="icon-fast-backward clickicon controlbutton-small"></i>';
                         print '<i title="'.get_int_text('button_play').'" class="icon-play-circled shiftleft clickicon controlbutton"></i>';
                         print '<i title="'.get_int_text('button_stop').'" class="icon-stop-1 shiftleft2 clickicon controlbutton-small"></i>';
-                        print '<i title="'.get_int_text('button_stopafter').'" class="icon-to-end-1 shiftleft3 clickicon controlbutton-small" id="stopafterbutton"></i>';
+                        print '<i title="'.get_int_text('button_stopafter').'" class="icon-to-end-1 shiftleft3 clickicon controlbutton-small"></i>';
                         print '<i title="'.get_int_text('button_next').'" class="icon-fast-forward shiftleft4 clickicon controlbutton-small"></i>';
                         ?>
                     </td></tr>
@@ -124,17 +124,19 @@ include($p);
 
 <div id="chooser" class="noborder scroller mainpane invisible">
 <?php
-    print '<div class="chooser choose_nowplaying">'.get_int_text('button_now_playing').'</div>';
-    print '<div class="chooser choose_albumlist">'.get_int_text('button_local_music').'</div>';
-    print '<div class="chooser choose_searcher">'.get_int_text('button_searchmusic').'</div>';
-    print '<div class="chooser choose_filelist">'.get_int_text('button_file_browser').'</div>';
-    print '<div class="chooser choose_radiolist">'.get_int_text('button_internet_radio').'</div>';
-    print '<div class="chooser choose_infopanel">'.get_int_text('button_infopanel').'</div>';
-    print '<div class="chooser choose_playlist">'.get_int_text('button_playlist').'</div>';
-    print '<div class="chooser choose_playlistman">'.get_int_text('button_playman').'</div>';
-    print '<div class="chooser choose_pluginplaylists">'.get_int_text('label_pluginplaylists').'</div>';
-    print '<div class="chooser choose_prefs">'.get_int_text('button_prefs').'</div>';
-    print '<div class="chooser choose_history">'.get_int_text('button_mob_history').'</div>';
+// FOr some bizzarre reason, remove the 'a' tags from here makes the browser crash on iOS when you
+// select anything from the preferences panel. WTF?
+    print '<div class="chooser choose_nowplaying"><a href="#">'.get_int_text('button_now_playing').'</a></div>';
+    print '<div class="chooser choose_albumlist"><a href="#">'.get_int_text('button_local_music').'</a></div>';
+    print '<div class="chooser choose_searcher"><a href="#">'.get_int_text('button_searchmusic').'</a></div>';
+    print '<div class="chooser choose_filelist"><a href="#">'.get_int_text('button_file_browser').'</a></div>';
+    print '<div class="chooser choose_radiolist"><a href="#">'.get_int_text('button_internet_radio').'</a></div>';
+    print '<div class="chooser choose_infopanel"><a href="#">'.get_int_text('button_infopanel').'</a></div>';
+    print '<div class="chooser choose_playlist"><a href="#">'.get_int_text('button_playlist').'</a></div>';
+    print '<div class="chooser choose_playlistman"><a href="#">'.get_int_text('button_playman').'</a></div>';
+    print '<div class="chooser choose_pluginplaylists"><a href="#">'.get_int_text('label_pluginplaylists').'</a></div>';
+    print '<div class="chooser choose_prefs"><a href="#">'.get_int_text('button_prefs').'</a></div>';
+    print '<div class="chooser choose_history"><a href="#">'.get_int_text('button_mob_history').'</a></div>';
 ?>
 </div>
 
@@ -149,15 +151,15 @@ print '<div class="containerbox spacer configtitle"><div class="expand textcentr
 </div>
 
 <div id="playlistman" class="noborder scroller mainpane invisible">
+    <div class="pref containerbox dropdown-container"><div class="fixed padright">
 <?php
-if ($prefs['playuer_backend'] == "mpd") {
-    print '<div class="pref containerbox dropdown-container"><div class="fixed padright">';
-    print get_int_text('button_saveplaylist');
-    print '</div><div class="expand"><input id="playlistname" type="text" size="200"/></div>';
-    print '<button class="fixed">'.get_int_text('button_save').'</button>';
-    print '</div>';
-}
+        print get_int_text('button_saveplaylist');
 ?>
+        </div><div class="expand"><input id="playlistname" type="text" size="200"/></div>
+<?php
+        print '<button class="fixed" onclick="player.controller.savePlaylist()">'.get_int_text('button_save').'</button>';
+?>
+    </div>
     <div class="pref">
         <div id="playlistslist">
 <?php

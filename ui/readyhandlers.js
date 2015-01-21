@@ -31,10 +31,6 @@ $(document).ready(function(){
     $(".saveomatic").change(saveSelectBoxes);
     $(".savulon").click(toggleRadio);
     setPrefs();
-    layoutProcessor.adjustLayout();
-    $(window).bind('resize', function() {
-        layoutProcessor.adjustLayout();
-    });
     if (prefs.playlistcontrolsvisible) {
         $("#playlistbuttons").show();
     }
@@ -44,7 +40,11 @@ $(document).ready(function(){
     }
     window.addEventListener("storage", onStorageChanged, false);
     $("#sortable").click(onPlaylistClicked);
-    layoutProcessor.sourceControl(prefs.chooser, setSearchLabelWidth);
+    layoutProcessor.sourceControl(prefs.chooser);
+    layoutProcessor.adjustLayout();
+    $(window).bind('resize', function() {
+        layoutProcessor.adjustLayout();
+    });
     if (prefs.chooser == "searchpane") {
         ihatefirefox();
     }

@@ -403,10 +403,10 @@ function Playlist() {
                 var timeleft = self.currentTrack.duration - infobar.progress();
                 if (timeleft < 4) { timeleft = 300 };
                 var repeats = Math.round(timeleft / 4);
-                $("#stopafterbutton").makeFlasher({flashtime:4, repeats: repeats});
+                $(".icon-to-end-1").makeFlasher({flashtime:4, repeats: repeats});
             } else {
                 player.controller.cancelSingle();
-                $("#stopafterbutton").stopFlasher();
+                $(".icon-to-end-1").stopFlasher();
             }
 
         }

@@ -91,7 +91,10 @@ var layoutProcessor = function() {
 
         sourceControl: function(source, callback) {
             if (source == prefs.chooser) {
-                $("#"+source).show(); 
+                $("#"+source).show();
+                if (source == "searchpane") {
+                    setSearchLabelWidth();
+                }
                 return;
             }
             $("#"+prefs.chooser).hide();
@@ -164,6 +167,14 @@ var layoutProcessor = function() {
             if (!prefs.checkSet('clickmode')) {
                 prefs.clickmode = 'single';
             }
+            // Work around iOS7 input/select bug - when touching a select or input
+            // the entire browser will freeze (for a very long time). Workaround is to
+            // use our own touchend event listener.
+            $('input,select').bind("touchend", function (e) {  
+                 e.preventDefault();
+                 e.stopImmediatePropagation();
+                 e.target.focus(); 
+            });
             setControlClicks();
             $('.choose_nowplaying').click(function(){layoutProcessor.sourceControl('infobar')});
             $('.choose_albumlist').click(function(){layoutProcessor.sourceControl('albumlist')});
