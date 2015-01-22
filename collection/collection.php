@@ -160,10 +160,12 @@ class album {
     }
 
     public function setArtistObject($ob) {
-        if ($this->artistobject !== null) {
-            $this->artistobject->pleaseReleaseMe($this);
+        if ($this->artist != "Various Artists") {
+            if ($this->artistobject !== null) {
+                $this->artistobject->pleaseReleaseMe($this);
+            }
+            $this->artistobject = $ob;
         }
-        $this->artistobject = $ob;
     }
 
     public function trackCount() {
@@ -252,7 +254,7 @@ class artist {
         }
         if ($ak) {
             debug_print("Removing album ".$object->name." from artist ".$this->name, "COLLECTION");
-            unset($this->albums[$key]);
+            unset($this->albums[$ak]);
         } else {
             debug_print("AWOOGA! Removing album ".$object->name." from artist ".$this->name." FAILED!", "COLLECTION");
         }
