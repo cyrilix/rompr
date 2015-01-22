@@ -59,7 +59,7 @@ function onBrowserClicked(event) {
     } else {
         return true;
     }
-};
+}
 
 function onBrowserDoubleClicked(event) {
     var clickedElement = findClickableBrowserElement(event);
@@ -72,7 +72,7 @@ function onBrowserDoubleClicked(event) {
     } else {
         return true;
     }
-};
+}
 
 function findClickableBrowserElement(event) {
     var clickedElement = $(event.target);

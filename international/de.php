@@ -64,7 +64,6 @@ $languages['de'] = array (
 	"config_singleclick" => "Klick zum Hinzufügen, keine Auswahl",
 	"config_sortbydate" => "Sortiere Alben nach Datum",
 	"config_notvabydate" => "Keine Sortierung nach Datum bei 'Verschiedene Künstler'",
-	"config_dateinfo" => "Sie müssen Ihre Musiksammlung aktualisieren, wenn Sie die Datumseinstellungen ändern",
 	"config_updateonstart" => "Musiksammlung beim Start automatisch aktualisieren",
 	"config_updatenow" => "Musiksammlung jetzt aktualisieren",
 	"config_rescan" => "Musiksammlung vollständig neu einlesen",

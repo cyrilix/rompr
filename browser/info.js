@@ -250,7 +250,7 @@ var browser = function() {
             updateHistory();
         },
 
-        Update: function(collection, type, source, nowplayingindex, data) {
+        Update: function(collection, type, source, nowplayingindex, data, scrollto) {
             if (prefs.hidebrowser) {
                 return false;
             }
@@ -278,6 +278,9 @@ var browser = function() {
                         // Also it makes truncating the history really hard.
                         // TODO perhaps artist switches should be spliced in?
                         history[displaypointer].mastercollection.doArtistChoices();
+                    }
+                    if (scrollto) {
+                        layoutProcessor.goToBrowserPanel(type);
                     }
                     return true;
                 } else {
@@ -352,7 +355,7 @@ var browser = function() {
             waitingon.index = history[displaypointer].mastercollection.nowplayingindex;
             displaypointer++;
             updateHistory();
-            browser.Update(n, panel, source, waitingon.index, data);
+            browser.Update(n, panel, source, waitingon.index, data, true);
         },
 
         doHistory: function(index) {

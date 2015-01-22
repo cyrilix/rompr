@@ -64,7 +64,6 @@ $languages['en'] = array (
 	"config_singleclick" => "Click to add, no selection",
 	"config_sortbydate" => "Sort Albums By Date",
 	"config_notvabydate" => "Don't Apply Date Sorting to 'Various Artists'",
-	"config_dateinfo" => "You must update your music collection after changing date settings",
 	"config_updateonstart" => "Update Music Collection On Start",
 	"config_updatenow" => "Update Music Collection Now",
 	"config_rescan" => "Full Local Music Rescan",
@@ -501,9 +500,7 @@ $languages['en'] = array (
 	"label_radio" => "Radio",
 	"label_pop" => "Popularity",
 	"label_albumsby" => "Albums By This Artist",
-	"label_related" => "Related Artists",
 	"label_singleartistradio" => "Tracks By Artist",
-	"label_artistradio" => "Similar Artists",
 	"label_mostplayed" => "Favourite Tracks",
 	"label_neverplayed" => "Never Played Tracks",
 	"label_radio_fartist" => "Favourite Artist Radio",
@@ -557,7 +554,6 @@ $languages['en'] = array (
 	"config_country" => "COUNTRY (for Last.FM and Spotify)",
 	"setup_labeladdresses" => "If you are having connection issues, try using an IP address instead of 'localhost'",
 	"setup_ipaddress" => "Mopidy or mpd server",
-	"config_dateinfo" => "You must update your music collection after changing collection settings",
 
 );
 

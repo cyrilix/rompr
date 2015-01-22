@@ -107,20 +107,6 @@ jQuery.fn.toggleClosed = function() {
     return this;
 }
 
-jQuery.fn.menuReveal = function(callback) {
-    if (callback) {
-        this.slideToggle('fast',callback);
-    } else {
-        this.slideToggle('fast');
-    }
-    return this;
-}
-
-jQuery.fn.menuHide = function() {
-    this.slideToggle('fast');
-    return this;
-}
-
 jQuery.fn.removeInlineCss = function(property) {
 
     if(property == null)

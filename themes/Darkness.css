@@ -234,9 +234,9 @@ div.topdropmenu
 
 /*-- Styles to make the Wikipedia nav boxes look prettier --*/
 
-th.navbox-title
+table.navbox th
 {
-    background-color:#343434;
+    background-color: rgba(255,255,255,0.1);
 }
 
 .navbox-abovebelow

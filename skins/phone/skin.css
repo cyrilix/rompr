@@ -613,6 +613,16 @@ h2
     vertical-align:middle;
 }
 
+.podicon
+{
+    padding:0px;
+    margin:4px;
+    height:32px;
+    width:32px;
+    font-size:32px;
+    vertical-align:middle;
+}
+
 .playlisticon
 {
     padding:0px;

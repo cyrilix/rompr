@@ -291,11 +291,11 @@ function doPodcast($c) {
     }
     print '<div class="whatdoicallthis">'.format_text((string) $y->description).'</div>';
     print '<div class="clearfix bumpad">';
-    print '<i title="'.get_int_text("podcast_delete").'" class="icon-cancel-circled smallicon clickable clickicon podremove tright fridge" name="podremove_'.$pm.'"></i>';
-    print '<i title="'.get_int_text("podcast_configure").'" class="icon-cog-alt smallicon clickable clickicon podconf tleft fridge" name="podconf_'.$pm.'"></i>';
-    print '<i title="'.get_int_text("podcast_refresh").'" class="icon-refresh smallicon clickable clickicon podrefresh tleft fridge" name="podrefresh_'.$pm.'"></i>';
-    print '<i title="'.get_int_text("podcast_download_all").'" class="icon-download smallicon clickable clickicon podgroupload tleft fridge" name="podgroupload_'.$pm.'"></i>';
-    print '<i title="'.get_int_text("podcast_mark_all").'" class="icon-headphones smallicon clickable clickicon podgrouplisten tleft fridge" name="podgrouplisten_'.$pm.'"></i>';
+    print '<i title="'.get_int_text("podcast_delete").'" class="icon-cancel-circled podicon clickable clickicon podremove tright fridge" name="podremove_'.$pm.'"></i>';
+    print '<i title="'.get_int_text("podcast_configure").'" class="icon-cog-alt podicon clickable clickicon podconf tleft fridge" name="podconf_'.$pm.'"></i>';
+    print '<i title="'.get_int_text("podcast_refresh").'" class="icon-refresh podicon clickable clickicon podrefresh tleft fridge" name="podrefresh_'.$pm.'"></i>';
+    print '<i title="'.get_int_text("podcast_download_all").'" class="icon-download podicon clickable clickicon podgroupload tleft fridge" name="podgroupload_'.$pm.'"></i>';
+    print '<i title="'.get_int_text("podcast_mark_all").'" class="icon-headphones podicon clickable clickicon podgrouplisten tleft fridge" name="podgrouplisten_'.$pm.'"></i>';
     print '</div>';
     $class = "dropmenu marged";
     if ((array_key_exists('channel', $_REQUEST) && $_REQUEST['channel'] == $pm) &&
@@ -483,14 +483,14 @@ function format_episode(&$y, &$item, $pm) {
     }
     print '<div class="clearfix" name="podcontrols_'.$pm.'">';
     if (is_dir('prefs/podcasts/'.$pm.'/'.$item->key)) {
-        print '<i class="icon-floppy smallicon tleft fridge" title="'.get_int_text("podcast_tooltip_downloaded").'"></i>';
+        print '<i class="icon-floppy podicon tleft fridge" title="'.get_int_text("podcast_tooltip_downloaded").'"></i>';
     } else {
-        print '<i class="icon-download smallicon clickable clickicon tleft poddownload fridge" title="'.get_int_text("podcast_tooltip_download").'" name="poddownload_'.$item->key.'"></i>';
+        print '<i class="icon-download podicon clickable clickicon tleft poddownload fridge" title="'.get_int_text("podcast_tooltip_download").'" name="poddownload_'.$item->key.'"></i>';
     }
     if ($item->listened == "no") {
-        print '<i class="icon-headphones smallicon clickable clickicon tleft podmarklistened fridge" title="'.get_int_text("podcast_tooltip_mark").'" name="podmarklistened_'.$item->key.'"></i>';
+        print '<i class="icon-headphones podicon clickable clickicon tleft podmarklistened fridge" title="'.get_int_text("podcast_tooltip_mark").'" name="podmarklistened_'.$item->key.'"></i>';
     }
-    print '<i class="icon-cancel-circled smallicon clickable clickicon tright podtrackremove fridge" title="'.get_int_text("podcast_tooltip_delepisode").'" name="podtrackremove_'.$item->key.'" ></i>';
+    print '<i class="icon-cancel-circled podicon clickable clickicon tright podtrackremove fridge" title="'.get_int_text("podcast_tooltip_delepisode").'" name="podtrackremove_'.$item->key.'" ></i>';
     print '</div>';
     print '</div>';
 }

@@ -84,11 +84,6 @@ a.album:hover,a.album:active
     color:#ff4800;
 }
 
-#filemenu
-{
-    /*border-left:1px solid #444444;*/
-}
-
 div.clickable:hover
 {
     color:#ff4800;
@@ -116,22 +111,12 @@ div.clickable.selected:hover
     color:#cc0000;
 }
 
-.item
-{
-    /*border-top:1px solid #999999;*/
-}
-
 .inbrowser
 {
     color:#000000;
 }
 
 /*-- For Wikipedia and Last.FM pages --*/
-
-.stleft
-{
-    /*border-right:1px solid #888888;*/
-}
 
 #wikipopup
 {
@@ -202,6 +187,11 @@ div.topdropmenu
 }
 
 /*-- Styles to make the Wikipedia nav boxes look prettier --*/
+
+table.navbox th
+{
+    background-color: #dddddd;
+}
 
 .navbox-abovebelow
 {

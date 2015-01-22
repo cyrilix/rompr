@@ -210,6 +210,7 @@ var shortcuts = function() {
         },
 
         add: function(name, binding, hotkey) {
+            debug.log("HOTKEYS","Plugin adding key binding",name);
             hotkeys[name] = hotkey;
             bindings[name] = binding;
         }

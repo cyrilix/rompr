@@ -1,3 +1,80 @@
+jQuery.fn.menuReveal = function(callback) {
+    if (callback) {
+        this.show(0, callback);
+    } else {
+        this.show();
+    }
+    return this;
+}
+
+jQuery.fn.menuHide = function(callback) {
+    if (callback) {
+        this.hide(0, callback);
+    } else {
+        this.hide();
+    }
+    return this;
+}
+
+jQuery.fn.makeTagMenu = function(options) {
+    var settings = $.extend({
+        textboxname: "",
+        textboxextraclass: "",
+        labelhtml: "",
+        populatefunction: null,
+        buttontext: null,
+        buttonfunc: null,
+        buttonclass: ""
+    },options);
+
+    this.each(function() {
+        var tbc = "enter";
+        if (settings.textboxextraclass) {
+            tbc = tbc + " "+settings.textboxextraclass;
+        }
+        $(this).append(settings.labelhtml);
+        var holder = $('<div>', { class: "expand"}).appendTo($(this));
+        var dropbutton = $('<i>', { class: 'fixed combo-button'}).appendTo($(this));
+        var textbox = $('<input>', { type: "text", class: tbc, name: settings.textboxname }).appendTo(holder);
+        var dropbox = $('<div>', {class: "drop-box tagmenu dropshadow"}).appendTo(holder);
+        var menucontents = $('<div>', {class: "tagmenu-contents"}).appendTo(dropbox);
+        if (settings.buttontext !== null) {
+            var submitbutton = $('<button>', {class: "fixed"+settings.buttonclass, style: "margin-left: 8px"}).appendTo($(this));
+            submitbutton.html(settings.buttontext);
+            if (settings.buttonfunc) {
+                submitbutton.click(function() {
+                    settings.buttonfunc(textbox.val());
+                });
+            }
+        }
+
+        dropbutton.click(function(ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            if (dropbox.is(':visible')) {
+                dropbox.slideToggle('fast');
+            } else {
+                var data = settings.populatefunction(function(data) {
+                    menucontents.empty();
+                    for (var i in data) {
+                        var d = $('<div>', {class: "backhi"}).appendTo(menucontents);
+                        d.html(data[i]);
+                        d.click(function() {
+                            var cv = textbox.val();
+                            if (cv != "") {
+                                cv += ",";
+                            }
+                            cv += $(this).html();
+                            textbox.val(cv);
+                        });
+                    }
+                    dropbox.slideToggle('fast');
+                });
+            }
+        });
+    });
+}
+
 function toggleSearch() {
     layoutProcessor.sourceControl('searchpane', setSearchLabelWidth);
     ihatefirefox();

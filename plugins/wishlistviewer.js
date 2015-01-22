@@ -116,4 +116,5 @@ var wishlistViewer = function() {
 	}
 
 }();
-addPlugin(language.gettext("label_viewwishlist"), "wishlistViewer.open()");
+
+pluginManager.addPlugin(language.gettext("label_viewwishlist"), wishlistViewer.open, null);

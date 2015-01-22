@@ -177,4 +177,4 @@ var alarm = function() {
 
 }();
 
-globalPlugins.register(alarm);
+pluginManager.addPlugin("Alarm Clock", null, alarm.setup);

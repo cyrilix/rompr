@@ -246,6 +246,11 @@ body.mobile .configtitle
 
 /*-- Styles to make the Wikipedia nav boxes look prettier --*/
 
+table.navbox th
+{
+    background-color: rgba(0,0,0,0.2);
+}
+
 .navbox-abovebelow
 {
     padding-bottom:4px;

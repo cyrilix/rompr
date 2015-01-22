@@ -64,7 +64,7 @@ var info_spotify = function() {
     	if (player.canPlay('spotify')) {
 	        h = h + '<li><div class="containerbox menuitem infoclick clickstartradio" style="padding-left:0px">'+
 	        		'<div class="fixed" style="vertical-align:middle;padding-right:4px"><i class="icon-wifi smallicon"></i></div>'+
-	        		'<div class="fixed">'+language.gettext("label_artistradio")+'</div>'+
+	        		'<div class="fixed">'+language.gettext("lastfm_simar")+'</div>'+
 	                '</div></li>';
 	    }
     	h = h + '</ul></div>';
@@ -88,7 +88,7 @@ var info_spotify = function() {
     		h = h + ' bsel';
     	}
 
-    	h = h + '">'+language.gettext("label_related")+'</div>' +
+    	h = h + '">'+language.gettext("lastfm_simar")+'</div>' +
     			'<div class="fixed"><i id="hibbert" class="smallcover-svg title-menu invisible"></i></div></div>' +
     			'<div class="holdingcell masonified2" id="artistalbums"></div>';
     	return h;
@@ -155,7 +155,7 @@ var info_spotify = function() {
                 	var id = element.parent().next().attr("id");
                 	if (element.isOpen()) {
                         element.toggleClosed();
-            			element.parent().next().menuReveal(browser.rePoint);
+            			element.parent().next().menuHide(browser.rePoint);
                 	} else {
                         element.toggleOpen();
                 		if (element.parent().next().hasClass("filled")) {
@@ -168,7 +168,7 @@ var info_spotify = function() {
                 	var id = element.parent().next().attr("id");
                 	if (element.isOpen()) {
 	                	element.toggleClosed();
-            			element.parent().next().menuReveal(browser.rePoint);
+            			element.parent().next().menuHide(browser.rePoint);
                 	} else {
                 		element.toggleOpen();
                 		if (element.parent().next().hasClass("filled")) {
@@ -293,7 +293,7 @@ var info_spotify = function() {
 	            		x.append('<div class="tagh albumthing"><i class="icon-toggle-closed menu infoclick clickopenalbum"></i><span class="title-menu infoclick clickable draggable clicktrack" name="'+data.items[i].uri+'">'+data.items[i].name+'</span></div>')
 	            		x.append('<div class="tagh albumthing invisible" id="'+data.items[i].id+'"></div>')
 	            	}
-	            	$("#"+id).slideToggle('fast', browser.rePoint);
+	            	$("#"+id).menuReveal(browser.rePoint);
 	            	$("#"+id).addClass("filled");
             		$.each($('.tagholder3'), function() { $(this).imagesLoaded( browser.rePoint )});
             	}
@@ -333,7 +333,7 @@ var info_spotify = function() {
 
             this.spotifyAlbumResponse = function(data) {
             	$("#"+data.id).html(trackListing(data));
-            	$("#"+data.id).slideToggle('fast', browser.rePoint)
+                $("#"+data.id).menuReveal(browser.rePoint)
             	$("#"+data.id).addClass("filled");
             }
 

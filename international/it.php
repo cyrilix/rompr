@@ -64,7 +64,6 @@ $languages['it'] = array (
 	"config_singleclick" => "Clic per aggiungere, nessuna selezione",
 	"config_sortbydate" => "Ordina Album per Data",
 	"config_notvabydate" => "Non applicare l'ordinamento per data a 'Artisti Vari'",
-	"config_dateinfo" => "Devi aggiornare la tua collezione musicale dopo aver modificato le impostazioni sulla data",
 	"config_updateonstart" => "Aggiorna Collezione Musicale all'Avvio",
 	"config_updatenow" => "Aggiorna Collezione Musicale Adesso",
 	"config_rescan" => "Ricerca nuovamente tutta la Musica in locale",

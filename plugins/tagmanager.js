@@ -243,4 +243,4 @@ var tagManager = function() {
 	}
 }();
 
-addPlugin(language.gettext("label_tagmanager"), "tagManager.open()");
+pluginManager.addPlugin(language.gettext("label_tagmanager"), tagManager.open, null);

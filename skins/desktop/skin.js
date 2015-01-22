@@ -1,3 +1,94 @@
+jQuery.fn.menuReveal = function(callback) {
+    if (callback) {
+        this.slideToggle('fast',callback);
+    } else {
+        this.slideToggle('fast');
+    }
+    return this;
+}
+
+jQuery.fn.menuHide = function(callback) {
+    if (callback) {
+        this.slideToggle('fast',callback);
+    } else {
+        this.slideToggle('fast');
+    }
+    return this;
+}
+
+jQuery.fn.makeTagMenu = function(options) {
+    var settings = $.extend({
+        textboxname: "",
+        textboxextraclass: "",
+        labelhtml: "",
+        populatefunction: null,
+        buttontext: null,
+        buttonfunc: null,
+        buttonclass: ""
+    },options);
+
+    this.each(function() {
+        var tbc = "enter combobox-entry";
+        if (settings.textboxextraclass) {
+            tbc = tbc + " "+settings.textboxextraclass;
+        }
+        $(this).append(settings.labelhtml);
+        var holder = $('<div>', { class: "expand"}).appendTo($(this));
+        var textbox = $('<input>', { type: "text", class: tbc, name: settings.textboxname }).appendTo(holder);
+        var dropbox = $('<div>', {class: "drop-box tagmenu dropshadow"}).appendTo(holder);
+        var menucontents = $('<div>', {class: "tagmenu-contents"}).appendTo(dropbox);
+        if (settings.buttontext !== null) {
+            var submitbutton = $('<button>', {class: "fixed"+settings.buttonclass, style: "margin-left: 8px"}).appendTo($(this));
+            submitbutton.html(settings.buttontext);
+            if (settings.buttonfunc) {
+                submitbutton.click(function() {
+                    settings.buttonfunc(textbox.val());
+                });
+            }
+        }
+
+        dropbox.mCustomScrollbar({
+            theme: "light-thick",
+            scrollInertia: 80,
+            contentTouchScroll: true,
+            advanced: {
+                updateOnContentResize: true,
+            }
+        });
+
+        textbox.click(function(ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            var position = getPosition(ev);
+            var elemright = textbox.width() + textbox.offset().left;
+            if (position.x > elemright - 24) {
+                if (dropbox.is(':visible')) {
+                    dropbox.slideToggle('fast');
+                } else {
+                    var data = settings.populatefunction(function(data) {
+                        menucontents.empty();
+                        for (var i in data) {
+                            var d = $('<div>', {class: "backhi"}).appendTo(menucontents);
+                            d.html(data[i]);
+                            d.click(function() {
+                                var cv = textbox.val();
+                                if (cv != "") {
+                                    cv += ",";
+                                }
+                                cv += $(this).html();
+                                textbox.val(cv);
+                            });
+                        }
+                        dropbox.slideToggle('fast', function() {
+                            dropbox.mCustomScrollbar("update");
+                        });
+                    });
+                }
+            }
+        });
+    });
+}
+
 function toggleSearch() {
     if (prefs.hide_albumlist) {
         layoutProcessor.sourceControl("albumlist", grrAnnoyed);
@@ -257,8 +348,7 @@ var layoutProcessor = function() {
 
         goToBrowserPanel: function(panel) {
             $("#infopane").mCustomScrollbar('update');
-            var sp = $("#"+panel+"information").position();
-            $("#infopane").mCustomScrollbar("scrollTo",sp.top);
+            $("#infopane").mCustomScrollbar("scrollTo","#"+panel+"information");
         },
 
         goToBrowserPlugin: function(panel) {
@@ -454,7 +544,6 @@ var layoutProcessor = function() {
 
             $(".stayopen").click(function(ev) {ev.stopPropagation() });
 
-            shortcuts.load();
             $("#volumecontrol").bind('mousedown', function(event){
                 event.preventDefault();
                 infobar.volumeTouch(event);
@@ -476,7 +565,7 @@ var layoutProcessor = function() {
             $.each([ "#sources", "#infopane", "#pscroller", ".topdropmenu", ".drop-box" ], function( index, value ) {
                 addCustomScrollBar(value);
             });
-
+            shortcuts.load();
             $("#mopidysearcher input").keyup( function(event) {
                 if (event.keyCode == 13) {
                     player.controller.search('search');

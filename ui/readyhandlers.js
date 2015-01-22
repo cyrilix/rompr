@@ -1,7 +1,7 @@
 $(document).ready(function(){
     debug.log("INIT","Document Ready Event has fired");
     infobar.createProgressBar();
-    globalPlugins.initialise();
+    pluginManager.doEarlyInit();
     player.controller.initialise();
     layoutProcessor.initialise();
     checkServerTimeOffset();
@@ -48,4 +48,5 @@ $(document).ready(function(){
     if (prefs.chooser == "searchpane") {
         ihatefirefox();
     }
+    pluginManager.setupPlugins();
 });

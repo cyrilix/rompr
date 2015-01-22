@@ -112,6 +112,18 @@ select:hover{
     background:#fff url('../newimages/blobdown2-hi.svg') right 2px center no-repeat;    
 }
 
+.combo-button
+{
+    background-image: url('../newimages/blobdown2.svg');
+    background-size:contain;
+    background-position: center;
+    background-repeat:no-repeat;
+    display:block;
+    height:2em;
+    width:2em;
+    margin-left:4px;
+}
+
 .enter
 {
     box-sizing: border-box;
@@ -851,6 +863,11 @@ table.navbox
     padding-bottom:4px;
 }
 
+.navbox-abovebelow div ul
+{
+    padding-left:0.5em;
+}
+
 .navbox-abovebelow ul li
 {
     list-style:none;
@@ -868,13 +885,14 @@ table.navbox
 {
     display:inline-block;
     margin: 0.125em;
+    padding-left:0.5em;
 }
 
 .navbox-list div ul li
 {
     list-style:none;
     float:left;
-    padding-left:2em;
+    padding-right:1.5em;
 }
 
 #cheese
@@ -1440,6 +1458,7 @@ div.lyrics p
 {
     height:24px;
     width:24px;
+    font-size:24px;
     margin-top:2px;
 }
 
@@ -1447,6 +1466,7 @@ div.lyrics p
 {
     height:20px;
     width:20px;
+    font-size:20px;
     margin-top:2px;
 }
 

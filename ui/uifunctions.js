@@ -839,83 +839,6 @@ function populateTagMenu(callback) {
     });
 }
 
-jQuery.fn.makeTagMenu = function(options) {
-    var settings = $.extend({
-        textboxname: "",
-        textboxetxraclass: "",
-        labelhtml: "",
-        populatefunction: null,
-        buttontext: null,
-        buttonfunc: null,
-        buttonclass: ""
-    },options);
-
-    this.each(function() {
-        var tbc = "enter combobox-entry";
-        if (settings.textboxextraclass) {
-            tbc = tbc + " "+settings.textboxextraclass;
-        }
-        $(this).append(settings.labelhtml);
-        var holder = $('<div>', { class: "expand"}).appendTo($(this));
-        var textbox = $('<input>', { type: "text", class: tbc, name: settings.textboxname }).appendTo(holder);
-        var dropbox = $('<div>', {class: "drop-box tagmenu dropshadow"}).appendTo(holder);
-        var menucontents = $('<div>', {class: "tagmenu-contents"}).appendTo(dropbox);
-        if (settings.buttontext !== null) {
-            var submitbutton = $('<button>', {class: "fixed"+settings.buttonclass, style: "margin-left: 8px"}).appendTo($(this));
-            submitbutton.html(settings.buttontext);
-            if (settings.buttonfunc) {
-                submitbutton.click(function() {
-                    settings.buttonfunc(textbox.val());
-                });
-            }
-        }
-
-        if (layoutProcessor.hasCustomScrollbars) {
-            dropbox.mCustomScrollbar({
-                theme: (prefs.theme == "Light.css" || prefs.theme == "BrushedAluminium.css" || prefs.theme == "Aqua.css") ? "dark-thick" : "light-thick",
-                scrollInertia: 80,
-                contentTouchScroll: true,
-                advanced: {
-                    updateOnContentResize: true,
-                }
-            });
-        }
-
-        textbox.click(function(ev) {
-            ev.preventDefault();
-            ev.stopPropagation();
-            var position = getPosition(ev);
-            var elemright = textbox.width() + textbox.offset().left;
-            if (position.x > elemright - 24) {
-                if (dropbox.is(':visible')) {
-                    dropbox.slideToggle('fast');
-                } else {
-                    var data = settings.populatefunction(function(data) {
-                        menucontents.empty();
-                        for (var i in data) {
-                            var d = $('<div>', {class: "backhi"}).appendTo(menucontents);
-                            d.html(data[i]);
-                            d.click(function() {
-                                var cv = textbox.val();
-                                if (cv != "") {
-                                    cv += ",";
-                                }
-                                cv += $(this).html();
-                                textbox.val(cv);
-                            });
-                        }
-                        dropbox.slideToggle('fast', function() {
-                            if (layoutProcessor.hasCustomScrollbars) {
-                                dropbox.mCustomScrollbar("update");
-                            }
-                        });
-                    });
-                }
-            }
-        });
-    });
-}
-
 var tagAdder = function() {
 
     var index = null;
@@ -944,9 +867,49 @@ var tagAdder = function() {
     }
 }();
 
-function addPlugin(label, action) {
-    $("#specialplugins").append('<div class="backhi clickicon noselection menuitem" onclick="'+action+'">'+label+'</div>');
-}
+var pluginManager = function() {
+
+    // Plugins (from the plugins directory) shoud call pluginManager.addPlugin at load time.
+    // They must supply a label and either an action function, a setup function, or both.
+    // The setup function will be called as soon as all the page scripts have loaded,
+    // before the layout is initialised. If a plugin wishes to add icons to the layout,
+    // or hotkeys, it should do it here. 
+    // If an action function is provided the plugin's label will be added to the dropdown list 
+    // above the info panel and the action function will be called when the label is clicked.
+    // Note that plugins are not used in the mobile layout - for memory reasons. Most plugins
+    // provide services that are not useful on a mobile screen anyway.
+
+    var plugins = new Array();
+
+    return {
+        addPlugin: function(label, action, setup) {
+            debug.log("PLUGINS","Adding Plugin",label);
+            plugins.push({label: label, action: action, setup: setup});
+        },
+
+        doEarlyInit: function() {
+            for (var i in plugins) {
+                if (plugins[i].setup) {
+                    debug.log("PLUGINS","Setting up Plugin",plugins[i].label);
+                    plugins[i].setup();
+                }
+            }
+        },
+
+        setupPlugins: function() {
+            for (var i in plugins) {
+                if (plugins[i].action) {
+                    debug.log("PLUGINS","Setting up Plugin",plugins[i].label);
+                    $("#specialplugins").append('<div class="backhi clickable clickicon noselection menuitem" name="'+i+'">'+plugins[i].label+'</div>');
+                }
+            }
+            $("#specialplugins .clickicon").click(function() {
+                var index = parseInt($(this).attr('name'));
+                plugins[index].action();
+            });
+        }
+    }
+}();
 
 function joinartists(ob) {
 
@@ -968,11 +931,6 @@ function joinartists(ob) {
             var t = new Array();
             for (var i in ob) {
                 var flub = ""+ob[i].name;
-                // This might be a problem in Mopidy BUT Spotify tracks are coming back with eg
-                // artist[0] = King Tubby, artist[1] = Johnny Clarke, artist[2] = King Tubby & Johnny Clarke
-                // if (flub.match(/ & /) || flub.match(/ and /i)) {
-                //     return flub;
-                // }
                 t.push(flub);
             }
             return concatenate_artist_names(t);
@@ -1081,24 +1039,6 @@ function setSearchLabelWidth() {
     w += 8;
     $(".searchlabel").css("width", w+"px");
 }
-
-var globalPlugins = function() {
-
-    var plugins = new Array();
-
-    return {
-        register: function(plugin) {
-            plugins.push(plugin);
-        },
-
-        initialise: function() {
-            for (var i in plugins) {
-                plugins[i].setup();
-            }
-        }
-    }
-
-}();
 
 function audioClass(filetype) {
     filetype = filetype.toLowerCase();

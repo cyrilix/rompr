@@ -287,6 +287,11 @@ div.topdropmenu
 
 /*-- Styles to make the Wikipedia nav boxes look prettier --*/
 
+table.navbox th
+{
+    background-color: #dddddd;
+}
+
 .navbox-abovebelow
 {
     padding-bottom:4px;

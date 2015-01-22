@@ -88,4 +88,4 @@ var charts = function() {
 
 }();
 
-addPlugin(language.gettext("label_charts"), "charts.open()");
+pluginManager.addPlugin(language.gettext("label_charts"), charts.open, null);

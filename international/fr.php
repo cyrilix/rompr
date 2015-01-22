@@ -61,7 +61,6 @@ $languages['fr'] = array (
 	"config_singleclick" => "Click pour ajout, pas de sélection",
 	"config_sortbydate" => "Classement Des Albums Par Date",
 	"config_notvabydate" => "Pas De Classement Par Date Pour 'Various Artists'",
-	"config_dateinfo" => "Vous devez mettre à jour votre liste d'albums après modification des paramètres de date",
 	"config_updateonstart" => "Mise A Jour De La Musique Locale Au Démarrage",
 	"config_updatenow" => "Mise A Jour De La Musique Locale",
 	"config_rescan" => "Scan Complet De La Musique Locale",

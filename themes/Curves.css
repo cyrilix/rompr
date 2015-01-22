@@ -400,6 +400,11 @@ body.mobile .configtitle
 
 /*-- Styles to make the Wikipedia nav boxes look prettier --*/
 
+table.navbox th
+{
+    background-color: rgba(0,0,0,0.1);
+}
+
 div.toc
 {
     border-radius:1em;

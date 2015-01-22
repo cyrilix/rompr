@@ -158,7 +158,6 @@ div.clickable.selected:hover
 .infosection
 {
     background-color:#131330;
-    /*border-bottom:1px solid #000000;*/
 }
 
 .albumsection
@@ -230,11 +229,15 @@ div.topdropmenu
 
 /*-- Styles to make the Wikipedia nav boxes look prettier --*/
 
+table.navbox th
+{
+    background-color:#181850;
+}
+
 .navbox-title a:link,
 .navbox-abovebelow a:link,
 .navbox-group a:link
 {
-    /*color:#990000;*/
     text-decoration:none;
 }
 
@@ -242,7 +245,6 @@ div.topdropmenu
 .navbox-abovebelow a:visited,
 .navbox-group a:visited
 {
-    /*color:#990000;*/
     text-decoration:none;
 }
 
@@ -250,29 +252,7 @@ div.topdropmenu
 .navbox-abovebelow a:hover,a:active,
 .navbox-group a:hover,a:active
 {
-    /*color:#ff4800;*/
     text-decoration:none;
-}
-
-.plainlinks
-{
-    /*background-color:#cccccc;*/
-}
-
-.tracklist tbody tr td
-{
-    /*color:#000000;*/
-}
-
-.tracklist tbody tr td ul li
-{
-    /*color:#000000;*/
-}
-
-.tracklist tbody tr th
-{
-    /*color:#000000;*/
-    font-weight:bold;
 }
 
 .funkymusic

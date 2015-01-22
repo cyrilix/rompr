@@ -209,4 +209,4 @@ var ratingManager = function() {
 
 }();
 
-addPlugin(language.gettext("label_ratingmanager"), "ratingManager.open()");
+pluginManager.addPlugin(language.gettext("label_ratingmanager"), ratingManager.open, null);

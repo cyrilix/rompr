@@ -25,4 +25,4 @@ var aboutRompr = function() {
 
 }();
 
-addPlugin(language.gettext("button_about"), "aboutRompr.open()");
+pluginManager.addPlugin(language.gettext("button_about"), aboutRompr.open, null);
