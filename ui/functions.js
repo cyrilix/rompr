@@ -253,6 +253,7 @@ function utf8_encode(s) {
 }
 
 function escapeHtml(text) {
+    if (!text) return '';
   return text
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
@@ -262,6 +263,7 @@ function escapeHtml(text) {
 }
 
 function unescapeHtml(text) {
+    if (!text) return '';
   return text
       .replace(/&amp;/g, "&")
       .replace(/&lt;/g, "<")

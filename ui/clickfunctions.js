@@ -126,6 +126,9 @@ function onFileCollectionClicked(event) {
     var clickedElement = findClickableElement(event);
     if (clickedElement.hasClass("menu")) {
         doFileMenu(event, clickedElement);
+    } else if (clickedElement.hasClass('clickdeleteplaylist')) {
+        event.stopImmediatePropagation();
+        player.controller.deletePlaylist(clickedElement.prev().prev().prev().attr('name'));        
     } else if (prefs.clickmode == "double") {
         if (clickedElement.hasClass("clickalbum")) {
             event.stopImmediatePropagation();

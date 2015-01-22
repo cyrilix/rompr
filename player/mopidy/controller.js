@@ -238,18 +238,17 @@ function playerController() {
         				        '<i class="icon-spotify-circled fixed smallicon"></i>'+
 						        '<div class="expand clickable clickloadplaylist">'+this.name+'</div>'+
 						        '</div>';
-						        // '<div id="pholder'+c+'" class="dropmenu notfilled"></div>';
 						        break;
                 case "radio-de":
-                   html = html + '<div class="containerbox menuitem clickable clicktrack" name="'+this.uri+'">'+
+                   html = html + '<div class="containerbox menuitem" name="'+this.uri+'">'+
                                 '<i class="icon-radio-tower fixed smallicon"></i>'+
-                                '<div class="expand">'+this.name+'</div>'+
+                                '<div class="expand clickable clicktrack">'+this.name+'</div>'+
                                 '</div>';
                                 break;
 				default:
-		           html = html + '<div class="containerbox menuitem clickable clicktrack" name="'+this.uri+'">'+
-								'<i class="icon-folder-open-empty fixed smallicon"><i>'+
-						        '<div class="expand">'+this.name+'</div>'+
+		           html = html + '<div class="containerbox menuitem" name="'+this.uri+'">'+
+								'<i class="icon-folder-open-empty fixed smallicon"></i>'+
+						        '<div class="expand clickable clicktrack">'+this.name+'</div>'+
 						        '</div>';
 						        break;
      		}

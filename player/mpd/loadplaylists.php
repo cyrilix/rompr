@@ -11,13 +11,15 @@ if (!is_array($playlists)) {
     $playlists = array();
     $playlists['playlist'][0] = $temp;
 }
-print '<table width="98%">';
 if (array_key_exists('playlist', $playlists) && is_array($playlists['playlist'])) {
     sort($playlists['playlist'], SORT_STRING);
     foreach ($playlists['playlist'] as $pl) {
-        print '<tr><td></td><td align="left"><a href="#" onclick="playlist.load(\''.rawurlencode($pl).'\')">'.htmlspecialchars($pl).'</a></td>';
-        print '<td align="right"><i class="icon-cancel-circled playlisticon clickicon" onclick="player.controller.deletePlaylist(\''.rawurlencode($pl).'\')"></i></td></tr>';
+        print '<div class="containerbox meunitem dropdown-container">';
+        print '<input type="hidden" name="'.rawurlencode($pl).'" />';
+        print '<i class="icon-folder-open-empty fixed smallicon"></i>';
+        print '<div class="expand clickable clickloadplaylist">'.htmlspecialchars($pl).'</div>';
+        print '<i class="icon-cancel-circled fixed smallicon clickable clickicon clickdeleteplaylist"></i>';
+        print '</div>';
     }
 }
-print '</table>';
 ?>

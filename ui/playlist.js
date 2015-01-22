@@ -165,7 +165,8 @@ function Playlist() {
         for (var i in tracklist) {
             $("#sortable").append(tracklist[i].getHTML());
         }
-        makeFictionalCharacter();
+        // Invisible empty div tacked on the end is where we add our 'Incoming' animation
+        $("#sortable").append('<div id="waiter" class="containerbox"></div>');
         layoutProcessor.setPlaylistHeight();
 
         self.radioManager.init();
@@ -195,13 +196,7 @@ function Playlist() {
 
     }
 
-    function makeFictionalCharacter() {
-        // Invisible empty div tacked on the end is where we add our 'Incoming' animation
-        $("#sortable").append('<div id="waiter" class="containerbox"></div>');
-    }
-
     this.load = function(name) {
-        makeFictionalCharacter();
         playlist.waiting();
         layoutProcessor.playlistLoading();
         debug.log("PLAYLIST","Loading Playlist",name);
@@ -343,7 +338,7 @@ function Playlist() {
 
     this.playFromEnd = function() {
         if (player.status.state == "stop") {
-            debug.debug("PLAYLIST","Playfromend",finaltrack+1);
+        debug.debug("PLAYLIST","Playfromend",finaltrack+1);
             return finaltrack+1;
         } else {
             debug.debug("PLAYLIST","Disabling auto-play");

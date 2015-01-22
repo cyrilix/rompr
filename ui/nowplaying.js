@@ -175,7 +175,8 @@ var nowplaying = function() {
 
 		newTrack: function(playlistinfo) {
 
-			if (currentbackendid == playlistinfo.backendid) {
+			if (currentbackendid == playlistinfo.backendid
+				&& playlistinfo.type != 'stream') {
 				return;
 			}
 			infobar.setNowPlayingInfo(playlistinfo);

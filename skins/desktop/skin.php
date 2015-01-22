@@ -157,7 +157,7 @@ print '<div class="configtitle textcentre"><b>'.get_int_text('button_loadplaylis
 <?php
 print '<div class="topdrop"><i class="icon-floppy topimg tooltip" title="'.get_int_text('button_saveplaylist').'"></i>';
 ?>
-<div class="topdropmenu dropshadow rightmenu widemenu stayopen">
+<div class="topdropmenu dropshadow rightmenu widemenu stayopen" id="plsaver">
 <?php
 print '<div class="configtitle textcentre"><b>'.get_int_text('button_saveplaylist').'</b></div>';
 print '<div class="containerbox"><div class="expand"><input class="enter" id="playlistname" type="text" size="200"/></div>';

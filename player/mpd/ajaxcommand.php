@@ -1,9 +1,9 @@
 <?php
 chdir('../..');
 include ("includes/vars.php");
+$mpd_status = array();
 include ("includes/functions.php");
 include ("player/mpd/connection.php");
-$mpd_status['albumart'] = "";
 
 if (!array_key_exists('fast', $_REQUEST) && array_key_exists('song', $mpd_status)) {
     $songinfo = array();

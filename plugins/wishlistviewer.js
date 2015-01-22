@@ -51,12 +51,9 @@ var wishlistViewer = function() {
 
 	function getTrackBuyLinks(element) {
 	    var trackDiv = element.parent().parent();
-	    var albumDiv = trackDiv.parent();
-	    var albumHeaderDiv = albumDiv.prev();
-	    var albumContainer = albumHeaderDiv.parent();
-	    var artistDiv = albumContainer.parent();
+	    var artistDiv = trackDiv.parent().parent().prev();
 	    var title = unescapeHtml(trackDiv.children('.expand').html());
-	    var artist = unescapeHtml($(artistDiv.children()[0]).children('.expand').html());
+	    var artist = unescapeHtml(artistDiv.children('.expand').html());
 	    debug.log("DB_TRACKS","Getting Buy Links For",title,artist);
 	    element.makeSpinner();
 	    var bugger = element.parent();

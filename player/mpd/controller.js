@@ -104,6 +104,7 @@ function playerController() {
             debug.debug("MPD","Status",player.status);
         })
         .fail( function() {
+            debug.warn("MPD","Command",cmd,"failed");
             alert("Failed to send command '"+cmd+"' to MPD");
             self.checkProgress();
         });
@@ -207,7 +208,8 @@ function playerController() {
 	}
 
 	this.loadPlaylist = function(name) {
-        self.command('command=load&arg='+name, playlist.repopulate);
+        self.command('command=load&arg='+escape(name), playlist.repopulate);
+        return false;
 	}
 
 	this.deletePlaylist = function(name) {
@@ -228,6 +230,7 @@ function playerController() {
 	        self.fastcommand("command=save&arg="+encodeURIComponent(name), function() {
 	            self.reloadPlaylists();
 	            infobar.notify(infobar.NOTIFY, language.gettext("label_savedpl", [name]));
+                $("#plsaver").slideToggle('fast');
 	        });
 	    }
 	}
@@ -488,7 +491,7 @@ function playerController() {
         // Track changes are detected based on the playlist id. This prevents us from repopulating
         // the browser every time the playlist gets repopulated.
         if (player.status.songid != previoussongid) {
-            debug.mark("PLAYLIST","Track has changed");
+            debug.mark("MPD","Track has changed");
             playlist.trackchanged();
 
             playlist.findCurrentTrack();
@@ -502,7 +505,7 @@ function playerController() {
             }
 
             if (playlist.currentTrack) {
-                debug.log("PLAYLIST","Creating new track",playlist.currentTrack);
+                debug.log("MPD","Creating new track",playlist.currentTrack);
                 nowplaying.newTrack(playlist.currentTrack);
             } else {
                 player.status.songid = undefined;
