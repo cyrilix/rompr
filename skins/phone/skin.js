@@ -94,6 +94,22 @@ function addCustomScrollBar(value) {
     // Dummy function - custom scrollbars are not used in the mobile version
 }
 
+function setTopIconSize(panels) {
+    var imw = (parseInt($('.topimg').first().css('margin-left')) + parseInt($('.topimg').first().css('margin-right')));
+    var imh = parseInt($('.topimg').first().css('max-height'))
+    panels.forEach( function(div) {
+        if ($(div).is(':visible')) {
+            var icons = $(div+" .topimg");
+            var numicons = icons.length;
+            var mw = imw*numicons;
+            var iw = Math.floor(($(div).width() - mw - 8)/numicons);
+            if (iw > imh) iw = imh;
+            if (iw < 8) iw = 8;
+            icons.css({width: iw+"px", height: iw+"px", "font-size": iw+"px"});
+        }
+    });
+}
+
 var layoutProcessor = function() {
 
     return {
@@ -181,6 +197,9 @@ var layoutProcessor = function() {
             if (callback) {
                 callback();
             }
+            if (source == 'infopane') {
+                setTopIconSize(['#chooserbuttons']);
+            }
         },
 
         adjustLayout: function() {
@@ -217,6 +236,7 @@ var layoutProcessor = function() {
             layoutProcessor.setPlaylistHeight();
             layoutProcessor.scrollPlaylistToCurrentTrack();
             browser.rePoint();
+            setTopIconSize(['#headerbar', '#chooserbuttons']);
         },
 
         initialise: function() {

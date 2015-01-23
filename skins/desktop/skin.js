@@ -188,7 +188,7 @@ jQuery.fn.animatePanel = function(options) {
     var panel = this.attr("id");
     var opanel = panel;
     panel = panel.replace(/controls/,'');
-    if (settings[panel] > 0) {
+    if (settings[panel] > 0 && this.is(':hidden')) {
         this.show();
     } 
     this.animate({width: settings[panel]+"%"}, 

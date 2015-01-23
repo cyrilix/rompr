@@ -3,27 +3,21 @@
 <div id="notifications"></div>
 <div id="headerbar" class="noborder fullwidth containerbox">
 <div id="sourcescontrols" class="fixed noborder">
-<?php
-print '<i class="icon-play-circled topimg choose_nowplaying"></i>';
-print '<i class="icon-music topimg choose_albumlist"></i>';
-print '<i class="icon-search topimg choose_searcher"></i>';
-print '<i class="icon-folder-open-empty topimg choose_filelist"></i>';
-print '<i class="icon-radio-tower topimg choose_radiolist"></i>';
-print '<i class="icon-info-circled topimg choose_infopanel"></i>';
-?>
+<i class="icon-play-circled topimg choose_nowplaying"></i>
+<i class="icon-music topimg choose_albumlist"></i>
+<i class="icon-search topimg choose_searcher"></i>
+<i class="icon-folder-open-empty topimg choose_filelist"></i>
+<i class="icon-radio-tower topimg choose_radiolist"></i>
+<i class="icon-info-circled topimg choose_infopanel"></i>
 </div>
 <div class="expand"></div>
 <div id="playlistcontrols" class="fixed noborder">
 <div class="tleft">
-<?php
-print '<i class="icon-volume-up topimg"></i>';
-?>
+<i class="icon-volume-up topimg"></i>
 <div id="volumecontrol"><div id="volume"></div></div>
 </div>
-<?php
-print '<i class="icon-doc-text topimg tleft choose_playlist"></i>';
-print '<i class="icon-cog-alt topimg tleft"></i>';
-?>
+<i class="icon-doc-text topimg tleft choose_playlist"></i>
+<i class="icon-cog-alt topimg tleft"></i>
 </div>
 </div>
 
@@ -56,9 +50,7 @@ print '<i class="icon-cog-alt topimg tleft"></i>';
         </div>
         <div id="amontobin">
             <div id="subscribe" class="invisible">
-                <?php
-                print '<i class="icon-rss npicon clickicon"></i>';
-                ?>
+                <i class="icon-rss npicon clickicon"></i>
                 <input type="hidden" id="nppodiput" value="" />
             </div>
             <div id="stars" class="invisible">
@@ -66,10 +58,8 @@ print '<i class="icon-cog-alt topimg tleft"></i>';
                 <input type="hidden" value="-1" />
             </div>
             <div id="lastfm" class="invisible">
-                <?php
-                print '<i class="icon-heart npicon clickicon" id="love"></i>';
-                print '<i class="icon-block npicon clickicon" id="ban"></i>';
-                ?>
+                <i class="icon-heart npicon clickicon" id="love"></i>
+                <i class="icon-block npicon clickicon" id="ban"></i>
             </div>
             <div id="playcount"></div>
             <div id="dbtags" class="invisible">
@@ -103,7 +93,10 @@ if ($prefs['player_backend'] == "mpd") {
 </div>
 
 <div id="infopane" class="infowiki scroller mainpane invisible">
-    <div class="containerbox headercontainer"><div id="chooserbuttons" class="noborder expand center topbox containerbox"></div></div>
+    <div class="containerbox headercontainer"><div id="chooserbuttons" class="noborder expand center topbox containerbox">
+        <i id="backbutton" class="icon-left-circled topimg button-disabled fixed"></i>
+        <i id="forwardbutton" class="icon-right-circled topimg button-disabled fixed"></i>
+    </div></div>
     <div id="artistchooser" class="infotext invisible"></div>
 <?php
     print '<div id="artistinformation" class="infotext"><h2 align="center">'.get_int_text('label_emptyinfo').'</h2></div>';
@@ -124,7 +117,7 @@ include($p);
 
 <div id="chooser" class="noborder scroller mainpane invisible">
 <?php
-// FOr some bizzarre reason, remove the 'a' tags from here makes the browser crash on iOS when you
+// For some bizzarre reason, removing the 'a' tags from here makes the browser crash on iOS when you
 // select anything from the preferences panel. WTF?
     print '<div class="chooser choose_nowplaying"><a href="#">'.get_int_text('button_now_playing').'</a></div>';
     print '<div class="chooser choose_albumlist"><a href="#">'.get_int_text('button_local_music').'</a></div>';

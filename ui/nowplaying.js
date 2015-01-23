@@ -166,7 +166,15 @@ var nowplaying = function() {
 		},
 
 		getPlugin: function(name) {
-			return plugins[name].createfunction;
+			if (plugins[name]) {
+				return plugins[name].createfunction;
+			} else {
+				debug.warn("NOWPLAYING","Something asked for nonexistent plugin",name);
+				// Return something just to stop whatever asked for this from crashing.
+				// We might get here if, as I just did, I ran it connected to Mopidy with SoundCloud plugin
+				// as prefs.infosource, then connected to mpd, where soundcloud plugin is not.
+				return plugins.file.createfunction;
+			}
 		},
 
 		getAllPlugins: function() {

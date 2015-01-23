@@ -46,6 +46,7 @@ h2
     height: 26px;
     width: 26px;
     font-size:26px;
+    max-height: 26px;
     margin-bottom:2px;
     margin-top:4px;
     cursor: pointer;
@@ -336,6 +337,7 @@ h2
         height: 36px;
         width: 36px;
         font-size: 36px;
+        max-height:36px;
     }
 
     .controlbutton

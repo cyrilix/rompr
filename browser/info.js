@@ -98,7 +98,11 @@ var browser = function() {
     function toggleSection(element) {
         var foldup = element.parent().parent().next();
         var section = element.parent().parent().parent().attr("id");
-        $(foldup).slideToggle('slow');
+        $(foldup).slideToggle('slow', function() {
+            if ($(this).is(':visible')) {
+                browser.rePoint();
+            }
+        });
         section = section.replace(/information/,'');
         panelclosed[section] = !panelclosed[section];
     }
