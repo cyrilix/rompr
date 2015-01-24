@@ -282,7 +282,15 @@ class xspfFile {
 
 	public function __construct($data, $url, $station, $creator, $image) {
 		$this->url = $url;
+		// Handle badly formed XML that some stations return
+		$data = preg_replace('/ & /', ' &amp; ', $data);
+		$data = preg_replace('/ < /', ' &lt; ', $data);
+		$data = preg_replace('/ > /', ' &gt; ', $data);
 		$this->xml = simplexml_load_string($data, 'SimpleXMLElement', LIBXML_NOCDATA);
+		if ($this->xml === false) {
+			header('HTTP/1.0 403 Forbidden');
+			exit(0);
+		}
 		$this->station = $this->xml->title != null ? $this->xml->title : $station;
 		$this->creator = $creator;
 		$this->image = $image;

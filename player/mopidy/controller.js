@@ -240,15 +240,13 @@ function playerController() {
 						        '</div>';
 						        break;
                 case "radio-de":
-                   html = html + '<div class="containerbox menuitem">'+
-                                '<input type="hidden" name="'+this.uri+'">'+
+                   html = html + '<div class="containerbox menuitem" name="'+this.uri+'">'+
                                 '<i class="icon-radio-tower fixed smallicon"></i>'+
                                 '<div class="expand clickable clicktrack">'+this.name+'</div>'+
                                 '</div>';
                                 break;
 				default:
-		           html = html + '<div class="containerbox menuitem">'+
-                                '<input type="hidden" name="'+this.uri+'">'+
+		           html = html + '<div class="containerbox menuitem" name="'+this.uri+'">'+
 								'<i class="icon-folder-open-empty fixed smallicon"></i>'+
 						        '<div class="expand clickable clicktrack">'+this.name+'</div>'+
 						        '</div>';

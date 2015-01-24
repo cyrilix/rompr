@@ -97,7 +97,7 @@ if (array_key_exists('populate', $_REQUEST)) {
 	print '<button class="fixed" type="submit" onclick="makeabadger()">'.get_int_text("button_search").'</button></div>';
 	?>
 	</form>
-	<div class="containerbox fullwidth">
+	<div class="containerbox fullwidth noselection">
 	<div class="expand">
 	<?php
 	print $outdoc->saveHTML();

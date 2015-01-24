@@ -250,7 +250,7 @@ function findClickableElement(event) {
     // Search upwards through the parent elements to find the clickable object
     while (!clickedElement.hasClass("clickable") && !clickedElement.hasClass("menu") &&
             clickedElement.prop("id") != "sources" && clickedElement.prop("id") != "sortable" &&
-            !clickedElement.hasClass("mainpane")) {
+            !clickedElement.hasClass("mainpane") && !clickedElement.hasClass("topdropmenu")) {
         clickedElement = clickedElement.parent();
     }
     return clickedElement;

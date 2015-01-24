@@ -26,6 +26,11 @@ function getStreamInfo($filedata, $domain) {
 
     if (!$track_found) {
 
+        if ($album == "Unknown Internet Stream" && strrpos($filedata['file'], '#') !== false) {
+            # Fave radio stations added by Cantata/MPDroid
+            $album = substr($filedata['file'], strrpos($filedata['file'], '#')+1, strlen($filedata['file']));
+        }
+
         if (array_key_exists('Name', $filedata) && $album == "Unknown Internet Stream") {
             $album = $filedata['Name'];
         }
