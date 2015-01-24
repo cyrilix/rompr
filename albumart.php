@@ -288,6 +288,7 @@ $(window).load(function () {
     $("#totaltext").html(numcovers+" "+language.gettext("label_albums"));
     covergetter.reset(albums_without_cover);
     covergetter.updateInfo(albums_without_cover - count);
+    $("#status").html(language.gettext("albumart_instructions"));
 });
 
 function dragEnter(ev) {
@@ -810,7 +811,7 @@ function uploadComplete(data) {
 <?php
 print '<tr><td colspan="3"><h2>'.get_int_text("albumart_title").'</h2></td></tr>';
 print '<tr><td class="outer" id="totaltext"></td><td><div class="invisible" id="progress"></div></td><td class="outer" align="right"><button id="harold">'.get_int_text("albumart_getmissing").'</button></td></tr>';
-print '<tr><td class="outer" id="infotext"></td><td align="center"><div class="inner" id="status">'.get_int_text("albumart_instructions").'</div></td><td class="outer" align="right"><button id="finklestein">'.
+print '<tr><td class="outer" id="infotext"></td><td align="center"><div class="inner" id="status">Loading...</div></td><td class="outer" align="right"><button id="finklestein">'.
         get_int_text("albumart_onlyempty").'</button></td></tr>';
 ?>
 </table>
