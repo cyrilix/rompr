@@ -286,7 +286,7 @@ function check_album($album, $albumai, $spotilink, $image, $date, $searched, $im
 
 function create_new_album($album, $albumai, $spotilink, $image, $date, $searched, $imagekey, $mbid, $domain) {
 
-	global $mysqlc, $album_created, $error, $download_file, $convert_path;
+	global $mysqlc, $album_created;
 	$retval = null;
 
 	// See if the image needs to be archived.
@@ -301,17 +301,6 @@ function create_new_album($album, $albumai, $spotilink, $image, $date, $searched
 		$image = 'albumart/small/'.$imagekey.'.jpg';
 	}
 
-	// This archives stuff with getRemoteImage, which will mostly come from the
-	// last.FM importer
-	if (preg_match('#^getRemoteImage\.php#', $image)) {
-		$u = get_base_url();
-		$u = preg_replace('#backends/sql#', '', $u);
-		$convert_path = find_executable('convert');
-		$download_file = download_file($u.$image, $imagekey, $convert_path);
-		if ($error !== 1) {
-			list($image, $a) = saveImage($imagekey, true, "");
-		}
-	}
 	$i = checkImage($imagekey);
 	if ($stmt = sql_prepare_query("INSERT INTO Albumtable (Albumname, AlbumArtistindex, Spotilink, Year, Searched, ImgKey, mbid, Domain, Image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		$album, $albumai, $spotilink, $date, $i, $imagekey, $mbid, $domain, $image)) {
@@ -783,7 +772,7 @@ function do_albums_from_database($which, $fragment = false) {
 					rawurlencode($obj->Spotilink),
 					"aalbum".$obj->Albumindex,
 					($obj->Image && $obj->Image !== "") ? "yes" : "no",
-					$obj->Searched == 1 ? "yes" : "no",
+					($obj->Searched == 1 || $exists == "yes") ? "yes" : "no",
 					$obj->ImgKey,
 					$obj->Image,
 					$obj->Year
@@ -799,7 +788,7 @@ function do_albums_from_database($which, $fragment = false) {
 						rawurlencode($obj->Spotilink),
 						"aalbum".$obj->Albumindex,
 						($obj->Image && $obj->Image !== "") ? "yes" : "no",
-						$obj->Searched == 1 ? "yes" : "no",
+						($obj->Searched == 1 || $exists == "yes") ? "yes" : "no",
 						$obj->ImgKey,
 						$obj->Image,
 						$obj->Year

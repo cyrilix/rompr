@@ -114,6 +114,7 @@ switch ($_POST['action']) {
 		if (count($ttids) == 0) {
 			debug_print("Doing an INCREMENT action - Found NOTHING so creating hidden track","USERRATING");
 			// So we need to create a new hidden track
+			check_album_image();
 			$ttids[0] = create_new_track(	$title,
 											$artist,
 											$trackno,
@@ -181,6 +182,7 @@ switch ($_POST['action']) {
 				send_list_updates($artist_created, $album_created, $ttid);
 			}
 		} else {
+			check_album_image();
 			$ttid = create_new_track(	$title,
 										$artist,
 										$trackno,
@@ -230,7 +232,7 @@ switch ($_POST['action']) {
 			// This is probably OK, since the collectioniser was designed for coping with
 			// local files that had bad or partial tags. Stuff coming from online sources
 			// is usually OK. I hope.
-
+			check_album_image();
 			$ttids[0] = create_new_track(	$title,
 											$artist,
 											$trackno,
@@ -451,6 +453,24 @@ function delete_track($ttid) {
 	} else {
 		header('HTTP/1.0 403 Forbidden');
 	}
+}
+
+function check_album_image() {
+	
+	// This archives stuff with getRemoteImage, which will mostly come from the
+	// last.FM importer
+	global $album, $albumartist, $error, $download_file, $convert_path, $image;
+	$imagekey = md5($albumartist." ".$album);
+	if (preg_match('#^getRemoteImage\.php#', $image) && !file_exists('albumart/small/'.$imagekey.'.jpg')) {
+		$u = get_base_url();
+		$u = preg_replace('#backends/sql#', '', $u);
+		$convert_path = find_executable('convert');
+		$download_file = download_file($u.$image, $imagekey, $convert_path);
+		if ($error !== 1) {
+			list($image, $a) = saveImage($imagekey, true, "");
+		}
+	}
+
 }
 
 ?>
