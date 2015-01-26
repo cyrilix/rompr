@@ -523,26 +523,14 @@ var lastfmImporter = function() {
 					callback();
 				}
 			} else {
-				data.action = 'set';
-				data.attributes = new Array();
-				if (data.Rating) {
-					data.attributes.push({attribute: 'Rating', value: data.Rating});
-				}
-				if (data.Playcount) {
-					data.attributes.push({attribute: 'Playcount', value: data.Playcount});
-				}
-				if (data.tags) {
-					data.attributes.push({attribute: 'Tags', value: data.tags});
-				}
-
 				// We do the set twice. Which is inefficient but important:
-				// The first one sets urionly, which ensures the track gets added to the
-				// database if it doesn't already exist.
+				// The first one sets urionly (by doing an 'add' action), which ensures the specific version of
+				// the track gets added to the database if it doesn't already exist.
 				// The second time we send no uri and don't set urionly, which ensures that
 				// any other matching tracks - eg from a different backend - also get the metadata applied.
 
-				data.urionly = 1;
-				debug.mark("LASTFM IMPORTER","Doing SQL Rating Stuff",data);
+				data.action = "add";
+				debug.mark("LASTFM IMPORTER","Ensuring track exists in database:",data);
 
 		        $.ajax({
 		            url: "backends/sql/userRatings.php",
@@ -554,24 +542,43 @@ var lastfmImporter = function() {
 		                updateCollectionDisplay(rdata);
 				        delete data.urionly;
 				        delete data.uri;
-				        $.ajax({
-				            url: "backends/sql/userRatings.php",
-				            type: "POST",
-				            data: data,
-				            dataType: 'json',
-				            success: function(rdata) {
-				                debug.log("LASTFM IMPORTER","Success",rdata);
-				                updateCollectionDisplay(rdata);
-				                data.ignore = true;
-								$("#trackrow"+data.key+' td:last').html('<i class="icon-tick medicon"></i>');
-								if (callback) setTimeout(callback, 1000);
-							},
-				            error: function(rdata) {
-				                infobar.notify(infobar.ERROR,"Track Import Failed");
-				                debug.warn("LASTFM IMPORTER","Failure");
-								if (callback) setTimeout(callback, 1000);
-				            }
-				        });
+				        data.action = "set";
+						data.attributes = new Array();
+						if (data.Rating && data.Rating != 0) {
+							data.attributes.push({attribute: 'Rating', value: data.Rating});
+						}
+						if (data.Playcount) {
+							data.attributes.push({attribute: 'Playcount', value: data.Playcount});
+						}
+						if (data.tags) {
+							data.attributes.push({attribute: 'Tags', value: data.tags});
+						}
+						if (data.attributes.length > 0) {
+							debug.mark("LASTFM IMPORTER","Setting attributes on all versions of track",data);
+					        $.ajax({
+					            url: "backends/sql/userRatings.php",
+					            type: "POST",
+					            data: data,
+					            dataType: 'json',
+					            success: function(rdata) {
+					                debug.log("LASTFM IMPORTER","Success",rdata);
+					                updateCollectionDisplay(rdata);
+					                data.ignore = true;
+									$("#trackrow"+data.key+' td:last').html('<i class="icon-tick medicon"></i>');
+									if (callback) setTimeout(callback, 1000);
+								},
+					            error: function(rdata) {
+					                infobar.notify(infobar.ERROR,"Track Import Failed");
+					                debug.warn("LASTFM IMPORTER","Failure");
+									if (callback) setTimeout(callback, 1000);
+					            }
+					        });
+					    } else {
+					    	debug.log("LASTFM IMPORTER","No Attributes to set on track");
+			                data.ignore = true;
+							$("#trackrow"+data.key+' td:last').html('<i class="icon-tick medicon"></i>');
+							if (callback) setTimeout(callback, 1000);
+					    }
 					},
 		            error: function(rdata) {
 		                infobar.notify(infobar.ERROR,"Track Import Failed");

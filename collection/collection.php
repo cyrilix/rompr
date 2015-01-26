@@ -402,6 +402,7 @@ class musicCollection {
         // we're only interested in those duting a search.
 
         $sortartist = ($albumartist == null) ? $artist : $albumartist;
+
         // For sorting internet streams from mopidy backends that don't
         // supply an artist
         if ($sortartist == null && $station !== null) {
@@ -415,7 +416,6 @@ class musicCollection {
                 $sortartist = $composer;
             }
         }
-
         // All of the above possibilites (except $station) can come in from either backend
         // as an array of strings. For sorting the collection we want one string.
         $sortartist = concatenate_artist_names($sortartist);
@@ -501,13 +501,13 @@ class musicCollection {
                     if ($abm !== false) {
                         // We found one - it's not by the same artist so we need to mark it as a compilation if it isn't already
                         if (!($abm->isCompilation())) {
-                            $abm->setAsCompilation();
                             // Create various artists group if it isn't there
                             if (!array_key_exists("various artists", $this->artists)) {
                                 $this->artists["various artists"] = new artist("Various Artists");
                             }
                             // Add the album to the various artists group
                             $this->artists["various artists"]->newAlbum($abm);
+                            $abm->setAsCompilation();
                         }
                     }
                 }
