@@ -11,6 +11,7 @@ $error = 0;
 $count = 1;
 $divtype = "album1";
 $returninfo = array();
+$download_file = "";
 $nodata = array (
 	'Rating' => 0,
 	'Tags' => array()

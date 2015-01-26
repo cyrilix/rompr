@@ -39,7 +39,6 @@ include ("includes/globals.php");
 
 var imagekey = '';
 var imgobj = null;
-var useLocalStorage = false;
 var running = false;
 var clickindex = null;
 var wobblebottom;
@@ -244,14 +243,11 @@ function filterImages() {
 $(document).ready(function () {
 
     debug.log("ALBUMART","Document is ready");
-    covergetter = new coverScraper(1, useLocalStorage, true, true);
+    covergetter = new coverScraper(1, true, true, true);
     $("#fontsize").attr({href: "sizes/"+prefs.fontsize});
     $("#fontfamily").attr({href: "fonts/"+prefs.fontfamily});
     progress = new progressBar('progress', 'horizontal');
     $(window).bind('resize', wobbleMyBottom );
-    if ("localStorage" in window && window["localStorage"] != null) {
-        useLocalStorage = true;
-    }
     $("#harold").click( start );
     $("#finklestein").click( boogerbenson );
     wobblebottom = $('#wobblebottom');
@@ -794,9 +790,7 @@ function uploadComplete(data) {
         imageEditor.updateBigImg("albumart/asdownloaded/firefoxiscrap/"+imagekey+"---"+firefoxcrapnesshack.toString());
     }
 
-    if (useLocalStorage) {
-        sendLocalStorageEvent(imagekey);
-    }
+    sendLocalStorageEvent(imagekey);
     debug.groupend();
 }
 
