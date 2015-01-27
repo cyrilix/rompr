@@ -21,13 +21,16 @@ $numdone = 0;
 // is in response to searches of Spotify or youtube etc.
 
 // Wishlist items have Uri as NULL and Album might also be NULL
-// TODO. If we find one of these and we're doing a SET, or ADD, or INC we really ought to update the album and URI details if we can.
-// Doing a collection update will do this but adding things by rating or tagging ar adding a spotify album don't, I think.
 
+// Assumptions are made in the code that Wishlist items will not be hidden tracks and that hidden tracks have no metadata
+// apart from a Playcount. Always be aware of this.
 
-// Cross-Database Notes:
-// 1. rowCount does not return a non-zero value for SELECT statements with SQLite. Use SELECT COUNT instead
-// 2. SQLite does not have STRCMP
+// For tracks, LastModified controls whether a collection update will update any of its data.
+// Tracks added by hand (by tagging or rating, via userRatings.php) must have LastModified as NULL
+// - this is how we prevent the collection update from removing them.
+
+// TODO. If we find a wishlist item and we're doing a SET, or ADD, or INC we really ought to update the album and URI details if we can.
+// Doing a collection update will do this but adding things by rating or tagging ar adding a spotify album don't.
 
 function find_item($uri,$title,$artist,$album,$albumartist,$urionly) {
 
@@ -1038,18 +1041,18 @@ function remove_ttid($ttid) {
 			array_push($returninfo['deletedtracks'], rawurlencode($obj->Uri));
 		}
 	}
-	$result = generic_sql_query("SELECT COUNT(Playcount) AS num FROM Playcounttable WHERE TTindex=".$ttid);
-	$obj = $result->fetch(PDO::FETCH_OBJ);
-	if ($obj->num > 0) {
-		debug_print("  Track has a playcount. Hiding it instead","MYSQL");
-		if ($result = generic_sql_query("UPDATE Tracktable SET Hidden = 1 WHERE TTindex = '".$ttid."'")) {
-			$retval = true;
-		}
-	} else {
-		if ($result = generic_sql_query("DELETE FROM Tracktable WHERE TTindex = '".$ttid."'")) {
-			$retval = true;
-		}
+
+	// Deleting tracks will delete their associated playcounts. While it might seem like a good idea
+	// to hide them instead, in fact this results in a situation where we have tracks in our database
+	// that no longer exist in physical form - eg if local tracks are removed. This is really bad if we then
+	// later play those tracks from an online source and rate them. find_item will return the hidden local track,
+	// which will get rated and appear back in the collection. So now we have an unplayable track in our collection.
+	// There's no real way round it, (without creating some godwaful lookup table of backends it's safe to do this with)
+	// so we just delete the track and lose the playcount information.
+	if ($result = generic_sql_query("DELETE FROM Tracktable WHERE TTindex = '".$ttid."'")) {
+		$retval = true;
 	}
+
 	return $retval;
 }
 
@@ -1154,8 +1157,6 @@ function doDatabaseMagic() {
     $now = time();
     // Find tracks that have been removed
     debug_print("Finding tracks that have been deleted","MYSQL");
-    // Hide tracks that have playcounts
-    generic_sql_query("UPDATE Tracktable SET Hidden = 1 WHERE LastModified IS NOT NULL AND TTindex NOT IN (SELECT TTindex FROM Foundtracks) AND TTindex IN (SELECT TTindex FROM Playcounttable)", true);
     generic_sql_query("DELETE FROM Tracktable WHERE LastModified IS NOT NULL AND TTindex NOT IN (SELECT TTindex FROM Foundtracks) AND Hidden = 0", true);
     remove_cruft();
 	update_stat('ListVersion',ROMPR_COLLECTION_VERSION);
@@ -1170,7 +1171,7 @@ function doDatabaseMagic() {
 function remove_cruft() {
 	global $prefs;
 	// To try and keep the db size down, if a track has only been played once in the last 6 months and it has no tags or ratings, remove it.
-	// We don't need to check if it's in the Ratingtable or TagListtable because if Hidden != 0 it can't be.
+	// We don't need to check if it's in the Ratingtable or TagListtable because if Hidden == 1 it can't be.
 	debug_print("Removing once-played tracks not played in 6 months","MYSQL");
 	delete_oldtracks();
 

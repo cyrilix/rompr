@@ -529,7 +529,6 @@ function playerController() {
                             '<div class="expand">'+ref.name+'</div>'+
                             // '</div>'+
     				        '</div>';
-    				        // '<div id="'+menuid+'" class="dropmenu notfilled"></div>';
     				        break;
     				    case "track":
                             if (!ref.name.match(/\[unplayable\]/)) {
@@ -549,7 +548,6 @@ function playerController() {
     				        '<div class="expand">'+decodeURIComponent(ref.name)+'</div>'+
     				        '</div>'+
                             '</div>';
-                            // '<div id="'+menuid+'" class="dropmenu notfilled"></div>';
     				        break;
     				}
     			});
@@ -568,10 +566,7 @@ function playerController() {
 	}
 
 	this.loadPlaylist = function(uri) {
-        mopidy.playlists.lookup(uri).then( function(list) {
-            debug.debug("PLAYER","Playlist : ",list);
-            mopidy.tracklist.add(list.tracks);
-        });
+        self.addTracks([{type: 'uri', name: uri}]);
 	}
 
 	this.deletePlaylist = function(name) {

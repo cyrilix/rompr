@@ -180,6 +180,13 @@ switch ($_POST['action']) {
 				set_attribute($ttid, "Rating", "0");
 				update_track_stats();
 				send_list_updates($artist_created, $album_created, $ttid);
+			} else {
+				if ($uri && $album) {
+					if (check_wishlist_doodads(array($ttid))) {
+						update_track_stats();
+						send_list_updates($artist_created, $album_created, $ttid);
+					}
+				}
 			}
 		} else {
 			check_album_image();
@@ -232,6 +239,7 @@ switch ($_POST['action']) {
 			// This is probably OK, since the collectioniser was designed for coping with
 			// local files that had bad or partial tags. Stuff coming from online sources
 			// is usually OK. I hope.
+
 			check_album_image();
 			$ttids[0] = create_new_track(	$title,
 											$artist,
@@ -252,6 +260,11 @@ switch ($_POST['action']) {
 											0,
 											$trackimage);
 			debug_print("Created New Track with TTindex ".$ttids[0],"USERRATINGS");
+		} else if (count($ttids) == 1) {
+			// Check to see if the track we've returned is a wishlist track, and update its info
+			if ($uri && $album) {
+				check_wishlist_doodads($ttids);
+			}
 		}
 		if (count($ttids) > 0) {
 			foreach($ttids as $ttid) {
@@ -471,6 +484,34 @@ function check_album_image() {
 		}
 	}
 
+}
+
+function check_wishlist_doodads($ttids) {
+	global $uri, $albumartist, $album, $spotilink, $image, $date;
+	$donesomething = false;
+	if ($stmt = sql_prepare_query("SELECT Uri, Albumindex FROM Tracktable WHERE TTindex = ?", $ttids[0])) {
+		while ($ttidobj = $stmt->fetch(PDO::FETCH_OBJ)) {
+			if ($ttidobj->Uri == null) {
+				if ($up1 = sql_prepare_query("UPDATE Tracktable SET Uri = ? WHERE TTindex = ?", $uri, $ttids[0])) {
+					debug_print("  .. Updated track URI","USERRATINGS");
+					$donesomething = true;
+				} else {
+					debug_print("  .. FAILED to update Track URI!","USERRATINGS");
+				}
+				if ($ttidobj->Albumindex == null) {
+					$albumai = check_artist($albumartist, true);
+					$albumindex = check_album($album, $albumai, $spotilink, $image, $date, "no", md5($albumartist." ".$album), null, getDomain($uri), true);
+					if ($up2 = sql_prepare_query("UPDATE Tracktable SET Albumindex = ? WHERE TTindex = ?", $albumindex, $ttids[0])) {
+						debug_print("  .. Updated track album index","USERRATINGS");
+						$donesomething = true;
+					} else {
+						debug_print("  .. FAILED to update Track Album Index!","USERRATINGS");
+					}
+				}
+			}
+		}
+	}
+	return $donesomething;
 }
 
 ?>
