@@ -83,6 +83,23 @@ function getNewPodcast($url) {
         // Image link with a relative URL. Duh.
         $image = $domain.$image;
     }
+
+    $i = getDomain($image);
+    if ($i == "http" || $i == "https") {
+        $imgname = 'prefs/podcasts/'.$fname.'/'.preg_replace('/\?.*$/','',basename($image));
+        $fp = fopen($imgname, 'w');
+        debug_print("Downloading Image ".$image." to ".$imgname,"PODCASTS");
+        $result = url_get_contents($image, 'RompR Music Player/0.60', false, true, false, $fp);
+        if ($result['status'] == '200') {
+            debug_print("Image download Success","PODCASTS");
+            $image = $imgname;
+        } else {
+            debug_print("Failed to download Image","PODCASTS");
+        }
+        fclose($fp);
+    }
+
+
     $albumartist = "";
     if ($m && $m->author) {
         $albumartist = (string) $m->author;
@@ -120,13 +137,11 @@ function getNewPodcast($url) {
         if ($m && $m->content) {
             if ($m->content[0]->attributes()->duration) {
                 $duration = (string) $m->content[0]->attributes()->duration;
-                // debug_print("Duration set from media namespace to ".$duration,"PODCASTS");
             }
         }
         $m = $item->children('itunes', TRUE);
         if ($duration == 0 && $m && $m->duration) {
             $duration = (string) $m->duration;
-            // debug_print("Duration set from itunes namespace to ".$duration,"PODCASTS");
         }
         // Always store time values in seconds
         if ($duration != 0 && preg_match('/:/', $duration)) {
@@ -136,7 +151,6 @@ function getNewPodcast($url) {
             }
             $duration = strtotime($duration) - strtotime('TODAY');
         }
-        // debug_print("Duration string is ".$duration,"PODCASTS");
         if ($m && $m->author) {
             $artist = (string) $m->author;
         } else {
