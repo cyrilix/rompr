@@ -167,7 +167,8 @@ if (array_key_exists('populate', $_REQUEST)) {
             $imgname = getStationImage($track['title']);
             print '<div class="containerbox indent padright menuitem">';
             if ($imgname === null) {
-                print '<i class="icon-radio-tower fixed smallcover-svg"></i>';
+                // print '<i class="icon-radio-tower fixed smallcover-svg"></i>';
+                print '<div class="smallcover fixed"><img class="smallcover" src="newimages/broadcast.svg" /></div>';
             } else {
                 print '<div class="smallcover fixed"><img class="smallcover" src="'.$imgname.'" /></div>';
             }

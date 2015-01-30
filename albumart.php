@@ -253,7 +253,7 @@ $(document).ready(function () {
     wobblebottom = $('#wobblebottom');
     wobbleMyBottom();
     $('#artistcoverslist').mCustomScrollbar({
-        theme: (prefs.theme == "Light.css" || prefs.theme == "BrushedAluminium.css" || prefs.theme == "Aqua.css") ? "dark-thick" : "light-thick",
+        theme: "light-thick",
         scrollInertia: 80,
         advanced: {
             updateOnContentResize: true,
@@ -261,7 +261,7 @@ $(document).ready(function () {
         },
     });
     $('#coverslist').mCustomScrollbar({
-        theme: (prefs.theme == "Light.css" || prefs.theme == "BrushedAluminium.css" || prefs.theme == "Aqua.css") ? "dark-thick" : "light-thick",
+        theme: "light-thick",
         scrollInertia: 80,
         advanced: {
             updateOnContentResize: true,

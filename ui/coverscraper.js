@@ -8,7 +8,6 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
     var imgobj = null;
     var infotext = $('#infotext');
     var statusobj = $('#status');
-    // var blankicon = 'newimages/compact_disc.svg';
     var name = null;
     var artist = null;
     var album = null;
