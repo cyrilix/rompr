@@ -555,7 +555,8 @@ var imageEditor = function() {
         fiddlerOnTheRoof: function(here) {
             var to = here.parent().next().offset();
             var bo = bigdiv.offset();
-            var fiddleheight = bo.top - (to.top + here.parent().next().height()) + 4;
+            var fiddleheight = bo.top - (to.top + here.parent().next().height()) - 4;
+
             $("#fiddler").css("height", fiddleheight+"px");
             if ($("body").css('background-image') != "none") {
                 $("#fiddler").css("background-image", $("body").css('background-image'));
