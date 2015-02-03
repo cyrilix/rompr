@@ -861,7 +861,7 @@ function getStuffFromXSPF($url) {
                     (string) $x->album,
                     md5((string) $x->album),
                     "podcast",
-                    "getRemoteImage.php?url=".(string) $x->image,
+                    (string) $x->image,
                     null,
                     "",
                     (string) $x->albumartist

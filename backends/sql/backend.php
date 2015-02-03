@@ -770,11 +770,12 @@ function do_albums_from_database($which, $fragment = false) {
 		$count = 0;
 		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			if ($fragment === false) {
+				$exists = ($obj->Image && $obj->Image !== "") ? "yes" : "no";
 				albumHeader(
 					$obj->Albumname,
 					rawurlencode($obj->Spotilink),
 					"aalbum".$obj->Albumindex,
-					($obj->Image && $obj->Image !== "") ? "yes" : "no",
+					$exists,
 					($obj->Searched == 1 || $exists == "yes") ? "yes" : "no",
 					$obj->ImgKey,
 					$obj->Image,
@@ -786,11 +787,12 @@ function do_albums_from_database($which, $fragment = false) {
 					$singleheader['type'] = 'insertAfter';
 				} else {
 					ob_start();
+					$exists = ($obj->Image && $obj->Image !== "") ? "yes" : "no";
 					albumHeader(
 						$obj->Albumname,
 						rawurlencode($obj->Spotilink),
 						"aalbum".$obj->Albumindex,
-						($obj->Image && $obj->Image !== "") ? "yes" : "no",
+						$exists,
 						($obj->Searched == 1 || $exists == "yes") ? "yes" : "no",
 						$obj->ImgKey,
 						$obj->Image,
