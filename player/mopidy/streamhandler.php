@@ -5,6 +5,7 @@ function is_stream($domain, $filedata) {
     if (in_array($domain, $streamdomains) &&
         !preg_match('#/item/\d+/file$#', $filedata['file']) &&
         !preg_match('#oe1:archive:#', $filedata['file']) &&
+        !preg_match('#vk\.me#', $filedata['file']) &&
         !preg_match('#http://leftasrain.com/#', $filedata['file'])) {
 		return true;
 	} else {

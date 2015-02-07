@@ -232,23 +232,24 @@ function playerController() {
      		var protocol = this.uri.substr(0, this.uri.indexOf(":"));
      		switch (protocol) {
      			case "spotify":
+                case "vkontakte":
                     html = html + '<div class="containerbox menuitem">';
      				html = html + '<i class="icon-toggle-closed mh menu fixed" name="pholder'+c+'"></i>'+
 						        '<input type="hidden" name="'+this.uri+'">'+
-        				        '<i class="icon-spotify-circled fixed smallicon"></i>'+
+        				        '<i class="icon-'+protocol+'-circled fixed smallicon"></i>'+
 						        '<div class="expand clickable clickloadplaylist">'+this.name+'</div>'+
 						        '</div>';
 						        break;
                 case "radio-de":
-                   html = html + '<div class="containerbox menuitem" name="'+this.uri+'">'+
+                   html = html + '<div class="containerbox menuitem clickable clicktrack" name="'+this.uri+'">'+
                                 '<i class="icon-radio-tower fixed smallicon"></i>'+
-                                '<div class="expand clickable clicktrack">'+this.name+'</div>'+
+                                '<div class="expand">'+this.name+'</div>'+
                                 '</div>';
                                 break;
 				default:
-		           html = html + '<div class="containerbox menuitem" name="'+this.uri+'">'+
+		           html = html + '<div class="containerbox menuitem clickable clicktrack" name="'+this.uri+'">'+
 								'<i class="icon-folder-open-empty fixed smallicon"></i>'+
-						        '<div class="expand clickable clicktrack">'+this.name+'</div>'+
+						        '<div class="expand">'+this.name+'</div>'+
 						        '</div>';
 						        break;
      		}

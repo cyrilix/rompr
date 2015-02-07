@@ -173,9 +173,8 @@ function useJSONParser($reader, $fp) {
 
 function parse_mopidy_json_data(&$jsondata) {
 
-    global $dbterms, $backend_in_use;
+    global $dbterms, $backend_in_use, $domainsdone;
     $plpos = 0;
-    $domainsdone = array();
     foreach($jsondata as $searchresults) {
 
         if ($searchresults->{'__model__'} == "SearchResult") {
@@ -204,6 +203,7 @@ function parse_mopidy_json_data(&$jsondata) {
                 if (property_exists($searchresults, 'tracks')) {
                     $d = getDomain($searchresults->{'uri'});
                     if (!array_key_exists($d, $domainsdone)) {
+                        debug_print("Checking Existing Tracks for domain ".$d,"COLLECTION");
                         generic_sql_query("INSERT INTO Existingtracks (TTindex) SELECT TTindex FROM Tracktable WHERE Uri LIKE '".$d."%' AND LastModified IS NOT NULL AND Hidden = 0");
                         $domainsdone[$d] = 1;
                     }
@@ -259,7 +259,8 @@ class genericMopidyThing {
             debug_print("Finished Parsing Playlist ".$this->uri,"JSON");
             $d = getDomain($this->uri);
             if (!array_key_exists($d, $domainsdone)) {
-                generic_sql_query("INSERT INTO Existingtracks (TTindex) SELECT TTindex FROM Tracktable WHERE Uri LIKE '".$d."%' AND LastModified IS NOT NULL AND Hidden = 0");
+                debug_print("Checking Existing Tracks for domain ".$d,"COLLECTION");
+                generic_sql_query("INSERT INTO Existingtracks (TTindex) SELECT TTindex FROM Tracktable WHERE Uri LIKE '".$d."%' AND LastModified IS NOT NULL AND Hidden = 0",true);
                 $domainsdone[$d] = 1;
             }
         }

@@ -709,7 +709,7 @@ function process_file(&$filedata) {
     // External Album Artist Link(s) (mopidy only)
     $spotiartist = (array_key_exists('SpotiArtist',$filedata)) ? unwanted_array($filedata['SpotiArtist']) : null;
     // 'playlist' is how mpd handles flac/cue files (either embedded cue or external cue).
-    $playlist = (array_key_exists('playlist',$filedata)) ? $filedata['playlist'] : null;
+    $playlist = (array_key_exists('playlist',$filedata)) ? unwanted_array($filedata['playlist']) : null;
 
     // Capture tracks where the basename/dirname route didn't work
     if ($artist == "." || $artist == "" || $artist == " & ") {
