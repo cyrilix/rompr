@@ -38,10 +38,10 @@ if (array_key_exists('playlist', $playlists) && is_array($playlists['playlist'])
 function add_playlist($link, $name, $icon, $class, $delete) {
     switch ($class) {
         case 'clickloadplaylist':
-            print '<div class="containerbox meunitem dropdown-container">';
+            print '<div class="containerbox meunitem dropdown-container clickable '.$class.'">';
             print '<input type="hidden" name="'.$link.'" />';
             print '<i class="'.$icon.' fixed smallicon"></i>';
-            print '<div class="expand clickable '.$class.'">'.$name.'</div>';
+            print '<div class="expand">'.$name.'</div>';
             if ($delete) {
                 print '<i class="icon-cancel-circled fixed smallicon clickable clickicon clickdeleteplaylist"></i>';
             }

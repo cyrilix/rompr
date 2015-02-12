@@ -233,11 +233,11 @@ function playerController() {
      		switch (protocol) {
      			case "spotify":
                 case "vkontakte":
-                    html = html + '<div class="containerbox menuitem">';
-     				html = html + '<i class="icon-toggle-closed mh menu fixed" name="pholder'+c+'"></i>'+
-						        '<input type="hidden" name="'+this.uri+'">'+
+                    html = html + '<div class="containerbox menuitem clickable clickloadplaylist" name="pholder'+c+'">';
+     				html = html + '<input type="hidden" name="'+this.uri+'">'+
+                                '<i class="icon-toggle-closed mh menu fixed" name="pholder'+c+'"></i>'+
         				        '<i class="icon-'+protocol+'-circled fixed smallicon"></i>'+
-						        '<div class="expand clickable clickloadplaylist">'+this.name+'</div>'+
+						        '<div class="expand">'+this.name+'</div>'+
 						        '</div>';
 						        break;
                 case "radio-de":

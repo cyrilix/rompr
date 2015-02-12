@@ -130,11 +130,11 @@ function onFileCollectionClicked(event) {
         event.stopImmediatePropagation();
         player.controller.deletePlaylist(clickedElement.prev().prev().prev().attr('name'));        
     } else if (prefs.clickmode == "double") {
-        if (clickedElement.hasClass("clickalbum")) {
+        if (clickedElement.hasClass("clickalbum") ||
+            clickedElement.hasClass("clickloadplaylist")) {
             event.stopImmediatePropagation();
             albumSelect(event, clickedElement);
-        } else if (clickedElement.hasClass("clicktrack") || clickedElement.hasClass("clickcue") ||
-            clickedElement.hasClass("clickplaylist")) {
+        } else if (clickedElement.hasClass("clicktrack") || clickedElement.hasClass("clickcue")) {
             event.stopImmediatePropagation();
             trackSelect(event, clickedElement);
         }
@@ -156,7 +156,7 @@ function onFileCollectionDoubleClicked(event) {
         playlist.addcue(clickedElement);
     } else if (clickedElement.hasClass("clickloadplaylist")) {
         event.stopImmediatePropagation();
-        playlist.load(clickedElement.prev().prev().attr('name'));
+        playlist.load(clickedElement.children().first().attr('name'));
     }
 }
 
@@ -341,6 +341,8 @@ function doFileMenu(event, element) {
                 // only exists in the search panel so that's how we know where we are
                 if (element.parent().hasClass('browseable')) {
                     var l = decodeURIComponent(element.parent().attr("name"));
+                } else if (element.parent().hasClass('clickloadplaylist')) {
+                    var l = decodeURIComponent(element.prev().attr("name"));
                 } else {
                     var l = element.next().attr("name");
                 }
@@ -376,7 +378,8 @@ function setDraggable(divname) {
                 dragger.setAttribute("id", "dragger");
                 $(dragger).addClass("draggable dragsort containerbox vertical");
                 if (!clickedElement.hasClass("selected")) {
-                    if (clickedElement.hasClass("clickalbum")) {
+                    if (clickedElement.hasClass("clickalbum") ||
+                        clickedElement.hasClass("clickloadplaylist")) {
                         albumSelect(event, clickedElement);
                     } else if (clickedElement.hasClass("clicktrack") || clickedElement.hasClass("clickcue")) {
                         trackSelect(event, clickedElement);

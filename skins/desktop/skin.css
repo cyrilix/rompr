@@ -394,6 +394,11 @@ div.rightmenu.normalmenu
     font-size:6pt;
 }
 
+.dragmenu
+{
+    cursor:move;
+}
+
 #playbackTime
 {
     font-weight:bold;

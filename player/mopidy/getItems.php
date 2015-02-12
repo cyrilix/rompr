@@ -16,6 +16,7 @@ $trackbytrack = false;
 foreach ($tk as $t) {
 	switch ($t->type) {
 		case 'uri':
+		case 'playlist':
 			if (property_exists($t, 'findexact')) {
 				add_spotify_artist($t);
 			} else {

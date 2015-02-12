@@ -349,6 +349,7 @@ function playerController() {
     				cmdlist.push('add "'+v.name+'"');
     				break;
 				case "cue":
+                case "playlist":
     				cmdlist.push('load "'+v.name+'"');
     				break;
     			case "item":

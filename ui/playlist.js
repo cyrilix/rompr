@@ -212,7 +212,7 @@ function Playlist() {
     this.draggedToEmpty = function(event, ui) {
         debug.log("PLAYLIST","Something was dropped on the empty playlist area",event,ui);
         ui.item = ui.helper;
-        playlist.waiting();
+        // playlist.waiting();
         playlist.dragstopped(event,ui);
     }
 
@@ -247,6 +247,10 @@ function Playlist() {
                     } else if ($(element).hasClass('clickcue')) {
                         tracks.push({  type: "cue",
                                         name: decodeURIComponent(uri)});
+                    } else if ($(element).hasClass('clickloadplaylist')) {
+                        tracks.push({ type: "playlist",
+                                        name: $(element).children().first().attr('name')});
+                        debug.log("PLAYLIST","Playlist",$(element).children().first().attr('name'),"was dragged");
                     } else {
                         var options = { type: "uri",
                                         name: decodeURIComponent(uri)};
@@ -263,11 +267,13 @@ function Playlist() {
                     }
                 }
             });
-            scrollto = 1;
-            player.controller.addTracks(tracks, null, moveto);
-            $('.selected').removeClass('selected');
+            if (tracks.length > 0) {
+                scrollto = 1;
+                player.controller.addTracks(tracks, null, moveto);
+                $('.selected').removeClass('selected');
+            }
             $("#dragger").remove();
-        } else {
+        } else if (ui.item.hasClass('track') || ui.item.hasClass('item')) {
             // Something dragged within the playlist
             var elementmoved = ui.item.hasClass('track') ? 'track' : 'item';
             switch (elementmoved) {
@@ -288,6 +294,8 @@ function Playlist() {
             }
             scrollto = 1;
             player.controller.move(firstitem, numitems, moveto);
+        } else {
+            return false;
         }
     }
 

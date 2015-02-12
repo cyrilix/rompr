@@ -538,10 +538,21 @@ var layoutProcessor = function() {
                         if ($(this).attr("id") == "hpscr") {
                             $('#hpscr').mCustomScrollbar("scrollTo", '.current', {scrollInertia:0});
                         }
+                    } else {
+                        $(this).css({left: "", top: ""});
                     }
                 });
             });
 
+            $(".topdropmenu").each(function() {$(this).find('.configtitle').first().addClass('dragmenu').append('<i class="icon-cancel-circled playlisticonr tright clickicon closemenu"></i>') });
+
+            $(".closemenu").click(function() {$(this).parent().parent().parent().parent().prev().click() });
+
+            $(".topdropmenu").draggable({
+                containment: 'body',
+                handle: '.configtitle'
+            });
+    
             $(".stayopen").click(function(ev) {ev.stopPropagation() });
 
             $("#volumecontrol").bind('mousedown', function(event){
@@ -573,6 +584,7 @@ var layoutProcessor = function() {
             } );
             if (prefs.hide_albumlist) {
                 $("#search").show({complete: setSearchLabelWidth});
+                ihatefirefox();
             }
             setControlClicks();
             $('.choose_albumlist').click(doSomethingClever);
