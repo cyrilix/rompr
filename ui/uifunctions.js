@@ -605,6 +605,8 @@ function loadCollection(albums, files) {
     if (albums != null) {
         debug.log("GENERAL","Loading Albums List");
         player.controller.reloadAlbumsList(albums);
+    } else {
+        player.controller.reloadPlaylists();
     }
     if (files != null) {
         debug.log("GENERAL","Loading Files List");

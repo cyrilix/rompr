@@ -76,7 +76,6 @@ function playerController() {
             debug.log("MPD", "Checking Collection");
             checkCollection(false, false);
         }
-		self.reloadPlaylists();
     }
 
 	this.command = function(cmd, callback) {
@@ -180,13 +179,14 @@ function playerController() {
                     $("#collection").html(data);
                     data = null;
                 }
+                self.reloadPlaylists();
                 player.collectionLoaded = true;
                 if (prefs.sortcollectionby == "album") {
                     scootTheAlbums();
                 }
             },
             error: function(data) {
-                alert("Failed To Generate Collection : \n"+data.responseText+"\n"+data.statusText);
+                $("#collection").html('<p align="center"><b><font color="red">Failed To Generate Collection :</font></b><br>'+data.responseText+"<br>"+data.statusText+"</p>");
                 debug.error("PLAYER","Failed to generate albums list",data);
             }
         });
