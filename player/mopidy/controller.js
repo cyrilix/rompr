@@ -248,7 +248,7 @@ function playerController() {
                                 break;
 				default:
 		           html = html + '<div class="containerbox menuitem clickable clicktrack" name="'+this.uri+'">'+
-								'<i class="icon-folder-open-empty fixed smallicon"></i>'+
+								'<i class="icon-doc-text fixed smallicon"></i>'+
 						        '<div class="expand">'+this.name+'</div>'+
 						        '</div>';
 						        break;

@@ -202,13 +202,17 @@ function parse_mopidy_json_data(&$jsondata) {
             if (property_exists($searchresults, 'uri')) {
                 if (property_exists($searchresults, 'tracks')) {
                     $d = getDomain($searchresults->{'uri'});
-                    if (!array_key_exists($d, $domainsdone)) {
-                        debug_print("Checking Existing Tracks for domain ".$d,"COLLECTION");
-                        generic_sql_query("INSERT INTO Existingtracks (TTindex) SELECT TTindex FROM Tracktable WHERE Uri LIKE '".$d."%' AND LastModified IS NOT NULL AND Hidden = 0");
-                        $domainsdone[$d] = 1;
-                    }
-                    foreach ($searchresults->tracks as $track) {
-                        parseTrack($track);
+                    if ($d != "local") {
+                        // Don't process local playlists. This mechanism ONLY works if the playlists contain
+                        // ALL the tracks from that backend.
+                        if (!array_key_exists($d, $domainsdone)) {
+                            debug_print("Checking Existing Tracks for domain ".$d,"COLLECTION");
+                            generic_sql_query("INSERT INTO Existingtracks (TTindex) SELECT TTindex FROM Tracktable WHERE Uri LIKE '".$d."%' AND LastModified IS NOT NULL AND Hidden = 0");
+                            $domainsdone[$d] = 1;
+                        }
+                        foreach ($searchresults->tracks as $track) {
+                            parseTrack($track);
+                        }
                     }
                 }
             }
