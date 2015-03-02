@@ -28,12 +28,12 @@ $dbterms = array( 'tags' => null, 'rating' => null );
 $trackbytrack = true;
 
 class album {
-    public function __construct($name, $artist, $domain) {
+    public function __construct($name, $artist, $domain, $folder) {
         global $numalbums;
         $this->artist = $artist;
         $this->name = trim($name);
         $this->tracks = array();
-        $this->folder = null;
+        $this->folder = $folder;
         $this->iscompilation = false;
         $this->musicbrainz_albumid = null;
         $this->datestamp = null;
@@ -89,6 +89,10 @@ class album {
 
     public function setDate($date) {
         $this->date = $date;
+    }
+
+    public function setFolder($folder) {
+        $this->folder = $folder;
     }
 
     public function getKey() {
@@ -239,7 +243,7 @@ class artist {
 
     public function newAlbum(&$object) {
         // Pass an album object to this function
-        $key = md5(strtolower($object->name).$object->domain);
+        $key = md5(strtolower($object->name).$object->domain.$object->folder);
         $this->albums[$key] = $object;
         $object->setArtistObject($this);
     }
@@ -365,10 +369,16 @@ class musicCollection {
 
     private function findAlbum($album, $artist, $directory, $domain) {
         if ($artist != null) {
-            $a = md5(trim(strtolower($album)).$domain);
+            // $a = md5(trim(strtolower($album)).$domain);
             $art = strtolower($artist);
-            if (array_key_exists($a, $this->artists[$art]->albums)) {
-                return $this->artists[$art]->albums[$a];
+            $albm = trim($album);
+            // if (array_key_exists($a, $this->artists[$art]->albums)) {
+            //     return $this->artists[$art]->albums[$a];
+            // }
+            foreach ($this->artists[$art]->albums as $object) {
+                if ($albm == $object->name && $domain == $object->domain) {
+                    return $object;
+                }
             }
         }
         if ($directory != null && $directory != ".") {
@@ -457,10 +467,15 @@ class musicCollection {
         if ($linktype == ROMPR_ARTIST) return true;
 
         // Keep albums from different domains separate
+        // NOTE: Spotify can have mutliple albums with the same name.
         if ($linktype == ROMPR_ALBUM) {
-            $abm = $this->findAlbum($album, $artistkey, null, $domain);
+            if ($domain == "spotify" && $directory !== null) {
+                $abm = $this->findAlbum($album, null, $directory, $domain);
+            } else {                
+                $abm = $this->findAlbum($album, $artistkey, null, $domain);
+            }
             if ($abm == false) {
-                $abm = new album($album, $sortartist, $domain);
+                $abm = new album($album, $sortartist, $domain, $directory);
                 $this->albums[] = $abm;
                 $this->artists[$artistkey]->newAlbum($abm);
             }
@@ -477,7 +492,7 @@ class musicCollection {
             return true;
         }
 
-        if ($album != $current_album || $sortartist != $current_artist || $domain != $current_domain) {
+        if ($domain == "spotify" || $album != $current_album || $sortartist != $current_artist || $domain != $current_domain) {
             $abm = false;
         }
 
@@ -491,16 +506,19 @@ class musicCollection {
 
         // Does an album with this name by this aritst already exist?
         if ($abm === false) {
-            $abm = $this->findAlbum($album, $artistkey, null, $domain);
+            if ($domain != "spotify") {
+                $abm = $this->findAlbum($album, $artistkey, null, $domain);
+            }
             if ($abm === false) {
-                if ($albumartist == null) {
+                if ($domain == "spotify" || $albumartist == null) {
                     // Does an album with this name where the tracks are in the same directory exist?
                     // We don't need to do this if albumartist is set - this is for detecting
-                    // badly tagged compilations
+                    // badly tagged compilations, but we also need to do this for all spotify tracks
+                    // as multiple albums can have the same name.
                     $abm = $this->findAlbum($album, null, $directory, $domain);
                     if ($abm !== false) {
                         // We found one - it's not by the same artist so we need to mark it as a compilation if it isn't already
-                        if (!($abm->isCompilation())) {
+                        if ($albumartist == null && !($abm->isCompilation())) {
                             // Create various artists group if it isn't there
                             if (!array_key_exists("various artists", $this->artists)) {
                                 $this->artists["various artists"] = new artist("Various Artists");
@@ -513,7 +531,7 @@ class musicCollection {
                 }
                 if ($abm === false) {
                     // We didn't find the album, so create it
-                    $abm = new album($album, $sortartist, $domain);
+                    $abm = new album($album, $sortartist, $domain, $directory);
                     $this->albums[] = $abm;
                     $this->artists[$artistkey]->newAlbum($abm);
                 }
@@ -755,7 +773,7 @@ function process_file(&$filedata) {
             break;
 
         case "spotify":
-            $folder = ($spotialbum == null) ? $file : $spotialbum;
+            $folder = $spotialbum;
             break;
 
         default:

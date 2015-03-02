@@ -333,6 +333,7 @@ function parseAlbum(&$track) {
     $trackdata['linktype'] = ROMPR_ALBUM;
     if (property_exists($track, 'uri')) {
         $trackdata['file'] = $track->{'uri'};
+        $trackdata['SpotiAlbum'] = $track->{'uri'};
         $domain = getDomain($track->{'uri'});
     }
     if (property_exists($track, 'images')) {
