@@ -1085,10 +1085,10 @@ function displayRating(where, what) {
 }
 
 function showUpdateWindow() {
-    if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < 0.60) {
+    if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < 0.61) {
         var fnarkle = popupWindow.create(550,900,"fnarkle",true,language.gettext("intro_title"));
         $("#popupcontents").append('<div id="fnarkler" class="mw-headline"></div>');
-        $("#fnarkler").append('<p align="center">'+language.gettext("intro_welcome")+' 0.60</p>');
+        $("#fnarkler").append('<p align="center">'+language.gettext("intro_welcome")+' 0.61</p>');
         if (skin != "desktop") {
             $("#fnarkler").append('<p align="center">'+language.gettext("intro_viewingmobile")+' <a href="/rompr/?skin=desktop">/rompr/?skin=desktop</a></p>');
         } else {
@@ -1101,7 +1101,7 @@ function showUpdateWindow() {
         $("#fnarkler").append('<p align="center"><a href="https://sourceforge.net/p/rompr/wiki/Rompr%20and%20Mopidy/" target="_blank">'+language.gettext("intro_mopidywiki")+'</a></p>');
         $("#fnarkler").append('<p><button style="width:8em" class="tright" onclick="popupWindow.close()">OK</button></p>');
         popupWindow.open();
-        prefs.save({shownupdatewindow: 0.60});
+        prefs.save({shownupdatewindow: 0.61});
     }
 }
 
