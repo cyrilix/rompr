@@ -186,7 +186,7 @@ function playerController() {
 
     function playTlTrack(track) {
         debug.log("PLAYER","Playing Track",track);
-        mopidy.playback.play(track,1).then( function(data){ }, consoleError);
+        mopidy.playback.play(track).then( function(data){ }, consoleError);
     }
 
     function checkMopidyVersion() {

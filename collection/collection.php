@@ -28,7 +28,7 @@ $dbterms = array( 'tags' => null, 'rating' => null );
 $trackbytrack = true;
 
 class album {
-    public function __construct($name, $artist, $domain, $folder) {
+    public function __construct($name, $artist, $domain, $folder = null) {
         global $numalbums;
         $this->artist = $artist;
         $this->name = trim($name);
