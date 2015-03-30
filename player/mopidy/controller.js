@@ -22,6 +22,7 @@ function playerController() {
     var connecttimer = null;
     var addingTracks = false;
     var dead = false;
+    var volstate = 0;
 
     function mopidyStateChange(data) {
         debug.shout("PLAYER","Mopidy State Change",data);
@@ -60,6 +61,9 @@ function playerController() {
 
 	function onFoundTrack() {
     	debug.shout("PLAYER", "Current track Found",playlist.currentTrack);
+        if (playlist.currentTrack && playlist.currentTrack.type == "stream") {
+            setTimeout(checkNewStream, 5000);
+        }
         nowplaying.newTrack(playlist.currentTrack);
         tracknotfound = false;
         self.checkProgress();
@@ -159,6 +163,7 @@ function playerController() {
         mopidy.on("event:seeked", seeked);
 		mopidy.on("event:tracklistChanged", tracklistChanged);
         mopidy.on("event:volumeChanged", volumeChanged);
+        mopidy.on("event:streamTitleChanged", streamTitleChanged);
 	}
 
     function volumeChanged(v) {
@@ -168,6 +173,47 @@ function playerController() {
         debug.log("MOPIDY","Volume was changed to",v);
         player.status.volume = v;
         infobar.updateWindowValues();
+    }
+
+    function checkNewStream() {
+        mopidy.playback.getStreamTitle().then(function(t) {
+            debug.log("MOPIDY","Retrieved new stream title",t);
+            streamTitleChanged({title: t});
+        });
+    }
+
+    function streamTitleChanged(t) {
+        debug.log("MOPIDY","Stream Title Changed to",t);
+        if (playlist.currentTrack && playlist.currentTrack.type == "stream") {
+            var temp = cloneObject(playlist.currentTrack);
+            if (t.title) {
+                var tit = t.title;
+                var parts = tit.split(" - ");
+                if (parts[0] && parts[1]) {
+                    temp.creator = parts.shift();
+                    temp.title = parts.join(" - ");
+                    temp.metadata.artists = [{name: temp.creator, musicbrainz_id: ""}];
+                    temp.metadata.track = {name: temp.title, musicbrainz_id: ""};
+                } else {
+                    parts = tit.split('~');
+                    if (parts[0] && parts[1]) {
+                        temp.creator = parts[0];
+                        temp.title = parts[1];
+                        temp.metadata.artists = [{name: temp.creator, musicbrainz_id: ""}];
+                        temp.metadata.track = {name: temp.title, musicbrainz_id: ""};
+                    }
+                }
+            }
+            if (playlist.currentTrack.title != temp.title ||
+                playlist.currentTrack.album != temp.album ||
+                playlist.currentTrack.creator != temp.creator)
+            {
+                playlist.currentTrack = temp;
+                debug.log("STREAMHANDLER","Detected change of track",playlist.currentTrack);
+                nowplaying.newTrack(playlist.currentTrack);
+            }
+            temp = null;
+        }
     }
 
 	function setStatusValues(tl_track) {
@@ -218,7 +264,7 @@ function playerController() {
 	    		},consoleError);
     		},consoleError);
     	},consoleError);
-    	mopidy.playback.getMute().then(function(m){
+    	mopidy.mixer.getMute().then(function(m){
             debug.log("MOPIDY","Setting Mute Button to",m);
             $("#outputbutton0").switchToggle(m);
     	},consoleError);
@@ -709,7 +755,7 @@ function playerController() {
 	}
 
 	this.volume = function(volume, callback) {
-		mopidy.playback.setVolume(Math.round(volume)).then( function() {
+		mopidy.mixer.setVolume(Math.round(volume)).then( function() {
 			player.status.volume = volume;
 			if (callback) {
 				callback();
@@ -803,11 +849,12 @@ function playerController() {
 	this.doOutput = function(id, state) {
         debug.log("MOPIDY","Setting Mute to",state);
 		if (state) {
-			mopidy.playback.setMute(true);
+            volstate = player.status.volume;
+			mopidy.mixer.setMute(true);
 		} else {
-			mopidy.playback.setMute(false).then( function() {
-    			// Workaround for possible mopidy bug
-				mopidy.playback.setVolume(Math.round(player.status.volume));
+			mopidy.mixer.setMute(false).then( function() {
+    			// Workaround for possible mopidy bug or stupidity
+				mopidy.mixer.setVolume(Math.round(volstate));
 			});
 		}
 	}

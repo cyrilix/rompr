@@ -335,6 +335,7 @@ var faveFinder = function() {
                             req.data.uri = data[i].tracks[k].uri;
                             req.data.album = data[i].tracks[k].album.name;
                             req.data.title = data[i].tracks[k].name;
+                            req.data.duration = data[i].tracks[k].length/1000;
                             req.data.artist = joinartists(data[i].tracks[k].artists);
                             if (data[i].tracks[k].album.artists) {
                                 req.data.albumartist = joinartists(data[i].tracks[k].album.artists);
