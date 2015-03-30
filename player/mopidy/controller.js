@@ -542,7 +542,7 @@ function playerController() {
                 updatePlTimer = setTimeout(self.reloadPlaylists, 2000);
             } else {
                 debug.log("PLAYER","Retreiving Playlists from Mopidy");
-                mopidy.playlists.getPlaylists().then(function (data) {
+                mopidy.playlists.asList().then(function (data) {
                 	debug.log("PLAYER","Got Playlists from Mopidy",data);
                 	formatPlaylistInfo(data);
                     if (prefs.apache_backend == "sql" && player.collectionLoaded && prefs.onthefly) {
