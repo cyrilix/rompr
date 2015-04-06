@@ -869,7 +869,7 @@ function getStuffFromXSPF($url) {
 
     foreach ($podcasts as $x) {
         foreach($x->trackList->track as $track) {
-            if ($track->link == $url ||
+            if (htmlspecialchars_decode($track->link) == $url ||
                 ($track->origlink && $track->origlink == $url)) {
                 return array (
                     true,

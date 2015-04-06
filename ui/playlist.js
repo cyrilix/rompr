@@ -391,10 +391,6 @@ function Playlist() {
     }
 
     this.trackchanged = function() {
-        if (self.currentTrack && self.currentTrack.type == "podcast") {
-            debug.log("PLAYLIST", "Seeing if we need to mark a podcast as listened");
-            podcasts.checkMarkPodcastAsListened(self.currentTrack.location);
-        }
     }
 
     this.stopafter = function() {

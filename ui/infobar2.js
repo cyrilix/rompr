@@ -529,6 +529,10 @@ var infobar = function() {
                     debug.log("INFOBAR","Track playcount being updated");
                     nowplaying.incPlaycount(null);
                 }
+                if (playlist.currentTrack && playlist.currentTrack.type == "podcast") {
+                    debug.log("INFOBAR", "Seeing if we need to mark a podcast as listened");
+                    podcasts.checkMarkPodcastAsListened(playlist.currentTrack.location);
+                }
             }
         },
 

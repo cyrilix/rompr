@@ -215,7 +215,8 @@ function getNewPodcast($url) {
         $track->addChild('filesize', $filesize);
         $track->addChild('description', htmlspecialchars($description));
         $track->addChild('key', $key);
-        $track->addChild('link', $link);
+        debug_print("Track Link Is ".$link,"PODCASTS");
+        $track->addChild('link', htmlspecialchars($link));
         $track->addChild('listened', $listened);
         $track->addChild('new', $new);
         $track->addChild('deleted', $deleted);
@@ -534,7 +535,7 @@ function doPodcastHeader($c) {
 function markAsListened($c, $url) {
     debug_print("Marking ".$url." from ".$c." as listened","PODCASTS");
     $x = simplexml_load_file('prefs/podcasts/'.$c.'/info.xml');
-    $axp = $x->xpath('//track/link[.="'.$url.'"]/parent::*');
+    $axp = $x->xpath('//track/link[.="'.htmlspecialchars($url).'"]/parent::*');
     debug_print("Found Track. Title is ".$axp[0]->{'title'},"PODCASTS");
     $axp[0]->{'listened'} = "yes";
     $axp[0]->{'new'} = "no";

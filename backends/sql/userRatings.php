@@ -302,7 +302,7 @@ switch ($_POST['action']) {
 			header('HTTP/1.0 403 Forbidden');
 			exit(0);
 		}
-		$ttids = find_item(	null,
+		$ttids = find_item(	$uri,
 							$title,
 							$artist,
 							$album,
