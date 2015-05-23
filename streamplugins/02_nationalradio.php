@@ -20,24 +20,31 @@ if (array_key_exists('populate', $_REQUEST)) {
 
     $countries = array();
     $genres = array();
+
+    debug_print("Getting ".$base_url,"RADIOS");
+
     $content = url_get_contents($base_url);
     $DOM = new DOMDocument;
     $DOM->loadHTML($content['contents']);
     $stuff = $DOM->getElementById('thetable');
-    $links = $stuff->getElementsByTagName('a');
-    foreach ($links as $l) {
-        $p = $l->getAttribute('href');
-        $n = DOMinnerHTML($l);
-        $countries[$n] = $base_url.$p;
-    }
-
-    if (preg_match('/listenlive.eu/', $prefs['radiocountry'])) {
-        $stuff = $DOM->getElementById('thetable2');
+    if ($stuff) {
         $links = $stuff->getElementsByTagName('a');
         foreach ($links as $l) {
             $p = $l->getAttribute('href');
             $n = DOMinnerHTML($l);
-            $genres[$n] = $base_url.$p;
+            $countries[$n] = $base_url.$p;
+        }
+    }
+
+    if (preg_match('/listenlive.eu/', $prefs['radiocountry'])) {
+        $stuff = $DOM->getElementById('thetable2');
+        if ($stuff) {
+            $links = $stuff->getElementsByTagName('a');
+            foreach ($links as $l) {
+                $p = $l->getAttribute('href');
+                $n = DOMinnerHTML($l);
+                $genres[$n] = $base_url.$p;
+            }
         }
     }
 
@@ -45,20 +52,24 @@ if (array_key_exists('populate', $_REQUEST)) {
     $DOM = new DOMDocument;
     $DOM->loadHTML($content['contents']);
     $stuff = $DOM->getElementById('thetable');
-    $links = $stuff->getElementsByTagName('a');
-    foreach ($links as $l) {
-        $p = $l->getAttribute('href');
-        $n = DOMinnerHTML($l);
-        $countries['Canada - '.$n] = $cbase_url.$p;
-    }
-
-    if (preg_match('/canadianwebradio/', $prefs['radiocountry'])) {
-        $stuff = $DOM->getElementById('thetable2');
+    if ($stuff) {
         $links = $stuff->getElementsByTagName('a');
         foreach ($links as $l) {
             $p = $l->getAttribute('href');
             $n = DOMinnerHTML($l);
-            $genres[$n] = $cbase_url.$p;
+            $countries['Canada - '.$n] = $cbase_url.$p;
+        }
+    }
+
+    if (preg_match('/canadianwebradio/', $prefs['radiocountry'])) {
+        $stuff = $DOM->getElementById('thetable2');
+        if ($stuff) {
+            $links = $stuff->getElementsByTagName('a');
+            foreach ($links as $l) {
+                $p = $l->getAttribute('href');
+                $n = DOMinnerHTML($l);
+                $genres[$n] = $cbase_url.$p;
+            }
         }
     }
 
@@ -91,100 +102,101 @@ if (array_key_exists('populate', $_REQUEST)) {
     $DOM = new DOMDocument;
     $DOM->loadHTML($content['contents']);
     $stuff = $DOM->getElementById('thetable3');
+    if ($stuff) {
+        $rows = $stuff->getElementsByTagName('tr');
+        for ($i=0; $i<$rows->length; $i++) {
+            $boxes = $rows->item($i)->getElementsByTagName('td');
+            $track = array();
+            $track['meta'] = array();
+            $trackformats = array();
+            $tracklinks = array();
+            foreach ($boxes as $td) {
 
-    $rows = $stuff->getElementsByTagName('tr');
-    for ($i=0; $i<$rows->length; $i++) {
-        $boxes = $rows->item($i)->getElementsByTagName('td');
-        $track = array();
-        $track['meta'] = array();
-        $trackformats = array();
-        $tracklinks = array();
-        foreach ($boxes as $td) {
-
-            $td_contents = DOMinnerHTML($td);
-            if (preg_match('/<b>(.*?)<\/b>/', $td_contents, $matches)) {
-                $track['title'] = $matches[1];
-                if (preg_match('/<b>(.*?)<\/b>/', $track['title'], $matches)) {
+                $td_contents = DOMinnerHTML($td);
+                if (preg_match('/<b>(.*?)<\/b>/', $td_contents, $matches)) {
                     $track['title'] = $matches[1];
-                }
-                if (preg_match('/<b>(.*?)$/', $track['title'], $matches)) {
-                    $track['title'] = $matches[1];
-                }
-                // debug_print("Station : ".$track['title'], "RADIOPARSER");
-            } else if (preg_match('/<img /', $td_contents)) {
-                $td_contents = preg_replace('/<br\s*\/*>/', '<ROMPR>', $td_contents);
-                $td_rows = explode('<ROMPR>', $td_contents);
-                foreach($td_rows as $img) {
-                    if ($img == "") {
-                        array_push($trackformats, "");
-                    } else {
-                        $d = new DOMDocument;
-                        $d->loadHTML($img);
-                        $cock = $d->getElementsByTagName('img');
-                        $fuck = $cock->item(0);
-                        $wtf = $fuck->getAttribute('alt');
-                        array_push($trackformats, $wtf);
+                    if (preg_match('/<b>(.*?)<\/b>/', $track['title'], $matches)) {
+                        $track['title'] = $matches[1];
                     }
-                }
-            } else if (preg_match('/<a /', $td_contents)) {
-                $td_contents = preg_replace('/<br\s*\/*>/', '<ROMPR>', $td_contents);
-                $tracklinks = explode('<ROMPR>', $td_contents);
-            } else {
-                if ($td_contents) {
-                    array_push($track['meta'], $td_contents);
-                }
-            }
-        }
-
-        $track['links'] = array();
-
-        for($z = 0; $z < count($trackformats); $z++) {
-            if ($trackformats[$z] != "f" &&
-                $trackformats[$z] != "FlashPlayer" &&
-                $trackformats[$z] != "Flash" &&
-                $trackformats[$z] != "Flash Player" &&
-                $trackformats[$z] != "WebPlayer") {
-
-                $d = new DOMDocument;
-                $d->loadHTML($tracklinks[$z]);
-                $links = $d->getElementsByTagName('a');
-                foreach($links as $l) {
-                    $text = DOMinnerHTML($l);
-                    $link = $l->getAttribute('href');
-                    if ($text != "f" &&
-                        $text != "FlashPlayer" &&
-                        $text != "Flash" &&
-                        $text != "Flash Player" &&
-                        $text != "WebPlayer") {
-
-                        array_push($track['links'], array( 'text' => $text, 'url' => $link, 'type' => $trackformats[$z] ));
+                    if (preg_match('/<b>(.*?)$/', $track['title'], $matches)) {
+                        $track['title'] = $matches[1];
+                    }
+                    // debug_print("Station : ".$track['title'], "RADIOPARSER");
+                } else if (preg_match('/<img /', $td_contents)) {
+                    $td_contents = preg_replace('/<br\s*\/*>/', '<ROMPR>', $td_contents);
+                    $td_rows = explode('<ROMPR>', $td_contents);
+                    foreach($td_rows as $img) {
+                        if ($img == "") {
+                            array_push($trackformats, "");
+                        } else {
+                            $d = new DOMDocument;
+                            $d->loadHTML($img);
+                            $cock = $d->getElementsByTagName('img');
+                            $fuck = $cock->item(0);
+                            $wtf = $fuck->getAttribute('alt');
+                            array_push($trackformats, $wtf);
+                        }
+                    }
+                } else if (preg_match('/<a /', $td_contents)) {
+                    $td_contents = preg_replace('/<br\s*\/*>/', '<ROMPR>', $td_contents);
+                    $tracklinks = explode('<ROMPR>', $td_contents);
+                } else {
+                    if ($td_contents) {
+                        array_push($track['meta'], $td_contents);
                     }
                 }
             }
-        }
 
-        if ($track['title'] && count($track['links']) > 0) {
-            $imgname = getStationImage($track['title']);
-            print '<div class="containerbox indent padright menuitem">';
-            if ($imgname === null) {
-                // print '<i class="icon-radio-tower fixed smallcover-svg"></i>';
-                print '<div class="smallcover fixed"><img class="smallcover" src="newimages/broadcast.svg" /></div>';
-            } else {
-                print '<div class="smallcover fixed"><img class="smallcover" src="'.$imgname.'" /></div>';
+            $track['links'] = array();
+
+            for($z = 0; $z < count($trackformats); $z++) {
+                if ($trackformats[$z] != "f" &&
+                    $trackformats[$z] != "FlashPlayer" &&
+                    $trackformats[$z] != "Flash" &&
+                    $trackformats[$z] != "Flash Player" &&
+                    $trackformats[$z] != "WebPlayer") {
+
+                    $d = new DOMDocument;
+                    $d->loadHTML($tracklinks[$z]);
+                    $links = $d->getElementsByTagName('a');
+                    foreach($links as $l) {
+                        $text = DOMinnerHTML($l);
+                        $link = $l->getAttribute('href');
+                        if ($text != "f" &&
+                            $text != "FlashPlayer" &&
+                            $text != "Flash" &&
+                            $text != "Flash Player" &&
+                            $text != "WebPlayer") {
+
+                            array_push($track['links'], array( 'text' => $text, 'url' => $link, 'type' => $trackformats[$z] ));
+                        }
+                    }
+                }
             }
-            print '<div class="expand" style="margin-top:6px"><span style="font-size:120%">'.$track['title'].'</span></div>';
-            print '</div>';
-            print '<div class="containerbox padright bum">';
-            print '<div class="smallcoverpadder fixed"></div><div class="expand">'.implode(' ', $track['meta']).'</div>';
-            print '</div>';
-            foreach ($track['links'] as $k) {
-                print '<div class="clickable clickstream containerbox padright menuitem" name="'.$k['url'].'" streamname="'.$track['title'].'" streamimg="'.$imgname.'">';
-                print '<div class="smallicon fixed"></div>';
-                print '<i class="'.audioClass($k['type']).' fixed smallicon"></i>';
-                print '<div class="expand">'.$k['text'].' '.$k['type'].'</div>';
+
+            if (array_key_exists('title', $track) && $track['title'] && count($track['links']) > 0) {
+                $imgname = getStationImage($track['title']);
+                print '<div class="containerbox indent padright menuitem">';
+                if ($imgname === null) {
+                    // print '<i class="icon-radio-tower fixed smallcover-svg"></i>';
+                    print '<div class="smallcover fixed"><img class="smallcover" src="newimages/broadcast.svg" /></div>';
+                } else {
+                    print '<div class="smallcover fixed"><img class="smallcover" src="'.$imgname.'" /></div>';
+                }
+                print '<div class="expand" style="margin-top:6px"><span style="font-size:120%">'.$track['title'].'</span></div>';
                 print '</div>';
+                print '<div class="containerbox padright bum">';
+                print '<div class="smallcoverpadder fixed"></div><div class="expand">'.implode(' ', $track['meta']).'</div>';
+                print '</div>';
+                foreach ($track['links'] as $k) {
+                    print '<div class="clickable clickstream containerbox padright menuitem" name="'.$k['url'].'" streamname="'.$track['title'].'" streamimg="'.$imgname.'">';
+                    print '<div class="smallicon fixed"></div>';
+                    print '<i class="'.audioClass($k['type']).' fixed smallicon"></i>';
+                    print '<div class="expand">'.$k['text'].' '.$k['type'].'</div>';
+                    print '</div>';
+                }
+                print '<div style="border-top:1px solid #999999"></div>';
             }
-            print '<div style="border-top:1px solid #999999"></div>';
         }
     }
 
