@@ -550,6 +550,11 @@ $languages['en'] = array (
 	"podcast_oldestfirst" => "Oldest First",
 	"podcast_hidedescriptions" => "Hide Descriptions",
 
+	// New in 0.61
+	"label_metabackup" => "Metadata Backup",
+	"button_backup" => "Create Backup",
+	"button_restore" => "Restore Backup",
+
 	//CHANGED in 0.60
 	"config_country" => "COUNTRY (for Last.FM and Spotify)",
 	"setup_labeladdresses" => "If you are having connection issues, try using an IP address instead of 'localhost'",

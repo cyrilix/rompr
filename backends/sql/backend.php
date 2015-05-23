@@ -501,7 +501,7 @@ function list_tags() {
 
 function list_all_tag_data() {
 	$tags = array();
-	if ($result = generic_sql_query("SELECT t.Name, a.Artistname, tr.Title, al.Albumname, al.Image, tr.Uri FROM Tagtable AS t JOIN TagListtable AS tl USING (Tagindex) JOIN Tracktable AS tr USING (TTindex) JOIN Albumtable AS al USING (Albumindex) JOIN Artisttable AS a ON (tr.Artistindex = a.Artistindex) ORDER BY t.Name, a.Artistname, al.Albumname, tr.TrackNo")) {
+	if ($result = generic_sql_query("SELECT t.Name, a.Artistname, tr.Title, al.Albumname, al.Image, al.AlbumArtistindex, tr.Uri FROM Tagtable AS t JOIN TagListtable AS tl USING (Tagindex) JOIN Tracktable AS tr USING (TTindex) JOIN Albumtable AS al USING (Albumindex) JOIN Artisttable AS a ON (tr.Artistindex = a.Artistindex) ORDER BY t.Name, a.Artistname, al.Albumname, tr.TrackNo")) {
 		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			if (!array_key_exists($obj->Name, $tags)) {
 				$tags[$obj->Name] = array();
@@ -511,8 +511,18 @@ function list_all_tag_data() {
 				'Album' => $obj->Albumname,
 				'Artist' => $obj->Artistname,
 				'Image' => imagePath($obj->Image),
-				'Uri' => $obj->Uri
+				'Uri' => $obj->Uri,
+				'AAIndex' => $obj->AlbumArtistindex
 			));
+		}
+	}
+	foreach ($tags as $r => $a) {
+		foreach ($tags[$r] as $s => $b) {
+			if ($result = generic_sql_query("SELECT Artistname FROM Artisttable WHERE Artistindex = ".$tags[$r][$s]['AAIndex'])) {
+				while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+					$tags[$r][$s]['Albumartist'] = $obj->Artistname;
+				}
+			}
 		}
 	}
 	return $tags;
@@ -526,18 +536,53 @@ function list_all_rating_data() {
 		"4" => array(),
 		"5" => array()
 	);
-	if ($result = generic_sql_query("SELECT r.Rating, a.Artistname, tr.Title, al.Albumname, al.Image, tr.Uri FROM Ratingtable AS r JOIN Tracktable AS tr USING (TTindex) JOIN Albumtable AS al USING (Albumindex) JOIN Artisttable AS a ON (tr.Artistindex = a.Artistindex) WHERE r.Rating > 0 ORDER BY r.Rating, a.Artistname, al.Albumname, tr.TrackNo")) {
+	if ($result = generic_sql_query("SELECT r.Rating, a.Artistname, tr.Title, al.Albumname, al.Image, al.AlbumArtistindex, tr.Uri FROM Ratingtable AS r JOIN Tracktable AS tr USING (TTindex) JOIN Albumtable AS al USING (Albumindex) JOIN Artisttable AS a ON (tr.Artistindex = a.Artistindex) WHERE r.Rating > 0 ORDER BY r.Rating, a.Artistname, al.Albumname, tr.TrackNo")) {
 		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			array_push($ratings[$obj->Rating], array(
 				'Title' => $obj->Title,
 				'Album' => $obj->Albumname,
 				'Artist' => $obj->Artistname,
 				'Image' => imagePath($obj->Image),
-				'Uri' => $obj->Uri
+				'Uri' => $obj->Uri,
+				'AAIndex' => $obj->AlbumArtistindex
 			));
 		}
 	}
+	foreach ($ratings as $r => $a) {
+		foreach ($ratings[$r] as $s => $b) {
+			if ($result = generic_sql_query("SELECT Artistname FROM Artisttable WHERE Artistindex = ".$ratings[$r][$s]['AAIndex'])) {
+				while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+					$ratings[$r][$s]['Albumartist'] = $obj->Artistname;
+				}
+			}
+		}
+	}
 	return $ratings;
+}
+
+function list_all_playcount_data() {
+	$playcounts = array();
+	if ($result = generic_sql_query("SELECT pl.Playcount, a.Artistname, tr.Title, al.Albumname, al.Image, al.AlbumArtistindex, tr.Uri FROM Playcounttable AS pl JOIN Tracktable AS tr USING (TTindex) JOIN Albumtable AS al USING (Albumindex) JOIN Artisttable AS a ON (tr.Artistindex = a.Artistindex) WHERE pl.Playcount > 0")) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+			array_push($playcounts, array(
+				'Title' => $obj->Title,
+				'Album' => $obj->Albumname,
+				'Artist' => $obj->Artistname,
+				'Image' => imagePath($obj->Image),
+				'Uri' => $obj->Uri,
+				'Playcount' => $obj->Playcount,
+				'AAIndex' => $obj->AlbumArtistindex
+			));
+		}
+	}
+	foreach ($playcounts as $r => $a) {
+		if ($result = generic_sql_query("SELECT Artistname FROM Artisttable WHERE Artistindex = ".$playcounts[$r]['AAIndex'])) {
+			while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+				$playcounts[$r]['Albumartist'] = $obj->Artistname;
+			}
+		}
+	}
+	return $playcounts;
 }
 
 function remove_tag_from_db($tag) {

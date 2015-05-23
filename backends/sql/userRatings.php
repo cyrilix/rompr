@@ -67,6 +67,21 @@ switch ($_POST['action']) {
 		print json_encode(list_all_rating_data());
 		break;
 
+	case 'metabackup':
+		file_put_contents('prefs/tagbackup.json', json_encode(list_all_tag_data()));
+		file_put_contents('prefs/ratbackup.json', json_encode(list_all_rating_data()));
+		file_put_contents('prefs/plcbackup.json', json_encode(list_all_playcount_data()));
+		print '<html></html>';
+		break;
+
+	case 'getbackupdata':
+		$backup = array();
+		$backup['Ratings'] = json_decode(file_get_contents('prefs/ratbackup.json'));
+		$backup['Tags'] = json_decode(file_get_contents('prefs/tagbackup.json'));
+		$backup['Playcounts'] = json_decode(file_get_contents('prefs/plcbackup.json'));
+		print json_encode($backup);
+		break;
+
 	case 'deletetag':
 		if (remove_tag_from_db($_POST['value'])) {
 			print '<html></html>';
