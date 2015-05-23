@@ -93,6 +93,7 @@ function doCollection($command) {
                     $filedata = array();
                 }
             }
+            $parts[1] = explode(';',$parts[1]);
             $value = is_array($parts[1]) ? $parts[1][0] : $parts[1];
             if ($parts[0] == "Last-Modified") {
                 $value = strtotime($value);

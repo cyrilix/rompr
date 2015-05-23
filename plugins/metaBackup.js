@@ -190,7 +190,6 @@ var metaBackup = function() {
 		},
 
 		restore: function() {
-			debug.log("COCKWILLY","Cheeseburger");
 			$("#ilikeboobs").prop('disabled', true);
 			if (!$('[name="minge"]').is(':visible')) {
 				$('[name="minge"]').slideToggle('slow');
@@ -209,16 +208,17 @@ var metaBackup = function() {
 		                debug.log("FRIDGE","Success",rdata);
 		                updateCollectionDisplay(rdata);
 		                metaindex++;
-		                setTimeout(metaBackup.restore, 750);
+		                setTimeout(metaBackup.restore, 500);
 					},
 		            error: function(rdata) {
 		                debug.warn("FRIDGE","Failure");
 		                metaindex++;
-		                setTimeout(metaBackup.restore, 750);
+		                setTimeout(metaBackup.restore, 500);
 		            }
 		        });
 		    } else {
 				$("#ilikeboobs").prop('disabled', false);
+				$("#metainfo").html("Finished");
 		    }
 		}
 
