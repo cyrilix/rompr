@@ -63,6 +63,9 @@ var metaBackup = function() {
             			'<div class="fixed menuitem" style="width:10em"><b>Progress</b></div>'+
             			'<div class="expand menuitem" id="metaprogress"></div>'+
             		'</div>'+
+            		'<div style="margin-left:8px;margin-right:8px;margin-top:4px;margin-bottom:4px" class="containerbox">'+
+            			'<div class="expand menuitem" id="metainfo"></div>'+
+            		'</div>'+
             	'</div>'
             	);
 		    progressbar = new progressBar("metaprogress", "horizontal");
@@ -82,12 +85,15 @@ var metaBackup = function() {
 						artist: data.Ratings[r][t]['Artist'],
 						albumartist: data.Ratings[r][t]['Albumartist'],
 						album: data.Ratings[r][t]['Album'],
-						image: data.Ratings[r][t]['Image']
+						image: data.Ratings[r][t]['Image'],
+						trackno: data.Ratings[r][t]['Trackno'],
+						disc: data.Ratings[r][t]['Disc'],
+						duration: data.Ratings[r][t]['Duration']
 					};
 					if (prefs.player_backend == "mopidy") {
 						var a = data.Ratings[r][t]['Uri'];
 						if (a) {
-							if (a.substr(0, 7) == "spotify" || a.substr(0,10) == "soundcloud") {
+							if (a.substr(0, 7) == "spotify" || a.substr(0,10) == "soundcloud" || a.substr(0,7) == "youtube") {
 								thing.uri = a;
 							}
 						}
@@ -108,12 +114,15 @@ var metaBackup = function() {
 						artist: data.Tags[r][t]['Artist'],
 						albumartist: data.Tags[r][t]['Albumartist'],
 						album: data.Tags[r][t]['Album'],
-						image: data.Tags[r][t]['Image']
+						image: data.Tags[r][t]['Image'],
+						trackno: data.Tags[r][t]['Trackno'],
+						disc: data.Tags[r][t]['Disc'],
+						duration: data.Tags[r][t]['Duration']
 					};
 					if (prefs.player_backend == "mopidy") {
 						var a = data.Tags[r][t]['Uri'];
 						if (a) {
-							if (a.substr(0, 7) == "spotify" || a.substr(0,10) == "soundcloud") {
+							if (a.substr(0, 7) == "spotify" || a.substr(0,10) == "soundcloud" || a.substr(0,7) == "youtube") {
 								thing.uri = a;
 							}
 						}
@@ -133,6 +142,9 @@ var metaBackup = function() {
 					artist: data.Playcounts[r]['Artist'],
 					albumartist: data.Playcounts[r]['Albumartist'],
 					album: data.Playcounts[r]['Album'],
+					trackno: data.Playcounts[r]['Trackno'],
+					disc: data.Playcounts[r]['Disc'],
+					duration: data.Playcounts[r]['Duration'],
 					image: data.Playcounts[r]['Image']
 				};
 				meta.push(thing);
@@ -187,7 +199,7 @@ var metaBackup = function() {
 			progressbar.setProgress(p.toFixed(2));
 			if (metaindex < meta.length) {
 				var arse = meta[metaindex];
-				debug.log("COCKWILLY","Restoring",arse);
+				$("#metainfo").html('Setting '+arse.attributes[0].attribute+' to '+getArray(arse.attributes[0].value)[0]+' on '+arse.title+' by '+arse.artist);
 		        $.ajax({
 		            url: "backends/sql/userRatings.php",
 		            type: "POST",
@@ -197,14 +209,16 @@ var metaBackup = function() {
 		                debug.log("FRIDGE","Success",rdata);
 		                updateCollectionDisplay(rdata);
 		                metaindex++;
-						$("#ilikeboobs").prop('disabled', false);
+		                setTimeout(metaBackup.restore, 750);
 					},
 		            error: function(rdata) {
 		                debug.warn("FRIDGE","Failure");
 		                metaindex++;
-						$("#ilikeboobs").prop('disabled', false);
+		                setTimeout(metaBackup.restore, 750);
 		            }
 		        });
+		    } else {
+				$("#ilikeboobs").prop('disabled', false);
 		    }
 		}
 

@@ -501,7 +501,7 @@ function list_tags() {
 
 function list_all_tag_data() {
 	$tags = array();
-	if ($result = generic_sql_query("SELECT t.Name, a.Artistname, tr.Title, al.Albumname, al.Image, al.AlbumArtistindex, tr.Uri FROM Tagtable AS t JOIN TagListtable AS tl USING (Tagindex) JOIN Tracktable AS tr USING (TTindex) JOIN Albumtable AS al USING (Albumindex) JOIN Artisttable AS a ON (tr.Artistindex = a.Artistindex) ORDER BY t.Name, a.Artistname, al.Albumname, tr.TrackNo")) {
+	if ($result = generic_sql_query("SELECT t.Name, a.Artistname, tr.Title, tr.TrackNo, tr.Duration, tr.Disc, al.Albumname, al.Image, al.AlbumArtistindex, tr.Uri FROM Tagtable AS t JOIN TagListtable AS tl USING (Tagindex) JOIN Tracktable AS tr USING (TTindex) JOIN Albumtable AS al USING (Albumindex) JOIN Artisttable AS a ON (tr.Artistindex = a.Artistindex) ORDER BY t.Name, a.Artistname, al.Albumname, tr.TrackNo")) {
 		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			if (!array_key_exists($obj->Name, $tags)) {
 				$tags[$obj->Name] = array();
@@ -512,6 +512,9 @@ function list_all_tag_data() {
 				'Artist' => $obj->Artistname,
 				'Image' => imagePath($obj->Image),
 				'Uri' => $obj->Uri,
+				'Trackno' => $obj->TrackNo,
+				'Duration' => $obj->Duration,
+				'Disc' => $obj->Disc,
 				'AAIndex' => $obj->AlbumArtistindex
 			));
 		}
@@ -536,7 +539,7 @@ function list_all_rating_data() {
 		"4" => array(),
 		"5" => array()
 	);
-	if ($result = generic_sql_query("SELECT r.Rating, a.Artistname, tr.Title, al.Albumname, al.Image, al.AlbumArtistindex, tr.Uri FROM Ratingtable AS r JOIN Tracktable AS tr USING (TTindex) JOIN Albumtable AS al USING (Albumindex) JOIN Artisttable AS a ON (tr.Artistindex = a.Artistindex) WHERE r.Rating > 0 ORDER BY r.Rating, a.Artistname, al.Albumname, tr.TrackNo")) {
+	if ($result = generic_sql_query("SELECT r.Rating, a.Artistname, tr.Title, tr.TrackNo, tr.Duration, tr.Disc, al.Albumname, al.Image, al.AlbumArtistindex, tr.Uri FROM Ratingtable AS r JOIN Tracktable AS tr USING (TTindex) JOIN Albumtable AS al USING (Albumindex) JOIN Artisttable AS a ON (tr.Artistindex = a.Artistindex) WHERE r.Rating > 0 ORDER BY r.Rating, a.Artistname, al.Albumname, tr.TrackNo")) {
 		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			array_push($ratings[$obj->Rating], array(
 				'Title' => $obj->Title,
@@ -544,6 +547,9 @@ function list_all_rating_data() {
 				'Artist' => $obj->Artistname,
 				'Image' => imagePath($obj->Image),
 				'Uri' => $obj->Uri,
+				'Trackno' => $obj->TrackNo,
+				'Duration' => $obj->Duration,
+				'Disc' => $obj->Disc,
 				'AAIndex' => $obj->AlbumArtistindex
 			));
 		}
@@ -562,7 +568,7 @@ function list_all_rating_data() {
 
 function list_all_playcount_data() {
 	$playcounts = array();
-	if ($result = generic_sql_query("SELECT pl.Playcount, a.Artistname, tr.Title, al.Albumname, al.Image, al.AlbumArtistindex, tr.Uri FROM Playcounttable AS pl JOIN Tracktable AS tr USING (TTindex) JOIN Albumtable AS al USING (Albumindex) JOIN Artisttable AS a ON (tr.Artistindex = a.Artistindex) WHERE pl.Playcount > 0")) {
+	if ($result = generic_sql_query("SELECT pl.Playcount, a.Artistname, tr.Title, tr.TrackNo, tr.Duration, tr.Disc, al.Albumname, al.Image, al.AlbumArtistindex, tr.Uri FROM Playcounttable AS pl JOIN Tracktable AS tr USING (TTindex) JOIN Albumtable AS al USING (Albumindex) JOIN Artisttable AS a ON (tr.Artistindex = a.Artistindex) WHERE pl.Playcount > 0")) {
 		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			array_push($playcounts, array(
 				'Title' => $obj->Title,
@@ -571,6 +577,9 @@ function list_all_playcount_data() {
 				'Image' => imagePath($obj->Image),
 				'Uri' => $obj->Uri,
 				'Playcount' => $obj->Playcount,
+				'Trackno' => $obj->TrackNo,
+				'Duration' => $obj->Duration,
+				'Disc' => $obj->Disc,
 				'AAIndex' => $obj->AlbumArtistindex
 			));
 		}
