@@ -65,7 +65,7 @@ class album {
         }
         if ($object->playlist) {
             $t = new track("Cue Sheet",$object->playlist,0,0,$object->datestamp,$object->genre,$object->artist,$this->name,$this->folder,
-                            "cue", null, null, null, null, $this->artist, $object->disc, null, null, null, null, null, null, null, $object->lastmodified, null, null);
+                            "cue", null, null, null, null, $this->artist, $object->disc, null, null, null, null, null, null, null, 1, null, null);
             array_unshift($this->tracks, $t);
         }
         $object->setAlbumObject($this);
