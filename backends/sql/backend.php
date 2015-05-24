@@ -1462,7 +1462,7 @@ function check_and_update_track($trackobj, $albumindex, $artistindex, $artistnam
     if ($ttid) {
     	if (($lastmodified === null && $trackobj->lastmodified !== null) ||
     		$trackobj->lastmodified != $lastmodified ||
-    		$trackobj->disc != $disc ||
+    		($trackobj->disc != $disc && $trackobj->disc !== null) ||
     		$hidden != 0) {
 	    	debug_print("  Updating track with ttid $ttid because :","MYSQL");
 	    	if ($lastmodified === null) debug_print("    LastModified is not set in the database","MYSQL");
