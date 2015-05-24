@@ -435,7 +435,7 @@ var infobar = function() {
             infobar.playbutton.setState(player.status.state);
             setPlaylistButtons();
             if (player.status.error && player.status.error != null) {
-                alert(language.gettext("label_playererror")+": "+player.status.error);
+                infobar.notify(infobar.ERROR, language.gettext("label_playererror")+": "+player.status.error);
                 player.controller.clearerror();
             }
         },

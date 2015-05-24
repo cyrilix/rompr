@@ -671,7 +671,7 @@ function process_file(&$filedata) {
     global $numtracks, $totaltime, $prefs, $dbterms, $collection;
 
     list ( $file, $domain, $type, $station, $stream)
-        = array ( $filedata['file'], getDomain($filedata['file']), "local", null, "");
+        = array ( unwanted_array($filedata['file']), getDomain(unwanted_array($filedata['file'])), "local", null, "");
 
     if ($dbterms['tags'] !== null || $dbterms['rating'] !== null) {
         // If this is a search and we have tags or ratings to search for, check them here.

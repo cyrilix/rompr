@@ -96,30 +96,44 @@ function doCollection($command) {
                     $filedata = array();
                 }
             }
-            $parts[1] = explode(';',$parts[1]);
-            $value = is_array($parts[1]) ? $parts[1][0] : $parts[1];
+
+            $multivalues = array();
             if ($parts[0] == "Last-Modified") {
-                $value = strtotime($value);
-            }
+                $multivalues[] = strtotime($parts[1]);
+            } else {
+                // Some tags have multiple values which are separated by a ;
+                $multivalues = explode(';',$parts[1]);
+            }            
 
             // Things like Performer can come back with multiple lines
             // (in fact this could happen with any tag!)
 
             if (array_key_exists($parts[0], $filedata)) {
-                if (is_array($filedata[$parts[0]])) {
-                    array_push($filedata[$parts[0]], $value);
-                } else {
-                    // Prevent unwanted multiple occurrences of the same value
-                    // (seems to be an mpd bug or some kind of tagging thing -
-                    // am getting Disc, Track and Albumartist twice for several tracks).
-                    // The collectioniser handles unexpected arrays of results where it doesn't want them.
-                    if ($value != $filedata[$parts[0]]) {
-                        $filedata[$parts[0]] = array($filedata[$parts[0]], $value);
-                    }
-                }
+                // foreach ($multivalues as $value) {
+                //     $filedata[$parts[0]][] = $value;
+                // }
+                $filedata[$parts[0]] = array_unique(array_merge($filedata[$parts[0]], $multivalues));
             } else {
-                $filedata[$parts[0]] = $value;
+                $filedata[$parts[0]] = array_unique($multivalues);
             }
+
+            // if (array_key_exists($parts[0], $filedata)) {
+            //     if (is_array($filedata[$parts[0]])) {
+            //         foreach ($multivalues as $value) {
+            //             array_push($filedata[$parts[0]], $value);
+            //         }
+            //     } else {
+            //         // Prevent unwanted multiple occurrences of the same value
+            //         // (seems to be an mpd bug or some kind of tagging thing -
+            //         // am getting Disc, Track and Albumartist twice for several tracks).
+            //         // The collectioniser handles unexpected arrays of results where it doesn't want them.
+            //         if ($value != $filedata[$parts[0]]) {
+            //             $filedata[$parts[0]] = array($filedata[$parts[0]], $value);
+            //         }
+            //     }
+            // } else {
+            //     $filedata[$parts[0]] = $value;
+            // }
         }
     }
 
