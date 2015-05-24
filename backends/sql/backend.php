@@ -1460,12 +1460,13 @@ function check_and_update_track($trackobj, $albumindex, $artistindex, $artistnam
     }
 
     if ($ttid) {
-    	if ($lastmodified === null ||
+    	if (($lastmodified === null && $trackobj->lastmodified !== null) ||
     		$trackobj->lastmodified != $lastmodified ||
     		$trackobj->disc != $disc ||
     		$hidden != 0) {
 	    	debug_print("  Updating track with ttid $ttid because :","MYSQL");
-	    	if ($lastmodified == null) debug_print("    LastModified is not set in the database","MYSQL");
+	    	if ($lastmodified === null) debug_print("    LastModified is not set in the database","MYSQL");
+	    	if ($trackobj->lastmodified === null) debug_print("    TrackObj LastModified is NULL too!","MYSQL");
 	    	if ($lastmodified != $trackobj->lastmodified) debug_print("    LastModified has changed: We have ".$lastmodified." but track has ".$trackobj->lastmodified,"MYSQL");
 	    	if ($disc != $trackobj->disc) debug_print("    Disc Number has changed: We have ".$disc." but track has ".$trackobj->disc,"MYSQL");
 	    	if ($hidden != 0) debug_print("    It is hidden","MYSQL");
