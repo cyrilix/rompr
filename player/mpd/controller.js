@@ -175,6 +175,7 @@ function playerController() {
                 if (uri.match(/onthefly\.php/)) {
                     updateCollectionDisplay(data);
                     $("#spinner_fothergill").remove();
+                    infobar.notify(infobar.NOTIFY,"Music Collection Updated");
                 } else {
                     $("#collection").html(data);
                     data = null;
@@ -188,6 +189,7 @@ function playerController() {
             error: function(data) {
                 $("#collection").html('<p align="center"><b><font color="red">Failed To Generate Collection :</font></b><br>'+data.responseText+"<br>"+data.statusText+"</p>");
                 debug.error("PLAYER","Failed to generate albums list",data);
+                infobar.notify(infobar.ERROR,"Music Collection Update Failed");
             }
         });
     }
