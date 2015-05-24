@@ -64,8 +64,10 @@ class album {
             $this->numOfTrackOnes++;
         }
         if ($object->playlist) {
+            // Cue Sheets don't seem to have a lastmodified date, so we set it to 1 - otherwise it won't ever be able to be removed
+            // from the database, and it will appear with an x next to it in the collection.
             $t = new track("Cue Sheet",$object->playlist,0,0,$object->datestamp,$object->genre,$object->artist,$this->name,$this->folder,
-                            "cue", null, null, null, null, $this->artist, $object->disc, null, null, null, null, null, null, null, 1, null, null);
+                            "cue", null, null, null, null, $this->artist, $object->disc, null, null, null, null, null, null, 1, null, null);
             array_unshift($this->tracks, $t);
         }
         $object->setAlbumObject($this);

@@ -1460,11 +1460,6 @@ function check_and_update_track($trackobj, $albumindex, $artistindex, $artistnam
     }
 
     if ($ttid) {
-    	if ($trackobj->name == "Cue Sheet") {
-    		// Hack. Prevent lastmodified being NULL, which would mean CUE sheets could never be removed from the database
-    		// and they display with an 'x' next to them.
-    		$trackobj->lastmodified = 1;
-    	}
     	if (($lastmodified === null && $trackobj->lastmodified !== null) ||
     		$trackobj->lastmodified != $lastmodified ||
     		($trackobj->disc != $disc && $trackobj->disc !== '') ||
