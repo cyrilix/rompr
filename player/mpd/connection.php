@@ -83,6 +83,9 @@ function doCollection($command) {
 
     while(!feof($connection) && $parts) {
         $parts = getline($connection);
+        if ($parts === false) {
+            debug_print("Got OK or ACK from MPD","COLLECTION");
+        }
         if (is_array($parts)) {
             if ($parts[0] == "file") {
                 if (!$foundfile) {
