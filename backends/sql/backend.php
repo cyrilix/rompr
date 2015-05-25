@@ -888,7 +888,7 @@ function get_album_tracks_from_database($index) {
 	$qstring = "SELECT Uri, Title FROM Tracktable WHERE Albumindex = '".$index."' AND Uri IS NOT NULL AND Hidden=0 ORDER BY Disc, TrackNo";
 	if ($result = generic_sql_query($qstring)) {
 		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
-			if ((string) $obj->Title == "Cue Sheet") {
+			if ((string) $obj->Title == "Cue Sheet" || (string) $obj->Title == "M3U Playlist") {
 				$retarr = array("load ".$obj->Uri);
 				break;
 			} else {

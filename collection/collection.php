@@ -67,11 +67,26 @@ class album {
         if ($object->playlist) {
             // Cue Sheets don't seem to have a lastmodified date, so we set it to 1 - otherwise it won't ever be able to be removed
             // from the database, and it will appear with an x next to it in the collection.
-            $r = array_pop($object->playlist);
-            debug_print("Adding Cue Sheet ".$r." to album ".$this->name,"COLLECTION");
-            $t = new track("Cue Sheet",$r,0,0,$object->datestamp,$object->genre,$object->artist,$this->name,$this->folder,
-                            "cue", null, null, null, null, $this->artist, $object->disc, null, null, null, null, null, null, 1, null, null);
-            array_unshift($this->tracks, $t);
+            foreach ($object->playlist as $p) {
+                switch (strtolower(pathinfo($p, PATHINFO_EXTENSION))) {
+                    case 'cue':
+                        debug_print("Adding Cue Sheet ".$p." to album ".$this->name,"COLLECTION");
+                        $t = new track("Cue Sheet",$p,0,0,$object->datestamp,$object->genre,$object->artist,$this->name,$this->folder,
+                                        "cue", null, null, null, null, $this->artist, $object->disc, null, null, null, null, null, null, 2, null, null);
+                        array_unshift($this->tracks, $t);
+                        break;
+
+                    case 'm3u':
+                    case 'm3u8':
+                        debug_print("Adding M3U Playlist ".$p." to album ".$this->name,"COLLECTION");
+                        $t = new track("M3U Playlist",$p,0,0,$object->datestamp,$object->genre,$object->artist,$this->name,$this->folder,
+                                        "cue", null, null, null, null, $this->artist, $object->disc, null, null, null, null, null, null, 2, null, null);
+                        array_unshift($this->tracks, $t);
+                        break;
+
+
+                }
+            }
         }
         $object->setAlbumObject($this);
     }
