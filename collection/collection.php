@@ -44,6 +44,7 @@ class album {
         $this->numOfDiscs = -1;
         $this->numOfTrackOnes = 0;
         $numalbums++;
+        $this->hascuesheet = false;
     }
 
     public function newTrack(&$object) {
@@ -66,7 +67,9 @@ class album {
         if ($object->playlist) {
             // Cue Sheets don't seem to have a lastmodified date, so we set it to 1 - otherwise it won't ever be able to be removed
             // from the database, and it will appear with an x next to it in the collection.
-            $t = new track("Cue Sheet",$object->playlist,0,0,$object->datestamp,$object->genre,$object->artist,$this->name,$this->folder,
+            $r = array_pop($object->playlist);
+            debug_print("Adding Cue Sheet ".$r." to album ".$this->name,"COLLECTION");
+            $t = new track("Cue Sheet",$r,0,0,$object->datestamp,$object->genre,$object->artist,$this->name,$this->folder,
                             "cue", null, null, null, null, $this->artist, $object->disc, null, null, null, null, null, null, 1, null, null);
             array_unshift($this->tracks, $t);
         }
@@ -729,7 +732,8 @@ function process_file(&$filedata) {
     // External Album Artist Link(s) (mopidy only)
     $spotiartist = (array_key_exists('SpotiArtist',$filedata)) ? unwanted_array($filedata['SpotiArtist']) : null;
     // 'playlist' is how mpd handles flac/cue files (either embedded cue or external cue).
-    $playlist = (array_key_exists('playlist',$filedata)) ? unwanted_array($filedata['playlist']) : null;
+    // $playlist = (array_key_exists('playlist',$filedata)) ? unwanted_array($filedata['playlist']) : null;
+    $playlist = (array_key_exists('playlist',$filedata)) ? $filedata['playlist'] : null;
 
     // Capture tracks where the basename/dirname route didn't work
     if ($artist == "." || $artist == "" || $artist == " & ") {
