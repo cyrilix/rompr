@@ -3,7 +3,13 @@ include ("includes/vars.php");
 include ("includes/functions.php");
 include ("international.php");
 include ("backends/sql/backend.php");
+include ("collection/collection.php");
 set_time_limit(240);
+if ($mysqlc) {
+    getWishlist();
+    createAlbumsList('prefs/w_list.xml', "w");
+}
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -851,6 +857,12 @@ if ($mysqlc) {
 
 do_radio_stations();
 
+if ($mysqlc) {
+    // getWishlist();
+    // createAlbumsList('prefs/w_list.xml', "w");
+    do_wishlist_covers();
+}
+
 debug_print("There are ".count($allfiles)." unused images", "ALBUMART");
 if (count($allfiles) > 0) {
     if (array_key_exists("cleanup", $_REQUEST)) {
@@ -942,6 +954,61 @@ function do_covers_xml_style() {
         print "</div></div></div>\n";
         $acount++;
     }
+}
+
+function do_wishlist_covers() {
+    global $count;
+    global $albums_without_cover;
+    global $allfiles;
+    $collection = simplexml_load_file('prefs/w_list.xml');
+    $acount = $count;
+    print '<div class="albumsection crackbaby" style="margin-bottom:8px">';
+    print '<h2 align="center">Items In Wishlist</h2>';
+    print '</div>';
+    foreach($collection->artists->artist as $artist) {
+        print '<div class="cheesegrater" name="artistname'.$acount.'">';
+        print '<div class="albumsection crackbaby">';
+        print '<div class="tleft"><h2>'.$artist->name.'</h2></div><div class="tright rightpad"><button onclick="getNewAlbumArt(\'#album'.$count.'\')">'.get_int_text("albumart_getthese").'</button></div>';
+        print "</div>\n";
+        print '<div id="album'.$count.'" class="fullwidth bigholder">';
+        print '<div class="containerbox covercontainer" id="covers'.$count.'">';
+        $colcount = 0;
+        foreach ($artist->albums->album as $album) {
+            print '<div class="expand containerbox vertical albumimg closet">';
+            print '<div class="albumimg fixed">';
+
+            $class = "clickable clickicon clickalbumcover droppable";
+            $src = "";
+            if ($album->image->exists == "no") {
+                $class = $class . " notexist";
+                $albums_without_cover++;
+            } else {
+                $src = $album->image->src;
+                if (dirname($src) == "albumart/small") {
+                    if(($key = array_search($src, $allfiles)) !== false) {
+                        unset($allfiles[$key]);
+                    }
+                }
+            }
+            print '<input type="hidden" value="'.$album->directory.'" />';
+            print '<input type="hidden" value="'.rawurlencode($artist->name." ".munge_album_name($album->name)).'" />';
+            print '<img class="'.$class.'" name="'.$album->image->name.'" height="82px" width="82px" src="'.$src.'" />';
+
+            print '</div>';
+            print '<div class="albumimg fixed"><table><tr><td align="center">'.$album->name.'</td></tr></table></div>';
+            print '</div>';
+
+            $colcount++;
+            if ($colcount == 8) {
+                print "</div>\n".'<div class="containerbox covercontainer">';
+                $colcount = 0;
+            }
+            $count++;
+        }
+        print "</div></div></div>\n";
+        $acount++;
+    }
+
 }
 
 function do_covers_db_style() {

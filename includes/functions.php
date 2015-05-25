@@ -832,4 +832,49 @@ function checkComposerGenre($genre, $pref) {
     return false;
 }
 
+function getWishlist() {
+
+    global $mysqlc, $collection;
+    if ($mysqlc === null) {
+        connect_to_database();
+    }
+
+    $collection = new musicCollection(null);
+
+    // For the wishlist - get the tracks which have no uri
+    $qstring = "SELECT Tracktable.*, Artisttable.*, Albumtable.* FROM Tracktable JOIN Artisttable USING (Artistindex) JOIN Albumtable ON Tracktable.Albumindex = Albumtable.Albumindex WHERE Uri IS NULL AND Hidden = 0";
+    if ($result = generic_sql_query($qstring)) {
+        while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+            $filedata = array(
+                'Artist' => $obj->Artistname,
+                'file' => $obj->Uri,
+                'Title' => $obj->Title,
+                'Track' => $obj->TrackNo,
+                'Time' => $obj->Duration,
+                'Last-Modified' => $obj->LastModified,
+                'Image' => $obj->Image,
+                'Album' => $obj->Albumname
+            );
+            process_file($filedata);
+        }
+    }
+
+    $qstring = "SELECT Tracktable.*, Artisttable.* FROM Tracktable JOIN Artisttable USING (Artistindex) WHERE Albumindex IS NULL AND Uri IS NULL AND Hidden = 0";
+    if ($result = generic_sql_query($qstring)) {
+        while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+            $filedata = array(
+                'Artist' => $obj->Artistname,
+                'file' => $obj->Uri,
+                'Title' => $obj->Title,
+                'Track' => $obj->TrackNo,
+                'Time' => $obj->Duration,
+                'Last-Modified' => $obj->LastModified,
+                'Image' => "",
+                'Album' => ""
+            );
+            process_file($filedata);
+        }
+    }
+}
+
 ?>
