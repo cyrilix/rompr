@@ -3,13 +3,7 @@ include ("includes/vars.php");
 include ("includes/functions.php");
 include ("international.php");
 include ("backends/sql/backend.php");
-include ("collection/collection.php");
 set_time_limit(240);
-if ($mysqlc) {
-    getWishlist();
-    createAlbumsList('prefs/w_list.xml', "w");
-}
-
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -857,9 +851,7 @@ if ($mysqlc) {
 
 do_radio_stations();
 
-if ($mysqlc) {
-    // getWishlist();
-    // createAlbumsList('prefs/w_list.xml', "w");
+if (file_exists('prefs/w_list.xml')) {
     do_wishlist_covers();
 }
 
