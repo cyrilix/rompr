@@ -518,9 +518,9 @@ function playerController() {
                     }
                 }
                 player.collectionLoaded = true;
-                if (prefs.sortcollectionby == "album") {
+                // if (prefs.sortcollectionby == "album") {
                     scootTheAlbums();
-                }
+                // }
             },
             error: function(data) {
                 $("#collection").html('<p align="center"><b><font color="red">Failed To Generate Collection :</font></b><br>'+data.responseText+"<br>"+data.statusText+"</p>");

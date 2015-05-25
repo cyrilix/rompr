@@ -275,7 +275,7 @@ function noAlbumsHeader() {
     print '<div class="playlistrow2" style="padding-left:64px">'.get_int_text("label_noalbums").'</div>';
 }
 
-function albumHeader($name, $spotilink, $id, $exists, $searched, $imgname, $src, $date, $numtracks = null) {
+function albumHeader($name, $spotilink, $id, $exists, $searched, $imgname, $src, $date, $numtracks = null, $aname = null) {
     global $prefs;
     $browseable = "";
     if ($numtracks === 0) {
@@ -323,6 +323,9 @@ function albumHeader($name, $spotilink, $id, $exists, $searched, $imgname, $src,
     print '<div class="expand">'.$name;
     if ($date && $date != "" && $prefs['sortbydate']) {
         print ' <span class="notbold">('.$date.')</span>';
+    }
+    if ($aname) {
+        print '<br><span class="notbold">'.$aname.'</span>';
     }
     print '</div></div>';
 }

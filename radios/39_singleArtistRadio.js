@@ -28,8 +28,10 @@ var singleArtistRadio = function() {
 		},
 
 		stop: function() {
-			tuner.sending = 0;
-			tuner.running = false;
+			if (tuner) {
+				tuner.sending = 0;
+				tuner.running = false;
+			}
 		},
 
 		modeHtml: function(a) {

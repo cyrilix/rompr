@@ -808,7 +808,10 @@ function do_albums_from_database($which, $fragment = false) {
 		return false;
 	}
 	debug_print("Looking for artistID ".$matches[1],"DUMPALBUMS");
-	$qstring = "SELECT * FROM Albumtable WHERE ";
+
+	// $qstring = "SELECT * FROM Albumtable WHERE ";
+	$qstring = "SELECT Albumtable.*, Artisttable.Artistname FROM Albumtable JOIN Artisttable ON (Albumtable.AlbumArtistindex = Artisttable.Artistindex) WHERE ";
+
 	if ($matches[1] != "root" && !($fragment !== false && $prefs['sortcollectionby'] == "album")) {
 		$qstring .= "AlbumArtistindex = '".$matches[1]."' AND ";
 	}
@@ -823,6 +826,7 @@ function do_albums_from_database($which, $fragment = false) {
 	if ($result = generic_sql_query($qstring)) {
 		$count = 0;
 		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+			$artistthing = ($prefs['sortcollectionby'] == "album") ? $obj->Artistname : null;
 			if ($fragment === false) {
 				$exists = ($obj->Image && $obj->Image !== "") ? "yes" : "no";
 				albumHeader(
@@ -833,7 +837,9 @@ function do_albums_from_database($which, $fragment = false) {
 					($obj->Searched == 1 || $exists == "yes") ? "yes" : "no",
 					$obj->ImgKey,
 					$obj->Image,
-					$obj->Year
+					$obj->Year,
+					null,
+					$artistthing
 				);
 			} else {
 				if ($obj->Albumindex != $fragment) {
@@ -850,7 +856,9 @@ function do_albums_from_database($which, $fragment = false) {
 						($obj->Searched == 1 || $exists == "yes") ? "yes" : "no",
 						$obj->ImgKey,
 						$obj->Image,
-						$obj->Year
+						$obj->Year,
+						null,
+						$artistthing
 					);
 					$singleheader['html'] = ob_get_contents();
 					ob_end_clean();
