@@ -450,6 +450,17 @@ var layoutProcessor = function() {
             browser.rePoint();
         },
 
+        fanoogleMenus: function(jq) {
+            var avheight = $("#bottompage").height() - 16;
+            var conheight = jq.children().first().children('.mCSB_container').height();
+            var nh = Math.min(avheight, conheight);
+            jq.css({height: nh+"px", "max-height":''});
+            jq.mCustomScrollbar("update");
+            if (jq.attr("id") == "hpscr") {
+                $('#hpscr').mCustomScrollbar("scrollTo", '.current', {scrollInertia:0});
+            }
+        },
+
         initialise: function() {
             $("#sortable").disableSelection();
             $("#sortable").sortable({
@@ -530,14 +541,7 @@ var layoutProcessor = function() {
                 });
                 $(this).find('.topdropmenu').slideToggle('fast', function() {
                     if ($(this).is(':visible')) {
-                        var avheight = $("#bottompage").height() - 16;
-                        var conheight = $(this).children().first().children('.mCSB_container').height();
-                        var nh = Math.min(avheight, conheight);
-                        $(this).css({height: nh+"px", "max-height":''});
-                        $(this).mCustomScrollbar("update");
-                        if ($(this).attr("id") == "hpscr") {
-                            $('#hpscr').mCustomScrollbar("scrollTo", '.current', {scrollInertia:0});
-                        }
+                        layoutProcessor.fanoogleMenus($(this));
                     } else {
                         $(this).css({left: "", top: ""});
                     }

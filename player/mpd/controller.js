@@ -210,12 +210,12 @@ function playerController() {
 	}
 
 	this.loadPlaylist = function(name) {
-        self.command('command=load&arg='+escape(name), playlist.repopulate);
+        self.command('command=load&arg='+name, playlist.repopulate);
         return false;
 	}
 
 	this.deletePlaylist = function(name) {
-		self.fastcommand('command=rm&arg='+escape(name), self.reloadPlaylists);
+		self.fastcommand('command=rm&arg='+name, self.reloadPlaylists);
 	}
 
 	this.clearPlaylist = function() {

@@ -239,6 +239,10 @@ var layoutProcessor = function() {
             setTopIconSize(['#headerbar', '#chooserbuttons']);
         },
 
+        fanoogleMenus: function(jq) {
+
+        },
+
         initialise: function() {
 
             $('#volumecontrol').bind('touchstart', function(event) {

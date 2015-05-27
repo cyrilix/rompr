@@ -128,7 +128,7 @@ function onFileCollectionClicked(event) {
         doFileMenu(event, clickedElement);
     } else if (clickedElement.hasClass('clickdeleteplaylist')) {
         event.stopImmediatePropagation();
-        player.controller.deletePlaylist(clickedElement.prev().prev().prev().attr('name'));        
+        player.controller.deletePlaylist(clickedElement.parent().children('input').first().attr('name'));        
     } else if (prefs.clickmode == "double") {
         if (clickedElement.hasClass("clickalbum") ||
             clickedElement.hasClass("clickloadplaylist")) {
@@ -348,9 +348,21 @@ function doFileMenu(event, element) {
                 }
                 player.controller.browse(l, menutoopen, element);
             } else {
-                $('#'+menutoopen).load("dirbrowser.php?item="+menutoopen, function() {
+                var string;
+                if (menutoopen.match(/^pholder\d/)) {
+                    var plname = element.parent().children('input').attr('name');
+                    debug.log("MPD","Browsing playlist",plname);
+                    string = "player/mpd/loadplaylists.php?playlist="+encodeURIComponent(plname);
+                } else {
+                    string = "dirbrowser.php?item="+menutoopen;
+                }
+                $('#'+menutoopen).load(string, function() {
                     $(this).removeClass("notfilled");
-                    $(this).menuReveal();
+                    var callback = null;
+                    if (string.match(/loadplaylists\.php/)) {
+                        callback = plMenuHack;
+                    }
+                    $(this).menuReveal(callback);
                 });
             }
         } else {
@@ -361,6 +373,11 @@ function doFileMenu(event, element) {
         element.toggleClosed();
     }
     return false;
+}
+
+function plMenuHack() {
+    debug.log("POO","Doing it now");
+    layoutProcessor.fanoogleMenus($("#lpscr"));
 }
 
 function setDraggable(divname) {
