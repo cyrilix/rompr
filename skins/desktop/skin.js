@@ -430,9 +430,6 @@ var layoutProcessor = function() {
 
         adjustLayout: function() {
             var ws = getWindowSize();
-            // x-position of the notification rollup
-            var notpos = ws.x - 340;
-            $("#notifications").css("left", notpos+"px");
             // Width of the nowplaying area
             var lp = ws.x - $("#patrickmoore").prev().offset().left - $("#patrickmoore").prev().outerWidth(true) - 16;
             $('#patrickmoore').css("width", lp+"px");

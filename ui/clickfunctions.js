@@ -366,10 +366,10 @@ function doFileMenu(event, element) {
                 });
             }
         } else {
-            $('#'+menutoopen).menuReveal();
+            $('#'+menutoopen).menuReveal(plMenuHack);
         }
     } else {
-        $('#'+menutoopen).menuHide();
+        $('#'+menutoopen).menuHide(plMenuHack);
         element.toggleClosed();
     }
     return false;

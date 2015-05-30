@@ -3,6 +3,9 @@ include ("includes/vars.php");
 include ("includes/functions.php");
 include ("international.php");
 include ("backends/sql/backend.php");
+if ($prefs['player_backend'] == "mpd") {
+    include("player/mpd/connection.php");
+}
 set_time_limit(240);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -819,6 +822,9 @@ print '<tr><td class="outer" id="infotext"></td><td align="center"><div class="i
 <?php
 if ($mysqlc || file_exists(ROMPR_XML_COLLECTION)) {
     print '<div class="containerbox menuitem clickable clickselectartist selected" id="allartists"><div class="expand" class="artistrow">'.get_int_text("albumart_allartists").'</div></div>';
+    if ($prefs['player_backend'] == "mpd") {
+        print '<div class="containerbox menuitem clickable clickselectartist" id="playlist"><div class="expand" class="artistrow">Saved Playlists</div></div>';
+    }
     print '<div class="containerbox menuitem clickable clickselectartist" id="radio"><div class="expand" class="artistrow">'.get_int_text("label_yourradio").'</div></div>';
     print '<div class="containerbox menuitem clickable clickselectartist" id="unused"><div class="expand" class="artistrow">'.get_int_text("albumart_unused").'</div></div>';
     if ($mysqlc) {
@@ -847,6 +853,10 @@ if ($mysqlc) {
     do_covers_xml_style();
 } else {
     print '<h3>'.get_int_text("albumart_nocollection").'<h3>';
+}
+
+if ($prefs['player_backend'] == "mpd") {
+    do_playlists();
 }
 
 do_radio_stations();
@@ -954,7 +964,7 @@ function do_wishlist_covers() {
     global $allfiles;
     $collection = simplexml_load_file('prefs/w_list.xml');
     $acount = $count;
-    print '<div class="albumsection crackbaby" style="margin-bottom:8px">';
+    print '<div class="albumsection crackbaby" style="margin-bottom:8px" name="wishlist">';
     print '<h2 align="center">Items In Wishlist</h2>';
     print '</div>';
     foreach($collection->artists->artist as $artist) {
@@ -1093,7 +1103,7 @@ function do_radio_stations() {
                     }
 
                     print '<input type="hidden" value="'.$track->album.'" />';
-                    print '<img class="clickable clickicon clickalbumcover droppable"'.$class.'" romprstream="'.$file.'" name="'.$artname.'" height="82px" width="82px" src="'.$src.'" />';
+                    print '<img class="clickable clickicon clickalbumcover droppable'.$class.'" romprstream="'.$file.'" name="'.$artname.'" height="82px" width="82px" src="'.$src.'" />';
                     print '</div>';
                     print '<div class="albumimg fixed"><table><tr><td align="center">'.$track->album.'</td></tr></table></div>';
                     print '</div>';
@@ -1112,6 +1122,65 @@ function do_radio_stations() {
     }
 
 }
+
+function do_playlists() {
+
+    global $connection;
+    global $count;
+    global $albums_without_cover;
+    global $allfiles;
+    
+    $playlists = do_mpd_command($connection, "listplaylists", null, true);
+    if (!is_array($playlists)) {
+    $playlists = array();
+    } else if (array_key_exists('playlist', $playlists) && !is_array($playlists['playlist'])) {
+        $temp = $playlists['playlist'];
+        $playlists = array();
+        $playlists['playlist'][0] = $temp;
+    }
+    if (array_key_exists('playlist', $playlists) && is_array($playlists['playlist'])) {
+        print '<div class="cheesegrater" name="playlist">';
+        print '<div class="albumsection crackbaby">';
+        print '<div class="tleft"><h2>Saved Playlists</h2></div><div class="tright rightpad"><button onclick="getNewAlbumArt(\'#album'.$count.'\')">'.get_int_text("albumart_getthese").'</button></div>';
+        print "</div>\n";
+        print '<div id="album'.$count.'" class="fullwidth bigholder">';
+        print '<div class="containerbox covercontainer" id="playlists">';
+        sort($playlists['playlist'], SORT_STRING);
+        $colcount = 0;
+        foreach ($playlists['playlist'] as $pl) {
+            print '<div class="expand containerbox vertical albumimg closet">';
+            print '<div class="albumimg fixed">';
+            $class = "";
+            $artname = md5("Playlist ".$pl);
+            $src = "newimages/playlist.svg";
+            if (file_exists('albumart/small/'.$artname.'.jpg')) {
+                $src = 'albumart/small/'.$artname.'.jpg';
+                if(($key = array_search($src, $allfiles)) !== false) {
+                    unset($allfiles[$key]);
+                }
+            } else {
+                $class = " notexist";
+                $albums_without_cover++;
+            }
+
+            print '<input type="hidden" value="Playlist '.$pl.'" />';
+            print '<img class="clickable clickicon clickalbumcover droppable'.$class.'" name="'.$artname.'" height="82px" width="82px" src="'.$src.'" />';
+            print '</div>';
+            print '<div class="albumimg fixed"><table><tr><td align="center">'.$pl.'</td></tr></table></div>';
+            print '</div>';
+
+            $colcount++;
+            if ($colcount == 8) {
+                print "</div>\n".'<div class="containerbox covercontainer">';
+                $colcount = 0;
+            }
+            $count++;
+        }
+        print "</div></div></div>\n";
+    }
+
+}
+
 
 function do_unused_images() {
     global $allfiles;

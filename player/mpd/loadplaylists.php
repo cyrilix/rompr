@@ -48,10 +48,15 @@ function do_playlist_tracks($pl, $icon) {
 function add_playlist($link, $name, $icon, $class, $delete, $count) {
     switch ($class) {
         case 'clickloadplaylist':
-            print '<div class="containerbox meunitem clickable '.$class.'" name="pholder'.$count.'">';
+            print '<div class="clickable '.$class.' containerbox menuitem" name="pholder'.$count.'">';
             print '<input type="hidden" name="'.$link.'" />';
-            print '<i class="icon-toggle-closed mh menu fixed" name="pholder'.$count.'"></i>';
-            print '<i class="'.$icon.' fixed smallicon"></i>';
+            print '<i class="icon-toggle-closed menu mh fixed" name="pholder'.$count.'"></i>';
+            $image = md5("Playlist ".$name);
+            if (file_exists('albumart/small/'.$image.'.jpg')) {
+                print '<div class="smallcover fixed"><img class="smallcover fixed" name="'.$image.'" src="albumart/small/'.$image.'.jpg" /></div>';
+            } else {
+                print '<i class="'.$icon.' fixed smallicon"></i>';
+            }
             print '<div class="expand">'.$name.'</div>';
             if ($delete) {
                 print '<i class="icon-cancel-circled fixed smallicon clickable clickicon clickdeleteplaylist"></i>';
