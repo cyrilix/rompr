@@ -104,7 +104,7 @@ function setTopIconSize(panels) {
             var mw = imw*numicons;
             var iw = Math.floor(($(div).width() - mw - 8)/numicons);
             if (iw > imh) iw = imh;
-            if (iw < 8) iw = 8;
+            if (iw < 8) iw = 6;
             icons.css({width: iw+"px", height: iw+"px", "font-size": iw+"px"});
         }
     });
