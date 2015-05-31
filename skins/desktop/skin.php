@@ -1,37 +1,41 @@
 <body>
 <div id="notifications"></div>
 
-<div id="infobar">
-    <div class="infobarlayout tleft bordered" style="margin-left:12px">
-        <div id="buttons">
+<div id="infobar" class="containerbox">
+    <div id="buttonbox" class="fixed">
+        <div id="buttonholder" class="containerbox vertical bordered infobarlayout">
+            <div id="buttons" class="fixed">
 <?php
-print '<i title="'.get_int_text('button_previous').'" class="icon-fast-backward clickicon controlbutton-small lettuce"></i>';
-print '<i title="'.get_int_text('button_play').'" class="icon-play-circled shiftleft clickicon controlbutton lettuce"></i>';
-print '<i title="'.get_int_text('button_stop').'" class="icon-stop-1 shiftleft2 clickicon controlbutton-small lettuce"></i>';
-print '<i title="'.get_int_text('button_stopafter').'" class="icon-to-end-1 shiftleft3 clickicon controlbutton-small lettuce"></i>';
-print '<i title="'.get_int_text('button_next').'" class="icon-fast-forward shiftleft4 clickicon controlbutton-small lettuce"></i>';
+                print '<i title="'.get_int_text('button_previous').'" class="icon-fast-backward clickicon controlbutton-small lettuce"></i>';
+                print '<i title="'.get_int_text('button_play').'" class="icon-play-circled shiftleft clickicon controlbutton lettuce"></i>';
+                print '<i title="'.get_int_text('button_stop').'" class="icon-stop-1 shiftleft2 clickicon controlbutton-small lettuce"></i>';
+                print '<i title="'.get_int_text('button_stopafter').'" class="icon-to-end-1 shiftleft3 clickicon controlbutton-small lettuce"></i>';
+                print '<i title="'.get_int_text('button_next').'" class="icon-fast-forward shiftleft4 clickicon controlbutton-small lettuce"></i>';
 ?>
-        </div>
-        <div id="progress"></div>
-        <div id="playbackTime">
+            </div>
+            <div id="progress" class="fixed"></div>
+            <div id="playbackTime" class="fixed">
+            </div>
         </div>
     </div>
 
-    <div class="infobarlayout tleft bordered">
+    <div id="volumebox" class="fixed">
+        <div class="infobarlayout bordered">
 <?php
-print '<div title="'.get_int_text('button_volume').'" id="volumecontrol" class="lettuce"><div id="volume"></div></div>';
+            print '<div title="'.get_int_text('button_volume').'" id="volumecontrol" class="lettuce"><div id="volume"></div></div>';
 ?>
+        </div>
     </div>
 
-    <div id="patrickmoore" class="infobarlayout bordered noselection containerbox">
+    <div id="patrickmoore" class="infobarlayout bordered noselection expand containerbox">
         <div id="albumcover" class="fixed">
             <img id="albumpicture" class="notexist" src="" />
         </div>
-        <div id="firefoxisshitwrapper" class="expand">
-            <div id="nowplaying">
+        <div id="firefoxisshitwrapper" class="expand containerbox vertical">
+            <div id="nowplaying" class="expand">
                 <div id="nptext"></div>
             </div>
-            <div id="amontobin" class="clearfix">
+            <div id="amontobin" class="clearfix fixed">
                 <div id="subscribe" class="invisible topstats">
                     <?php
                     print '<i title="'.get_int_text('button_subscribe').'" class="icon-rss npicon clickicon lettuce"></i>';
@@ -170,7 +174,7 @@ print '<button class="fixed">'.get_int_text('button_save').'</button></div>';
 </div>
 </div>
 
-<div id="bottompage">
+<div id="bottompage" class="clearfix">
 
 <div id="sources" class="column noborder tleft">
 

@@ -430,9 +430,6 @@ var layoutProcessor = function() {
 
         adjustLayout: function() {
             var ws = getWindowSize();
-            // Width of the nowplaying area
-            var lp = ws.x - $("#patrickmoore").prev().offset().left - $("#patrickmoore").prev().outerWidth(true) - 16;
-            $('#patrickmoore').css("width", lp+"px");
             // Height of the bottom pane (chooser, info, playlist container)
             var newheight = ws.y - $("#bottompage").offset().top;
             $("#bottompage").css("height", newheight+"px");

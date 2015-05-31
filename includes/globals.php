@@ -169,4 +169,5 @@ var last_selected_element = null;
 var textSaveTimer = null;
 var scrobwrangler = null;
 var serverTimeOffset = 0;
+var resizeTimer = null;
 </script>

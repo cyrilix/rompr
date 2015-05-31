@@ -43,7 +43,8 @@ $(document).ready(function(){
     layoutProcessor.sourceControl(prefs.chooser);
     layoutProcessor.adjustLayout();
     $(window).bind('resize', function() {
-        layoutProcessor.adjustLayout();
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(layoutProcessor.adjustLayout, 250);
     });
     if (prefs.chooser == "searchpane") {
         ihatefirefox();
