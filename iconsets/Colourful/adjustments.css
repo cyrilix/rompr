@@ -51,11 +51,11 @@
         height:64px;
     }
     #buttons {
-        padding-top:20px;
+        padding-top:16px;
         padding-left:24px;
     }
     #playbackTime {
-        margin-top:2px;
+        margin-top:4px;
         font-size:14px;
         line-height:16px;
         height:16px;

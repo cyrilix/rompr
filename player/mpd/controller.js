@@ -537,37 +537,28 @@ function playerController() {
         if (player.status.state == "play") {
             if (progress > 4) { infobar.updateNowPlaying() };
             if (percent >= prefs.scrobblepercent) { infobar.scrobble(); }
-            // MPD interface. We need to poll.
-
-            if (duration > 0 && playlist.currentTrack.type != "stream") {
-                if (progress >= duration) {
-                    // Check to see if the track has changed. The safety timer
-                    // is there because sometimes the track length we are given is not correct
-                    setTheClock(self.checkchange, safetytimer);
-                    if (safetytimer < 5000) { safetytimer += 500 }
-                } else {
-                    setTheClock( self.checkProgress, 1000);
-                }
+            if (duration > 0 && progress >= duration) {
+                setTheClock(self.checkchange, safetytimer);
+                if (safetytimer < 5000) { safetytimer += 500 }
             } else {
-                // It's a stream. Every 5 seconds we poll mpd to see if the track has changed
                 AlanPartridge++;
                 if (AlanPartridge < 5) {
                     setTheClock( self.checkProgress, 1000);
                 } else {
                     AlanPartridge = 0;
-                    setTheClock( self.streamfunction, 1000);
-                }
+                    setTheClock( self.checkchange, 1000);
+                }                
             }
         }
     }
 
     this.checkchange = function() {
         // Update the status to see if the track has changed
-        self.command("", self.checkProgress);
-    }
-
-    this.streamfunction = function() {
-        self.command("", self.checkStream);
+        if (playlist.currentTrack.type != "stream") {
+            self.command("", self.checkProgress);
+        } else {
+            self.command("", self.checkStream);
+        }
     }
 
     this.checkStream = function() {
