@@ -31,11 +31,11 @@
         <div id="albumcover" class="fixed">
             <img id="albumpicture" class="notexist" src="" />
         </div>
-        <div id="firefoxisshitwrapper" class="expand containerbox vertical">
-            <div id="nowplaying" class="expand">
+        <div id="firefoxisshitwrapper" class="expand">
+            <div id="nowplaying">
                 <div id="nptext"></div>
             </div>
-            <div id="amontobin" class="clearfix fixed">
+            <div id="amontobin" class="clearfix">
                 <div id="subscribe" class="invisible topstats">
                     <?php
                     print '<i title="'.get_int_text('button_subscribe').'" class="icon-rss npicon clickicon lettuce"></i>';

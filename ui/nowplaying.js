@@ -189,6 +189,7 @@ var nowplaying = function() {
 			}
 			infobar.setNowPlayingInfo(playlistinfo);
 			if (playlistinfo == playlist.emptytrack) {
+				debug.log("NOWPLAYING","Empty Track");
 				return;
 			}
 			currentbackendid = playlistinfo.backendid;

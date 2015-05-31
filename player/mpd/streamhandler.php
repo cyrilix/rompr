@@ -12,6 +12,8 @@ function is_stream($domain, $filedata) {
 // MPD Stream mhandling function
 function getStreamInfo($filedata, $domain) {
 
+    $url = unwanted_array($filedata['file']);
+
     list (  $track_found,
             $name,
             $duration,
@@ -22,17 +24,17 @@ function getStreamInfo($filedata, $domain) {
             $image,
             $station,
             $stream,
-            $albumartist) = getStuffFromXSPF($filedata['file']);
+            $albumartist) = getStuffFromXSPF($url);
 
     if (!$track_found) {
 
-        if ($album == "Unknown Internet Stream" && strrpos($filedata['file'], '#') !== false) {
+        if ($album == "Unknown Internet Stream" && strrpos($url, '#') !== false) {
             # Fave radio stations added by Cantata/MPDroid
-            $album = substr($filedata['file'], strrpos($filedata['file'], '#')+1, strlen($filedata['file']));
+            $album = substr($url, strrpos($url, '#')+1, strlen($url));
         }
 
         if (array_key_exists('Name', $filedata) && $album == "Unknown Internet Stream") {
-            $album = $filedata['Name'];
+            $album = unwanted_array($filedata['Name']);
         }
 
         if (array_key_exists('Genre', $filedata) && $filedata['Genre'] == "Podcast") {

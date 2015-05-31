@@ -493,7 +493,7 @@ function playerController() {
         clearProgressTimer();
         // Track changes are detected based on the playlist id. This prevents us from repopulating
         // the browser every time the playlist gets repopulated.
-        if (player.status.songid != previoussongid) {
+        if (player.status.songid !== previoussongid) {
             debug.mark("MPD","Track has changed");
             playlist.trackchanged();
 
@@ -538,6 +538,7 @@ function playerController() {
             if (progress > 4) { infobar.updateNowPlaying() };
             if (percent >= prefs.scrobblepercent) { infobar.scrobble(); }
             // MPD interface. We need to poll.
+
             if (duration > 0 && playlist.currentTrack.type != "stream") {
                 if (progress >= duration) {
                     // Check to see if the track has changed. The safety timer
@@ -566,12 +567,10 @@ function playerController() {
     }
 
     this.streamfunction = function() {
-        clearProgressTimer();
         self.command("", self.checkStream);
     }
 
     this.checkStream = function() {
-        clearProgressTimer();
         updateStreamInfo();
         self.checkProgress();
     }

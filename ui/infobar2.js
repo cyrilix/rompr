@@ -172,9 +172,6 @@ var infobar = function() {
             var parent = $("#nptext").parent();
             var maxheight = parent.height();
             var splittext = null;
-            if (!npinfo.title  && !npinfo.artist && parent.attr("id") == "nowplaying") {
-                maxheight = $("#patrickmoore").height() - 8;
-            }
             var maxwidth = parent.width() - 8;
             var lines = [
                 {weight: (numlines == 2 ? 62 : 46), width: maxwidth+1, text: " "},
