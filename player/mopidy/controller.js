@@ -71,7 +71,6 @@ function playerController() {
 
     function trackPlaybackEnded(data) {
         debug.shout("PLAYER","Track Playback Ended",data);
-        playlist.trackchanged();
     	if (player.status.single == 1) {
     		mopidy.tracklist.setSingle(false);
     		player.status.single = 0;
@@ -617,7 +616,7 @@ function playerController() {
 	}
 
 	this.deletePlaylist = function(name) {
-		alert(language.gettext("label_notsupported"));
+		infobar.notify(infobar.ERROR, language.gettext("label_notsupported"));
 	}
 
 	this.clearPlaylist = function() {
@@ -626,7 +625,7 @@ function playerController() {
 	}
 
 	this.savePlaylist = function() {
-		alert(language.gettext("label_notsupported"));
+		infobar.notify(infobar.ERROR, language.gettext("label_notsupported"));
 	}
 
 	this.getPlaylist = function() {

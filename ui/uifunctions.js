@@ -291,7 +291,7 @@ function removeUserStream(xspf) {
         },
         error: function(data, status) {
             playlist.repopulate();
-            alert(language.gettext("label_general_error"));
+            infobar.notify(infobar.ERROR, language.gettext("label_general_error"));
         }
     } );
 }

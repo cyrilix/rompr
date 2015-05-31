@@ -63,7 +63,7 @@ var podcasts = function() {
 	                }
 	            },
 	            error: function() {
-	                alert("Something went wrong checking the download progress!");
+	                infobar.notify(infobar.ERROR, "Something went wrong checking the download progress!");
 	            }
 	        });
 	    }

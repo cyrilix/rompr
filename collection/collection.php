@@ -816,6 +816,8 @@ function process_file(&$filedata) {
                 $stream,
                 $albumartist) = getStreamInfo($filedata, $domain);
 
+        $number = null;
+
     }
 
     $collection->newTrack(  $name, $file, $duration, $number, $date, $genre, $artist, $album, $folder,

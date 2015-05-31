@@ -50,7 +50,7 @@ function Playlist() {
             self.repopulate();
         }
         if (updateErrorFlag > 5) {
-            alert(language.gettext("label_playlisterror"));
+            infobar.notify(infobar.ERROR, language.gettext("label_playlisterror"));
         }
     }
 
@@ -390,9 +390,6 @@ function Playlist() {
         self.currentTrack = null;
     }
 
-    this.trackchanged = function() {
-    }
-
     this.stopafter = function() {
         if (self.currentTrack && self.currentTrack.type == "stream") {
             infobar.notify(infobar.ERROR, language.gettext("label_notforradio"));
@@ -669,6 +666,8 @@ function Playlist() {
                     html = html + '<i class="icon-spotify-circled playlisticon fixed"></i>';
                 } else if (l.substring(0, 6) == "gmusic") {
                     html = html + '<i class="icon-gmusic-circled playlisticon fixed"></i>';
+                } else if (tracks[trackpointer].type == "podcast") {
+                    html = html + '<i class="icon-podcast-circled playlisticon fixed"></i>';
                 }
                 if (showartist) {
                     html = html + '<div class="containerbox vertical expand">';

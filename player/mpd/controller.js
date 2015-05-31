@@ -4,9 +4,9 @@ function playerController() {
 	var updatetimer = null;
     var progresstimer = null;
     var safetytimer = 500;
-    var consumeflag = true;
     var previoussongid = null;
     var AlanPartridge = 0;
+    var plversion = null;
 
     function updateStreamInfo() {
 
@@ -70,8 +70,26 @@ function playerController() {
         progresstimer = setTimeout(callback, timeout);
     }
 
+    function postCommandActions(data, callback) {
+        player.status = data;
+        if (player.status.playlist !== plversion) {
+            playlist.repopulate();
+        }
+        plversion = player.status.playlist;
+        infobar.setStartTime(player.status.elapsed);
+        if (callback) {
+            callback();
+            infobar.updateWindowValues();
+        } else {
+           self.checkProgress();
+           infobar.updateWindowValues();
+        }        
+    }
+
     this.initialise = function() {
-    	self.command("", playlist.repopulate);
+        // Need to call this with a callback when we start up so that checkprogress doesn't get called
+        // before the playlist has repopulated.
+    	self.command("",playlist.repopulate);
 		if (!player.collectionLoaded) {
             debug.log("MPD", "Checking Collection");
             checkCollection(false, false);
@@ -88,15 +106,7 @@ function playerController() {
                 // Ignore errors on clearerror - we get into an endless loop
                 data.error = null;
             }
-            player.status = data;
-            infobar.setStartTime(player.status.elapsed);
-            if (callback) {
-                callback();
-                infobar.updateWindowValues();
-            } else {
-               self.checkProgress();
-               infobar.updateWindowValues();
-            }
+            postCommandActions(data, callback);
             if ((data.state == "pause" || data.state=="stop") && data.single == 1) {
                 self.fastcommand("command=single&arg=0");
             }
@@ -104,7 +114,7 @@ function playerController() {
         })
         .fail( function() {
             debug.warn("MPD","Command",cmd,"failed");
-            alert("Failed to send command '"+cmd+"' to MPD");
+            infobar.notify(infobar.ERROR, "Failed to send command '"+cmd+"' to MPD");
             self.checkProgress();
         });
 	}
@@ -129,19 +139,10 @@ function playerController() {
             data: data,
             success: function(data) {
                 debug.log("MPD           : result for",list,data);
-                player.status = data;
-                infobar.setStartTime(player.status.elapsed);
-                if (callback) {
-                    callback();
-                    infobar.updateWindowValues();
-                } else {
-                    self.checkProgress();
-                    infobar.updateWindowValues();
-                }
-
+                postCommandActions(data, callback);
             },
             error: function() {
-                alert("Failed sending command list to mpd");
+                infobar.notify(infobar.ERROR, "Failed sending command list to mpd");
                 self.checkProgress();
             },
             dataType: 'json'
@@ -182,9 +183,7 @@ function playerController() {
                 }
                 self.reloadPlaylists();
                 player.collectionLoaded = true;
-                // if (prefs.sortcollectionby == "album") {
-                    scootTheAlbums();
-                // }
+                scootTheAlbums();
             },
             error: function(data) {
                 $("#collection").html('<p align="center"><b><font color="red">Failed To Generate Collection :</font></b><br>'+data.responseText+"<br>"+data.statusText+"</p>");
@@ -210,7 +209,7 @@ function playerController() {
 	}
 
 	this.loadPlaylist = function(name) {
-        self.command('command=load&arg='+name, playlist.repopulate);
+        self.command('command=load&arg='+name);
         return false;
 	}
 
@@ -219,7 +218,7 @@ function playerController() {
 	}
 
 	this.clearPlaylist = function() {
-	    self.command('command=clear', playlist.repopulate);
+	    self.command('command=clear');
 	}
 
 	this.savePlaylist = function() {
@@ -227,7 +226,7 @@ function playerController() {
 	    var name = $("#playlistname").val();
 	    debug.log("GENERAL","Save Playlist",name);
 	    if (name.indexOf("/") >= 0 || name.indexOf("\\") >= 0) {
-	        alert(language.gettext("error_playlistname"));
+	        infobar.notify(infobar.ERROR, language.gettext("error_playlistname"));
 	    } else {
 	        self.fastcommand("command=save&arg="+encodeURIComponent(name), function() {
 	            self.reloadPlaylists();
@@ -274,8 +273,9 @@ function playerController() {
 	}
 
 	this.seek = function(seekto) {
-        self.command("command=seek&arg="+player.status.song+"&arg2="+parseInt(seekto.toString()),
-            function() { self.deferredupdate(1000) });
+        // self.command("command=seek&arg="+player.status.song+"&arg2="+parseInt(seekto.toString()),
+        //     function() { self.deferredupdate(1000) });
+        self.command("command=seek&arg="+player.status.song+"&arg2="+parseInt(seekto.toString()));
 	}
 
 	this.playId = function(id) {
@@ -308,7 +308,7 @@ function playerController() {
 		$.each(ids, function(i,v) {
 			cmdlist.push("deleteid "+v);
 		});
-		self.do_command_list(cmdlist, playlist.repopulate);
+		self.do_command_list(cmdlist);
 	}
 
 	this.toggleRandom = function() {
@@ -375,10 +375,13 @@ function playerController() {
 			cmdlist.push('play "'+playpos.toString()+'"');
 		}
 		self.do_command_list(cmdlist, function() {
+            // We don't insert tracks at a specific position because we don't always
+            // know how many tracks are in each 'item' or 'playlist'. Hence we add them
+            // to the end and then move them.
 			if (at_pos == 0 || at_pos) {
 				self.move(pl, player.status.playlistlength - pl, at_pos);
 			} else {
-				playlist.repopulate();
+				// playlist.repopulate();
 			}
 		});
 	}
@@ -389,7 +392,7 @@ function playerController() {
 			itemstomove = itemstomove + ":" + (parseInt(first)+parseInt(num));
 		}
 		debug.log("PLAYER", "Move command is move&arg="+itemstomove+"&arg2="+moveto);
-		self.command("command=move&arg="+itemstomove+"&arg2="+moveto, playlist.repopulate);
+		self.command("command=move&arg="+itemstomove+"&arg2="+moveto);
 	}
 
 	this.stopafter = function() {
@@ -495,17 +498,8 @@ function playerController() {
         // the browser every time the playlist gets repopulated.
         if (player.status.songid !== previoussongid) {
             debug.mark("MPD","Track has changed");
-            playlist.trackchanged();
 
             playlist.findCurrentTrack();
-
-            if (player.status.consume == 1 && consumeflag) {
-                debug.log("PLAYLIST","Repopulating due to consume being on");
-                // If consume is one, we must repopulate
-                consumeflag = false;
-                playlist.repopulate();
-                return 0;
-            }
 
             if (playlist.currentTrack) {
                 debug.log("MPD","Creating new track",playlist.currentTrack);
@@ -521,11 +515,11 @@ function playerController() {
             }
 
             previoussongid = player.status.songid;
-            consumeflag = true;
             safetytimer = 500;
         }
 
         if (playlist.currentTrack === null) {
+            setTheClock(self.checkchange, 10000);
             return;
         }
 
@@ -549,12 +543,15 @@ function playerController() {
                     setTheClock( self.checkchange, 1000);
                 }                
             }
+        } else {
+            setTheClock(self.checkchange, 10000);
         }
     }
 
     this.checkchange = function() {
+        clearProgressTimer();
         // Update the status to see if the track has changed
-        if (playlist.currentTrack.type != "stream") {
+        if (playlist.currentTrack === null || playlist.currentTrack.type != "stream") {
             self.command("", self.checkProgress);
         } else {
             self.command("", self.checkStream);
