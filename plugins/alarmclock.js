@@ -92,7 +92,7 @@ var alarm = function() {
 			snoozing = false;
 			if (player.status.state != "play") {
 				if (prefs.alarmramp) {
-					uservol = player.status.volume;
+					uservol = parseInt(player.status.volume);
 					volinc = uservol/prefs.alarm_ramptime;
 					debug.log("ALARM","User Volume is",uservol,"increment step is",volinc);
 					player.controller.volume(0, player.controller.play);
@@ -107,12 +107,12 @@ var alarm = function() {
 
 		volRamp: function() {
 			clearTimeout(ramptimer);
-			var v = player.status.volume + volinc;
-			debug.log("ALARM","Setting volume to",v);
+			var v = parseInt(player.status.volume) + volinc;
+			debug.log("ALARM","Setting volume to",v,player.status.volume,volinc);
 			if (v >= uservol) {
 				player.controller.volume(uservol);
 			} else {
-				player.controller.volume(v);
+				player.controller.volume(Math.round(v));
 				ramptimer = setTimeout(alarm.volRamp, 1000);
 			}
 		},
@@ -157,13 +157,10 @@ var alarm = function() {
 				'<td width="2%"></td><td align="center"><i class="icon-decrease smallicon clickicon" onmousedown="alarm.startInc(-60)" onmouseup="alarm.stopInc()" onmouseout="alarm.stopInc()" /></td>'+
 				'</tr></table>'+
 				'<table align="center"><tr><td align="right" class="togglediv tgtl">ON</td><td align="left"><div id="button_alarm_on" onclick="alarm.toggle()" class="icon-toggle-off togglebutton clickicon" />';
-				if (prefs.player_backend == "mopidy") {
-					// Volume ramping won't work with MPD because we can't set the volume to zero if playback is stopped. Duh.
-					html = html + '</td></tr><tr><td align="right" class="togglediv tgtl">'+language.gettext('config_alarm_ramp')+'</td><td align="left"><div class="icon-toggle-off togglebutton clickicon" id="alarmramp" onclick="alarm.toggleramp()">';
-					html = html + '</td></tr><tr><td align="center" colspan="2">'+language.gettext('config_ramptime')+'&nbsp;<input class="saveotron prefinputUsers/bob/Sites/rompr" id="alarm_ramptime" type="text" size="2" />';
-				}
-				html = html + '</td></tr><tr><td align="center" colspan="2">'+language.gettext('config_snoozetime')+'&nbsp;<input class="saveotron prefinputUsers/bob/Sites/rompr" id="alarm_snoozetime" type="text" size="2" />';
-				html = html + '</td></tr></table></div></div></div>';
+			html = html + '</td></tr><tr><td align="right" class="togglediv tgtl">'+language.gettext('config_alarm_ramp')+'</td><td align="left"><div class="icon-toggle-off togglebutton clickicon" id="alarmramp" onclick="alarm.toggleramp()">';
+			html = html + '</td></tr><tr><td align="center" colspan="2">'+language.gettext('config_ramptime')+'&nbsp;<input class="saveotron prefinputUsers/bob/Sites/rompr" id="alarm_ramptime" type="text" size="2" />';
+			html = html + '</td></tr><tr><td align="center" colspan="2">'+language.gettext('config_snoozetime')+'&nbsp;<input class="saveotron prefinputUsers/bob/Sites/rompr" id="alarm_snoozetime" type="text" size="2" />';
+			html = html + '</td></tr></table></div></div></div>';
 
 			$("#righthandtop").prepend(html);
 			html = null;

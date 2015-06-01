@@ -42,10 +42,11 @@ $(document).ready(function(){
     $("#sortable").click(onPlaylistClicked);
     layoutProcessor.sourceControl(prefs.chooser);
     layoutProcessor.adjustLayout();
-    $(window).bind('resize', function() {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(layoutProcessor.adjustLayout, 250);
-    });
+    // $(window).bind('resize', function() {
+    //     clearTimeout(resizeTimer);
+    //     resizeTimer = setTimeout(layoutProcessor.adjustLayout, 250);
+    // });
+    $(window).bind('resize', layoutProcessor.adjustLayout);
     if (prefs.chooser == "searchpane") {
         ihatefirefox();
     }

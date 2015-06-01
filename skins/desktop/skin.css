@@ -439,7 +439,7 @@ div.rightmenu.normalmenu
     right: 0px;
 }
 
-@media screen and (max-width: 332px) {
+@media screen and (max-width: 480px) {
     #notifications {
         width: 90% !important;
     }

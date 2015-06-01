@@ -173,6 +173,12 @@ var infobar = function() {
             var maxheight = parent.height();
             var splittext = null;
             var maxwidth = parent.width() - 8;
+            debug.log("INFOBAR","Maxwidth is",maxwidth);
+            if (maxwidth <= 8) {
+                debug.log("INFOBAR", "Insufficient Space for text");
+                $("#nptext").html("");
+                return;
+            }
             var lines = [
                 {weight: (numlines == 2 ? 62 : 46), width: maxwidth+1, text: " "},
                 {weight: (numlines == 2 ? 38 : 26), width: maxwidth+1, text: " "}
@@ -303,6 +309,7 @@ var infobar = function() {
             } else {
                 $("#nptext").css("font-size", lines[0].height+"px");
             }
+            debug.log("INFOBAR","Biggerized",numlines);
             $("#nptext").empty().html(html);
         },
 
@@ -424,11 +431,11 @@ var infobar = function() {
         }(),
 
         updateWindowValues: function() {
-            if (player.status.volume == -1) {
-                volumeslider.setState(prefs.volume);
-            } else {
+            // if (player.status.volume == -1) {
+                // volumeslider.setState(prefs.volume);
+            // } else {
                 volumeslider.setState(player.status.volume);
-            }
+            // }
             infobar.playbutton.setState(player.status.state);
             setPlaylistButtons();
             if (player.status.error && player.status.error != null) {

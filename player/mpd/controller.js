@@ -291,15 +291,7 @@ function playerController() {
 	}
 
 	this.volume = function(volume, callback) {
-        if (player.status.state != "stop") {
-            self.command("command=setvol&arg="+parseInt(volume.toString()), callback);
-        } else {
-            infobar.notify(infobar.ERROR, language.gettext("label_mpd_no"));
-            if (callback) {
-                callback();
-            }
-            return false;
-        }
+        self.command("command=setvol&arg="+parseInt(volume.toString()), callback);
         return true;
 	}
 
@@ -552,7 +544,7 @@ function playerController() {
         clearProgressTimer();
         // Update the status to see if the track has changed
         if (playlist.currentTrack === null || playlist.currentTrack.type != "stream") {
-            self.command("", self.checkProgress);
+            self.command("", null);
         } else {
             self.command("", self.checkStream);
         }
