@@ -30,6 +30,7 @@ $(document).ready(function(){
     $(".saveotron").keyup(saveTextBoxes);
     $(".saveomatic").change(saveSelectBoxes);
     $(".savulon").click(toggleRadio);
+    $(".clickreplaygain").click(player.controller.replayGain);
     setPrefs();
     if (prefs.playlistcontrolsvisible) {
         $("#playlistbuttons").show();
@@ -42,10 +43,6 @@ $(document).ready(function(){
     $("#sortable").click(onPlaylistClicked);
     layoutProcessor.sourceControl(prefs.chooser);
     layoutProcessor.adjustLayout();
-    // $(window).bind('resize', function() {
-    //     clearTimeout(resizeTimer);
-    //     resizeTimer = setTimeout(layoutProcessor.adjustLayout, 250);
-    // });
     $(window).bind('resize', layoutProcessor.adjustLayout);
     if (prefs.chooser == "searchpane") {
         ihatefirefox();

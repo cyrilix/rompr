@@ -515,6 +515,15 @@ function setPlaylistButtons() {
     $.each(['random', 'repeat', 'consume'], function(i,v) {
         $("#"+v).switchToggle(player.status[v]);
     });
+    if (player.status.replay_gain_mode) {
+        $.each(["off","track","album","auto"], function(i,v) {
+            if (player.status.replay_gain_mode == v) {
+                $("#replaygain_"+v).switchToggle("on");
+            } else {
+                $("#replaygain_"+v).switchToggle("off");
+            }
+        });
+    }
 }
 
 function onStorageChanged(e) {

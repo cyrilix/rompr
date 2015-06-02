@@ -149,14 +149,6 @@ function playerController() {
         });
 	}
 
-    this.deferredupdate = function(time) {
-        // Use this to force us to re-check mpd's status after some commands
-        // eg sometimes when we seek it doesn't happen immediately.
-        // Calling mpd.command with no parameters is fine.
-        clearTimeout(updatetimer);
-        updatetimer = setTimeout(self.command, time);
-    }
-
     this.updateCollection = function(cmd) {
         prepareForLiftOff(language.gettext("label_updating"));
         prepareForLiftOff2(language.gettext("label_updating"));
@@ -273,8 +265,6 @@ function playerController() {
 	}
 
 	this.seek = function(seekto) {
-        // self.command("command=seek&arg="+player.status.song+"&arg2="+parseInt(seekto.toString()),
-        //     function() { self.deferredupdate(1000) });
         self.command("command=seek&arg="+player.status.song+"&arg2="+parseInt(seekto.toString()));
 	}
 
@@ -558,6 +548,12 @@ function playerController() {
     this.onStop = function() {
         playlist.stopped();
         self.checkProgress();
+    }
+
+    this.replayGain = function(event) {
+        var x = $(event.target).attr("id").replace('replaygain_','');
+        debug.log("MPD","Setting Replay Gain to",x);
+        self.command("command=replay_gain_mode&arg="+x);
     }
 
 }

@@ -431,11 +431,7 @@ var infobar = function() {
         }(),
 
         updateWindowValues: function() {
-            // if (player.status.volume == -1) {
-                // volumeslider.setState(prefs.volume);
-            // } else {
-                volumeslider.setState(player.status.volume);
-            // }
+            volumeslider.setState(player.status.volume);
             infobar.playbutton.setState(player.status.state);
             setPlaylistButtons();
             if (player.status.error && player.status.error != null) {

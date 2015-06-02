@@ -1,7 +1,7 @@
 <?php
 
 function is_stream($domain, $filedata) {
-	$streamdomains = array("http", "mms", "rtsp", "https", "rtmp", "rtmps");
+    $streamdomains = array("http", "https", "mms", "mmsh", "mmst", "mmsu", "gopher", "rtp", "rtsp", "rtmp", "rtmpt", "rtmps");
 	if (in_array($domain, $streamdomains)) {
 		return true;
 	} else {

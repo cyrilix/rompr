@@ -35,6 +35,65 @@ get_int_text('button_consume').'</div></div></td>';
 ?>
 </tr>
 </table>
+
+<hr>
+<?php
+if ($prefs['player_backend'] == "mpd") {
+?>
+<table width="90%" align="center" style="border-collapse:collapse">
+	<tr>
+		<td rowspan="2">
+			<div class="togglecontainer"><div class="togglediv tgtl">REPLAY GAIN</div></div>
+		</td>
+		<td align="center">
+			<div class="togglecontainer">
+				<div class="togglediv">Off</div>
+			</div>
+		</td>
+		<td align="center">
+			<div class="togglecontainer">
+				<div class="togglediv">Track</div>
+			</div>
+		</td>
+		<td align="center">
+			<div class="togglecontainer">
+				<div class="togglediv">Album</div>
+			</div>
+		</td>
+		<td align="center">
+			<div class="togglecontainer">
+				<div class="togglediv">Auto</div>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td align="center">
+			<div class="togglecontainer">
+				<div class="togglebutton clickicon clickreplaygain icon-toggle-off" id="replaygain_off"></div>
+			</div>
+		</td>
+		<td align="center">
+			<div class="togglecontainer">
+				<div class="togglebutton clickicon clickreplaygain icon-toggle-off" id="replaygain_track"></div>
+			</div>
+		</td>
+		<td align="center">
+			<div class="togglecontainer">
+				<div class="togglebutton clickicon clickreplaygain icon-toggle-off" id="replaygain_album"></div>
+			</div>
+		</td>
+		<td align="center">
+			<div class="togglecontainer">
+				<div class="togglebutton clickicon clickreplaygain icon-toggle-off" id="replaygain_auto"></div>
+			</div>
+		</td>
+	</tr>
+</table>
+
+<hr>
+<?php
+}
+?>
 </div>
 <div id="pscroller">
     <div id="sortable" class="noselection fullwidth noborder">

@@ -79,6 +79,10 @@ if($is_connected) {
         $mpd_status = array_merge($mpd_status, $songinfo);
     }
 
+    $arse = array();
+    $arse = do_mpd_command($connection, 'replay_gain_status', null, true);
+    $mpd_status = array_merge($mpd_status, $arse);
+
 } else {
     if ($prefs['unix_socket'] != "") {
         $mpd_status['error'] = "Unable to Connect to MPD server at\n".$prefs["unix_socket"];
