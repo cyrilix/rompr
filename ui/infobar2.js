@@ -154,6 +154,7 @@ var infobar = function() {
         NOTIFY: 0,
         ERROR: 1,
         PERMERROR: 2,
+        PERMNOTIFY: 3,
 
         biggerize: function(numlines) {
 
@@ -654,7 +655,7 @@ var infobar = function() {
 
         notify: function(type, message) {
             var html = '<div class="containerbox menuitem">';
-            if (type == infobar.NOTIFY) {
+            if (type == infobar.NOTIFY || type == infobar.PERMNOTIFY) {
                 html = html + '<div class="fixed"><i class="icon-info-circled smallcover-svg"></i></div>';
             } else if (type == infobar.ERROR || type == infobar.PERMERROR) {
                 html = html + '<div class="fixed"><i class="icon-attention-1 smallcover-svg"></i></div>';
@@ -664,7 +665,7 @@ var infobar = function() {
             html = null;
             clearTimeout(notifytimer);
             $('#notifications').slideDown('slow');
-            if (type !== infobar.PERMERROR) {
+            if (type !== infobar.PERMERROR && type !== infobar.PERMNOTIFY) {
                 notifytimer = setTimeout(this.removenotify, 5000);
             }
         },

@@ -564,7 +564,7 @@ function doingOnTheFly() {
 function prepareForLiftOff(text) {
     if (doingOnTheFly()) {
         doSomethingUseful('fothergill', text);
-        infobar.notify(infobar.NOTIFY,text);
+        infobar.notify(infobar.PERMNOTIFY,text);
     } else {
         $("#collection").empty();
         doSomethingUseful('collection', text);

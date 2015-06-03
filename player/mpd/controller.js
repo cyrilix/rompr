@@ -109,6 +109,7 @@ function playerController() {
             postCommandActions(data, callback);
             if ((data.state == "pause" || data.state=="stop") && data.single == 1) {
                 self.fastcommand("command=single&arg=0");
+                player.status.single = 0;
             }
             debug.debug("MPD","Status",player.status);
         })
@@ -282,6 +283,9 @@ function playerController() {
 
 	this.volume = function(volume, callback) {
         self.command("command=setvol&arg="+parseInt(volume.toString()), callback);
+        if (callback) {
+            self.checkProgress();
+        }
         return true;
 	}
 
