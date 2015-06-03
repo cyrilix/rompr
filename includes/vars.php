@@ -94,7 +94,8 @@ $prefs = array( "mpd_host" => "localhost",
                 "lowmemorymode" => false,
                 "alarm_ramptime" => 30,
                 "alarm_snoozetime" => 8,
-                "coversize" => "10-Small.css"
+                "coversize" => "10-Small.css",
+                "mediacentremode" => false
                 );
 
 if (file_exists('prefs/prefs')) {

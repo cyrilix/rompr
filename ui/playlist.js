@@ -279,7 +279,7 @@ function Playlist() {
             switch (elementmoved) {
                 case "track":
                     var firstitem = parseInt(ui.item.attr("name"));
-                    var numitems = 1;
+                    var numitems = 1;F
                     break;
                 case "item":
                     var firstitem = tracklist[parseInt(ui.item.attr("name"))].getFirst();
@@ -346,7 +346,7 @@ function Playlist() {
 
     this.playFromEnd = function() {
         if (player.status.state == "stop") {
-        debug.debug("PLAYLIST","Playfromend",finaltrack+1);
+            debug.debug("PLAYLIST","Playfromend",finaltrack+1);
             return finaltrack+1;
         } else {
             debug.debug("PLAYLIST","Disabling auto-play");

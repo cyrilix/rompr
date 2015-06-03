@@ -181,6 +181,12 @@ print '<div class="pref">';
 print '<input type="radio" class="topcheck savulon" name="clickmode" value="double">'.get_int_text('config_doubleclick').'</input><br/>
 <input type="radio" class="topcheck savulon" name="clickmode" value="single">'.get_int_text('config_singleclick').'</input><br>
 </div>';
+if ($prefs['player_backend'] == "mpd") {
+print '<div class="pref">';
+print '<input class="autoset toggle" type="checkbox" id="mediacentremode">'.get_int_text('config_mediacentremode').'</input>
+</div>';
+}
+
 
 // Audio Outputs
 print '<div class="textcentre configtitle"><b>'.get_int_text('config_audiooutputs').'</b></div><div class="pref">';

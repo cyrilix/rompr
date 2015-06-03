@@ -554,6 +554,7 @@ $languages['en'] = array (
 	"label_metabackup" => "Metadata Backup",
 	"button_backup" => "Create Backup",
 	"button_restore" => "Restore Backup",
+	"config_mediacentremode" => "Media Centre Mode (Tracks Play Immediately)",
 
 	//CHANGED in 0.60
 	"config_country" => "COUNTRY (for Last.FM and Spotify)",

@@ -46,13 +46,18 @@ if($is_connected) {
         $cmdstart = strpos($cmd, " ");
         $part1 = substr($cmd, 0, $cmdstart);
         if ($part1 == "move") {
-            // NASTY HACK!
+            // NASTY HACK! Not even sure we use this file for move commands!!
             debug_print("Command List: ".$cmd,"POSTCOMMAND");
             fputs($connection, $cmd."\n");
         } else {
-            $part2 = substr($cmd, $cmdstart+1, strlen($cmd));
-            debug_print("Command List: ".$part1.' "'.format_for_mpd(trim($part2, '"')).'"',"POSTCOMMAND");
-            fputs($connection, $part1.' "'.format_for_mpd(trim($part2, '"')).'"'."\n");
+            if ($cmdstart === false) {
+                debug_print("Command List: ".$cmd,"POSTCOMMAND");
+                fputs($connection, $cmd."\n");
+            } else {
+                $part2 = substr($cmd, $cmdstart+1, strlen($cmd));
+                debug_print("Command List: ".$part1.' "'.format_for_mpd(trim($part2, '"')).'"',"POSTCOMMAND");
+                fputs($connection, $part1.' "'.format_for_mpd(trim($part2, '"')).'"'."\n");
+            }
         }
         $done++;
         // Command lists have a maximum length, 50 seems to be the default

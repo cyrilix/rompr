@@ -330,6 +330,11 @@ function playerController() {
         layoutProcessor.notifyAddTracks();
 		debug.log("MPD","Adding Tracks",tracks,playpos,at_pos);
 		var cmdlist = [];
+        if (prefs.mediacentremode) {
+            cmdlist.push("clear");
+            cmdlist.push('consume "1"');
+            at_pos = false;
+        }
 		var pl = player.status.playlistlength;
 		$.each(tracks, function(i,v) {
 			switch (v.type) {
@@ -344,30 +349,32 @@ function playerController() {
     				cmdlist.push("additem "+v.name);
     				break;
     			case "delete":
-    				cmdlist.push("deleteid "+v.name);
-    				if (at_pos) {
-    					at_pos--;
-    				}
-					if (playpos && playpos > -1) {
-						playpos--;
-					}
-					pl--;
-    				break;
+                    // This was for Last.FM radio. It shouldn't be used
+                    debug.error("MPD", "Track DELETE command found in addTracks!");
+    	// 			cmdlist.push("deleteid "+v.name);
+    	// 			if (at_pos) {
+    	// 				at_pos--;
+    	// 			}
+					// if (playpos && playpos > -1) {
+					// 	playpos--;
+					// }
+					// pl--;
+    	// 			break;
     		}
 		});
 		// Note : playpos, if set, will point to the first track position
 		// BEFORE we move it.
-		if (playpos !== null && playpos > -1) {
+        if (prefs.mediacentremode) {
+            cmdlist.push("play");
+        } else if (playpos !== null && playpos > -1) {
 			cmdlist.push('play "'+playpos.toString()+'"');
 		}
 		self.do_command_list(cmdlist, function() {
             // We don't insert tracks at a specific position because we don't always
             // know how many tracks are in each 'item' or 'playlist'. Hence we add them
             // to the end and then move them.
-			if (at_pos == 0 || at_pos) {
+			if (at_pos === 0 || at_pos) {
 				self.move(pl, player.status.playlistlength - pl, at_pos);
-			} else {
-				// playlist.repopulate();
 			}
 		});
 	}
