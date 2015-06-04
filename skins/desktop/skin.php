@@ -184,6 +184,25 @@ print '<button class="fixed">'.get_int_text('button_save').'</button></div>';
 include("player/".$prefs['player_backend']."/search.php");
 ?>
     </div>
+<?php
+    print '<div class="menuitem containerbox" style="margin-top:12px;padding-left:8px">';
+    print '<div class="fixed" style="padding-right:4px"><i onclick="toggleCollectionButtons()" title="'.get_int_text('button_collectioncontrols').'" class="icon-menu playlisticon clickicon lettuce"></i></div>';
+    print '<div class="expand" style="font-weight:bold;font-size:120%;padding-top:0.4em">'.get_int_text("button_local_music").'</div></div>';
+?>
+    <div id="collectionbuttons" class="invisible searchbox">
+<?php
+if ($prefs['apache_backend'] == "sql") {
+    print '<div class="pref styledinputs">';
+    print '<input type="radio" class="topcheck savulon" name="sortcollectionby" value="artist" id="sortbyartist">
+    <label for="sortbyartist">'.ucfirst(get_int_text('label_artists')).'</label><br/>
+    <input type="radio" class="topcheck savulon" name="sortcollectionby" value="album" id="sortbyalbum">
+    <label for="sortbyalbum">'.ucfirst(get_int_text('label_albums')).'</label><br/>
+    <input class="autoset toggle" type="checkbox" id="sortbydate">
+    <label for="sortbydate">'.get_int_text('config_sortbydate').'</label>
+    </div>';
+}
+?>
+    </div>
     <div id="collection" class="noborder selecotron"></div>
     </div>
 

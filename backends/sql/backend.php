@@ -1549,7 +1549,7 @@ function dumpAlbums($which) {
     if ($which == 'aalbumroot' || $which == 'balbumroot') {
     	// Er.. balbumroot is for search results. Why would we ever be here for balbumroot?
         if ($which == 'aalbumroot') {
-            print '<div class="menuitem"><h3>'.get_int_text("button_local_music").'</h3></div>';
+            // print '<div class="menuitem"><h3>'.get_int_text("button_local_music").'</h3></div>';
         } else if ($which == 'balbumroot') {
             print '<div class="menuitem"><h3>'.get_int_text("label_searchresults").'</h3></div>';
         }

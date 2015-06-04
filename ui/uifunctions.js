@@ -224,6 +224,13 @@ function togglePlaylistButtons() {
     return false;
 }
 
+function toggleCollectionButtons() {
+    $("#collectionbuttons").slideToggle('fast');
+    var p = !prefs.collectioncontrolsvisible;
+    prefs.save({ collectioncontrolsvisible: p });
+    return false;    
+}
+
 function lastfmlogin() {
     var user = $("#configpanel").find('input[name|="user"]').attr("value");
     lastfm.login(user);
@@ -678,6 +685,8 @@ function hidePanel(panel) {
             case "albumlist":
                 if (update_load_timer_running == false) {
                     $("#collection").empty();
+                    $("#collection").prev().hide();
+                    $("#collection").prev().prev().hide();
                 }
                 break;
             case "filelist":
@@ -697,6 +706,8 @@ function hidePanel(panel) {
                 if (update_load_timer_running == false) {
                     loadCollection('albums.php?item=aalbumroot', null);
                 }
+                $("#collection").prev().show();
+                $("#collection").prev().prev().show();
                 break;
             case "filelist":
                 if (update_load_timer_running == false) {

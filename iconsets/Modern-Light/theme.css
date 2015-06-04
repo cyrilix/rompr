@@ -101,3 +101,42 @@ img.notexist,img.notfound
 .icon-imdb-logo { background-image: url('imdb-logo.svg') }
 .icon-facebook-logo { background-image: url('facebook-logo.svg') }
 .icon-twitter-logo { background-image: url('twitter-logo.svg') }
+
+.styledinputs label
+{
+    display:inline-block;
+    cursor:pointer;
+    position:relative;
+    padding-left:2.5em;
+    line-height:1.5em;
+}
+
+.styledinputs input[type=radio] 
+{
+    display:none;
+}
+
+.styledinputs input[type=checkbox] 
+{
+    display:none;
+}
+
+.styledinputs label:before 
+{
+    content:"";
+    display:inline-block;
+    width:2em;
+    height:1.5em;
+    position:absolute;
+    left:0;
+    bottom:0.2em;
+    background-image: url('togglebutton-off.svg');
+ 	background-size:contain;
+	background-position: center;
+	background-repeat:no-repeat;
+}
+
+.styledinputs input:checked + label:before
+{
+    background-image: url('togglebutton-on.svg') !important;
+}

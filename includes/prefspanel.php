@@ -108,15 +108,6 @@ if ($prefs['apache_backend'] == "sql") {
     <input class="autoset toggle" type="checkbox" id="onthefly">'.get_int_text('config_onthefly').'</input>
     </div>';
 }
-print '<div class="pref">
-<input class="autoset toggle" type="checkbox" id="sortbycomposer">'.get_int_text('config_sortbycomposer').'</input>
-</div>';
-print '<div class="pref indent">
-<input class="autoset toggle" type="checkbox" id="composergenre">'.get_int_text('config_composergenre').'</input>
-</div>';
-print '<div class="pref indent">
-<input class="saveotron prefinput arraypref" id="composergenrename" type="text" size="40" />
-</div>';
 print '<div class="pref textcentre">
 <button id="donkeykong" onclick="checkCollection(true, false)">'.get_int_text('config_updatenow').'</button>
 </div>';
@@ -128,6 +119,10 @@ if ($prefs['player_backend'] == "mpd") {
 
 // Collection Sorting Options
 print '<div class="textcentre ucfirst configtitle"><b>'.get_int_text('config_sortoptions').'</b></div>';
+// Album Sorting
+print '<div class="pref">
+<input class="autoset toggle" type="checkbox" id="notvabydate">'.get_int_text('config_notvabydate').'</input><br/>
+</div>';
 
 if ($prefs['apache_backend'] == "sql") {
     print '<div class="pref"><b>'.get_int_text('config_artistfirst').'
@@ -136,15 +131,15 @@ if ($prefs['apache_backend'] == "sql") {
     print '<div class="pref"><b>'.get_int_text('config_nosortprefixes').'
     <input class="saveotron prefinput arraypref" id="nosortprefixes" type="text" size="128" />
     </b></div>';
-    print '<div class="pref"><b>'.get_int_text('config_sortcollectionby').'</b>';
-    print '<input type="radio" class="topcheck savulon" name="sortcollectionby" value="artist">'.ucfirst(get_int_text('label_artists')).'</input>
-    <input type="radio" class="topcheck savulon" name="sortcollectionby" value="album">'.ucfirst(get_int_text('label_albums')).'</input>';
-    print '</div>';
 }
-// Album Sorting
 print '<div class="pref">
-<input class="autoset toggle" type="checkbox" id="sortbydate">'.get_int_text('config_sortbydate').'</input><br/>
-<input class="autoset toggle" type="checkbox" id="notvabydate">'.get_int_text('config_notvabydate').'</input><br/>
+<input class="autoset toggle" type="checkbox" id="sortbycomposer">'.get_int_text('config_sortbycomposer').'</input>
+</div>';
+print '<div class="pref indent">
+<input class="autoset toggle" type="checkbox" id="composergenre">'.get_int_text('config_composergenre').'</input>
+</div>';
+print '<div class="pref indent">
+<input class="saveotron prefinput arraypref" id="composergenrename" type="text" size="40" />
 </div>';
 
 // Album Art

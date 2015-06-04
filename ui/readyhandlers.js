@@ -35,6 +35,9 @@ $(document).ready(function(){
     if (prefs.playlistcontrolsvisible) {
         $("#playlistbuttons").show();
     }
+    if (prefs.collectioncontrolsvisible) {
+        $("#collectionbuttons").show();
+    }
     showUpdateWindow();
     if (!prefs.hide_radiolist) {
         podcasts.loadList();

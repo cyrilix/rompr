@@ -28,7 +28,7 @@ prefs.prefsInLocalStorage = ["sourceshidden", "playlisthidden", "infosource", "p
                             "shownupdatewindow", "scrolltocurrent", "volume", "alarm_ramptime", "alarm_snoozetime",
                             "lastfmlang", "user_lang", "fontsize", "fontfamily", "alarmtime", "alarmon", "synctags",
                             "synclove", "synclovevalue", "alarmramp", "radiomode", "radioparam", "onthefly",
-                            "theme", "icontheme", "coversize", "mediacentremode"];
+                            "theme", "icontheme", "coversize", "mediacentremode", "collectioncontrolsvisible"];
 
 // Update old pre-JSON prefs
 if (localStorage.getItem("prefs.prefversion") == null) {
