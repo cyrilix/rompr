@@ -44,9 +44,6 @@ var browser = function() {
                 $("#"+i+"information").html(waitingBanner(i));
             }
         }
-        if (waitingon.artist && $("#artistchooser").is(':visible')) {
-            $("#artistchooser").stop().hide();
-        }
         for (var i = 1; i < history.length-1; i++) {
             history[i].mastercollection.stopDisplaying();
         }
@@ -56,6 +53,17 @@ var browser = function() {
         // stopDisplaying/displayData displaying flags all in sync since they're global to one dataCollection
         // and not individual for artist, album, and track. (This was tried before and got stupid).
         history[ptr].mastercollection.sendDataToBrowser(waitingon);
+        if (displaypointer == history.length-1) {
+            // We only allow artist switching on the current playing track.
+            // It's not that it doesn't work, but it means the artist switch gets added to the end of history
+            // and then you have to go back to get to the current track, which means things stop auto-updating.
+            // Also it makes truncating the history really hard.
+            // TODO perhaps artist switches should be spliced in?
+            history[ptr].mastercollection.doArtistChoices();
+        } else {
+            $("#artistchooser").stop().hide();
+        }
+
     }
 
     function waitingBanner(which) {
@@ -179,6 +187,10 @@ var browser = function() {
 
     return {
 
+        areweatfront: function() {
+            return (displaypointer == history.length - 1);
+        },
+
         createButtons: function() {
             for (var i in sources) {
                 if (sources[i].icon !== null) {
@@ -204,7 +216,7 @@ var browser = function() {
         },
 
         dataIsComing: function(mastercollection, isartistswitch, nowplayingindex, source, creator, artist, albumartist, album, track) {
-            debug.log("BROWSER","Data is coming",nowplayingindex, source, artist, albumartist, album, track)
+            debug.log("BROWSER","Data is coming",isartistswitch, nowplayingindex, source, artist, albumartist, album, track)
             if (prefs.hidebrowser) {
                 debug.log("BROWSER","Browser is hidden. Ignoring Data");
                 return;
@@ -214,7 +226,8 @@ var browser = function() {
             // and then the track changes it doesn't switch back to the default - creator will (usually)
             // be the same for every track on an album.
             var showalbum  = (album != history[displaypointer].album.name || albumartist != history[displaypointer].album.artist || source != prefs.infosource);
-            var showartist = (isartistswitch || creator != history[displaypointer].creator || source != prefs.infosource ||
+            // var showartist = (isartistswitch || creator != history[displaypointer].creator || source != prefs.infosource ||
+            var showartist = (isartistswitch || artist != history[displaypointer].artist.name || source != prefs.infosource ||
                 (showalbum && artist != history[displaypointer].artist.name));
             var showtrack  = (track != history[displaypointer].track.name || showalbum || source != prefs.infosource);
 
@@ -275,14 +288,6 @@ var browser = function() {
                         }
                     }
                     waitingon[type] = false;
-                    if (type == 'artist' && displaypointer == history.length-1) {
-                        // We only allow artist switching on the current playing track.
-                        // It's not that it doesn't work, but it means the artist switch gets added to the end of history
-                        // and then you have to go back to get to the current track, which means things stop auto-updating.
-                        // Also it makes truncating the history really hard.
-                        // TODO perhaps artist switches should be spliced in?
-                        history[displaypointer].mastercollection.doArtistChoices();
-                    }
                     if (scrollto) {
                         layoutProcessor.goToBrowserPanel(type);
                     }
