@@ -122,7 +122,7 @@
     }
 }
 
-@media screen and (min-height: 1040px) {
+@media screen and (min-height: 1040px) and (max-height: 1199px) {
     #infobar {
         /*height:150px;*/
     }
@@ -138,6 +138,25 @@
     }
     #nowplaying {
         height: 110px;
+    }
+}
+
+@media screen and (min-height: 1200px) {
+    #infobar {
+        /*height:150px;*/
+    }
+    .infobarlayout {
+        height:160px;
+    }
+    #albumcover {
+        height: 152px;
+        padding-right:8px;
+    }
+    #albumpicture {
+        height: 152px;
+    }
+    #nowplaying {
+        height: 130px;
     }
 }
 
