@@ -91,16 +91,16 @@
 
 @media screen and (min-height: 1200px) {
     .controlbutton {
-        width:84px;
-        height:84px;
+        width:90px;
+        height:90px;
     }
     .controlbutton-small {
-        width:64px;
-        height:64px;
+        width:70px;
+        height:70px;
     }
     #buttons {
-        padding-top:16px;
-        padding-left:24px;
+        padding-top:12px;
+        padding-left:20px;
     }
     #progress {
         margin-top:8px;
@@ -113,28 +113,28 @@
     }
     .shiftleft
     {
-        left:-12px;
+        left:-10px;
         position:relative;
         z-index:250;
     }
 
     .shiftleft2
     {
-        left:-26px;
+        left:-22px;
         position:relative;
     }
 
     .shiftleft3
     {
         position:relative;
-        left:-36px;
+        left:-34px;
         z-index:5;
     }
 
     .shiftleft4
     {
         position:relative;
-        left:-48px;
+        left:-44px;
         z-index:1;
         margin-right:-36px;
     }

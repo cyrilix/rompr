@@ -1106,7 +1106,7 @@ function displayRating(where, what) {
 }
 
 function showUpdateWindow() {
-    if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < 0.63) {
+    if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < 0.64) {
         var fnarkle = popupWindow.create(550,900,"fnarkle",true,language.gettext("intro_title"));
         $("#popupcontents").append('<div id="fnarkler" class="mw-headline"></div>');
         $("#fnarkler").append('<p align="center">'+language.gettext("intro_welcome")+' 0.63</p>');
@@ -1120,7 +1120,7 @@ function showUpdateWindow() {
         $("#fnarkler").append('<p align="center">RompR needs translators! If you want to get involved, please read <a href="https://sourceforge.net/p/rompr/wiki/Translating%20RompR/" target="_blank">this</a></p>');
         // $("#fnarkler").append('<p align="center"><b>'+language.gettext("intro_mopidy")+'</b></p>');
         // $("#fnarkler").append('<p align="center"><a href="https://sourceforge.net/p/rompr/wiki/Rompr%20and%20Mopidy/" target="_blank">'+language.gettext("intro_mopidywiki")+'</a></p>');
-        if (prefs.player_backend == "mpd") {
+        if (prefs.player_backend == "mopidy") {
             $("#fnarkler").prepend('<h2>Attention Mopidy User!</h2><p>Mopidy is changing. It is moving towards browse functionality and away from the global music collection it had the promise to be. As a result of this some of the functionality that Rompr relies upon is being removed from Mopidy.</p>'+
                                                     '<p>This means that by the time Mopidy 2.0 comes out, and possibly before, Rompr will no longer be able to create its Music Collection or handle Playlists when it is used with Mopidy</p>'+
                                                     '<p>Much discussion with the Mopidy developers has failed to convince them to change their minds. Functionality that Rompr relies upon is being removed from Mopidy so it is with much sadness that I must announce that <b>Rompr No Longer Supports Mopidy</b></p>.'+
@@ -1132,7 +1132,7 @@ function showUpdateWindow() {
         popupWindow.open();
 
 
-        prefs.save({shownupdatewindow: 0.63});
+        prefs.save({shownupdatewindow: 0.64});
     }
 }
 
