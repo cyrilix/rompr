@@ -1109,7 +1109,7 @@ function showUpdateWindow() {
     if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < 0.64) {
         var fnarkle = popupWindow.create(550,900,"fnarkle",true,language.gettext("intro_title"));
         $("#popupcontents").append('<div id="fnarkler" class="mw-headline"></div>');
-        $("#fnarkler").append('<p align="center">'+language.gettext("intro_welcome")+' 0.63</p>');
+        $("#fnarkler").append('<p align="center">'+language.gettext("intro_welcome")+' 0.64</p>');
         if (skin != "desktop") {
             $("#fnarkler").append('<p align="center">'+language.gettext("intro_viewingmobile")+' <a href="/rompr/?skin=desktop">/rompr/?skin=desktop</a></p>');
         } else {
