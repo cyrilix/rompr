@@ -87,8 +87,8 @@
 .icon-3-stars { background-image: url('3stars.svg') }
 .icon-4-stars { background-image: url('4stars.svg') }
 .icon-5-stars { background-image: url('5stars.svg') }
-.icon-toggle-on { background-image: url('togglebutton-on.svg') }
-.icon-toggle-off { background-image: url('togglebutton-off.svg') }
+.icon-toggle-on { background-image: url('togglebutton-new2-on.svg') }
+.icon-toggle-off { background-image: url('togglebutton-new2-off.svg') }
 
 .icon-mp3-audio { background-image: url('mp3-audio.svg') }
 .icon-aac-audio { background-image: url('aac-audio.jpg') }
@@ -135,7 +135,7 @@ img.notexist,img.notfound
     position:absolute;
     left:0;
     bottom:0.2em;
-    background-image: url('togglebutton-off.svg');
+    background-image: url('togglebutton-new2-off.svg');
  	background-size:contain;
 	background-position: center;
 	background-repeat:no-repeat;
@@ -143,5 +143,5 @@ img.notexist,img.notfound
 
 .styledinputs input:checked + label:before
 {
-    background-image: url('togglebutton-on.svg') !important;
+    background-image: url('togglebutton-new2-on.svg') !important;
 }

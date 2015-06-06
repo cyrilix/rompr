@@ -218,7 +218,7 @@ img.notexist,img.notfound
     position:absolute;
     left:0;
     bottom:0.2em;
-    background-image: url('togglebutton-off.svg');
+    background-image: url('togglebutton-new2-off.svg');
   background-size:contain;
   background-position: center;
   background-repeat:no-repeat;
@@ -226,5 +226,5 @@ img.notexist,img.notfound
 
 .styledinputs input:checked + label:before
 {
-    background-image: url('togglebutton-on.svg') !important;
+    background-image: url('togglebutton-new2-on.svg') !important;
 }
