@@ -1118,18 +1118,19 @@ function showUpdateWindow() {
         $("#fnarkler").append('<p align="center">'+language.gettext("intro_basicmanual")+' <a href="https://sourceforge.net/p/rompr/wiki/Basic%20Manual/" target="_blank">http://sourceforge.net/p/rompr/wiki/Basic%20Manual/</a></p>');
         $("#fnarkler").append('<p align="center">'+language.gettext("intro_forum")+' <a href="https://sourceforge.net/p/rompr/discussion/" target="_blank">http://sourceforge.net/p/rompr/discussion/</a></p>');
         $("#fnarkler").append('<p align="center">RompR needs translators! If you want to get involved, please read <a href="https://sourceforge.net/p/rompr/wiki/Translating%20RompR/" target="_blank">this</a></p>');
-        $("#fnarkler").append('<p align="center"><b>'+language.gettext("intro_mopidy")+'</b></p>');
-        $("#fnarkler").append('<p align="center"><a href="https://sourceforge.net/p/rompr/wiki/Rompr%20and%20Mopidy/" target="_blank">'+language.gettext("intro_mopidywiki")+'</a></p>');
-        $("#fnarkler").append('<p><button style="width:8em" class="tright" onclick="popupWindow.close()">OK</button></p>');
-        popupWindow.open();
-
-        if (prefs.player_backend == "mopidy") {
-            $("#artistinformation").prepend('<h2>Attention Mopidy User!</h2><p>Mopidy is changing. It is moving towards browse functionality and away from the global music collection it had the promise to be. As a result of this some of the functionality that Rompr relies upon is being removed from Mopidy.</p>'+
+        // $("#fnarkler").append('<p align="center"><b>'+language.gettext("intro_mopidy")+'</b></p>');
+        // $("#fnarkler").append('<p align="center"><a href="https://sourceforge.net/p/rompr/wiki/Rompr%20and%20Mopidy/" target="_blank">'+language.gettext("intro_mopidywiki")+'</a></p>');
+        if (prefs.player_backend == "mpd") {
+            $("#fnarkler").prepend('<h2>Attention Mopidy User!</h2><p>Mopidy is changing. It is moving towards browse functionality and away from the global music collection it had the promise to be. As a result of this some of the functionality that Rompr relies upon is being removed from Mopidy.</p>'+
                                                     '<p>This means that by the time Mopidy 2.0 comes out, and possibly before, Rompr will no longer be able to create its Music Collection or handle Playlists when it is used with Mopidy</p>'+
                                                     '<p>Much discussion with the Mopidy developers has failed to convince them to change their minds. Functionality that Rompr relies upon is being removed from Mopidy so it is with much sadness that I must announce that <b>Rompr No Longer Supports Mopidy</b></p>.'+
                                                     '<p>This is very sad, since most of my development focus over the last 18 months has been on Mopidy, then they changed their API and pulled out the very functions I was relying on.</p>'+
-                                                    '<p>Perhaps at some point in the future this will be able to be resolved but at the moment I am doubtful.</p>');
+                                                    '<p>Perhaps at some point in the future this will be able to be resolved. For now most functionality will continue to work but there will be no more support or bugfixing on Mopidy-specific issues unless the situation can be resolved.</p>');
         }
+
+        $("#fnarkler").append('<p><button style="width:8em" class="tright" onclick="popupWindow.close()">OK</button></p>');
+        popupWindow.open();
+
 
         prefs.save({shownupdatewindow: 0.63});
     }
