@@ -247,8 +247,13 @@ var info_spotify = function() {
 		            		}
 	            		}
                         images['masimg_'+imgcount] = img;
-	            		x.append('<img id="masimg_'+imgcount+'" class="masochist infoclick clickable draggable clicktrack" src="" width="'+w+'" name="'+data.items[i].uri+'"/>');
-	            		x.append('<div class="tagh albumthing"><i class="icon-toggle-closed menu infoclick clickopenalbum"></i><span class="title-menu infoclick draggable clickable clicktrack" name="'+data.items[i].uri+'">'+data.items[i].name+'</span></div>')
+                        if (player.canPlay("spotify")) {
+	            		    x.append('<img id="masimg_'+imgcount+'" class="masochist infoclick clickable draggable clicktrack" src="" width="'+w+'" name="'+data.items[i].uri+'"/>');
+	            		    x.append('<div class="tagh albumthing"><i class="icon-toggle-closed menu infoclick clickopenalbum"></i><span class="title-menu infoclick draggable clickable clicktrack" name="'+data.items[i].uri+'">'+data.items[i].name+'</span></div>');
+                        } else {
+                            x.append('<img id="masimg_'+imgcount+'" class="masochist clicktrack" src="" width="'+w+'"/>');
+                            x.append('<div class="tagh albumthing"><i class="icon-toggle-closed menu infoclick clickopenalbum"></i><span class="title-menu clicktrack">'+data.items[i].name+'</span><a href="'+data.items[i].external_urls['spotify']+'" target="_blank"><i class="icon-spotify-circled playlisticonr"></i></a></div>');
+                        }
 	            		x.append('<div class="tagh albumthing invisible" id="'+data.items[i].id+'"></div>')
                         imgcount++;
 	            	}
@@ -289,8 +294,13 @@ var info_spotify = function() {
 		            			}
 		            		}
 	            		}
-	            		x.append('<img class="masochist2 infoclick clickable draggable clicktrack" src="'+img+'" width="'+w+'" name="'+data.items[i].uri+'"/>');
-	            		x.append('<div class="tagh albumthing"><i class="icon-toggle-closed menu infoclick clickopenalbum"></i><span class="title-menu infoclick clickable draggable clicktrack" name="'+data.items[i].uri+'">'+data.items[i].name+'</span></div>')
+                        if (player.canPlay("spotify")) {
+	            		    x.append('<img class="masochist2 infoclick clickable draggable clicktrack" src="'+img+'" width="'+w+'" name="'+data.items[i].uri+'"/>');
+	            		    x.append('<div class="tagh albumthing"><i class="icon-toggle-closed menu infoclick clickopenalbum"></i><span class="title-menu infoclick clickable draggable clicktrack" name="'+data.items[i].uri+'">'+data.items[i].name+'</span></div>');
+                        } else {
+                            x.append('<img class="masochist2 clicktrack" src="'+img+'" width="'+w+'"/>');
+                            x.append('<div class="tagh albumthing"><i class="icon-toggle-closed menu infoclick clickopenalbum"></i><span class="title-menu clicktrack">'+data.items[i].name+'</span><a href="'+data.items[i].external_urls['spotify']+'" target="_blank"><i class="icon-spotify-circled playlisticonr"></i></a></div>');
+                        }
 	            		x.append('<div class="tagh albumthing invisible" id="'+data.items[i].id+'"></div>')
 	            	}
 	            	$("#"+id).menuReveal(browser.rePoint);
@@ -319,8 +329,13 @@ var info_spotify = function() {
 		            		}
 	            		}
                         images['masimg_'+imgcount] = img;
-	            		x.append('<img id="masimg_'+imgcount+'" class="masochist infoclick clickaddtrack" src="" width="'+w+'" name="'+data.artists[i].uri+'"/>');
-	            		x.append('<div class="tagh albumthing"><i class="icon-toggle-closed menu infoclick clickopenartist"></i><span class="title-menu infoclick clickaddtrack" name="'+data.artists[i].uri+'">'+data.artists[i].name+'</span></div>')
+                        if (player.canPlay("spotify")) {
+    	            		x.append('<img id="masimg_'+imgcount+'" class="masochist infoclick clickaddtrack" src="" width="'+w+'" name="'+data.artists[i].uri+'"/>');
+    	            		x.append('<div class="tagh albumthing"><i class="icon-toggle-closed menu infoclick clickopenartist"></i><span class="title-menu infoclick clickaddtrack" name="'+data.artists[i].uri+'">'+data.artists[i].name+'</span></div>');
+                        } else {
+                            x.append('<img id="masimg_'+imgcount+'" class="masochist clickaddtrack" src="" width="'+w+'"/>');
+                            x.append('<div class="tagh albumthing"><i class="icon-toggle-closed menu infoclick clickopenartist"></i><span class="title-menu clickaddtrack">'+data.artists[i].name+'</span><a href="'+data.artists[i].external_urls['spotify']+'" target="_blank"><i class="icon-spotify-circled playlisticonr"></i></a></div>');
+                        }
 	            		x.append('<div class="tagh albumthing invisible edged selecotron dropshadow" id="'+data.artists[i].id+'"></div>')
                         imgcount++;
 	            	}

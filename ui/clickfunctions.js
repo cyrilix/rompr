@@ -63,8 +63,8 @@ function onBrowserClicked(event) {
 
 function onBrowserDoubleClicked(event) {
     var clickedElement = findClickableBrowserElement(event);
-    debug.log("BROWSER","Was double clicked on element",clickedElement);
-    if (clickedElement.hasClass("draggable") && prefs.clickmode == "double") {
+    if (clickedElement.hasClass("infoclick") && clickedElement.hasClass("draggable") && prefs.clickmode == "double") {
+        debug.log("BROWSER","Was double clicked on element",clickedElement);
         debug.log("BROWSER","Track element was double clicked");
         event.preventDefault();
         playlist.addtrack(clickedElement);
