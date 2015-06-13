@@ -1132,11 +1132,15 @@ function do_playlists() {
     
     $playlists = do_mpd_command($connection, "listplaylists", null, true);
     if (!is_array($playlists)) {
-    $playlists = array();
+        $playlists = array();
     } else if (array_key_exists('playlist', $playlists) && !is_array($playlists['playlist'])) {
         $temp = $playlists['playlist'];
         $playlists = array();
         $playlists['playlist'][0] = $temp;
+    }
+    $plfiles = glob('prefs/userplaylists/*');
+    foreach ($plfiles as $f) {
+        $playlists['playlist'][] = basename($f);
     }
     if (array_key_exists('playlist', $playlists) && is_array($playlists['playlist'])) {
         print '<div class="cheesegrater" name="playlist">';
@@ -1163,7 +1167,7 @@ function do_playlists() {
                 $albums_without_cover++;
             }
 
-            print '<input type="hidden" value="Playlist '.$pl.'" />';
+            print '<input type="hidden" value="'.$pl.'" />';
             print '<img class="clickable clickicon clickalbumcover droppable'.$class.'" name="'.$artname.'" height="82px" width="82px" src="'.$src.'" />';
             print '</div>';
             print '<div class="albumimg fixed"><table><tr><td align="center">'.$pl.'</td></tr></table></div>';
@@ -1180,7 +1184,6 @@ function do_playlists() {
     }
 
 }
-
 
 function do_unused_images() {
     global $allfiles;

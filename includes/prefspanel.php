@@ -47,18 +47,22 @@ print '</select></div></div>';
 
 // Sources Panel Hiding
 print '<div class="textcentre configtitle"><b>'.get_int_text('settings_panels').'</b></div>';
-print '<div class="pref">
-<input class="autoset toggle" type="checkbox" id="hide_albumlist">'.get_int_text('config_hidealbumlist').'</input>
+print '<div class="pref styledinputs">
+<input class="autoset toggle" type="checkbox" id="hide_albumlist">
+<label for="hide_albumlist">'.get_int_text('config_hidealbumlist').'</label>
 </div>';
-print '<div class="pref">
-<input class="autoset toggle" type="checkbox" id="hide_filelist">'.get_int_text('config_hidefileslist').'</input>
+print '<div class="pref styledinputs">
+<input class="autoset toggle" type="checkbox" id="hide_filelist">
+<label for="hide_filelist">'.get_int_text('config_hidefileslist').'</label>
 </div>';
-print '<div class="pref">';
-print '<input class="autoset toggle" type="checkbox" id="hide_radiolist">'.get_int_text('config_hideradio').'</input>
+print '<div class="pref styledinputs">';
+print '<input class="autoset toggle" type="checkbox" id="hide_radiolist">
+<label for="hide_radiolist">'.get_int_text('config_hideradio').'</label>
 </div>';
 if ($skin == "desktop") {
-print '<div class="pref">
-<input class="autoset toggle" type="checkbox" id="hidebrowser">'.get_int_text('config_hidebrowser').'</input>
+print '<div class="pref styledinputs">
+<input class="autoset toggle" type="checkbox" id="hidebrowser">
+<label for="hidebrowser">'.get_int_text('config_hidebrowser').'</label>
 </div>';
 }
 
@@ -77,12 +81,16 @@ foreach($langname as $key => $value) {
 }
 print '</select></div></div>';
 
-print '<div class="pref">
+print '<div class="pref styledinputs">
 <b>'.get_int_text("config_lastfmlang").'</b><br/>
-<input type="radio" class="topcheck savulon" name="lastfmlang" value="default">'.get_int_text('config_lastfmdefault').'</input><br/>
-<input type="radio" class="topcheck savulon" name="lastfmlang" value="interface">'.get_int_text('config_lastfminterface').'</input><br/>
-<input type="radio" class="topcheck savulon" name="lastfmlang" value="browser">'.get_int_text('config_lastfmbrowser').'</input><br/>
-<input type="radio" class="topcheck savulon" name="lastfmlang" value="user">'.get_int_text('config_lastfmlanguser').'</input><input class="saveotron" id="user_lang" style="width:4em;margin-left:1em" type="text" size="4" /><br/>
+<input type="radio" class="topcheck savulon" name="lastfmlang" value="default" id="langdefault">
+<label for="langdefault">'.get_int_text('config_lastfmdefault').'</label><br/>
+<input type="radio" class="topcheck savulon" name="lastfmlang" value="interface" id="langint">
+<label for="langint">'.get_int_text('config_lastfminterface').'</label><br/>
+<input type="radio" class="topcheck savulon" name="lastfmlang" value="browser" id="langbr">
+<label for="langbr">'.get_int_text('config_lastfmbrowser').'</label><br/>
+<input type="radio" class="topcheck savulon" name="lastfmlang" value="user" id="languser">
+<label for="languser">'.get_int_text('config_lastfmlanguser').'</label><input class="saveotron" id="user_lang" style="width:4em;margin-left:1em" type="text" size="4" /><br/>
 <div class="tiny">'.get_int_text('config_langinfo').'</div>
 </div>';
 
@@ -95,17 +103,20 @@ print '</select></div></div>';
 
 // Collection Options
 print '<div class="textcentre ucfirst configtitle"><b>'.get_int_text('button_local_music').'</b></div>';
-print '<div class="pref">
-<input class="autoset toggle" type="checkbox" id="updateeverytime">'.get_int_text('config_updateonstart').'</input>
+print '<div class="pref styledinputs">
+<input class="autoset toggle" type="checkbox" id="updateeverytime">
+<label for="updateeverytime">'.get_int_text('config_updateonstart').'</label>
 </div>';
 if ($prefs['player_backend'] == "mopidy") {
-    print '<div class="pref">
-    <input class="autoset toggle" type="checkbox" id="ignore_unplayable">'.get_int_text('config_ignore_unplayable').'</input>
+    print '<div class="pref styledinputs">
+    <input class="autoset toggle" type="checkbox" id="ignore_unplayable">
+    <label for="ignore_unplayable">'.get_int_text('config_ignore_unplayable').'</label>
     </div>';
 }
 if ($prefs['apache_backend'] == "sql") {
-    print '<div class="pref">
-    <input class="autoset toggle" type="checkbox" id="onthefly">'.get_int_text('config_onthefly').'</input>
+    print '<div class="pref styledinputs">
+    <input class="autoset toggle" type="checkbox" id="onthefly">
+    <label for="onthefly">'.get_int_text('config_onthefly').'</label>
     </div>';
 }
 print '<div class="pref textcentre">
@@ -120,8 +131,9 @@ if ($prefs['player_backend'] == "mpd") {
 // Collection Sorting Options
 print '<div class="textcentre ucfirst configtitle"><b>'.get_int_text('config_sortoptions').'</b></div>';
 // Album Sorting
-print '<div class="pref">
-<input class="autoset toggle" type="checkbox" id="notvabydate">'.get_int_text('config_notvabydate').'</input><br/>
+print '<div class="pref styledinputs">
+<input class="autoset toggle" type="checkbox" id="notvabydate">
+<label for="notvabydate">'.get_int_text('config_notvabydate').'</label><br/>
 </div>';
 
 if ($prefs['apache_backend'] == "sql") {
@@ -132,11 +144,13 @@ if ($prefs['apache_backend'] == "sql") {
     <input class="saveotron prefinput arraypref" id="nosortprefixes" type="text" size="128" />
     </b></div>';
 }
-print '<div class="pref">
-<input class="autoset toggle" type="checkbox" id="sortbycomposer">'.get_int_text('config_sortbycomposer').'</input>
+print '<div class="pref styledinputs">
+<input class="autoset toggle" type="checkbox" id="sortbycomposer">
+<label for="sortbycomposer">'.get_int_text('config_sortbycomposer').'</label>
 </div>';
-print '<div class="pref indent">
-<input class="autoset toggle" type="checkbox" id="composergenre">'.get_int_text('config_composergenre').'</input>
+print '<div class="pref indent styledinputs">
+<input class="autoset toggle" type="checkbox" id="composergenre">
+<label for="composergenre">'.get_int_text('config_composergenre').'</label>
 </div>';
 print '<div class="pref indent">
 <input class="saveotron prefinput arraypref" id="composergenrename" type="text" size="40" />
@@ -144,8 +158,9 @@ print '<div class="pref indent">
 
 // Album Art
 print '<div class="textcentre configtitle"><b>'.get_int_text('albumart_title').'</b></div>';
-print '<div class="pref">
-<input class="autoset toggle" type="checkbox" id="downloadart">'.get_int_text('config_autocovers').'</input>
+print '<div class="pref styledinputs">
+<input class="autoset toggle" type="checkbox" id="downloadart">
+<label for="downloadart">'.get_int_text('config_autocovers').'</label>
 </div>
 <div class="pref">
 <div class="tiny">'.get_int_text('config_musicfolders').'</div>
@@ -154,17 +169,21 @@ print '<div class="pref">
 
 // Interface
 print '<div class="textcentre configtitle"><b>'.get_int_text('settings_interface').'</b></div>';
-print '<div class="pref">
-<input class="autoset toggle" type="checkbox" id="scrolltocurrent">'.get_int_text('config_autoscroll').'</input>
+print '<div class="pref styledinputs">
+<input class="autoset toggle" type="checkbox" id="scrolltocurrent">
+<label for="scrolltocurrent">'.get_int_text('config_autoscroll').'</label>
 </div>';
-print '<div class="pref">
-<input class="autoset toggle" type="checkbox" id="fullbiobydefault">'.get_int_text('config_fullbio').'</input>
+print '<div class="pref styledinputs">
+<input class="autoset toggle" type="checkbox" id="fullbiobydefault">
+<label for="fullbiobydefault">'.get_int_text('config_fullbio').'</label>
 </div>';
-print '<div class="pref">
-<input class="autoset toggle" type="checkbox" id="consumeradio">'.get_int_text('config_consumeradio').'</input>
+print '<div class="pref styledinputs">
+<input class="autoset toggle" type="checkbox" id="consumeradio">
+<label for="consumeradio">'.get_int_text('config_consumeradio').'</label>
 </div>';
-print '<div class="pref">
-<input class="autoset toggle" type="checkbox" id="displaycomposer">'.get_int_text('config_displaycomposer').'</input>
+print '<div class="pref styledinputs">
+<input class="autoset toggle" type="checkbox" id="displaycomposer">
+<label for="displaycomposer">'.get_int_text('config_displaycomposer').'</label>
 </div>';
 if ($skin != "phone") {
 print '<div class="pref textcentre"><button onclick="shortcuts.edit()">'.get_int_text('config_editshortcuts').'</button></div>'."\n";
@@ -172,13 +191,16 @@ print '<div class="pref textcentre"><button onclick="shortcuts.edit()">'.get_int
 
 // Click Policy
 print '<div class="textcentre configtitle"><b>'.get_int_text('config_clicklabel').'</b></div>';
-print '<div class="pref">';
-print '<input type="radio" class="topcheck savulon" name="clickmode" value="double">'.get_int_text('config_doubleclick').'</input><br/>
-<input type="radio" class="topcheck savulon" name="clickmode" value="single">'.get_int_text('config_singleclick').'</input><br>
+print '<div class="pref styledinputs">';
+print '<input type="radio" class="topcheck savulon" name="clickmode" value="double" id="clickd">
+<label for="clickd">'.get_int_text('config_doubleclick').'</label><br/>
+<input type="radio" class="topcheck savulon" name="clickmode" value="single" id="clicks">
+<label for="clicks">'.get_int_text('config_singleclick').'</label><br>
 </div>';
 if ($prefs['player_backend'] == "mpd") {
-print '<div class="pref">';
-print '<input class="autoset toggle" type="checkbox" id="mediacentremode">'.get_int_text('config_mediacentremode').'</input>
+print '<div class="pref styledinputs">';
+print '<input class="autoset toggle" type="checkbox" id="mediacentremode">
+<label for="mediacentremode">'.get_int_text('config_mediacentremode').'</label>
 </div>';
 }
 
@@ -196,14 +218,16 @@ print '<div class="textcentre configtitle">
 </div><div class="pref">'.get_int_text('config_lastfmusername');
 print '<br/><div class="containerbox"><div class="expand"><input class="enter" name="user" type="text" size="30" value="'.$prefs['lastfm_user'].'"/></div><button class="fixed" onclick="lastfmlogin()">'.get_int_text('config_loginbutton').'</button></div>';
 print '</div>';
-print '<div class="pref">
-<input class="autoset toggle" type="checkbox" id="lastfm_scrobbling">'.get_int_text('config_scrobbling').'</input>
+print '<div class="pref styledinputs">
+<input class="autoset toggle" type="checkbox" id="lastfm_scrobbling">
+<label for="lastfm_scrobbling">'.get_int_text('config_scrobbling').'</label>
 </div>
 <div class="pref">'.get_int_text('config_scrobblepercent').'<br/>
 <div id="scrobwrangler"></div>
 </div>
-<div class="pref">
-<input class="autoset toggle" type="checkbox" id="lastfm_autocorrect">'.get_int_text('config_autocorrect').'</input>
+<div class="pref styledinputs">
+<input class="autoset toggle" type="checkbox" id="lastfm_autocorrect">
+<label for="lastfm_autocorrect">'.get_int_text('config_autocorrect').'</label>
 </div>
 <div class="pref">'.get_int_text('config_tagloved').'
 <input class="prefinput saveotron" id="autotagname" type="text" size="40" />
@@ -214,13 +238,15 @@ if ($prefs['apache_backend'] == "sql") {
 print '<div class="textcentre configtitle">
 <b>'.get_int_text('config_tagrat').'</b>
 </div>
-<div class="pref">
-<input class="autoset toggle" type="checkbox" id="synctags">'.get_int_text('config_synctags').'</input>';
+<div class="pref styledinputs">
+<input class="autoset toggle" type="checkbox" id="synctags">
+<label for="synctags">'.get_int_text('config_synctags').'</label>';
 ?>
 </div>
 <div class="pref containerbox dropdown-container">
 <?php
-print '<div class="divlabel"><input class="autoset toggle" type="checkbox" id="synclove">'.get_int_text('config_loveis').'</input></div>';
+print '<div class="divlabel styledinputs"><input class="autoset toggle" type="checkbox" id="synclove">
+<label for="synclove">'.get_int_text('config_loveis').'</label></div>';
 ?>
 <div class="selectholder"><select id="synclovevalueselector" class="saveomatic">
 <?php

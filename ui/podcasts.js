@@ -324,8 +324,8 @@ var podcasts = function() {
 				case "SELECT":
 					options.val = element.val();
 					break;
-				case "INPUT":
-					options.val = element.is(':checked');
+				case "LABEL":
+					options.val = !element.prev().is(':checked');
 					break;
 			}
 			while(!element.hasClass('dropmenu')) {

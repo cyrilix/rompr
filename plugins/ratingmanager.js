@@ -6,7 +6,11 @@ var ratingManager = function() {
 	function putTracks(holder, tracks, title) {
 		var html = '<table align="center" style="border-collapse:collapse;width:96%"><tr class="tagh"><th colspan="3" align="center"><i class="icon-'+title+'-stars rating-icon-big"></i></th></tr>';
 		for (var i in tracks) {
-			html = html + '<tr class="infoclick draggable clickable clicktrack" name="'+encodeURIComponent(tracks[i].Uri)+'"><td width="40px"><img class="smallcover';
+			if (tracks[i].Uri && prefs.player_backend == "mpd" && tracks[i].Uri.match(/soundcloud:/)) {
+				html = html + '<tr class="infoclick draggable clickable clickcue" name="'+encodeURIComponent(tracks[i].Uri)+'"><td width="40px"><img class="smallcover';
+			} else {
+				html = html + '<tr class="infoclick draggable clickable clicktrack" name="'+encodeURIComponent(tracks[i].Uri)+'"><td width="40px"><img class="smallcover';
+			}
 			if (tracks[i].Image) {
 				html = html + '" src="'+tracks[i].Image;
 			} else {
@@ -138,36 +142,74 @@ var ratingManager = function() {
 	        var tracks = new Array();
 	        var rat = $(event.target).attr("id");
 	        rat = rat.replace(/ratman_/,'');
-	        $.each($('.selected'), function (index, element) {
+	        $.each($('.selected').filter(removeOpenItems), function (index, element) {
 	        	var uri = unescapeHtml(decodeURIComponent($(element).attr("name")));
 	        	debug.log("RATMANAGER","Dragged",uri,"to",rat);
-	        	tracks.push({
-	        		uri: uri,
-	        		artist: 'dummy',
-	        		title: 'dummy',
-	        		urionly: '1',
-	        		dontcreate: '1',
-	        		action: 'set',
-	        		attributes: [{ attribute: 'Rating', value: rat }]
-	        	});
+	        	if ($(element).hasClass('clickalbum')) {
+		        	tracks.push({
+		        		uri: uri,
+		        		action: 'geturis',
+		        		attributes: [{ attribute: 'Rating', value: rat }]
+		        	});
+	        	} else {
+		        	tracks.push({
+		        		uri: uri,
+		        		artist: 'dummy',
+		        		title: 'dummy',
+		        		urionly: '1',
+		        		dontcreate: '1',
+		        		action: 'set',
+		        		attributes: [{ attribute: 'Rating', value: rat }]
+		        	});
+		        }
 	        });
 	        (function dotags() {
 	        	var track = tracks.shift();
 	        	if (track) {
-	        		$.ajax({
-	        			url: "backends/sql/userRatings.php",
-	        			type: "POST",
-	        			data: track,
-	        			dataType: 'json',
-	        			success: function(rdata) {
-	        				updateCollectionDisplay(rdata);
-	        				dotags();
-	        			},
-	        			error: function() {
-	        				infobar.notify(infobar.ERROR, "Failed To Set Rating");
-	        				dotags();
-	        			}
-	        		});
+	        		if (track.action == 'geturis') {
+		        		$.ajax({
+		        			url: "backends/sql/userRatings.php",
+		        			type: "POST",
+		        			data: track,
+		        			dataType: 'json',
+		        			success: function(rdata) {
+		        				for (var i in rdata) {
+		        					var u = rdata[i];
+		        					u = u.replace(/ \"/,'');
+		        					u = u.replace(/\"$/, '');
+		        					tracks.push({
+						        		uri: u,
+						        		artist: 'dummy',
+						        		title: 'dummy',
+						        		urionly: '1',
+						        		dontcreate: '1',
+						        		action: 'set',
+						        		attributes: track.attributes
+		        					});
+		        				}
+		        				dotags();
+		        			},
+		        			error: function() {
+		        				infobar.notify(infobar.ERROR, "Failed To Set Rating on Item");
+		        				dotags();
+		        			}
+		        		});
+	        		} else {
+		        		$.ajax({
+		        			url: "backends/sql/userRatings.php",
+		        			type: "POST",
+		        			data: track,
+		        			dataType: 'json',
+		        			success: function(rdata) {
+		        				updateCollectionDisplay(rdata);
+		        				dotags();
+		        			},
+		        			error: function() {
+		        				infobar.notify(infobar.ERROR, "Failed To Set Rating");
+		        				dotags();
+		        			}
+		        		});
+		        	}
 	        	} else {
 	        		tracks = null;
 	        		reloadRatList(rat);

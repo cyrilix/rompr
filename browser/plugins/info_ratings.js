@@ -82,7 +82,12 @@ var info_ratings = function() {
                     data.album = parent.playlistinfo.album;
                 }
                 if (parent.playlistinfo.type == "local" || parent.playlistinfo.type == "podcast") {
-                    data.uri = parent.playlistinfo.location;
+                    if (parent.playlistinfo.location.match(/api\.soundcloud\.com\/tracks\/(\d+)\//) && prefs.player_backend == "mpd") {
+                        var sc = parent.playlistinfo.location.match(/api\.soundcloud\.com\/tracks\/(\d+)\//);
+                        data.uri = "soundcloud://track/"+sc[1];
+                    } else {
+                        data.uri = parent.playlistinfo.location;
+                    }
                 }
                 if (parent.playlistinfo.date) {
                     data.date = parent.playlistinfo.date;

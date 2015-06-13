@@ -18,6 +18,7 @@ $current_album = "";
 $abm = false;
 $current_domain = "local";
 $playlist = array();
+$putinplaylistarray = false;
 
 $count = 1;
 $divtype = "album1";
@@ -417,7 +418,7 @@ class musicCollection {
                                 $spotialbum, $spotiartist, $domain, $cuefile, $lastmodified,
                                 $linktype, $composer, $performers) {
 
-        global $current_album, $current_artist, $abm, $current_domain, $playlist, $prefs, $backend_in_use, $trackbytrack;
+        global $current_album, $current_artist, $abm, $current_domain, $playlist, $prefs, $backend_in_use, $trackbytrack, $putinplaylistarray;
 
         if ($prefs['ignore_unplayable'] && substr($name, 0, 12) == "[unplayable]") {
             debug_print("Ignoring unplayable track ".$file,"COLLECTION");
@@ -571,6 +572,8 @@ class musicCollection {
 
         if ($playlistpos !== null) {
             $playlist[$playlistpos] = $t;
+        } else if ($putinplaylistarray) {
+            $playlist[] = $t;
         }
     }
 
@@ -789,6 +792,18 @@ function process_file(&$filedata) {
         // Some backends don't report folders and will therefore all be grouped under
         // Various Artists. Prevent this by making sure it's something meaningful and unique
         case "soundcloud":
+            if ($prefs['player_backend'] == "mpd") {
+                if (array_key_exists('Name', $filedata)) {
+                    $name = unwanted_array($filedata['Name']);
+                    $album = "SoundCloud";
+                    $arse = explode(' - ',$name);
+                    $artist = $arse[0];
+                } else {
+                    $artist = "Unknown Artist";
+                    $name = "Unknown Track";
+                    $album = "SoundCloud";
+                }
+            }
         case "youtube":
             $folder = concatenate_artist_names($artist);
             break;

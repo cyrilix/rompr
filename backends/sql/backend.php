@@ -890,24 +890,31 @@ function get_list_of_albums($aid) {
 	return $vals;
 }
 
-function get_album_tracks_from_database($index) {
+function get_album_tracks_from_database($index, $cmd = null) {
 	$retarr = array();
 	debug_print("Getting Album Tracks for Albumindex ".$index,"MYSQL");
 	$qstring = "SELECT Uri, Title FROM Tracktable WHERE Albumindex = '".$index."' AND Uri IS NOT NULL AND Hidden=0 ORDER BY Disc, TrackNo";
 	if ($result = generic_sql_query($qstring)) {
 		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
-			if ((string) $obj->Title == "Cue Sheet" || (string) $obj->Title == "M3U Playlist") {
-				$retarr = array("load ".$obj->Uri);
-				break;
+			if ($cmd === null) {
+				if ((string) $obj->Title == "Cue Sheet" || (string) $obj->Title == "M3U Playlist") {
+					$retarr = array("load ".$obj->Uri);
+					break;
+				} else {
+					array_push($retarr, "add ".$obj->Uri);
+				}
 			} else {
-				array_push($retarr, "add ".$obj->Uri);
+				if ((string) $obj->Title == "Cue Sheet" || (string) $obj->Title == "M3U Playlist") {
+				} else {
+					array_push($retarr, $cmd.' "'.$obj->Uri.'"');
+				}
 			}
 		}
 	}
 	return $retarr;
 }
 
-function get_artist_tracks_from_database($index) {
+function get_artist_tracks_from_database($index, $cmd = null) {
 	global $prefs;
 	$retarr = array();
 	debug_print("Getting Tracks for AlbumArtist ".$index,"MYSQL");
@@ -920,7 +927,7 @@ function get_artist_tracks_from_database($index) {
 	}
 	if ($result = generic_sql_query($qstring)) {
 		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
-			$retarr = array_merge($retarr, get_album_tracks_from_database($obj->Albumindex));
+			$retarr = array_merge($retarr, get_album_tracks_from_database($obj->Albumindex, $cmd));
 		}
 	}
 	return $retarr;
@@ -1573,20 +1580,20 @@ function createAlbumsList($file, $prefix) {
 	doDatabaseMagic();
 }
 
-function getItemsToAdd($which) {
+function getItemsToAdd($which, $cmd = null) {
     $t = substr($which, 1, 3);
     if ($t == "art") {
         $a = preg_match("/aartist(\d+)/", $which, $matches);
         if (!$a) {
             return array();
         }
-        return get_artist_tracks_from_database($matches[1]);
+        return get_artist_tracks_from_database($matches[1], $cmd);
     } else {
         $a = preg_match("/aalbum(\d+)/", $which, $matches);
         if (!$a) {
             return array();
         }
-        return get_album_tracks_from_database($matches[1]);
+        return get_album_tracks_from_database($matches[1], $cmd);
     }
 }
 

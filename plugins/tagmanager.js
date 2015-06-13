@@ -6,7 +6,11 @@ var tagManager = function() {
 	function putTracks(holder, tracks, title) {
 		var html = '<table align="center" style="border-collapse:collapse;width:96%"><tr class="tagh"><th colspan="2" align="center">'+title+'</th><th width="20px"><i class="icon-cancel-circled playlisticon clickicon infoclick plugclickable clickdeltag"></i></th></tr>';
 		for (var i in tracks) {
-			html = html + '<tr class="infoclick draggable clickable clicktrack" name="'+encodeURIComponent(tracks[i].Uri)+'"><td width="40px"><img class="smallcover';
+			if (tracks[i].Uri && prefs.player_backend == "mpd" && tracks[i].Uri.match(/soundcloud:/)) {
+				html = html + '<tr class="infoclick draggable clickable clickcue" name="'+encodeURIComponent(tracks[i].Uri)+'"><td width="40px"><img class="smallcover';
+			} else {
+				html = html + '<tr class="infoclick draggable clickable clicktrack" name="'+encodeURIComponent(tracks[i].Uri)+'"><td width="40px"><img class="smallcover';
+			}
 			if (tracks[i].Image) {
 				html = html + '" src="'+tracks[i].Image;
 			} else {
@@ -111,6 +115,9 @@ var tagManager = function() {
 
 		createTag: function() {
 			var tagname = $('[name=newtagnameinput]').val();
+			if (tagname == "" || typeof tagname == "undefined") {
+				return;
+			}
 			holders[tagname] = $('<div>', {class: 'tagholder', id: 'tagman_'+tagname}).prependTo($("#tagmunger"));
 			putTracks(holders[tagname],[],tagname);
 			holders[tagname].droppable({
@@ -127,35 +134,73 @@ var tagManager = function() {
 	        var tracks = new Array();
 	        var tag = $(event.target).attr("id");
 	        tag = tag.replace(/tagman_/,'');
-	        $.each($('.selected'), function (index, element) {
+	        $.each($('.selected').filter(removeOpenItems), function (index, element) {
 	        	var uri = unescapeHtml(decodeURIComponent($(element).attr("name")));
 	        	debug.log("TAGMANAGER","Dragged",uri,"to",tag);
-	        	tracks.push({
-	        		uri: uri,
-	        		artist: 'dummy',
-	        		title: 'dummy',
-	        		urionly: '1',
-	        		dontcreate: '1',
-	        		action: 'set',
-	        		attributes: [{attribute: 'Tags', value: [tag]}]
-	        	});
+	        	if ($(element).hasClass('clickalbum')) {
+		        	tracks.push({
+		        		uri: uri,
+		        		action: 'geturis',
+		        		attributes: [{attribute: 'Tags', value: [tag]}]
+		        	});
+		        } else {
+		        	tracks.push({
+		        		uri: uri,
+		        		artist: 'dummy',
+		        		title: 'dummy',
+		        		urionly: '1',
+		        		dontcreate: '1',
+		        		action: 'set',
+		        		attributes: [{attribute: 'Tags', value: [tag]}]
+		        	});
+		        }
 	        });
 	        (function dotags() {
 	        	var track = tracks.shift();
 	        	if (track) {
-	        		$.ajax({
-	        			url: "backends/sql/userRatings.php",
-	        			type: "POST",
-	        			data: track,
-	        			dataType: 'json',
-	        			success: function(rdata) {
-	        				dotags();
-	        			},
-	        			error: function() {
-	        				infobar.notify(infobar.ERROR, "Failed To Set Tag");
-	        				dotags();
-	        			}
-	        		});
+	        		if (track.action == 'geturis') {
+		        		$.ajax({
+		        			url: "backends/sql/userRatings.php",
+		        			type: "POST",
+		        			data: track,
+		        			dataType: 'json',
+		        			success: function(rdata) {
+		        				for (var i in rdata) {
+		        					var u = rdata[i];
+		        					u = u.replace(/ \"/,'');
+		        					u = u.replace(/\"$/, '');
+		        					tracks.push({
+						        		uri: u,
+						        		artist: 'dummy',
+						        		title: 'dummy',
+						        		urionly: '1',
+						        		dontcreate: '1',
+						        		action: 'set',
+						        		attributes: track.attributes
+		        					});
+		        				}
+		        				dotags();
+		        			},
+		        			error: function() {
+		        				infobar.notify(infobar.ERROR, "Failed To Set Tags on Item");
+		        				dotags();
+		        			}
+		        		});
+	        		} else {
+		        		$.ajax({
+		        			url: "backends/sql/userRatings.php",
+		        			type: "POST",
+		        			data: track,
+		        			dataType: 'json',
+		        			success: function(rdata) {
+		        				dotags();
+		        			},
+		        			error: function() {
+		        				infobar.notify(infobar.ERROR, "Failed To Set Tag");
+		        				dotags();
+		        			}
+		        		});
+		        	}
 	        	} else {
 	        		tracks = null;
 	        		reloadTagList(tag);

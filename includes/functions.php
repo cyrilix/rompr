@@ -160,8 +160,13 @@ function alistheader($nart, $nalb, $ntra, $tim) {
 }
 
 function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duration, $lm, $image) {
+    global $prefs;
     if ($artist || $rating > 0) {
-        print '<div class="clickable clicktrack ninesix draggable indent containerbox vertical padright" name="'.$url.'">';
+        if ($prefs['player_backend'] == "mpd" && getDomain($url) == "soundcloud") {
+            print '<div class="clickable clickcue ninesix draggable indent containerbox vertical padright" name="'.$url.'">';
+        } else {
+            print '<div class="clickable clicktrack ninesix draggable indent containerbox vertical padright" name="'.$url.'">';
+        }
         print '<div class="containerbox line">';
     } else if ($name == "Cue Sheet" || $name == "M3U Playlist") {
         print '<div class="clickable clickcue ninesix draggable indent containerbox padright line bold" name="'.$url.'">';
@@ -553,9 +558,14 @@ function getDomain($d) {
         return "local";
     }
     $d = urldecode($d);
-    $a = substr($d,0,strpos($d, ":"));
+    $pos = strpos($d, ":");
+    $a = substr($d,0,$pos);
     if ($a == "") {
-        $a = "local";
+        return "local";
+    }
+    $s = substr($d,$pos+3,15);
+    if ($s == "api.soundcloud.") {
+        return "soundcloud";
     }
     return $a;
 }

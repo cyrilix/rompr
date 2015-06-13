@@ -11,20 +11,34 @@ var charts = function() {
 				html = html + '<td><b>'+language.gettext(i)+'</b></td>';
 			}
 		}
+		var maxplays = data[0].soundcloud_plays;
+		debug.log("CHARTS","Max plays for",title,"is",maxplays);
 		html = html + '</tr>';
 		for (var i in data) {
 			if (data[i].uri) {
-				html = html + '<tr class="infoclick draggable clickable clicktrack backhi" name="'+encodeURIComponent(data[i].uri)+'">';
+				if (prefs.player_backend == "mpd" && data[i].uri.match(/soundcloud:/)) {
+					html = html + '<tr class="infoclick draggable clickable clickcue backhi" name="'+encodeURIComponent(data[i].uri)+'">';
+				} else {
+					html = html + '<tr class="infoclick draggable clickable clicktrack backhi" name="'+encodeURIComponent(data[i].uri)+'">';
+				}
 			} else {
 				html = html + '<tr>';
 			}
+			var n = 0;
 			for (var j in data[i]) {
 				if (j != "uri") {
 					html = html + '<td>'+data[i][j]+'</td>';
 				}
+				n++;
 			}
+			html = html + '</tr>';
+
+			var percent = (data[i].soundcloud_plays/maxplays)*100;
+			html = html + '<tr style="height:4px"><td colspan="'+n+'" style="background:linear-gradient(to right, '+getrgbs(percent)+'"></td></tr>';
+			html = html + '<tr style="height:0.75em"><td colspan="'+n+'"></td></tr>';
+
 		}
-		html = html + '</tr></table>';
+		html = html + '</table>';
 		holder.html(html);
 	}
 

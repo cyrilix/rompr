@@ -438,6 +438,7 @@ var infobar = function() {
             if (player.status.error && player.status.error != null) {
                 infobar.notify(infobar.ERROR, language.gettext("label_playererror")+": "+player.status.error);
                 player.controller.clearerror();
+                playlist.repopulate();
             }
         },
 

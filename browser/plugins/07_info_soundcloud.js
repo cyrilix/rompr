@@ -194,12 +194,15 @@ var info_soundcloud = function() {
 		            	if (trackmeta.soundcloud === undefined) {
 		            		trackmeta.soundcloud = {};
 			            	var t = parent.playlistinfo.location;
-			            	if (t.substring(0,11) !== 'soundcloud:') {
+			            	if (t.substring(0,11) == 'soundcloud:') {
+		                		soundcloud.getTrackInfo(parent.playlistinfo.location, self.track.scResponseHandler);
+		                	} else if (t.match(/api\.soundcloud\.com\/tracks\/(\d+)\//)) {
+		                		var sc = t.match(/api\.soundcloud\.com\/tracks\/(\d+)\//);
+		                		soundcloud.getTrackInfo(sc[1], self.track.scResponseHandler);
+			            	} else {
 			            		trackmeta.soundcloud.track = {error: language.gettext("soundcloud_not")};
 			            		self.artist.populate();
 			            		self.track.doBrowserUpdate();
-			            	} else {
-		                		soundcloud.getTrackInfo(parent.playlistinfo.location, self.track.scResponseHandler);
 			                }
 			            } else {
 			            	self.artist.populate();
@@ -288,6 +291,4 @@ var info_soundcloud = function() {
 	}
 }();
 
-if (prefs.player_backend == "mopidy") {
-	nowplaying.registerPlugin("soundcloud", info_soundcloud, "icon-soundcloud-circled", "button_soundcloud");
-}
+nowplaying.registerPlugin("soundcloud", info_soundcloud, "icon-soundcloud-circled", "button_soundcloud");

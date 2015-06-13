@@ -1,5 +1,6 @@
 <?php
 chdir('../..');
+// This code is officially abysmal
 include ("includes/vars.php");
 include ("includes/functions.php");
 include ("player/mpd/sockets.php");
@@ -13,6 +14,9 @@ foreach($_POST['commands'] as $cmd) {
             $apache_backend = $prefs['apache_backend'];
             break;
         }
+    } else if ($part1 == "playlistadd" && preg_match("/(aalbum\d+)\"/", $cmd)) {
+        $apache_backend = $prefs['apache_backend'];
+        break;
     }
 }
 
@@ -35,7 +39,15 @@ if($is_connected) {
         if ($part1 == "additem") {
             $part2 = substr($cmd, $cmdstart+1, strlen($cmd));
             debug_print("Adding Item ".$part2,"POSTCOMMAND");
-            $cmds = array_merge($cmds, getItemsToAdd($part2));
+            $cmds = array_merge($cmds, getItemsToAdd($part2, null));
+        } else if ($part1 == "playlistadd") {
+            $matches = array();
+            if (preg_match("/(aalbum\d+)\"/", $cmd, $matches)) {
+                debug_print("playlistadd item ".$matches[1],"POSTCOMMAND");
+                $cmds = array_merge($cmds, getItemsToAdd($matches[1], preg_replace('/ \"'.$matches[1].'\"/','',$cmd)));
+            } else {
+                array_push($cmds, $cmd);
+            }
         } else {
             array_push($cmds, $cmd);
         }
@@ -45,8 +57,8 @@ if($is_connected) {
     foreach ($cmds as $cmd) {
         $cmdstart = strpos($cmd, " ");
         $part1 = substr($cmd, 0, $cmdstart);
-        if ($part1 == "move") {
-            // NASTY HACK! Not even sure we use this file for move commands!!
+        if ($part1 == "move" || $part1 == "playlistadd" || $part1 == "playlistmove") {
+            // NASTY HACK! 
             debug_print("Command List: ".$cmd,"POSTCOMMAND");
             fputs($connection, $cmd."\n");
         } else {

@@ -626,3 +626,8 @@ tr.clickaddtrack:hover
 {
     background:rgba(0,0,0,0.75) !important;
 }
+
+#dragger
+{
+    background-color:rgba(0,0,0,0.5);
+}

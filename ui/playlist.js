@@ -279,7 +279,7 @@ function Playlist() {
             switch (elementmoved) {
                 case "track":
                     var firstitem = parseInt(ui.item.attr("name"));
-                    var numitems = 1;F
+                    var numitems = 1;
                     break;
                 case "item":
                     var firstitem = tracklist[parseInt(ui.item.attr("name"))].getFirst();
@@ -294,22 +294,6 @@ function Playlist() {
             }
             scrollto = 1;
             player.controller.move(firstitem, numitems, moveto);
-        } else {
-            return false;
-        }
-    }
-
-    function removeOpenItems(index) {
-        if ($(this).hasClass('clicktrack') || $(this).hasClass('clickcue')) {
-            return true;
-        }
-        // Filter out artist and album items whose dropdowns have been populated -
-        // In these cases the individual tracks will exist and will be selected
-        // (and might only have partial selections even if the header is selected)
-        if ($("#"+$(this).attr('name')).length == 0) {
-            return true;
-        } else if ($("#"+$(this).attr('name')).hasClass('notfilled') || $(this).hasClass('onefile')) {
-            return true;
         } else {
             return false;
         }

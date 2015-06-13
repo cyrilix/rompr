@@ -414,26 +414,26 @@ function doPodcast($c) {
 
     print '</div>';
 
-    print '<div class="containerbox fixed bumpad">';
-    print '<input title="'.get_int_text("podcast_kd_tooltip").'" type="checkbox" class="topcheck fridge" name="keepdownloaded" onclick="podcasts.changeOption(event)"';
+    print '<div class="containerbox fixed bumpad styledinputs">';
+    print '<input type="checkbox" class="topcheck" id="podkd"';
     if ($y->keepdownloaded == "true") {
         print ' checked';
     }
-    print '>'.get_int_text("podcast_keep_downloaded").'</input></div>';
+    print '><label for="podkd" class="fridge" title="'.get_int_text("podcast_kd_tooltip").'" name="keepdownloaded" onclick="podcasts.changeOption(event)">'.get_int_text("podcast_keep_downloaded").'</label></div>';
 
-    print '<div class="containerbox fixed bumpad">';
-    print '<input type="checkbox" class="topcheck podautodown" name="autodownload" onclick="podcasts.changeOption(event)"';
+    print '<div class="containerbox fixed bumpad styledinputs">';
+    print '<input type="checkbox" class="topcheck podautodown" id="podad"';
     if ($y->autodownload == "true") {
         print ' checked';
     }
-    print '>'.get_int_text("podcast_auto_download").'</input></div>';
+    print '><label for="podad" name="autodownload" onclick="podcasts.changeOption(event)">'.get_int_text("podcast_auto_download").'</label></div>';
 
-    print '<div class="containerbox fixed bumpad">';
-    print '<input type="checkbox" class="topcheck fridge" name="hidedescriptions" onclick="podcasts.changeOption(event)"';
+    print '<div class="containerbox fixed bumpad styledinputs">';
+    print '<input type="checkbox" class="topcheck" id="podhd"';
     if ($y->hidedescriptions == "true") {
         print ' checked';
     }
-    print '>'.get_int_text("podcast_hidedescriptions").'</input></div>';
+    print '><label for="podhd" name="hidedescriptions" onclick="podcasts.changeOption(event)">'.get_int_text("podcast_hidedescriptions").'</label></div>';
 
     print '</div>';
     if ($y->sortmode == "oldestfirst") {

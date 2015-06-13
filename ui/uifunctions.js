@@ -414,7 +414,7 @@ var imagePopup = function() {
                                           src: image.src });
 
                     imagecontainer.fadeIn('slow');
-                    wikipopup.append($('<i>', {class: 'icon-cancel-circled playlisticon tright', style: 'margin-top:4px;margin-right:4px'}));
+                    wikipopup.append($('<i>', {class: 'icon-cancel-circled playlisticon tright clickicon', style: 'margin-top:4px;margin-right:4px'}));
                 }
             );
         },
@@ -441,7 +441,7 @@ var popupWindow = function() {
     var closeCall = null;
 
     return {
-        create:function(w,h,id,shrink,title) {
+        create:function(w,h,id,shrink,title,xpos,ypos) {
             if (popup == null) {
                 popup = document.createElement('div');
                 $(popup).addClass("popupwindow");
@@ -465,8 +465,13 @@ var popupWindow = function() {
             var lsize = layoutProcessor.maxPopupSize(winsize);
             if (lsize.width > w) { lsize.width = w; }
             if (lsize.height > h) { lsize.height = h; }
-            var x = (winsize.x - lsize.width)/2 + windowScroll.x;
-            var y = (winsize.y - lsize.height)/2 + windowScroll.y;
+            if (typeof xpos == "undefined") {
+                var x = (winsize.x - lsize.width)/2 + windowScroll.x;
+                var y = (winsize.y - lsize.height)/2 + windowScroll.y;
+            } else {
+                var x = Math.min(xpos, (winsize.x - lsize.width));
+                var y = ypos;
+            }
             popup.style.width = parseInt(lsize.width) + 'px';
             userheight = lsize.height;
             if (!shrink) {
@@ -759,6 +764,19 @@ function handleDropRadio(ev) {
     setTimeout(function() { doInternetRadio('yourradioinput') }, 1000);
 }
 
+function getrgbs(percent) {
+    if (percent > 100) {
+        percent = 100;
+    }
+    var lowr = Math.round(150 + percent/2);
+    var lowg= Math.round(75 + percent/2);
+    var highr = Math.round(180 + percent/1.5);
+    var highg= Math.round(90 + percent/1.5);
+
+    return "rgba("+lowr+","+lowg+",0,0.75) 0%,rgba("+highr+","+highg+",0,1) "+percent+"%,rgba(0,0,0,0.1) "+percent+"%,rgba(0,0,0,0.1) 100%)";
+
+}
+
 function progressBar(divname, orientation) {
 
     var jobject = $("#"+divname);
@@ -778,39 +796,28 @@ function progressBar(divname, orientation) {
 
     this.setProgress = function(percent) {
 
-        if (percent > 100) {
-            percent = 100;
-        }
-        var lowr = Math.round(150 + percent/2);
-        var lowg= Math.round(75 + percent/2);
-        var highr = Math.round(180 + percent/1.5);
-        var highg= Math.round(90 + percent/1.5);
-
-        var rgbs = "rgba("+lowr+","+lowg+",0,0.75) 0%,rgba("+highr+","+highg+",0,1) "+percent+"%,rgba(0,0,0,0.1) "+percent+"%,rgba(0,0,0,0.1) 100%)";
+        var rgbs = getrgbs(percent);
         var gradients = new Array();
 
-        // Web standards. Don'cha love 'em?
-        // W3C, recent webkit, firefox, opera, IE10, old webkit. In that order
-        // Yes, I even put the one for IE in here. Why?
         if (orientation == "horizontal") {
             gradients.push("linear-gradient(to right, "+rgbs);
-            gradients.push("-webkit-linear-gradient(left, "+rgbs);
+            // gradients.push("-webkit-linear-gradient(left, "+rgbs);
             gradients.push("-moz-linear-gradient(left, "+rgbs);
             gradients.push("-o-linear-gradient(left, "+rgbs);
-            gradients.push("-ms-linear-gradient(left, "+rgbs);
+            // gradients.push("-ms-linear-gradient(left, "+rgbs);
         } else {
             gradients.push("linear-gradient(to top, "+rgbs);
-            gradients.push("-webkit-linear-gradient(bottom, "+rgbs);
+            // gradients.push("-webkit-linear-gradient(bottom, "+rgbs);
             gradients.push("-moz-linear-gradient(bottom, "+rgbs);
             gradients.push("-o-linear-gradient(bottom, "+rgbs);
-            gradients.push("-ms-linear-gradient(bottom, "+rgbs);
+            // gradients.push("-ms-linear-gradient(bottom, "+rgbs);
         }
-        rgbs = "color-stop(0%,rgba("+lowr+","+lowg+",0,0.75)), color-stop("+percent+"%,rgba("+highr+","+highg+",0,1)), color-stop("+percent+"%,rgba(0,0,0,0.1)), color-stop(100%,rgba(0,0,0,0.1)))";
-        if (orientation == "horizontal") {
-            gradients.push("-webkit-gradient(linear, left top, right top, "+rgbs);
-        } else {
-            gradients.push("-webkit-gradient(linear, left bottom, left top, "+rgbs);
-        }
+        // rgbs = "color-stop(0%,rgba("+lowr+","+lowg+",0,0.75)), color-stop("+percent+"%,rgba("+highr+","+highg+",0,1)), color-stop("+percent+"%,rgba(0,0,0,0.1)), color-stop(100%,rgba(0,0,0,0.1)))";
+        // if (orientation == "horizontal") {
+        //     gradients.push("-webkit-gradient(linear, left top, right top, "+rgbs);
+        // } else {
+        //     gradients.push("-webkit-gradient(linear, left bottom, left top, "+rgbs);
+        // }
         for (var i in gradients) {
             jobject.css("background", gradients[i]);
         }
@@ -1136,4 +1143,19 @@ function showUpdateWindow() {
     }
 }
 
+function removeOpenItems(index) {
+    if ($(this).hasClass('clicktrack') || $(this).hasClass('clickcue')) {
+        return true;
+    }
+    // Filter out artist and album items whose dropdowns have been populated -
+    // In these cases the individual tracks will exist and will be selected
+    // (and might only have partial selections even if the header is selected)
+    if ($("#"+$(this).attr('name')).length == 0) {
+        return true;
+    } else if ($("#"+$(this).attr('name')).hasClass('notfilled') || $(this).hasClass('onefile')) {
+        return true;
+    } else {
+        return false;
+    }
+}
 

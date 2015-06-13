@@ -388,6 +388,11 @@ switch ($_POST['action']) {
 		print json_encode($charts);
 		break;
 
+	case 'geturis':
+		$uris = getItemsToAdd($uri, "");
+		print json_encode($uris);
+		break;
+
 }
 
 close_transaction();

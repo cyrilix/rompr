@@ -401,3 +401,8 @@ tr.clickaddtrack:hover
 {
     border-top:1px solid #000000;
 }
+
+#dragger
+{
+    background-color:rgba(0,0,0,0.3);
+}

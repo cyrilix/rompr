@@ -107,6 +107,20 @@ if ($mopidy_detected) {
         askForMpdValues(get_int_text("setup_connecterror").$mpd_status['error']);
         exit();
     }
+
+    if ($prefs['unix_socket'] != '') {
+        // If we're connected by a local socket we can read the music directory
+        $arse = do_mpd_command($connection, 'config', null, true);
+        if (array_key_exists('music_directory', $arse)) {
+            debug_print("Music Directory Is ".$arse['music_directory'],"INIT");
+            $prefs['music_directory'] = $arse['music_directory'];
+            if (is_link("prefs/MusicFolders")) {
+                system ("unlink prefs/MusicFolders");
+            }
+            system ('ln -s "'.$arse['music_directory'].'" prefs/MusicFolders');
+        }
+    }
+
     close_mpd($connection);
     $prefs['player_backend'] = "mpd";
 }

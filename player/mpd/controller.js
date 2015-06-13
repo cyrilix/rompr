@@ -7,6 +7,8 @@ function playerController() {
     var previoussongid = null;
     var AlanPartridge = 0;
     var plversion = null;
+    var openpl = null;
+    var oldplname;
 
     function updateStreamInfo() {
 
@@ -198,6 +200,10 @@ function playerController() {
 	this.reloadPlaylists = function() {
         $.get("player/mpd/loadplaylists.php", function(data) {
             $("#storedplaylists").html(data);
+            if (openpl !== null) {
+                $("#storedplaylists").find('input[name="'+openpl+'"]').first().next().click();
+                openpl = null;
+            }
         });
 	}
 
@@ -206,9 +212,124 @@ function playerController() {
         return false;
 	}
 
-	this.deletePlaylist = function(name) {
-		self.fastcommand('command=rm&arg='+name, self.reloadPlaylists);
+    this.loadPlaylistURL = function(name) {
+        var data = {url: encodeURIComponent(name)};
+        $.ajax( {
+            type: "GET",
+            url: "utils/getUserPlaylist.php",
+            cache: false,
+            data: data,
+            dataType: "xml",
+            success: function(data) {
+                self.reloadPlaylists();
+            },
+            error: function(data, status) {
+                playlist.repopulate();
+                debug.error("MPD","Failed to save user playlist URL");
+            }
+        } );
+        self.command('command=load&arg='+name);
+        return false;
+    }
+
+	this.deletePlaylist = function(name, callback) {
+        openpl = null;
+        if (callback) {
+            self.fastcommand('command=rm&arg='+name, callback);
+        } else {
+    		self.fastcommand('command=rm&arg='+name, function() {
+                self.reloadPlaylists();
+                if (playlistManager) {
+                    playlistManager.reloadAll();
+                }
+            });
+        }
 	}
+
+    this.deleteUserPlaylist = function(name) {
+        openpl = null;
+        var data = {del: encodeURIComponent(name)};
+        $.ajax( {
+            type: "GET",
+            url: "utils/getUserPlaylist.php",
+            cache: false,
+            data: data,
+            dataType: "xml",
+            success: function(data) {
+                self.reloadPlaylists();
+            },
+            error: function(data, status) {
+                debug.error("MPD","Failed to delete user playlist",name);
+            }
+        } );
+    }
+
+    this.renamePlaylist = function(name, e) {
+        openpl = null;
+        oldplname = name;
+        debug.log("MPD","Renaming Playlist",name,e);
+        var rmppu = popupWindow.create(400,300,"rmppu",true,language.gettext("label_renameplaylist"),e.clientX,e.clientY);
+        $("#popupcontents").append('<div class="containerbox" style="margin-left:8px"><div class="expand"><input class="enter" id="newplname" type="text" size="200" /></div><button class="fixed">Rename</button></div>');
+        $("#newplname").parent().next('button').click(player.controller.doRenamePlaylist);
+        $("#newplname").keyup(onKeyUp);
+        popupWindow.open();
+    }
+
+    this.doRenamePlaylist = function() {
+        popupWindow.close();
+        self.fastcommand("command=rename&arg="+oldplname+"&arg2="+encodeURIComponent($("#newplname").val()), function() {
+            self.reloadPlaylists();
+            if (playlistManager) {
+                playlistManager.reloadAll();
+            }
+        });
+    }
+
+    this.renameUserPlaylist = function(name, e) {
+        openpl = null;
+        oldplname = name;
+        debug.log("MPD","Renaming Playlist",name,e);
+        var rmppu = popupWindow.create(400,300,"rmppu",true,language.gettext("label_renameplaylist"),e.clientX,e.clientY);
+        $("#popupcontents").append('<div class="containerbox" style="margin-left:8px"><div class="expand"><input class="enter" id="newplname" type="text" size="200" /></div><button class="fixed">Rename</button></div>');
+        $("#newplname").parent().next('button').click(player.controller.doRenameUserPlaylist);
+        $("#newplname").keyup(onKeyUp);
+        popupWindow.open();
+    }
+
+    this.doRenameUserPlaylist = function() {
+        var data = {rename: encodeURIComponent(oldplname),
+                    newname: encodeURIComponent($("#newplname").val())
+        };
+        $.ajax( {
+            type: "GET",
+            url: "utils/getUserPlaylist.php",
+            cache: false,
+            data: data,
+            dataType: "xml",
+            success: function(data) {
+                self.reloadPlaylists();
+            },
+            error: function(data, status) {
+                debug.error("MPD","Failed to rename user playlist",name);
+            }
+        } );
+        popupWindow.close();
+    }
+
+    this.deletePlaylistTrack = function(name,songpos,callback) {
+        openpl = name;
+        if (!callback) {
+            callback = self.checkReloadPlaylists;
+        }
+        self.fastcommand('command=playlistdelete&arg='+name+'&arg2='+songpos, callback);
+    }
+
+    this.checkReloadPlaylists = function() {
+        self.reloadPlaylists();
+        if (playlistManager) {
+            playlistManager.checkToUpdateTheThing(openpl);
+        }
+    }
 
 	this.clearPlaylist = function() {
 	    self.command('command=clear');
@@ -223,6 +344,9 @@ function playerController() {
 	    } else {
 	        self.fastcommand("command=save&arg="+encodeURIComponent(name), function() {
 	            self.reloadPlaylists();
+                if (playlistManager) {
+                    playlistManager.reloadAll();
+                }
 	            infobar.notify(infobar.NOTIFY, language.gettext("label_savedpl", [name]));
                 $("#plsaver").slideToggle('fast');
 	        });
@@ -565,6 +689,20 @@ function playerController() {
         var x = $(event.target).attr("id").replace('replaygain_','');
         debug.log("MPD","Setting Replay Gain to",x);
         self.command("command=replay_gain_mode&arg="+x);
+    }
+
+    this.addTracksToPlaylist = function(playlist,tracks,callback) {
+        var cmds = new Array();
+        for (var i in tracks) {
+            cmds.push('playlistadd "'+playlist+'" "'+tracks[i]+'"');
+        }
+        self.do_command_list(cmds,callback);
+    }
+
+    this.movePlaylistTracks = function(playlist,from,to,callback) {
+        var cmds = new Array();
+        cmds.push('playlistmove "'+playlist+'" "'+from+'" "'+to+'"');
+        self.do_command_list(cmds,callback);        
     }
 
 }

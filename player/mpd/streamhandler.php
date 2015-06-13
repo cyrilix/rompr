@@ -44,7 +44,7 @@ function getStreamInfo($filedata, $domain) {
             $type = "podcast";
         }
 
-        $duration = (array_key_exists('Time', $filedata) && $filedata['Time'] != 0) ? $filedata['Time'] : $duration;
+        $duration = (array_key_exists('Time', $filedata) && $filedata['Time'] != 0) ? unwanted_array($filedata['Time']) : $duration;
     }
 
 	return array( $name,

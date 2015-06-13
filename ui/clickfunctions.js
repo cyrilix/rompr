@@ -67,7 +67,11 @@ function onBrowserDoubleClicked(event) {
         debug.log("BROWSER","Was double clicked on element",clickedElement);
         debug.log("BROWSER","Track element was double clicked");
         event.preventDefault();
-        playlist.addtrack(clickedElement);
+        if (clickedElement.hasClass("clicktrack")) {
+            playlist.addtrack(clickedElement);
+        } else {
+            playlist.addcue(clickedElement);
+        }
         return false;
     } else {
         return true;
@@ -128,7 +132,19 @@ function onFileCollectionClicked(event) {
         doFileMenu(event, clickedElement);
     } else if (clickedElement.hasClass('clickdeleteplaylist')) {
         event.stopImmediatePropagation();
-        player.controller.deletePlaylist(clickedElement.parent().children('input').first().attr('name'));        
+        player.controller.deletePlaylist(clickedElement.parent().children('input').first().attr('name'));
+    } else if (clickedElement.hasClass('clickdeleteuserplaylist')) {
+        event.stopImmediatePropagation();
+        player.controller.deleteUserPlaylist(clickedElement.prev().prev().html());
+    } else if (clickedElement.hasClass('clickrenameplaylist')) {
+        event.stopImmediatePropagation();
+        player.controller.renamePlaylist(clickedElement.parent().children('input').first().attr('name'), event);
+    } else if (clickedElement.hasClass('clickrenameuserplaylist')) {
+        event.stopImmediatePropagation();
+        player.controller.renameUserPlaylist(clickedElement.prev().html(), event);
+    } else if (clickedElement.hasClass('clickdeleteplaylisttrack')) {
+        event.stopImmediatePropagation();
+        player.controller.deletePlaylistTrack(clickedElement.parent().parent().prev().children('input').first().attr('name'), clickedElement.attr('name'), false);
     } else if (prefs.clickmode == "double") {
         if (clickedElement.hasClass("clickalbum") ||
             clickedElement.hasClass("clickloadplaylist")) {
@@ -376,7 +392,6 @@ function doFileMenu(event, element) {
 }
 
 function plMenuHack() {
-    debug.log("POO","Doing it now");
     layoutProcessor.fanoogleMenus($("#lpscr"));
 }
 
@@ -393,7 +408,7 @@ function setDraggable(divname) {
                 var clickedElement = findClickableElement(event);
                 var dragger = document.createElement('div');
                 dragger.setAttribute("id", "dragger");
-                $(dragger).addClass("draggable dragsort containerbox vertical");
+                $(dragger).addClass("draggable dragsort containerbox vertical dropshadow");
                 if (!clickedElement.hasClass("selected")) {
                     if (clickedElement.hasClass("clickalbum") ||
                         clickedElement.hasClass("clickloadplaylist")) {
@@ -402,7 +417,18 @@ function setDraggable(divname) {
                         trackSelect(event, clickedElement);
                     }
                 }
-                $(".selected").clone().removeClass("selected").appendTo(dragger);
+                if ($(".selected").length > 6) {
+                    $(dragger).append('<div class="containerbox menuitem">'+
+                        '<div class="smallcover fixed"><i class="icon-music smallcover-svg"></i></div>'+
+                        '<div class="expand"><h3>'+$(".selected").length+' Items</h3></div>'+
+                        '</div>');
+                } else {
+                    $(".selected").clone().removeClass("selected").appendTo(dragger);
+                }
+                // Little hack to make dragging from the various tag/rating/playlist managers
+                // look prettier
+                $(dragger).find('tr').wrap('<table></table>');
+                $(dragger).find('.icon-cancel-circled').remove();
                 return dragger;
             }
         });
@@ -448,18 +474,25 @@ function albumSelect(event, element) {
     if (is_currently_selected) {
         element.removeClass("selected");
         last_selected_element = element;
-        $("#"+div_to_select).find(".clickable").each(function() {
+        $("#"+div_to_select).find(".clickable").filter(noActionButtons).each(function() {
             $(this).removeClass("selected");
             last_selected_element = $(this);
         });
     } else {
         element.addClass("selected");
         last_selected_element = element;
-        $("#"+div_to_select).find(".clickable").each(function() {
+        $("#"+div_to_select).find(".clickable").filter(noActionButtons).each(function() {
             $(this).addClass("selected");
             last_selected_element = $(this);
         });
     }
+}
+
+function noActionButtons(i) {
+    if ($(this).hasClass('clickdeleteplaylisttrack')) {
+        return false;
+    }
+    return true;
 }
 
 function trackSelect(event, element) {
