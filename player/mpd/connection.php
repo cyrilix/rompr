@@ -8,52 +8,6 @@ if (!$dtz) {
 
 @open_mpd_connection();
 
-if($is_connected) {
-
-    include ("player/xspf.php");
-    $cmd_status = true;
-
-    if(array_key_exists("command", $_REQUEST)) {
-        $command = $_REQUEST["command"];
-        if(array_key_exists("arg", $_REQUEST) && strlen($_REQUEST["arg"])>0) {
-            debug_print("Arg is ".$_REQUEST['arg'],"CONNECTION");
-            $command.=" \"".format_for_mpd($_REQUEST["arg"])."\"";
-        }
-        if(array_key_exists("arg2", $_REQUEST) && strlen($_REQUEST["arg2"])>0) {
-            $command.=" \"".format_for_mpd($_REQUEST["arg2"])."\"";
-        }
-        $cmd_status = do_mpd_command($connection, $command, null, true);
-    }
-
-    if (!array_key_exists('fast', $_REQUEST)) {
-        $mpd_status = do_mpd_command ($connection, "status", null, true);
-        if (array_key_exists('state', $mpd_status)) {
-            while ($mpd_status['state'] == 'play' &&
-                    (!array_key_exists('elapsed', $mpd_status) && !array_key_exists('time', $mpd_status)))
-            {
-                debug_print("Playing but no elapsed time yet.. waiting","CONNECTION");
-                sleep(1);
-                $mpd_status = do_mpd_command ($connection, "status", null, true);
-            }
-        }
-        if (is_array($cmd_status) && !array_key_exists('error', $mpd_status)) {
-            $mpd_status = array_merge($mpd_status, $cmd_status);
-        }
-        if (!array_key_exists('elapsed', $mpd_status) && array_key_exists('time', $mpd_status)) {
-            // Rompr depends on mpd's elapsed count for the song progress but some mpd-like players (eg beets)
-            // don't support this. This is lower resolution however.
-            $mpd_status['elapsed'] = substr($mpd_status['time'] ,0, strpos($mpd_status['time'], ':'));
-        }
-    }
-
-} else {
-    if ($prefs['unix_socket'] != "") {
-        $mpd_status['error'] = "Unable to Connect to MPD server at\n".$prefs["unix_socket"];
-    } else {
-        $mpd_status['error'] = "Unable to Connect to MPD server at\n".$prefs["mpd_host"].":".$prefs["mpd_port"];
-    }
-}
-
 function close_player() {
     global $connection;
     close_mpd($connection);
@@ -109,31 +63,11 @@ function doCollection($command) {
             // (in fact this could happen with any tag!)
 
             if (array_key_exists($parts[0], $filedata)) {
-                // foreach ($multivalues as $value) {
-                //     $filedata[$parts[0]][] = $value;
-                // }
                 $filedata[$parts[0]] = array_unique(array_merge($filedata[$parts[0]], $multivalues));
             } else {
                 $filedata[$parts[0]] = array_unique($multivalues);
             }
 
-            // if (array_key_exists($parts[0], $filedata)) {
-            //     if (is_array($filedata[$parts[0]])) {
-            //         foreach ($multivalues as $value) {
-            //             array_push($filedata[$parts[0]], $value);
-            //         }
-            //     } else {
-            //         // Prevent unwanted multiple occurrences of the same value
-            //         // (seems to be an mpd bug or some kind of tagging thing -
-            //         // am getting Disc, Track and Albumartist twice for several tracks).
-            //         // The collectioniser handles unexpected arrays of results where it doesn't want them.
-            //         if ($value != $filedata[$parts[0]]) {
-            //             $filedata[$parts[0]] = array($filedata[$parts[0]], $value);
-            //         }
-            //     }
-            // } else {
-            //     $filedata[$parts[0]] = $value;
-            // }
         }
     }
 

@@ -65,7 +65,7 @@ function parse_mpd_var($in_str) {
     if(strncmp("OK", $got,strlen("OK"))==0)
         return true;
     if(strncmp("ACK", $got,strlen("ACK"))==0) {
-        debug_print("MPD command error : ".$got,"FUNCTIONS");
+        debug_print("MPD command error : ".$got,"MPD");
         return array(0 => false, 1 => $got);
     }
     $key = trim(strtok($got, ":"));
@@ -79,7 +79,7 @@ function do_mpd_command($conn, $command, $varname = null, $return_array = false)
     $retarr = array();
     if ($is_connected) {
 
-        debug_print("MPD Command ".$command,"FUNCTIONS");
+        debug_print("MPD Command ".$command,"MPD");
 
         $success = fputs($conn, $command."\n");
         if ($success) {
@@ -96,7 +96,7 @@ function do_mpd_command($conn, $command, $varname = null, $return_array = false)
                     if ($var[0] == false) {
                         if ($return_array == true) {
                             $retarr['error'] = $var[1];
-                            debug_print("Setting Error Flag","FUNCTIONS");
+                            debug_print("Setting Error Flag","MPD");
                         }
                         break;
                     }

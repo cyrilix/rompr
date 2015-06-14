@@ -1,22 +1,36 @@
 <?php
 chdir('../..');
-// This code is officially abysmal
 include ("includes/vars.php");
 include ("includes/functions.php");
 include ("player/mpd/sockets.php");
+
+$dtz = ini_get('date.timezone');
+if (!$dtz) {
+    date_default_timezone_set('UTC');
+}
+
+//
+// Pre-scan commands to check which apache backend we need to use
+//
 $apache_backend = "xml";
-foreach($_POST['commands'] as $cmd) {
-    $cmdstart = strpos($cmd, " ");
-    $part1 = substr($cmd, 0, $cmdstart);
-    if ($part1 == "additem") {
-        $part2 = substr($cmd, $cmdstart+1, strlen($cmd));
-        if (substr($part2,0,2) == "aa") {
-            $apache_backend = $prefs['apache_backend'];
-            break;
+if (array_key_exists('commands', $_POST)) {
+    foreach($_POST['commands'] as $fart) {
+        $cmd = explode(',',$fart);
+        switch ($cmd[0]) {
+            case "additem":
+                if (substr($cmd[1],0,2) == "aa") {
+                    $apache_backend = $prefs['apache_backend'];
+                    break 2;
+                }
+                break;
+
+            case "playlistadd":
+                if (preg_match("/aa(lbum)|(rtist)\d+/", $cmd[2])) {
+                    $apache_backend = $prefs['apache_backend'];
+                    break 2;
+                }
+                break;
         }
-    } else if ($part1 == "playlistadd" && preg_match("/(aalbum\d+)\"/", $cmd)) {
-        $apache_backend = $prefs['apache_backend'];
-        break;
     }
 }
 
@@ -27,65 +41,119 @@ $mpd_status['albumart'] = "";
 
 @open_mpd_connection();
 
-if($is_connected) {
+if ($is_connected) {
 
     $cmd_status = true;
 
-    fputs($connection, "command_list_begin\n");
     $cmds = array();
-    foreach($_POST['commands'] as $cmd) {
-        $cmdstart = strpos($cmd, " ");
-        $part1 = substr($cmd, 0, $cmdstart);
-        if ($part1 == "additem") {
-            $part2 = substr($cmd, $cmdstart+1, strlen($cmd));
-            debug_print("Adding Item ".$part2,"POSTCOMMAND");
-            $cmds = array_merge($cmds, getItemsToAdd($part2, null));
-        } else if ($part1 == "playlistadd") {
-            $matches = array();
-            if (preg_match("/(aalbum\d+)\"/", $cmd, $matches)) {
-                debug_print("playlistadd item ".$matches[1],"POSTCOMMAND");
-                $cmds = array_merge($cmds, getItemsToAdd($matches[1], preg_replace('/ \"'.$matches[1].'\"/','',$cmd)));
-            } else {
-                array_push($cmds, $cmd);
-            }
-        } else {
-            array_push($cmds, $cmd);
+    //
+    // Assemble and format the command list and perform any command-specific backend actions
+    //
+    if (array_key_exists('commands', $_POST)) {
+        foreach ($_POST['commands'] as $fart) {
+            $cmd = explode(',',$fart);
+            switch ($cmd[0]) {
+                case "additem":
+                    debug_print("Adding Item ".$cmd[1],"POSTCOMMAND");
+                    $cmds = array_merge($cmds, getItemsToAdd($cmd[1], null));
+                    break;
+
+                case "rename":
+                    $oldimage = md5('Playlist '.$cmd[1]);
+                    $newimage = md5('Playlist '.$cmd[2]);
+                    if (file_exists('albumart/small/'.$oldimage.'.jpg')) {
+                        debug_print("Renaming playlist image for ".$cmd[1]." to ".$cmd[2],"MPD");
+                        system('mv "albumart/small/'.$oldimage.'.jpg" "albumart/small/'.$newimage.'.jpg"');
+                        system('mv "albumart/asdownloaded/'.$oldimage.'.jpg" "albumart/asdownloaded/'.$newimage.'.jpg"');
+                    }
+                    $playlist_file = format_for_disc(rawurldecode($cmd[1]));
+                    $new_file = format_for_disc(rawurldecode($cmd[2]));
+                    system('mv "prefs/'.$playlist_file.'" "prefs/'.$new_file.'"');
+                    $cmds[] = join_command_string($cmd);
+                    break;
+
+                case "playlistadd":
+                    if (preg_match('/aa(lbum)|(rtist)\d+/', $cmd[2])) {
+                        $cmds = array_merge($cmds, getItemsToAdd($cmd[2], $cmd[0].' "'.format_for_mpd($cmd[1]).'"'));
+                        break;
+                    }
+                    $cmds[] = join_command_string($cmd);
+                    break;
+
+                case 'save':
+                    $playlist_name = format_for_mpd($cmd[1]);
+                    $playlist_file = format_for_disc(rawurldecode($cmd[1]));
+                    clean_the_toilet($playlist_file);
+                    system('mkdir "prefs/'.$playlist_file.'"');
+                    system('cp prefs/*.xspf prefs/"'.$playlist_file.'"/');
+                    $cmds[] = join_command_string($cmd);
+                    break;
+
+                case 'rm':
+                    $playlist_file = format_for_disc(rawurldecode($cmd[1]));
+                    clean_the_toilet($playlist_file);
+                    $cmds[] = join_command_string($cmd);
+                    break;
+
+                case "load":
+                    $playlist_file = format_for_disc(rawurldecode($cmd[1]));
+                    clean_stored_xspf();
+                    system('cp -f prefs/"'.$playlist_file.'"/*.xspf prefs/');
+                    $cmds[] = "clear";
+                    $cmds[] = join_command_string($cmd);
+                    break;
+
+                case "clear":
+                    clean_stored_xspf();
+                    $cmds[] = join_command_string($cmd);
+                    break;
+                    
+                case "update":
+                case "rescan":
+                    if (file_exists(ROMPR_XML_COLLECTION)) {
+                        unlink(ROMPR_XML_COLLECTION);
+                    }
+                    if (file_exists(ROMPR_FILEBROWSER_LIST)) {
+                        unlink(ROMPR_FILEBROWSER_LIST);
+                    }
+                    $cmds[] = join_command_string($cmd);
+                    break;
+                    
+                default:
+                    $cmds[] = join_command_string($cmd);
+                    break;
+            }        
         }
     }
 
+    //
+    // Send the command list to mpd
+    //
     $done = 0;
-    foreach ($cmds as $cmd) {
-        $cmdstart = strpos($cmd, " ");
-        $part1 = substr($cmd, 0, $cmdstart);
-        if ($part1 == "move" || $part1 == "playlistadd" || $part1 == "playlistmove") {
-            // NASTY HACK! 
-            debug_print("Command List: ".$cmd,"POSTCOMMAND");
-            fputs($connection, $cmd."\n");
-        } else {
-            if ($cmdstart === false) {
-                debug_print("Command List: ".$cmd,"POSTCOMMAND");
-                fputs($connection, $cmd."\n");
-            } else {
-                $part2 = substr($cmd, $cmdstart+1, strlen($cmd));
-                debug_print("Command List: ".$part1.' "'.format_for_mpd(trim($part2, '"')).'"',"POSTCOMMAND");
-                fputs($connection, $part1.' "'.format_for_mpd(trim($part2, '"')).'"'."\n");
+    $cmd_status = null;
+    if (count($cmds) > 0) {
+        fputs($connection, "command_list_begin\n");
+
+        foreach ($cmds as $c) {
+            debug_print("Command List: ".$c,"POSTCOMMAND");
+            fputs($connection, $c."\n");
+            $done++;
+            // Command lists have a maximum length, 50 seems to be the default
+            if ($done == 50) {
+                do_mpd_command($connection, "command_list_end", null, true);
+                fputs($connection, "command_list_begin\n");
+                $done = 0;
             }
         }
-        $done++;
-        // Command lists have a maximum length, 50 seems to be the default
-        if ($done == 50) {
-            do_mpd_command($connection, "command_list_end", null, true);
-            fputs($connection, "command_list_begin\n");
-            $done = 0;
-        }
+
+        $cmd_status = do_mpd_command($connection, "command_list_end", null, true);
     }
 
-    $cmd_status = do_mpd_command($connection, "command_list_end", null, true);
-    if (array_key_exists('extra', $_POST)) {
-        do_mpd_command($connection, $_POST['extra'], null, true);
-    }
+    //
+    // Query mpd's status
+    //
     $mpd_status = do_mpd_command ($connection, "status", null, true);
-    if (is_array($cmd_status) && !array_key_exists('error', $mpd_status)) {
+    if (is_array($cmd_status) && !array_key_exists('error', $mpd_status) && array_key_exists('error', $cmd_status)) {
         debug_print("Command List Error ".$cmd_status['error'],"POSTCOMMAND");
         $mpd_status = array_merge($mpd_status, $cmd_status);
     }
@@ -100,6 +168,17 @@ if($is_connected) {
     $arse = do_mpd_command($connection, 'replay_gain_status', null, true);
     $mpd_status = array_merge($mpd_status, $arse);
 
+    if (array_key_exists('error', $mpd_status)) {
+        debug_print("Clearing Player Error ".$mpd_status['error'],"MPD");
+        fputs($connection, "clearerror\n");
+    }
+
+    if ($mpd_status['single'] == 1 && array_key_exists('state', $mpd_status) && ($mpd_status['state'] == "pause" || $mpd_status['state'] == "stop")) {
+        debug_print("Cancelling Single Mode","MPD");
+        fputs($connection, 'single "0"'."\n");
+        $mpd_status['single'] = 0;
+    }
+
 } else {
     if ($prefs['unix_socket'] != "") {
         $mpd_status['error'] = "Unable to Connect to MPD server at\n".$prefs["unix_socket"];
@@ -110,5 +189,30 @@ if($is_connected) {
 
 close_mpd($connection);
 print json_encode($mpd_status);
+
+function join_command_string($cmd) {
+    $c = $cmd[0];
+    for ($i = 1; $i < count($cmd); $i++) {
+        $c .= ' "'.format_for_mpd($cmd[$i]).'"';
+    }
+    return $c;
+}
+
+function clean_stored_xspf() {
+
+    $playlists = glob("prefs/*.xspf");
+    foreach($playlists as $i => $file) {
+        if (!preg_match('/USERSTREAM/', basename($file))) {
+            system("rm ".$file);
+        }
+    }
+}
+
+function clean_the_toilet($playlist_name) {
+    if (is_dir('prefs/'.$playlist_name)) {
+        system('rm prefs/"'.$playlist_name.'"/*.*');
+        system('rmdir prefs/"'.$playlist_name.'"');
+    }
+}
 
 ?>

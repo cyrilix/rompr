@@ -437,7 +437,6 @@ var infobar = function() {
             setPlaylistButtons();
             if (player.status.error && player.status.error != null) {
                 infobar.notify(infobar.ERROR, language.gettext("label_playererror")+": "+player.status.error);
-                player.controller.clearerror();
                 playlist.repopulate();
             }
         },
@@ -596,9 +595,11 @@ var infobar = function() {
                 // 1. The previous volume command returns
                 // 2. The timer expires
                 sliderclamps = 2;
-                debug.log("INFOBAR","Setting volume",u.value);
-                player.controller.volume(u.value, infobar.releaseTheClamps);
-                setTimeout(infobar.releaseTheClamps, 250);
+                if (u.value != player.status.volume) {
+                    debug.log("INFOBAR","Setting volume",u.value);
+                    player.controller.volume(u.value, infobar.releaseTheClamps);
+                    setTimeout(infobar.releaseTheClamps, 500);
+                }
             }
         },
 
@@ -682,6 +683,7 @@ var infobar = function() {
         },
 
         setProgress: function(percent, progress, duration) {
+            debug.debug("INFOBAR","Progress",percent,progress,duration);
             progressbar.setProgress(percent);
             var progressString = formatTimeString(progress);
             var durationString = formatTimeString(duration);

@@ -6,6 +6,7 @@ function xmlnode($node, $content) {
 
 function format_for_mpd($term) {
     $term = str_replace('"','\\"',$term);
+    $term = str_replace('!!comma!!',',', $term);
     return $term;
 }
 

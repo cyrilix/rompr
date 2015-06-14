@@ -375,7 +375,7 @@ function Playlist() {
 
     this.stopped = function() {
         infobar.setProgress(0,-1,-1);
-        self.currentTrack = null;
+        // self.currentTrack = null;
     }
 
     this.stopafter = function() {

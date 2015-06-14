@@ -72,79 +72,50 @@ function playerController() {
         progresstimer = setTimeout(callback, timeout);
     }
 
-    function postCommandActions(data, callback) {
-        player.status = data;
-        if (player.status.playlist !== plversion) {
-            playlist.repopulate();
-        }
-        plversion = player.status.playlist;
-        infobar.setStartTime(player.status.elapsed);
-        if (callback) {
-            callback();
-            infobar.updateWindowValues();
-        } else {
-           self.checkProgress();
-           infobar.updateWindowValues();
-        }        
-    }
-
     this.initialise = function() {
         // Need to call this with a callback when we start up so that checkprogress doesn't get called
         // before the playlist has repopulated.
-    	self.command("",playlist.repopulate);
+    	self.do_command_list([],playlist.repopulate);
 		if (!player.collectionLoaded) {
             debug.log("MPD", "Checking Collection");
             checkCollection(false, false);
         }
     }
 
-	this.command = function(cmd, callback) {
-        debug.debug("MPD","'"+cmd+"'");
-        clearProgressTimer();
-        $.getJSON("player/mpd/ajaxcommand.php", cmd)
-        .done(function(data) {
-            debug.debug("MPD","Result for","'"+cmd+"'",data);
-            if (cmd == "command=clearerror" && data.error) {
-                // Ignore errors on clearerror - we get into an endless loop
-                data.error = null;
-            }
-            postCommandActions(data, callback);
-            if ((data.state == "pause" || data.state=="stop") && data.single == 1) {
-                self.fastcommand("command=single&arg=0");
-                player.status.single = 0;
-            }
-            debug.debug("MPD","Status",player.status);
-        })
-        .fail( function() {
-            debug.warn("MPD","Command",cmd,"failed");
-            infobar.notify(infobar.ERROR, "Failed to send command '"+cmd+"' to MPD");
-            self.checkProgress();
-        });
-	}
-
-	this.fastcommand = function(cmd, callback) {
-        $.getJSON("player/mpd/ajaxcommand.php?fast", cmd)
-        .done(function() { if (callback) { callback(); } })
-        .fail(function() { if (callback) { callback(); } })
-	}
-
 	this.do_command_list = function(list, callback) {
-        debug.log("MPD","Command List",list);
-        clearProgressTimer();
-        if (typeof list == "string") {
-            data = list;
-        } else {
-            data = {'commands[]': list};
+        debug.debug("MPD","Command List",list);
+        // clearProgressTimer();
+        for (var i in list) {
+            for (var j in list[i]) {
+                // Commas in parameters will fuck up the command list handler
+                var bum = list[i][j];
+                if (typeof bum == "string") {
+                    list[i][j] = bum.replace(/,/g,"!!comma!!");
+                }
+            }
         }
         $.ajax({
             type: 'POST',
             url: 'player/mpd/postcommand.php',
-            data: data,
+            data: {'commands[]': list},
             success: function(data) {
-                debug.log("MPD           : result for",list,data);
-                postCommandActions(data, callback);
+                player.status = data;
+                debug.debug("MPD","Status",player.status);
+                if (player.status.playlist !== plversion) {
+                    playlist.repopulate();
+                }
+                plversion = player.status.playlist;
+                infobar.setStartTime(player.status.elapsed);
+                if (callback) {
+                    callback();
+                    infobar.updateWindowValues();
+                } else {
+                   self.checkProgress();
+                   infobar.updateWindowValues();
+                }
             },
-            error: function() {
+            error: function(data) {
+                debug.error("MPD","Command List Failed",list,data);
                 infobar.notify(infobar.ERROR, "Failed sending command list to mpd");
                 self.checkProgress();
             },
@@ -155,9 +126,9 @@ function playerController() {
     this.updateCollection = function(cmd) {
         prepareForLiftOff(language.gettext("label_updating"));
         prepareForLiftOff2(language.gettext("label_updating"));
-        $.getJSON("player/mpd/ajaxcommand.php", "command="+cmd, function() {
-                    update_load_timer = setTimeout( pollAlbumList, 2000);
-                    update_load_timer_running = true;
+        self.do_command_list([[cmd]], function() {
+            update_load_timer = setTimeout( pollAlbumList, 2000);
+            update_load_timer_running = true;
         });
     }
 
@@ -208,7 +179,7 @@ function playerController() {
 	}
 
 	this.loadPlaylist = function(name) {
-        self.command('command=load&arg='+name);
+        self.do_command_list([['load', name]]);
         return false;
 	}
 
@@ -228,16 +199,16 @@ function playerController() {
                 debug.error("MPD","Failed to save user playlist URL");
             }
         } );
-        self.command('command=load&arg='+name);
+        self.do_command_list([['load', name]]);
         return false;
     }
 
 	this.deletePlaylist = function(name, callback) {
         openpl = null;
         if (callback) {
-            self.fastcommand('command=rm&arg='+name, callback);
+            self.do_command_list([['rm',name]], callback);
         } else {
-    		self.fastcommand('command=rm&arg='+name, function() {
+    		self.do_command_list([['rm',name]], function() {
                 self.reloadPlaylists();
                 if (playlistManager) {
                     playlistManager.reloadAll();
@@ -277,7 +248,7 @@ function playerController() {
 
     this.doRenamePlaylist = function() {
         popupWindow.close();
-        self.fastcommand("command=rename&arg="+oldplname+"&arg2="+encodeURIComponent($("#newplname").val()), function() {
+        self.do_command_list([["rename", oldplname, encodeURIComponent($("#newplname").val())]], function() {
             self.reloadPlaylists();
             if (playlistManager) {
                 playlistManager.reloadAll();
@@ -321,7 +292,7 @@ function playerController() {
         if (!callback) {
             callback = self.checkReloadPlaylists;
         }
-        self.fastcommand('command=playlistdelete&arg='+name+'&arg2='+songpos, callback);
+        self.do_command_list([['playlistdelete',name,songpos]], callback);
     }
 
     this.checkReloadPlaylists = function() {
@@ -332,7 +303,7 @@ function playerController() {
     }
 
 	this.clearPlaylist = function() {
-	    self.command('command=clear');
+	    self.do_command_list([['clear']]);
 	}
 
 	this.savePlaylist = function() {
@@ -342,13 +313,14 @@ function playerController() {
 	    if (name.indexOf("/") >= 0 || name.indexOf("\\") >= 0) {
 	        infobar.notify(infobar.ERROR, language.gettext("error_playlistname"));
 	    } else {
-	        self.fastcommand("command=save&arg="+encodeURIComponent(name), function() {
+	        self.do_command_list([["save", encodeURIComponent(name)]], function() {
 	            self.reloadPlaylists();
                 if (playlistManager) {
                     playlistManager.reloadAll();
                 }
 	            infobar.notify(infobar.NOTIFY, language.gettext("label_savedpl", [name]));
                 $("#plsaver").slideToggle('fast');
+                self.checkProgress();
 	        });
 	    }
 	}
@@ -366,88 +338,81 @@ function playerController() {
 	}
 
 	this.play = function() {
-        self.command('command=play');
+        self.do_command_list([['play']]);
 	}
 
 	this.pause = function() {
-        self.command('command=pause');
+        self.do_command_list([['pause']]);
 	}
 
 	this.stop = function() {
-        self.command("command=stop", self.onStop )
+        self.do_command_list([["stop"]], self.onStop )
 	}
 
 	this.next = function() {
 		if (player.status.state == 'play') {
-            self.command("command=next");
+            self.do_command_list([["next"]]);
 		}
 	}
 
 	this.previous = function() {
 		if (player.status.state == 'play') {
-            self.command("command=previous");
+            self.do_command_list([["previous"]]);
 		}
 	}
 
 	this.seek = function(seekto) {
-        self.command("command=seek&arg="+player.status.song+"&arg2="+parseInt(seekto.toString()));
+        self.do_command_list([["seek", player.status.song, parseInt(seekto.toString())]]);
 	}
 
 	this.playId = function(id) {
-        self.command("command=playid&arg="+id);
+        self.do_command_list([["playid",id]]);
 	}
 
 	this.playByPosition = function(pos) {
-        self.command("command=play&arg="+pos.toString());
-	}
-
-	this.clearerror = function() {
-		self.command('command=clearerror');
+        self.do_command_list([["play",pos.toString()]]);
 	}
 
 	this.volume = function(volume, callback) {
-        self.command("command=setvol&arg="+parseInt(volume.toString()), callback);
-        if (callback) {
-            self.checkProgress();
-        }
+        self.do_command_list([["setvol",parseInt(volume.toString())]], callback);
         return true;
 	}
 
 	this.removeId = function(ids) {
 		var cmdlist = [];
 		$.each(ids, function(i,v) {
-			cmdlist.push("deleteid "+v);
+			cmdlist.push(["deleteid", v]);
 		});
 		self.do_command_list(cmdlist);
 	}
 
 	this.toggleRandom = function() {
 	    var new_value = (player.status.random == 0) ? 1 : 0;
-	    self.command("command=random&arg="+new_value);
+	    self.do_command_list([["random",new_value]]);
 	}
 
 	this.toggleCrossfade = function() {
 	    var new_value = (player.status.xfade === undefined || player.status.xfade === null || player.status.xfade == 0) ? prefs.crossfade_duration : 0;
-	    self.command("command=crossfade&arg="+new_value);
+	    self.do_command_list([["crossfade",new_value]]);
 	}
 
 	this.setCrossfade = function(v) {
-	    self.command("command=crossfade&arg="+v);
+	    self.do_command_list([["crossfade",v]]);
 	}
 
 	this.toggleRepeat = function() {
 	    var new_value = (player.status.repeat == 0) ? 1 : 0;
-	    self.command("command=repeat&arg="+new_value);
+	    self.do_command_list([["repeat",new_value]]);
 	}
 
 	this.toggleConsume = function() {
 	    var new_value = (player.status.consume == 0) ? 1 : 0;
-	    self.command("command=consume&arg="+new_value);
+	    self.do_command_list([["consume",new_value]]);
 	}
 
     this.checkConsume = function(state, callback) {
         var c = player.status.consume;
-        self.command("command=consume&arg="+state);
+        self.do_command_list([["consume",state]]);
         if (callback) callback(c);
     }
 
@@ -464,14 +429,14 @@ function playerController() {
 		$.each(tracks, function(i,v) {
 			switch (v.type) {
 				case "uri":
-    				cmdlist.push('add "'+v.name+'"');
+    				cmdlist.push(['add',v.name]);
     				break;
 				case "cue":
                 case "playlist":
-    				cmdlist.push('load "'+v.name+'"');
+    				cmdlist.push(['load',v.name]);
     				break;
     			case "item":
-    				cmdlist.push("additem "+v.name);
+    				cmdlist.push(['additem',v.name]);
     				break;
     			case "delete":
                     // This was for Last.FM radio. It shouldn't be used
@@ -490,9 +455,9 @@ function playerController() {
 		// Note : playpos, if set, will point to the first track position
 		// BEFORE we move it.
         if (prefs.mediacentremode) {
-            cmdlist.push("play");
+            cmdlist.push(['play']);
         } else if (playpos !== null && playpos > -1) {
-			cmdlist.push('play "'+playpos.toString()+'"');
+			cmdlist.push(['play', playpos.toString()]);
 		}
 		self.do_command_list(cmdlist, function() {
             // We don't insert tracks at a specific position because we don't always
@@ -510,27 +475,27 @@ function playerController() {
 			itemstomove = itemstomove + ":" + (parseInt(first)+parseInt(num));
 		}
 		debug.log("PLAYER", "Move command is move&arg="+itemstomove+"&arg2="+moveto);
-		self.command("command=move&arg="+itemstomove+"&arg2="+moveto);
+		self.do_command_list([["move",itemstomove,moveto]]);
 	}
 
 	this.stopafter = function() {
         var cmds = [];
         if (player.status.repeat == 1) {
-            cmds.push("repeat 0");
+            cmds.push(["repeat", 0]);
         }
-        cmds.push("single 1");
+        cmds.push(["single", 1]);
         self.do_command_list(cmds);
 	}
 
 	this.cancelSingle = function() {
-		self.command("command=single&arg=0");
+		self.do_command_list([["single",0]]);
 	}
 
 	this.doOutput = function(id, state) {
 		if (state) {
-	        self.command("command=enableoutput&arg="+id);
+	        self.do_command_list([["enableoutput",id]]);
 		} else {
-	        self.command("command=disableoutput&arg="+id);
+	        self.do_command_list([["disableoutput",id]]);
 		}
 	}
 
@@ -649,7 +614,7 @@ function playerController() {
         if (player.status.state == "play") {
             if (progress > 4) { infobar.updateNowPlaying() };
             if (percent >= prefs.scrobblepercent) { infobar.scrobble(); }
-            if (duration > 0 && progress >= duration) {
+            if (duration > 0 && progress >= (duration - parseInt(player.status.xfade))) {
                 setTheClock(self.checkchange, safetytimer);
                 if (safetytimer < 5000) { safetytimer += 500 }
             } else {
@@ -670,9 +635,9 @@ function playerController() {
         clearProgressTimer();
         // Update the status to see if the track has changed
         if (playlist.currentTrack === null || playlist.currentTrack.type != "stream") {
-            self.command("", null);
+            self.do_command_list([], null);
         } else {
-            self.command("", self.checkStream);
+            self.do_command_list([], self.checkStream);
         }
     }
 
@@ -689,20 +654,20 @@ function playerController() {
     this.replayGain = function(event) {
         var x = $(event.target).attr("id").replace('replaygain_','');
         debug.log("MPD","Setting Replay Gain to",x);
-        self.command("command=replay_gain_mode&arg="+x);
+        self.do_command_list([["replay_gain_mode",x]]);
     }
 
     this.addTracksToPlaylist = function(playlist,tracks,callback) {
         var cmds = new Array();
         for (var i in tracks) {
-            cmds.push('playlistadd "'+playlist+'" "'+tracks[i]+'"');
+            cmds.push(['playlistadd',playlist,tracks[i]]);
         }
         self.do_command_list(cmds,callback);
     }
 
     this.movePlaylistTracks = function(playlist,from,to,callback) {
         var cmds = new Array();
-        cmds.push('playlistmove "'+playlist+'" "'+from+'" "'+to+'"');
+        cmds.push(['playlistmove',playlist,from,to]);
         self.do_command_list(cmds,callback);        
     }
 

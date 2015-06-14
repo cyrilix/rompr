@@ -663,7 +663,7 @@ function pollAlbumList() {
         clearTimeout(update_load_timer);
         update_load_timer_running = false;
     }
-    $.getJSON("player/mpd/ajaxcommand.php", checkPoll);
+    $.getJSON("player/mpd/postcommand.php", checkPoll);
 }
 
 function scootTheAlbums() {

@@ -6,7 +6,7 @@ include ("collection/collection.php");
 include ("player/mpd/connection.php");
 include ("backends/xml/backend.php");
 if (array_key_exists('playlist', $_REQUEST)) {
-    $pl = rawurldecode($_REQUEST['playlist']);
+    $pl = $_REQUEST['playlist'];
     do_playlist_tracks($pl,'icon-music');
 } else {
     do_playlist_header();
@@ -83,7 +83,7 @@ function add_playlist($link, $name, $icon, $class, $delete, $count, $is_user) {
             } else {
                 print '<div class="smallcover fixed"><img class="smallcover fixed" name="'.$image.'" src="newimages/playlist.svg" /></div>';
             }
-            print '<div class="expand">'.$name.'</div>';
+            print '<div class="expand">'.rawurldecode($name).'</div>';
             if ($delete) {
                 $add = ($is_user) ? "user" : "";
                 print '<i class="icon-floppy fixed smallicon clickable clickicon clickrename'.$add.'playlist"></i>';

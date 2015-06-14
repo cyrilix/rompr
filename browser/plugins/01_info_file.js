@@ -136,7 +136,7 @@ var info_file = function() {
                         self.updateBeetsInformation(m[1]);
     		        } else {
         	            setTimeout(function() {
-                    		player.controller.command("", self.updateFileInformation)
+                    		player.controller.do_command_list([], self.updateFileInformation)
                 		}, 1000);
     		        }
                 } else {

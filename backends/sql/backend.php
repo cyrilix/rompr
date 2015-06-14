@@ -898,10 +898,10 @@ function get_album_tracks_from_database($index, $cmd = null) {
 		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			if ($cmd === null) {
 				if ((string) $obj->Title == "Cue Sheet" || (string) $obj->Title == "M3U Playlist") {
-					$retarr = array("load ".$obj->Uri);
+					$retarr = array('load "'.$obj->Uri.'"');
 					break;
 				} else {
-					array_push($retarr, "add ".$obj->Uri);
+					array_push($retarr, 'add "'.$obj->Uri.'"');
 				}
 			} else {
 				if ((string) $obj->Title == "Cue Sheet" || (string) $obj->Title == "M3U Playlist") {

@@ -4,7 +4,7 @@ var playlistManager = function() {
 	var holders = new Array();
 
 	function putTracks(holder, tracks, title) {
-		var id = encodeURIComponent(escapeHtml(title));
+		var id = escapeHtml(title);
 		var html = '<input type="hidden" value="'+id+'">';
 		html = html + '<table align="center" style="border-collapse:collapse;width:96%';
 		if (tracks.length > 0 && tracks[0].plimage != "") {
@@ -12,7 +12,7 @@ var playlistManager = function() {
 			html = html + ';background-image:url(\''+tracks[0].plimage+'\');background-size:contain;background-repeat:no-repeat'
 		}
 		html = html + '">'+
-		'<tr class="tagh"><th colspan="2" align="center">'+title+'</th>'+
+		'<tr class="tagh"><th colspan="2" align="center">'+decodeURIComponent(title)+'</th>'+
 		'<th width="20px"><i class="icon-floppy playlisticon clickicon infoclick plugclickable clickrenplaylist"></i></th>'+
 		'<th width="20px"><i class="icon-cancel-circled playlisticon clickicon infoclick plugclickable clickdelplaylist"></i></th></tr>';
 		for (var i in tracks) {
@@ -130,7 +130,7 @@ var playlistManager = function() {
 
 		handleClick: function(element, event) {
 			if (element.hasClass('clickremplay')) {
-		        var list = unescapeHtml(decodeURIComponent(element.parent().parent().parent().parent().parent().children('input').first().val()));
+		        var list = unescapeHtml(element.parent().parent().parent().parent().parent().children('input').first().val());
 		        var pos = element.attr('name');
 		        debug.log("PLAYLISTMANAGER","Removing Track",pos,"from playlist",list);
 		        player.controller.deletePlaylistTrack(list,pos, function() {
@@ -138,7 +138,7 @@ var playlistManager = function() {
 		        	player.controller.reloadPlaylists();
 		        });
 			} else if (element.hasClass('clickdelplaylist')) {
-		        var list = unescapeHtml(decodeURIComponent(element.parent().parent().parent().parent().prev().val()));
+		        var list = unescapeHtml(element.parent().parent().parent().parent().prev().val());
 		        var holder = element.parent().parent().parent().parent().parent();
 		        debug.log("PLAYLISTMANAGER","Deleting Playlist",list);
 		        player.controller.deletePlaylist(list,function() {
@@ -147,7 +147,7 @@ var playlistManager = function() {
 		        	browser.rePoint();
 		        });
 			} else if (element.hasClass('clickrenplaylist')) {
-		        var list = unescapeHtml(decodeURIComponent(element.parent().parent().parent().parent().prev().val()));
+		        var list = unescapeHtml(element.parent().parent().parent().parent().prev().val());
 		        player.controller.renamePlaylist(list, event);
 			}
 		},
@@ -162,7 +162,7 @@ var playlistManager = function() {
 		dropped: function(event, ui) {
 	        event.stopImmediatePropagation();
 	        var tracks = new Array();
-	        var playlist = unescapeHtml(decodeURIComponent($(event.target).children('input').first().val()));
+	        var playlist = unescapeHtml($(event.target).children('input').first().val());
 	        $.each($('.selected').filter(removeOpenItems), function (index, element) {
 	        	var uri = unescapeHtml(decodeURIComponent($(element).attr("name")));
 	        	debug.log("RATMANAGER","Dragged",uri,"to",playlist);
@@ -196,7 +196,7 @@ var playlistManager = function() {
 
 		dragstopped: function(event, ui) {
 	        event.stopImmediatePropagation();
-			var playlist = unescapeHtml(decodeURIComponent($(ui.item).parent().parent().parent().children('input').val()));
+			var playlist = unescapeHtml($(ui.item).parent().parent().parent().children('input').val());
 			var item = $(ui.item).attr('name');
 			item = item.replace(/playmanitem_/,'');
 			var next = $(ui.item).next().attr('name');
