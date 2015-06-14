@@ -5,7 +5,7 @@ var charts = function() {
 
 	function putItems(holder, data, title) {
 		var html = '<table align="center" style="border-collapse:collapse;width:96%"><tr class="tagh"><th colspan="3" align="center">'+title+'</th></tr>';
-		html = html + '<tr>';
+		html = html + '<tr class="chartheader">';
 		for (var i in data[0]) {
 			if (i != 'uri') {
 				html = html + '<td><b>'+language.gettext(i)+'</b></td>';
@@ -17,12 +17,12 @@ var charts = function() {
 		for (var i in data) {
 			if (data[i].uri) {
 				if (prefs.player_backend == "mpd" && data[i].uri.match(/soundcloud:/)) {
-					html = html + '<tr class="infoclick draggable clickable clickcue backhi" name="'+encodeURIComponent(data[i].uri)+'">';
+					html = html + '<tr class="chart infoclick draggable clickable clickcue backhi" name="'+encodeURIComponent(data[i].uri)+'">';
 				} else {
-					html = html + '<tr class="infoclick draggable clickable clicktrack backhi" name="'+encodeURIComponent(data[i].uri)+'">';
+					html = html + '<tr class="chart infoclick draggable clickable clicktrack backhi" name="'+encodeURIComponent(data[i].uri)+'">';
 				}
 			} else {
-				html = html + '<tr>';
+				html = html + '<tr class="chart">';
 			}
 			var n = 0;
 			for (var j in data[i]) {
@@ -34,12 +34,23 @@ var charts = function() {
 			html = html + '</tr>';
 
 			var percent = (data[i].soundcloud_plays/maxplays)*100;
-			html = html + '<tr style="height:4px"><td colspan="'+n+'" style="background:linear-gradient(to right, '+getrgbs(percent)+'"></td></tr>';
+			html = html + '<tr style="height:4px"><td class="chartbar" colspan="'+n+'" style="background:linear-gradient(to right, '+getrgbs(percent)+'"></td></tr>';
 			html = html + '<tr style="height:0.75em"><td colspan="'+n+'"></td></tr>';
 
 		}
 		html = html + '</table>';
 		holder.html(html);
+	}
+
+	function getCharts(success, failure) {
+        $.ajax({
+        	url: 'backends/sql/userRatings.php',
+        	type: "POST",
+        	data: {action: 'getcharts'},
+        	dataType: 'json',
+        	success: success,
+        	error: failure
+        });
 	}
 
 	return {
@@ -54,27 +65,23 @@ var charts = function() {
 		            cha.slideToggle('fast');
 		            return;
 	        	}
-
+	        	getCharts(charts.firstLoad, charts.firstLoadFail);
 			    $("#chafoldup").append('<div class="noselection fullwidth masonified" id="chamunger"></div>');
-	            $.ajax({
-	            	url: 'backends/sql/userRatings.php',
-	            	type: "POST",
-	            	data: {action: 'getcharts'},
-	            	dataType: 'json',
-	            	success: function(data) {
-            			setDraggable('chafoldup');
-	            		charts.doMainLayout(data);
-	            	},
-	            	error: function() {
-	            		infobar.notify(infobar.ERROR, "Failed to get Charts list");
-	            		cha.slideToggle('fast');
-	            	}
-	            });
 	        } else {
 	        	browser.goToPlugin("cha");
 	        }
 
 		},
+
+		firstLoad: function(data) {
+			setDraggable('chafoldup');
+    		charts.doMainLayout(data);
+		},
+
+		firstLoadFail: function(data) {
+    		infobar.notify(infobar.ERROR, "Failed to get Charts list");
+    		cha.slideToggle('fast');
+        },
 
 		doMainLayout: function(data) {
 			debug.log("CHARTS","Got data",data);
@@ -96,6 +103,19 @@ var charts = function() {
 		close: function() {
 			cha = null;
 			holders = [];
+		},
+
+		reloadAll: function() {
+			if (cha) {
+				getCharts(charts.backgroundUpdate,null);
+			}
+		},
+
+		backgroundUpdate: function(data) {
+			for (var i in data) {
+				holders[i].empty();
+				putItems(holders[i],data[i],i);
+			}
 		}
 
 	}

@@ -167,6 +167,9 @@ function Playlist() {
         }
         // Invisible empty div tacked on the end is where we add our 'Incoming' animation
         $("#sortable").append('<div id="waiter" class="containerbox"></div>');
+        if (playlist.radioManager.isPopulating()) {
+            playlist.waiting();
+        }
         layoutProcessor.setPlaylistHeight();
 
         self.radioManager.init();
@@ -306,6 +309,7 @@ function Playlist() {
     }
 
     this.waiting = function() {
+        debug.log("PLAYLIST","Adding Incoming Bar");
         $("#waiter").empty();
         doSomethingUseful('waiter', language.gettext("label_incoming"));
     }
@@ -485,6 +489,7 @@ function Playlist() {
         var chunksize = 10;
         var rptimer = null;
         var startplaybackfrom = -1;
+        var populating = false;
 
         return {
 
@@ -528,28 +533,24 @@ function Playlist() {
                         togglePlaylistButtons();
                     }
                 }
-                if (playlist.getfinaltrack == -1) {
-                    startplaybackfrom = 0;
-                    playlist.radioManager.actuallyRepopulate();
-                } else {
-                    if (isonload) {
-                        switch (player.status.state) {
-                            case "stop":
-                                startplaybackfrom = 0;
-                                player.controller.clearPlaylist();
-                                break;
-                            case "pause":
-                                startplaybackfrom = -1;
-                                infobar.playbutton.clicked();
-                                break;
-                            case "play":
-                                startplaybackfrom = -1;
-                                break;
-                        }
-                    } else {
-                        startplaybackfrom = 0;
-                        player.controller.clearPlaylist();
+                populating = true;
+                if (isonload) {
+                    switch (player.status.state) {
+                        case "stop":
+                            startplaybackfrom = 0;
+                            player.controller.clearPlaylist();
+                            break;
+                        case "pause":
+                            startplaybackfrom = -1;
+                            infobar.playbutton.clicked();
+                            break;
+                        case "play":
+                            startplaybackfrom = -1;
+                            break;
                     }
+                } else {
+                    startplaybackfrom = 0;
+                    player.controller.clearPlaylist();
                 }
             },
 
@@ -578,7 +579,8 @@ function Playlist() {
                 } else {
                     var fromend = playlist.getfinaltrack()+1;
                 }
-                debug.log("RADIO MANAGER","Repopulate Check : ",playlist.getfinaltrack(),fromend,chunksize,mode)
+                populating = false;
+                debug.log("RADIO MANAGER","Repopulate Check : ",playlist.getfinaltrack(),fromend,chunksize,mode);
                 if (fromend < chunksize && mode) {
                     playlist.waiting();
                     radios[mode].populate(prefs.radioparam, chunksize - fromend);
@@ -590,6 +592,7 @@ function Playlist() {
                     radios[mode].stop();
                     prefs.save({radiomode: '', radioparam: ''});
                     mode = null;
+                    populating = false;
                     playlist.repopulate();
                     if (prefs.consumeradio) {
                         player.controller.checkConsume(oldconsume, false);
@@ -609,6 +612,10 @@ function Playlist() {
                     }
                 }
                 $("#plmode").html(html);
+            },
+
+            isPopulating: function() {
+                return populating;
             }
         }
     }();

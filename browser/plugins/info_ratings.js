@@ -18,6 +18,9 @@ var info_ratings = function() {
                 if (parent.isCurrentTrack() && trackmeta.usermeta) {
                     if (trackmeta.usermeta.Playcount) {
                         $("#playcount").html("<b>PLAYS :</b>&nbsp;"+trackmeta.usermeta.Playcount);
+                        if (charts) {
+                            charts.reloadAll();
+                        }
                     } else {
                         $("#playcount").html("");
                     }

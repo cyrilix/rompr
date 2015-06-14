@@ -446,8 +446,9 @@ function playerController() {
 	}
 
     this.checkConsume = function(state, callback) {
+        var c = player.status.consume;
         self.command("command=consume&arg="+state);
-        if (callback) callback(state);
+        if (callback) callback(c);
     }
 
 	this.addTracks = function(tracks, playpos, at_pos) {
