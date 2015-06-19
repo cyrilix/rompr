@@ -85,6 +85,9 @@ var wishlistViewer = function() {
 	        	}
 	            $("#wlvfoldup").append('<div id="wishlistlist"></div>');
 	            $("#wishlistlist").load("albums.php?wishlist=1", function() {
+                    $("#wishlistlist").find('.menu').addClass("infoclick plugclickable");
+                    $("#wishlistlist").find('.clickremdb').addClass("infoclick plugclickable").removeClass('clickable')
+                            .prev().html('<i class="icon-basket-circled smallicon infoclick clickbuytrack plugclickable"></i>');
 		            wlv.slideToggle('fast', function() {
 			        	browser.goToPlugin("wlv");
 		            });

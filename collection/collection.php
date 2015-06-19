@@ -588,6 +588,11 @@ class musicCollection {
     public function getSortedArtistList() {
         $temp = array_keys($this->artists);
         sort($temp, SORT_STRING);
+        $key = array_search("various artists", $temp);
+        if ($key !== false) {
+            unset($temp[$key]);
+            array_unshift($temp, "various artists");
+        }
         return $temp;
     }
 

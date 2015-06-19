@@ -178,7 +178,7 @@ function Playlist() {
         if (finaltrack == -1) {
             // Playlist is empty
             debug.log("PLAYLIST","Playlist is empty");
-            nowplaying.newTrack(self.emptytrack);
+            nowplaying.newTrack(self.emptytrack, false);
             infobar.setProgress(0,-1,-1);
             self.radioManager.repopulate()
         } else if (self.currentTrack == null) {
@@ -240,41 +240,44 @@ function Playlist() {
         if (ui.item.hasClass("draggable")) {
             // Something dragged from the albums list
             debug.log("PLAYLIST","Something was dropped from the albums list");
-            var tracks = new Array();
-            $.each($('.selected').filter(removeOpenItems), function (index, element) {
-                var uri = $(element).attr("name");
-                if (uri) {
-                    if ($(element).hasClass('clickalbum')) {
-                        tracks.push({  type: "item",
-                                        name: uri});
-                    } else if ($(element).hasClass('clickcue')) {
-                        tracks.push({  type: "cue",
-                                        name: decodeURIComponent(uri)});
-                    } else if ($(element).hasClass('clickloadplaylist')) {
-                        tracks.push({ type: "playlist",
-                                        name: $(element).children().first().attr('name')});
-                        debug.log("PLAYLIST","Playlist",$(element).children().first().attr('name'),"was dragged");
-                    } else {
-                        var options = { type: "uri",
-                                        name: decodeURIComponent(uri)};
-                        $(element).find('input').each( function() {
-                            switch ($(this).val()) {
-                                case "needsfiltering":
-                                    options.findexact = {artist: [$(element).children('.saname').text()]};
-                                    options.filterdomain = ['spotify:'];
-                                    debug.log("PLAYLIST", "Adding Spotify artist",$(element).children('.saname').text());
-                                    break;
-                            }
-                        });
-                        tracks.push(options);
-                    }
-                }
-            });
-            if (tracks.length > 0) {
-                scrollto = 1;
-                player.controller.addTracks(tracks, null, moveto);
-                $('.selected').removeClass('selected');
-            }
+            playlist.addItems($('.selected').filter(removeOpenItems), moveto);
+            // var tracks = new Array();
+            // $.each($('.selected').filter(removeOpenItems), function (index, element) {
+            //     var uri = $(element).attr("name");
+            //     if (uri) {
+            //         if ($(element).hasClass('directory')) {
+            //             tracks.push({   type: "uri",
+            //                             name: decodeURIComponent($(element).children('input').first().attr('name'))});
+            //         } else if ($(element).hasClass('clickalbum')) {
+            //             tracks.push({  type: "item",
+            //                             name: uri});
+            //         } else if ($(element).hasClass('clickcue')) {
+            //             tracks.push({  type: "cue",
+            //                             name: decodeURIComponent(uri)});
+            //         } else if ($(element).hasClass('clickloadplaylist')) {
+            //             tracks.push({ type: "playlist",
+            //                             name: decodeURIComponent($(element).children().first().attr('name'))});
+            //         } else {
+            //             var options = { type: "uri",
+            //                             name: decodeURIComponent(uri)};
+            //             $(element).find('input').each( function() {
+            //                 switch ($(this).val()) {
+            //                     case "needsfiltering":
+            //                         options.findexact = {artist: [$(element).children('.saname').text()]};
+            //                         options.filterdomain = ['spotify:'];
+            //                         debug.log("PLAYLIST", "Adding Spotify artist",$(element).children('.saname').text());
+            //                         break;
+            //                 }
+            //             });
+            //             tracks.push(options);
+            //         }
+            //     }
+            // });
+            // if (tracks.length > 0) {
+            //     scrollto = 1;
+            //     player.controller.addTracks(tracks, null, moveto);
+            //     $('.selected').removeClass('selected');
+            // }
             $("#dragger").remove();
         } else if (ui.item.hasClass('track') || ui.item.hasClass('item')) {
             // Something dragged within the playlist
@@ -300,6 +303,73 @@ function Playlist() {
         } else {
             return false;
         }
+    }
+
+    this.addItems = function(elements, moveto) {
+        var tracks = new Array();
+        $.each(elements, function (index, element) {
+            var uri = $(element).attr("name");
+            if (uri) {
+                if ($(element).hasClass('searchdir')) {
+                    var s = addSearchDir($(element));
+                    // concat doesn't work if the first array is empty????? WTF????
+                    if (tracks.length == 0) {
+                        tracks = s;
+                    } else {
+                        tracks.concat(s);
+                    }
+                } else if ($(element).hasClass('directory')) {
+                    tracks.push({   type: "uri",
+                                    name: decodeURIComponent($(element).children('input').first().attr('name'))});
+                } else if ($(element).hasClass('clickalbum')) {
+                    tracks.push({  type: "item",
+                                    name: uri});
+                } else if ($(element).hasClass('clickcue')) {
+                    tracks.push({  type: "cue",
+                                    name: decodeURIComponent(uri)});
+                } else if ($(element).hasClass('clickloadplaylist')) {
+                    tracks.push({ type: "playlist",
+                                    name: decodeURIComponent($(element).children().first().attr('name'))});
+                } else {
+                    var options = { type: "uri",
+                                    name: decodeURIComponent(uri)};
+                    $(element).find('input').each( function() {
+                        switch ($(this).val()) {
+                            case "needsfiltering":
+                                options.findexact = {artist: [$(element).children('.saname').text()]};
+                                options.filterdomain = ['spotify:'];
+                                debug.log("PLAYLIST", "Adding Spotify artist",$(element).children('.saname').text());
+                                break;
+                        }
+                    });
+                    tracks.push(options);
+                }
+            }
+        });
+        if (tracks.length > 0) {
+            self.waiting();
+            if (moveto !== null) {
+                scrollto = 1;
+            }
+            var playpos = (moveto === null) ? playlist.playFromEnd() : null;
+            player.controller.addTracks(tracks, playpos, moveto);
+            $('.selected').removeClass('selected');
+        }
+    }
+
+    function addSearchDir(element) {
+        var options = new Array();
+        element.next().find('.clickable').each(function(index, elem){
+            if ($(elem).hasClass('searchdir')) {
+                options.concat(addSearchDir($(elem)));
+            } else {
+                options.push({
+                    type: 'uri',
+                    name: decodeURIComponent($(elem).attr('name'))
+                });
+            }
+        });
+        return options;
     }
 
     this.delete = function(id) {
@@ -418,47 +488,47 @@ function Playlist() {
         tracklist[index].addToCollection();
     }
 
-    this.addtrack = function(element) {
-        self.waiting();
-        var n = decodeURIComponent(element.attr("name"));
-        var options = [{    type: "uri",
-                            name: n,
-                      }];
+    // this.addtrack = function(element) {
+    //     self.waiting();
+    //     var n = decodeURIComponent(element.attr("name"));
+    //     var options = [{    type: "uri",
+    //                         name: n,
+    //                   }];
 
-        $.each(element.children('input'), function() {
-            switch ($(this).val()) {
-                case "needsfiltering":
-                    options[0].findexact = {artist: [element.children('.saname').text()]};
-                    options[0].filterdomain = ['spotify:'];
-                    debug.log("PLAYLIST", "Adding Spotify artist",element.children('.saname').text());
-                    break;
-            }
-        });
+    //     $.each(element.children('input'), function() {
+    //         switch ($(this).val()) {
+    //             case "needsfiltering":
+    //                 options[0].findexact = {artist: [element.children('.saname').text()]};
+    //                 options[0].filterdomain = ['spotify:'];
+    //                 debug.log("PLAYLIST", "Adding Spotify artist",element.children('.saname').text());
+    //                 break;
+    //         }
+    //     });
 
-        player.controller.addTracks(options,
-                                    playlist.playFromEnd(),
-                                    null);
-    }
+    //     player.controller.addTracks(options,
+    //                                 playlist.playFromEnd(),
+    //                                 null);
+    // }
 
-    this.addcue = function(element) {
-        self.waiting();
-        var n = decodeURIComponent(element.attr("name"));
+    // this.addcue = function(element) {
+    //     self.waiting();
+    //     var n = decodeURIComponent(element.attr("name"));
 
-        var options = [{    type: "cue",
-                            name: n,
-                      }];
+    //     var options = [{    type: "cue",
+    //                         name: n,
+    //                   }];
 
-        player.controller.addTracks(options,
-                                    playlist.playFromEnd(),
-                                    null);
-    }
+    //     player.controller.addTracks(options,
+    //                                 playlist.playFromEnd(),
+    //                                 null);
+    // }
 
-    this.addalbum = function(element) {
-        self.waiting();
-        player.controller.addTracks([{  type: "item",
-                                        name: element.attr("name")}],
-                                        playlist.playFromEnd(), null);
-    }
+    // this.addalbum = function(element) {
+    //     self.waiting();
+    //     player.controller.addTracks([{  type: "item",
+    //                                     name: element.attr("name")}],
+    //                                     playlist.playFromEnd(), null);
+    // }
 
     this.addFavourite = function(index) {
         debug.log("PLAYLIST","Adding Fave Station, index",index, tracklist[index].album);

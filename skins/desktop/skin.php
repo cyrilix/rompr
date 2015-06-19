@@ -84,7 +84,7 @@ print '<i id="sourcesresizer" class="icon-resize-horizontal topimg fixed topbox"
 
 <div id="chooserbuttons" class="noborder expand center topbox containerbox">
 <?php
-print '<div class="topdrop fixed"><i class="icon-menu topimg"></i>';
+print '<div class="topdrop fixed"><i class="icon-menu topimg tooltip" title="'.get_int_text('button_plugins').'"></i>';
 ?>
 <div class="topdropmenu dropshadow leftmenu normalmenu">
     <div id="specialplugins" class="clearfix"></div>
@@ -207,15 +207,6 @@ if ($prefs['apache_backend'] == "sql") {
     </div>
 
     <div id="filelist" class="invisible">
-<?php
-if ($prefs['player_backend'] == "mpd") {
-    print '<div style="padding-left:12px;padding-top:4px">
-<i title="'.get_int_text('button_searchfiles').'" class="icon-search topimg lettuce choose_filesearch"></i>
-    </div>
-    <div id="filesearch" class="invisible searchbox selecotron">
-    </div>';
-}
-?>
     <div id="filecollection" class="noborder selecotron"></div>
     </div>
 

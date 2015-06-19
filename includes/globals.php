@@ -28,7 +28,7 @@ prefs.prefsInLocalStorage = ["sourceshidden", "playlisthidden", "infosource", "p
                             "shownupdatewindow", "scrolltocurrent", "volume", "alarm_ramptime", "alarm_snoozetime",
                             "lastfmlang", "user_lang", "fontsize", "fontfamily", "alarmtime", "alarmon", "synctags",
                             "synclove", "synclovevalue", "alarmramp", "radiomode", "radioparam", "onthefly",
-                            "theme", "icontheme", "coversize", "mediacentremode", "collectioncontrolsvisible"];
+                            "theme", "icontheme", "coversize", "mediacentremode", "collectioncontrolsvisible", "displayresultsas"];
 
 // Update old pre-JSON prefs
 if (localStorage.getItem("prefs.prefversion") == null) {
@@ -138,12 +138,7 @@ if ($prefs['apache_backend'] == "sql") {
         print "var albumslistexists = false;\n";
     }
 }
-if (file_exists(ROMPR_FILEBROWSER_LIST) || $prefs['player_backend'] == "mopidy") {
-    // Mopidy doesn't require a files list as it's generated on the fly
-    print "var fileslistexists = true;\n";
-} else {
-    print "var fileslistexists = false;\n";
-}
+
 if ($prefs['debug_enabled']) {
     print "debug.setLevel(8);\n";
 } else {

@@ -9,8 +9,6 @@ define('ROMPR_SCHEMA_VERSION', 11);
 define('ROMPR_PLAYLIST_FILE', 'prefs/playlist.json');
 define('ROMPR_XML_COLLECTION', 'prefs/albums_'.ROMPR_COLLECTION_VERSION.'.xml');
 define('ROMPR_XML_SEARCH', 'prefs/albumsearch_'.ROMPR_COLLECTION_VERSION.'.xml');
-define('ROMPR_FILEBROWSER_LIST', 'prefs/files_'.ROMPR_COLLECTION_VERSION.'.xml');
-define('ROMPR_FILESEARCH_LIST', 'prefs/filesearch_'.ROMPR_COLLECTION_VERSION.'.xml');
 define('ROMPR_ITEM_ARTIST', 0);
 define('ROMPR_ITEM_ALBUM', 1);
 define('ROMPR_MOPIDY_MIN_VERSION', "0.18.3");
@@ -96,7 +94,8 @@ $prefs = array( "mpd_host" => "localhost",
                 "alarm_snoozetime" => 8,
                 "coversize" => "10-Small.css",
                 "mediacentremode" => false,
-                "collectioncontrolsvisible" => false
+                "collectioncontrolsvisible" => false,
+                "displayresultsas" => "collection"
                 );
 
 if (file_exists('prefs/prefs')) {

@@ -2,12 +2,7 @@
 chdir('../..');
 include ("includes/vars.php");
 include ("includes/functions.php");
-include ("player/mpd/sockets.php");
-
-$dtz = ini_get('date.timezone');
-if (!$dtz) {
-    date_default_timezone_set('UTC');
-}
+include ("player/mpd/connection.php");
 
 //
 // Pre-scan commands to check which apache backend we need to use
@@ -38,8 +33,6 @@ include ("backends/".$apache_backend."/backend.php");
 
 $mpd_status = array();
 $mpd_status['albumart'] = "";
-
-@open_mpd_connection();
 
 if ($is_connected) {
 
@@ -80,6 +73,11 @@ if ($is_connected) {
                     $cmds[] = join_command_string($cmd);
                     break;
 
+                case "playlistadddir":
+                    $thing = array('searchaddpl',$cmd[1],'base',$cmd[2]);
+                    $cmds[] = join_command_string($thing);
+                    break;
+
                 case 'save':
                     $playlist_name = format_for_mpd($cmd[1]);
                     $playlist_file = format_for_disc(rawurldecode($cmd[1]));
@@ -112,9 +110,6 @@ if ($is_connected) {
                 case "rescan":
                     if (file_exists(ROMPR_XML_COLLECTION)) {
                         unlink(ROMPR_XML_COLLECTION);
-                    }
-                    if (file_exists(ROMPR_FILEBROWSER_LIST)) {
-                        unlink(ROMPR_FILEBROWSER_LIST);
                     }
                     $cmds[] = join_command_string($cmd);
                     break;
@@ -177,6 +172,10 @@ if ($is_connected) {
         debug_print("Cancelling Single Mode","MPD");
         fputs($connection, 'single "0"'."\n");
         $mpd_status['single'] = 0;
+    }
+
+    if (array_key_exists('error', $mpd_status)) {
+        $mpd_status['error'] = preg_replace('/ACK \[.*?\]\s*/','',$mpd_status['error']);
     }
 
 } else {

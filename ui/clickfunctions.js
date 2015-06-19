@@ -26,7 +26,7 @@ function setClickHandlers() {
         $("#collection").dblclick(onCollectionDoubleClicked);
         $("#filecollection").dblclick(onFileCollectionDoubleClicked);
         $("#search").dblclick(onCollectionDoubleClicked);
-        $("#filesearch").dblclick(onCollectionDoubleClicked);
+        $("#filesearch").dblclick(onFileCollectionDoubleClicked);
         $("#radiolist").dblclick(onRadioDoubleClicked);
         $("#storedplaylists").dblclick(onFileCollectionDoubleClicked);
     }
@@ -67,11 +67,12 @@ function onBrowserDoubleClicked(event) {
         debug.log("BROWSER","Was double clicked on element",clickedElement);
         debug.log("BROWSER","Track element was double clicked");
         event.preventDefault();
-        if (clickedElement.hasClass("clicktrack")) {
-            playlist.addtrack(clickedElement);
-        } else {
-            playlist.addcue(clickedElement);
-        }
+        // if (clickedElement.hasClass("clicktrack")) {
+        //     playlist.addtrack(clickedElement);
+        // } else {
+        //     playlist.addcue(clickedElement);
+        // }
+        playlist.addItems(clickedElement, null);
         return false;
     } else {
         return true;
@@ -91,7 +92,8 @@ function findClickableBrowserElement(event) {
 function onCollectionClicked(event) {
     var clickedElement = findClickableElement(event);
     if (clickedElement.hasClass("menu")) {
-        if (clickedElement.parent().hasClass('browseable')) {
+        if (clickedElement.parent().hasClass('browseable') ||
+            clickedElement.parent().hasClass('clickdir')) {
             doFileMenu(event, clickedElement);
         } else {
             doAlbumMenu(event, clickedElement, false);
@@ -114,15 +116,22 @@ function onCollectionClicked(event) {
 
 function onCollectionDoubleClicked(event) {
     var clickedElement = findClickableElement(event);
-    if (clickedElement.hasClass("clickalbum")) {
+    // if (clickedElement.hasClass("clickalbum")) {
+    //     event.stopImmediatePropagation();
+    //     playlist.addalbum(clickedElement);
+    // } else if (clickedElement.hasClass("clicktrack")) {
+    //     event.stopImmediatePropagation();
+    //     playlist.addtrack(clickedElement);
+    // } else if (clickedElement.hasClass("clickcue")) {
+    //     event.stopImmediatePropagation();
+    //     playlist.addcue(clickedElement);
+    // }
+    if (clickedElement.hasClass('clickalbum') ||
+        clickedElement.hasClass('searchdir') ||
+        clickedElement.hasClass('clicktrack') ||
+        clickedElement.hasClass('clickcue')) {
         event.stopImmediatePropagation();
-        playlist.addalbum(clickedElement);
-    } else if (clickedElement.hasClass("clicktrack")) {
-        event.stopImmediatePropagation();
-        playlist.addtrack(clickedElement);
-    } else if (clickedElement.hasClass("clickcue")) {
-        event.stopImmediatePropagation();
-        playlist.addcue(clickedElement);
+        playlist.addItems(clickedElement, null);
     }
 }
 
@@ -161,18 +170,30 @@ function onFileCollectionClicked(event) {
 
 function onFileCollectionDoubleClicked(event) {
     var clickedElement = findClickableElement(event);
-    if (clickedElement.hasClass("clickalbum")) {
+    // if (clickedElement.hasClass('searchdir')) {
+    //     event.stopImmediatePropagation();
+    //     var options = addSearchDir(clickedElement);
+    //     player.controller.addTracks(options,
+    //                                 playlist.playFromEnd(),
+    //                                 null);
+    // } else if (clickedElement.hasClass("clickalbum")) {
+    //     event.stopImmediatePropagation();
+    //     playlist.addtrack(clickedElement.children('input').first());
+    // } else if (clickedElement.hasClass("clicktrack")) {
+    //     event.stopImmediatePropagation();
+    //     playlist.addtrack(clickedElement);
+    // } else if (clickedElement.hasClass("clickcue")) {
+    //     event.stopImmediatePropagation();
+    //     playlist.addcue(clickedElement);
+    if (clickedElement.hasClass('searchdir') ||
+        clickedElement.hasClass('clickalbum') ||
+        clickedElement.hasClass('clicktrack') ||
+        clickedElement.hasClass('clickcue')) {
         event.stopImmediatePropagation();
-        playlist.addalbum(clickedElement);
-    } else if (clickedElement.hasClass("clicktrack")) {
-        event.stopImmediatePropagation();
-        playlist.addtrack(clickedElement);
-    } else if (clickedElement.hasClass("clickcue")) {
-        event.stopImmediatePropagation();
-        playlist.addcue(clickedElement);
+        playlist.addItems(clickedElement, null);
     } else if (clickedElement.hasClass("clickloadplaylist")) {
         event.stopImmediatePropagation();
-        playlist.load(clickedElement.children().first().attr('name'));
+        playlist.load(decodeURIComponent(clickedElement.children().first().attr('name')));
     }
 }
 
@@ -233,7 +254,7 @@ function onRadioDoubleClicked(event) {
         playUserStream(clickedElement.attr("name"));
     } else if (clickedElement.hasClass("clicktrack")) {
         event.stopImmediatePropagation();
-        playlist.addtrack(clickedElement);
+        playlist.addItems(clickedElement, null);
     }
 }
 
@@ -317,11 +338,6 @@ function doAlbumMenu(event, element, inbrowser) {
                     }), function() {
                         coverscraper.GetNewAlbumArt($(this).attr('name'));
                     });
-                    if (inbrowser) {
-                        $(this).find('.menu').addClass("infoclick plugclickable");
-                        $(this).find('.clickremdb').addClass("infoclick plugclickable").removeClass('clickable')
-                            .prev().html('<i class="icon-basket-circled smallicon infoclick clickbuytrack plugclickable"></i>');
-                    }
                 });
             });
         } else {
@@ -365,12 +381,12 @@ function doFileMenu(event, element) {
                 player.controller.browse(l, menutoopen, element);
             } else {
                 var string;
+                var plname = element.parent().children('input').attr('name');
                 if (menutoopen.match(/^pholder\d/)) {
-                    var plname = element.parent().children('input').attr('name');
                     debug.log("MPD","Browsing playlist",plname);
-                    string = "player/mpd/loadplaylists.php?playlist="+encodeURIComponent(plname);
+                    string = "player/mpd/loadplaylists.php?playlist="+plname;
                 } else {
-                    string = "dirbrowser.php?item="+menutoopen;
+                    string = "dirbrowser.php?path="+plname+'&prefix='+menutoopen;
                 }
                 $('#'+menutoopen).load(string, function() {
                     $(this).removeClass("notfilled");

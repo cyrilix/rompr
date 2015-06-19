@@ -2,7 +2,7 @@
 
 include( "backends/sql/connect.php");
 
-function doDbCollection($terms, $domains) {
+function doDbCollection($terms, $domains, $resultstype) {
 
 	// This can actually be used to search the database for title, album, artist, anything, rating, and tag
 	// But it isn't because we let Mopidy/MPD search for anything they support because otherwise we
@@ -15,7 +15,11 @@ function doDbCollection($terms, $domains) {
 		connect_to_database();
 	}
 
-	$collection = new musicCollection(null);
+	if ($resultstype == "tree") {
+		$tree = new mpdlistthing("/", "/", false);
+	} else {
+		$collection = new musicCollection(null);
+	}
 
 	$parameters = array();
 	$qstring = "SELECT t.*, al.*, a1.*, a2.Artistname AS AlbumArtistName ";
@@ -105,24 +109,33 @@ function doDbCollection($terms, $domains) {
 	}
 
 	debug_print("SQL Search String is ".$qstring,"SEARCH");
+	$fcount = 0;
 
 	if ($result = sql_prepare_query_later($qstring)) {
 		if ($result->execute($parameters)) {
 			while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
-				$filedata = array(
-					'Artist' => $obj->Artistname,
-					'Album' => $obj->Albumname,
-					'AlbumArtist' => $obj->AlbumArtistName,
-					'file' => $obj->Uri,
-					'Title' => $obj->Title,
-					'Track' => $obj->TrackNo,
-					'Image' => $obj->Image,
-					'Time' => $obj->Duration,
-					'SpotiAlbum' => $obj->Spotilink,
-					'Date' => $obj->Year,
-					'Last-Modified' => $obj->LastModified
-				);
-				process_file($filedata);
+				if ($resultstype == "tree") {
+					$tree->addpath($obj->Uri, $obj->Uri, false);
+					$fcount++;
+				} else {
+					$filedata = array(
+						'Artist' => $obj->Artistname,
+						'Album' => $obj->Albumname,
+						'AlbumArtist' => $obj->AlbumArtistName,
+						'file' => $obj->Uri,
+						'Title' => $obj->Title,
+						'Track' => $obj->TrackNo,
+						'Image' => $obj->Image,
+						'Time' => $obj->Duration,
+						'SpotiAlbum' => $obj->Spotilink,
+						'Date' => $obj->Year,
+						'Last-Modified' => $obj->LastModified
+					);
+					process_file($filedata);
+				}
+			}
+			if ($resultstype == "tree") {
+				printFileSearch($tree, $fcount);
 			}
 		} else {
 			show_sql_error();
@@ -138,6 +151,7 @@ function check_url_against_database($url, $itags, $rating) {
 	if ($mysqlc === null) {
 		connect_to_database();
 	}
+
 	$qstring = "SELECT t.TTindex FROM Tracktable AS t ";
 	$tags = array();
 	if ($itags !== null) {

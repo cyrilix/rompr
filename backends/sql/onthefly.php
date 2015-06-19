@@ -45,8 +45,7 @@ if (array_key_exists('command', $_REQUEST)) {
 debug_print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~","TIMINGS");
 debug_print("Starting Database Update From Collection","TIMINGS");
 $now = time();
-$artistlist = $collection->getSortedArtistList();
-foreach($artistlist as $artistkey) {
+foreach(array_keys($collection->artists) as $artistkey) {
     do_artist_database_stuff($artistkey, true);
 }
 $dur = format_time(time() - $now);

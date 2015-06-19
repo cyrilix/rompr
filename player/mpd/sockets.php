@@ -38,7 +38,7 @@ function open_mpd_connection() {
     }
 }
 
-function getline($connection) {
+function getline($connection, $rd = false) {
     global $is_connected;
     if ($is_connected) {
         $got = trim(fgets($connection));
@@ -48,7 +48,7 @@ function getline($connection) {
         $key = trim(strtok($got, ":"));
         $val = trim(strtok("\0"));
         // Ignore 'directory' tags since we don't need them and therefore we don't need to make the parser handle them
-        if ($val != '' && $val != null && $key != "directory") {
+        if ($val != '' && $val != null && ($rd || $key != "directory")) {
             return array($key, $val);
         } else {
             return true;

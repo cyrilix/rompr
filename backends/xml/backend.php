@@ -98,10 +98,6 @@ function getWhichXML($which) {
         return ROMPR_XML_COLLECTION;
     } else if (substr($which,0,2) == "ba") {
         return ROMPR_XML_SEARCH;
-    } else if (substr($which,0,2) == "ad") {
-        return ROMPR_FILEBROWSER_LIST;
-    } else if (substr($which,0,2) == "bd") {
-        return ROMPR_FILESEARCH_LIST;
     } else {
         if (file_exists('prefs/'.substr($which,0,1).'_list.xml')) {
             return 'prefs/'.substr($which,0,1).'_list.xml';
@@ -182,16 +178,13 @@ function createXML($artistlist, $prefix, $output) {
     $output->writeLine(xmlnode("numalbums", $numalbums));
     $output->writeLine(xmlnode("duration", format_time($totaltime)));
 
-    if (array_search("various artists", $artistlist)) {
-        debug_print("Doing Various Artists","COLLECTION");
-        $key = array_search("various artists", $artistlist);
-        do_albums_xml("various artists", false, true, $prefix, $output);
-        unset($artistlist[$key]);
-    }
-
     // Add all the other artists
     foreach($artistlist as $artistkey) {
-        do_albums_xml($artistkey, true, false, $prefix, $output);
+        if ($artistkey == "various artists") {
+            do_albums_xml($artistkey, false, true, $prefix, $output);
+        } else {
+            do_albums_xml($artistkey, true, false, $prefix, $output);
+        }
     }
     $output->writeLine(xmlnode("numartists", $numartists));
 
@@ -281,53 +274,42 @@ function do_albums_xml($artistkey, $compilations, $showartist, $prefix, $output)
 
 }
 
-function getItemsToAdd($which) {
+function getItemsToAdd($which, $cmd = null) {
     $fname = getWhichXML($which);
     $x = simplexml_load_file($fname);
-    if (substr($which, 0, 4) == "adir" || substr($which, 0, 4) == "bdir") {
-        return getTracksForDir(findFileItem($x, $which));
-    } else {
-        list ($type, $obj) = findItem($x, $which);
-        if ($type == ROMPR_ITEM_ARTIST) {
-            return getTracksForArtist($obj);
-        }
-        if ($type == ROMPR_ITEM_ALBUM) {
-            return getTracksForAlbum($obj);
-        }
+    list ($type, $obj) = findItem($x, $which);
+    if ($type == ROMPR_ITEM_ARTIST) {
+        return getTracksForArtist($obj, $cmd);
+    }
+    if ($type == ROMPR_ITEM_ALBUM) {
+        return getTracksForAlbum($obj, $cmd);
     }
 }
 
-function getTracksForArtist($artist) {
+function getTracksForArtist($artist, $cmd) {
     $retarr = array();
     foreach($artist->albums->album as $i => $album) {
-        $retarr = array_merge($retarr, getTracksForAlbum($album));
+        $retarr = array_merge($retarr, getTracksForAlbum($album, $cmd));
     }
     return $retarr;
 }
 
-function getTracksForAlbum($album) {
+function getTracksForAlbum($album, $cmd) {
     $retarr = array();
     foreach($album->tracks->track as $j => $track) {
-        if ($track->name == "Cue Sheet") {
-            array_push($retarr, "load ".rawurldecode($track->url));
-            break;
+        if ($cmd == null) {
+            if ((string) $track->name == "Cue Sheet" || (string) $track->name == "M3U Playlist") {
+                array_push($retarr, "load ".rawurldecode($track->url));
+                break;
+            } else {
+                array_push($retarr, "add ".rawurldecode($track->url));
+            }
         } else {
-            array_push($retarr, "add ".rawurldecode($track->url));
-        }
-    }
-    return $retarr;
-}
-
-function getTracksForDir($dir) {
-    $retarr = array();
-    foreach($dir->artists->item as $i => $d) {
-        if ($d->type == "file") {
-            array_push($retarr, "add ".rawurldecode($d->url));
-        } else if ($d->type == "cue") {
-            $retarr = array("load ".rawurldecode($d->url));
-            break;
-        } else {
-            $retarr = array_merge($retarr, getTracksForDir($d));
+            if ((string) $track->name == "Cue Sheet" 
+                || (string) $track->name == "M3U Playlist") {
+            } else {
+                array_push($retarr, $cmd.' "'.rawurldecode($track->url).'"');
+            }
         }
     }
     return $retarr;

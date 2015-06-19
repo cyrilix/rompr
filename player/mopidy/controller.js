@@ -64,7 +64,7 @@ function playerController() {
         if (playlist.currentTrack && playlist.currentTrack.type == "stream") {
             setTimeout(checkNewStream, 5000);
         }
-        nowplaying.newTrack(playlist.currentTrack);
+        nowplaying.newTrack(playlist.currentTrack, false);
         tracknotfound = false;
         self.checkProgress();
     }
@@ -141,7 +141,7 @@ function playerController() {
                 player.status.Genre = undefined;
                 player.status.Performer = null;
                 player.status.Composer = null;
-    	        nowplaying.newTrack(playlist.emptytrack);
+    	        nowplaying.newTrack(playlist.emptytrack, false);
 		        $(".playlistcurrentitem").removeClass('playlistcurrentitem').addClass('playlistitem');
 		        $(".playlistcurrenttitle").removeClass('playlistcurrenttitle').addClass('playlisttitle');
     		}
@@ -209,7 +209,7 @@ function playerController() {
             {
                 playlist.currentTrack = temp;
                 debug.log("STREAMHANDLER","Detected change of track",playlist.currentTrack);
-                nowplaying.newTrack(playlist.currentTrack);
+                nowplaying.newTrack(playlist.currentTrack, true);
             }
             temp = null;
         }
@@ -365,7 +365,7 @@ function playerController() {
 
 	function checkSearchDomains() {
 		if (isReady) {
-            $("#mopidysearcher").find('.searchdomain').each( function() {
+            $("#collectionsearcher").find('.searchdomain').each( function() {
                 var v = $(this).attr("value");
                 if (v == "radio_de") {
                     v = "radio-de";
@@ -651,7 +651,7 @@ function playerController() {
         debug.shout("MOPIDY","Doing Search",searchtype);
         var terms = {};
         var termcount = 0;
-        $("#mopidysearcher").find('.searchterm').each( function() {
+        $("#collectionsearcher").find('.searchterm').each( function() {
             var key = $(this).attr('name');
             var value = $(this).attr("value");
             if (value != "") {
@@ -900,7 +900,7 @@ function playerController() {
 	        if (playlist.currentTrack) {
 	        	onFoundTrack();
 	        } else {
-    	        nowplaying.newTrack(playlist.emptytrack);
+    	        nowplaying.newTrack(playlist.emptytrack, false);
 		        tracknotfound = false;
 	        }
     	}

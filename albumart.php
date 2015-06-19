@@ -613,26 +613,29 @@ var imageEditor = function() {
             } else {
                 start = 1;
             }
-            $.each(data.items, function(i,v){
-                var index = start+i;
-                $("#searchresults").append($('<img>', {
-                    id: 'img'+index,
-                    class: "gimage clickable clickicon clickgimage",
-                    src: v.image.thumbnailLink
-                }));
-                $("#searchresults").append($('<input>', {
-                    type: 'hidden',
-                    value: v.link,
-                }));
-                $("#searchresults").append($('<input>', {
-                    type: 'hidden',
-                    value: index,
-                }));
+            if (data.items) {
+                $.each(data.items, function(i,v){
+                    var index = start+i;
+                    $("#searchresults").append($('<img>', {
+                        id: 'img'+index,
+                        class: "gimage clickable clickicon clickgimage",
+                        src: v.image.thumbnailLink
+                    }));
+                    $("#searchresults").append($('<input>', {
+                        type: 'hidden',
+                        value: v.link,
+                    }));
+                    $("#searchresults").append($('<input>', {
+                        type: 'hidden',
+                        value: index,
+                    }));
 
-            });
-            $(".gimage").css("height", "120px");
-            $("#searchresultsholder").append('<div id="morebutton" class="gradbutton bigbutton" onclick="imageEditor.search()"><b>'+language.gettext("albumart_showmore")+'</b></div>');
-
+                });
+                $(".gimage").css("height", "120px");
+                $("#searchresultsholder").append('<div id="morebutton" class="gradbutton bigbutton" onclick="imageEditor.search()"><b>'+language.gettext("albumart_showmore")+'</b></div>');
+            } else {
+                $("#searchresults").append('<h3 align="center">No Images Found</h3>');
+            }
         },
 
         onGoogleSearchClicked: function(event) {
@@ -823,7 +826,7 @@ print '<tr><td class="outer" id="infotext"></td><td align="center"><div class="i
 if ($mysqlc || file_exists(ROMPR_XML_COLLECTION)) {
     print '<div class="containerbox menuitem clickable clickselectartist selected" id="allartists"><div class="expand" class="artistrow">'.get_int_text("albumart_allartists").'</div></div>';
     if ($prefs['player_backend'] == "mpd") {
-        print '<div class="containerbox menuitem clickable clickselectartist" id="playlist"><div class="expand" class="artistrow">Saved Playlists</div></div>';
+        print '<div class="containerbox menuitem clickable clickselectartist" id="savedplaylists"><div class="expand" class="artistrow">Saved Playlists</div></div>';
     }
     print '<div class="containerbox menuitem clickable clickselectartist" id="radio"><div class="expand" class="artistrow">'.get_int_text("label_yourradio").'</div></div>';
     print '<div class="containerbox menuitem clickable clickselectartist" id="unused"><div class="expand" class="artistrow">'.get_int_text("albumart_unused").'</div></div>';
@@ -1102,7 +1105,7 @@ function do_radio_stations() {
                         $albums_without_cover++;
                     }
 
-                    print '<input type="hidden" value="'.$track->album.'" />';
+                    print '<input type="hidden" value="'.rawurlencode($track->album).'" />';
                     print '<img class="clickable clickicon clickalbumcover droppable'.$class.'" romprstream="'.$file.'" name="'.$artname.'" height="82px" width="82px" src="'.$src.'" />';
                     print '</div>';
                     print '<div class="albumimg fixed"><table><tr><td align="center">'.$track->album.'</td></tr></table></div>';
@@ -1143,7 +1146,7 @@ function do_playlists() {
         $playlists['playlist'][] = basename($f);
     }
     if (array_key_exists('playlist', $playlists) && is_array($playlists['playlist'])) {
-        print '<div class="cheesegrater" name="playlist">';
+        print '<div class="cheesegrater" name="savedplaylists">';
         print '<div class="albumsection crackbaby">';
         print '<div class="tleft"><h2>Saved Playlists</h2></div><div class="tright rightpad"><button onclick="getNewAlbumArt(\'#album'.$count.'\')">'.get_int_text("albumart_getthese").'</button></div>';
         print "</div>\n";
@@ -1155,7 +1158,7 @@ function do_playlists() {
             print '<div class="expand containerbox vertical albumimg closet">';
             print '<div class="albumimg fixed">';
             $class = "";
-            $artname = md5("Playlist ".$pl);
+            $artname = md5("Playlist ".htmlentities($pl));
             $src = "newimages/playlist.svg";
             if (file_exists('albumart/small/'.$artname.'.jpg')) {
                 $src = 'albumart/small/'.$artname.'.jpg';
@@ -1167,10 +1170,10 @@ function do_playlists() {
                 $albums_without_cover++;
             }
 
-            print '<input type="hidden" value="'.$pl.'" />';
+            print '<input type="hidden" value="'.rawurlencode($pl).'" />';
             print '<img class="clickable clickicon clickalbumcover droppable'.$class.'" name="'.$artname.'" height="82px" width="82px" src="'.$src.'" />';
             print '</div>';
-            print '<div class="albumimg fixed"><table><tr><td align="center">'.$pl.'</td></tr></table></div>';
+            print '<div class="albumimg fixed"><table><tr><td align="center">'.htmlentities($pl).'</td></tr></table></div>';
             print '</div>';
 
             $colcount++;

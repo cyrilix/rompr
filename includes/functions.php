@@ -231,7 +231,6 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
         }
         print '<div class="containerbox line"><div class="tracknumber fixed"></div><div class="expand playlistrow2">';
         print '<i class="icon-'.trim($rating).'-stars rating-icon-small"></i>';
-        // print '<img height="12px" src="newimages/'.trim($rating).'stars.png" />';
         print '</div></div>';
     }
     print '</div>';
@@ -244,13 +243,8 @@ function noAlbumTracks() {
 
 function artistHeader($id, $spotilink, $name, $numalbums = null) {
     global $divtype;
-    $browseable = " ";
-    // Browsing doesn't work for spotify artists :(
-    // if ($numalbums === 0) {
-    //     $browseable = " browseable";
-    // }
     if ($spotilink) {
-        print '<div class="clickable clicktrack draggable containerbox menuitem'.$browseable.$divtype.'" name="'.$spotilink.'">';
+        print '<div class="clickable clicktrack draggable containerbox menuitem'.$divtype.'" name="'.$spotilink.'">';
         print '<i class="icon-toggle-closed menu mh fixed" name="'.$id.'"></i>';
         $d = getDomain($spotilink);
         $d = preg_replace('/\+.*/','', $d);
@@ -845,47 +839,99 @@ function checkComposerGenre($genre, $pref) {
 
 function getWishlist() {
 
-    global $mysqlc, $collection;
+    global $mysqlc, $divtype, $prefs;
     if ($mysqlc === null) {
         connect_to_database();
     }
 
-    $collection = new musicCollection(null);
+    $qstring = 'SELECT wishlist.*, Ratingtable.Rating FROM 
+                (SELECT Tracktable.TTindex AS ttindex, Tracktable.Title AS track, Tracktable.TrackNo AS num, Tracktable.Duration AS time, Tracktable.Disc as disc, Artisttable.Artistname AS artist, Albumtable.Albumname AS album, Albumtable.Image AS image, Albumtable.ImgKey AS imgkey FROM Tracktable JOIN Artisttable USING (Artistindex) JOIN Albumtable ON Tracktable.Albumindex = Albumtable.Albumindex WHERE Uri IS NULL AND Hidden = 0
+                UNION
+                SELECT Tracktable.TTindex AS ttindex, Tracktable.Title AS track, Tracktable.TrackNo AS num, Tracktable.Duration AS time, Tracktable.Disc as disc, Artisttable.Artistname AS artist, "" AS Albumname, NULL as Image, NULL AS ImgKey FROM Tracktable JOIN Artisttable USING (Artistindex) WHERE Albumindex IS NULL AND Uri IS NULL AND Hidden = 0) AS wishlist
+                LEFT JOIN Ratingtable ON Ratingtable.TTindex = wishlist.ttindex
+                ORDER BY ';
+    foreach ($prefs['artistsatstart'] as $a) {
+        $qstring .= "CASE WHEN LOWER(artist) = LOWER('".$a."') THEN 1 ELSE 2 END, ";
+    }
+    if (count($prefs['nosortprefixes']) > 0) {
+        $qstring .= "(CASE ";
+        foreach($prefs['nosortprefixes'] AS $p) {
+            $phpisshitsometimes = strlen($p)+2;
+            $qstring .= "WHEN LOWER(artist) LIKE '".strtolower($p)." %' THEN LOWER(SUBSTR(artist,".$phpisshitsometimes.")) ";
+        }
+        $qstring .= "ELSE LOWER(artist) END)";
+    } else {
+        $qstring .= "LOWER(artist)";
+    }
+    $qstring .= ', LOWER (album),
+    num';
 
-    // For the wishlist - get the tracks which have no uri
-    $qstring = "SELECT Tracktable.*, Artisttable.*, Albumtable.* FROM Tracktable JOIN Artisttable USING (Artistindex) JOIN Albumtable ON Tracktable.Albumindex = Albumtable.Albumindex WHERE Uri IS NULL AND Hidden = 0";
+    $current_artist = "";
+    $current_album = "";
+    $count = 0;
     if ($result = generic_sql_query($qstring)) {
         while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
-            $filedata = array(
-                'Artist' => $obj->Artistname,
-                'file' => $obj->Uri,
-                'Title' => $obj->Title,
-                'Track' => $obj->TrackNo,
-                'Time' => $obj->Duration,
-                'Last-Modified' => $obj->LastModified,
-                'Image' => $obj->Image,
-                'Album' => $obj->Albumname
+            $bothclosed = false;
+            debug_print("Found Track ".$obj->track,"WISHLIST");
+            if ($current_artist != $obj->artist) {
+                if ($current_artist != "") {
+                    print '</div></div>';
+                    $bothclosed = true;
+                }
+                $current_artist = $obj->artist;
+                artistHeader("wishlistartist_".$count, null, $obj->artist, null);
+                print '<div id="wishlistartist_'.$count.'" class="dropmenu">';
+                $count++;
+                $divtype = ($divtype == "album1") ? "album2" : "album1";
+            }
+            if ($current_album != $obj->album) {
+                if (!$bothclosed && $current_album != "") {
+                    print '</div>';
+                }
+                $current_album = $obj->album;
+                albumHeader(
+                    $obj->album,
+                    null,
+                    'wishlistalbum_'.$count,
+                    ($obj->image === null) ? "no" : "yes",
+                    ($obj->album == "") ? "yes" : "no",
+                    $obj->imgkey,
+                    $obj->image,
+                    null,
+                    null,
+                    null
+                );
+                print '<div id="wishlistalbum_'.$count.'" class="dropmenu">';
+                $count++;
+            }
+            albumTrack(
+                null,
+                $obj->Rating,
+                null,
+                0,
+                $obj->num,
+                $obj->track,
+                null,
+                null,
+                null
             );
-            process_file($filedata);
         }
     }
 
-    $qstring = "SELECT Tracktable.*, Artisttable.* FROM Tracktable JOIN Artisttable USING (Artistindex) WHERE Albumindex IS NULL AND Uri IS NULL AND Hidden = 0";
-    if ($result = generic_sql_query($qstring)) {
-        while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
-            $filedata = array(
-                'Artist' => $obj->Artistname,
-                'file' => $obj->Uri,
-                'Title' => $obj->Title,
-                'Track' => $obj->TrackNo,
-                'Time' => $obj->Duration,
-                'Last-Modified' => $obj->LastModified,
-                'Image' => "",
-                'Album' => ""
-            );
-            process_file($filedata);
-        }
-    }
+}
+
+function htmlHeaders() {
+    $headers =  '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'.
+            '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">'.
+            '<head>'.
+            '<meta http-equiv="cache-control" content="max-age=0" />'.
+            '<meta http-equiv="cache-control" content="no-cache" />'.
+            '<meta http-equiv="expires" content="0" />'.
+            '<meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />'.
+            '<meta http-equiv="pragma" content="no-cache" />'.
+            '</head>'.
+            '<body>';
+    print $headers;
 }
 
 ?>

@@ -113,6 +113,11 @@ select:hover{
     background:#fff url('../newimages/blobdown2-hi.svg') right 2px center no-repeat;    
 }
 
+.clearbox {
+    background:#fff url('../newimages/edit-delete.svg') right 2px center no-repeat;  
+    background-size:12px 12px;      
+}
+
 .combo-button
 {
     background-image: url('../newimages/blobdown2.svg');
@@ -1553,11 +1558,6 @@ div.lyrics p
 .drop-box .backhi:hover
 {
     transition: all 0s !important;
-}
-
-.combobox-entry
-{
-    cursor: pointer;
 }
 
 #tagdoer

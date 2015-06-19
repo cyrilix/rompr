@@ -96,6 +96,11 @@ function togglePref(event) {
             $("#donkeykong").makeFlasher({flashtime: 0.5, repeats: 3});
             break;
 
+        case 'displaycomposer':
+        debug.log("PREFS","Display Composer Option was changed");
+            callback = player.controller.doTheNowPlayingHack;
+            break
+
         case "sortbydate":
         case "notvabydate":
             if (prefs.apache_backend == "xml") {
@@ -304,7 +309,7 @@ function removeUserStream(xspf) {
 }
 
 function toggleFileSearch() {
-    $("#filesearch").slideToggle('fast');
+    $("#filesearch").slideToggle({duration: 'fast', start: setFileSearchLabelWidth});
     return false;
 }
 
@@ -602,10 +607,6 @@ function checkCollection(forceup, rescan) {
             debug.log("GENERAL","Updating because albums list doesn't exist and it's not hidden");
             update = true;
         }
-        if (!fileslistexists && !prefs.hide_filelist) {
-            debug.log("GENERAL","Updating because files list doesn't exist and it's not hidden");
-            update = true;
-        }
     }
     if (update) {
         player.controller.updateCollection(rescan ? 'rescan' : 'update');
@@ -615,10 +616,10 @@ function checkCollection(forceup, rescan) {
             loadCollection('albums.php?item=aalbumroot', null);
         } else if (prefs.hide_albumlist && !prefs.hide_filelist) {
             debug.log("GENERAL","Loading Files Cache Only");
-            loadCollection(null, 'dirbrowser.php?item=adirroot');
+            loadCollection(null, 'dirbrowser.php');
         } else if (!prefs.hide_albumlist && !prefs.hide_filelist) {
             debug.log("GENERAL","Loading Both Caches");
-            loadCollection('albums.php?item=aalbumroot', 'dirbrowser.php?item=adirroot');
+            loadCollection('albums.php?item=aalbumroot', 'dirbrowser.php');
         }
     }
 }
@@ -872,17 +873,24 @@ function populateTagMenu(callback) {
 var tagAdder = function() {
 
     var index = null;
+    var lastelement = null;
 
     return {
         show: function(evt, idx) {
-            index = idx;
-            var position = getPosition(evt);
-            layoutProcessor.setTagAdderPosition(position);
-            $("#tagadder").fadeIn('fast');
+            if (evt.target == lastelement) {
+                tagAdder.close();                
+            }  else {
+                index = idx;
+                var position = getPosition(evt);
+                layoutProcessor.setTagAdderPosition(position);
+                $("#tagadder").fadeIn('fast');
+                lastelement = evt.target;
+            }
         },
 
         close: function() {
             $("#tagadder").fadeOut('fast');
+            lastelement = null;
         },
 
         add: function(toadd) {
@@ -1070,6 +1078,17 @@ function setSearchLabelWidth() {
     $(".searchlabel").css("width", w+"px");
 }
 
+function setFileSearchLabelWidth() {
+    var w = 0;
+    $.each($(".fslt"), function() {
+        if ($(this).width() > w) {
+            w = $(this).width();
+        }
+    });
+    w += 8;
+    $(".fsearchlabel").css("width", w+"px");
+}
+
 function audioClass(filetype) {
     filetype = filetype.toLowerCase();
     switch (filetype) {
@@ -1159,3 +1178,102 @@ function removeOpenItems(index) {
     }
 }
 
+function doPluginDropStuff(name,attributes,fn) {
+    var tracks = new Array();
+    $.each($('.selected').filter(removeOpenItems), function (index, element) {
+        var uri = unescapeHtml(decodeURIComponent($(element).attr("name")));
+        debug.log("DROPPLUGIN","Dragged",uri,"to",name);
+        if ($(element).hasClass('directory')) {
+            tracks.push({
+                uri: decodeURIComponent($(element).children('input').first().attr('name')),
+                action: 'geturisfordir',
+                attributes: attributes
+            });
+        } else if ($(element).hasClass('clickalbum')) {
+            tracks.push({
+                uri: uri,
+                action: 'geturis',
+                attributes: attributes
+            });
+        } else {
+            tracks.push({
+                uri: uri,
+                artist: 'dummy',
+                title: 'dummy',
+                urionly: '1',
+                dontcreate: '1',
+                action: 'set',
+                attributes: attributes
+            });
+        }
+    });
+
+    (function dotags() {
+        var track = tracks.shift();
+        if (track) {
+            if (track.action == 'geturis' ||
+                track.action == 'geturisfordir') {
+                $.ajax({
+                    url: "backends/sql/userRatings.php",
+                    type: "POST",
+                    data: track,
+                    dataType: 'json',
+                    success: function(rdata) {
+                        for (var i in rdata) {
+                            var u = rdata[i];
+                            u = u.replace(/ \"/,'');
+                            u = u.replace(/\"$/, '');
+                            tracks.push({
+                                uri: u,
+                                artist: 'dummy',
+                                title: 'dummy',
+                                urionly: '1',
+                                dontcreate: '1',
+                                action: 'set',
+                                attributes: track.attributes
+                            });
+                        }
+                        dotags();
+                    },
+                    error: function() {
+                        debug.error("DROPPLUGIN","Error looking up track URIs");
+                        infobar.notify(infobar.ERROR, "Failed To Set Attributes");
+                        dotags();
+                    }
+                });
+            } else {
+                $.ajax({
+                    url: "backends/sql/userRatings.php",
+                    type: "POST",
+                    data: track,
+                    dataType: 'json',
+                    success: function(rdata) {
+                        dotags();
+                    },
+                    error: function(data) {
+                        debug.warn("DROPPLUGIN","Failed to set attributes for",track,data);
+                        infobar.notify(infobar.ERROR, "Failed To Set Attributes");
+                        dotags();
+                    }
+                });
+            }
+        } else {
+            tracks = null;
+            fn(name);
+        }
+    })();
+    
+}
+
+function makeHoverWork(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    var jq = $(ev.target);
+    var position = getPosition(ev);
+    var elemright = jq.width() + jq.offset().left;
+    if (position.x > elemright - 14) {
+        jq.css('cursor','pointer');
+    } else {
+        jq.css('cursor','auto');
+    }
+} 

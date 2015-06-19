@@ -9,6 +9,8 @@ function playerController() {
     var plversion = null;
     var openpl = null;
     var oldplname;
+    var lastfilesearchterms = {};
+    var thenowplayinghack = false;
 
     function updateStreamInfo() {
 
@@ -43,7 +45,7 @@ function playerController() {
             {
                 playlist.currentTrack = temp;
                 debug.log("STREAMHANDLER","Detected change of track",playlist.currentTrack);
-                nowplaying.newTrack(playlist.currentTrack);
+                nowplaying.newTrack(playlist.currentTrack, true);
             }
             temp = null;
         }
@@ -161,7 +163,6 @@ function playerController() {
 
     this.reloadFilesList = function(uri) {
         $("#filecollection").load(uri);
-        $('#filesearch').load("filesearch.php");
     }
 
     this.isConnected = function() {
@@ -205,6 +206,7 @@ function playerController() {
 
 	this.deletePlaylist = function(name, callback) {
         openpl = null;
+        name = decodeURIComponent(name);
         if (callback) {
             self.do_command_list([['rm',name]], callback);
         } else {
@@ -248,7 +250,7 @@ function playerController() {
 
     this.doRenamePlaylist = function() {
         popupWindow.close();
-        self.do_command_list([["rename", oldplname, encodeURIComponent($("#newplname").val())]], function() {
+        self.do_command_list([["rename", decodeURIComponent(oldplname), $("#newplname").val()]], function() {
             self.reloadPlaylists();
             if (playlistManager) {
                 playlistManager.reloadAll();
@@ -292,7 +294,7 @@ function playerController() {
         if (!callback) {
             callback = self.checkReloadPlaylists;
         }
-        self.do_command_list([['playlistdelete',name,songpos]], callback);
+        self.do_command_list([['playlistdelete',decodeURIComponent(name),songpos]], callback);
     }
 
     this.checkReloadPlaylists = function() {
@@ -313,7 +315,7 @@ function playerController() {
 	    if (name.indexOf("/") >= 0 || name.indexOf("\\") >= 0) {
 	        infobar.notify(infobar.ERROR, language.gettext("error_playlistname"));
 	    } else {
-	        self.do_command_list([["save", encodeURIComponent(name)]], function() {
+	        self.do_command_list([["save", name]], function() {
 	            self.reloadPlaylists();
                 if (playlistManager) {
                     playlistManager.reloadAll();
@@ -438,18 +440,6 @@ function playerController() {
     			case "item":
     				cmdlist.push(['additem',v.name]);
     				break;
-    			case "delete":
-                    // This was for Last.FM radio. It shouldn't be used
-                    debug.error("MPD", "Track DELETE command found in addTracks!");
-    	// 			cmdlist.push("deleteid "+v.name);
-    	// 			if (at_pos) {
-    	// 				at_pos--;
-    	// 			}
-					// if (playpos && playpos > -1) {
-					// 	playpos--;
-					// }
-					// pl--;
-    	// 			break;
     		}
 		});
 		// Note : playpos, if set, will point to the first track position
@@ -499,10 +489,10 @@ function playerController() {
 		}
 	}
 
-    this.search = function() {
+    this.search = function(command) {
         var terms = {};
         var termcount = 0;
-        $("#mopidysearcher").find('.searchterm').each( function() {
+        $("#collectionsearcher").find('.searchterm').each( function() {
             var key = $(this).attr('name');
             var value = $(this).attr("value");
             if (value != "") {
@@ -523,14 +513,17 @@ function playerController() {
             $("#searchresultholder").empty();
             doSomethingUseful('searchresultholder', language.gettext("label_searching"));
             debug.log("PLAYER","Doing Search:", terms);
-            var st;
+            var st = {
+                command: command,
+                resultstype: prefs.displayresultsas
+            };
             if ((termcount == 1 && (terms.tag || terms.rating)) ||
                 (termcount == 2 && (terms.tag && terms.rating))) {
                 // Use the sql search engine if we're only looking for
                 // tags and/or ratings
-                st = {terms: terms};
+                st.terms = terms;
             } else {
-                st = {mpdsearch: terms};
+                st.mpdsearch = terms;
             }
             $.ajax({
                     type: "POST",
@@ -562,6 +555,47 @@ function playerController() {
         });
     }
 
+    this.filesearch = function() {
+        var terms = {};
+        var termcount = 0;
+        $("#filesearcher").find('.searchterm').each( function() {
+            var key = $(this).attr('name');
+            var value = $(this).attr("value");
+            if (value != "") {
+                debug.debug("PLAYER","Searching for files",key, value);
+                if (key == 'tag') {
+                    terms[key] = value.split(',');
+                } else {
+                    terms[key] = [value];
+                }
+                termcount++;
+            }
+        });
+        if ($('[name="fsearchrating"]').val() != "") {
+            terms['rating'] = $('[name="fsearchrating"]').val();
+            termcount++;
+        }
+        debug.log("FILESEARCH",terms);
+        lastfilesearchterms = terms;
+        if (termcount > 0) {
+            $("#filesearchresultholder").empty();
+            doSomethingUseful('filesearchresultholder', language.gettext("label_searching"));
+            debug.log("PLAYER","Doing File Search:", terms);
+            $.ajax({
+                    type: "POST",
+                    url: "dirbrowser.php",
+                    data: {
+                        command: 'search',
+                        terms: terms
+                    },
+                    success: function(data) {
+                        $("#filesearchresultholder").html(data);
+                        data = null;
+                    }
+            });
+        }
+    }
+
     this.rawfindexact = function(terms, callback) {
         // MPD doesn't suuport findexact so search will have to do
         player.controller.rawsearch(terms, [], callback);
@@ -569,7 +603,22 @@ function playerController() {
 
 	this.postLoadActions = function() {
 		self.checkProgress();
+        if (thenowplayinghack) {
+            // The Now PLaying Hack is so that when we switch the option for
+            // 'display composer/performer in nowplaying', we can first reload the
+            // playlist (to get the new artist metadata keys from the backend)
+            // and then FORCE nowplaying to accept a new track with the same backendid
+            // as the previous - this forces the nowplaying info to update
+            thenowplayinghack = false;
+            nowplaying.newTrack(playlist.currentTrack, true);
+        }
 	}
+
+    this.doTheNowPlayingHack = function() {
+        debug.log("MPD","Doing the nowplaying hack thing");
+        thenowplayinghack = true;
+        playlist.repopulate();
+    }
 
     function clearProgressTimer() {
         clearTimeout(progresstimer);
@@ -586,12 +635,12 @@ function playerController() {
 
             if (playlist.currentTrack) {
                 debug.log("MPD","Creating new track",playlist.currentTrack);
-                nowplaying.newTrack(playlist.currentTrack);
+                nowplaying.newTrack(playlist.currentTrack, false);
             } else {
                 player.status.songid = undefined;
                 player.status.elapsed = undefined;
                 player.status.file = undefined;
-                nowplaying.newTrack(playlist.emptytrack);
+                nowplaying.newTrack(playlist.emptytrack, false);
                 infobar.setProgress(0);
                 $(".playlistcurrentitem").removeClass('playlistcurrentitem').addClass('playlistitem');
                 $(".playlistcurrenttitle").removeClass('playlistcurrenttitle').addClass('playlisttitle');
@@ -660,14 +709,18 @@ function playerController() {
     this.addTracksToPlaylist = function(playlist,tracks,callback) {
         var cmds = new Array();
         for (var i in tracks) {
-            cmds.push(['playlistadd',playlist,tracks[i]]);
+            if (tracks[i].uri) {
+                cmds.push(['playlistadd',decodeURIComponent(playlist),tracks[i].uri]);
+            } else if (tracks[i].dir) {
+                cmds.push(['playlistadddir',decodeURIComponent(playlist),tracks[i].dir]);
+            }
         }
         self.do_command_list(cmds,callback);
     }
 
     this.movePlaylistTracks = function(playlist,from,to,callback) {
         var cmds = new Array();
-        cmds.push(['playlistmove',playlist,from,to]);
+        cmds.push(['playlistmove',decodeURIComponent(playlist),from,to]);
         self.do_command_list(cmds,callback);        
     }
 

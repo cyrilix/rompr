@@ -23,13 +23,13 @@ if (array_key_exists('playlist', $_REQUEST)) {
         sort($playlists['playlist'], SORT_STRING);
         foreach ($playlists['playlist'] as $pl) {
             debug_print("Adding Playlist To List : ".$pl,"MPD PLAYLISTS");
-            add_playlist($pl, htmlspecialchars($pl), 'icon-doc-text', 'clickloadplaylist', true, $c, false);
+            add_playlist(rawurlencode($pl), htmlentities($pl), 'icon-doc-text', 'clickloadplaylist', true, $c, false);
             $c++;
         }
     }
     $existingfiles = glob('prefs/userplaylists/*');
     foreach($existingfiles as $file) {
-        add_playlist(file_get_contents($file), basename($file), 'icon-doc-text', 'clickloadplaylist', true, $c, true);
+        add_playlist(rawurlencode(file_get_contents($file)), htmlentities(basename($file)), 'icon-doc-text', 'clickloadplaylist', true, $c, true);
         $c++;        
     }
 
@@ -47,7 +47,7 @@ function do_playlist_tracks($pl, $icon) {
             }
             $c = 0;
             foreach ($streams['file'] as $st) {
-                add_playlist(rawurlencode($st), htmlspecialchars(substr($st, strrpos($st, '#')+1, strlen($st))), 'icon-radio-tower' ,'clicktrack', true, $c, false);
+                add_playlist(rawurlencode($st), htmlentities(substr($st, strrpos($st, '#')+1, strlen($st))), 'icon-radio-tower' ,'clicktrack', true, $c, false);
                 $c++;
             }
         }
@@ -65,7 +65,7 @@ function do_playlist_tracks($pl, $icon) {
                 $link = "soundcloud://track/".$matches[1];
                 $class = "clickcue";
             }
-            add_playlist(rawurlencode($link), htmlspecialchars($track->name), 'icon-music', $class, true, $c, false);
+            add_playlist(rawurlencode($link), htmlentities($track->name), 'icon-music', $class, true, $c, false);
             $c++;
         }
     }
@@ -83,7 +83,7 @@ function add_playlist($link, $name, $icon, $class, $delete, $count, $is_user) {
             } else {
                 print '<div class="smallcover fixed"><img class="smallcover fixed" name="'.$image.'" src="newimages/playlist.svg" /></div>';
             }
-            print '<div class="expand">'.rawurldecode($name).'</div>';
+            print '<div class="expand">'.$name.'</div>';
             if ($delete) {
                 $add = ($is_user) ? "user" : "";
                 print '<i class="icon-floppy fixed smallicon clickable clickicon clickrename'.$add.'playlist"></i>';

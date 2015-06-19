@@ -24,23 +24,6 @@ var tagManager = function() {
 		holder.html(html);
 	}
 
-	function reloadTagList(tag) {
-        $.ajax({
-        	url: 'backends/sql/userRatings.php',
-        	type: "POST",
-        	data: {action: 'taglist'},
-        	dataType: 'json',
-        	success: function(data) {
-        		putTracks(holders[tag], data[tag], tag);
-        		browser.rePoint();
-        	},
-        	error: function() {
-        		infobar.notify(infobar.ERROR, "Failed to get Taglist");
-        	}
-        });
-
-	}
-
 	return {
 
 		open: function() {
@@ -65,11 +48,23 @@ var tagManager = function() {
     				'</div>');
     			$("#tmgfoldup").append('<div class="containerbox padright noselection">'+
         			'<div class="expand">'+
-            		'<input class="enter inbrowser" name="tfilterinput" type="text" />'+
+            		'<input class="enter inbrowser clearbox" name="tfilterinput" type="text" />'+
         			'</div>'+
 					'<button class="fixed" onclick="tagManager.filter()">'+language.gettext("button_search")+'</button>'+
     				'</div>');
 			    $("#tmgfoldup").append('<div class="noselection fullwidth masonified" id="tagmunger"></div>');
+			    $('[name="tfilterinput"]').click(function(ev){
+		            ev.preventDefault();
+		            ev.stopPropagation();
+		            var position = getPosition(ev);
+		            var elemright = $('[name="tfilterinput"]').width() + $('[name="tfilterinput"]').offset().left;
+		            if (position.x > elemright - 24) {
+		            	$('[name="tfilterinput"]').val("");
+		            	tagManager.filter();
+		            }
+			    });
+			    $('[name="tfilterinput"]').hover(makeHoverWork);
+			    $('[name="tfilterinput"]').mousemove(makeHoverWork);
 	            $.ajax({
 	            	url: 'backends/sql/userRatings.php',
 	            	type: "POST",
@@ -129,84 +124,28 @@ var tagManager = function() {
 			browser.rePoint();
 		},
 
+		reloadTagList: function(tag) {
+	        $.ajax({
+	        	url: 'backends/sql/userRatings.php',
+	        	type: "POST",
+	        	data: {action: 'taglist'},
+	        	dataType: 'json',
+	        	success: function(data) {
+	        		putTracks(holders[tag], data[tag], tag);
+	        		browser.rePoint();
+	        	},
+	        	error: function() {
+	        		infobar.notify(infobar.ERROR, "Failed to get Taglist");
+	        	}
+	        });
+
+		},
+
 		dropped: function(event, ui) {
 	        event.stopImmediatePropagation();
-	        var tracks = new Array();
 	        var tag = $(event.target).attr("id");
 	        tag = tag.replace(/tagman_/,'');
-	        $.each($('.selected').filter(removeOpenItems), function (index, element) {
-	        	var uri = unescapeHtml(decodeURIComponent($(element).attr("name")));
-	        	debug.log("TAGMANAGER","Dragged",uri,"to",tag);
-	        	if ($(element).hasClass('clickalbum')) {
-		        	tracks.push({
-		        		uri: uri,
-		        		action: 'geturis',
-		        		attributes: [{attribute: 'Tags', value: [tag]}]
-		        	});
-		        } else {
-		        	tracks.push({
-		        		uri: uri,
-		        		artist: 'dummy',
-		        		title: 'dummy',
-		        		urionly: '1',
-		        		dontcreate: '1',
-		        		action: 'set',
-		        		attributes: [{attribute: 'Tags', value: [tag]}]
-		        	});
-		        }
-	        });
-	        (function dotags() {
-	        	var track = tracks.shift();
-	        	if (track) {
-	        		if (track.action == 'geturis') {
-		        		$.ajax({
-		        			url: "backends/sql/userRatings.php",
-		        			type: "POST",
-		        			data: track,
-		        			dataType: 'json',
-		        			success: function(rdata) {
-		        				for (var i in rdata) {
-		        					var u = rdata[i];
-		        					u = u.replace(/ \"/,'');
-		        					u = u.replace(/\"$/, '');
-		        					tracks.push({
-						        		uri: u,
-						        		artist: 'dummy',
-						        		title: 'dummy',
-						        		urionly: '1',
-						        		dontcreate: '1',
-						        		action: 'set',
-						        		attributes: track.attributes
-		        					});
-		        				}
-		        				dotags();
-		        			},
-		        			error: function() {
-		        				infobar.notify(infobar.ERROR, "Failed To Set Tags on Item");
-		        				dotags();
-		        			}
-		        		});
-	        		} else {
-		        		$.ajax({
-		        			url: "backends/sql/userRatings.php",
-		        			type: "POST",
-		        			data: track,
-		        			dataType: 'json',
-		        			success: function(rdata) {
-		        				dotags();
-		        			},
-		        			error: function() {
-		        				infobar.notify(infobar.ERROR, "Failed To Set Tag");
-		        				dotags();
-		        			}
-		        		});
-		        	}
-	        	} else {
-	        		tracks = null;
-	        		reloadTagList(tag);
-	        	}
-	        })();
-
+	        doPluginDropStuff(tag,[{attribute: 'Tags', value: [tag]}],tagManager.reloadTagList);
 		},
 
 		handleClick: function(element, event) {
@@ -228,7 +167,7 @@ var tagManager = function() {
         			},
         			dataType: 'json',
         			success: function(rdata) {
-        				reloadTagList(tag);
+        				tagManager.reloadTagList(tag);
         			},
         			error: function() {
         				infobar.notify(infobar.ERROR, "Failed To Remove Tag");

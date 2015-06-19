@@ -29,7 +29,7 @@ if (array_key_exists('item', $_REQUEST)) {
     include ("player/".$player_backend."/connection.php");
     include ("collection/collection.php");
     include( "collection/dbsearch.php");
-    $cmd = "search";
+    $cmd = $_REQUEST['command'];
     foreach ($_REQUEST['mpdsearch'] as $key => $term) {
         if ($key == "tag") {
             $dbterms['tags'] = $term;
@@ -40,9 +40,13 @@ if (array_key_exists('item', $_REQUEST)) {
         }
     }
     debug_print("Search command : ".$cmd,"MPD SEARCH");
-    doCollection($cmd);
-    createAlbumsList(ROMPR_XML_SEARCH, "b");
-    dumpAlbums('balbumroot');
+    if ($_REQUEST['resultstype'] == "tree") {
+        doFileSearch($cmd);
+    } else {
+        doCollection($cmd);
+        createAlbumsList(ROMPR_XML_SEARCH, "b");
+        dumpAlbums('balbumroot');
+    }
     print '<div class="separator"></div>';
     close_player();
 } else if (array_key_exists("mopidysearch", $_REQUEST)) {
@@ -88,18 +92,24 @@ if (array_key_exists('item', $_REQUEST)) {
 } else if (array_key_exists('terms', $_REQUEST)) {
     // SQL database search request
     $domains = (array_key_exists('domains', $_REQUEST)) ? $_REQUEST['domains'] : null;
+    include ("player/".$player_backend."/connection.php");
     include ("collection/collection.php");
     include( "collection/dbsearch.php");
-    doDbCollection($_REQUEST['terms'], $domains);
-    createAlbumsList(ROMPR_XML_SEARCH, "b");
-    dumpAlbums('balbumroot');
+    doDbCollection($_REQUEST['terms'], $domains, $_REQUEST['resultstype']);
+    if ($_REQUEST['resultstype'] == "tree") {
+
+    } else {
+        createAlbumsList(ROMPR_XML_SEARCH, "b");
+        dumpAlbums('balbumroot');
+    }
     print '<div class="separator"></div>';
+    close_player();
 } else if (array_key_exists('wishlist', $_REQUEST)) {
     include ("collection/collection.php");
     include("collection/dbsearch.php");
     getWishlist();
-    createAlbumsList('prefs/w_list.xml', "w");
-    dumpAlbums('walbumroot');
+    // createAlbumsList('prefs/w_list.xml', "w");
+    // dumpAlbums('walbumroot');
 } else if (array_key_exists('rebuild', $_REQUEST)) {
     // This is a request to rebuild the music collection coming from either
     // the mpd or mopidy controller

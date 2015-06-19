@@ -4,8 +4,7 @@ var playlistManager = function() {
 	var holders = new Array();
 
 	function putTracks(holder, tracks, title) {
-		var id = escapeHtml(title);
-		var html = '<input type="hidden" value="'+id+'">';
+		var html = '<input type="hidden" value="'+title+'">';
 		html = html + '<table align="center" style="border-collapse:collapse;width:96%';
 		if (tracks.length > 0 && tracks[0].plimage != "") {
 			debug.log("PLAYLISTMANAGER",title,"has a background image of",tracks[0].plimage);
@@ -130,7 +129,7 @@ var playlistManager = function() {
 
 		handleClick: function(element, event) {
 			if (element.hasClass('clickremplay')) {
-		        var list = unescapeHtml(element.parent().parent().parent().parent().parent().children('input').first().val());
+		        var list = element.parent().parent().parent().parent().parent().children('input').first().val();
 		        var pos = element.attr('name');
 		        debug.log("PLAYLISTMANAGER","Removing Track",pos,"from playlist",list);
 		        player.controller.deletePlaylistTrack(list,pos, function() {
@@ -138,13 +137,15 @@ var playlistManager = function() {
 		        	player.controller.reloadPlaylists();
 		        });
 			} else if (element.hasClass('clickdelplaylist')) {
-		        var list = unescapeHtml(element.parent().parent().parent().parent().prev().val());
+		        var list = element.parent().parent().parent().parent().prev().val();
 		        var holder = element.parent().parent().parent().parent().parent();
 		        debug.log("PLAYLISTMANAGER","Deleting Playlist",list);
 		        player.controller.deletePlaylist(list,function() {
 		        	player.controller.reloadPlaylists();
-		        	$("#playmunger").masonry('remove',holder);
-		        	browser.rePoint();
+		        	holder.fadeOut('fast', function() {
+			        	$("#playmunger").masonry('remove',holder);
+			        	browser.rePoint();
+		        	});
 		        });
 			} else if (element.hasClass('clickrenplaylist')) {
 		        var list = unescapeHtml(element.parent().parent().parent().parent().prev().val());
@@ -162,11 +163,17 @@ var playlistManager = function() {
 		dropped: function(event, ui) {
 	        event.stopImmediatePropagation();
 	        var tracks = new Array();
-	        var playlist = unescapeHtml($(event.target).children('input').first().val());
+	        var playlist = $(event.target).children('input').first().val();
 	        $.each($('.selected').filter(removeOpenItems), function (index, element) {
-	        	var uri = unescapeHtml(decodeURIComponent($(element).attr("name")));
-	        	debug.log("RATMANAGER","Dragged",uri,"to",playlist);
-	        	tracks.push(uri);
+	        	if ($(element).hasClass('directory')) {
+	        		var uri = decodeURIComponent($(element).children('input').first().attr('name'));
+	        		debug.log("PLAYLISTMANAGER","Dragged Directory",uri,"to",playlist);
+	        		tracks.push({dir: uri});
+	        	} else {
+		        	var uri = decodeURIComponent($(element).attr("name"));
+		        	debug.log("PLAYLISTMANAGER","Dragged",uri,"to",playlist);
+		        	tracks.push({uri: uri});
+		        }
 	        });
 	        $('.selected').removeClass('selected');
 	        if (tracks.length > 0) {
@@ -196,7 +203,7 @@ var playlistManager = function() {
 
 		dragstopped: function(event, ui) {
 	        event.stopImmediatePropagation();
-			var playlist = unescapeHtml($(ui.item).parent().parent().parent().children('input').val());
+			var playlist = $(ui.item).parent().parent().parent().children('input').val();
 			var item = $(ui.item).attr('name');
 			item = item.replace(/playmanitem_/,'');
 			var next = $(ui.item).next().attr('name');
@@ -216,7 +223,7 @@ var playlistManager = function() {
 			// We don't need to actually create the playlist at the mpd end because
 			// mpd will create it automatically if we add a track to it. And what's the point
 			// of an empty playlist?
-			var playlist = $('[name=newplaylistnameinput]').val();			
+			var playlist = rawurlencode($('[name=newplaylistnameinput]').val());
 			holders[playlist] = $('<div>', {class: 'tagholder selecotron noselection'}).prependTo($("#playmunger"));
 			putTracks(holders[playlist],[],playlist);
 			holders[playlist].droppable({

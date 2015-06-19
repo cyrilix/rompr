@@ -30,7 +30,7 @@ function print_playlists_as_json() {
     $putinplaylistarray = true;
     foreach ($playlists['playlist'] as $name) {
     	$playlist = array();
-    	$pls[$name] = array();
+    	$pls[rawurlencode($name)] = array();
         doCollection('listplaylistinfo "'.$name.'"', null, array("TlTrack"), true);
         $c = 0;
         $plimage = "";
@@ -45,7 +45,7 @@ function print_playlists_as_json() {
 	            debug_print(" ... Link is SoundCloud","PLAYLISTS");
 	            $link = "soundcloud://track/".$matches[1];
 	        }
-	        $pls[$name][] = array(
+	        $pls[rawurlencode($name)][] = array(
 	        	'Uri' => $link,
 	        	'Title' => $track->name,
 	            "Album" => $track->album,

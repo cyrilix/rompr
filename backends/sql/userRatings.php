@@ -6,6 +6,9 @@ include ("utils/imagefunctions.php");
 include ("international.php");
 debug_print("--------------------------START---------------------","USERRATING");
 include ("backends/sql/backend.php");
+if ($prefs['player_backend'] == "mpd") {
+	include("player/mpd/connection.php");
+}
 
 $error = 0;
 $count = 1;
@@ -393,10 +396,17 @@ switch ($_POST['action']) {
 		print json_encode($uris);
 		break;
 
+	case 'geturisfordir':
+		$uris = getDirItems($uri);
+		print json_encode($uris);
+		break;
+
 }
 
 close_transaction();
-
+if ($prefs['player_backend'] == "mpd") {
+	close_player();
+}
 debug_print("---------------------------END----------------------","USERRATING");
 
 function forcedUriOnly($u,$d) {
@@ -533,5 +543,4 @@ function check_wishlist_doodads($ttids) {
 	}
 	return $donesomething;
 }
-
 ?>

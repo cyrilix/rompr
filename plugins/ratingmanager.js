@@ -24,23 +24,6 @@ var ratingManager = function() {
 		holder.html(html);
 	}
 
-	function reloadRatList(rat) {
-        $.ajax({
-        	url: 'backends/sql/userRatings.php',
-        	type: "POST",
-        	data: {action: 'ratlist'},
-        	dataType: 'json',
-        	success: function(data) {
-        		putTracks(holders[rat], data[rat], rat);
-        		browser.rePoint();
-        	},
-        	error: function() {
-        		infobar.notify(infobar.ERROR, "Failed to get Rating list");
-        	}
-        });
-
-	}
-
 	return {
 
 		open: function() {
@@ -60,12 +43,24 @@ var ratingManager = function() {
 
     			$("#rmgfoldup").append('<div class="containerbox padright noselection">'+
         			'<div class="expand">'+
-            		'<input class="enter inbrowser" name="filterinput" type="text" />'+
+            		'<input class="enter inbrowser clearbox" name="filterinput" type="text" />'+
         			'</div>'+
 					'<button class="fixed" onclick="ratingManager.filter()">'+language.gettext("button_search")+'</button>'+
     				'</div>');
     			
 			    $("#rmgfoldup").append('<div class="noselection fullwidth masonified" id="ratmunger"></div>');
+			    $('[name="filterinput"]').click(function(ev){
+		            ev.preventDefault();
+		            ev.stopPropagation();
+		            var position = getPosition(ev);
+		            var elemright = $('[name="filterinput"]').width() + $('[name="filterinput"]').offset().left;
+		            if (position.x > elemright - 24) {
+		            	$('[name="filterinput"]').val("");
+		            	ratingManager.filter();
+		            }
+			    });
+			    $('[name="filterinput"]').hover(makeHoverWork);
+			    $('[name="filterinput"]').mousemove(makeHoverWork);
 	            $.ajax({
 	            	url: 'backends/sql/userRatings.php',
 	            	type: "POST",
@@ -128,7 +123,7 @@ var ratingManager = function() {
         			dataType: 'json',
         			success: function(rdata) {
         				updateCollectionDisplay(rdata);
-        				reloadRatList(rat);
+        				ratingManager.reloadRatList(rat);
         			},
         			error: function() {
         				infobar.notify(infobar.ERROR, "Failed To Remove Rating");
@@ -137,85 +132,28 @@ var ratingManager = function() {
 			}
 		},
 
+		reloadRatList: function(rat) {
+	        $.ajax({
+	        	url: 'backends/sql/userRatings.php',
+	        	type: "POST",
+	        	data: {action: 'ratlist'},
+	        	dataType: 'json',
+	        	success: function(data) {
+	        		putTracks(holders[rat], data[rat], rat);
+	        		browser.rePoint();
+	        	},
+	        	error: function() {
+	        		infobar.notify(infobar.ERROR, "Failed to get Rating list");
+	        	}
+	        });
+
+		},
+
 		dropped: function(event, ui) {
 	        event.stopImmediatePropagation();
-	        var tracks = new Array();
 	        var rat = $(event.target).attr("id");
 	        rat = rat.replace(/ratman_/,'');
-	        $.each($('.selected').filter(removeOpenItems), function (index, element) {
-	        	var uri = unescapeHtml(decodeURIComponent($(element).attr("name")));
-	        	debug.log("RATMANAGER","Dragged",uri,"to",rat);
-	        	if ($(element).hasClass('clickalbum')) {
-		        	tracks.push({
-		        		uri: uri,
-		        		action: 'geturis',
-		        		attributes: [{ attribute: 'Rating', value: rat }]
-		        	});
-	        	} else {
-		        	tracks.push({
-		        		uri: uri,
-		        		artist: 'dummy',
-		        		title: 'dummy',
-		        		urionly: '1',
-		        		dontcreate: '1',
-		        		action: 'set',
-		        		attributes: [{ attribute: 'Rating', value: rat }]
-		        	});
-		        }
-	        });
-	        (function dotags() {
-	        	var track = tracks.shift();
-	        	if (track) {
-	        		if (track.action == 'geturis') {
-		        		$.ajax({
-		        			url: "backends/sql/userRatings.php",
-		        			type: "POST",
-		        			data: track,
-		        			dataType: 'json',
-		        			success: function(rdata) {
-		        				for (var i in rdata) {
-		        					var u = rdata[i];
-		        					u = u.replace(/ \"/,'');
-		        					u = u.replace(/\"$/, '');
-		        					tracks.push({
-						        		uri: u,
-						        		artist: 'dummy',
-						        		title: 'dummy',
-						        		urionly: '1',
-						        		dontcreate: '1',
-						        		action: 'set',
-						        		attributes: track.attributes
-		        					});
-		        				}
-		        				dotags();
-		        			},
-		        			error: function() {
-		        				infobar.notify(infobar.ERROR, "Failed To Set Rating on Item");
-		        				dotags();
-		        			}
-		        		});
-	        		} else {
-		        		$.ajax({
-		        			url: "backends/sql/userRatings.php",
-		        			type: "POST",
-		        			data: track,
-		        			dataType: 'json',
-		        			success: function(rdata) {
-		        				updateCollectionDisplay(rdata);
-		        				dotags();
-		        			},
-		        			error: function() {
-		        				infobar.notify(infobar.ERROR, "Failed To Set Rating");
-		        				dotags();
-		        			}
-		        		});
-		        	}
-	        	} else {
-	        		tracks = null;
-	        		reloadRatList(rat);
-	        	}
-	        })();
-
+	        doPluginDropStuff(rat,[{ attribute: 'Rating', value: rat }],ratingManager.reloadRatList)
 		},
 
 		close: function() {

@@ -61,7 +61,9 @@ var browser = function() {
             // TODO perhaps artist switches should be spliced in?
             history[ptr].mastercollection.doArtistChoices();
         } else {
-            $("#artistchooser").stop().hide();
+            if ($("#artistchooser").is(':visible')) {
+                $("#artistchooser").slideUp('fast');
+            }
         }
 
     }
@@ -325,7 +327,7 @@ var browser = function() {
                 if (prefs.clickmode == "double") {
                     trackSelect(event, element);
                 } else {
-                    playlist.addtrack(element);
+                    playlist.addItem(element);
                 }
             } else if (element.hasClass('clickartistchoose')) {
                 nowplaying.switchArtist(history[displaypointer].source, element.next().val());

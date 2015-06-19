@@ -101,11 +101,14 @@ if ($mopidy_detected) {
         close_mpd($connection);
         askForMpdValues(get_int_text("setup_connectfail"));
         exit();
-    } else if (array_key_exists('error', $mpd_status)) {
-        debug_print("MPD Password Failed or other status failure","INIT");
-        close_mpd($connection);
-        askForMpdValues(get_int_text("setup_connecterror").$mpd_status['error']);
-        exit();
+    } else {
+        $mpd_status = do_mpd_command($connection, "status", null, true);
+        if (array_key_exists('error', $mpd_status)) {
+            debug_print("MPD Password Failed or other status failure","INIT");
+            close_mpd($connection);
+            askForMpdValues(get_int_text("setup_connecterror").$mpd_status['error']);
+            exit();
+        }
     }
 
     if ($prefs['unix_socket'] != '') {

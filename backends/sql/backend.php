@@ -723,7 +723,6 @@ function albumartist_sort_query() {
 	foreach ($prefs['artistsatstart'] as $a) {
 		$qstring .= "CASE WHEN LOWER(Artistname) = LOWER('".$a."') THEN 1 ELSE 2 END, ";
 	}
-	// $prefixes = explode(',', $prefs['nosortprefixes']);
 	if (count($prefs['nosortprefixes']) > 0) {
 		$qstring .= "(CASE ";
 		foreach($prefs['nosortprefixes'] AS $p) {
@@ -1216,8 +1215,7 @@ function doDatabaseMagic() {
     debug_print("Starting Database Update From Collection","TIMINGS");
     $now = time();
 
-    $artistlist = $collection->getSortedArtistList();
-    foreach($artistlist as $artistkey) {
+    foreach(array_keys($collection->artists) as $artistkey) {
         do_artist_database_stuff($artistkey);
     }
 

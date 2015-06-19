@@ -86,7 +86,6 @@ $languages['en'] = array (
 	// General Labels and buttons in the main layout
 	"label_lastfm" => "Last.FM",
 	"button_searchmusic" => "Search Music",
-	"button_searchfiles" => "Search Files",
 	"label_yourradio" => "Your Radio Stations",
 	"label_podcasts" => "Podcasts",
 	"label_somafm" => "Soma FM",
@@ -119,7 +118,6 @@ $languages['en'] = array (
 	"label_searchresults" => "Search Results",
 	"label_multiterms" => "Multiple search terms can be used at once",
 	"label_limitsearch" => "Search Specific Backends",
-	"label_filesearch" => "Search For Files Containing",
 
 	// General multipurpose labels
 	"label_tracks" => "tracks",
@@ -550,7 +548,7 @@ $languages['en'] = array (
 	"podcast_oldestfirst" => "Oldest First",
 	"podcast_hidedescriptions" => "Hide Descriptions",
 
-	// New in 0.64
+	// New in 0.64/0.65
 	"label_metabackup" => "Metadata Backup",
 	"button_backup" => "Create Backup",
 	"button_restore" => "Restore Backup",
@@ -560,6 +558,12 @@ $languages['en'] = array (
 	"label_playlistmanagertop" => "Drag and Drop from the Music Collection to add tracks to playlists",
 	"button_createplaylist" => "CREATE PLAYLIST",
 	"label_renameplaylist" => "Rename Playlist",
+	"button_plugins" => "All Kinds of Good Stuff",
+	"label_filename" => "Filename",
+	"label_resultscollection" => "Collection",
+	"label_resultstree" => "Directory Tree",
+	"label_displayresultsas" => "Display Results As:",
+	"label_files" => "Files",
 
 	//CHANGED in 0.60
 	"config_country" => "COUNTRY (for Last.FM and Spotify)",

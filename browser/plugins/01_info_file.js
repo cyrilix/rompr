@@ -18,7 +18,7 @@ var info_file = function() {
                 }
             }
         }
-        if (file == "null") file = "";
+        if (file == "null" || file == "undefined") file = "";
         html = html + '<div class="indent"><table><tr><td class="fil">'+language.gettext("info_file")+'</td><td>'+file;
         if (file.match(/^http:\/\/.*item\/\d+\/file/)) html = html + ' <i>'+language.gettext("info_from_beets")+'</i>';
         if (info.file) {
@@ -48,17 +48,38 @@ var info_file = function() {
             }
             '</td></tr>';
         }
-        if (info.Date) html = html + '<tr><td class="fil">'+language.gettext("info_date")+'</td><td>'+info.Date+'</td></tr>';
+        if (info.Date) {
+            if (typeof info.Date == "string") {
+                info.Date = info.Date.split(';');
+            }
+            html = html + '<tr><td class="fil">'+language.gettext("info_date")+'</td><td>'+info.Date[0]+'</td></tr>';
+        }
 
-        if (info.Genre) html = html + '<tr><td class="fil">'+language.gettext("info_genre")+'</td><td>'+info.Genre+'</td></tr>';
+        if (info.Genre) {
+            if (typeof info.Genre == "string") {
+                info.Genre = info.Genre.split(';');
+            }
+            html = html + '<tr><td class="fil">'+language.gettext("info_genre")+'</td><td>'+info.Genre.join(', ')+'</td></tr>';
+        }
 
         if (info.Performer) {
-            html = html + '<tr><td class="fil">'+language.gettext("info_performers")+'</td><td>'+joinartists(info.Performer)+'</td></tr>';
+            if (typeof info.Performer == "object") {
+                info.Performer = info.Performer.join(';');
+            }
+            html = html + '<tr><td class="fil">'+language.gettext("info_performers")+'</td><td>'+joinartists(info.Performer.split(';'))+'</td></tr>';
         }
         if (info.Composer) {
-            html = html + '<tr><td class="fil">'+language.gettext("info_composers")+'</td><td>'+joinartists(info.Composer)+'</td></tr>';
+            if (typeof info.Composer == "object") {
+                info.Composer = info.Composer.join(';');
+            }
+            html = html + '<tr><td class="fil">'+language.gettext("info_composers")+'</td><td>'+joinartists(info.Composer.split(';'))+'</td></tr>';
         }
-        if (info.Comment) html = html + '<tr><td class="fil">'+language.gettext("info_comment")+'</td><td>'+info.Comment+'</td></tr>';
+        if (info.Comment) {
+            if (typeof info.Comment == "object") {
+                info.Comment = info.Comment.join('<br>');
+            }
+            html = html + '<tr><td class="fil">'+language.gettext("info_comment")+'</td><td>'+info.Comment+'</td></tr>';
+        }
         return html;
     }
 

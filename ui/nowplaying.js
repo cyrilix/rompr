@@ -54,9 +54,11 @@ function trackDataCollection(currenttrack, nowplayingindex, artistindex, playlis
 		}
 		$("#artistchooser").html(htmlarr.join('&nbsp;<font color="#ff4800">|</font>&nbsp;'));
 		if (playlistinfo.metadata.artists.length > 1) {
-			$("#artistchooser").stop().slideDown('fast');
+			$("#artistchooser").slideDown('fast');
 		} else {
-            $("#artistchooser").stop().hide();
+            if ($("#artistchooser").is(':visible')) {
+	            $("#artistchooser").slideUp('fast');
+	        }
 		}
 	}
 
@@ -192,10 +194,10 @@ var nowplaying = function() {
 			return plugins;
 		},
 
-		newTrack: function(playlistinfo) {
+		newTrack: function(playlistinfo, force) {
 
-			if (currentbackendid == playlistinfo.backendid
-				&& playlistinfo.type != 'stream') {
+			if (currentbackendid == playlistinfo.backendid &&
+				force !== true) {
 				return;
 			}
 			infobar.setNowPlayingInfo(playlistinfo);

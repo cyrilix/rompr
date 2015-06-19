@@ -1,4 +1,4 @@
-<div id="mopidysearcher" style="padding:6px">
+<div id="collectionsearcher" style="padding:6px">
 
 <?php
 $sterms = array(

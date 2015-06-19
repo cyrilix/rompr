@@ -55,7 +55,8 @@ jQuery.fn.makeTagMenu = function(options) {
                 updateOnContentResize: true,
             }
         });
-
+        textbox.hover(makeHoverWork);
+        textbox.mousemove(makeHoverWork);
         textbox.click(function(ev) {
             ev.preventDefault();
             ev.stopPropagation();
@@ -575,11 +576,16 @@ var layoutProcessor = function() {
                 addCustomScrollBar(value);
             });
             shortcuts.load();
-            $("#mopidysearcher input").keyup( function(event) {
+            $("#collectionsearcher input").keyup( function(event) {
                 if (event.keyCode == 13) {
                     player.controller.search('search');
                 }
             } );
+            // $("#filesearcher input").keyup( function(event) {
+            //     if (event.keyCode == 13) {
+            //         player.controller.filesearch();
+            //     }
+            // } );
             if (prefs.hide_albumlist) {
                 $("#search").show({complete: setSearchLabelWidth});
                 ihatefirefox();
