@@ -235,7 +235,7 @@ function delete_orphaned_artists() {
 }
 
 function sql_recent_tracks() {
-	return "SELECT Uri FROM Tracktable WHERE DATETIME('now', '-1 MONTH') <= DATETIME(DateAdded) AND Hidden = 0 AND Uri IS NOT NULL AND Title != 'Cue Sheet' AND Title != 'M3U Playlist' ORDER BY RANDOM()";
+	return "SELECT Uri FROM Tracktable WHERE DATETIME('now', '-1 MONTH') <= DATETIME(DateAdded) AND Hidden = 0 AND Uri IS NOT NULL ORDER BY RANDOM()";
 }
 
 function sql_recent_albums() {

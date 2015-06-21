@@ -6,8 +6,6 @@ if (!$dtz) {
     date_default_timezone_set('UTC');
 }
 
-$ignored_extensions = array("jpg","jpeg","gif","bmp","png","log","nfo","info","txt","sfv");
-
 @open_mpd_connection();
 
 function close_player() {
@@ -16,98 +14,141 @@ function close_player() {
 }
 
 // Create a new collection
-// Now... the trouble is that do_mpd_command returns a big array of the parsed text from mpd, which is lovely and all that.
-// Trouble is, the way that works is that everything is indexed by number so parsing that array ONLY works IF every single
-// track has the exact same tags - which in reality just ain't gonna happen.
-// So - the only thing we can rely on is the list of files and we have to parse it very carefully.
-// However on the plus side parsing 'listallinfo' is the fastest way to create our collection by about a quadrillion miles.
 
 function doCollection($command) {
 
     global $connection, $collection;
     $collection = new musicCollection($connection);
 
+    $dirs = array("/");
+
     debug_print("Starting Collection Scan ".$command, "MPD");
     prepareCollectionUpdate();
+    if ($command == "listallinfo") {
+        // Forget listallinfo and try to do this in a mopidy and mpd compatible way
+        // Also the mpd guys say "don't use listallinfo"
+        // $artists = do_mpd_command($connection, 'list "artist"', null, true);
+        // foreach ($artists['Artist'] as $a) {
+        //     debug_print("Parsing Tracks for Artist ".$a,"COLLECTION");
+        //     doMpdParse('find artist "'.format_for_mpd($a).'"');
+        // }
+        // foreach ($dirs as $dir) {
+        while (count($dirs) > 0) {
+            $dir = array_shift($dirs);
+            doMpdParse('lsinfo "'.format_for_mpd($dir).'"', $dirs);
+        }
+    } else {
+        doMpdParse($command, $dirs);
+    }
+}
 
-    $files = array();
-    $filecount = 0;
+function doMpdParse($command, &$dirs) {
+
+    global $connection, $collection;
     fputs($connection, $command."\n");
     $filedata = array();
     $parts = true;
     $foundfile = false;
 
     while(!feof($connection) && $parts) {
-        $parts = getline($connection);
-        if ($parts === false) {
-            debug_print("Got OK or ACK from MPD","COLLECTION");
-        }
+        $parts = getline($connection, true);
         if (is_array($parts)) {
-            if ($parts[0] == "file") {
-                if (!$foundfile) {
-                    $foundfile = true;
-                } else {
-                    $filecount++;
-                    process_file($filedata);
-                    $filedata = array();
-                }
+            switch ($parts[0]) {
+                case "directory":
+                    $dirs[] = trim($parts[1]);
+                    break;
+
+                default:
+                    if ($parts[0] == "file") {
+                        if (!$foundfile) {
+                            $foundfile = true;
+                        } else {
+                            process_file($filedata);
+                            $filedata = array();
+                        }
+                    }
+
+                    $multivalues = array();
+                    if ($parts[0] == "Last-Modified") {
+                        if (array_key_exists('file', $filedata)) {
+                            // We don't want the Last-Modified stamps of the directories
+                            // to be used for the files.
+                            $multivalues[] = strtotime($parts[1]);
+                        }
+                    } else {
+                        // Some tags have multiple values which are separated by a ;
+                        $multivalues = explode(';',$parts[1]);
+                    }            
+
+                    // Things like Performer can come back with multiple lines
+                    // (in fact this could happen with any tag!)
+
+                    if (array_key_exists($parts[0], $filedata)) {
+                        $filedata[$parts[0]] = array_unique(array_merge($filedata[$parts[0]], $multivalues));
+                    } else {
+                        $filedata[$parts[0]] = array_unique($multivalues);
+                    }
+                    break;
             }
-
-            $multivalues = array();
-            if ($parts[0] == "Last-Modified") {
-                $multivalues[] = strtotime($parts[1]);
-            } else {
-                // Some tags have multiple values which are separated by a ;
-                $multivalues = explode(';',$parts[1]);
-            }            
-
-            // Things like Performer can come back with multiple lines
-            // (in fact this could happen with any tag!)
-
-            if (array_key_exists($parts[0], $filedata)) {
-                $filedata[$parts[0]] = array_unique(array_merge($filedata[$parts[0]], $multivalues));
-            } else {
-                $filedata[$parts[0]] = array_unique($multivalues);
-            }
-
         }
     }
 
     if (array_key_exists('file', $filedata) && $filedata['file']) {
-        $filecount++;
         process_file($filedata);
     }
 }
 
 function doFileSearch($cmd) {
     global $connection, $dbterms;
-    $tree = new mpdlistthing("/", "/", false);
+    $tree = new mpdlistthing("/", "/", false, array());
     $parts = true;
     $fcount = 0;
+    $filedata = array();
+    $foundfile = false;
     fputs($connection, $cmd."\n");
     while(!feof($connection) && $parts) {
         $parts = getline($connection);
-        if (is_array($parts) && $parts[0] == "file") {
-            if (substr($parts[1], 0, 7) == "file://") {
-                $tree->setprotocol("file:///");
-                $parts[1] = substr($parts[1], 8, strlen($parts[1]));
+        if (is_array($parts)) {
+            switch($parts[0]) {
+                case "file":
+                    if (!$foundfile) {
+                        $foundfile = true;
+                    } else {
+                        if ($dbterms['tags'] !== null || $dbterms['rating'] !== null) {
+                            // If this is a search and we have tags or ratings to search for, check them here.
+                            if (check_url_against_database(trim($parts[1]), $dbterms['tags'], $dbterms['rating']) == true) {
+                                $tree->addpath($filedata['file'], $filedata['file'], false, $filedata);
+                                $fcount++;
+                            }
+                        }  else {
+                            $tree->addpath($filedata['file'], $filedata['file'], false, $filedata);
+                            $fcount++;
+                        }
+                        $filedata = array();
+                    }
+                    $filedata[$parts[0]] = trim($parts[1]);
+                    break;
+
+                case "playlist":
+                    if ($dbterms['tags'] === null && $dbterms['rating'] === null) {
+                        $tree->addpath(trim($parts[1]), trim($parts[1]), true, array());
+                    }
+                    $filedata = array();
+                    break;
+
+                case "Title":
+                case "Time":
+                    $filedata[$parts[0]] = $parts[1];
+                    break;
             }
-            if ($dbterms['tags'] !== null || $dbterms['rating'] !== null) {
-                // If this is a search and we have tags or ratings to search for, check them here.
-                if (check_url_against_database(trim($parts[1]), $dbterms['tags'], $dbterms['rating']) == true) {
-                    $tree->addpath(trim($parts[1]), trim($parts[1]), false);
-                    $fcount++;
-                }
-            }  else {
-                $tree->addpath(trim($parts[1]), trim($parts[1]), false);
-                $fcount++;
-            }
-        } else if (is_array($parts) && $parts[0] == "playlist" && $dbterms['tags'] === null && $dbterms['rating'] === null) {
-            $tree->addpath(trim($parts[1]), trim($parts[1]), true);
-            $fcount++;
         }
     }
 
+    if (array_key_exists('file', $filedata)) {
+        $tree->addpath($filedata['file'], $filedata['file'], false, $filedata);
+    }
+
+    printFileSearch($tree, $fcount);
 }
 
 function printFileSearch($tree, $fcount) {
@@ -124,21 +165,22 @@ function printFileSearch($tree, $fcount) {
     $tree->getHTML($prefix, $dircount);    
 }
 
-function printFileItem($fullpath) {
-    global $ignored_extensions;
+function printFileItem($fileinfo) {
+    $name = (array_key_exists('Title', $fileinfo)) ? $fileinfo['Title'] : basename($fileinfo['file']);
+    $ext = strtolower(pathinfo($fileinfo['file'], PATHINFO_EXTENSION));
+    print '<div class="clickable clicktrack ninesix draggable indent containerbox padright line" name="'.rawurlencode($fileinfo['file']).'">';
+    print '<i class="'.audioClass($ext).' fixed smallicon"></i>';
+    print '<div class="expand">'.$name.'</div>';
+    print '<div class="fixed playlistrow2 tracktime">'.format_time($fileinfo['Time']).'</div>';
+    print '</div>';                     
+}
+
+function printPlaylistItem($fullpath) {
     $s = basename($fullpath);
-    $ext = strtolower(pathinfo($s, PATHINFO_EXTENSION));
-    if ($ext == 'cue' || $ext == 'pls' || $ext == 'm3u' || $ext == 'xspf') {
-        print '<div class="clickable clickcue ninesix draggable indent containerbox padright line" name="'.rawurlencode($fullpath).'">';
-        print '<i class="icon-doc-text fixed smallicon"></i>';
-        print '<div class="expand">'.$s.'</div>';
-        print '</div>';
-    } else if (!in_array($ext, $ignored_extensions)) {
-        print '<div class="clickable clicktrack ninesix draggable indent containerbox padright line" name="'.rawurlencode($fullpath).'">';
-        print '<i class="icon-music fixed smallicon"></i>';
-        print '<div class="expand">'.$s.'</div>';
-        print '</div>';                     
-    }
+    print '<div class="clickable clickcue ninesix draggable indent containerbox padright line" name="'.rawurlencode($fullpath).'">';
+    print '<i class="icon-doc-text fixed smallicon"></i>';
+    print '<div class="expand">'.$s.'</div>';
+    print '</div>';
 }
 
 function printDirectoryItem($fullpath, $prefix, $dircount, $printcontainer = false) {
@@ -157,15 +199,18 @@ function printDirectoryItem($fullpath, $prefix, $dircount, $printcontainer = fal
 
 class mpdlistthing {
 
-    public function __construct($name, $fullpath, $iscue) {
+    public function __construct($name, $fullpath, $iscue, $filedata) {
         $this->children = array();
         $this->name = $name;
         $this->fullpath = $fullpath;
-        $this->protocol = "";
         $this->isplaylist = $iscue;
+        $this->filedata = $filedata;
     }
 
-    public function addpath($path, $fullpath, $is_playlist) {
+    public function addpath($path, $fullpath, $is_playlist, $filedata) {
+
+        debug_print("Path Being Added Is ".$path,"FILESEARCH");
+        debug_print("File Being Added Is ".$filedata['file'],"FILESEARCH");
 
         $len = (strpos($path, "/") === false) ? strlen($path) : strpos($path, "/");
         $firstdir = substr($path, 0, $len);
@@ -174,22 +219,18 @@ class mpdlistthing {
             $flag = $is_playlist;
         }
         if (!array_key_exists($firstdir, $this->children)) {
-            $this->children[$firstdir] = new mpdlistthing($firstdir, $fullpath, $flag);
+            $this->children[$firstdir] = new mpdlistthing($firstdir, $fullpath, $flag, $filedata);
         } else {
             if ($this->children[$firstdir]->isplaylist == false && $flag) {
                 $this->children[$firstdir]->isplaylist = true;
             }
         }
         if (strpos($path, "/") != false) {
-            $this->children[$firstdir]->addpath(substr($path, strpos($path, "/")+1, strlen($path)), $fullpath, $is_playlist);
+            $this->children[$firstdir]->addpath(substr($path, strpos($path, "/")+1, strlen($path)), $fullpath, $is_playlist, $filedata);
         }
     }
 
-    public function setprotocol($p) {
-        $this->protocol = $p;
-    }
-
-    public function getHTML($prefix, &$dircount, $protocol = "") {
+    public function getHTML($prefix, &$dircount) {
         global $dirpath;
         if ($this->name != "/") {
             if (count($this->children) > 0) {
@@ -197,15 +238,16 @@ class mpdlistthing {
                 $dirpath = $dirpath.$this->name."/";
                 printDirectoryItem(trim($dirpath, '/'), $prefix, $dircount, true);
                 $dircount++;
+            } else if ($this->isplaylist) {
+                printPlaylistItem($this->fullpath);
             } else {
-                printFileItem($protocol.$this->fullpath);
+                printFileItem($this->filedata);
             }
         } else {
-            $protocol = $this->protocol;
             $dirpath = "";
         }
         foreach($this->children as $thing) {
-            $thing->getHTML($prefix, $dircount, $protocol);
+            $thing->getHTML($prefix, $dircount);
         }
         if (count($this->children) > 0 && $this->name != "/") {
             print "</div>\n";
@@ -218,12 +260,12 @@ class mpdlistthing {
 }
 
 function getDirItems($path) {
-    global $connection, $is_connected, $ignored_extensions;
+    global $connection, $is_connected;
     debug_print("Getting Directory Items For ".$path,"GIBBONS");
     $items = array();
     $parts = true;
     $lines = array();
-    fputs($connection, 'listfiles "'.format_for_mpd($path).'"'."\n");
+    fputs($connection, 'lsinfo "'.format_for_mpd($path).'"'."\n");
     // We have to read in the entire response then go through it
     // because we only have the one connection to mpd so this function
     // is not strictly re-entrant and recursing doesn't work unless we do this.
@@ -242,11 +284,7 @@ function getDirItems($path) {
                 $fullpath = ltrim($path.'/'.$s, '/');
                 switch ($parts[0]) {
                     case "file":
-                        $ext = strtolower(pathinfo($s, PATHINFO_EXTENSION));
-                        if ($ext == 'cue' || $ext == 'pls' || $ext == 'm3u' || $ext == 'xspf') {
-                        } else if (!in_array($ext, $ignored_extensions)) {
-                            $items[] = $fullpath;
-                        }
+                        $items[] = $fullpath;
                         break;
 
                   case "directory":

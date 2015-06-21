@@ -30,30 +30,50 @@ function doFileBrowse($path, $prefix) {
 	global $connection;
 	debug_print("Browsing ".$path,"DIRBROWSER");
 	$parts = true;
-	$dircount = 0;
-	fputs($connection, 'listfiles "'.format_for_mpd($path).'"'."\n");
+    $foundfile = false;
+    $filedata = array();
+    $dircount = 0;
+	fputs($connection, 'lsinfo "'.format_for_mpd($path).'"'."\n");
     while(!feof($connection) && $parts) {
         $parts = getline($connection, true);
-        if ($parts === false) {
-            debug_print("Got OK or ACK from MPD","DIRBROWSER");
-        }
         if (is_array($parts)) {
 			$s = trim($parts[1]);
 			if (substr($s,0,1) != ".") {
-				$fullpath = ltrim($path.'/'.$s, '/');
+				// $fullpath = ltrim($s, '/');
 	        	switch ($parts[0]) {
 	        		case "file":
-	        			printFileItem($fullpath);
+                        if (!$foundfile) {
+                            $foundfile = true;
+                        } else {
+                            printFileItem($filedata);
+                            $filedata = array();
+                        }
+                        $filedata[$parts[0]] = $parts[1];
 	        			break;
 
+                    case "playlist":
+                        printPlaylistItem($parts[1]);
+                        break;
+
 	        		case "directory":
-	        			printDirectoryItem($fullpath, $prefix, $dircount);
+	        			printDirectoryItem($parts[1], $prefix, $dircount);
 				        $dircount++;
 	        			break;
+
+                    case "Title":
+                    case "Time":
+                        $filedata[$parts[0]] = $parts[1];
+                        break;
+
 	        	}
 	        }
         }
     }
+
+    if (array_key_exists('file', $filedata)) {
+        printFileItem($filedata);
+    }
+
     print '</body></html>';
 }
 

@@ -169,20 +169,16 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
             print '<div class="clickable clicktrack ninesix draggable indent containerbox vertical padright" name="'.$url.'">';
         }
         print '<div class="containerbox line">';
-    } else if ($name == "Cue Sheet" || $name == "M3U Playlist") {
-        print '<div class="clickable clickcue ninesix draggable indent containerbox padright line bold" name="'.$url.'">';
     } else {
         print '<div class="clickable clicktrack ninesix draggable indent containerbox padright line" name="'.$url.'">';
     }
-    if ($name == "Cue Sheet" || $name == "M3U Playlist" || ($number && $number != "")) {
+    if ($number && $number != "") {
         print '<div class="tracknumber fixed"';
         if ($numtracks > 99 || $number > 99) {
             print ' style="width:3em"';
         }
         if ($number > 0) {
             print '>'.$number.'</div>';
-        } else if ($name == "Cue Sheet" || $name == "M3U Playlist" ) {
-            print '><i class="icon-doc-text playlisticon"></i></div>';
         } else {
             print '></div>';
         }
@@ -212,9 +208,7 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
     if ((string) $name == "") $name = urldecode($url);
     print '<div class="expand">'.$name.'</div>';
     print '<div class="fixed playlistrow2 tracktime">';
-    if ($name != "Cue Sheet" && $name != "M3U Playlist") {
-        print $duration;
-    }
+    print $duration;
     print '</div>';
     if ($lm === null) {
         print '<i class="icon-cancel-circled playlisticonr fixed clickable clickicon clickremdb"></i>';

@@ -77,11 +77,27 @@ function playerController() {
     this.initialise = function() {
         // Need to call this with a callback when we start up so that checkprogress doesn't get called
         // before the playlist has repopulated.
-    	self.do_command_list([],playlist.repopulate);
-		if (!player.collectionLoaded) {
-            debug.log("MPD", "Checking Collection");
-            checkCollection(false, false);
-        }
+        $.ajax({
+            type: 'GET',
+            url: 'player/mpd/geturlhandlers.php',
+            dataType: 'json',
+            success: function(data) {
+                for(var i =0; i < data.length; i++) {
+                    var h = data[i].replace(/\:\/\/$/,'');
+                    debug.log("PLAYER","URL Handler : ",h);
+                    player.urischemes[h] = true;
+                }
+                self.do_command_list([],playlist.repopulate);
+                if (!player.collectionLoaded) {
+                    debug.log("MPD", "Checking Collection");
+                    checkCollection(false, false);
+                }
+            },
+            error: function(data) {
+                debug.error("MPD","Failed to get URL Handlers",data);
+                infobar.notify(infobar.PERMERROR, "Could not get a respone from the player!");
+            }
+        });
     }
 
 	this.do_command_list = function(list, callback) {
@@ -594,11 +610,6 @@ function playerController() {
                     }
             });
         }
-    }
-
-    this.rawfindexact = function(terms, callback) {
-        // MPD doesn't suuport findexact so search will have to do
-        player.controller.rawsearch(terms, [], callback);
     }
 
 	this.postLoadActions = function() {

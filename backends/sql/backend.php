@@ -719,7 +719,6 @@ function albumartist_sort_query() {
 	// This query gives us album artists only. It also makes sure we only get artists for whom we have actual tracks
 	// (no album artists who appear only on the wishlist or who have only hidden tracks)
 	$qstring = "SELECT a.Artistname, a.Artistindex FROM Artisttable AS a JOIN Albumtable AS al ON a.Artistindex = al.AlbumArtistindex JOIN Tracktable AS t ON al.Albumindex = t.Albumindex WHERE t.Uri IS NOT NULL AND t.Hidden = 0 GROUP BY a.Artistindex ORDER BY ";
-	// $afirst = explode(',', $prefs['artistsatstart']);
 	foreach ($prefs['artistsatstart'] as $a) {
 		$qstring .= "CASE WHEN LOWER(Artistname) = LOWER('".$a."') THEN 1 ELSE 2 END, ";
 	}
@@ -808,7 +807,6 @@ function do_albums_from_database($which, $fragment = false) {
 	}
 	debug_print("Looking for artistID ".$matches[1],"DUMPALBUMS");
 
-	// $qstring = "SELECT * FROM Albumtable WHERE ";
 	$qstring = "SELECT Albumtable.*, Artisttable.Artistname FROM Albumtable JOIN Artisttable ON (Albumtable.AlbumArtistindex = Artisttable.Artistindex) WHERE ";
 
 	if ($matches[1] != "root" && !($fragment !== false && $prefs['sortcollectionby'] == "album")) {
@@ -891,23 +889,12 @@ function get_list_of_albums($aid) {
 
 function get_album_tracks_from_database($index, $cmd = null) {
 	$retarr = array();
+	$cmd = ($cmd === null) ? 'add' : $cmd;
 	debug_print("Getting Album Tracks for Albumindex ".$index,"MYSQL");
 	$qstring = "SELECT Uri, Title FROM Tracktable WHERE Albumindex = '".$index."' AND Uri IS NOT NULL AND Hidden=0 ORDER BY Disc, TrackNo";
 	if ($result = generic_sql_query($qstring)) {
 		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
-			if ($cmd === null) {
-				if ((string) $obj->Title == "Cue Sheet" || (string) $obj->Title == "M3U Playlist") {
-					$retarr = array('load "'.$obj->Uri.'"');
-					break;
-				} else {
-					array_push($retarr, 'add "'.$obj->Uri.'"');
-				}
-			} else {
-				if ((string) $obj->Title == "Cue Sheet" || (string) $obj->Title == "M3U Playlist") {
-				} else {
-					array_push($retarr, $cmd.' "'.$obj->Uri.'"');
-				}
-			}
+			array_push($retarr, $cmd.' "'.$obj->Uri.'"');
 		}
 	}
 	return $retarr;
@@ -969,13 +956,6 @@ function do_tracks_from_database($which, $fragment = false) {
 					$obj->LastModified,
 					$obj->Image
 				);
-				if ($numtracks == 2 && $obj->Title == "Cue Sheet") {
-					// This will be a single-file album rip with a cue sheet.
-					// The FLAC file will probably be untagged and we don't want to display it.
-					// But it WILL be in the database because we can't prevent that if we permit track-by-track
-					// file adding (because you can also have cue sheets with multiple-file rips)
-					break;
-				}
 			}
 	        if ($numtracks == 0) {
 	            noAlbumTracks();
@@ -1019,9 +999,8 @@ function getAllURIs($sqlstring, $limit, $tags, $random = true) {
 }
 
 function get_fave_artists() {
-	// Playcount > 3 in this query is totally arbitrary and may need tuning. Just trying to get the most popular artists by choosing anyone with an
-	// above average number of plays, but we don't want all the 'played them a few times' artists dragging the average down.
-	generic_sql_query("CREATE TEMPORARY TABLE aplaytable AS SELECT SUM(Playcount) AS playtotal, Artistindex FROM (SELECT Playcount, Artistindex FROM Playcounttable JOIN Tracktable USING (TTindex) WHERE Playcount > 3) AS derived GROUP BY Artistindex");
+	// Can we have a tuning slider to increase the 'Playcount > x' value?
+	generic_sql_query("CREATE TEMPORARY TABLE aplaytable AS SELECT SUM(Playcount) AS playtotal, Artistindex FROM (SELECT Playcount, Artistindex FROM Playcounttable JOIN Tracktable USING (TTindex) WHERE Playcount > 10) AS derived GROUP BY Artistindex");
 
 	$artists = array();
 	if ($result = generic_sql_query("SELECT playtot, Artistname FROM (SELECT SUM(Playcount) AS playtot, Artistindex FROM (SELECT Playcount, Artistindex FROM Playcounttable JOIN Tracktable USING (TTindex)) AS derived GROUP BY Artistindex) AS alias JOIN Artisttable USING (Artistindex) WHERE playtot > (SELECT AVG(playtotal) FROM aplaytable) ORDER BY ".SQL_RANDOM_SORT)) {
@@ -1207,7 +1186,7 @@ function prepare_findtracks() {
 	}
 }
 
-function doDatabaseMagic() {
+function createAlbumsList($file, $prefix) {
 
     global $collection, $transaction_open, $numdone;
 
@@ -1263,7 +1242,7 @@ function remove_cruft() {
 
 function do_artist_database_stuff($artistkey, $sendupdates = false) {
 
-    global $collection, $artist_created, $album_created, $find_track, $update_trac, $prefs, $onthefly;
+    global $collection, $artist_created, $album_created, $find_track, $update_track, $prefs, $onthefly;
     if ($sendupdates === false) {
     	$sendupdates = $onthefly;
     }
@@ -1412,9 +1391,7 @@ function do_track_by_track($artistname, $albumname, $domain, $spotialbum, $track
     $current_domain = $domain;
 
 	foreach ($albumobj->tracks as $trackobj) {
-		// There is one case where the album we've just created might have 2 tracks - this is when the
-		// track we're using has a 'playlist' property - this means it's a CUE sheet from MPD but it may
-		// also have an audio file URI that we need to add.
+		// The album we've just created must only have one track, but this is easy to code
 		$ttidupdate = check_and_update_track($trackobj, $albumindex, $albumartistindex, $artistname, $sendupdates);
 	}
 
@@ -1574,10 +1551,6 @@ function dumpAlbums($which) {
     }
 }
 
-function createAlbumsList($file, $prefix) {
-	doDatabaseMagic();
-}
-
 function getItemsToAdd($which, $cmd = null) {
     $t = substr($which, 1, 3);
     if ($t == "art") {
@@ -1673,6 +1646,44 @@ function checkAlbumsAndArtists() {
 			array_push($returninfo['deletedartists'], "aartist".$obj->AlbumArtistindex);
 		}
 	}
+}
+
+function check_url_against_database($url, $itags, $rating) {
+	global $mysqlc;
+	if ($mysqlc === null) {
+		connect_to_database();
+	}
+
+	$qstring = "SELECT t.TTindex FROM Tracktable AS t ";
+	$tags = array();
+	if ($itags !== null) {
+		$qstring .= "JOIN (SELECT DISTINCT TTindex FROM TagListtable JOIN Tagtable AS tag USING (Tagindex) WHERE";
+		$tagterms = array();
+		foreach ($itags as $tag) {
+			$tags[] = trim($tag);
+			array_push($tagterms, " tag.Name LIKE ?");
+		}
+		$qstring .= implode(" OR",$tagterms);
+		$qstring .=") AS j ON j.TTindex = t.TTindex ";
+	}
+	if ($rating !== null) {
+		$qstring .= "JOIN (SELECT * FROM Ratingtable WHERE Rating >= ".$rating.") AS rat ON rat.TTindex = t.TTindex ";
+	}
+	$tags[] = $url;
+	$qstring .= "WHERE t.Uri = ?";
+	if ($stmt = sql_prepare_query_later($qstring)) {
+		if ($stmt->execute($tags)) {
+			// rowCount() doesn't work for SELECT with SQLite
+			while($obj = $stmt->fetch(PDO::FETCH_OBJ)) {
+				return true;
+			}
+		} else {
+			show_sql_error();
+		}
+	} else {
+		show_sql_error();
+	}
+	return false;
 }
 
 ?>

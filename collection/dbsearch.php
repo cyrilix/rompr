@@ -1,6 +1,6 @@
 <?php
 
-include( "backends/sql/connect.php");
+// include( "backends/sql/connect.php");
 
 function doDbCollection($terms, $domains, $resultstype) {
 
@@ -16,7 +16,7 @@ function doDbCollection($terms, $domains, $resultstype) {
 	}
 
 	if ($resultstype == "tree") {
-		$tree = new mpdlistthing("/", "/", false);
+		$tree = new mpdlistthing("/", "/", false, array());
 	} else {
 		$collection = new musicCollection(null);
 	}
@@ -115,7 +115,7 @@ function doDbCollection($terms, $domains, $resultstype) {
 		if ($result->execute($parameters)) {
 			while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 				if ($resultstype == "tree") {
-					$tree->addpath($obj->Uri, $obj->Uri, false);
+					$tree->addpath($obj->Uri, $obj->Uri, false, array('Title' => $obj->Title, 'Time' => $obj->Duration, 'file' => $obj->Uri));
 					$fcount++;
 				} else {
 					$filedata = array(
@@ -144,43 +144,5 @@ function doDbCollection($terms, $domains, $resultstype) {
 		show_sql_error();
 	}
 
-}
-
-function check_url_against_database($url, $itags, $rating) {
-	global $mysqlc;
-	if ($mysqlc === null) {
-		connect_to_database();
-	}
-
-	$qstring = "SELECT t.TTindex FROM Tracktable AS t ";
-	$tags = array();
-	if ($itags !== null) {
-		$qstring .= "JOIN (SELECT DISTINCT TTindex FROM TagListtable JOIN Tagtable AS tag USING (Tagindex) WHERE";
-		$tagterms = array();
-		foreach ($itags as $tag) {
-			$tags[] = trim($tag);
-			array_push($tagterms, " tag.Name LIKE ?");
-		}
-		$qstring .= implode(" OR",$tagterms);
-		$qstring .=") AS j ON j.TTindex = t.TTindex ";
-	}
-	if ($rating !== null) {
-		$qstring .= "JOIN (SELECT * FROM Ratingtable WHERE Rating >= ".$rating.") AS rat ON rat.TTindex = t.TTindex ";
-	}
-	$tags[] = $url;
-	$qstring .= "WHERE t.Uri = ?";
-	if ($stmt = sql_prepare_query_later($qstring)) {
-		if ($stmt->execute($tags)) {
-			// rowCount() doesn't work for SELECT with SQLite
-			while($obj = $stmt->fetch(PDO::FETCH_OBJ)) {
-				return true;
-			}
-		} else {
-			show_sql_error();
-		}
-	} else {
-		show_sql_error();
-	}
-	return false;
 }
 ?>

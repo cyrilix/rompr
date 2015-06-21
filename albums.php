@@ -8,18 +8,19 @@ include ("international.php");
 
 set_time_limit(800);
 $player_backend = $prefs['player_backend'];
-$apache_backend = "xml";
+// $apache_backend = "xml";
 $error = 0;
-if (array_key_exists('rebuild', $_REQUEST) ||
-    (array_key_exists('item', $_REQUEST) && substr($_REQUEST['item'],0,1) == "a")) {
-    // At the moment, the sql backend only does the main collection. Search is still XML
-    $apache_backend = $prefs['apache_backend'];
-}
+// if (array_key_exists('rebuild', $_REQUEST) ||
+//     (array_key_exists('item', $_REQUEST) && substr($_REQUEST['item'],0,1) == "a")) {
+//     // At the moment, the sql backend only does the main collection. Search is still XML
+//     $apache_backend = $prefs['apache_backend'];
+// }
 // Don't include the player backend or collection at this point
 // because it slows things down and makes the UI look unresponsive
-include ("backends/".$apache_backend."/backend.php");
+// include ("backends/".$apache_backend."/backend.php");
+include("backends/sql/backend.php");
 
-debug_print("Performing Backend Player Action using player ".$player_backend." and backend ".$apache_backend,"ALBUMSLIST");
+// debug_print("Performing Backend Player Action using player ".$player_backend." and backend ".$apache_backend,"ALBUMSLIST");
 
 if (array_key_exists('item', $_REQUEST)) {
     // Populate a dropdown in the collection or search results
@@ -28,7 +29,6 @@ if (array_key_exists('item', $_REQUEST)) {
     // Handle an mpd-style search request
     include ("player/".$player_backend."/connection.php");
     include ("collection/collection.php");
-    include( "collection/dbsearch.php");
     $cmd = $_REQUEST['command'];
     foreach ($_REQUEST['mpdsearch'] as $key => $term) {
         if ($key == "tag") {
@@ -55,7 +55,6 @@ if (array_key_exists('item', $_REQUEST)) {
     // and then passing the results over here and then passing them back again
     include ("player/".$player_backend."/connection.php");
     include ("collection/collection.php");
-    include( "collection/dbsearch.php");
     $st = array();
     foreach ($_REQUEST['mopidysearch'] as $key => $term) {
         if ($key == "tag") {
@@ -108,8 +107,6 @@ if (array_key_exists('item', $_REQUEST)) {
     include ("collection/collection.php");
     include("collection/dbsearch.php");
     getWishlist();
-    // createAlbumsList('prefs/w_list.xml', "w");
-    // dumpAlbums('walbumroot');
 } else if (array_key_exists('rebuild', $_REQUEST)) {
     // This is a request to rebuild the music collection coming from either
     // the mpd or mopidy controller

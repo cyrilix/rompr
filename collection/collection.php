@@ -65,30 +65,6 @@ class album {
         if ($object->number == 1) {
             $this->numOfTrackOnes++;
         }
-        if ($object->playlist) {
-            // Cue Sheets don't seem to have a lastmodified date, so we set it to 1 - otherwise it won't ever be able to be removed
-            // from the database, and it will appear with an x next to it in the collection.
-            foreach ($object->playlist as $p) {
-                switch (strtolower(pathinfo($p, PATHINFO_EXTENSION))) {
-                    case 'cue':
-                        debug_print("Adding Cue Sheet ".$p." to album ".$this->name,"COLLECTION");
-                        $t = new track("Cue Sheet",$p,0,0,$object->datestamp,$object->genre,$object->artist,$this->name,$this->folder,
-                                        "cue", null, null, null, null, $this->artist, $object->disc, null, null, null, null, null, null, 2, null, null);
-                        array_unshift($this->tracks, $t);
-                        break;
-
-                    case 'm3u':
-                    case 'm3u8':
-                        debug_print("Adding M3U Playlist ".$p." to album ".$this->name,"COLLECTION");
-                        $t = new track("M3U Playlist",$p,0,0,$object->datestamp,$object->genre,$object->artist,$this->name,$this->folder,
-                                        "cue", null, null, null, null, $this->artist, $object->disc, null, null, null, null, null, null, 2, null, null);
-                        array_unshift($this->tracks, $t);
-                        break;
-
-
-                }
-            }
-        }
         $object->setAlbumObject($this);
     }
 
@@ -755,8 +731,9 @@ function process_file(&$filedata) {
     // External Album Artist Link(s) (mopidy only)
     $spotiartist = (array_key_exists('SpotiArtist',$filedata)) ? unwanted_array($filedata['SpotiArtist']) : null;
     // 'playlist' is how mpd handles flac/cue files (either embedded cue or external cue).
-    // $playlist = (array_key_exists('playlist',$filedata)) ? unwanted_array($filedata['playlist']) : null;
-    $playlist = (array_key_exists('playlist',$filedata)) ? $filedata['playlist'] : null;
+    // .. and we're not supporting them in the collection any more because they're stoopid
+    // $playlist = (array_key_exists('playlist',$filedata)) ? $filedata['playlist'] : null;
+    $playlist = null;
 
     // Capture tracks where the basename/dirname route didn't work
     if ($artist == "." || $artist == "" || $artist == " & ") {
