@@ -2,21 +2,6 @@
 <script language="javascript">
 
 <?php
-$searchlimits = array(  "local" => "Local Files",
-                        "spotify" => "Spotify",
-                        "soundcloud" => "Soundcloud",
-                        "beets" => "Beets",
-                        "beetslocal" => "Beets Local",
-                        "gmusic" => "Google Play Music",
-                        "youtube" => "YouTube",
-                        "internetarchive" => "Internet Archive",
-                        "leftasrain" => "Left As Rain",
-                        "podcast" => "Podcasts",
-                        "tunein" => "Tunein Radio",
-                        // Note that radio-de is here as radio_de. Can't have a prefs key with a
-                        // - sign in it because javascript tries to do maths on it.
-                        "radio_de" => "Radio.de",
-                        );
 
 print "var skin = '".$skin."';\n";
 print 'var prefs = '.json_encode($prefs)."\n";
@@ -98,6 +83,8 @@ prefs.save = function(options, callback) {
     }
 }
 
+var google_api_key = "AIzaSyDAErKEr1g1J3yqHA0x6Ckr5jubNIF2YX4";
+
 var language = function() {
 
 <?php
@@ -129,15 +116,7 @@ print "    var tags = ".json_encode($translations);
 }();
 
 <?php
-if ($prefs['apache_backend'] == "sql") {
-    print "var albumslistexists = ".check_albumslist().";\n";
-} else {
-    if (file_exists(ROMPR_XML_COLLECTION)) {
-        print "var albumslistexists = true;\n";
-    } else {
-        print "var albumslistexists = false;\n";
-    }
-}
+print "var albumslistexists = ".check_albumslist().";\n";
 
 if ($prefs['debug_enabled']) {
     print "debug.setLevel(8);\n";
@@ -147,6 +126,8 @@ if ($prefs['debug_enabled']) {
 
 print "var interfaceLanguage = '".$interface_language."';\n";
 print "var browserLanguage = '".$browser_language."';\n";
+print "var rompr_version = '".ROMPR_VERSION."';\n";
+print "var player_ip = '".get_player_ip()."'\n";
 // Three translation keys are needed so regularly it makes sense to
 // have them as static variables, instead of looking them up every time
 print "var frequentLabels = {\n";
@@ -154,7 +135,6 @@ print "    of: '".get_int_text("label_of")."',\n";
 print "    by: '".get_int_text("label_by")."',\n";
 print "    on: '".get_int_text("label_on")."'\n";
 print "};\n";
-print 'var mopidy_version = "'.ROMPR_MOPIDY_MIN_VERSION.'";'."\n";
 ?>
 var lastfm_api_key = "15f7532dff0b8d84635c757f9f18aaa3";
 var sources = new Array();

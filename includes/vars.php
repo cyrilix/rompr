@@ -1,22 +1,16 @@
 <?php
 
+define('ROMPR_MAX_TRACKS_PER_TRANSACTION', 1000);
+define('ROMPR_COLLECTION_VERSION', 2);
+define('ROMPR_SCHEMA_VERSION', 12);
+define('ROMPR_PLAYLIST_FILE', 'prefs/playlist.json');
+define('ROMPR_VERSION', 0.70);
 define('ROMPR_ARTIST', 0);
 define('ROMPR_ALBUM', 1);
 define('ROMPR_FILE', 2);
-define('ROMPR_MAX_TRACKS_PER_TRANSACTION', 1000);
-define('ROMPR_COLLECTION_VERSION', 2);
-define('ROMPR_SCHEMA_VERSION', 11);
-define('ROMPR_PLAYLIST_FILE', 'prefs/playlist.json');
-define('ROMPR_XML_COLLECTION', 'prefs/albums_'.ROMPR_COLLECTION_VERSION.'.xml');
-define('ROMPR_XML_SEARCH', 'prefs/albumsearch_'.ROMPR_COLLECTION_VERSION.'.xml');
-define('ROMPR_ITEM_ARTIST', 0);
-define('ROMPR_ITEM_ALBUM', 1);
-define('ROMPR_MOPIDY_MIN_VERSION', "0.18.3");
-
 $connection = null;
 $is_connected = false;
 $mysqlc = null;
-$backend_in_use = "";
 
 $prefs = array( "mpd_host" => "localhost",
                 "mpd_port" => 6600,
@@ -54,7 +48,6 @@ $prefs = array( "mpd_host" => "localhost",
                 "lastfm_session_key" => "",
                 "user_lang" => "en",
                 "music_directory_albumart" => "",
-                "mopidy_http_port" => 6680,
                 "search_limit_limitsearch" => false,
                 "scrolltocurrent" => false,
                 "debug_enabled" => false,
@@ -89,13 +82,14 @@ $prefs = array( "mpd_host" => "localhost",
                 "artistsatstart" => array("Various Artists","Soundtracks"),
                 "nosortprefixes" => array("The"),
                 "sortcollectionby" => "artist",
-                "lowmemorymode" => false,
                 "alarm_ramptime" => 30,
                 "alarm_snoozetime" => 8,
                 "coversize" => "10-Small.css",
                 "mediacentremode" => false,
                 "collectioncontrolsvisible" => false,
-                "displayresultsas" => "collection"
+                "displayresultsas" => "collection",
+                "mopidy_collection_folders" => array("Spotify Playlists","Local media","SoundCloud/Liked"),
+                "mopidy_search_domains" => array("local", "spotify")
                 );
 
 if (file_exists('prefs/prefs')) {

@@ -73,21 +73,21 @@ function parse_mpd_var($in_str) {
     return array(0 => $key, 1 => $val);
 }
 
-function do_mpd_command($conn, $command, $varname = null, $return_array = false) {
+function do_mpd_command($command, $return_array = false, $force_array_results = false) {
 
-    global $is_connected;
+    global $is_connected, $connection;
     $retarr = array();
     if ($is_connected) {
 
         debug_print("MPD Command ".$command,"MPD");
 
-        $success = fputs($conn, $command."\n");
+        $success = fputs($connection, $command."\n");
         if ($success) {
-            while(!feof($conn)) {
-                $var = parse_mpd_var(fgets($conn, 1024));
+            while(!feof($connection)) {
+                $var = parse_mpd_var(fgets($connection, 1024));
                 if(isset($var)){
                     if($var === true && count($retarr) == 0) {
-                        // Got an OK or ACK but no results
+                        // Got an OK or ACK but - no results or return_array is false
                         return true;
                     }
                     if($var === true) {
@@ -97,12 +97,12 @@ function do_mpd_command($conn, $command, $varname = null, $return_array = false)
                         if ($return_array == true) {
                             $retarr['error'] = $var[1];
                             debug_print("Setting Error Flag","MPD");
+                        } else {
+                            return false;
                         }
                         break;
                     }
-                    if(isset($varname) && strcmp($var[0], $varname)) {
-                        return $var[1];
-                    } elseif($return_array == true) {
+                    if ($return_array == true) {
                         if(array_key_exists($var[0], $retarr)) {
                             if(is_array($retarr[($var[0])])) {
                                 array_push($retarr[($var[0])], $var[1]);
@@ -111,7 +111,11 @@ function do_mpd_command($conn, $command, $varname = null, $return_array = false)
                                 $retarr[($var[0])] = array($tmp, $var[1]);
                             }
                         } else {
-                            $retarr[($var[0])] = $var[1];
+                            if ($force_array_results) {
+                                $retarr[($var[0])] = array($var[1]);
+                            } else {
+                                $retarr[($var[0])] = $var[1];
+                            }
                         }
                     }
                 }
@@ -123,10 +127,10 @@ function do_mpd_command($conn, $command, $varname = null, $return_array = false)
     return $retarr;
 }
 
-function close_mpd($conn) {
-    global $is_connected;
+function close_mpd() {
+    global $is_connected, $connection;
     if ($is_connected) {
-        fclose($conn);
+        fclose($connection);
         $is_connected = false;
     }
 }

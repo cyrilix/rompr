@@ -73,7 +73,7 @@ var faveArtistRadio = function() {
             html = html + '<div class="expand">'+language.gettext('label_radio_fartist')+'</div>';
 
             html = html + '</div>';
-            $("#pluginplaylists").append(html);
+            $("#pluginplaylists_everywhere").append(html);
         }
 	}
 }();

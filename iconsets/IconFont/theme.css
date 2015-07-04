@@ -168,6 +168,10 @@ img.notexist,img.notfound
 }
 .icon-facebook-logo:before { content: '\e839'; } /* '' */
 .icon-twitter-logo:before { content: '\e850'; } /* '' */
+.icon-video {
+  background-image: url('movie-1.svg');
+  display: inline-block;
+}
 
 /* Unused so far */
 .icon-lastfm:before { content: '\e806'; } /* '' */

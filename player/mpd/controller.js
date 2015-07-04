@@ -4,13 +4,13 @@ function playerController() {
 	var updatetimer = null;
     var progresstimer = null;
     var safetytimer = 500;
-    var previoussongid = null;
+    var previoussongid = -1;
     var AlanPartridge = 0;
     var plversion = null;
     var openpl = null;
     var oldplname;
-    var lastfilesearchterms = {};
     var thenowplayinghack = false;
+    var lastsearchcmd = "search";
 
     function updateStreamInfo() {
 
@@ -19,8 +19,8 @@ function playerController() {
         // the track has changed (note, we rely on radio stations setting their
         // metadata reliably)
 
-        if (playlist.currentTrack && playlist.currentTrack.type == "stream") {
-            var temp = cloneObject(playlist.currentTrack);
+        if (playlist.getCurrent('type') == "stream") {
+            var temp = playlist.getCurrentTrack();
             if (player.status.Title) {
                 var tit = player.status.Title;
                 var parts = tit.split(" - ");
@@ -39,15 +39,14 @@ function playerController() {
                 temp.metadata.album = {name: temp.album, musicbrainz_id: ""};
             }
 
-            if (playlist.currentTrack.title != temp.title ||
-                playlist.currentTrack.album != temp.album ||
-                playlist.currentTrack.creator != temp.creator)
+            if (playlist.getCurrent('title') != temp.title ||
+                playlist.getCurrent('album') != temp.album ||
+                playlist.getCurrent('creator') != temp.creator)
             {
-                playlist.currentTrack = temp;
-                debug.log("STREAMHANDLER","Detected change of track",playlist.currentTrack);
-                nowplaying.newTrack(playlist.currentTrack, true);
+                debug.log("STREAMHANDLER","Detected change of track",temp);
+                playlist.setCurrent({title: temp.title, album: temp.album, creator: temp.creator});
+                nowplaying.newTrack(temp, true);
             }
-            temp = null;
         }
     }
 
@@ -55,7 +54,7 @@ function playerController() {
         // If our playlist for this station has 'Unknown Internet Stream' as the
         // station name, let's see if we can update it from the metadata.
         // (Note, recent updates to the code mean this function will rarely do anything)
-        var m = playlist.currentTrack.album;
+        var m = playlist.getCurrent('album');
         if (m.match(/^Unknown Internet Stream/)) {
             debug.log("PLAYLIST","Updating Stream",name);
             $.post("utils/updateplaylist.php", { url: url, name: name })
@@ -75,8 +74,6 @@ function playerController() {
     }
 
     this.initialise = function() {
-        // Need to call this with a callback when we start up so that checkprogress doesn't get called
-        // before the playlist has repopulated.
         $.ajax({
             type: 'GET',
             url: 'player/mpd/geturlhandlers.php',
@@ -87,7 +84,12 @@ function playerController() {
                     debug.log("PLAYER","URL Handler : ",h);
                     player.urischemes[h] = true;
                 }
-                self.do_command_list([],playlist.repopulate);
+                checkSearchDomains();
+                doMopidyCollectionOptions();
+                playlist.radioManager.init();
+                // Need to call this with a callback when we start up so that checkprogress doesn't get called
+                // before the playlist has repopulated.
+                self.do_command_list([],self.ready);
                 if (!player.collectionLoaded) {
                     debug.log("MPD", "Checking Collection");
                     checkCollection(false, false);
@@ -100,22 +102,23 @@ function playerController() {
         });
     }
 
+    this.ready = function() {
+        debug.mark("MPD","Player is ready");
+        var t = "Connected to "+prefs.player_backend.capitalize() + " at " + player_ip;
+        if (prefs.unix_socket) {
+        } else {
+            t += ":" + prefs.mpd_port;
+        }
+        infobar.notify(infobar.NOTIFY, t);
+        playlist.radioManager.checkSavedState();
+    }
+
 	this.do_command_list = function(list, callback) {
         debug.debug("MPD","Command List",list);
-        // clearProgressTimer();
-        for (var i in list) {
-            for (var j in list[i]) {
-                // Commas in parameters will fuck up the command list handler
-                var bum = list[i][j];
-                if (typeof bum == "string") {
-                    list[i][j] = bum.replace(/,/g,"!!comma!!");
-                }
-            }
-        }
         $.ajax({
             type: 'POST',
             url: 'player/mpd/postcommand.php',
-            data: {'commands[]': list},
+            data: {commands: list},
             success: function(data) {
                 player.status = data;
                 debug.debug("MPD","Status",player.status);
@@ -167,7 +170,7 @@ function playerController() {
                 }
                 self.reloadPlaylists();
                 player.collectionLoaded = true;
-                scootTheAlbums();
+                scootTheAlbums($("#collection"));
             },
             error: function(data) {
                 $("#collection").html('<p align="center"><b><font color="red">Failed To Generate Collection :</font></b><br>'+data.responseText+"<br>"+data.statusText+"</p>");
@@ -216,7 +219,11 @@ function playerController() {
                 debug.error("MPD","Failed to save user playlist URL");
             }
         } );
-        self.do_command_list([['load', name]]);
+        if (prefs.player_backend == "mpd") {
+            self.do_command_list([['load', name]]);
+        } else {
+            self.do_command_list([['add', name]]);
+        }
         return false;
     }
 
@@ -368,15 +375,11 @@ function playerController() {
 	}
 
 	this.next = function() {
-		if (player.status.state == 'play') {
-            self.do_command_list([["next"]]);
-		}
+        self.do_command_list([["next"]]);
 	}
 
 	this.previous = function() {
-		if (player.status.state == 'play') {
-            self.do_command_list([["previous"]]);
-		}
+        self.do_command_list([["previous"]]);
 	}
 
 	this.seek = function(seekto) {
@@ -449,13 +452,16 @@ function playerController() {
 				case "uri":
     				cmdlist.push(['add',v.name]);
     				break;
-				case "cue":
                 case "playlist":
+				case "cue":
     				cmdlist.push(['load',v.name]);
     				break;
     			case "item":
     				cmdlist.push(['additem',v.name]);
     				break;
+                case "artist":
+                    cmdlist.push(['addartist',v.name]);
+                    break;
     		}
 		});
 		// Note : playpos, if set, will point to the first track position
@@ -508,6 +514,7 @@ function playerController() {
     this.search = function(command) {
         var terms = {};
         var termcount = 0;
+        lastsearchcmd = command;
         $("#collectionsearcher").find('.searchterm').each( function() {
             var key = $(this).attr('name');
             var value = $(this).attr("value");
@@ -525,14 +532,19 @@ function playerController() {
             terms['rating'] = $('[name="searchrating"]').val();
             termcount++;
         }
+        var domains = new Array();
+        if (prefs.search_limit_limitsearch) {
+            domains = $("#mopidysearchdomains").makeDomainChooser("getSelection");
+        }
         if (termcount > 0) {
             $("#searchresultholder").empty();
             doSomethingUseful('searchresultholder', language.gettext("label_searching"));
-            debug.log("PLAYER","Doing Search:", terms);
             var st = {
                 command: command,
-                resultstype: prefs.displayresultsas
+                resultstype: prefs.displayresultsas,
+                domains: domains
             };
+            debug.log("PLAYER","Doing Search:", terms,st);
             if ((termcount == 1 && (terms.tag || terms.rating)) ||
                 (termcount == 2 && (terms.tag && terms.rating))) {
                 // Use the sql search engine if we're only looking for
@@ -554,12 +566,20 @@ function playerController() {
 
     }
 
-    this.rawsearch = function(terms, sources, callback) {
+    this.reSearch = function() {
+        player.controller.search(lastsearchcmd);
+    }
+
+    this.rawsearch = function(terms, sources, exact, callback) {
         $.ajax({
                 type: "POST",
                 url: "albums.php",
                 dataType: 'json',
-                data: {rawterms: terms},
+                data: {
+                    rawterms: terms,
+                    domains: sources,
+                    command: exact ? "find" : "search"
+                },
                 success: function(data) {
                     callback(data);
                     data = null;
@@ -571,49 +591,9 @@ function playerController() {
         });
     }
 
-    this.filesearch = function() {
-        var terms = {};
-        var termcount = 0;
-        $("#filesearcher").find('.searchterm').each( function() {
-            var key = $(this).attr('name');
-            var value = $(this).attr("value");
-            if (value != "") {
-                debug.debug("PLAYER","Searching for files",key, value);
-                if (key == 'tag') {
-                    terms[key] = value.split(',');
-                } else {
-                    terms[key] = [value];
-                }
-                termcount++;
-            }
-        });
-        if ($('[name="fsearchrating"]').val() != "") {
-            terms['rating'] = $('[name="fsearchrating"]').val();
-            termcount++;
-        }
-        debug.log("FILESEARCH",terms);
-        lastfilesearchterms = terms;
-        if (termcount > 0) {
-            $("#filesearchresultholder").empty();
-            doSomethingUseful('filesearchresultholder', language.gettext("label_searching"));
-            debug.log("PLAYER","Doing File Search:", terms);
-            $.ajax({
-                    type: "POST",
-                    url: "dirbrowser.php",
-                    data: {
-                        command: 'search',
-                        terms: terms
-                    },
-                    success: function(data) {
-                        $("#filesearchresultholder").html(data);
-                        data = null;
-                    }
-            });
-        }
-    }
-
 	this.postLoadActions = function() {
 		self.checkProgress();
+        playlist.radioManager.repopulate();
         if (thenowplayinghack) {
             // The Now PLaying Hack is so that when we switch the option for
             // 'display composer/performer in nowplaying', we can first reload the
@@ -621,7 +601,7 @@ function playerController() {
             // and then FORCE nowplaying to accept a new track with the same backendid
             // as the previous - this forces the nowplaying info to update
             thenowplayinghack = false;
-            nowplaying.newTrack(playlist.currentTrack, true);
+            nowplaying.newTrack(playlist.getCurrentTrack(), true);
         }
 	}
 
@@ -641,40 +621,18 @@ function playerController() {
         // the browser every time the playlist gets repopulated.
         if (player.status.songid !== previoussongid) {
             debug.mark("MPD","Track has changed");
-
-            playlist.findCurrentTrack();
-
-            if (playlist.currentTrack) {
-                debug.log("MPD","Creating new track",playlist.currentTrack);
-                nowplaying.newTrack(playlist.currentTrack, false);
-            } else {
-                player.status.songid = undefined;
-                player.status.elapsed = undefined;
-                player.status.file = undefined;
-                nowplaying.newTrack(playlist.emptytrack, false);
-                infobar.setProgress(0);
-                $(".playlistcurrentitem").removeClass('playlistcurrentitem').addClass('playlistitem');
-                $(".playlistcurrenttitle").removeClass('playlistcurrenttitle').addClass('playlisttitle');
-            }
-
+            playlist.trackHasChanged(player.status.songid);
             previoussongid = player.status.songid;
             safetytimer = 500;
         }
 
-        if (playlist.currentTrack === null) {
-            setTheClock(self.checkchange, 10000);
-            return;
-        }
-
         progress = infobar.progress();
-        duration = playlist.currentTrack.duration || 0;
+        duration = playlist.getCurrent('duration') || 0;
         percent = (duration == 0) ? 0 : (progress/duration) * 100;
         infobar.setProgress(percent.toFixed(2),progress,duration);
 
         if (player.status.state == "play") {
-            if (progress > 4) { infobar.updateNowPlaying() };
-            if (percent >= prefs.scrobblepercent) { infobar.scrobble(); }
-            if (duration > 0 && progress >= (duration - parseInt(player.status.xfade))) {
+            if (duration > 0 && progress >= duration) {
                 setTheClock(self.checkchange, safetytimer);
                 if (safetytimer < 5000) { safetytimer += 500 }
             } else {
@@ -694,10 +652,10 @@ function playerController() {
     this.checkchange = function() {
         clearProgressTimer();
         // Update the status to see if the track has changed
-        if (playlist.currentTrack === null || playlist.currentTrack.type != "stream") {
-            self.do_command_list([], null);
-        } else {
+        if (playlist.getCurrent('type') == "stream") {
             self.do_command_list([], self.checkStream);
+        } else {
+            self.do_command_list([], null);
         }
     }
 
@@ -707,7 +665,7 @@ function playerController() {
     }
 
     this.onStop = function() {
-        playlist.stopped();
+        infobar.setProgress(0,-1,-1);
         self.checkProgress();
     }
 

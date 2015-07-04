@@ -4,22 +4,17 @@ include ("includes/vars.php");
 include ("includes/functions.php");
 include ("collection/collection.php");
 include ("player/mpd/connection.php");
-include ("backends/xml/backend.php");
+include ("backends/sql/backend.php");
+$trackbytrack = false;
+
 if (array_key_exists('playlist', $_REQUEST)) {
     $pl = $_REQUEST['playlist'];
     do_playlist_tracks($pl,'icon-music');
 } else {
     do_playlist_header();
-    $playlists = do_mpd_command($connection, "listplaylists", null, true);
-    if (!is_array($playlists)) {
-        $playlists = array();
-    } else if (array_key_exists('playlist', $playlists) && !is_array($playlists['playlist'])) {
-        $temp = $playlists['playlist'];
-        $playlists = array();
-        $playlists['playlist'][0] = $temp;
-    }
+    $playlists = do_mpd_command("listplaylists", true, true);
     $c = 0;
-    if (array_key_exists('playlist', $playlists) && is_array($playlists['playlist'])) {
+    if (is_array($playlists) && array_key_exists('playlist', $playlists)) {
         sort($playlists['playlist'], SORT_STRING);
         foreach ($playlists['playlist'] as $pl) {
             debug_print("Adding Playlist To List : ".$pl,"MPD PLAYLISTS");
@@ -29,16 +24,16 @@ if (array_key_exists('playlist', $_REQUEST)) {
     }
     $existingfiles = glob('prefs/userplaylists/*');
     foreach($existingfiles as $file) {
-        add_playlist(rawurlencode(file_get_contents($file)), htmlentities(basename($file)), 'icon-doc-text', 'clickloadplaylist', true, $c, true);
+        add_playlist(rawurlencode(file_get_contents($file)), htmlentities(basename($file)), 'icon-doc-text', 'clickloaduserplaylist', true, $c, true);
         $c++;        
     }
 
 }
 
 function do_playlist_tracks($pl, $icon) {
-    global $connection, $putinplaylistarray, $playlist;
+    global $putinplaylistarray, $playlist;
     if ($pl == '[Radio Streams]') {
-        $streams = do_mpd_command($connection, 'listplaylistinfo "'.$pl.'"', null, true);
+        $streams = do_mpd_command('listplaylistinfo "'.$pl.'"', true);
         if (is_array($streams) && array_key_exists('file', $streams)) {
             if (!is_array($streams['file'])) {
                 $temp = $streams['file'];
@@ -53,27 +48,28 @@ function do_playlist_tracks($pl, $icon) {
         }
     } else {
         $putinplaylistarray = true;
-        doCollection('listplaylistinfo "'.$pl.'"', null, array("TlTrack"), true);
+        doCollection('listplaylistinfo "'.$pl.'"');
         $c = 0;
         foreach($playlist as $track) {
             $matches = array();
             $link = $track->url;
-            debug_print("Checking URL ".$link,"PLAYLISTS");
             $class = "clicktrack";
             if (preg_match("/api\.soundcloud\.com\/tracks\/(\d+)\//", $track->url, $matches)) {
                 debug_print(" ... Link is SoundCloud","PLAYLISTS");
                 $link = "soundcloud://track/".$matches[1];
                 $class = "clickcue";
             }
-            add_playlist(rawurlencode($link), htmlentities($track->name), 'icon-music', $class, true, $c, false);
+            add_playlist(rawurlencode($link), htmlentities($track->get_artist_string().' - '.$track->name), 'icon-music', $class, true, $c, false);
             $c++;
         }
     }
 }
 
 function add_playlist($link, $name, $icon, $class, $delete, $count, $is_user) {
+    global $prefs;
     switch ($class) {
         case 'clickloadplaylist':
+        case 'clickloaduserplaylist':
             print '<div class="clickable '.$class.' containerbox menuitem" name="pholder'.$count.'">';
             print '<input type="hidden" name="'.$link.'" />';
             print '<i class="icon-toggle-closed menu mh fixed" name="pholder'.$count.'"></i>';
@@ -84,7 +80,7 @@ function add_playlist($link, $name, $icon, $class, $delete, $count, $is_user) {
                 print '<div class="smallcover fixed"><img class="smallcover fixed" name="'.$image.'" src="newimages/playlist.svg" /></div>';
             }
             print '<div class="expand">'.$name.'</div>';
-            if ($delete) {
+            if ($delete && ($is_user || $prefs['player_backend'] == "mpd")) {
                 $add = ($is_user) ? "user" : "";
                 print '<i class="icon-floppy fixed smallicon clickable clickicon clickrename'.$add.'playlist"></i>';
                 print '<i class="icon-cancel-circled fixed smallicon clickable clickicon clickdelete'.$add.'playlist"></i>';
@@ -96,7 +92,7 @@ function add_playlist($link, $name, $icon, $class, $delete, $count, $is_user) {
             print '<div class="containerbox meunitem clickable '.$class.'" name="'.$link.'">';
             print '<i class="'.$icon.' fixed smallicon"></i>';
             print '<div class="expand">'.$name.'</div>';
-            if ($delete) {
+            if ($delete && $prefs['player_backend'] == "mpd") {
                 print '<i class="icon-cancel-circled fixed playlisticonr clickable clickicon clickdeleteplaylisttrack" name="'.$count.'"></i>';
             }
             print '</div>';

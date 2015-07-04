@@ -143,7 +143,28 @@ print '<div class="topdrop"><i class="icon-wifi topimg tooltip" title="'.get_int
 <?php
 print '<div class="configtitle textcentre"><b>'.get_int_text('label_pluginplaylists').'</b></div>';
 ?>
-<div class="clearfix containerbox vertical" id="pluginplaylists"></div>
+<div class="clearfix containerbox vertical" id="pluginplaylists">
+<?php
+if ($prefs['player_backend'] == "mopidy") {
+    print '<div class="textcentre textunderline"><b>Music From Your Collection</b></div>';
+}
+?>
+</div>
+<div class="clearfix containerbox vertical" id="pluginplaylists_spotify">
+<?php
+if ($prefs['player_backend'] == "mopidy") {
+    print '<div class="textcentre textunderline"><b>Music From Spotify</b></div>';
+}
+?>
+</div>
+<div class="clearfix containerbox vertical" id="pluginplaylists_everywhere">
+<?php
+if ($prefs['player_backend'] == "mopidy") {
+    print '<div class="textcentre textunderline"><b>Music From Everywhere</b></div>';
+    print '<div id="radiodomains" class="pref"><b>Play From These Sources:</b></div>';
+}
+?>
+</div>
 </div>
 </div>
 
@@ -159,16 +180,20 @@ print '<div class="configtitle textcentre"><b>'.get_int_text('button_loadplaylis
 </div>
 
 <?php
-print '<div class="topdrop"><i class="icon-floppy topimg tooltip" title="'.get_int_text('button_saveplaylist').'"></i>';
-?>
-<div class="topdropmenu dropshadow rightmenu widemenu stayopen" id="plsaver">
+if ($prefs['player_backend'] == "mpd") {
+    print '<div class="topdrop"><i class="icon-floppy topimg tooltip" title="'.get_int_text('button_saveplaylist').'"></i>';
+    ?>
+    <div class="topdropmenu dropshadow rightmenu widemenu stayopen" id="plsaver">
+    <?php
+    print '<div class="configtitle textcentre"><b>'.get_int_text('button_saveplaylist').'</b></div>';
+    print '<div class="containerbox"><div class="expand"><input class="enter" id="playlistname" type="text" size="200"/></div>';
+    print '<button class="fixed">'.get_int_text('button_save').'</button></div>';
+    ?>
+    </div>
+    </div>
 <?php
-print '<div class="configtitle textcentre"><b>'.get_int_text('button_saveplaylist').'</b></div>';
-print '<div class="containerbox"><div class="expand"><input class="enter" id="playlistname" type="text" size="200"/></div>';
-print '<button class="fixed">'.get_int_text('button_save').'</button></div>';
+}
 ?>
-</div>
-</div>
 
 </div>
 </div>
@@ -191,7 +216,6 @@ include("player/".$prefs['player_backend']."/search.php");
 ?>
     <div id="collectionbuttons" class="invisible searchbox">
 <?php
-if ($prefs['apache_backend'] == "sql") {
     print '<div class="pref styledinputs">';
     print '<input type="radio" class="topcheck savulon" name="sortcollectionby" value="artist" id="sortbyartist">
     <label for="sortbyartist">'.ucfirst(get_int_text('label_artists')).'</label><br/>
@@ -200,7 +224,6 @@ if ($prefs['apache_backend'] == "sql") {
     <input class="autoset toggle" type="checkbox" id="sortbydate">
     <label for="sortbydate">'.get_int_text('config_sortbydate').'</label>
     </div>';
-}
 ?>
     </div>
     <div id="collection" class="noborder selecotron"></div>

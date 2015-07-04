@@ -92,7 +92,7 @@ var mixRadio = function() {
 	            html = html + '<div class="expand">'+language.gettext('label_radio_mix')+'</div>';
 
 	            html = html + '</div>';
-	            $("#pluginplaylists").append(html);
+	            $("#pluginplaylists_spotify").append(html);
 	        }
         },
 

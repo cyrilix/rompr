@@ -15,9 +15,6 @@ function trackDataCollection(currenttrack, nowplayingindex, artistindex, playlis
 		if (collections['soundcloud'] !== undefined) {
 			collections['soundcloud'].progressUpdate(percent);
 		}
-		// if (collections['lyrics'] !== undefined) {
-		// 	collections['lyrics'].progressUpdate(percent);
-		// }
 	}
 
 	function startSource(source) {
@@ -63,6 +60,7 @@ function trackDataCollection(currenttrack, nowplayingindex, artistindex, playlis
 	}
 
 	this.handleClick = function(source, panel, element, event) {
+		debug.log("NOWPLAYING","Collection handling click in",source,panel);
 		collections[source].handleClick(panel, element, event);
 	}
 
@@ -150,7 +148,7 @@ var nowplaying = function() {
 	var plugins = new Array();
     var currenttrack = 0;
     var nowplayingindex = 0;
-    var currentbackendid = -1;
+    var currentbackendid = -2;
 
     function findCurrentTrack() {
     	for (var i in history) {
@@ -196,12 +194,13 @@ var nowplaying = function() {
 
 		newTrack: function(playlistinfo, force) {
 
+			debug.log("NOWPLAYING","New Info",playlistinfo);
 			if (currentbackendid == playlistinfo.backendid &&
 				force !== true) {
 				return;
 			}
 			infobar.setNowPlayingInfo(playlistinfo);
-			if (playlistinfo == playlist.emptytrack) {
+			if (playlistinfo.backendid == -1) {
 				debug.log("NOWPLAYING","Empty Track");
 				return;
 			}
@@ -323,35 +322,31 @@ var nowplaying = function() {
 		},
 
         setRating: function(evt) {
-            if (prefs.apache_backend == 'sql') {
-            	if (typeof evt == "number") {
-            		debug.log("NOWPLAYING","Button Press Rating Set",evt);
-            		var rating = evt;
-            		var index = findCurrentTrack();
-            	} else {
-	                var position = getPosition(evt);
-	                var elem = $(evt.target);
-	                var width = elem.width();
-	                var offset = elem.offset();
-	                var rating = Math.ceil(((position.x - offset.left - 6)/width) * 5);
-	                var index = elem.next().val();
-	                if (index == -1) index = findCurrentTrack();
-		            // The image will get updated anyway, but this makes it more responsive
-		            displayRating(evt.target, rating);
-	            }
-				if (index > 0) {
-		            debug.log("NOWPLAYING", "Setting Rating to",rating,"on index",index);
-					history[index].setMeta('set', 'Rating', rating.toString());
-					if (prefs.synclove && lastfm.isLoggedIn() && rating >= prefs.synclovevalue) {
-						history[index].love();
-						if (index == currenttrack) {
-			            	$("#love").makeFlasher({flashtime:2, repeats: 1});
-			            }
-					}
-				}
-            } else {
-                alert(language.gettext('label_nosql')+'. Please Read http://sourceforge.net/p/rompr/wiki/Enabling%20Rating%20and%20Tagging/');
+        	if (typeof evt == "number") {
+        		debug.log("NOWPLAYING","Button Press Rating Set",evt);
+        		var rating = evt;
+        		var index = findCurrentTrack();
+        	} else {
+                var position = getPosition(evt);
+                var elem = $(evt.target);
+                var width = elem.width();
+                var offset = elem.offset();
+                var rating = Math.ceil(((position.x - offset.left - 6)/width) * 5);
+                var index = elem.next().val();
+                if (index == -1) index = findCurrentTrack();
+	            // The image will get updated anyway, but this makes it more responsive
+	            displayRating(evt.target, rating);
             }
+			if (index > 0) {
+	            debug.log("NOWPLAYING", "Setting Rating to",rating,"on index",index);
+				history[index].setMeta('set', 'Rating', rating.toString());
+				if (prefs.synclove && lastfm.isLoggedIn() && rating >= prefs.synclovevalue) {
+					history[index].love();
+					if (index == currenttrack) {
+		            	$("#love").makeFlasher({flashtime:2, repeats: 1});
+		            }
+				}
+			}
         },
 
 		addTags: function(index, tags) {

@@ -482,7 +482,7 @@ div.rightmenu.normalmenu
     margin:0px;
     padding-left:4px;
     padding-right:0px;
-    padding-top:2px;
+    padding-top:4px;
     padding-bottom:2px;
     -webkit-box-align:stretch;
     align-items: stretch;
@@ -502,6 +502,12 @@ div.rightmenu.normalmenu
     height: 14px;
     vertical-align:middle;
     cursor:pointer;
+}
+
+.menuspacer
+{
+    width:14px;
+    height: 14px;
 }
 
 .ninesix

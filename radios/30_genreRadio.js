@@ -122,7 +122,7 @@ var genreRadio = function() {
             html = html + '<button class="fixed" style="margin-left:8px;vertical-align:middle" onclick="playlist.radioManager.load(\'genreRadio\', $(\'#humphrey\').val())">'+language.gettext('button_playradio')+'</button>';
             html = html + '</div>';
             html = html + '</div>';
-            $("#pluginplaylists").append(html);
+            $("#pluginplaylists_everywhere").append(html);
 		}
 
 	}

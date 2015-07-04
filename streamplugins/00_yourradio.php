@@ -70,7 +70,7 @@ if (array_key_exists('populate', $_REQUEST)) {
 <?php
 print '<i class="icon-toggle-closed mh menu fixed" name="yourradiolist"></i>';
 print '<i class="icon-radio-tower fixed smallcover-svg"></i>';
-print '<div class="expand">'.get_int_text('label_yourradio').'</div>';
+print '<div class="expand"><h3>'.get_int_text('label_yourradio').'</h3></div>';
 ?>
 </div>
 <div id="yourradiolist" class="dropmenu">

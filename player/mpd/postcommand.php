@@ -3,33 +3,7 @@ chdir('../..');
 include ("includes/vars.php");
 include ("includes/functions.php");
 include ("player/mpd/connection.php");
-
-//
-// Pre-scan commands to check which apache backend we need to use
-//
-$apache_backend = "xml";
-if (array_key_exists('commands', $_POST)) {
-    foreach($_POST['commands'] as $fart) {
-        $cmd = explode(',',$fart);
-        switch ($cmd[0]) {
-            case "additem":
-                if (substr($cmd[1],0,2) == "aa") {
-                    $apache_backend = $prefs['apache_backend'];
-                    break 2;
-                }
-                break;
-
-            case "playlistadd":
-                if (preg_match("/aa(lbum)|(rtist)\d+/", $cmd[2])) {
-                    $apache_backend = $prefs['apache_backend'];
-                    break 2;
-                }
-                break;
-        }
-    }
-}
-
-include ("backends/".$apache_backend."/backend.php");
+include ("collection/collection.php");
 
 $mpd_status = array();
 $mpd_status['albumart'] = "";
@@ -43,12 +17,19 @@ if ($is_connected) {
     // Assemble and format the command list and perform any command-specific backend actions
     //
     if (array_key_exists('commands', $_POST)) {
-        foreach ($_POST['commands'] as $fart) {
-            $cmd = explode(',',$fart);
+        foreach ($_POST['commands'] as $cmd) {
             switch ($cmd[0]) {
                 case "additem":
+                    require_once("backends/sql/backend.php");
                     debug_print("Adding Item ".$cmd[1],"POSTCOMMAND");
                     $cmds = array_merge($cmds, getItemsToAdd($cmd[1], null));
+                    break;
+
+                case "addartist":
+                    require_once("backends/sql/backend.php");
+                    debug_print("Getting tracks for Artist ".$cmd[1],"MPD");
+                    doCollection('find "artist" "'.format_for_mpd($cmd[1]).'"',array("spotify"));
+                    $cmds = array_merge($cmds, $collection->getAllTracks("add"));
                     break;
 
                 case "rename":
@@ -66,7 +47,8 @@ if ($is_connected) {
                     break;
 
                 case "playlistadd":
-                    if (preg_match('/aa(lbum)|(rtist)\d+/', $cmd[2])) {
+                    require_once("backends/sql/backend.php");
+                    if (preg_match('/[ab]album\d+|[ab]artist\d+/', $cmd[2])) {
                         $cmds = array_merge($cmds, getItemsToAdd($cmd[2], $cmd[0].' "'.format_for_mpd($cmd[1]).'"'));
                         break;
                     }
@@ -96,21 +78,14 @@ if ($is_connected) {
                 case "load":
                     $playlist_file = format_for_disc(rawurldecode($cmd[1]));
                     clean_stored_xspf();
-                    system('cp -f prefs/"'.$playlist_file.'"/*.xspf prefs/');
-                    $cmds[] = "clear";
+                    if (is_dir('prefs/'.$playlist_file)) {
+                        system('cp -f prefs/"'.$playlist_file.'"/*.xspf prefs/');
+                    }
                     $cmds[] = join_command_string($cmd);
                     break;
 
                 case "clear":
                     clean_stored_xspf();
-                    $cmds[] = join_command_string($cmd);
-                    break;
-                    
-                case "update":
-                case "rescan":
-                    if (file_exists(ROMPR_XML_COLLECTION)) {
-                        unlink(ROMPR_XML_COLLECTION);
-                    }
                     $cmds[] = join_command_string($cmd);
                     break;
                     
@@ -135,19 +110,19 @@ if ($is_connected) {
             $done++;
             // Command lists have a maximum length, 50 seems to be the default
             if ($done == 50) {
-                do_mpd_command($connection, "command_list_end", null, true);
+                do_mpd_command("command_list_end", true);
                 fputs($connection, "command_list_begin\n");
                 $done = 0;
             }
         }
 
-        $cmd_status = do_mpd_command($connection, "command_list_end", null, true);
+        $cmd_status = do_mpd_command("command_list_end", true);
     }
 
     //
     // Query mpd's status
     //
-    $mpd_status = do_mpd_command ($connection, "status", null, true);
+    $mpd_status = do_mpd_command ("status", true);
     if (is_array($cmd_status) && !array_key_exists('error', $mpd_status) && array_key_exists('error', $cmd_status)) {
         debug_print("Command List Error ".$cmd_status['error'],"POSTCOMMAND");
         $mpd_status = array_merge($mpd_status, $cmd_status);
@@ -155,12 +130,12 @@ if ($is_connected) {
 
     if (array_key_exists('song', $mpd_status) && !array_key_exists('error', $mpd_status)) {
         $songinfo = array();
-        $songinfo = do_mpd_command($connection, 'playlistinfo "' . $mpd_status['song'] . '"', null, true);
+        $songinfo = do_mpd_command('playlistinfo "' . $mpd_status['song'] . '"', true);
         $mpd_status = array_merge($mpd_status, $songinfo);
     }
 
     $arse = array();
-    $arse = do_mpd_command($connection, 'replay_gain_status', null, true);
+    $arse = do_mpd_command('replay_gain_status', true);
     $mpd_status = array_merge($mpd_status, $arse);
 
     if (array_key_exists('error', $mpd_status)) {
@@ -186,7 +161,7 @@ if ($is_connected) {
     }
 }
 
-close_mpd($connection);
+close_mpd();
 print json_encode($mpd_status);
 
 function join_command_string($cmd) {

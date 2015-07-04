@@ -27,17 +27,6 @@ var info_lyrics = function() {
                 return (albummeta.artist && albummeta.artist != "") ? albummeta.artist : parent.playlistinfo.creator;
             }
 
-            this.progressUpdate = function(percent) {
-
-            	// Works OK-ish but if there's a big long solo on the end of the track it falls flat.
-
-            	// var ph = $("#infopane").height();
-            	// var ch = $("#infopane .mCSB_container").height();
-            	// if (ch && ch > ph) {
-            	// 	$("#infopane").mCustomScrollbar("scrollTo", (ch-ph)*percent/100, {scrollInertia: 1000});
-            	// }
-            }
-
 			this.displayData = function() {
 				displaying = true;
                 browser.Update(null, 'album', me, parent.nowplayingindex, { name: "",

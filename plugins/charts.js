@@ -59,12 +59,6 @@ var charts = function() {
 
         	if (cha == null) {
 	        	cha = browser.registerExtraPlugin("cha", language.gettext("label_charts"), charts);
-	        	if (prefs.apache_backend != 'sql') {
-		            $("#chafoldup").append('<h3 align="center">'+language.gettext("label_nosql")+'</h3>');
-		            $("#chafoldup").append('<h3 align="center"><a href="http://sourceforge.net/p/rompr/wiki/Enabling%20Rating%20and%20Tagging/" target="_blank">Read The Wiki</a></h3>');
-		            cha.slideToggle('fast');
-		            return;
-	        	}
 	        	getCharts(charts.firstLoad, charts.firstLoadFail);
 			    $("#chafoldup").append('<div class="noselection fullwidth masonified" id="chamunger"></div>');
 	        } else {

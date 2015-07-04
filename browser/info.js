@@ -223,12 +223,7 @@ var browser = function() {
                 debug.log("BROWSER","Browser is hidden. Ignoring Data");
                 return;
             }
-            // Why am I checking creator and not artist.name?
-            // Ah. It's so that when there are multiple artists and you've switched away from the default
-            // and then the track changes it doesn't switch back to the default - creator will (usually)
-            // be the same for every track on an album.
             var showalbum  = (album != history[displaypointer].album.name || albumartist != history[displaypointer].album.artist || source != prefs.infosource);
-            // var showartist = (isartistswitch || creator != history[displaypointer].creator || source != prefs.infosource ||
             var showartist = (isartistswitch || artist != history[displaypointer].artist.name || source != prefs.infosource ||
                 (showalbum && artist != history[displaypointer].artist.name));
             var showtrack  = (track != history[displaypointer].track.name || showalbum || source != prefs.infosource);
@@ -269,13 +264,13 @@ var browser = function() {
             updateHistory();
         },
 
-        Update: function(collection, type, source, nowplayingindex, data, scrollto) {
+        Update: function(collection, type, source, nowplayingindex, data, scrollto, force) {
             if (prefs.hidebrowser) {
                 return false;
             }
             debug.mark("BROWSER", "Got",type,"info from",source,"for index",nowplayingindex);
-            if (source == waitingon.source && nowplayingindex == waitingon.index) {
-                if (waitingon[type]) {
+            if (force === true || (source == waitingon.source && nowplayingindex == waitingon.index)) {
+                if (force === true || waitingon[type]) {
                     debug.log("BROWSER", "  .. and we are going to display it");
                     if (data.data !== null && (source == "file" || data.name !== "")) {
                         if ($("#"+type+"information").is(':hidden')) {
@@ -317,6 +312,7 @@ var browser = function() {
         },
 
         handleClick: function(source, element, event) {
+            debug.log("BROWSER","Was clicked on",source,element);
             if (element.hasClass('frog')) {
                 toggleSection(element);
             } else if (element.hasClass('tadpole')) {

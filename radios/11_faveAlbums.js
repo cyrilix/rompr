@@ -64,7 +64,7 @@ var faveAlbums = function() {
 		},
 
         modeHtml: function(p) {
-            return '<i class="icon-doc-text modeimg"></i><span class="modespan">'+language.gettext("label_favealbums")+'</span>&nbsp;';
+            return '<i class="icon-music modeimg"></i><span class="modespan">'+language.gettext("label_favealbums")+'</span>&nbsp;';
         },
 
         stop: function() {
@@ -76,7 +76,7 @@ var faveAlbums = function() {
 
             var html = '<div class="containerbox spacer backhi dropdown-container" onclick="playlist.radioManager.load(\'faveAlbums\', null)">';
             html = html + '<div class="fixed">';
-            html = html + '<i class="icon-doc-text smallicon"></i></div>';
+            html = html + '<i class="icon-music smallicon"></i></div>';
             html = html + '<div class="expand">'+language.gettext('label_favealbums')+'</div>';
             html = html + '</div>';
             $("#pluginplaylists").append(html);

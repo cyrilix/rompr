@@ -17,7 +17,7 @@ function searchRadio() {
 		this.populate = function() {
 			if (!myself.populated) {
 				debug.log("SEARCHRADIO","Getting tracks for",name);
-				player.controller.rawsearch({artist: [name]}, [], myself.gotTracks);
+				player.controller.rawsearch({artist: [name]}, [], true, myself.gotTracks);
 				myself.populated = true;
 			}
 		}
@@ -26,17 +26,10 @@ function searchRadio() {
 			debug.debug("SEARCHRADIO ARTIST","Got Tracks",data);
 			tracks = new Array();
 			for (var j in data) {
-				if (data[j].hasOwnProperty('tracks')) {
-					for (var k in data[j].tracks) {
-						if (data[j].tracks[k].hasOwnProperty('artists')) {
-							for (var l in data[j].tracks[k].artists) {
-								if (data[j].tracks[k].artists[l].name.removePunctuation().toLowerCase() == name.removePunctuation().toLowerCase()) {
-									tracks.push({type: 'uri', name: data[j].tracks[k].uri});
-									break;
-								}
-							}
-						}
-					}
+				for (var k in data[j].tracks) {
+					if (!data[j].tracks[k].uri.match(/:album:/) && !data[j].tracks[k].uri.match(/:artist:/)) {
+						tracks.push({type: 'uri', name: data[j].tracks[k].uri});
+					}	
 				}
 			}
 			if (tracks.length > 0) {
@@ -51,9 +44,18 @@ function searchRadio() {
 
 		this.sendATrack = function() {
 			debug.log("SEARCHRADIO",name,"is sending a track");
-			if (self.running && tracks && tracks.length > 0) {
+			while (self.running && tracks && tracks.length > 0) {
+				var t = tracks.shift();
+				if (prefs.player_backend == "mopidy") {
+					var n = $("#radiodomains").makeDomainChooser("getSelection");
+					var d = t.name.substr(0, t.name.indexOf(':'));
+					if (n.indexOf(d) == -1) {
+						continue;
+					}					
+				}
 				self.sending--;
-        		player.controller.addTracks([tracks.shift()], playlist.radioManager.playbackStartPos(), null);
+        		player.controller.addTracks([t], playlist.radioManager.playbackStartPos(), null);
+        		break;
         	}
 		}
 	}

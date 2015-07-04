@@ -77,12 +77,6 @@ var wishlistViewer = function() {
 
         	if (wlv == null) {
 	        	wlv = browser.registerExtraPlugin("wlv", language.gettext("label_wishlist"), wishlistViewer);
-	        	if (prefs.apache_backend != 'sql') {
-		            $("#wlvfoldup").append('<h3 align="center">'+language.gettext("label_nosql")+'</h3>');
-		            $("#wlvfoldup").append('<h3 align="center"><a href="http://sourceforge.net/p/rompr/wiki/Enabling%20Rating%20and%20Tagging/" target="_blank">Read The Wiki</a></h3>');
-		            wlv.slideToggle('fast');
-		            return;
-	        	}
 	            $("#wlvfoldup").append('<div id="wishlistlist"></div>');
 	            $("#wishlistlist").load("albums.php?wishlist=1", function() {
                     $("#wishlistlist").find('.menu').addClass("infoclick plugclickable");

@@ -77,7 +77,6 @@ jQuery.fn.makeTagMenu = function(options) {
 
 function toggleSearch() {
     layoutProcessor.sourceControl('searchpane', setSearchLabelWidth);
-    ihatefirefox();
 }
 
 // Dummy function - we don't use tiptip in the mobile version because, well, you don't hover
@@ -175,7 +174,7 @@ var layoutProcessor = function() {
         },
 
         scrollPlaylistToCurrentTrack: function() {
-            if (prefs.scrolltocurrent && player.status.songid) {
+            if (prefs.scrolltocurrent && player.status.songid && $('.track[romprid="'+player.status.songid+'"]').length > 0) {
                 $('#pscroller').animate({
                    scrollTop: $('div.track[romprid="'+player.status.songid+'"]').offset().top - $('#sortable').offset().top - $('#pscroller').height()/2
                 }, 500);
@@ -234,7 +233,6 @@ var layoutProcessor = function() {
                 infobar.rejigTheText();
             }
             layoutProcessor.setPlaylistHeight();
-            layoutProcessor.scrollPlaylistToCurrentTrack();
             browser.rePoint();
             setTopIconSize(['#headerbar', '#chooserbuttons']);
         },

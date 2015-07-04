@@ -35,6 +35,7 @@ var starRadios = function() {
                     case '4stars':
                     case '5stars':
                     case 'neverplayed':
+                    case 'allrandom':
                         selected = param;
                         break;
 
@@ -52,8 +53,8 @@ var starRadios = function() {
             if (param.match(/^\dstars/)) {
                 var cn = param.replace(/(\d)/, 'icon-$1-');
                 return '<i class="'+cn+' rating-icon-small"></i>';
-            } else if (param == "neverplayed") {
-                return '<i class="icon-doc-text modeimg"/></i><span class="modespan">'+language.gettext('label_'+param)+'</span>';
+            } else if (param == "neverplayed" || param == "allrandom") {
+                return '<i class="icon-music modeimg"/></i><span class="modespan">'+language.gettext('label_'+param)+'</span>';
             } else {
                 return '<i class="icon-tags modeimg"/><span class="modespan">'+param+'</span>';
             }
@@ -92,32 +93,38 @@ var starRadios = function() {
 
             var html = '';
 
-            if (prefs.apache_backend == "sql") {
-                $.each(['1stars','2stars','3stars','4stars','5stars'], function(i, v) {
-                    var cn = v.replace(/(\d)/, 'icon-$1-');
-                    html = html + '<div class="containerbox backhi spacer dropdown-container" onclick="playlist.radioManager.load(\'starRadios\', \''+v+'\')">'+
-                                    '<div class="fixed"><i class="'+cn+' rating-icon-small"></i></div>'+
-                                    '<div class="expand">'+language.gettext('playlist_xstar', [i+1])+'</div>'+
-                                    '</div>';
-
-                });
-                $("#pluginplaylists").append(html);
-
-                var a = $('<div>', {class: "containerbox"}).appendTo("#pluginplaylists");
-                var c = $('<div>', {class: "containerbox expand spacer dropdown-container"}).appendTo(a).makeTagMenu({
-                    textboxname: 'cynthia', 
-                    labelhtml: '<i class="icon-tags smallicon"></i>', 
-                    populatefunction: populateTagMenu,
-                    buttontext: language.gettext('button_playradio'),
-                    buttonfunc: starRadios.tagPopulate
-                });               
-                html = '<div class="containerbox backhi spacer dropdown-container" onclick="playlist.radioManager.load(\'starRadios\', \'neverplayed\')">'+
-                                '<div class="fixed"><i class="icon-doc-text smallicon"></i></div>'+
-                                '<div class="expand">'+language.gettext('label_neverplayed')+'</div>'+
+            $.each(['1stars','2stars','3stars','4stars','5stars'], function(i, v) {
+                var cn = v.replace(/(\d)/, 'icon-$1-');
+                html = html + '<div class="containerbox backhi spacer dropdown-container" onclick="playlist.radioManager.load(\'starRadios\', \''+v+'\')">'+
+                                '<div class="fixed"><i class="'+cn+' rating-icon-small"></i></div>'+
+                                '<div class="expand">'+language.gettext('playlist_xstar', [i+1])+'</div>'+
                                 '</div>';
 
-                $("#pluginplaylists").append(html);
-            }
+            });
+            $("#pluginplaylists").append(html);
+
+            var a = $('<div>', {class: "containerbox"}).appendTo("#pluginplaylists");
+            var c = $('<div>', {class: "containerbox expand spacer dropdown-container"}).appendTo(a).makeTagMenu({
+                textboxname: 'cynthia', 
+                labelhtml: '<i class="icon-tags smallicon"></i>', 
+                populatefunction: populateTagMenu,
+                buttontext: language.gettext('button_playradio'),
+                buttonfunc: starRadios.tagPopulate
+            });
+
+            html = '<div class="containerbox backhi spacer dropdown-container" onclick="playlist.radioManager.load(\'starRadios\', \'allrandom\')">'+
+                            '<div class="fixed"><i class="icon-music smallicon"></i></div>'+
+                            '<div class="expand">'+language.gettext('label_allrandom')+'</div>'+
+                            '</div>';
+
+            $("#pluginplaylists").append(html);            
+
+            html = '<div class="containerbox backhi spacer dropdown-container" onclick="playlist.radioManager.load(\'starRadios\', \'neverplayed\')">'+
+                            '<div class="fixed"><i class="icon-music smallicon"></i></div>'+
+                            '<div class="expand">'+language.gettext('label_neverplayed')+'</div>'+
+                            '</div>';
+
+            $("#pluginplaylists").append(html);
         }
 	}
 }();

@@ -26,11 +26,26 @@ if (!is_dir('prefs/jsoncache/spotify')) {
 if (!is_dir('prefs/jsoncache/lyrics')) {
 	mkdir('prefs/jsoncache/lyrics');
 }
+if (!is_dir('prefs/jsoncache/google')) {
+	mkdir('prefs/jsoncache/google');
+}
 if (!is_dir('prefs/userplaylists')) {
 	mkdir('prefs/userplaylists');
 }
 if (file_exists('prefs/keybindings')) {
 	unlink('prefs/keybindings');
+}
+if (file_exists('prefs/albumsearch_2.xml')) {
+	unlink('prefs/albumsearch_2.xml');
+}
+if (file_exists('prefs/files_2.xml')) {
+	unlink('prefs/files_2.xml');
+}
+if (file_exists('prefs/monitor.xml')) {
+	unlink('prefs/monitor.xml');
+}
+if (file_exists('prefs/w_list.xml')) {
+	unlink('prefs/w_list.xml');
 }
 
 ?>

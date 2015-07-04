@@ -25,7 +25,7 @@ window.debug = (function() {
 		}
 		string = string + ": ";
 		var a = new Date();
-		string = string + a.toLocaleTimeString()+" : ";
+		string = a.toLocaleTimeString()+" : "+string
 
 		for (var i in args) {
 			if (typeof(args[i]) != "object" || args[i] === null || args[i] === undefined) {

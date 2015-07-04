@@ -93,6 +93,7 @@
 .icon-expand-up { background-image: url('expand-up.svg') }
 .icon-rss { background-image: url('rss.svg') }
 .icon-tick { background-image: url('tick.svg') }
+.icon-video { background-image: url('movie-1.svg') }
 img.notexist,img.notfound
 {
     content: url('compact-disc.svg');

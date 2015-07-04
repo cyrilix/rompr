@@ -39,6 +39,50 @@ var infobar = function() {
         }
     }();
 
+    function scrobble() {
+        if (!scrobbled) {
+            debug.debug("INFOBAR","Track is not scrobbled");
+            scrobbled = true;
+            if (lastfm.isLoggedIn()) {
+                if (trackinfo.title != "" && trackinfo.creator != "") {
+                    var options = {
+                                    timestamp: parseInt(starttime.toString()),
+                                    track: (lfminfo.title === undefined) ? trackinfo.title : lfminfo.title,
+                                    artist: (lfminfo.creator === undefined) ? trackinfo.creator : lfminfo.creator,
+                                    album: (lfminfo.album === undefined) ? trackinfo.album : lfminfo.album
+                    };
+                    options.chosenByUser = (trackinfo.type == 'local') ? 1 : 0;
+                     if (trackinfo.albumartist && trackinfo.albumartist != "" && trackinfo.albumartist.toLowerCase() != trackinfo.creator.toLowerCase()) {
+                         options.albumArtist = trackinfo.albumartist;
+                     }
+                    debug.log("INFOBAR","Scrobbling", options);
+                    lastfm.track.scrobble( options );
+                }
+            }
+            debug.log("INFOBAR","Track playcount being updated");
+            nowplaying.incPlaycount(null);
+            if (playlist.getCurrent('type') == "podcast") {
+                debug.log("INFOBAR", "Seeing if we need to mark a podcast as listened");
+                podcasts.checkMarkPodcastAsListened(playlist.getCurrent('location'));
+            }
+        }
+    }
+
+    function updateNowPlaying() {
+        if (!nowplaying_updated && lastfm.isLoggedIn()) {
+            if (trackinfo.title != "" && trackinfo.type && trackinfo.type != "stream") {
+                var opts = {
+                    track: (lfminfo.title === undefined) ? trackinfo.title : lfminfo.title,
+                    artist: (lfminfo.creator === undefined) ? trackinfo.creator : lfminfo.creator,
+                    album: (lfminfo.album === undefined) ? trackinfo.album : lfminfo.album
+                };
+                debug.debug("INFOBAR","is updating nowplaying",opts);
+                lastfm.track.updateNowPlaying(opts);
+                nowplaying_updated = true;
+            }
+        }
+    }
+
     function setTheText(info) {
         var stuff = mungeTrackInfo(info);
         document.title = stuff.doctitle;
@@ -329,7 +373,7 @@ var infobar = function() {
                 $("#albumpicture").attr("src", $(this).attr("src")).fadeIn('fast');
                 $("#albumpicture").unbind('click');
                 $("#albumpicture").click(infobar.albumImage.displayOriginalImage);
-                infobar.biggerize();
+                setTimeout(infobar.biggerize, 1000);
             }
             aImg.onerror = function() {
                 debug.warn("ALBUMPICTURE","Image Failed To Load",$(this).attr("src"));
@@ -393,6 +437,55 @@ var infobar = function() {
                     debug.log("ALBUMNPICTURE","Display Original Image");
                     imagePopup.create($(event.target), event, aImg.src);
                 },
+
+                dragEnter: function(ev) {
+                    evt = ev.originalEvent;
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    $(ev.target).parent().addClass("highlighted");
+                    return false;
+                },
+
+                dragOver: function(ev) {
+                    evt = ev.originalEvent;
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    return false;
+                },
+
+                dragLeave: function(ev) {
+                    evt = ev.originalEvent;
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    $(ev.target).parent().removeClass("highlighted");
+                    return false;
+                },
+
+                handleDrop: function(ev) {
+                    debug.mark("INFOBAR","Something dropped onto album image");
+                    // evt = ev.originalEvent;
+                    $(ev.target).parent().removeClass("highlighted");
+                    imgobj = $("#albumpicture");
+                    imagekey = imgobj.attr("name");
+                    dropProcessor(ev.originalEvent, imgobj, imagekey, infobar.albumImage.uploaded, infobar.albumImage.uploadfail);
+                },
+
+                uploaded: function(data) {
+                    if (!data.url || data.url == "") {
+                        infobar.albumimage.uploadfail();
+                        return;
+                    }
+                    debug.log("INFOBAR","Album Image Updated Successfully",aImg.name);
+                    $("albumpicture").removeClass('spinner').addClass('nospin');
+                    var firefoxcrapnesshack = Math.round(Math.random()*10000);
+                    infobar.albumImage.setSource({image: "albumart/asdownloaded/firefoxiscrap/"+aImg.name+"---"+firefoxcrapnesshack.toString()});
+                    $('img[name="'+aImg.name+'"]').attr("src", "albumart/asdownloaded/firefoxiscrap/"+aImg.name+"---"+firefoxcrapnesshack.toString());
+                },
+
+                uploadfail: function() {
+                    $("albumpicture").removeClass('spinner').addClass('nospin');
+                    infobar.notify(infobar.ERROR, "Image Upload Failed!");                    
+                }
 
             }
 
@@ -473,7 +566,7 @@ var infobar = function() {
                     $("#subscribe").fadeOut('fast');
                 }
             }
-            if (info == playlist.emptytrack) {
+            if (info.backendid === -1) {
                 debug.log("INFOBAR","Fading out Album Picture")
                 $("#stars").fadeOut('fast');
                 $("#dbtags").fadeOut('fast');
@@ -504,52 +597,6 @@ var infobar = function() {
 
         progress: function() {
             return (player.status.state == "stop") ? 0 : (Date.now())/1000 - starttime;
-        },
-
-        scrobble: function() {
-            if (!scrobbled) {
-                debug.debug("INFOBAR","Track is not scrobbled");
-                scrobbled = true;
-                if (lastfm.isLoggedIn()) {
-                    if (trackinfo.title != "" && trackinfo.creator != "") {
-                        var options = {
-                                        timestamp: parseInt(starttime.toString()),
-                                        track: (lfminfo.title === undefined) ? trackinfo.title : lfminfo.title,
-                                        artist: (lfminfo.creator === undefined) ? trackinfo.creator : lfminfo.creator,
-                                        album: (lfminfo.album === undefined) ? trackinfo.album : lfminfo.album
-                        };
-                        options.chosenByUser = (trackinfo.type == 'local') ? 1 : 0;
-                         if (trackinfo.albumartist && trackinfo.albumartist != "" && trackinfo.albumartist.toLowerCase() != trackinfo.creator.toLowerCase()) {
-                             options.albumArtist = trackinfo.albumartist;
-                         }
-                        debug.log("INFOBAR","Scrobbling", options);
-                        lastfm.track.scrobble( options );
-                    }
-                }
-                if (prefs.apache_backend == 'sql') {
-                    debug.log("INFOBAR","Track playcount being updated");
-                    nowplaying.incPlaycount(null);
-                }
-                if (playlist.currentTrack && playlist.currentTrack.type == "podcast") {
-                    debug.log("INFOBAR", "Seeing if we need to mark a podcast as listened");
-                    podcasts.checkMarkPodcastAsListened(playlist.currentTrack.location);
-                }
-            }
-        },
-
-        updateNowPlaying: function() {
-            if (!nowplaying_updated && lastfm.isLoggedIn()) {
-                if (trackinfo.title != "" && trackinfo.type && trackinfo.type != "stream") {
-                    var opts = {
-                        track: (lfminfo.title === undefined) ? trackinfo.title : lfminfo.title,
-                        artist: (lfminfo.creator === undefined) ? trackinfo.creator : lfminfo.creator,
-                        album: (lfminfo.album === undefined) ? trackinfo.album : lfminfo.album
-                    };
-                    debug.debug("INFOBAR","is updating nowplaying",opts);
-                    lastfm.track.updateNowPlaying(opts);
-                    nowplaying_updated = true;
-                }
-            }
         },
 
         ban: function() {
@@ -684,7 +731,9 @@ var infobar = function() {
 
         setProgress: function(percent, progress, duration) {
             debug.debug("INFOBAR","Progress",percent,progress,duration);
-            progressbar.setProgress(percent);
+            if (progress > 4) { updateNowPlaying() };
+            if (percent >= prefs.scrobblepercent) { scrobble() }
+            progressbar.setProgress(parseFloat(percent));
             var progressString = formatTimeString(progress);
             var durationString = formatTimeString(duration);
             if (progressString != "" && durationString != "") {
@@ -692,13 +741,13 @@ var infobar = function() {
             } else if (progressString != "" && durationString == "") {
                 $("#playbackTime").html(progressString);
             } else if (progressString == "" && durationString != "") {
-                $("#playbackTime").html("");
+                $("#playbackTime").html("0:00 " + frequentLabels.of + " " + durationString);
             } else if (progressString == "" && durationString == "") {
                 $("#playbackTime").html("");
             }
             nowplaying.progressUpdate(percent);
         }
     }
-}();
 
+}();
 

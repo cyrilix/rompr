@@ -354,6 +354,8 @@ var info_lastfm = function() {
 
 			this.artist = function() {
 
+                var triedWithoutBrackets = false;
+
                 return {
 
 					populate: function() {
@@ -374,11 +376,17 @@ var info_lastfm = function() {
                         debug.debug(medebug,data);
 		                if (data) {
 		                    if (data.error) {
+                                if (self.artist.checkBrackets()) {
+                                    return;
+                                }
 		                        artistmeta.lastfm = {artist: data};
 		                    } else {
 		                        artistmeta.lastfm = data;
 		                    }
 		                } else {
+                            if (self.artist.checkBrackets()) {
+                                return;
+                            }
 		                    artistmeta.lastfm = {artist: {error: 1,
 		                                                  message: language.gettext("lastfm_notfound",[language.gettext("label_artist")])}
 		                    };
@@ -397,6 +405,23 @@ var info_lastfm = function() {
                         self.album.populate();
 		                self.artist.doBrowserUpdate();
 		            },
+
+                    checkBrackets: function() {
+                        if (triedWithoutBrackets) {
+                            return false;
+                        }
+                        triedWithoutBrackets = true;
+                        var test = artistmeta.name.replace(/ \(+.+?\)+$/, '');
+                        if (test != artistmeta.name) {
+                            debug.log(medebug,"Trying artist name with no brackets - ",test);
+                            lastfm.artist.getInfo( {artist: test},
+                                                    self.artist.lfmResponseHandler,
+                                                    self.artist.lfmResponseHandler
+                            );
+                            return true;
+                        }
+                        return false;
+                    },
 
 					doBrowserUpdate: function() {
 						if (displaying && artistmeta.lastfm !== undefined) {

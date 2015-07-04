@@ -80,7 +80,7 @@ if (array_key_exists('populate', $_REQUEST)) {
 <?php
 print '<i class="icon-toggle-closed mh menu fixed" name="podcastslist"></i>';
 print '<i class="icon-podcast-circled fixed smallcover-svg"></i>';
-print '<div class="expand">'.get_int_text('label_podcasts').'<span id="total_unlistened_podcasts"></span><span></span></div>';
+print '<div class="expand"><h3>'.get_int_text('label_podcasts').'<span id="total_unlistened_podcasts"></span><span></span></h3></div>';
 ?>
 </div>
 <div id="podcastslist" class="dropmenu">

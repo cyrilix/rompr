@@ -49,6 +49,12 @@ a
     text-decoration:none;
 }
 
+hr
+{
+    -webkit-margin-before:0px;
+    -webkit-margin-after:0px;
+}
+
 input
 {
     font-size:100%;
@@ -159,6 +165,19 @@ button
 #pscroller
 {
     overflow:auto;
+}
+
+#playlistbuttons
+{
+    margin-bottom:4px;
+}
+
+#playlistbuttons > table
+{
+    border-collapse:collapse;
+    border-spacing:2px;
+    margin-top:2px;
+    margin-bottom:2px;
 }
 
 /*-- Classes used to control flow and layout --*/
@@ -318,6 +337,27 @@ button
     margin-right:8px;
 }
 
+.spotpossimg
+{
+    height:48px;
+    font-size:48px;
+    vertical-align:middle;
+    margin-right:8px;
+}
+
+.spotthing
+{
+    vertical-align:middle;
+    border-right: 1px solid #999999;
+}
+
+.spotchoices
+{
+    border-bottom:1px solid #999999;
+    padding-bottom: 8px;
+    padding-top: 8px;
+}
+
 .smallcoverpadder
 {
     width:32px;
@@ -404,16 +444,16 @@ button
 
 #horse
 {
-    padding-top:0px;
+    padding-top:4px;
     padding-bottom:0px;
     font-weight:bold;
     font-size:90%;
     cursor:default;
 }
 
-#playlistbuttons
+#horse > table
 {
-    padding-bottom:2px;
+    border-spacing:0px;
 }
 
 .playlistitem
@@ -1386,6 +1426,17 @@ div .thumb
     margin-bottom:0.75em;
 }
 
+.textunderline
+{
+    margin-top:8px;
+    padding-bottom:2px;
+    margin-bottom:4px;
+    border-bottom: 1px solid #cccccc;
+    width:80%;
+    margin-right:auto;
+    margin-left:auto;
+}
+
 .mbbox
 {
     margin-left:0px;
@@ -1397,7 +1448,21 @@ div .thumb
 {
     margin-left:auto;
     margin-right:auto;
-    margin-top:3em;
+    margin-top:2em;
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 */
+    padding-top: 25px;
+    height: 0;
+}
+
+.youtubevid
+{
+    border:none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
 
 .thumbslideshow
@@ -1524,7 +1589,6 @@ div.lyrics p
     color:#000000;
     line-height:1.3em;
     padding-left:4px;
-    padding-right:4px;
     cursor:pointer;
 }
 

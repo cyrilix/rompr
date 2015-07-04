@@ -124,7 +124,7 @@ if (array_key_exists('populate', $_REQUEST)) {
 <?php
 print '<i class="icon-toggle-closed menu mh fixed" onclick="refreshMyDrink()" name="icecastlist"></i>';
 print '<i class="icon-icecast fixed smallcover-svg"></i>';
-print '<div class="expand">'.get_int_text('label_icecast').'</div>';
+print '<div class="expand"><h3>'.get_int_text('label_icecast').'</h3></div>';
 ?>
 <i id="icewait" class="smallicon invisible"></i>
 </div>

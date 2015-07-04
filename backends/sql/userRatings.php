@@ -6,9 +6,7 @@ include ("utils/imagefunctions.php");
 include ("international.php");
 debug_print("--------------------------START---------------------","USERRATING");
 include ("backends/sql/backend.php");
-if ($prefs['player_backend'] == "mpd") {
-	include("player/mpd/connection.php");
-}
+include("player/mpd/connection.php");
 
 $error = 0;
 $count = 1;
@@ -37,7 +35,6 @@ $album = array_key_exists('album', $_POST) ? $_POST['album'] : null;
 $uri = array_key_exists('uri', $_POST) ? $_POST['uri'] : null;
 $date = array_key_exists('date', $_POST) ? getYear($_POST['date']) : null;
 $urionly = array_key_exists('urionly', $_POST) ? true : false;
-$dontcreate = array_key_exists('dontcreate', $_POST) ? true : false;
 $disc = array_key_exists('disc', $_POST) ? $_POST['disc'] : 1;
 $trackimage = array_key_exists('trackimage', $_POST) ? $_POST['trackimage'] : null;
 if (substr($image,0,4) == "http") {
@@ -150,7 +147,8 @@ switch ($_POST['action']) {
 											null,
 											$uri === null ? "local" : getDomain($uri),
 											1,
-											$trackimage);
+											$trackimage,
+											0);
 
 		}
 
@@ -194,7 +192,7 @@ switch ($_POST['action']) {
 			// we unhide it.
 			// The code to do this already exists in set_attribute. If it's hidden it will have no attributes
 			// (except a playcount) so we can check if it's hidden and if it is, set its rating to 0.
-			if (track_is_hidden($ttid)) {
+			if (track_is_hidden($ttid) || track_is_searchresult($ttid)) {
 				set_attribute($ttid, "Rating", "0");
 				update_track_stats();
 				send_list_updates($artist_created, $album_created, $ttid);
@@ -225,7 +223,8 @@ switch ($_POST['action']) {
 										null,
 										$uri === null ? "local" : getDomain($uri),
 										0,
-										$trackimage);
+										$trackimage,
+										0);
 			update_track_stats();
 			send_list_updates($artist_created, $album_created, $ttid);
 		}
@@ -247,11 +246,7 @@ switch ($_POST['action']) {
 							$albumartist,
 							forcedUriOnly($urionly, getDomain($uri)));
 
-		if (count($ttids) == 0 && $dontcreate == false) {
-
-			// dontcreate prevents us from creating a track if it doesn't already exist. It's used by the
-			// Tag Manager and Rating Manager as a means of preventing us adding stuff from the search
-			// panel, because it requires a shedload more code to get the title, artist etc details
+		if (count($ttids) == 0) {
 
 			// NOTE: This is adding new tracks without putting them through the collectioniser.
 			// This is probably OK, since the collectioniser was designed for coping with
@@ -276,7 +271,8 @@ switch ($_POST['action']) {
 											null,
 											$uri === null ? "local" : getDomain($uri),
 											0,
-											$trackimage);
+											$trackimage,
+											0);
 			debug_print("Created New Track with TTindex ".$ttids[0],"USERRATINGS");
 		} else if (count($ttids) == 1) {
 			// Check to see if the track we've returned is a wishlist track, and update its info
@@ -404,9 +400,8 @@ switch ($_POST['action']) {
 }
 
 close_transaction();
-if ($prefs['player_backend'] == "mpd") {
-	close_player();
-}
+close_mpd();
+
 debug_print("---------------------------END----------------------","USERRATING");
 
 function forcedUriOnly($u,$d) {
@@ -436,24 +431,27 @@ function doPlaylist($playlist, $limit) {
 	$random = true;
 	switch($playlist) {
 		case "1stars":
-			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden=0 AND Rating > 0";
+			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden=0 AND isSearchResult < 2 AND Rating > 0";
 			break;
 		case "2stars":
-			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden=0 AND Rating > 1";
+			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden=0 AND isSearchResult < 2 AND Rating > 1";
 			break;
 		case "3stars":
-			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden=0 AND Rating > 2";
+			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden=0 AND isSearchResult < 2 AND Rating > 2";
 			break;
 		case "4stars":
-			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden=0 AND Rating > 3";
+			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden=0 AND isSearchResult < 2 AND Rating > 3";
 			break;
 		case "5stars":
-			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden=0 AND Rating > 4";
+			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden=0 AND isSearchResult < 2 AND Rating > 4";
 			break;
 		case "mostplayed":
 			// Used to be tracks with above average playcount, now also includes any rated tracks. Still called mostplayed :)
 			$avgplays = getAveragePlays();
-			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Playcounttable USING (TTindex) LEFT JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden = 0 AND (Playcount > ".$avgplays." OR Rating IS NOT NULL)";
+			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Playcounttable USING (TTindex) LEFT JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden = 0 AND isSearchResult < 2 AND (Playcount > ".$avgplays." OR Rating IS NOT NULL)";
+			break;
+		case "allrandom":
+			$sqlstring = "SELECT TTindex FROM Tracktable WHERE Uri IS NOT NULL AND Hidden=0 AND isSearchResult < 2";
 			break;
 		case "neverplayed":
 			// LEFT JOIN (used here and above) means that the right-hand side of the JOIN will be NULL if TTindex doesn't exist on that side. Very handy.
@@ -473,7 +471,7 @@ function doPlaylist($playlist, $limit) {
 					}
 					$sqlstring .=  "Tagtable.Name = ?";
 				}
-				$sqlstring .= ") AND Tracktable.Uri IS NOT NULL AND Tracktable.Hidden=0 ";
+				$sqlstring .= ") AND Tracktable.Uri IS NOT NULL AND Tracktable.Hidden = 0 AND Tracktable.isSearchResult < 2 ";
 			}
 			break;
 	}

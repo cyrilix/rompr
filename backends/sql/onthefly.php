@@ -11,7 +11,7 @@ include ("utils/imagefunctions.php");
 include ("international.php");
 debug_print("------------------- STARTING -------------------","ONTHEFLY");
 include ("backends/sql/backend.php");
-include ("player/".$prefs['player_backend']."/connection.php");
+include ("player/mpd/connection.php");
 include ("collection/collection.php");
 
 $error = 0;
@@ -35,12 +35,7 @@ $now2 = time();
 $initmem = memory_get_usage();
 debug_print("Memory Used is ".$initmem,"COLLECTION");
 
-if (array_key_exists('command', $_REQUEST)) {
-	doCollection($_REQUEST['command'],null,array("Track"),$prefs['lowmemorymode'] ? false : true);
-} else {
-	prepareCollectionUpdate();
-	doCollection("core.playlists.get_playlists",null,array("Track"),$prefs['lowmemorymode'] ? false : true);
-}
+doCollection($_REQUEST['command']);
 
 debug_print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~","TIMINGS");
 debug_print("Starting Database Update From Collection","TIMINGS");
@@ -55,19 +50,10 @@ debug_print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~","TIMINGS");
 // Now to delete the tracks that were there and aren't any more
 debug_print("Removing tracks that don't exist any more","ONTHEFLY");
 $delcount = 0;
-if (array_key_exists('command', $_REQUEST)) {
-    if ($result = generic_sql_query("SELECT TTindex FROM Tracktable WHERE LastModified IS NOT NULL AND TTindex NOT IN (SELECT TTindex FROM Foundtracks) AND Hidden = 0")) {
-		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
-			remove_ttid($obj->TTindex);
-			$delcount++;
-		}
-    }
-} else {
-	if ($result = generic_sql_query("SELECT TTindex FROM Existingtracks LEFT OUTER JOIN Foundtracks USING (TTindex) WHERE Foundtracks.TTindex IS NULL")) {
-		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
-			remove_ttid($obj->TTindex);
-			$delcount++;
-		}
+if ($result = generic_sql_query("SELECT TTindex FROM Tracktable WHERE LastModified IS NOT NULL AND TTindex NOT IN (SELECT TTindex FROM Foundtracks) AND Hidden = 0")) {
+	while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+		remove_ttid($obj->TTindex);
+		$delcount++;
 	}
 }
 

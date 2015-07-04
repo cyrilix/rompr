@@ -6,7 +6,6 @@ function xmlnode($node, $content) {
 
 function format_for_mpd($term) {
     $term = str_replace('"','\\"',$term);
-    $term = str_replace('!!comma!!',',', $term);
     return $term;
 }
 
@@ -135,22 +134,6 @@ function sanitsizeDiscogsResult($name) {
     return $b;
 }
 
-function findItem($x, $which) {
-    $t = substr($which, 1, 3);
-    if ($t == "art") {
-        $it = $x->xpath("artists/artist[@id='".$which."']");
-        return array(ROMPR_ITEM_ARTIST, $it[0]);
-    } else {
-        $it = $x->xpath("artists/artist/albums/album[@id='".$which."']");
-        return array(ROMPR_ITEM_ALBUM, $it[0]);
-    }
-}
-
-function findFileItem($x, $which) {
-    $it = $x->xpath("//item[id='".$which."']");
-    return $it[0];
-}
-
 function alistheader($nart, $nalb, $ntra, $tim) {
     return '<div style="margin-bottom:4px">'.
     '<table width="100%" class="playlistitem">'.
@@ -162,6 +145,8 @@ function alistheader($nart, $nalb, $ntra, $tim) {
 
 function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duration, $lm, $image) {
     global $prefs;
+    if (substr($name,0,6) == "Album:") return true;
+    if (substr($name,0,7) == "Artist:") return true;
     if ($artist || $rating > 0) {
         if ($prefs['player_backend'] == "mpd" && getDomain($url) == "soundcloud") {
             print '<div class="clickable clickcue ninesix draggable indent containerbox vertical padright" name="'.$url.'">';
@@ -208,7 +193,9 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
     if ((string) $name == "") $name = urldecode($url);
     print '<div class="expand">'.$name.'</div>';
     print '<div class="fixed playlistrow2 tracktime">';
-    print $duration;
+    if ($duration > 0) {
+        print $duration;
+    }
     print '</div>';
     if ($lm === null) {
         print '<i class="icon-cancel-circled playlisticonr fixed clickable clickicon clickremdb"></i>';
@@ -231,10 +218,6 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
 
 }
 
-function noAlbumTracks() {
-    print '<div class="playlistrow2" style="padding-left:64px">'.get_int_text("label_notracks").'</div>';
-}
-
 function artistHeader($id, $spotilink, $name, $numalbums = null) {
     global $divtype;
     if ($spotilink) {
@@ -244,10 +227,6 @@ function artistHeader($id, $spotilink, $name, $numalbums = null) {
         $d = preg_replace('/\+.*/','', $d);
         switch ($d) {
             case "spotify":
-                print '<i class="icon-spotify-circled fixed playlisticon"></i>';
-                print '<input type="hidden" value="needsfiltering" />';
-                break;
-
             case "gmusic":
             case "podcast":
             case "internetarchive":
@@ -271,12 +250,15 @@ function noAlbumsHeader() {
 
 function albumHeader($name, $spotilink, $id, $exists, $searched, $imgname, $src, $date, $numtracks = null, $aname = null) {
     global $prefs;
-    $browseable = "";
-    if ($numtracks === 0) {
-        $browseable = " browseable";
-    }
     if ($spotilink) {
-        print '<div class="clickable clicktrack draggable containerbox menuitem'.$browseable.'" name="'.$spotilink.'">';
+        if (preg_match('/spotify%3Aartist%3A/', $spotilink)) {
+            print '<div class="clickable clickartist draggable containerbox menuitem" name="'.preg_replace('/'.get_int_text('label_allartist').'/', '', $name).'">';
+        } else if (strtolower(pathinfo($spotilink, PATHINFO_EXTENSION)) == "cue") {
+            debug_print("Cue Sheet found for album ".$name,"FUNCTIONS");
+            print '<div class="clickable clickcue draggable containerbox menuitem" name="'.$spotilink.'">';
+        } else {
+            print '<div class="clickable clicktrack draggable containerbox menuitem" name="'.$spotilink.'">';
+        }
     } else {
         print '<div class="clickable clickalbum draggable containerbox menuitem" name="'.$id.'">';
     }
@@ -311,6 +293,9 @@ function albumHeader($name, $spotilink, $id, $exists, $searched, $imgname, $src,
             case "bassdrive":
                 print '<div class="playlisticon fixed"><img height="12px" src="newimages/'.$d.'-logo.png" /></div>';
                 break;
+        }
+        if (strtolower(pathinfo($spotilink, PATHINFO_EXTENSION)) == "cue") {
+            print '<i class="icon-doc-text playlisticon fixed"></i>';
         }
     }
 
@@ -458,81 +443,6 @@ function release_file_lock() {
     fclose($fp);
 }
 
-function clean_cache_dir($dir, $time) {
-
-    debug_print("Cache Cleaner is running on ".$dir,"CACHE CLEANER");
-    $cache = glob($dir."*");
-    $now = time();
-    foreach($cache as $file) {
-        if (!is_dir($file)) {
-            if($now - filemtime($file) > $time) {
-                debug_print("Removing file ".$file,"CACHE CLEANER");
-                @unlink ($file);
-            }
-        }
-    }
-}
-
-function detect_mopidy() {
-    // Let's see if we can retreieve the mopidy HTTP API
-    // If we can, then we will use it and the user doesn't have to
-    // configure everything (many users were unaware that this existed)
-    global $prefs;
-    debug_print("Checking to see if we can find mopidy","INIT");
-    // SERVER_ADDR reflects the address typed into the browser
-    debug_print("Server Address is ".$_SERVER['SERVER_ADDR'],"INIT");
-    // REMOTE_ADDR is the address of the machine running the browser
-    debug_print("Remote Address is ".$_SERVER['REMOTE_ADDR'],"INIT");
-
-    // Our default setting for mpd_host is 'localhost'. This is relative to Apache and therefore not to the browser
-    // if the browser is on another machine
-    debug_print("mpd host is ".$prefs['mpd_host'],"INIT");
-    if ($prefs['mpd_host'] == "localhost" || $prefs['mpd_host'] == "127.0.0.1") {
-        if ($_SERVER['SERVER_ADDR'] != $_SERVER['REMOTE_ADDR']) {
-            debug_print("Browser is on a different PC from the Apache server");
-            if (check_mopidy_http($_SERVER['SERVER_ADDR'])) {
-                $prefs['mopidy_http_address'] = $_SERVER['SERVER_ADDR'];
-                return true;
-            }
-        } else {
-            debug_print("Browser is on the same PC as the Apache server","INIT");
-            // Therefore, the mpd/mopidy server must be on that PC too
-            if (check_mopidy_http($prefs['mpd_host'])) {
-                $prefs['mopidy_http_address'] = $prefs['mpd_host'];
-                return true;
-            } else if ($_SERVER['SERVER_ADDR'] != "::1") {
-                if (check_mopidy_http($_SERVER['SERVER_ADDR'])) {
-                    $prefs['mopidy_http_address'] = $_SERVER['SERVER_ADDR'];
-                    return true;
-                }
-            }
-        }
-    } else {
-        // In this case, the user has set mpd_host to an IP address, therefore that's
-        // all we need to test
-        if (check_mopidy_http($prefs['mpd_host'])) {
-            $prefs['mopidy_http_address'] = $prefs['mpd_host'];
-            return true;
-        }
-    }
-    debug_print("Failed to load Mopidy HTTP API","INIT");
-    return false;
-
-}
-
-function check_mopidy_http($addr) {
-    global $prefs;
-    debug_print("Checking for mopidy HTTP API at http://".$addr.':'.$prefs['mopidy_http_port'].'/mopidy/mopidy.min.js', "INIT");
-    $result = url_get_contents('http://'.$addr.':'.$prefs['mopidy_http_port'].'/mopidy/mopidy.min.js');
-    if ($result['status'] == "200") {
-        debug_print("Mopidy HTTP API success","INIT");
-        return true;
-    } else {
-        debug_print("Failed to get Mopidy HTTP API","INIT");
-        return false;
-    }
-}
-
 function get_browser_language() {
     // TODO - this method is not good enough.
     if (array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER)) {
@@ -546,6 +456,7 @@ function getDomain($d) {
     if ($d === null || $d == "") {
         return "local";
     }
+    $d = unwanted_array($d);
     $d = urldecode($d);
     $pos = strpos($d, ":");
     $a = substr($d,0,$pos);
@@ -591,30 +502,9 @@ print '<p>'.get_int_text("setup_port").'<br><input type="text" name="mpd_port" v
 print '<p>'.get_int_text("setup_password").'<br><input type="text" name="mpd_password" value="'.$prefs['mpd_password'].'" /></p>'."\n";
 print '<p>'.get_int_text("setup_unixsocket").'</p>';
 print '<input type="text" name="unix_socket" value="'.$prefs['unix_socket'].'" /></p>';
-print '<hr class="dingleberry" />';
-print '<h3>'.get_int_text("setup_mopidy").'</h3>';
-print '<p>'.get_int_text("setup_mopidyport").'<br><input type="text" name="mopidy_http_port" value="'.$prefs['mopidy_http_port'].'" /></p>'."\n";
-if (!class_exists("JSONReader")) {
-    print '<p><font color="red">Please READ THE WIKI about Low Memory Mode</font></p>';
-}
-print '<p><input type="checkbox" name="lowmemorymode" value="1"';
-if (!class_exists("JSONreader")) {
-    print " disabled";
-} else {
-    if ($prefs['lowmemorymode']) {
-        print " checked";
-    }
-}
-print '>'.get_int_text('config_low_memory_mode').'</input></p>';
-print '<p class="tiny">'.get_int_text('config_meminfo').'</p>';
+
 print '<hr class="dingleberry" />';
 print '<h3>Collection Settings</h3>';
-print '<p><input type="radio" name="collection_type" value="xml"';
-if (array_key_exists('collection_type', $prefs) && $prefs['collection_type'] == "xml") {
-    print " checked";
-}
-print '>Basic Collection</input></p>';
-print '<p class="tiny">Fast but with limited features</p>';
 print '<p><input type="radio" name="collection_type" value="sqlite"';
 if (array_key_exists('collection_type', $prefs) && $prefs['collection_type'] == "sqlite") {
     print " checked";
@@ -671,6 +561,7 @@ function sql_init_fail($message) {
 <?php
 print '<h3 align="center">Rompr encountered an error while checking your '.ucfirst($prefs['collection_type']).' database.</h3>';
 ?>
+<h3 align="center">An SQLite or MySQL database is required to run Rompr</h3>
 <h3 align="center">You may find it helpful to <a href="https://sourceforge.net/p/rompr/wiki/Enabling%20Rating%20and%20Tagging/" target="_blank">Read The Wiki</a></h3>
 <h3 align="center">The error message was:</h3><br>
 <?php
@@ -813,6 +704,12 @@ function audioClass($filetype) {
             return 'icon-ogg-audio';
             break;
 
+        case "cue":
+        case "pls":
+        case "m3u":
+            return "icon-doc-text";
+            break;
+
         default:
             return 'icon-library';
             break;
@@ -926,6 +823,47 @@ function htmlHeaders() {
             '</head>'.
             '<body>';
     print $headers;
+}
+
+function get_player_ip() {
+    global $prefs;
+    // SERVER_ADDR reflects the address typed into the browser
+    debug_print("Server Address is ".$_SERVER['SERVER_ADDR'],"INIT");
+    // REMOTE_ADDR is the address of the machine running the browser
+    debug_print("Remote Address is ".$_SERVER['REMOTE_ADDR'],"INIT");
+    debug_print("mpd host is ".$prefs['mpd_host'],"INIT");
+
+    if ($prefs['unix_socket'] != "" || $prefs['mpd_host'] == "localhost" || $prefs['mpd_host'] == "127.0.0.1") {
+        return $_SERVER['SERVER_ADDR'] != "::1" ? $_SERVER['SERVER_ADDR'] : $prefs['mpd_host'];
+    } else {
+        return $prefs['mpd_host'];
+    }
+
+}
+
+function getCacheData($uri, $cache) {
+
+    $me = strtoupper($cache);
+    debug_print("Getting ".$uri, $me);
+
+    if (file_exists('prefs/jsoncache/'.$cache.'/'.md5($uri))) {
+        debug_print("Returning cached data",$me);
+        header("Pragma: From Cache");
+        print file_get_contents('prefs/jsoncache/'.$cache.'/'.md5($uri));
+    } else {
+        $content = url_get_contents($uri);
+        $s = $content['status'];
+        debug_print("Response Status was ".$s, $me);
+        header("Pragma: Not Cached");
+        if ($s == "200") {
+            print $content['contents'];
+            file_put_contents('prefs/jsoncache/'.$cache.'/'.md5($uri), $content['contents']);
+        } else {
+            $a = array( 'error' => get_int_text($cache."_error"));
+            print json_encode($a);
+        }
+    }
+
 }
 
 ?>

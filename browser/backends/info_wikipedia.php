@@ -177,8 +177,14 @@ function get_wikipedia_page($page, $site, $langsearch) {
         } else {
             $info = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
             $html = $info->parse->text;
+            $matches = array();
             if (preg_match( '/REDIRECT <a href="\/wiki\/(.*?)"/', $html, $matches )) {
                 $xml = wikipedia_request('http://'.$format_domain.'.wikipedia.org/w/api.php?action=parse&prop=text&page='.$matches[1].'&format=xml');
+                $info = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
+            } else if (preg_match( '/<ul class="redirectText"><li><a href=\"(.*?)\/w\/index.php\?title=(.*?)(\&.+)*\"/', $html, $matches)) {
+                debug_print("Getting redirect page for ".$matches[2]." from ".$matches[1],"WIKIPEDIA");
+                // Wierd. $matches[1] always == "". WTF?
+                $xml = wikipedia_request('http://'.$format_domain.'.wikipedia.org/w/api.php?action=parse&prop=text&page='.$matches[2].'&format=xml');
                 $info = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
             }
             return wrap_response($info, $format_domain, $page);

@@ -106,62 +106,54 @@ var info_ratings = function() {
 			}
 
 			this.populate = function() {
-                if (prefs.apache_backend == "sql") {
-                    if (trackmeta.usermeta === undefined) {
-                        var data = getPostData();
-                        data.action = 'get';
-                        $.ajax({
-                            url: "backends/sql/userRatings.php",
-                            type: "POST",
-                            data: data,
-                            dataType: 'json',
-                            success: function(data) {
-                                debug.log("RATING PLUGIN","Got Data",data);
-                                trackmeta.usermeta = data;
-                                doThingsWithData();
-                            },
-                            error: function(data) {
-                                debug.fail("RATING PLUGIN","Failure");
-                                trackmeta.usermeta = null;
-                                hideTheInputs();
+                if (trackmeta.usermeta === undefined) {
+                    var data = getPostData();
+                    data.action = 'get';
+                    $.ajax({
+                        url: "backends/sql/userRatings.php",
+                        type: "POST",
+                        data: data,
+                        dataType: 'json',
+                        success: function(data) {
+                            debug.log("RATING PLUGIN","Got Data",data);
+                            trackmeta.usermeta = data;
+                            doThingsWithData();
+                        },
+                        error: function(data) {
+                            debug.fail("RATING PLUGIN","Failure");
+                            trackmeta.usermeta = null;
+                            hideTheInputs();
 
-                            }
-                        });
-                    } else {
-                        debug.mark("RATINGS PLUGIN",parent.nowplayingindex,"is already populated");
-                        doThingsWithData();
-                    }
+                        }
+                    });
+                } else {
+                    debug.mark("RATINGS PLUGIN",parent.nowplayingindex,"is already populated");
+                    doThingsWithData();
                 }
 		    }
 
             this.setMeta = function(action, type, value) {
-                if (prefs.apache_backend == "sql") {
-                    var data = getPostData();
-                    debug.log("RATINGS PLUGIN",parent.nowplayingindex,"Doing",action,type,value,data);
-                    data.action = action;
-                    data.attributes = [{attribute: type, value: value}];
-                    if (data.uri) {
-                        self.updateDatabase(data);
-                    } else {
-                        faveFinder.findThisOne(data, self, true, false, []);
-                    }
+                var data = getPostData();
+                debug.log("RATINGS PLUGIN",parent.nowplayingindex,"Doing",action,type,value,data);
+                data.action = action;
+                data.attributes = [{attribute: type, value: value}];
+                if (data.uri) {
+                    self.updateDatabase(data);
+                } else {
+                    faveFinder.findThisOne(data, self, true, false, []);
                 }
             }
 
             this.getMeta = function(meta) {
-                if (prefs.apache_backend == "sql") {
-                    if (trackmeta.usermeta) {
-                        if (trackmeta.usermeta[meta]) {
-                            return trackmeta.usermeta[meta];
-                        } else {
-                            return 0;
-                        }
+                if (trackmeta.usermeta) {
+                    if (trackmeta.usermeta[meta]) {
+                        return trackmeta.usermeta[meta];
                     } else {
                         return 0;
                     }
                 } else {
                     return 0;
-                }                
+                }
             }
 
             this.updateDatabase = function(data) {
@@ -227,7 +219,7 @@ var faveFinder = function() {
             }
         }
         debug.log("FAVEFINDER","Performing search",st,req.sources);
-        player.controller.rawsearch(st, req.sources, faveFinder.handleResults);
+        player.controller.rawsearch(st, req.sources, true, faveFinder.handleResults);
     }
 
     function getImageUrl(list) {
@@ -260,8 +252,11 @@ var faveFinder = function() {
         },
 
         handleResults: function(data) {
+
             var f = false;
             var req = queue[0];
+
+            debug.mark("FAVEFINDER","Raw Results for",req,data);
 
             $.each(priority,
                 function(j,v) {
@@ -279,7 +274,7 @@ var faveFinder = function() {
                 }
             );
 
-            // debug.debug("FAVEFINDER","Sorted Search Results are",data);
+            debug.debug("FAVEFINDER","Sorted Search Results are",data);
 
             var results = new Array();
             if (req.returnall) {
@@ -290,36 +285,9 @@ var faveFinder = function() {
                             debug.debug("FAVEFINDER","Found Track",data[i].tracks[k]);
                             f = true;
                             var r = cloneObject(req);
-                            r.data.uri = data[i].tracks[k].uri;
-                            r.data.album = data[i].tracks[k].album.name;
-                            r.data.title = data[i].tracks[k].name;
-                            r.data.artist = joinartists(data[i].tracks[k].artists);
-                            if (data[i].tracks[k].album.artists) {
-                                r.data.albumartist = joinartists(data[i].tracks[k].album.artists);
-                            } else {
-                                r.data.albumartist = r.data.artist;
-                            }
-                            if (data[i].tracks[k].track_no) {
-                                r.data.trackno = data[i].tracks[k].track_no;
-                            }
-                            if (data[i].tracks[k].disc_no) {
-                                r.data.disc = data[i].tracks[k].disc_no;
-                            }
-                            var u = ""+data[i].tracks[k].album.uri;
-                            if (u.match(/^spotify:album:/)) {
-                                r.data.spotilink = u;
-                            }
-                            if (data[i].tracks[k].album.images) {
-                                var u = ""+data[i].tracks[k].uri;
-                                if (u.match(/^soundcloud:/)) {
-                                    r.data.trackimage = getImageUrl(data[i].tracks[k].album.images);
-                                    r.data.image = "newimages/soundcloud-logo.png";
-                                } else if (u.match(/^youtube:/)) {
-                                    r.data.trackimage = getImageUrl(data[i].tracks[k].album.images);
-                                    r.data.image = "newimages/youtube-logo.png";
-                                } else {
-                                    r.data.image = getImageUrl(data[i].tracks[k].album.images);
-                                }
+                            // r.data = data[i].tracks[k];
+                            for (var g in data[i].tracks[k]) {
+                                r.data[g] = data[i].tracks[k][g];
                             }
                             // Prioritise results with a matching album, unless that's
                             // already been done
@@ -340,34 +308,8 @@ var faveFinder = function() {
                         for (var k = 0; k < data[i].tracks.length; k++) {
                             debug.log("FAVEFINDER","Found Track",data[i].tracks[k]);
                             f = true;
-                            req.data.uri = data[i].tracks[k].uri;
-                            req.data.album = data[i].tracks[k].album.name;
-                            req.data.title = data[i].tracks[k].name;
-                            req.data.duration = data[i].tracks[k].length/1000;
-                            req.data.artist = joinartists(data[i].tracks[k].artists);
-                            if (data[i].tracks[k].album.artists) {
-                                req.data.albumartist = joinartists(data[i].tracks[k].album.artists);
-                            } else {
-                                req.data.albumartist = req.data.artist;
-                            }
-                            if (data[i].tracks[k].track_no) {
-                                req.data.trackno = data[i].tracks[k].track_no;
-                            }
-                            var u = ""+data[i].tracks[k].album.uri;
-                            if (u.match(/^spotify:album:/)) {
-                                req.data.spotilink = u;
-                            }
-                            if (data[i].tracks[k].album.images) {
-                                var u = ""+data[i].tracks[k].uri;
-                                if (u.match(/^soundcloud:/)) {
-                                    req.data.trackimage = getImageUrl(data[i].tracks[k].album.images);
-                                    req.data.image = "newimages/soundcloud-logo.png";
-                                } else if (u.match(/^youtube:/)) {
-                                    req.data.trackimage = getImageUrl(data[i].tracks[k].album.images);
-                                    req.data.image = "newimages/youtube-logo.png";
-                                } else {
-                                   req.data.image = getImageUrl(data[i].tracks[k].album.images);
-                                }
+                            for (var g in data[i].tracks[k]) {
+                                req.data[g] = data[i].tracks[k][g];
                             }
                             break;
                         }

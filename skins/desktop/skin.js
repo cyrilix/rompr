@@ -48,12 +48,15 @@ jQuery.fn.makeTagMenu = function(options) {
         }
 
         dropbox.mCustomScrollbar({
-            theme: "light-thick",
-            scrollInertia: 80,
-            contentTouchScroll: true,
-            advanced: {
-                updateOnContentResize: true,
-            }
+        theme: "light-thick",
+        scrollInertia: 120,
+        contentTouchScroll: 25,
+        advanced: {
+            updateOnContentResize: true,
+            updateOnImageLoad: false,
+            autoScrollOnFocus: false,
+            autoUpdateTimeout: 500,
+        }
         });
         textbox.hover(makeHoverWork);
         textbox.mousemove(makeHoverWork);
@@ -99,16 +102,19 @@ function toggleSearch() {
     var albumScrollOffset = $("#sources .mCSB_container").position().top;
     if ($("#albumlist").is(':visible')) {
         if (albumScrollOffset > -90) {
-            $("#search").slideToggle({duration: 'fast', start: setSearchLabelWidth});
+            $("#search").slideToggle({duration: 'fast', start: setSearchLabelWidth, done: scrollToSearch});
         } else {
-            $("#search").slideDown({duration: 'fast', start: setSearchLabelWidth});
+            $("#search").slideDown({duration: 'fast', start: setSearchLabelWidth, done: scrollToSearch});
         }
     } else {
         layoutProcessor.sourceControl("albumlist", grrAnnoyed);
     }
-    $('#sources').mCustomScrollbar("scrollTo", 0, {scrollInertia:200});
     ihatefirefox();
     return false;
+}
+
+function scrollToSearch() {
+    $('#sources').mCustomScrollbar("scrollTo", "top", {scrollInertia:200, scrollEasing: "easeOut"});
 }
 
 function grrAnnoyed() {
@@ -123,7 +129,7 @@ function doSomethingClever() {
         }
     } else {
         if ($("#search").is(':visible')) {
-            $('#sources').mCustomScrollbar("scrollTo", $('#fothergill').prev().position().top, {scrollInertia:200});
+            $('#sources').mCustomScrollbar("scrollTo", $('#collection').prev().prev().position().top, {scrollInertia:200, scrollEasing: "easeOut"});
         }
     }
 }
@@ -292,11 +298,16 @@ function prDragStop(event, ui) {
 function addCustomScrollBar(value) {
     $(value).mCustomScrollbar({
         theme: "light-thick",
-        scrollInertia: 80,
-        contentTouchScroll: true,
+        scrollInertia: 200,
+        contentTouchScroll: 25,
+        mouseWheel: {
+            scrollAmount: 40,
+        },
         advanced: {
             updateOnContentResize: true,
-            autoScrollOnFocus: false
+            updateOnImageLoad: false,
+            autoScrollOnFocus: false,
+            autoUpdateTimeout: 500,
         }
     });
 }
@@ -389,9 +400,9 @@ var layoutProcessor = function() {
         },
 
         setPlaylistHeight: function() {
-            var newheight = $("#bottompage").height() - $("#horse").height();
+            var newheight = $("#bottompage").height() - $("#horse").outerHeight();
             if ($("#playlistbuttons").is(":visible")) {
-                newheight -= $("#playlistbuttons").height();
+                newheight -= $("#playlistbuttons").outerHeight();
             }
             $("#pscroller").css("height", newheight.toString()+"px");
             $('#pscroller').mCustomScrollbar("update");
@@ -407,11 +418,19 @@ var layoutProcessor = function() {
         },
 
         scrollPlaylistToCurrentTrack: function() {
-            $('#pscroller').mCustomScrollbar(
-                "scrollTo",
-                $('div.track[romprid="'+player.status.songid+'"]').offset().top - $('#sortable').offset().top - $('#pscroller').height()/2,
-                { scrollInertia: 0 }
-            );
+            if (prefs.scrolltocurrent && $('.track[romprid="'+player.status.songid+'"],.booger[romprid="'+player.status.songid+'"]').length > 0) {
+                $('#pscroller').mCustomScrollbar("stop");
+                $('#pscroller').mCustomScrollbar("update");
+                var pospixels = Math.round($('div.track[romprid="'+player.status.songid+'"],.booger[romprid="'+player.status.songid+'"]').position().top - ($("#sortable").parent().parent().height()/2));
+                if (pospixels < 0) { pospixels = 0 }
+                if (pospixels > $("#sortable").parent().height()) { pospixels = $("#sortable").parent().height()}
+                debug.log("LAYOUT","Scrolling Playlist To Song:",player.status.songid,"ScrollOffset",pospixels,"Track Pos Offset",$('div.track[romprid="'+player.status.songid+'"],.booger[romprid="'+player.status.songid+'"]').position().top,"Viewport Height",$("#sortable").parent().parent().height());
+                $('#pscroller').mCustomScrollbar(
+                    "scrollTo",
+                    pospixels,
+                    { scrollInertia: 0 }
+                );
+            }
         },
 
         sourceControl: function(source, callback) {
@@ -463,11 +482,10 @@ var layoutProcessor = function() {
                 axis: 'y',
                 containment: '#sortable',
                 scroll: true,
-                scrollSpeed: 10,
-                tolerance: 'pointer',
+                scrollSpeed: 40,
                 scrollparent: "#pscroller",
                 customscrollbars: true,
-                scrollSensitivity: 60,
+                scrollSensitivity: 100,
                 start: function(event, ui) {
                     ui.item.css("background", "#555555");
                     ui.item.css("opacity", "0.7")
@@ -581,11 +599,6 @@ var layoutProcessor = function() {
                     player.controller.search('search');
                 }
             } );
-            // $("#filesearcher input").keyup( function(event) {
-            //     if (event.keyCode == 13) {
-            //         player.controller.filesearch();
-            //     }
-            // } );
             if (prefs.hide_albumlist) {
                 $("#search").show({complete: setSearchLabelWidth});
                 ihatefirefox();
@@ -607,6 +620,15 @@ var layoutProcessor = function() {
             $(".choose_filesearch").click(toggleFileSearch);
 
             $(".lettuce,.tooltip").tipTip({delay: 1000, edgeOffset: 8});
+
+            document.body.addEventListener('drop', function(e) {
+                e.preventDefault();
+            }, false);
+            $('#albumcover').on('dragenter', infobar.albumImage.dragEnter);
+            $('#albumcover').on('dragover', infobar.albumImage.dragOver);
+            $('#albumcover').on('dragleave', infobar.albumImage.dragLeave);
+            $("#albumcover").on('drop', infobar.albumImage.handleDrop);
+
         }
     }
 }();

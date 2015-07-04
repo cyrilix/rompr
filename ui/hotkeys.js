@@ -124,7 +124,7 @@ var shortcuts = function() {
 
     function format_keyinput(inpname, hotkey) {
         if (hotkey === null) hotkey = "";
-        return '<input id="'+inpname+'" class="tleft buttonchange" type="text" size="16" value="'+hotkey+'"></input>';
+        return '<input id="'+inpname+'" class="tleft buttonchange clearbox" type="text" size="16" value="'+hotkey+'"></input>';
     }
 
     function format_clearbutton(inpname) {
@@ -172,10 +172,13 @@ var shortcuts = function() {
             var keybpu = popupWindow.create(400,1024,"keybpu",true,language.gettext("title_keybindings"));
             $("#popupcontents").append('<table align="center" cellpadding="2" id="keybindtable" width="90%"></table>');
             for (var i in hotkeys) {
-                $("#keybindtable").append('<tr><td width="50%" align="right">'+language.gettext(i).initcaps()+'</td><td>'+format_keyinput(i, hotkeys[i])+'</td>'+format_clearbutton(i)+'</tr>');
+                // $("#keybindtable").append('<tr><td width="50%" align="right">'+language.gettext(i).initcaps()+'</td><td>'+format_keyinput(i, hotkeys[i])+'</td>'+format_clearbutton(i)+'</tr>');
+                $("#keybindtable").append('<tr><td width="50%" align="right">'+language.gettext(i).initcaps()+'</td><td>'+format_keyinput(i, hotkeys[i])+'</td></tr>');
             }
             $(".buttonchange").keydown( shortcuts.change );
-            $(".buttonclear").click( shortcuts.remove );
+            $('.buttonchange').click( shortcuts.remove );
+            $('.buttonchange').hover(makeHoverWork);
+            $('.buttonchange').mousemove(makeHoverWork);
             popupWindow.open();
         },
 
@@ -194,9 +197,14 @@ var shortcuts = function() {
         },
 
         remove: function(ev) {
-            var n = $(ev.target).attr("name");
-            $("#"+n).val('');
-            shortcuts.save();
+            ev.preventDefault();
+            ev.stopPropagation();
+            var position = getPosition(ev);
+            var elemright = $(ev.target).width() + $(ev.target).offset().left;
+            if (position.x > elemright - 24) {
+                $(ev.target).val("");
+                shortcuts.save();
+            }
         },
 
         save: function() {

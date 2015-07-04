@@ -113,11 +113,13 @@ if ($prefs['player_backend'] == "mopidy") {
     <label for="ignore_unplayable">'.get_int_text('config_ignore_unplayable').'</label>
     </div>';
 }
-if ($prefs['apache_backend'] == "sql") {
-    print '<div class="pref styledinputs">
-    <input class="autoset toggle" type="checkbox" id="onthefly">
-    <label for="onthefly">'.get_int_text('config_onthefly').'</label>
-    </div>';
+print '<div class="pref styledinputs">
+<input class="autoset toggle" type="checkbox" id="onthefly">
+<label for="onthefly">'.get_int_text('config_onthefly').'</label>
+</div>';
+if ($prefs['player_backend'] == "mopidy") {
+    print '<div class="pref" id="mopidycollectionoptions">'.
+    '<b>'.get_int_text('config_collectionfolders').'</b></div>';
 }
 print '<div class="pref textcentre">
 <button id="donkeykong" onclick="checkCollection(true, false)">'.get_int_text('config_updatenow').'</button>
@@ -126,7 +128,7 @@ if ($prefs['player_backend'] == "mpd") {
     print '<div class="pref textcentre">
     <button onclick="checkCollection(true, true)">'.get_int_text('config_rescan').'</button>
     </div>';
-} 
+}
 
 // Collection Sorting Options
 print '<div class="textcentre ucfirst configtitle"><b>'.get_int_text('config_sortoptions').'</b></div>';
@@ -136,14 +138,13 @@ print '<div class="pref styledinputs">
 <label for="notvabydate">'.get_int_text('config_notvabydate').'</label><br/>
 </div>';
 
-if ($prefs['apache_backend'] == "sql") {
-    print '<div class="pref"><b>'.get_int_text('config_artistfirst').'
-    <input class="saveotron prefinput arraypref" id="artistsatstart" type="text" size="256" />
-    </b></div>';
-    print '<div class="pref"><b>'.get_int_text('config_nosortprefixes').'
-    <input class="saveotron prefinput arraypref" id="nosortprefixes" type="text" size="128" />
-    </b></div>';
-}
+print '<div class="pref"><b>'.get_int_text('config_artistfirst').'
+<input class="saveotron prefinput arraypref" id="artistsatstart" type="text" size="256" />
+</b></div>';
+print '<div class="pref"><b>'.get_int_text('config_nosortprefixes').'
+<input class="saveotron prefinput arraypref" id="nosortprefixes" type="text" size="128" />
+</b></div>';
+
 print '<div class="pref styledinputs">
 <input class="autoset toggle" type="checkbox" id="sortbycomposer">
 <label for="sortbycomposer">'.get_int_text('config_sortbycomposer').'</label>
@@ -197,20 +198,18 @@ print '<input type="radio" class="topcheck savulon" name="clickmode" value="doub
 <input type="radio" class="topcheck savulon" name="clickmode" value="single" id="clicks">
 <label for="clicks">'.get_int_text('config_singleclick').'</label><br>
 </div>';
-if ($prefs['player_backend'] == "mpd") {
 print '<div class="pref styledinputs">';
 print '<input class="autoset toggle" type="checkbox" id="mediacentremode">
 <label for="mediacentremode">'.get_int_text('config_mediacentremode').'</label>
 </div>';
-}
-
 
 // Audio Outputs
 print '<div class="textcentre configtitle"><b>'.get_int_text('config_audiooutputs').'</b></div><div class="pref">';
-include("player/".$prefs['player_backend']."/outputs.php");
-print '</div><div class="pref">'.get_int_text('config_crossfade').'
-<input class="saveotron prefinput" id="crossfade_duration" type="text" size="3""/>
-</div>';
+include("player/mpd/outputs.php");
+if ($prefs['player_backend'] == "mpd") {
+print '</div><div class="pref">'.get_int_text('config_crossfade').'<input class="saveotron prefinput" id="crossfade_duration" type="text" size="3""/>';
+}
+print '</div>';
 
 // Last.FM
 print '<div class="textcentre configtitle">
@@ -234,7 +233,6 @@ print '<div class="pref styledinputs">
 </div>';
 
 // Tags and Ratings
-if ($prefs['apache_backend'] == "sql") {
 print '<div class="textcentre configtitle">
 <b>'.get_int_text('config_tagrat').'</b>
 </div>
@@ -258,7 +256,4 @@ print '<option value="5">5 '.get_int_text('stars').'</option>
 ?>
 </select>
 </div></div>
-<?php
-}
-?>
 

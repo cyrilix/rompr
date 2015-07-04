@@ -30,12 +30,6 @@ var ratingManager = function() {
 
         	if (rmg == null) {
 	        	rmg = browser.registerExtraPlugin("rmg", language.gettext("label_ratingmanager"), ratingManager);
-	        	if (prefs.apache_backend != 'sql') {
-		            $("#rmgfoldup").append('<h3 align="center">'+language.gettext("label_nosql")+'</h3>');
-		            $("#rmgfoldup").append('<h3 align="center"><a href="http://sourceforge.net/p/rompr/wiki/Enabling%20Rating%20and%20Tagging/" target="_blank">Read The Wiki</a></h3>');
-		            rmg.slideToggle('fast');
-		            return;
-	        	}
 
 	        	$("#rmgfoldup").append('<div class="containerbox padright">'+
 	        		'<div class="expand"><b>'+language.gettext("label_ratingmanagertop")+'</b></div>'+

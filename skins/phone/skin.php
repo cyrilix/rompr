@@ -76,7 +76,6 @@
 ?>
     <div id="collectionbuttons" class="invisible searchbox">
 <?php
-if ($prefs['apache_backend'] == "sql") {
     print '<div class="pref styledinputs">';
     print '<input type="radio" class="topcheck savulon" name="sortcollectionby" value="artist" id="sortbyartist">
     <label for="sortbyartist">'.ucfirst(get_int_text('label_artists')).'</label><br/>
@@ -85,7 +84,6 @@ if ($prefs['apache_backend'] == "sql") {
     <input class="autoset toggle" type="checkbox" id="sortbydate">
     <label for="sortbydate">'.get_int_text('config_sortbydate').'</label>
     </div>';
-}
 ?>
     </div>
     <div id="collection" class="noborder selecotron">
@@ -101,14 +99,6 @@ include("player/".$prefs['player_backend']."/search.php");
 </div>
 
 <div id="filelist" class="noborder scroller mainpane invisible">
-<?php
-if ($prefs['player_backend'] == "mpd") {
-    print '<div style="padding-left:12px;padding-top:4px">
-<i class="icon-search topimg choose_filesearch"></i>
-    </div>
-    <div id="filesearch" class="invisible searchbox selecotron"></div>';
-}
-?>
     <div id="filecollection" class="noborder selecotron"></div>
 </div>
 
@@ -160,7 +150,31 @@ include($p);
 <?php
 print '<div class="containerbox spacer configtitle"><div class="expand textcentre"><b>'.get_int_text('label_pluginplaylists').'</b></div></div>';
 ?>
-<div class="pref"><div id="pluginplaylists"></div></div>
+<div class="pref">
+    <div id="pluginplaylists">
+<?php
+if ($prefs['player_backend'] == "mopidy") {
+    print '<div class="textcentre textunderline"><b>Music From Your Collection</b></div>';
+}
+?>
+</div>
+<div class="clearfix containerbox vertical" id="pluginplaylists_spotify">
+<?php
+if ($prefs['player_backend'] == "mopidy") {
+    print '<div class="textcentre textunderline"><b>Music From Spotify</b></div>';
+}
+?>
+</div>
+<div class="clearfix containerbox vertical" id="pluginplaylists_everywhere">
+<?php
+if ($prefs['player_backend'] == "mopidy") {
+    print '<div class="textcentre textunderline"><b>Music From Everywhere</b></div>';
+    print '<div id="radiodomains" class="pref"><b>Play From These Sources:</b></div>';
+}
+?>
+</div>
+</div>
+</div>
 </div>
 
 <div id="playlistman" class="noborder scroller mainpane invisible">

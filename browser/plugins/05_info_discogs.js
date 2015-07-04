@@ -217,31 +217,8 @@ var info_discogs = function() {
 			html = html + getTracklist(data.master.data.tracklist)
 		}
 
-		if (skin != "phone" && data.release && data.release.data.videos) {
-			html = html + doVideos(data.release.data.videos);
-		} else if (skin != "phone" && data.master && data.master.data.videos) {
-			html = html + doVideos(data.master.data.videos);
-		}
-
 		html = html + '</div>';
 		html = html + '</div>';
-		return html;
-	}
-
-	function doVideos(videos) {
-		var html = '<div class="mbbox underline"><b>'+language.gettext("discogs_videos")+'</b></div>';
-		for (var i in videos) {
-			var u = videos[i].uri;
-			if (videos[i].embed == true && u.match(/youtube\.com/)) {
-				var d = u.match(/http:\/\/www\.youtube\.com\/watch\?v=(.+)$/);
-				if (d && d[1]) {
-					html = html + '<div class="video"><object width="640" height="385"><param name="movie" value="http://www.youtube.com/v/'+
-								d[1]+'?fs=1&amp;hl=en_US"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/'+
-								d[1]+'?fs=1&amp;hl=en_US" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="640" height="385"></embed></object></div>';
-				}
-
-			}
-		}
 		return html;
 	}
 

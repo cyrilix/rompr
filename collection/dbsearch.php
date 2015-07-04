@@ -1,7 +1,5 @@
 <?php
 
-// include( "backends/sql/connect.php");
-
 function doDbCollection($terms, $domains, $resultstype) {
 
 	// This can actually be used to search the database for title, album, artist, anything, rating, and tag
@@ -16,7 +14,7 @@ function doDbCollection($terms, $domains, $resultstype) {
 	}
 
 	if ($resultstype == "tree") {
-		$tree = new mpdlistthing("/", "/", false, array());
+		$tree = new mpdlistthing(null);
 	} else {
 		$collection = new musicCollection(null);
 	}
@@ -48,7 +46,7 @@ function doDbCollection($terms, $domains, $resultstype) {
 	} else {
 		$qstring .= "WHERE t.Uri IS NOT NULL ";
 	}
-
+	$qstring .= "AND t.Hidden = 0 AND t.isSearchResult < 2 ";
 	if (array_key_exists('artist', $terms)) {
 		$qstring .= "AND ";
 		if (array_key_exists('any', $terms)) {
@@ -114,23 +112,23 @@ function doDbCollection($terms, $domains, $resultstype) {
 	if ($result = sql_prepare_query_later($qstring)) {
 		if ($result->execute($parameters)) {
 			while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+				$filedata = array(
+					'Artist' => $obj->Artistname,
+					'Album' => $obj->Albumname,
+					'AlbumArtist' => $obj->AlbumArtistName,
+					'file' => $obj->Uri,
+					'Title' => $obj->Title,
+					'Track' => $obj->TrackNo,
+					'Image' => $obj->Image,
+					'Time' => $obj->Duration,
+					'SpotiAlbum' => $obj->Spotilink,
+					'Date' => $obj->Year,
+					'Last-Modified' => $obj->LastModified
+				);
 				if ($resultstype == "tree") {
-					$tree->addpath($obj->Uri, $obj->Uri, false, array('Title' => $obj->Title, 'Time' => $obj->Duration, 'file' => $obj->Uri));
+                    $tree->newItem($filedata);
 					$fcount++;
 				} else {
-					$filedata = array(
-						'Artist' => $obj->Artistname,
-						'Album' => $obj->Albumname,
-						'AlbumArtist' => $obj->AlbumArtistName,
-						'file' => $obj->Uri,
-						'Title' => $obj->Title,
-						'Track' => $obj->TrackNo,
-						'Image' => $obj->Image,
-						'Time' => $obj->Duration,
-						'SpotiAlbum' => $obj->Spotilink,
-						'Date' => $obj->Year,
-						'Last-Modified' => $obj->LastModified
-					);
 					process_file($filedata);
 				}
 			}

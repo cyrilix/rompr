@@ -20,9 +20,8 @@ debug_print($_SERVER['PHP_SELF'],"INIT");
 
 if (array_key_exists('mpd_host', $_POST)) {
     $prefs['debug_enabled'] = false;
-    $prefs['lowmemorymode'] = false;
     foreach ($_POST as $i => $value) {
-        if ($i == 'debug_enabled' || $i == 'lowmemorymode') {
+        if ($i == 'debug_enabled') {
             $value = true;
         }
         debug_print("Setting Pref ".$i." to ".$value,"INIT");
@@ -73,64 +72,57 @@ if (file_exists('skins/'.$skin.'/skin.requires')) {
     $skinrequires = array();
 }
 
-//
-// Find mopidy's HTTP interface, if present or ignore this check
-// if the user has specified it in URL eg http://hostname/rompr?mopdiy=mopidyhost:mopidyport
-//
-
-if (array_key_exists('mopidy', $_REQUEST)) {
-    $mopidy_detected = true;
-    $a = explode(':', $_REQUEST['mopidy']);
-    $prefs['mopidy_http_address'] = $a[0];
-    $prefs['mopidy_http_port'] = $a[1];
-    debug_print("User Specified Mopidy Connection As ".$prefs['mopidy_http_address'].":".$prefs['mopidy_http_port'],"INIT");
+include("player/mpd/connection.php");
+if (!$is_connected) {
+    debug_print("MPD Connection Failed","INIT");
+    askForMpdValues(get_int_text("setup_connectfail"));
+    exit();
 } else {
-    $mopidy_detected = detect_mopidy();
+    $mpd_status = do_mpd_command("status", true);
+    if (array_key_exists('error', $mpd_status)) {
+        debug_print("MPD Password Failed or other status failure","INIT");
+        close_mpd();
+        askForMpdValues(get_int_text("setup_connecterror").$mpd_status['error']);
+        exit();
+    }
 }
 
-if ($mopidy_detected) {
-    $prefs["player_backend"] = "mopidy";
+// Let's do a test to see if we're running mpd or mopidy
+// Mopidy doesn't support 'readmessages' and the website says its unlikely
+// ever to support it, so if we get an error on that
+// we're running mopidy. It's flaky but I don't see another way.
+$r = do_mpd_command('readmessages', false);
+if ($r === false) {
+    debug_print("Looks like we're running Mopidy","INIT");
+    $prefs['player_backend'] = "mopidy";
 } else {
-    //
-    // If we didn't find mopidy, try and connect to mpd and ask for
-    // setup values if we couldn't
-    //
-    include("player/mpd/connection.php");
-    if (!$is_connected) {
-        debug_print("MPD Connection Failed","INIT");
-        close_mpd($connection);
-        askForMpdValues(get_int_text("setup_connectfail"));
-        exit();
-    } else {
-        $mpd_status = do_mpd_command($connection, "status", null, true);
-        if (array_key_exists('error', $mpd_status)) {
-            debug_print("MPD Password Failed or other status failure","INIT");
-            close_mpd($connection);
-            askForMpdValues(get_int_text("setup_connecterror").$mpd_status['error']);
-            exit();
-        }
-    }
-
-    if ($prefs['unix_socket'] != '') {
-        // If we're connected by a local socket we can read the music directory
-        $arse = do_mpd_command($connection, 'config', null, true);
-        if (array_key_exists('music_directory', $arse)) {
-            debug_print("Music Directory Is ".$arse['music_directory'],"INIT");
-            $prefs['music_directory'] = $arse['music_directory'];
-            if (is_link("prefs/MusicFolders")) {
-                system ("unlink prefs/MusicFolders");
-            }
-            system ('ln -s "'.$arse['music_directory'].'" prefs/MusicFolders');
-        }
-    }
-
-    close_mpd($connection);
+    debug_print("Looks like we're running MPD","INIT");
     $prefs['player_backend'] = "mpd";
 }
+
+if ($prefs['unix_socket'] != '') {
+    // If we're connected by a local socket we can read the music directory
+    $arse = do_mpd_command('config', true);
+    if (array_key_exists('music_directory', $arse)) {
+        debug_print("Music Directory Is ".$arse['music_directory'],"INIT");
+        $prefs['music_directory'] = $arse['music_directory'];
+        if (is_link("prefs/MusicFolders")) {
+            system ("unlink prefs/MusicFolders");
+        }
+        system ('ln -s "'.$arse['music_directory'].'" prefs/MusicFolders');
+    }
+}
+
+close_mpd();
 
 //
 // See if we can use the SQL backend
 //
+
+// XML backend no longer supported. Force switch to SQLite.
+if (array_key_exists('collection_type', $prefs) && $prefs['collection_type'] == "xml") {
+    $prefs['collection_type'] = "sqlite";
+} 
 
 include( "backends/sql/connect.php");
 if (array_key_exists('collection_type', $prefs)) {
@@ -139,27 +131,20 @@ if (array_key_exists('collection_type', $prefs)) {
     probe_database();
     include("backends/sql/".$prefs['collection_type']."/specifics.php");
 }
-if ($mysqlc) {
-    $prefs["apache_backend"] = "sql";
-    $backend_in_use = "sql";
-} else {
-    $prefs["apache_backend"] = "xml";
-    $backend_in_use = "xml";
+if (!$mysqlc) {
+    sql_init_fail();
 }
 
 savePrefs();
 
-if ($prefs['apache_backend'] == 'sql') {
-    list($result, $message) = check_sql_tables();
-    if ($result == false) {
-        sql_init_fail($message);
-    }
+list($result, $message) = check_sql_tables();
+if ($result == false) {
+    sql_init_fail($message);
 }
 
 //
 // Do some initialisation and cleanup of the Apache backend
 //
-
 include ("includes/firstrun.php");
 
 debug_print("Initialisation done. Let's Boogie!", "INIT");
@@ -187,6 +172,7 @@ foreach ($skinrequires as $s) {
     }
 }
 ?>
+<link rel="stylesheet" type="text/css" href="css/jquery-ui.css" />
 <link rel="stylesheet" id="theme" type="text/css" />
 <link rel="stylesheet" id="fontsize" type="text/css" />
 <link rel="stylesheet" id="fontfamily" type="text/css" />
@@ -195,6 +181,8 @@ foreach ($skinrequires as $s) {
 <link rel="stylesheet" id="albumcoversize" type="text/css" />
 <!-- JQuery : http://jquery.com -->
 <script type="text/javascript" src="jquery/jquery-1.8.3-min.js"></script>
+<!-- JQueryUI is required for $.widget even in the mobile version -->
+<script type="text/javascript" src="jquery/jquery-ui.js"></script>
 <!-- JQuery AJAX form plugin : http://malsup.com/jquery/form/ -->
 <script type="text/javascript" src="jquery/jquery.form.js"></script>
 <!-- JQuery JSONP Plugin. My saviour : https://github.com/jaubourg/jquery-jsonp -->
@@ -219,10 +207,7 @@ $inc = glob("streamplugins/*.js");
 foreach($inc as $i) {
     print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
 }
-if ($prefs['player_backend'] == "mopidy") {
-    print'<script type="text/javascript" src="http://'.$prefs['mopidy_http_address'].':'.$prefs['mopidy_http_port'].'/mopidy/mopidy.min.js"></script>'."\n";
-}
-print'<script type="text/javascript" src="player/'.$prefs['player_backend'].'/controller.js"></script>'."\n";
+print'<script type="text/javascript" src="player/mpd/controller.js"></script>'."\n";
 ?>
 <script type="text/javascript" src="player/player.js"></script>
 

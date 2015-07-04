@@ -445,6 +445,12 @@ h2
     cursor:pointer;
 }
 
+.menuspacer
+{
+    width:1.5em;
+    height:1.5em;    
+}
+
 .mh
 {
     margin-right:2em;

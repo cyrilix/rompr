@@ -79,7 +79,7 @@ var artistRadio = function() {
 	            html = html + '<button class="fixed" style="margin-left:8px;vertical-align:middle" onclick="playlist.radioManager.load(\'artistRadio\', $(\'#bubbles\').val())">'+language.gettext('button_playradio')+'</button>';
 	            html = html + '</div>';
 	            html = html + '</div>';
-	            $("#pluginplaylists").append(html);
+	            $("#pluginplaylists_spotify").append(html);
 	        }
 		}
 

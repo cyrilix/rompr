@@ -27,12 +27,6 @@ var metaBackup = function() {
 		open: function() {
 			if (mbb === null) {
 	        	mbb = browser.registerExtraPlugin("mbb", language.gettext("label_metabackup"), metaBackup);
-	        	if (prefs.apache_backend != 'sql') {
-		            $("#mbbfoldup").append('<h3 align="center">'+language.gettext("label_nosql")+'</h3>');
-		            $("#mbbfoldup").append('<h3 align="center"><a href="http://sourceforge.net/p/rompr/wiki/Enabling%20Rating%20and%20Tagging/" target="_blank">Read The Wiki</a></h3>');
-		            mbb.slideToggle('fast');
-		            return;
-	        	}
 
     			$("#mbbfoldup").append('<div class="containerbox padright noselection">'+
         			'<div class="expand">'+

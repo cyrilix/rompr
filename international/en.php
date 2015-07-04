@@ -256,8 +256,6 @@ $languages['en'] = array (
 	"setup_leaveblank" => "Leave these blank unless you know you need them",
 	"setup_password" => "Password",
 	"setup_unixsocket" => "UNIX-domain socket",
-	"setup_mopidy" => "Mopidy-specific Settings",
-	"setup_mopidyport" => "Mopidy HTTP port:",
 	"setup_debug" => "Enable Debug Logging",
 
 	// Intro Window
@@ -505,7 +503,7 @@ $languages['en'] = array (
 	"label_pluginplaylists" => "Personalised Radio",
 	"label_recentlyadded_random" => "Recently Added Tracks (Random)",
 	"label_recentlyadded_byalbum" => "Recently Added Albums",
-	"setup_mpd" => "MPD-specific Settings",
+	"setup_mpd" => "MPD/Mopidy Settings",
 	"settings_appearance" => "Appearance",
 	"settings_panels" => "Panels",
 	"settings_language" => "Language",
@@ -524,8 +522,6 @@ $languages['en'] = array (
 	"config_artistfirst" => "Artists At Top Of Collection",
 	"config_nosortprefixes" => "Ignore These Prefixes When Sorting Artists",
 	"config_sortcollectionby" => "Display Collection As:",
-	"config_low_memory_mode" => "Build Collection Using Low Memory Mode",
-	"config_meminfo" => "Low Memory Mode works better with large collections",
 	"config_sortoptions" => "Collection Sorting Options",
 	"button_skipforward" => "Skip Forwards",
 	"button_skipbackward" => "Skip Backwards",
@@ -564,6 +560,13 @@ $languages['en'] = array (
 	"label_resultstree" => "Directory Tree",
 	"label_displayresultsas" => "Display Results As:",
 	"label_files" => "Files",
+	"label_allartist" => "All Tracks By ",
+	"button_findexact" => "Find Exact Match",
+	"label_albumartist" => "Album Artist",
+	"config_collectionfolders" => "Build Collection From:",
+	"button_videos" => "Related Videos",
+	"google_error" => "Could not contact Google",
+	"label_allrandom" => "All Tracks At Random",
 
 	//CHANGED in 0.60
 	"config_country" => "COUNTRY (for Last.FM and Spotify)",

@@ -3,11 +3,12 @@ include ("includes/vars.php");
 include ("includes/functions.php");
 include ("international.php");
 include ("collection/collection.php");
-include ("player/".$prefs['player_backend']."/connection.php");
-include ("backends/xml/backend.php");
+include ("player/mpd/connection.php");
+include ("backends/sql/backend.php");
 
 header('Content-Type: application/json; charset=utf-8');
-doCollection("playlistinfo", null, array("TlTrack"), true);
+$trackbytrack = false;
+doCollection("playlistinfo");
 debug_print("Collection scan playlistinfo finished","GETPLAYLIST");
 $foundartists = array();
 outputPlaylist();
@@ -175,7 +176,7 @@ function do_albumartist(&$track, &$info) {
         $albumartist = $track->albumobject->artist;
     }
     if ($albumartist !== null && artist_not_found_yet($albumartist)) {
-        array_push($info['metadata']['artists'], array( "name" => $albumartist, "musicbrainz_id" => unwanted_array($track->musicbrainz_albumartistid), "type" => "albumartist", "ignore" => "false"));
+        array_push($info['metadata']['artists'], array( "name" => $albumartist, "musicbrainz_id" => $track->musicbrainz_albumartistid, "type" => "albumartist", "ignore" => "false"));
     }
 }
 

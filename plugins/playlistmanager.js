@@ -23,7 +23,7 @@ var playlistManager = function() {
 			}
 			html = html + '" /></td><td colspan="2" class="dan"><b>'+tracks[i].Title+'</b><br><i>by</i> <b>'+tracks[i].Artist+
 				'</b><br><i>on</i> <b>'+tracks[i].Album+'</b></td>';
-			html = html + '<td align="center" style="vertical-align:middle"><i class="icon-cancel-circled playlisticon clickicon infoclick plugclickable clickremplay" name="'+tracks[i].pos+'"></i></td></tr>';
+			html = html + '<td class="dogsticks" align="center" style="vertical-align:middle"><i class="icon-cancel-circled playlisticon clickicon infoclick plugclickable clickremplay" name="'+tracks[i].pos+'"></i></td></tr>';
 		}
 		html = html + '</table>';
 		holder.html(html);
@@ -104,14 +104,15 @@ var playlistManager = function() {
 	                axis: 'y',
 	                containment: holders[i],
 	                scroll: true,
-	                scrollSpeed: 10,
-	                tolerance: 'pointer',
+	                scrollSpeed: 30,
 	                scrollparent: "#infopane",
 	                customscrollbars: true,
-	                scrollSensitivity: 60,
+	                scrollSensitivity: 100,
 	                start: function(event, ui) {
 	                    ui.item.css("background", "#555555");
-	                    ui.item.css("opacity", "0.7")
+	                    ui.item.css("opacity", "0.7");
+	                    ui.item.find('.dogsticks').remove();
+	                    ui.item.find('tr').wrap('<table></table>');
 	                },
 	                stop: playlistManager.dragstopped
 	            });
@@ -255,4 +256,6 @@ var playlistManager = function() {
 
 }();
 
-pluginManager.addPlugin(language.gettext("label_playlistmanager"), playlistManager.open, null);
+if (prefs.player_backend == "mpd") {
+	pluginManager.addPlugin(language.gettext("label_playlistmanager"), playlistManager.open, null);
+}

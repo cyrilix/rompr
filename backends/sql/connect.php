@@ -11,7 +11,6 @@ function probe_database() {
 	// the database type. This does mean we get some duplicate code but this is
 	// so much better for the user.
 	global $mysqlc, $prefs;
-	$prefs['collection_type'] = "xml";
 	debug_print("Attempting to connect to MYSQL Server","SQL_CONNECT");
 	try {
 		$dsn = "mysql:host=".$prefs['mysql_host'].";port=".$prefs['mysql_port'].";dbname=".$prefs['mysql_database'];
@@ -25,7 +24,7 @@ function probe_database() {
 	if ($mysqlc == null) {
 		debug_print("Attempting to use SQLite Database");
 		try {
-			$dsn = "sqlite:prefs/collection_".$prefs['player_backend'].".sq3";
+			$dsn = "sqlite:prefs/collection_mpd.sq3";
 			$mysqlc = new PDO($dsn);
 			debug_print("Connected to SQLite","MYSQL");
 			$prefs['collection_type'] = 'sqlite';

@@ -29,6 +29,7 @@ function check_sql_tables() {
 		"LastModified INT UNSIGNED, ".
 		"Hidden TINYINT(1) UNSIGNED DEFAULT 0, ".
 		"DateAdded TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, ".
+		"isSearchResult TINYINT(1) UNSIGNED DEFAULT 0, ".
 		"INDEX(Albumindex), ".
 		"INDEX(Title), ".
 		"INDEX(TrackNo)) ENGINE=InnoDB"))
@@ -275,6 +276,11 @@ function check_sql_tables() {
 				generic_sql_query("UPDATE Statstable SET Value = 11 WHERE Item = 'SchemaVer'");
 				break;
 
+			case 11:
+				debug_print("Updating FROM Schema version 11 TO Scheme version 12","SQL");
+				generic_sql_query("ALTER TABLE Tracktable ADD isSearchResult TINYINT(1) UNSIGNED DEFAULT 0");
+				generic_sql_query("UPDATE Statstable SET Value = 12 WHERE Item = 'SchemaVer'");
+				break;
 		}
 		$sv++;
 	}
@@ -323,11 +329,11 @@ function delete_orphaned_artists() {
 }
 
 function sql_recent_tracks() {
-	return "SELECT Uri FROM Tracktable WHERE (DATE_SUB(CURDATE(),INTERVAL 30 DAY) <= DateAdded) AND Hidden = 0 AND Uri IS NOT NULL ORDER BY RAND()";
+	return "SELECT Uri FROM Tracktable WHERE (DATE_SUB(CURDATE(),INTERVAL 30 DAY) <= DateAdded) AND Hidden = 0 AND isSearchResult < 2 AND Uri IS NOT NULL ORDER BY RAND()";
 }
 
 function sql_recent_albums() {
-	return "SELECT Uri, Albumindex, TrackNo FROM Tracktable WHERE DATE_SUB(CURDATE(),INTERVAL 30 DAY) <= DateAdded AND Hidden = 0 AND Uri IS NOT NULL";
+	return "SELECT Uri, Albumindex, TrackNo FROM Tracktable WHERE DATE_SUB(CURDATE(),INTERVAL 30 DAY) <= DateAdded AND Hidden = 0 AND isSearchResult < 2 AND Uri IS NOT NULL";
 }
 
 ?>

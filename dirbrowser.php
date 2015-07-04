@@ -24,10 +24,10 @@ if ($is_connected) {
     header("HTTP/1.1 500 Internal Server Error");	
 }
 
-close_mpd($connection);
+close_mpd();
 
 function doFileBrowse($path, $prefix) {
-	global $connection;
+	global $connection, $prefs;
 	debug_print("Browsing ".$path,"DIRBROWSER");
 	$parts = true;
     $foundfile = false;
@@ -39,29 +39,35 @@ function doFileBrowse($path, $prefix) {
         if (is_array($parts)) {
 			$s = trim($parts[1]);
 			if (substr($s,0,1) != ".") {
-				// $fullpath = ltrim($s, '/');
 	        	switch ($parts[0]) {
 	        		case "file":
                         if (!$foundfile) {
                             $foundfile = true;
                         } else {
-                            printFileItem($filedata);
+                            if (!($prefs['ignore_unplayable']) || substr($filedata['Title'], 0, 12) != "[unplayable]") {
+                                printFileItem(getFormatName($filedata), $filedata['file'], $filedata['Time']);
+                            }
                             $filedata = array();
                         }
                         $filedata[$parts[0]] = $parts[1];
 	        			break;
 
                     case "playlist":
-                        printPlaylistItem($parts[1]);
+                        if ($path != "") {
+                            // Ignore playlists located at the root. This is cleaner and makes more sense
+                            printPlaylistItem(basename($parts[1]), $parts[1]);
+                        }
                         break;
 
 	        		case "directory":
-	        			printDirectoryItem($parts[1], $prefix, $dircount);
+	        			printDirectoryItem($parts[1], basename($parts[1]), $prefix, $dircount, false);
 				        $dircount++;
 	        			break;
 
                     case "Title":
                     case "Time":
+                    case "Artist":
+                    case "Album":
                         $filedata[$parts[0]] = $parts[1];
                         break;
 
@@ -71,10 +77,28 @@ function doFileBrowse($path, $prefix) {
     }
 
     if (array_key_exists('file', $filedata)) {
-        printFileItem($filedata);
+        if (!($prefs['ignore_unplayable']) || substr($filedata['Title'], 0, 12) != "[unplayable]") {
+            printFileItem(getFormatName($filedata), $filedata['file'], $filedata['Time']);
+        }
     }
 
     print '</body></html>';
+}
+
+function getFormatName($filedata) {
+    global $prefs;
+    if ($prefs['player_backend'] == "mopidy" && !preg_match('/local:track:/', $filedata['file'])) {
+        if (array_key_exists('Title', $filedata) && array_key_exists('Artist', $filedata)) {
+            return $filedata['Artist'].' - '.$filedata['Title'];
+        }
+        if (array_key_exists('Title', $filedata)) {
+            return $filedata['Title'];
+        }
+        if (array_key_exists('Album', $filedata)) {
+            return "Album: ".$filedata['Album'];
+        }
+    }
+    return basename(rawurldecode($filedata['file']));
 }
 
 ?>

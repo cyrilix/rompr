@@ -3,7 +3,7 @@
 @open_mpd_connection();
 if ($is_connected) {
     $outputdata = array();
-    $outputs = do_mpd_command($connection, "outputs", null, true);
+    $outputs = do_mpd_command("outputs", true);
     close_mpd($connection);
     foreach ($outputs as $i => $n) {
         if (is_array($n)) {

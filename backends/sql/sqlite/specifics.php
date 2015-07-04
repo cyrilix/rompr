@@ -27,7 +27,8 @@ function check_sql_tables() {
 		"Uri VARCHAR(2000) ,".
 		"LastModified INTEGER, ".
 		"Hidden TINYINT(1) DEFAULT 0, ".
-		"DateAdded TIMESTAMP DEFAULT CURRENT_TIMESTAMP)"))
+		"DateAdded TIMESTAMP DEFAULT CURRENT_TIMESTAMP, ".
+		"isSearchResult TINYINT(1) DEFAULT 0)"))
 	{
 		debug_print("  Tracktable OK","SQLITE_CONNECT");
 		if (generic_sql_query("CREATE TRIGGER IF NOT EXISTS updatetime AFTER UPDATE ON Tracktable BEGIN UPDATE Tracktable SET DateAdded = CURRENT_TIMESTAMP WHERE TTindex = old.TTindex; END")) {
@@ -191,6 +192,28 @@ function check_sql_tables() {
 		return array(false, "Error While Checking Database Schema Version : ".$err);
 	}
 
+	if ($sv > ROMPR_SCHEMA_VERSION) {
+		debug_print("Schema Mismatch! We are version ".ROMPR_SCHEMA_VERSION." but database is version ".$sv,"MYSQL_CONNECT");
+		return array(false, "Your database has version number ".$sv." but this version of rompr only handles version ".ROMPR_SCHEMA_VERSION);
+	}
+
+	while ($sv < ROMPR_SCHEMA_VERSION) {
+		switch ($sv) {
+			case 0:
+				debug_print("BIG ERROR! No Schema Version found!!","SQL");
+				return array(false, "Database Error - could not read schema version. Cannot continue.");
+				break;
+
+			case 11:
+				debug_print("Updating FROM Schema version 11 TO Scheme version 12","SQL");
+				generic_sql_query("ALTER TABLE Tracktable ADD isSearchResult TINYINT(1) DEFAULT 0");
+				generic_sql_query("UPDATE Statstable SET Value = 12 WHERE Item = 'SchemaVer'");
+				break;
+
+		}
+		$sv++;
+	}
+
 	return array(true, "");
 }
 
@@ -235,11 +258,11 @@ function delete_orphaned_artists() {
 }
 
 function sql_recent_tracks() {
-	return "SELECT Uri FROM Tracktable WHERE DATETIME('now', '-1 MONTH') <= DATETIME(DateAdded) AND Hidden = 0 AND Uri IS NOT NULL ORDER BY RANDOM()";
+	return "SELECT Uri FROM Tracktable WHERE DATETIME('now', '-1 MONTH') <= DATETIME(DateAdded) AND Hidden = 0 AND isSearchResult < 2 AND Uri IS NOT NULL ORDER BY RANDOM()";
 }
 
 function sql_recent_albums() {
-	return "SELECT Uri, Albumindex, TrackNo FROM Tracktable WHERE DATETIME('now', '-1 MONTH') <= DATETIME(DateAdded) AND Hidden = 0 AND Uri IS NOT NULL";
+	return "SELECT Uri, Albumindex, TrackNo FROM Tracktable WHERE DATETIME('now', '-1 MONTH') <= DATETIME(DateAdded) AND Hidden = 0 AND isSearchResult < 2 AND Uri IS NOT NULL";
 }
 
 ?>

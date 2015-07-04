@@ -103,11 +103,7 @@ function togglePref(event) {
 
         case "sortbydate":
         case "notvabydate":
-            if (prefs.apache_backend == "xml") {
-                $("#donkeykong").makeFlasher({flashtime: 0.5, repeats: 3});
-            } else {
-                callback = forceCollectionReload;
-            }
+            callback = forceCollectionReload;
             break;
 
     }
@@ -126,6 +122,12 @@ function toggleRadio(event) {
 
         case 'sortcollectionby':
             callback = forceCollectionReload;
+            break;
+
+        case 'displayresultsas':
+            callback = function() {
+                player.controller.reSearch();
+            }
             break;
     }
     prefs.save(prefobj, callback);
@@ -475,7 +477,7 @@ var popupWindow = function() {
                 var y = (winsize.y - lsize.height)/2 + windowScroll.y;
             } else {
                 var x = Math.min(xpos, (winsize.x - lsize.width));
-                var y = ypos;
+                var y = Math.min(ypos, (winsize.y - lsize.height));
             }
             popup.style.width = parseInt(lsize.width) + 'px';
             userheight = lsize.height;
@@ -575,7 +577,7 @@ function saveRadioOrder() {
 }
 
 function doingOnTheFly() {
-    return (prefs.apache_backend == "sql" && player.collectionLoaded && prefs.onthefly);
+    return (player.collectionLoaded && prefs.onthefly);
 }
 
 function prepareForLiftOff(text) {
@@ -667,10 +669,8 @@ function pollAlbumList() {
     $.getJSON("player/mpd/postcommand.php", checkPoll);
 }
 
-function scootTheAlbums() {
-    $.each($("#collection").find("img").filter(function() {
-        return $(this).hasClass('notexist');
-    }), function() {
+function scootTheAlbums(jq) {
+    $.each(jq.find("img.notexist"), function() {
         coverscraper.GetNewAlbumArt($(this).attr('name'));
     });
 }
@@ -766,15 +766,20 @@ function handleDropRadio(ev) {
 }
 
 function getrgbs(percent) {
-    if (percent > 100) {
-        percent = 100;
-    }
-    var lowr = Math.round(150 + percent/2);
-    var lowg= Math.round(75 + percent/2);
-    var highr = Math.round(180 + percent/1.5);
-    var highg= Math.round(90 + percent/1.5);
 
-    return "rgba("+lowr+","+lowg+",0,0.75) 0%,rgba("+highr+","+highg+",0,1) "+percent+"%,rgba(0,0,0,0.1) "+percent+"%,rgba(0,0,0,0.1) 100%)";
+    if (typeof percent != "number") {
+        percent = parseFloat(percent);
+    }
+
+    percent = Math.min(percent, 100);
+    var highr = Math.round(155+percent);
+    var highg = Math.round(75+percent);
+    // var lowalpha = Math.min(percent/75, 1);
+    // var highalpha = Math.min(percent/25, 1);
+    var lowalpha = 0.8;
+    var highalpha = 1;
+
+    return "rgba(150,75,0,"+lowalpha+") 0%,rgba("+highr+","+highg+",0,"+highalpha+") "+percent+"%,rgba(0,0,0,0.1) "+percent+"%,rgba(0,0,0,0.1) 100%)";
 
 }
 
@@ -802,23 +807,13 @@ function progressBar(divname, orientation) {
 
         if (orientation == "horizontal") {
             gradients.push("linear-gradient(to right, "+rgbs);
-            // gradients.push("-webkit-linear-gradient(left, "+rgbs);
             gradients.push("-moz-linear-gradient(left, "+rgbs);
             gradients.push("-o-linear-gradient(left, "+rgbs);
-            // gradients.push("-ms-linear-gradient(left, "+rgbs);
         } else {
             gradients.push("linear-gradient(to top, "+rgbs);
-            // gradients.push("-webkit-linear-gradient(bottom, "+rgbs);
             gradients.push("-moz-linear-gradient(bottom, "+rgbs);
             gradients.push("-o-linear-gradient(bottom, "+rgbs);
-            // gradients.push("-ms-linear-gradient(bottom, "+rgbs);
         }
-        // rgbs = "color-stop(0%,rgba("+lowr+","+lowg+",0,0.75)), color-stop("+percent+"%,rgba("+highr+","+highg+",0,1)), color-stop("+percent+"%,rgba(0,0,0,0.1)), color-stop(100%,rgba(0,0,0,0.1)))";
-        // if (orientation == "horizontal") {
-        //     gradients.push("-webkit-gradient(linear, left top, right top, "+rgbs);
-        // } else {
-        //     gradients.push("-webkit-gradient(linear, left bottom, left top, "+rgbs);
-        // }
         for (var i in gradients) {
             jobject.css("background", gradients[i]);
         }
@@ -894,13 +889,9 @@ var tagAdder = function() {
         },
 
         add: function(toadd) {
-            if (prefs.apache_backend == 'sql') {
-                debug.log("TAGADDER","New Tags :",toadd);
-                nowplaying.addTags(index, toadd);
-                $("#tagadder").slideToggle('fast');
-            } else {
-                alert(language.gettext('label_nosql')+'. Please Read http://sourceforge.net/p/rompr/wiki/Enabling%20Rating%20and%20Tagging/');
-            }
+            debug.log("TAGADDER","New Tags :",toadd);
+            nowplaying.addTags(index, toadd);
+            $("#tagadder").slideToggle('fast');
         }
     }
 }();
@@ -1132,10 +1123,10 @@ function displayRating(where, what) {
 }
 
 function showUpdateWindow() {
-    if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < 0.64) {
+    if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < rompr_version) {
         var fnarkle = popupWindow.create(550,900,"fnarkle",true,language.gettext("intro_title"));
         $("#popupcontents").append('<div id="fnarkler" class="mw-headline"></div>');
-        $("#fnarkler").append('<p align="center">'+language.gettext("intro_welcome")+' 0.64</p>');
+        $("#fnarkler").append('<p align="center">'+language.gettext("intro_welcome")+' '+rompr_version+'</p>');
         if (skin != "desktop") {
             $("#fnarkler").append('<p align="center">'+language.gettext("intro_viewingmobile")+' <a href="/rompr/?skin=desktop">/rompr/?skin=desktop</a></p>');
         } else {
@@ -1144,21 +1135,13 @@ function showUpdateWindow() {
         $("#fnarkler").append('<p align="center">'+language.gettext("intro_basicmanual")+' <a href="https://sourceforge.net/p/rompr/wiki/Basic%20Manual/" target="_blank">http://sourceforge.net/p/rompr/wiki/Basic%20Manual/</a></p>');
         $("#fnarkler").append('<p align="center">'+language.gettext("intro_forum")+' <a href="https://sourceforge.net/p/rompr/discussion/" target="_blank">http://sourceforge.net/p/rompr/discussion/</a></p>');
         $("#fnarkler").append('<p align="center">RompR needs translators! If you want to get involved, please read <a href="https://sourceforge.net/p/rompr/wiki/Translating%20RompR/" target="_blank">this</a></p>');
-        // $("#fnarkler").append('<p align="center"><b>'+language.gettext("intro_mopidy")+'</b></p>');
-        // $("#fnarkler").append('<p align="center"><a href="https://sourceforge.net/p/rompr/wiki/Rompr%20and%20Mopidy/" target="_blank">'+language.gettext("intro_mopidywiki")+'</a></p>');
         if (prefs.player_backend == "mopidy") {
-            $("#fnarkler").prepend('<h2>Attention Mopidy User!</h2><p>Mopidy is changing. It is moving towards browse functionality and away from the global music collection it had the promise to be. As a result of this some of the functionality that Rompr relies upon is being removed from Mopidy.</p>'+
-                                                    '<p>This means that by the time Mopidy 2.0 comes out, and possibly before, Rompr will no longer be able to create its Music Collection or handle Playlists when it is used with Mopidy</p>'+
-                                                    '<p>Much discussion with the Mopidy developers has failed to convince them to change their minds. Functionality that Rompr relies upon is being removed from Mopidy so it is with much sadness that I must announce that <b>Rompr No Longer Supports Mopidy</b></p>.'+
-                                                    '<p>This is very sad, since most of my development focus over the last 18 months has been on Mopidy, then they changed their API and pulled out the very functions I was relying on.</p>'+
-                                                    '<p>Perhaps at some point in the future this will be able to be resolved. For now most functionality will continue to work but there will be no more support or bugfixing on Mopidy-specific issues unless the situation can be resolved.</p>');
+            $("#fnarkler").append('<p align="center"><b>'+language.gettext("intro_mopidy")+'</b></p>');
+            $("#fnarkler").append('<p align="center"><a href="https://sourceforge.net/p/rompr/wiki/Rompr%20and%20Mopidy/" target="_blank">'+language.gettext("intro_mopidywiki")+'</a></p>');
         }
-
         $("#fnarkler").append('<p><button style="width:8em" class="tright" onclick="popupWindow.close()">OK</button></p>');
         popupWindow.open();
-
-
-        prefs.save({shownupdatewindow: 0.64});
+        prefs.save({shownupdatewindow: rompr_version});
     }
 }
 
@@ -1201,7 +1184,6 @@ function doPluginDropStuff(name,attributes,fn) {
                 artist: 'dummy',
                 title: 'dummy',
                 urionly: '1',
-                dontcreate: '1',
                 action: 'set',
                 attributes: attributes
             });
@@ -1228,7 +1210,6 @@ function doPluginDropStuff(name,attributes,fn) {
                                 artist: 'dummy',
                                 title: 'dummy',
                                 urionly: '1',
-                                dontcreate: '1',
                                 action: 'set',
                                 attributes: track.attributes
                             });
@@ -1277,3 +1258,138 @@ function makeHoverWork(ev) {
         jq.css('cursor','auto');
     }
 } 
+
+function checkSearchDomains() {
+    // $("#mopidysearchdomains").find('.searchdomain').each( function() {
+    //     var v = $(this).attr("value");
+    //     if (v == "radio_de") {
+    //         v = "radio-de";
+    //     }
+    //     if (!player.canPlay(v)) {
+    //         $(this).parent().remove();
+    //     }
+    // });
+    $("#mopidysearchdomains").makeDomainChooser({
+        default_domains: prefs.mopidy_search_domains,
+    });
+    $("#mopidysearchdomains").find('input.topcheck').each(function() {
+        $(this).click(function() {
+            prefs.save({mopidy_search_domains: $("#mopidysearchdomains").makeDomainChooser("getSelection")});
+        });
+    });
+}
+
+function doMopidyCollectionOptions() {
+
+    // Mopidy Folders to browse when building the collection
+
+    // spotifyweb folders are SLOW, but that's to be expected.
+    // We use 'Albums' to get 'Your Music' because, although it requires more requests than 'Songs', each response will be small
+    // enough to handle easily and there's less danger of timeouts or running into memory issues or pagination.
+
+    var domains = {
+        local: [{dir: "Local media", label: "Local Media"}],
+        beetslocal: [{dir: "Local (beets)", label: "Local (beets)"}],
+        spotify: [{dir: "Spotify Playlists", label: "Spotify Playlists"}],
+        spotifyweb: [{dir: "Spotify Web Browse/Your Music/Albums", label: "Spotify 'Your Music'"},
+                     {dir: "Spotify Web Browse/Your Artists", label: "Your Spotify Artists (Slow!)"}],
+        gmusic: [{dir: "Google Music", label: "Google Music"}],
+        soundcloud: [{dir: "SoundCloud/Liked", label: "SoundCloud Liked"}],
+        vkontakte: [{dir: "VKontakte", label: "VKontakte" }]
+    }
+
+    for (var i in domains) {
+        if (player.canPlay(i)) {
+            for (var j in domains[i]) {
+                var fum = 
+                    '<div class="styledinputs indent">'+
+                    '<input class="mopocol" type="checkbox" id="mopcol_'+i+j+'"';
+                    if (prefs.mopidy_collection_folders.indexOf(domains[i][j].dir) > -1) {
+                        fum += ' checked';
+                    }
+                    fum += '>'+
+                    '<label for="mopcol_'+i+j+'">'+domains[i][j].label+'</label>'+
+                    '<input type="hidden" name="'+domains[i][j].dir+'" />'+
+                    '</div>';
+                $("#mopidycollectionoptions").append(fum);
+            }
+        }
+    }
+    $('.mopocol').click(function() {
+        var opts = new Array();
+        $('.mopocol:checked').each(function() {
+            opts.push($(this).next().next().attr('name'));
+        });
+        debug.log("MOPIDY","Collection Options Are",opts);
+        prefs.save({mopidy_collection_folders: opts});
+    });
+}
+
+$.widget("rompr.makeDomainChooser", {
+    
+    options: {
+        default_domains: [],
+        sources_not_to_choose: {
+                file: 1,
+                http: 1,
+                https: 1,
+                mms: 1,
+                rtsp: 1,
+                somafm: 1,
+                spotifytunigo: 1,
+                rtmp: 1,
+                rtmps: 1,
+                sc: 1,
+                yt: 1,
+                m3u: 1,
+                spotifyweb: 1,
+                'podcast+http': 1,
+                'podcast+https': 1,
+                'podcast+ftp': 1,
+                'podcast+file': 1,
+        }
+    },
+
+    _create: function() {
+        var self = this;
+        this.options.holder = $('<div>').appendTo(this.element);
+        var p = faveFinder.getPriorities();
+        p.reverse();
+        for (var i in p) {
+            if (player.canPlay(p[i])) {
+                var makeunique = $("[id^='"+p[i]+"_import_domain']").length+1;
+                var id = p[i]+'_import_domain_'+makeunique;
+                this.options.holder.append('<div class="brianblessed styledinputs"><input type="checkbox" class="topcheck" id="'+id+'"><label for="'+id+'">'+p[i].capitalize()+'</label></div>');
+            }
+        }
+        for (var i in player.urischemes) {
+            if (p.indexOf(i) == -1 && !this.options.sources_not_to_choose.hasOwnProperty(i)) {
+                var makeunique = $("[id^='"+i+"_import_domain']").length+1;
+                var id = i+'_import_domain_'+makeunique;
+                this.options.holder.append('<div class="brianblessed styledinputs"><input type="checkbox" class="topcheck" id="'+id+'"><label for="'+id+'">'+i.capitalize()+'</label></div>');
+            }
+        }
+        this.options.holder.find('.topcheck').each(function() {
+            var n = $(this).attr("id");
+            var d = n.substr(0, n.indexOf('_'));
+            if (self.options.default_domains.indexOf(d) > -1) {
+                $(this).attr("checked", true);
+            }
+        });
+        this.options.holder.disableSelection();        
+    },
+
+    _setOption: function(key, value) {
+        this.options[key] = value;
+    },
+
+    getSelection: function() {
+        var result = new Array();
+        this.options.holder.find('.topcheck:checked').each( function() {
+            var n = $(this).attr("id");
+            result.push(n.substr(0, n.indexOf('_')));
+        });
+        return result;
+    }
+
+});

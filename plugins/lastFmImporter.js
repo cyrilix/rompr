@@ -14,25 +14,6 @@ var lastfmImporter = function() {
 	var throttleBackReset = null;
 	var searchcount = 0;
 
-	var sources_not_to_not_choose = {
-		bassdrive: 1,
-		dirble: 1,
-		file: 1,
-		http: 1,
-		https: 1,
-		mms: 1,
-		rtsp: 1,
-		somafm: 1,
-		spotifytunigo: 1,
-		tunein: 1,
-		rtmp: 1,
-		rtmps: 1,
-		audioaddict: 1,
-		oe1: 1,
-		sc: 1,
-		yt: 1
-	};
-
 	var chosensources = new Array();
 
 	function putRow(t) {
@@ -146,13 +127,6 @@ var lastfmImporter = function() {
 		            return;
 	        	}
 
-	        	if (prefs.apache_backend != 'sql') {
-		            $("#impufoldup").append('<h3 align="center">'+language.gettext("label_nosql")+'</h3>');
-		            $("#impufoldup").append('<h3 align="center"><a href="http://sourceforge.net/p/rompr/wiki/Enabling%20Rating%20and%20Tagging/" target="_blank">Read The Wiki</a></h3>');
-		            impu.slideToggle('fast');
-		            return;
-	        	}
-
 	            $("#impufoldup").append(
 	            	'<div name="beefheart" class="containerbox vertical">'+
 	            		'<div style="margin-left:8px;margin-right:8px;margin-top:4px;margin-bottom:4px" class="containerbox">'+
@@ -170,11 +144,11 @@ var lastfmImporter = function() {
 				$('[name="beefheart"]').hide();
 
 	            $("#impufoldup").append('<div id="hoobajoob" style="margin-left:24px;margin-right:24px;margin-top:8px;margin-bottom:4px;padding:4px;" class="containerbox bordered">'+
-	            	'<div class="expand">'+
-	            	'<input type="radio" class="topcheck" name="importc" value="onlyloved" checked>'+language.gettext("label_onlyloved")+'</input><br>'+
-	            	'<input type="radio" class="topcheck" name="importc" value="onlytagged">'+language.gettext("label_onlytagged")+'</input><br>'+
-	            	'<input type="radio" class="topcheck" name="importc" value="both">'+language.gettext("label_tagandlove")+'</input><br>'+
-	            	'<input type="radio" class="topcheck" name="importc" value="all">'+language.gettext("label_everything")+'</input></div>'+
+	            	'<div class="expand styledinputs">'+
+	            	'<input id="hubba1" type="radio" class="topcheck" name="importc" value="onlyloved" checked><label for="hubba1">'+language.gettext("label_onlyloved")+'</label><br>'+
+	            	'<input id="hubba2" type="radio" class="topcheck" name="importc" value="onlytagged"><label for="hubba2">'+language.gettext("label_onlytagged")+'</label><br>'+
+	            	'<input id="hubba3" type="radio" class="topcheck" name="importc" value="both"><label for="hubba3">'+language.gettext("label_tagandlove")+'</label><br>'+
+	            	'<input id="hubba4" type="radio" class="topcheck" name="importc" value="all"><label for="hubba4">'+language.gettext("label_everything")+'</label></div>'+
 
 	            	'<div class="expand"><div class="containerbox dropdown-container"><div class="divlabel">'+language.gettext("label_giveloved")+'</div><div class="selectholder inbrowser">'+
 	            	'<select id="goo">'+
@@ -185,8 +159,10 @@ var lastfmImporter = function() {
 	            	'<option value="1">1 '+language.gettext("stars")+'</option>'+
 	            	'<option value="0">'+language.gettext("norating")+'</option>'+
 	            	'</select></div></div>'+
-	            	'<input type="checkbox" class="topcheck" id="reviewfirst">'+language.gettext("label_review")+'</input><br>'+
-	            	'<input type="checkbox" class="topcheck" id="wishlist">'+language.gettext("label_addtowish")+'</input>'+
+	            	'<div class="styledinputs">'+
+	            	'<input type="checkbox" class="topcheck" id="reviewfirst"><label for="reviewfirst">'+language.gettext("label_review")+'</label><br>'+
+	            	'<input type="checkbox" class="topcheck" id="wishlist"><label for="wishlist">'+language.gettext("label_addtowish")+'</label>'+
+	            	'</div>'+
 	            	'</div>'+
 	            	'<div id="domchooser" class="expand clickicon"></div>'+
 	            	'<button class="fixed" onclick="lastfmImporter.go()" id="importgo">GO</button>'+
@@ -194,24 +170,17 @@ var lastfmImporter = function() {
 
 				if (prefs.player_backend == "mopidy") {
 					$("#domchooser").append('<div class="pref">'+language.gettext("label_choosedomains")+'<br>'+language.gettext("label_dragtoprio")+'</div>');
-					var p = faveFinder.getPriorities();
-					p.reverse();
-					for (var i in p) {
-						if (player.canPlay(p[i])) {
-							$("#domchooser").append('<div class="brianblessed"><input type="checkbox" class="topcheck" id="'+p[i]+'_import_domain">'+p[i]+'</input></div>');
-						}
-					}
-					for (var i in player.urischemes) {
-						if (p.indexOf(i) == -1 && !sources_not_to_not_choose.hasOwnProperty(i)) {
-							$("#domchooser").append('<div class="brianblessed"><input type="checkbox" class="topcheck" id="'+i+'_import_domain">'+i+'</input></div>');
-						}
-					}
-					$("#local_import_domain").attr("checked", true);
-					$("#spotify_import_domain").attr("checked", true);
-					$("#gmusic_import_domain").attr("checked", true);
-					$("#beets_import_domain").attr("checked", true);
-					$("#beetslocal_import_domain").attr("checked", true);
-					$("#domchooser").disableSelection();
+					$("#domchooser").makeDomainChooser({
+						default_domains: faveFinder.getPriorities(),
+						sources_not_to_choose: {
+					                bassdrive: 1,
+					                dirble: 1,
+					                tunein: 1,
+					                audioaddict: 1,
+					                oe1: 1,
+					                podcast: 1,
+					        }
+					});
 					$("#domchooser").sortable({
 						items: ".brianblessed",
 						axis: "y",
@@ -247,16 +216,10 @@ var lastfmImporter = function() {
 
 		go: function() {
 			if (!stopped) {
-				chosensources = new Array();
-				var p = new Array();
-				$("#domchooser").find('.topcheck:checked').each( function() {
-					var n = $(this).attr("id");
-					chosensources.push(n.substr(0, n.indexOf('_'))+':');
-					p.push(n.substr(0, n.indexOf('_')));
-				});
+				chosensources = $("#domchooser").makeDomainChooser("getSelection");
 				debug.log("LASTFM IMPORTER","Chosen domains: ",chosensources);
-				p.reverse();
-				faveFinder.setPriorities(p);
+				chosensources.reverse();
+				faveFinder.setPriorities(chosensources);
 				if ($("#hoobajoob").is(':visible')) {
 					$("#hoobajoob").slideToggle(500);
 					$('[name="beefheart"]').slideToggle(600, function() {

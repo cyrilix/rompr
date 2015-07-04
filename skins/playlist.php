@@ -15,8 +15,13 @@ print '<i title="'.get_int_text('button_clearplaylist').'" class="icon-trash pla
 <tr><td colspan="4" align="center" id="plmode"></td></tr>
 </table>
 </div>
-<div id="playlistbuttons" class="invisible searchbox">
-<table width="90%" align="center" style="border-collapse:collapse">
+<div id="playlistbuttons" class="invisible searchbox"><hr>
+<?php
+if ($prefs['player_backend'] == "mpd") {
+	// Different layout for playlist controls for each player
+	// since mopidy say they're unlikely ever to support crossfade or replay gain
+?>
+<table width="90%" align="center">
 <tr>
 <?php
 print '<td width="50%" align="right"><div class="togglecontainer"><div class="togglediv tgtl">'.get_int_text('button_random').
@@ -34,13 +39,8 @@ print '<td width="50%" align="left"><div class="togglecontainer">'.
 get_int_text('button_consume').'</div></div></td>';
 ?>
 </tr>
-</table>
-
-<hr>
-<?php
-if ($prefs['player_backend'] == "mpd") {
-?>
-<table width="90%" align="center" style="border-collapse:collapse">
+</table><hr>
+<table width="90%" align="center">
 	<tr>
 		<td rowspan="2">
 			<div class="togglecontainer"><div class="togglediv tgtl">REPLAY GAIN</div></div>
@@ -89,11 +89,20 @@ if ($prefs['player_backend'] == "mpd") {
 		</td>
 	</tr>
 </table>
-
-<hr>
 <?php
+} else {
+	print '<table width="90%" align="center"><tr>';
+	print '<td align="center"><div class="togglecontainer"><div class="togglediv">'.get_int_text('button_random').'</div></td>';
+	print '<td align="center"><div class="togglecontainer"><div class="togglediv">'.get_int_text('button_repeat').'</div></td>';
+	print '<td align="center"><div class="togglecontainer"><div class="togglediv">'.get_int_text('button_consume').'</div></td>';
+	print '</tr><tr>';
+	print '<td align="center"><div class="togglecontainer"><div class="togglebutton clickicon icon-toggle-off" id="random" onclick="player.controller.toggleRandom()"></div></div></td>';
+	print '<td align="center"><div class="togglecontainer"><div class="togglebutton clickicon icon-toggle-off" id="repeat" onclick="player.controller.toggleRepeat()"></div></div></td>';
+	print '<td align="center"><div class="togglecontainer"><div class="togglebutton clickicon icon-toggle-off" id="consume" onclick="player.controller.toggleConsume()"></div></div></td>';
+	print '</tr></table>';
 }
 ?>
+<hr>
 </div>
 <div id="pscroller">
     <div id="sortable" class="noselection fullwidth noborder">

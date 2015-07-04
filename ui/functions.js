@@ -284,3 +284,107 @@ String.prototype.removePunctuation = function() {
     var punctRE = /[\u2000-\u206F\u2E00-\u2E7F\\'!"#\$%&\(\)\*\+,\-\.\/:;<=>\?@\[\]\^_`\{\|\}~]/g;
     return this.replace(/\s*\&\s*/, ' and ').replace(punctRE,'').replace(/\s+/g, ' ');
 }
+
+function dropProcessor(evt, imgobj, imagekey, success, fail) {
+
+    evt.stopPropagation();
+    evt.preventDefault();
+    if (evt.dataTransfer.types) {
+        for (var i in evt.dataTransfer.types) {
+            type = evt.dataTransfer.types[i];
+            debug.log("ALBUMART","Checking...",type);
+            var data = evt.dataTransfer.getData(type);
+            switch (type) {
+
+                case "text/html":       // Image dragged from another browser window (Chrome and Firefox)
+                    var srces = data.match(/src\s*=\s*"(.*?)"/);
+                    if (srces && srces[1]) {
+                        src = srces[1];
+                        debug.log("ALBUMART","Image Source",src);
+                        imgobj.removeClass('nospin notexist notfound').addClass('spinner notexist');
+                        if (src.match(/image\/.*;base64/)) {
+                            debug.log("ALBUMART","Looks like Base64");
+                            // For some reason I no longer care about, doing this with jQuery.post doesn't work
+                            var formData = new FormData();
+                            formData.append('base64data', src);
+                            formData.append('key', imagekey);
+                            var xhr = new XMLHttpRequest();
+                            xhr.open('POST', 'getalbumcover.php');
+                            xhr.responseType = "json";
+                            xhr.onload = function () {
+                                if (xhr.status === 200) {
+                                    success(xhr.response);
+                                } else {
+                                    fail();
+                                }
+                            };
+                            xhr.send(formData);
+                        } else {
+                            $.ajax({
+                                url: "getalbumcover.php",
+                                type: "POST",
+                                data: { key: imagekey,
+                                        src: src
+                                },
+                                cache:false,
+                                success: success,
+                                error: fail,
+                            });
+                        }
+                        return false;
+                    }
+                    break;
+
+                case "Files":       // Local file upload
+                    debug.log("ALBUMART","Found Files");
+                    var files = evt.dataTransfer.files;
+                    if (files[0]) {
+                        imgobj.removeClass('nospin notexist notfound').addClass('spinner notexist');
+                        // For some reason I no longer care about, doing this with jQuery.post doesn't work
+                        var formData = new FormData();
+                        formData.append('ufile', files[0]);
+                        formData.append('key', imagekey);
+                        var xhr = new XMLHttpRequest();
+                        xhr.open('POST', 'getalbumcover.php');
+                        xhr.responseType = "json";
+                        xhr.onload = function () {
+                            if (xhr.status === 200) {
+                                success(xhr.response);
+                            } else {
+                                fail();
+                            }
+                        };
+                        xhr.send(formData);
+                        return false;
+                    }
+                    break;
+            }
+
+        }
+    }
+    // IF we get here, we didn't find anything. Let's try the basic text,
+    // which might give us something if we're lucky.
+    // Safari returns a plethora of MIME types, but none seem to be useful.
+    var data = evt.dataTransfer.getData('Text');
+    var src = data;
+    debug.log("ALBUMART","Trying last resort methods",src);
+    if (src.match(/^http:\/\//)) {
+        debug.log("ALBUMART","Appears to be a URL");
+        var u = src.match(/images.google.com.*imgurl=(.*?)&/)
+        if (u && u[1]) {
+            src = u[1];
+            debug.log("ALBUMART","Found possible Google Image Result",src);
+        }
+        $.ajax({
+            url: "getalbumcover.php",
+            type: "POST",
+            data: { key: imagekey,
+                    src: src
+            },
+            cache:false,
+            success: success,
+            error: fail,
+        });
+    }
+    return false;    
+}

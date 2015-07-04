@@ -86,7 +86,7 @@ if (array_key_exists('populate', $_REQUEST)) {
 <?php
 print '<i class="icon-toggle-closed mh menu fixed" onclick="loadSomaFM()" name="somafmlist"></i>';
 print '<i class="icon-somafm fixed smallcover-svg"></i>';
-print '<div class="expand">'.get_int_text('label_somafm').'</div>';
+print '<div class="expand"><h3>'.get_int_text('label_somafm').'</h3></div>';
 ?>
 <i id="somawait" class="smallicon invisible"></i>
 </div>

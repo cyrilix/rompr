@@ -52,11 +52,12 @@ function onBrowserClicked(event) {
     if (clickedElement.hasClass("infoclick")) {
         var parentElement = $(event.currentTarget.id).selector;
         var source = parentElement.replace('information', '');
-        debug.debug("BROWSER","A click has occurred in",parentElement,source);
+        debug.log("BROWSER","A click has occurred in",parentElement,source);
         event.preventDefault();
         browser.handleClick(source, clickedElement, event);
         return false;
     } else {
+        debug.log("BROWSER","Was clicked on non-infoclick element");
         return true;
     }
 }
@@ -67,11 +68,6 @@ function onBrowserDoubleClicked(event) {
         debug.log("BROWSER","Was double clicked on element",clickedElement);
         debug.log("BROWSER","Track element was double clicked");
         event.preventDefault();
-        // if (clickedElement.hasClass("clicktrack")) {
-        //     playlist.addtrack(clickedElement);
-        // } else {
-        //     playlist.addcue(clickedElement);
-        // }
         playlist.addItems(clickedElement, null);
         return false;
     } else {
@@ -92,8 +88,7 @@ function findClickableBrowserElement(event) {
 function onCollectionClicked(event) {
     var clickedElement = findClickableElement(event);
     if (clickedElement.hasClass("menu")) {
-        if (clickedElement.parent().hasClass('browseable') ||
-            clickedElement.parent().hasClass('clickdir')) {
+        if (clickedElement.parent().hasClass('clickdir')) {
             doFileMenu(event, clickedElement);
         } else {
             doAlbumMenu(event, clickedElement, false);
@@ -116,17 +111,8 @@ function onCollectionClicked(event) {
 
 function onCollectionDoubleClicked(event) {
     var clickedElement = findClickableElement(event);
-    // if (clickedElement.hasClass("clickalbum")) {
-    //     event.stopImmediatePropagation();
-    //     playlist.addalbum(clickedElement);
-    // } else if (clickedElement.hasClass("clicktrack")) {
-    //     event.stopImmediatePropagation();
-    //     playlist.addtrack(clickedElement);
-    // } else if (clickedElement.hasClass("clickcue")) {
-    //     event.stopImmediatePropagation();
-    //     playlist.addcue(clickedElement);
-    // }
     if (clickedElement.hasClass('clickalbum') ||
+        clickedElement.hasClass('clickartist') ||
         clickedElement.hasClass('searchdir') ||
         clickedElement.hasClass('clicktrack') ||
         clickedElement.hasClass('clickcue')) {
@@ -156,7 +142,8 @@ function onFileCollectionClicked(event) {
         player.controller.deletePlaylistTrack(clickedElement.parent().parent().prev().children('input').first().attr('name'), clickedElement.attr('name'), false);
     } else if (prefs.clickmode == "double") {
         if (clickedElement.hasClass("clickalbum") ||
-            clickedElement.hasClass("clickloadplaylist")) {
+            clickedElement.hasClass("clickloadplaylist") ||
+            clickedElement.hasClass("clickloaduserplaylist")) {
             event.stopImmediatePropagation();
             albumSelect(event, clickedElement);
         } else if (clickedElement.hasClass("clicktrack") || clickedElement.hasClass("clickcue")) {
@@ -170,30 +157,14 @@ function onFileCollectionClicked(event) {
 
 function onFileCollectionDoubleClicked(event) {
     var clickedElement = findClickableElement(event);
-    // if (clickedElement.hasClass('searchdir')) {
-    //     event.stopImmediatePropagation();
-    //     var options = addSearchDir(clickedElement);
-    //     player.controller.addTracks(options,
-    //                                 playlist.playFromEnd(),
-    //                                 null);
-    // } else if (clickedElement.hasClass("clickalbum")) {
-    //     event.stopImmediatePropagation();
-    //     playlist.addtrack(clickedElement.children('input').first());
-    // } else if (clickedElement.hasClass("clicktrack")) {
-    //     event.stopImmediatePropagation();
-    //     playlist.addtrack(clickedElement);
-    // } else if (clickedElement.hasClass("clickcue")) {
-    //     event.stopImmediatePropagation();
-    //     playlist.addcue(clickedElement);
     if (clickedElement.hasClass('searchdir') ||
         clickedElement.hasClass('clickalbum') ||
         clickedElement.hasClass('clicktrack') ||
-        clickedElement.hasClass('clickcue')) {
+        clickedElement.hasClass('clickcue') ||
+        clickedElement.hasClass("clickloadplaylist") ||
+        clickedElement.hasClass("clickloaduserplaylist")) {
         event.stopImmediatePropagation();
         playlist.addItems(clickedElement, null);
-    } else if (clickedElement.hasClass("clickloadplaylist")) {
-        event.stopImmediatePropagation();
-        playlist.load(decodeURIComponent(clickedElement.children().first().attr('name')));
     }
 }
 
@@ -333,10 +304,38 @@ function doAlbumMenu(event, element, inbrowser) {
             $('#'+menutoopen).load("albums.php?item="+menutoopen, function() {
                 $(this).removeClass("notfilled");
                 $(this).menuReveal(function() {
-                    $.each($(this).find("img").filter(function() {
-                        return $(this).hasClass('notexist');
-                    }), function() {
-                        coverscraper.GetNewAlbumArt($(this).attr('name'));
+                    scootTheAlbums($(this));
+                    $.each($(this).find('input.expandalbum'), function() {
+                        debug.log("CLICKFUNCTIONS", "Album has link to get all tracks");
+                        element.makeSpinner();
+                        $.ajax({
+                            type: 'GET',
+                            url: 'albums.php?browsealbum='+menutoopen,
+                            success: function(data) {
+                                element.stopSpinner();
+                                $("#"+menutoopen).html(data);
+                            },
+                            error: function(data) {
+                                element.stopSpinner();
+                            }
+                        });
+                    });
+                    $.each($(this).find('input.expandartist'), function() {
+                        debug.log("CLICKFUNCTIONS", "Album has link to get all tracks for artist");
+                        element.makeSpinner();
+                        $.ajax({
+                            type: 'GET',
+                            url: 'albums.php?browsealbum='+menutoopen,
+                            success: function(data) {
+                                element.stopSpinner();
+                                var spunk = $("#"+menutoopen).parent();
+                                spunk.html(data);
+                                scootTheAlbums(spunk);
+                            },
+                            error: function(data) {
+                                element.stopSpinner();
+                            }
+                        });
                     });
                 });
             });
@@ -366,37 +365,24 @@ function doFileMenu(event, element) {
         }
         element.toggleOpen();
         if ($('#'+menutoopen).hasClass("notfilled")) {
-            if (prefs.player_backend == "mopidy") {
-                element.makeSpinner();
-                // Hack for browsing in search results - the 'browseable' class is added to albums
-                // that are returned from search results with no tracks and therefore
-                // only exists in the search panel so that's how we know where we are
-                if (element.parent().hasClass('browseable')) {
-                    var l = decodeURIComponent(element.parent().attr("name"));
-                } else if (element.parent().hasClass('clickloadplaylist')) {
-                    var l = decodeURIComponent(element.prev().attr("name"));
-                } else {
-                    var l = element.next().attr("name");
-                }
-                player.controller.browse(l, menutoopen, element);
+            element.makeSpinner();
+            var string;
+            var plname = element.parent().children('input').attr('name');
+            if (menutoopen.match(/^pholder\d/)) {
+                debug.log("MPD","Browsing playlist",plname);
+                string = "player/mpd/loadplaylists.php?playlist="+plname;
             } else {
-                var string;
-                var plname = element.parent().children('input').attr('name');
-                if (menutoopen.match(/^pholder\d/)) {
-                    debug.log("MPD","Browsing playlist",plname);
-                    string = "player/mpd/loadplaylists.php?playlist="+plname;
-                } else {
-                    string = "dirbrowser.php?path="+plname+'&prefix='+menutoopen;
-                }
-                $('#'+menutoopen).load(string, function() {
-                    $(this).removeClass("notfilled");
-                    var callback = null;
-                    if (string.match(/loadplaylists\.php/)) {
-                        callback = plMenuHack;
-                    }
-                    $(this).menuReveal(callback);
-                });
+                string = "dirbrowser.php?path="+plname+'&prefix='+menutoopen;
             }
+            $('#'+menutoopen).load(string, function() {
+                $(this).removeClass("notfilled");
+                var callback = null;
+                if (string.match(/loadplaylists\.php/)) {
+                    callback = plMenuHack;
+                }
+                $(this).menuReveal(callback);
+                element.stopSpinner();
+            });
         } else {
             $('#'+menutoopen).menuReveal(plMenuHack);
         }
@@ -445,6 +431,10 @@ function setDraggable(divname) {
                 // look prettier
                 $(dragger).find('tr').wrap('<table></table>');
                 $(dragger).find('.icon-cancel-circled').remove();
+
+                var pos = {top: event.pageY - 12, left: event.pageX - 80};
+                $(dragger).css({top: pos.top+"px", left: pos.left+"px"});
+
                 return dragger;
             }
         });
@@ -590,4 +580,3 @@ function ihatefirefox() {
         $("#mopidysearchdomains").hide();
     }
 }
-

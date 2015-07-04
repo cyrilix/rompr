@@ -3,23 +3,29 @@ function Playlist() {
     var self = this;
     var tracklist = [];
     var currentalbum = -1;
-    this.currentTrack = null;
     var finaltrack = -1;
     this.rolledup = [];
     var updatecounter = 0;
     var do_delayed_update = false;
-    var scrollto = -1;
     var updateErrorFlag = 0;
+    var pscrolltimer = null;
+    var pageloading = true;
 
     // Minimal set of information - just what infobar requires to make sure
     // it blanks everything out
-    this.emptytrack = {
+    // playlistpos is for radioManager
+    // backendid must not be undefined
+    var emptyTrack = {
         album: "",
         creator: "",
         location: "",
         title: "",
         type: "",
+        playlistpos: 0,
+        backendid: -1
     };
+
+    var currentTrack = emptyTrack;
 
     /*
     We keep count of how many ongoing requests we have sent to Apache
@@ -33,10 +39,6 @@ function Playlist() {
         updatecounter++;
         player.controller.getPlaylist();
         coverscraper.clearCallbacks();
-    }
-
-    this.connectionbuggered = function() {
-        updatecounter = 0;
     }
 
     this.updateFailure = function() {
@@ -117,7 +119,6 @@ function Playlist() {
                         }
                         tracklist[count] = item;
                         count++;
-                        current_station = "";
                         break;
                     case "stream":
                         // Streams are hidden by default - hence we use the opposite logic for the flag
@@ -125,19 +126,19 @@ function Playlist() {
                         item = new Stream(count, track.album, hidden);
                         tracklist[count] = item;
                         count++;
-                        current_station = "";
                         break;
                     default:
                         item = new Album(sortartist, track.album, count);
                         tracklist[count] = item;
                         count++;
-                        current_station = "";
                         break;
 
                 }
-
             }
             item.newtrack(track);
+            if (track.backendid == player.status.songid) {
+                currentalbum = count - 1;
+            }
             finaltrack = parseInt(track.playlistpos);
 
         }
@@ -167,44 +168,14 @@ function Playlist() {
         }
         // Invisible empty div tacked on the end is where we add our 'Incoming' animation
         $("#sortable").append('<div id="waiter" class="containerbox"></div>');
+        layoutProcessor.setPlaylistHeight();
+
+        self.radioManager.setHeader();
         if (playlist.radioManager.isPopulating()) {
             playlist.waiting();
         }
-        layoutProcessor.setPlaylistHeight();
-
-        self.radioManager.init();
-        self.radioManager.setHeader();
-        self.findCurrentTrack();
-        if (finaltrack == -1) {
-            // Playlist is empty
-            debug.log("PLAYLIST","Playlist is empty");
-            nowplaying.newTrack(self.emptytrack, false);
-            infobar.setProgress(0,-1,-1);
-            self.radioManager.repopulate()
-        } else if (self.currentTrack == null) {
-            self.radioManager.repopulate()
-        }
         player.controller.postLoadActions();
 
-        // scrollto is now used only to prevent findCurrentTrack from scrolling to the current track.
-        // This stops it from being really annoying where it scrolls to the current track
-        // when you're in the middle of deleting some stuff lower down.
-        // Scrolling when we have the custom scrollbars isn't necessary when we repopulate as the 'scrollbars'
-        // basically just stay where they were.
-        // Note that we currently set scrollto to 1 when we drag stuff onto or within the playlist. This prevents
-        // the auto-scroll from moving the playlist around by itself, which is very confusing for the user.
-        // We don't set it when stuff is added by double-click. This means auto-scroll will keep the playlist
-        // on or around the current track when we do this. This seems to make the most sense.
-        scrollto = -1;
-
-    }
-
-    this.load = function(name) {
-        playlist.waiting();
-        layoutProcessor.playlistLoading();
-        debug.log("PLAYLIST","Loading Playlist",name);
-        playlist.radioManager.stop();
-        player.controller.loadPlaylist(name);
     }
 
     this.clear = function() {
@@ -215,7 +186,6 @@ function Playlist() {
     this.draggedToEmpty = function(event, ui) {
         debug.log("PLAYLIST","Something was dropped on the empty playlist area",event,ui);
         ui.item = ui.helper;
-        // playlist.waiting();
         playlist.dragstopped(event,ui);
     }
 
@@ -241,43 +211,6 @@ function Playlist() {
             // Something dragged from the albums list
             debug.log("PLAYLIST","Something was dropped from the albums list");
             playlist.addItems($('.selected').filter(removeOpenItems), moveto);
-            // var tracks = new Array();
-            // $.each($('.selected').filter(removeOpenItems), function (index, element) {
-            //     var uri = $(element).attr("name");
-            //     if (uri) {
-            //         if ($(element).hasClass('directory')) {
-            //             tracks.push({   type: "uri",
-            //                             name: decodeURIComponent($(element).children('input').first().attr('name'))});
-            //         } else if ($(element).hasClass('clickalbum')) {
-            //             tracks.push({  type: "item",
-            //                             name: uri});
-            //         } else if ($(element).hasClass('clickcue')) {
-            //             tracks.push({  type: "cue",
-            //                             name: decodeURIComponent(uri)});
-            //         } else if ($(element).hasClass('clickloadplaylist')) {
-            //             tracks.push({ type: "playlist",
-            //                             name: decodeURIComponent($(element).children().first().attr('name'))});
-            //         } else {
-            //             var options = { type: "uri",
-            //                             name: decodeURIComponent(uri)};
-            //             $(element).find('input').each( function() {
-            //                 switch ($(this).val()) {
-            //                     case "needsfiltering":
-            //                         options.findexact = {artist: [$(element).children('.saname').text()]};
-            //                         options.filterdomain = ['spotify:'];
-            //                         debug.log("PLAYLIST", "Adding Spotify artist",$(element).children('.saname').text());
-            //                         break;
-            //                 }
-            //             });
-            //             tracks.push(options);
-            //         }
-            //     }
-            // });
-            // if (tracks.length > 0) {
-            //     scrollto = 1;
-            //     player.controller.addTracks(tracks, null, moveto);
-            //     $('.selected').removeClass('selected');
-            // }
             $("#dragger").remove();
         } else if (ui.item.hasClass('track') || ui.item.hasClass('item')) {
             // Something dragged within the playlist
@@ -298,7 +231,6 @@ function Playlist() {
                 moveto = moveto - numitems;
                 if (moveto < 0) { moveto = 0; }
             }
-            scrollto = 1;
             player.controller.move(firstitem, numitems, moveto);
         } else {
             return false;
@@ -324,33 +256,26 @@ function Playlist() {
                 } else if ($(element).hasClass('clickalbum')) {
                     tracks.push({  type: "item",
                                     name: uri});
+                } else if ($(element).hasClass('clickartist')) {
+                    tracks.push({  type: "artist",
+                                    name: uri});
                 } else if ($(element).hasClass('clickcue')) {
                     tracks.push({  type: "cue",
                                     name: decodeURIComponent(uri)});
                 } else if ($(element).hasClass('clickloadplaylist')) {
                     tracks.push({ type: "playlist",
                                     name: decodeURIComponent($(element).children().first().attr('name'))});
+                } else if ($(element).hasClass('clickloaduserplaylist')) {
+                    tracks.push({ type: (prefs.player_backend == 'mpd') ? "playlist" : 'uri',
+                                    name: decodeURIComponent($(element).children().first().attr('name'))});
                 } else {
-                    var options = { type: "uri",
-                                    name: decodeURIComponent(uri)};
-                    $(element).find('input').each( function() {
-                        switch ($(this).val()) {
-                            case "needsfiltering":
-                                options.findexact = {artist: [$(element).children('.saname').text()]};
-                                options.filterdomain = ['spotify:'];
-                                debug.log("PLAYLIST", "Adding Spotify artist",$(element).children('.saname').text());
-                                break;
-                        }
-                    });
-                    tracks.push(options);
+                    tracks.push({ type: "uri",
+                                    name: decodeURIComponent(uri)});
                 }
             }
         });
         if (tracks.length > 0) {
             self.waiting();
-            if (moveto !== null) {
-                scrollto = 1;
-            }
             var playpos = (moveto === null) ? playlist.playFromEnd() : null;
             player.controller.addTracks(tracks, playpos, moveto);
             $('.selected').removeClass('selected');
@@ -373,7 +298,6 @@ function Playlist() {
     }
 
     this.delete = function(id) {
-        scrollto = 1;
         $('.track[romprid="'+id.toString()+'"]').remove();
         player.controller.removeId([parseInt(id)]);
     }
@@ -386,7 +310,6 @@ function Playlist() {
 
     // This is used for adding stream playlists ONLY
     this.newInternetRadioStation = function(list) {
-        scrollto = (finaltrack)+1;
         var tracks = [];
         $(list).find("track").each( function() {
             tracks.push({   type: "uri",
@@ -416,45 +339,52 @@ function Playlist() {
         return finaltrack;
     }
 
-    this.findCurrentTrack = function() {
-        debug.debug("PLAYLIST","Looking For Current Track",player.status.songid);
-        self.currentTrack = null;
-        $(".playlistcurrentitem").removeClass('playlistcurrentitem').addClass('playlistitem');
-        $(".playlistcurrenttitle").removeClass('playlistcurrenttitle').addClass('playlisttitle');
-        for(var i in tracklist) {
-            self.currentTrack = tracklist[i].findcurrent(player.status.songid);
-            if (self.currentTrack) {
-                currentalbum = i;
-                scrollToCurrentTrack();
-                playlist.radioManager.repopulate();
-                break;
+    this.trackHasChanged = function(backendid) {
+        if (backendid != currentTrack.backendid) {
+            debug.log("PLAYLIST","Looking For Current Track",backendid);
+            $(".playlistcurrentitem").removeClass('playlistcurrentitem').addClass('playlistitem');
+            $('.track[romprid="'+backendid+'"],.booger[romprid="'+backendid+'"]').removeClass('playlistitem').addClass('playlistcurrentitem');
+            if (backendid && tracklist.length > 0) {
+                for(var i in tracklist) {
+                    if (tracklist[i].findcurrent(backendid)) {
+                        if (currentalbum != i) {
+                            currentalbum = i;
+                            $(".playlistcurrenttitle").removeClass('playlistcurrenttitle').addClass('playlisttitle');
+                            $('.item[name="'+i+'"]').removeClass('playlisttitle').addClass('playlistcurrenttitle');
+                        }
+                        break;
+                    }
+                }
+            } else {
+                currentTrack = emptyTrack;
             }
+            playlist.radioManager.repopulate();
+            nowplaying.newTrack(currentTrack, false);
         }
-        return self.currentTrack;
+        clearTimeout(pscrolltimer);
+        if (pageloading) {
+            pscrolltimer = setTimeout(playlist.scrollToCurrentTrack, 3000);
+        } else {
+            playlist.scrollToCurrentTrack();
+        }
     }
 
     this.getNextTrack = function() {
         var t = tracklist[currentalbum].getNextTrack(player.status.songid);
     }
 
-    function scrollToCurrentTrack() {
-        if (prefs.scrolltocurrent && $('.track[romprid="'+player.status.songid+'"]').offset() && scrollto === -1) {
-            layoutProcessor.scrollPlaylistToCurrentTrack();
-        }
-    }
-
-    this.stopped = function() {
-        infobar.setProgress(0,-1,-1);
-        // self.currentTrack = null;
+    this.scrollToCurrentTrack = function() {
+        pageloading = false;
+        layoutProcessor.scrollPlaylistToCurrentTrack();
     }
 
     this.stopafter = function() {
-        if (self.currentTrack && self.currentTrack.type == "stream") {
+        if (currentTrack.type == "stream") {
             infobar.notify(infobar.ERROR, language.gettext("label_notforradio"));
         } else if (player.status.state == "play") {
             if (player.status.single == 0) {
                 player.controller.stopafter();
-                var timeleft = self.currentTrack.duration - infobar.progress();
+                var timeleft = currentTrack.duration - infobar.progress();
                 if (timeleft < 4) { timeleft = 300 };
                 var repeats = Math.round(timeleft / 4);
                 $(".icon-to-end-1").makeFlasher({flashtime:4, repeats: repeats});
@@ -479,7 +409,6 @@ function Playlist() {
     }
 
     this.deleteGroup = function(index) {
-        scrollto = 1;
         tracklist[index].deleteSelf();
     }
 
@@ -488,53 +417,11 @@ function Playlist() {
         tracklist[index].addToCollection();
     }
 
-    // this.addtrack = function(element) {
-    //     self.waiting();
-    //     var n = decodeURIComponent(element.attr("name"));
-    //     var options = [{    type: "uri",
-    //                         name: n,
-    //                   }];
-
-    //     $.each(element.children('input'), function() {
-    //         switch ($(this).val()) {
-    //             case "needsfiltering":
-    //                 options[0].findexact = {artist: [element.children('.saname').text()]};
-    //                 options[0].filterdomain = ['spotify:'];
-    //                 debug.log("PLAYLIST", "Adding Spotify artist",element.children('.saname').text());
-    //                 break;
-    //         }
-    //     });
-
-    //     player.controller.addTracks(options,
-    //                                 playlist.playFromEnd(),
-    //                                 null);
-    // }
-
-    // this.addcue = function(element) {
-    //     self.waiting();
-    //     var n = decodeURIComponent(element.attr("name"));
-
-    //     var options = [{    type: "cue",
-    //                         name: n,
-    //                   }];
-
-    //     player.controller.addTracks(options,
-    //                                 playlist.playFromEnd(),
-    //                                 null);
-    // }
-
-    // this.addalbum = function(element) {
-    //     self.waiting();
-    //     player.controller.addTracks([{  type: "item",
-    //                                     name: element.attr("name")}],
-    //                                     playlist.playFromEnd(), null);
-    // }
-
     this.addFavourite = function(index) {
         debug.log("PLAYLIST","Adding Fave Station, index",index, tracklist[index].album);
         var data = tracklist[index].getFnackle();
-        if (self.currentTrack) {
-            data.uri = self.currentTrack.location;
+        if (currentTrack.location) {
+            data.uri = currentTrack.location;
         }
         $.post("utils/addfave.php", data)
             .done( function() {
@@ -546,7 +433,18 @@ function Playlist() {
     }
 
     this.getCurrent = function(thing) {
-        return self.currentTrack[thing];
+        return currentTrack[thing];
+    }
+
+    this.getCurrentTrack = function() {
+        var temp = cloneObject(currentTrack);
+        return temp;
+    }
+
+    this.setCurrent = function(items) {
+        for (var i in items) {
+            currentTrack[i] = items[i];
+        }
     }
 
     this.radioManager = function() {
@@ -555,7 +453,6 @@ function Playlist() {
         var radios = new Object();
         var oldconsume = null;
         var oldbuttonstate = null;
-        var inited = false;
         var chunksize = 10;
         var rptimer = null;
         var startplaybackfrom = -1;
@@ -569,22 +466,32 @@ function Playlist() {
             },
 
             init: function() {
-                if (inited == false) {
-                    if (prefs.apache_backend == "sql") {
-                        for(var i in radios) {
-                            debug.log("RADIO MANAGER","Activating Plugin",i);
-                            radios[i].setup();
-                            if (prefs.radiomode == i) {
-                                debug.mark("RADIOMANAGER","Found saved radio playlist state",prefs.radiomode, prefs.radioparam);
-                                playlist.radioManager.load(prefs.radiomode, prefs.radioparam, true);
+                for(var i in radios) {
+                    debug.log("RADIO MANAGER","Activating Plugin",i);
+                    radios[i].setup();
+                }
+                if (prefs.player_backend == "mopidy") {
+                    $("#radiodomains").makeDomainChooser({
+                        default_domains: faveFinder.getPriorities(),
+                        sources_not_to_choose: {
+                                    bassdrive: 1,
+                                    dirble: 1,
+                                    tunein: 1,
+                                    audioaddict: 1,
+                                    oe1: 1,
+                                    podcast: 1,
                             }
-                        }
-                    }
-                    inited = true;
+                    });
                 }
             },
 
-            load: function(which, param, isonload) {
+            checkSavedState: function() {
+                if (prefs.radiomode != "") {
+                    playlist.radioManager.load(prefs.radiomode, prefs.radioparam);
+                }
+            },
+
+            load: function(which, param) {
                 debug.mark("RADIO MANAGER","Loading Smart",which,param);
                 if (mode == which && (!param || param == prefs.radioparam)) {
                     debug.log("RADIO MANAGER", " .. that radio is already playing");
@@ -593,8 +500,8 @@ function Playlist() {
                 if ((mode && mode != which) || (mode && param && param != prefs.radioparam)) {
                     radios[mode].stop();
                 }
-                prefs.save({radiomode: which, radioparam: param});
                 mode = which;
+                prefs.save({radiomode: mode, radioparam: param});
                 layoutProcessor.playlistLoading();
                 if (prefs.consumeradio) {
                     oldbuttonstate = $("#playlistbuttons").is(":visible");
@@ -604,24 +511,9 @@ function Playlist() {
                     }
                 }
                 populating = true;
-                if (isonload) {
-                    switch (player.status.state) {
-                        case "stop":
-                            startplaybackfrom = 0;
-                            player.controller.clearPlaylist();
-                            break;
-                        case "pause":
-                            startplaybackfrom = -1;
-                            infobar.playbutton.clicked();
-                            break;
-                        case "play":
-                            startplaybackfrom = -1;
-                            break;
-                    }
-                } else {
-                    startplaybackfrom = 0;
-                    player.controller.clearPlaylist();
-                }
+                startplaybackfrom = 0;
+                // Clearing the playlist causes us to repopulate and is best done there
+                player.controller.clearPlaylist();
             },
 
             beffuddle: function(originalstate) {
@@ -644,11 +536,7 @@ function Playlist() {
             },
 
             actuallyRepopulate: function() {
-                if (playlist.currentTrack) {
-                    var fromend = playlist.getfinaltrack()+1 - playlist.currentTrack.playlistpos;
-                } else {
-                    var fromend = playlist.getfinaltrack()+1;
-                }
+                var fromend = playlist.getfinaltrack()+1 - currentTrack.playlistpos;
                 populating = false;
                 debug.log("RADIO MANAGER","Repopulate Check : ",playlist.getfinaltrack(),fromend,chunksize,mode);
                 if (fromend < chunksize && mode) {
@@ -710,7 +598,12 @@ function Playlist() {
                     (tracks[trackpointer].albumartist != "" && tracks[trackpointer].albumartist != tracks[trackpointer].creator)) {
                     showartist = true;
                 }
-                html = html + '<div name="'+tracks[trackpointer].playlistpos+'" romprid="'+tracks[trackpointer].backendid+'" class="track clickable clickplaylist sortable containerbox playlistitem menuitem">';
+                html = html + '<div name="'+tracks[trackpointer].playlistpos+'" romprid="'+tracks[trackpointer].backendid+'" class="track clickable clickplaylist sortable containerbox ';
+                if (tracks[trackpointer].backendid == player.status.songid) {
+                    html = html + 'playlistcurrentitem menuitem">';
+                } else {
+                    html = html + 'playlistitem menuitem">';
+                }
                 if (tracks[trackpointer].trackimage) {
                     html = html + '<div class="smallcover fixed"><img class="smallcover" src="'+tracks[trackpointer].trackimage+'" /></div>';
                 }
@@ -749,10 +642,15 @@ function Playlist() {
 
         this.header = function() {
             var html = "";
-            html = html + '<div name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="item clickable clickplaylist sortable containerbox playlistalbum playlisttitle">';
+            html = html + '<div name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="item clickable clickplaylist sortable containerbox playlistalbum ';
+            if (self.index == currentalbum) {
+                html = html + 'playlistcurrenttitle">';
+            } else {
+                html = html + 'playlisttitle">';
+            }
             if (tracks[0].image && tracks[0].image != "") {
                 // An image was supplied - either a local one or supplied by the backend
-                html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover fixed" name="'+tracks[0].key+'" src="'+tracks[0].image+'"/></div>';
+                html = html + '<div class="smallcover fixed clickable clickicon clickrollup selfcentered" romprname="'+self.index+'"><img class="smallcover fixed" name="'+tracks[0].key+'" src="'+tracks[0].image+'"/></div>';
             } else {
                 if (prefs.downloadart) {
                     // This is so we can get albumart when we're playing spotify
@@ -776,7 +674,7 @@ function Playlist() {
             html = html + '<div class="containerbox vertical fixed">';
             // These next two currently need wrapping in divs for the sake of Safari
             html = html + '<div class="expand clickable clickicon clickremovealbum" name="'+self.index+'"><i class="icon-cancel-circled playlisticonr"></i></div>';
-            if (tracks[0].spotify && tracks[0].spotify.album && tracks[0].spotify.album.substring(0,7) == "spotify" && prefs.apache_backend == "sql") {
+            if (tracks[0].spotify && tracks[0].spotify.album && tracks[0].spotify.album.substring(0,7) == "spotify") {
                 html = html + '<div class="fixed clickable clickicon clickaddwholealbum" name="'+self.index+'"><i class="icon-music playlisticonr"></i></div>';
             }
             html = html + '</div>';
@@ -830,16 +728,13 @@ function Playlist() {
         }
 
         this.findcurrent = function(which) {
-            var result = null;
             for(var i in tracks) {
                 if (tracks[i].backendid == which) {
-                    $('.item[name="'+self.index+'"]').removeClass('playlisttitle').addClass('playlistcurrenttitle');
-                    $('.track[romprid="'+which+'"]').removeClass('playlistitem').addClass('playlistcurrentitem');
-                    result = tracks[i];
-                    break;
+                    currentTrack = tracks[i];
+                    return true;
                 }
             }
-            return result;
+            return false;
         }
 
         this.deleteSelf = function() {
@@ -905,9 +800,14 @@ function Playlist() {
 
         this.header = function() {
             var html = "";
-            html = html + '<div name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="item clickable clickplaylist sortable containerbox playlistalbum playlisttitle">';
+            html = html + '<div name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="item clickable clickplaylist sortable containerbox playlistalbum ';
+            if (self.index == currentalbum) {
+                html = html + 'playlistcurrenttitle">';
+            } else {
+                html = html + 'playlisttitle">';
+            }
             var image = (tracks[0].image) ? tracks[0].image : "newimages/broadcast.svg";
-            html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover" name="'+tracks[0].key+'"" src="'+image+'"/></div>';
+            html = html + '<div class="smallcover fixed clickable clickicon clickrollup selfcentered" romprname="'+self.index+'"><img class="smallcover" name="'+tracks[0].key+'"" src="'+image+'"/></div>';
             html = html + '<div class="containerbox vertical expand selfcentered">';
             html = html + '<div class="bumpad">'+tracks[0].creator+'</div>';
             html = html + '<div class="bumpad">'+tracks[0].album+'</div>';
@@ -960,16 +860,13 @@ function Playlist() {
         }
 
         this.findcurrent = function(which) {
-            var result = null;
             for(var i in tracks) {
                 if (tracks[i].backendid == which) {
-                    $('.item[name="'+self.index+'"]').removeClass('playlisttitle').addClass('playlistcurrenttitle');
-                    $('.booger[romprid="'+which+'"]').removeClass('playlistitem').addClass('playlistcurrentitem');
-                    result = tracks[i];
-                    break;
+                    currentTrack = tracks[i];
+                    return true;
                 }
             }
-            return result;
+            return false;
         }
 
         this.deleteSelf = function() {

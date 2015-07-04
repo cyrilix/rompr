@@ -3,9 +3,7 @@ include ("includes/vars.php");
 include ("includes/functions.php");
 include ("international.php");
 include ("backends/sql/backend.php");
-if ($prefs['player_backend'] == "mpd") {
-    include("player/mpd/connection.php");
-}
+include("player/mpd/connection.php");
 set_time_limit(240);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -28,6 +26,7 @@ set_time_limit(240);
 <link rel="stylesheet" id="icontheme-adjustments" type="text/css" />
 <link type="text/css" href="css/jquery.mCustomScrollbar.css" rel="stylesheet" />
 <script type="text/javascript" src="jquery/jquery-1.8.3-min.js"></script>
+<script type="text/javascript" src="jquery/jquery-ui.js"></script>
 <script type="text/javascript" src="jquery/jquery.mCustomScrollbar.concat.min.js"></script>
 <script type="text/javascript" src="skins/desktop/skin.js"></script>
 <script type="text/javascript" src="ui/functions.js"></script>
@@ -52,7 +51,7 @@ var firefoxcrapnesshack = 0;
 var stream = "";
 var theCatSatOnTheMat = null;
 var progress = null;
-var googleSearchURL = "https://www.googleapis.com/customsearch/v1?key=AIzaSyDAErKEr1g1J3yqHA0x6Ckr5jubNIF2YX4&cx=013407992060439718401:d3vpz2xaljs&searchType=image&alt=json";
+var googleSearchURL = "https://www.googleapis.com/customsearch/v1?key="+google_api_key+"&cx=013407992060439718401:d3vpz2xaljs&searchType=image&alt=json";
 
 function getNewAlbumArt(div) {
 
@@ -256,20 +255,32 @@ $(document).ready(function () {
     wobblebottom = $('#wobblebottom');
     wobbleMyBottom();
     $('#artistcoverslist').mCustomScrollbar({
-        theme: "light-thick",
-        scrollInertia: 80,
+        theme: "light",
+        scrollInertia: 200,
+        contentTouchScroll: 25,
+        mouseWheel: {
+            scrollAmount: 20,
+        },
         advanced: {
             updateOnContentResize: true,
-            autoScrollOnFocus: false
-        },
+            updateOnImageLoad: false,
+            autoScrollOnFocus: false,
+            autoUpdateTimeout: 500,
+        }
     });
     $('#coverslist').mCustomScrollbar({
-        theme: "light-thick",
-        scrollInertia: 80,
+        theme: "light",
+        scrollInertia: 200,
+        contentTouchScroll: 25,
+        mouseWheel: {
+            scrollAmount: 20,
+        },
         advanced: {
             updateOnContentResize: true,
-            autoScrollOnFocus: false
-        },
+            updateOnImageLoad: false,
+            autoScrollOnFocus: false,
+            autoUpdateTimeout: 500,
+        }
     });
     document.body.addEventListener('drop', function(e) {
         e.preventDefault();
@@ -316,113 +327,12 @@ function dragLeave(ev) {
 function handleDrop(ev) {
     debug.group("ALBUMART","Dropped",ev);
     evt = ev.originalEvent;
-    evt.stopPropagation();
-    evt.preventDefault();
     $(ev.target).parent().removeClass("highlighted");
     imageEditor.update($(ev.target));
     imgobj = $(ev.target);
     imagekey = imgobj.attr("name");
-    stream = imgobj.attr("stream");
     clickindex = null;
-
-    if (evt.dataTransfer.types) {
-        for (var i in evt.dataTransfer.types) {
-            type = evt.dataTransfer.types[i];
-            debug.log("ALBUMART","Checking...",type);
-            var data = evt.dataTransfer.getData(type);
-            switch (type) {
-
-                case "text/html":       // Image dragged from another browser window (Chrome and Firefox)
-                    var srces = data.match(/src\s*=\s*"(.*?)"/);
-                    if (srces && srces[1]) {
-                        src = srces[1];
-                        debug.log("ALBUMART","Image Source",src);
-                        imgobj.removeClass('nospin notexist notfound').addClass('spinner notexist');
-                        if (src.match(/image\/.*;base64/)) {
-                            debug.log("ALBUMART","Looks like Base64");
-                            // For some reason I no longer care about, doing this with jQuery.post doesn't work
-                            var formData = new FormData();
-                            formData.append('base64data', src);
-                            formData.append('key', imagekey);
-                            var xhr = new XMLHttpRequest();
-                            xhr.open('POST', 'getalbumcover.php');
-                            xhr.responseType = "json";
-                            xhr.onload = function () {
-                                if (xhr.status === 200) {
-                                    uploadComplete(xhr.response);
-                                } else {
-                                    searchFail();
-                                }
-                            };
-                            xhr.send(formData);
-                        } else {
-                            $.ajax({
-                                url: "getalbumcover.php",
-                                type: "POST",
-                                data: { key: imagekey,
-                                        src: src
-                                },
-                                cache:false,
-                                success: uploadComplete,
-                                error: searchFail,
-                            });
-                        }
-                        return false;
-                    }
-                    break;
-
-                case "Files":       // Local file upload
-                    debug.log("ALBUMART","Found Files");
-                    var files = evt.dataTransfer.files;
-                    if (files[0]) {
-                        imgobj.removeClass('nospin notexist notfound').addClass('spinner notexist');
-                        // For some reason I no longer care about, doing this with jQuery.post doesn't work
-                        var formData = new FormData();
-                        formData.append('ufile', files[0]);
-                        formData.append('key', imagekey);
-                        var xhr = new XMLHttpRequest();
-                        xhr.open('POST', 'getalbumcover.php');
-                        xhr.responseType = "json";
-                        xhr.onload = function () {
-                            if (xhr.status === 200) {
-                                uploadComplete(xhr.response);
-                            } else {
-                                searchFail();
-                            }
-                        };
-                        xhr.send(formData);
-                        return false;
-                    }
-                    break;
-            }
-
-        }
-    }
-    // IF we get here, we didn't find anything. Let's try the basic text,
-    // which might give us something if we're lucky.
-    // Safari returns a plethora of MIME types, but none seem to be useful.
-    var data = evt.dataTransfer.getData('Text');
-    var src = data;
-    debug.log("ALBUMART","Trying last resort methods",src);
-    if (src.match(/^http:\/\//)) {
-        debug.log("ALBUMART","Appears to be a URL");
-        var u = src.match(/images.google.com.*imgurl=(.*?)&/)
-        if (u && u[1]) {
-            src = u[1];
-            debug.log("ALBUMART","Found possible Google Image Result",src);
-        }
-        $.ajax({
-            url: "getalbumcover.php",
-            type: "POST",
-            data: { key: imagekey,
-                    src: src
-            },
-            cache:false,
-            success: uploadComplete,
-            error: searchFail,
-        });
-    }
-    return false;
+    dropProcessor(ev.originalEvent, imgobj, imagekey, uploadComplete, searchFail);
 }
 
 var imageEditor = function() {
@@ -595,7 +505,7 @@ var imageEditor = function() {
             debug.log("IMAGEEDITOR","Searching Google for", searchfor);
             $.ajax({
                 dataType: "json",
-                url: googleSearchURL+"&q="+encodeURIComponent(searchfor)+"&start="+start,
+                url: 'browser/backends/google.php?uri='+encodeURIComponent(googleSearchURL+"&q="+encodeURIComponent(searchfor)+"&start="+start),
                 success: imageEditor.googleSearchComplete,
                 error: function(data) {
                     debug.log("IMAGEEDITOR","FUCKING RAT'S COCKS",data);
@@ -823,18 +733,12 @@ print '<tr><td class="outer" id="infotext"></td><td align="center"><div class="i
 <div id="artistcoverslist" class="tleft noborder">
     <div class="noselection fullwidth">
 <?php
-if ($mysqlc || file_exists(ROMPR_XML_COLLECTION)) {
+if ($mysqlc) {
     print '<div class="containerbox menuitem clickable clickselectartist selected" id="allartists"><div class="expand" class="artistrow">'.get_int_text("albumart_allartists").'</div></div>';
-    if ($prefs['player_backend'] == "mpd") {
-        print '<div class="containerbox menuitem clickable clickselectartist" id="savedplaylists"><div class="expand" class="artistrow">Saved Playlists</div></div>';
-    }
+    print '<div class="containerbox menuitem clickable clickselectartist" id="savedplaylists"><div class="expand" class="artistrow">Saved Playlists</div></div>';
     print '<div class="containerbox menuitem clickable clickselectartist" id="radio"><div class="expand" class="artistrow">'.get_int_text("label_yourradio").'</div></div>';
     print '<div class="containerbox menuitem clickable clickselectartist" id="unused"><div class="expand" class="artistrow">'.get_int_text("albumart_unused").'</div></div>';
-    if ($mysqlc) {
-        do_artists_db_style();
-    } else {
-        do_artists_xml_style();
-    }
+    do_artists_db_style();
 }
 ?>
     </div>
@@ -850,23 +754,9 @@ debug_print("There are ".count($allfiles)." Images", "ALBUMART");
 
 $count = 0;
 $albums_without_cover = 0;
-if ($mysqlc) {
-    do_covers_db_style();
-} else if (file_exists(ROMPR_XML_COLLECTION)) {
-    do_covers_xml_style();
-} else {
-    print '<h3>'.get_int_text("albumart_nocollection").'<h3>';
-}
-
-if ($prefs['player_backend'] == "mpd") {
-    do_playlists();
-}
-
+do_covers_db_style();
+do_playlists();
 do_radio_stations();
-
-if (file_exists('prefs/w_list.xml')) {
-    do_wishlist_covers();
-}
 
 debug_print("There are ".count($allfiles)." unused images", "ALBUMART");
 if (count($allfiles) > 0) {
@@ -888,18 +778,6 @@ print "</script>\n";
 print "</body>\n";
 print "</html>\n";
 
-function do_artists_xml_style() {
-    $acount = 0;
-    $collection = simplexml_load_file(ROMPR_XML_COLLECTION);
-    foreach($collection->artists->artist as $artist) {
-        print '<div class="containerbox menuitem clickable clickselectartist';
-        print '" id="artistname'.$acount.'">';
-        print '<div class="expand" class="artistrow">'.$artist->name.'</div>';
-        print '</div>';
-        $acount++;
-    }
-}
-
 function do_artists_db_style() {
     $alist = get_list_of_artists();
     foreach ($alist as $artist) {
@@ -908,112 +786,6 @@ function do_artists_db_style() {
         print '<div class="expand" class="artistrow">'.$artist['Artistname'].'</div>';
         print '</div>';
     }
-}
-
-function do_covers_xml_style() {
-    global $count;
-    global $albums_without_cover;
-    global $allfiles;
-    $collection = simplexml_load_file(ROMPR_XML_COLLECTION);
-    $acount = 0;
-    foreach($collection->artists->artist as $artist) {
-        print '<div class="cheesegrater" name="artistname'.$acount.'">';
-        print '<div class="albumsection crackbaby">';
-        print '<div class="tleft"><h2>'.$artist->name.'</h2></div><div class="tright rightpad"><button onclick="getNewAlbumArt(\'#album'.$count.'\')">'.get_int_text("albumart_getthese").'</button></div>';
-        print "</div>\n";
-        print '<div id="album'.$count.'" class="fullwidth bigholder">';
-        print '<div class="containerbox covercontainer" id="covers'.$count.'">';
-        $colcount = 0;
-        foreach ($artist->albums->album as $album) {
-            print '<div class="expand containerbox vertical albumimg closet">';
-            print '<div class="albumimg fixed">';
-
-            $class = "clickable clickicon clickalbumcover droppable";
-            $src = "";
-            if ($album->image->exists == "no") {
-                $class = $class . " notexist";
-                $albums_without_cover++;
-            } else {
-                $src = $album->image->src;
-                if (dirname($src) == "albumart/small") {
-                    if(($key = array_search($src, $allfiles)) !== false) {
-                        unset($allfiles[$key]);
-                    }
-                }
-            }
-            print '<input type="hidden" value="'.$album->directory.'" />';
-            print '<input type="hidden" value="'.rawurlencode($artist->name." ".munge_album_name($album->name)).'" />';
-            print '<img class="'.$class.'" name="'.$album->image->name.'" height="82px" width="82px" src="'.$src.'" />';
-
-            print '</div>';
-            print '<div class="albumimg fixed"><table><tr><td align="center">'.$album->name.'</td></tr></table></div>';
-            print '</div>';
-
-            $colcount++;
-            if ($colcount == 8) {
-                print "</div>\n".'<div class="containerbox covercontainer">';
-                $colcount = 0;
-            }
-            $count++;
-        }
-        print "</div></div></div>\n";
-        $acount++;
-    }
-}
-
-function do_wishlist_covers() {
-    global $count;
-    global $albums_without_cover;
-    global $allfiles;
-    $collection = simplexml_load_file('prefs/w_list.xml');
-    $acount = $count;
-    print '<div class="albumsection crackbaby" style="margin-bottom:8px" name="wishlist">';
-    print '<h2 align="center">Items In Wishlist</h2>';
-    print '</div>';
-    foreach($collection->artists->artist as $artist) {
-        print '<div class="cheesegrater" name="artistname'.$acount.'">';
-        print '<div class="albumsection crackbaby">';
-        print '<div class="tleft"><h2>'.$artist->name.'</h2></div><div class="tright rightpad"><button onclick="getNewAlbumArt(\'#album'.$count.'\')">'.get_int_text("albumart_getthese").'</button></div>';
-        print "</div>\n";
-        print '<div id="album'.$count.'" class="fullwidth bigholder">';
-        print '<div class="containerbox covercontainer" id="covers'.$count.'">';
-        $colcount = 0;
-        foreach ($artist->albums->album as $album) {
-            print '<div class="expand containerbox vertical albumimg closet">';
-            print '<div class="albumimg fixed">';
-
-            $class = "clickable clickicon clickalbumcover droppable";
-            $src = "";
-            if ($album->image->exists == "no") {
-                $class = $class . " notexist";
-                $albums_without_cover++;
-            } else {
-                $src = $album->image->src;
-                if (dirname($src) == "albumart/small") {
-                    if(($key = array_search($src, $allfiles)) !== false) {
-                        unset($allfiles[$key]);
-                    }
-                }
-            }
-            print '<input type="hidden" value="'.$album->directory.'" />';
-            print '<input type="hidden" value="'.rawurlencode($artist->name." ".munge_album_name($album->name)).'" />';
-            print '<img class="'.$class.'" name="'.$album->image->name.'" height="82px" width="82px" src="'.$src.'" />';
-
-            print '</div>';
-            print '<div class="albumimg fixed"><table><tr><td align="center">'.$album->name.'</td></tr></table></div>';
-            print '</div>';
-
-            $colcount++;
-            if ($colcount == 8) {
-                print "</div>\n".'<div class="containerbox covercontainer">';
-                $colcount = 0;
-            }
-            $count++;
-        }
-        print "</div></div></div>\n";
-        $acount++;
-    }
-
 }
 
 function do_covers_db_style() {
@@ -1128,24 +900,16 @@ function do_radio_stations() {
 
 function do_playlists() {
 
-    global $connection;
     global $count;
     global $albums_without_cover;
     global $allfiles;
     
-    $playlists = do_mpd_command($connection, "listplaylists", null, true);
-    if (!is_array($playlists)) {
-        $playlists = array();
-    } else if (array_key_exists('playlist', $playlists) && !is_array($playlists['playlist'])) {
-        $temp = $playlists['playlist'];
-        $playlists = array();
-        $playlists['playlist'][0] = $temp;
-    }
+    $playlists = do_mpd_command("listplaylists", true, true);
     $plfiles = glob('prefs/userplaylists/*');
     foreach ($plfiles as $f) {
         $playlists['playlist'][] = basename($f);
     }
-    if (array_key_exists('playlist', $playlists) && is_array($playlists['playlist'])) {
+    if (array_key_exists('playlist', $playlists)) {
         print '<div class="cheesegrater" name="savedplaylists">';
         print '<div class="albumsection crackbaby">';
         print '<div class="tleft"><h2>Saved Playlists</h2></div><div class="tright rightpad"><button onclick="getNewAlbumArt(\'#album'.$count.'\')">'.get_int_text("albumart_getthese").'</button></div>';

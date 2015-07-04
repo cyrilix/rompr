@@ -4,7 +4,7 @@ include ("includes/vars.php");
 include ("includes/functions.php");
 include ("utils/imagefunctions.php");
 debug_print("------- Searching For Album Art --------","GETALBUMCOVER");
-include ("backends/".$prefs['apache_backend']."/backend.php");
+include ("backends/sql/backend.php");
 
 // Discogs functionality removed in version 0.50 after discogs strated requiring
 // authentication for images
@@ -34,7 +34,7 @@ if (array_Key_exists('stream', $_REQUEST)) {
     $stream = $_REQUEST["stream"];
 }
 
-$findalbum = array("get_imagesearch_info", "check_stream", "check_search", "check_playlist");
+$findalbum = array("get_imagesearch_info", "check_stream", "check_playlist");
 
 if (array_key_exists("src", $_REQUEST)) {
     $src = $_REQUEST['src'];
@@ -151,31 +151,6 @@ function check_stream($fname) {
         }
     }
     return $retval;
-}
-
-function check_search($fname) {
-    $axp = array();
-    $fp = null;
-    $retval = array(false, null, null, null, null, null, false);
-
-    if (file_exists(ROMPR_XML_SEARCH)) {
-        if (get_file_lock(ROMPR_XML_SEARCH, $fp)) {
-            $ax = simplexml_load_file(ROMPR_XML_SEARCH);
-            $axp = $ax->xpath('//image/name[.="'.$fname.'"]/parent::*/parent::*');
-        }
-        release_file_lock($fp);
-    }
-    if ($axp) {
-        $aar       = $ax->xpath('//image/name[.="'.$fname.'"]/parent::*/parent::*/parent::*/parent::*');
-        $retval[1] = $aar[0]->{'name'};
-        $retval[2] = $axp[0]->{'name'};
-        $retval[3] = $axp[0]->{'mbid'};
-        $retval[4] = rawurldecode($axp[0]->{'directory'});
-        $retval[5] = rawurldecode($axp[0]->{'spotilink'});
-        $retval[6] = true;
-    }
-    return $retval;
-
 }
 
 function check_playlist($fname) {

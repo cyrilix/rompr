@@ -26,6 +26,8 @@ clean_cache_dir('prefs/jsoncache/wikipedia/', 2592000);
 clean_cache_dir('prefs/jsoncache/lastfm/', 2592000);
 // One Month
 clean_cache_dir('prefs/jsoncache/spotify/', 2592000);
+// One Month
+clean_cache_dir('prefs/jsoncache/google/', 2592000);
 // Six Months - after all, lyrics are small and don't change
 clean_cache_dir('prefs/jsoncache/lyrics/', 15552000);
 // Two weeks (or it can get REALLY big)
@@ -33,6 +35,22 @@ clean_cache_dir('prefs/imagecache/', 1296000);
 // Clean the albumart temporary upload directory
 clean_cache_dir('albumart/', 1);
 debug_print("Cache has been cleaned","CACHE CLEANER");
+
+function clean_cache_dir($dir, $time) {
+
+    debug_print("Cache Cleaner is running on ".$dir,"CACHE CLEANER");
+    $cache = glob($dir."*");
+    $now = time();
+    foreach($cache as $file) {
+        if (!is_dir($file)) {
+            if($now - filemtime($file) > $time) {
+                debug_print("Removing file ".$file,"CACHE CLEANER");
+                @unlink ($file);
+            }
+        }
+    }
+}
+
 ?>
 
 <html></html>
