@@ -256,6 +256,4 @@ var playlistManager = function() {
 
 }();
 
-if (prefs.player_backend == "mpd") {
-	pluginManager.addPlugin(language.gettext("label_playlistmanager"), playlistManager.open, null);
-}
+pluginManager.addPlugin(language.gettext("label_playlistmanager"), playlistManager.open, null);

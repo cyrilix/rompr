@@ -218,11 +218,6 @@ body.mobile .configtitle
     margin-right:auto;
 }
 
-.separator
-{
-     border-bottom:12px solid orange;
-}
-
 /*-- Styles to make the Wikipedia nav boxes look prettier --*/
 
 table.navbox th

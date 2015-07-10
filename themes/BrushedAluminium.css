@@ -211,11 +211,6 @@ div.topdropmenu
     background-image:url('../newimages/silver1.jpg');
 }
 
-.separator
-{
-     border-bottom:12px solid #888888;
-}
-
 /*-- Styles to make the Wikipedia nav boxes look prettier --*/
 
 table.navbox th

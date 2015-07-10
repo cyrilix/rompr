@@ -12,12 +12,12 @@ $fname = 'prefs/MusicFolders/'.$fname;
 
 $getID3 = new getID3;
 $output = null;
-debug_print("Looking for lyrics in ".$fname,"LYRICS");
-debug_print("  Artist is ".$_REQUEST['artist'],"LYRICS");
-debug_print("  Song is ".$_REQUEST['song'],"LYRICS");
+debuglog("Looking for lyrics in ".$fname,"LYRICS");
+debuglog("  Artist is ".$_REQUEST['artist'],"LYRICS");
+debuglog("  Song is ".$_REQUEST['song'],"LYRICS");
 
 if (file_exists($fname)) {
-	debug_print("File Exists ".$fname,"LYRICS");
+	debuglog("File Exists ".$fname,"LYRICS");
 	$tags = $getID3->analyze($fname);
 	getid3_lib::CopyTagsToComments($tags);
 
@@ -39,27 +39,27 @@ if ($output == null) {
 	if (file_exists('prefs/jsoncache/lyrics/'.md5($uri))) {
 		$output = file_get_contents('prefs/jsoncache/lyrics/'.md5($uri));
 	} else {
-		debug_print("Getting ".$uri,"LYRICS");
+		debuglog("Getting ".$uri,"LYRICS");
 		$content = url_get_contents($uri);
 		if ($content['status'] == "200") {
 			$l = simplexml_load_string($content['contents']);
 			if ($l->url) {
-				debug_print("Getting ".$l->url,"LYRICS");
+				debuglog("Getting ".$l->url,"LYRICS");
 				$webpage = url_get_contents(urldecode($l->url));
 				if ($webpage['status'] == "200") {
-					debug_print("   Got something","LYRICS");
+					debuglog("   Got something","LYRICS");
 					if (preg_match('/\<div class=\'lyricbox\'\>\<script\>.*?\<\/script\>(.*?)\<\!--/', $webpage['contents'], $matches)) {
 						$output = html_entity_decode($matches[1]);
 						file_put_contents('prefs/jsoncache/lyrics/'.md5($uri), $output);
 					} else {
-						debug_print("     preg didn't match","LYRICS");
+						debuglog("     preg didn't match","LYRICS");
 					}
 				}
 			}
 		}
 	}
 } else {
-	debug_print("  Got lyrics from file","LYRICS");
+	debuglog("  Got lyrics from file","LYRICS");
 }
 
 if ($output == null) {

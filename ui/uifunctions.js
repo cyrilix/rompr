@@ -7,7 +7,7 @@ function reloadWindow() {
 }
 
 function forceCollectionReload() {
-    albumslistexists = true;
+    collection_status = 0;
     checkCollection(false, false);
 }
 
@@ -310,11 +310,6 @@ function removeUserStream(xspf) {
     } );
 }
 
-function toggleFileSearch() {
-    $("#filesearch").slideToggle({duration: 'fast', start: setFileSearchLabelWidth});
-    return false;
-}
-
 var imagePopup = function() {
     var wikipopup = null;
     var imagecontainer = null;
@@ -602,25 +597,24 @@ function prepareForLiftOff2(text) {
 function checkCollection(forceup, rescan) {
     var update = forceup;
     if (prefs.updateeverytime) {
-        debug.log("GENERAL","Updating Collection due to preference");
+        debug.mark("GENERAL","Updating Collection due to preference");
         update = true;
     } else {
-        if (!albumslistexists && !prefs.hide_albumlist) {
-            debug.log("GENERAL","Updating because albums list doesn't exist and it's not hidden");
+        if (!prefs.hide_albumlist && collection_status == 1) {
+            debug.mark("GENERAL","Updating Collection because it is out of date");
+            collection_status = 0;
             update = true;
         }
     }
     if (update) {
-        player.controller.updateCollection(rescan ? 'rescan' : 'update');
+        $("#searchresultholder").html('');
+        player.controller.scanFiles(rescan ? 'rescan' : 'update');
     } else {
         if (prefs.hide_filelist && !prefs.hide_albumlist) {
-            debug.log("GENERAL","Loading albums cache only");
             loadCollection('albums.php?item=aalbumroot', null);
         } else if (prefs.hide_albumlist && !prefs.hide_filelist) {
-            debug.log("GENERAL","Loading Files Cache Only");
             loadCollection(null, 'dirbrowser.php');
         } else if (!prefs.hide_albumlist && !prefs.hide_filelist) {
-            debug.log("GENERAL","Loading Both Caches");
             loadCollection('albums.php?item=aalbumroot', 'dirbrowser.php');
         }
     }
@@ -628,13 +622,11 @@ function checkCollection(forceup, rescan) {
 
 function loadCollection(albums, files) {
     if (albums != null) {
-        debug.log("GENERAL","Loading Albums List");
-        player.controller.reloadAlbumsList(albums);
-    } else {
-        player.controller.reloadPlaylists();
+        debug.log("GENERAL","Loading Collection from URL",albums);
+        player.controller.loadCollection(albums);
     }
     if (files != null) {
-        debug.log("GENERAL","Loading Files List");
+        debug.log("GENERAL","Loading File Browser from URL",files);
         player.controller.reloadFilesList(files);
     }
 }
@@ -644,18 +636,12 @@ function checkPoll(data) {
         update_load_timer = setTimeout( pollAlbumList, 1000);
         update_load_timer_running = true;
     } else {
-        var getalbums = 'albums.php?rebuild=yes';
-        if (doingOnTheFly()) {
-            getalbums = 'backends/sql/onthefly.php?command=listallinfo';
-        }
+        var getalbums = doingOnTheFly() ? 'backends/sql/onthefly.php?command=listallinfo' : 'albums.php?rebuild=yes';
         if (prefs.hide_filelist && !prefs.hide_albumlist) {
-            debug.log("GENERAL","Building albums cache only");
             loadCollection(getalbums, null);
         } else if (prefs.hidealbumlist && !prefs.hide_filelist) {
-            debug.log("GENERAL","Building Files Cache Only");
             loadCollection(null, 'dirbrowser.php');
         } else if (!prefs.hidealbumlist && !prefs.hide_filelist) {
-            debug.log("GENERAL","Building Both Caches");
             loadCollection(getalbums, 'dirbrowser.php');
         }
     }
@@ -698,7 +684,6 @@ function hidePanel(panel) {
             case "filelist":
                 if (update_load_timer_running == false) {
                     $("#filecollection").empty();
-                    $("#filesearch").empty();
                 }
                 break;
         }
@@ -942,8 +927,6 @@ var pluginManager = function() {
 
 function joinartists(ob) {
 
-    // NOTE : This function is duplicated in the php side. It's important the two stay in sync
-    // See player/mopidy/connection.php and includes/functions.php
     if (typeof(ob) != "object") {
         return ob;
     } else {
@@ -1067,17 +1050,11 @@ function setSearchLabelWidth() {
     });
     w += 8;
     $(".searchlabel").css("width", w+"px");
-}
-
-function setFileSearchLabelWidth() {
-    var w = 0;
-    $.each($(".fslt"), function() {
-        if ($(this).width() > w) {
-            w = $(this).width();
-        }
-    });
-    w += 8;
-    $(".fsearchlabel").css("width", w+"px");
+    if (prefs.search_limit_limitsearch) {
+        $("#mopidysearchdomains").show();
+    } else {
+        $("#mopidysearchdomains").hide();
+    }
 }
 
 function audioClass(filetype) {
@@ -1136,6 +1113,7 @@ function showUpdateWindow() {
         $("#fnarkler").append('<p align="center">'+language.gettext("intro_forum")+' <a href="https://sourceforge.net/p/rompr/discussion/" target="_blank">http://sourceforge.net/p/rompr/discussion/</a></p>');
         $("#fnarkler").append('<p align="center">RompR needs translators! If you want to get involved, please read <a href="https://sourceforge.net/p/rompr/wiki/Translating%20RompR/" target="_blank">this</a></p>');
         if (prefs.player_backend == "mopidy") {
+            $("#fnarkler").append('<p align="center"><b>Mopidy is STILL SUPPORTED! Rompr now uses the Mopidy MPD frontend</b></p>');
             $("#fnarkler").append('<p align="center"><b>'+language.gettext("intro_mopidy")+'</b></p>');
             $("#fnarkler").append('<p align="center"><a href="https://sourceforge.net/p/rompr/wiki/Rompr%20and%20Mopidy/" target="_blank">'+language.gettext("intro_mopidywiki")+'</a></p>');
         }

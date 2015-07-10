@@ -50,7 +50,7 @@ $prefs = array( "mpd_host" => "localhost",
                 "music_directory_albumart" => "",
                 "search_limit_limitsearch" => false,
                 "scrolltocurrent" => false,
-                "debug_enabled" => false,
+                "debug_enabled" => 0,
                 "radiocountry" => "http://www.listenlive.eu/uk.html",
                 "mysql_host" => "localhost",
                 "mysql_database" => "romprdb",
@@ -72,7 +72,7 @@ $prefs = array( "mpd_host" => "localhost",
                 "icontheme" => "Modern-Light",
                 "radiomode" => "",
                 "radioparam" => "",
-                "onthefly" => true,
+                "onthefly" => false,
                 "sortbycomposer" => false,
                 "composergenre" => false,
                 "composergenrename" => array("Classical"),
@@ -98,43 +98,17 @@ if (file_exists('prefs/prefs')) {
     loadPrefs();
 }
 
+if ($prefs['debug_enabled'] === true) {
+    $prefs['debug_enabled'] = 8;
+}
+
 if (is_dir('albumart/original')) {
     system('mv albumart/small albumart/not_used_anymore');
     system('mv albumart/original albumart/small');
 }
 
-if ($prefs['debug_enabled']) {
-
-    $debug_colours = array(
-        "COLLECTION" => "0;34",
-        "MYSQL" => "0;32",
-        "TIMINGS" => "0;36",
-        "TOMATO" => "1;30",
-        "GETALBUMCOVER" => "0;33",
-        "INIT" => "1;33"
-    );
-
-    function debug_print($out, $module = "") {
-        global $prefs, $debug_colours;
-        $in = str_repeat(" ", 20 - strlen($module));
-        if ($prefs['custom_logfile'] != "") {
-            if (array_key_exists($module, $debug_colours)) {
-                $col = $debug_colours[$module];
-            } else {
-                $col = "1;35";
-            }
-            error_log(strftime('%T')." : \e[".$col."m".$module.$in.": \e[0m".$out."\n",3,$prefs['custom_logfile']);
-        } else {
-            error_log($module.$in.": ".$out,0);
-        }
-    }
-} else {
-    function debug_print($a, $b = "") {
-
-    }
-}
-
 function savePrefs() {
+
     global $prefs;
     $sp = $prefs;
     foreach (array('albumslist', 'fileslist', 'showfileinfo') as $p) {
@@ -170,6 +144,57 @@ function loadPrefs() {
         error_log("ERROR!              : COULD NOT GET HANDLE FOR PREFS FILE");
         exit(1);
     }
+}
+
+class debug_logger {
+
+    public function __construct($outfile, $level = 8) {
+        $this->outfile = $outfile;
+        $this->loglevel = intval($level);
+        $this->debug_colours = array(
+            # red
+            1 => 31,
+            # yellow
+            2 => 33,
+            # magenta
+            3 => 35,
+            # cyan
+            4 => 36,
+            # white
+            5 => 37,
+            # white
+            6 => 37,
+            # green
+            7 => 32,
+            # blue
+            8 => 34,
+            # dim
+            9 => 2
+        );
+    }
+
+    public function log($out, $module, $level) {
+        if ($level > $this->loglevel || $level > 9 || $level < 1) return;
+        $in = str_repeat(" ", 20 - strlen($module));
+        if ($this->outfile != "") {
+            $col = $this->debug_colours[$level];
+            error_log(strftime('%T')." : \033[".$col."m".$module.$in.": ".$out."\033[0m\n",3,$this->outfile);
+        } else {
+            error_log($module.$in.": ".$out,0);
+        }
+
+    }
+
+    public function setLevel($level) {
+        $this->loglevel = intval($level);
+    }
+}
+
+$logger = new debug_logger($prefs['custom_logfile'], $prefs['debug_enabled']);
+
+function debuglog($text, $module = "", $level = 7) {
+    global $logger;
+    $logger->log($text, $module, $level);
 }
 
 ?>

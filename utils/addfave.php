@@ -3,11 +3,11 @@ chdir('..');
 include ("includes/vars.php");
 include ("includes/functions.php");
 $station = $_POST['station'];
-debug_print("Looking for ".$_POST['station'],"ADDFAVE");
+debuglog("Looking for ".$_POST['station'],"ADDFAVE");
 $uri = null;
 if (array_key_exists('uri', $_POST)) {
 	$uri = $_POST['uri'];
-	debug_print("Current URI: ".$uri,"ADDFAVE");
+	debuglog("Current URI: ".$uri,"ADDFAVE");
 }
 
 $playlisturl = "";
@@ -25,7 +25,7 @@ foreach($playlists as $i => $file) {
 			$stncount++;
 		}
     	if((string) $track->album == $station) {
-	        debug_print("Found Station in ".$file, "ADDFAVE");
+	        debuglog("Found Station in ".$file, "ADDFAVE");
 	        $found = true;
 	        if ($uri && $track->location == $uri) {
 	        	// Make the currently playing track the first one in the playlist
@@ -59,7 +59,7 @@ if (!$found) {
 
 	$newname = "prefs/USERSTREAM_".md5($station).".xspf";
 	if (file_exists($newname)) {
-		debug_print("Fave Already Exists!","ADDFAVE");
+		debuglog("Fave Already Exists!","ADDFAVE");
 	} else {
 		file_put_contents($newname, $output);
 	}

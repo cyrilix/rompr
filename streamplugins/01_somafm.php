@@ -14,12 +14,12 @@ if (array_key_exists('populate', $_REQUEST)) {
 
     $content = url_get_contents("http://api.somafm.com/channels.xml", $_SERVER['HTTP_USER_AGENT'], false, true);
     if ($content['status'] == "200") {
-        debug_print("Loaded Soma FM channels list","SOMAFM");
+        debuglog("Loaded Soma FM channels list","SOMAFM");
         $x = simplexml_load_string($content['contents']);
         $count = 0;
         print '<div class="noselection fullwidth">';
         foreach ($x->channel as $channel) {
-            debug_print("Channel : ".$channel->title,"SOMAFM");
+            debuglog("Channel : ".$channel->title,"SOMAFM");
 
             print '<div class="containerbox menuitem">';
 

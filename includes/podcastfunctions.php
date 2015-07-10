@@ -1,7 +1,7 @@
 <?php
 
 function getNewPodcast($url) {
-    debug_print("Getting podcast ".$url,"PODCASTS");
+    debuglog("Getting podcast ".$url,"PODCASTS");
     // iTunes links normally link to the same XML feed as the RSS link, so fixup the protocol and hope
     $url = preg_replace('#^itpc://#', 'http://', $url);
     $fname = md5($url);
@@ -10,9 +10,9 @@ function getNewPodcast($url) {
     }
     $fp = fopen('prefs/podcasts/'.$fname.'/feed.xml', 'w');
     if (!$fp) {
-        debug_print("COULD NOT OPEN FILE FOR FEED!","PODCASTS");
+        debuglog("COULD NOT OPEN FILE FOR FEED!","PODCASTS");
         header('HTTP/1.0 404 Not Found');
-        debug_print("Failed to get ".$url,"PODCASTS");
+        debuglog("Failed to get ".$url,"PODCASTS");
         fclose($fp);
         if (file_exists('prefs/podcasts/'.$fname.'/feed.xml')) {
             unlink('prefs/podcasts/'.$fname.'/feed.xml');
@@ -23,13 +23,13 @@ function getNewPodcast($url) {
     fclose($fp);
     if ($result['status'] != "200") {
         header('HTTP/1.0 404 Not Found');
-        debug_print("Failed to get ".$url,"PODCASTS");
+        debuglog("Failed to get ".$url,"PODCASTS");
         if (file_exists('prefs/podcasts/'.$fname.'/feed.xml')) {
             unlink('prefs/podcasts/'.$fname.'/feed.xml');
         }
         exit;
     }
-    debug_print("Feed retrieved from ".$url,"PODCASTS");
+    debuglog("Feed retrieved from ".$url,"PODCASTS");
     $feed = simplexml_load_file('prefs/podcasts/'.$fname.'/feed.xml');
     $lastupdated = 0;
     $oldinfo = null;
@@ -88,13 +88,13 @@ function getNewPodcast($url) {
     if ($i == "http" || $i == "https") {
         $imgname = 'prefs/podcasts/'.$fname.'/'.preg_replace('/\?.*$/','',basename($image));
         $fp = fopen($imgname, 'w');
-        debug_print("Downloading Image ".$image." to ".$imgname,"PODCASTS");
+        debuglog("Downloading Image ".$image." to ".$imgname,"PODCASTS");
         $result = url_get_contents($image, 'RompR Music Player/0.60', false, true, false, $fp);
         if ($result['status'] == '200') {
-            debug_print("Image download Success","PODCASTS");
+            debuglog("Image download Success","PODCASTS");
             $image = $imgname;
         } else {
-            debug_print("Failed to download Image","PODCASTS");
+            debuglog("Failed to download Image","PODCASTS");
         }
         fclose($fp);
     }
@@ -172,10 +172,10 @@ function getNewPodcast($url) {
         $origlink = null;
 
         if ($oldinfo) {
-            // debug_print("Checking previous download for ".$key,"PODCASTS");
+            // debuglog("Checking previous download for ".$key,"PODCASTS");
             $axp = $oldinfo->xpath('//track/key[.="'.$key.'"]/parent::*');
             if ($axp) {
-                // debug_print("... Found ".$key,"PODCASTS");
+                // debuglog("... Found ".$key,"PODCASTS");
                 $listened = $axp[0]->{'listened'};
                 $link = $axp[0]->{'link'};
                 $deleted = $axp[0]->{'deleted'};
@@ -215,7 +215,7 @@ function getNewPodcast($url) {
         $track->addChild('filesize', $filesize);
         $track->addChild('description', htmlspecialchars($description));
         $track->addChild('key', $key);
-        debug_print("Track Link Is ".$link,"PODCASTS");
+        debuglog("Track Link Is ".$link,"PODCASTS");
         $track->addChild('link', htmlspecialchars($link));
         $track->addChild('listened', $listened);
         $track->addChild('new', $new);
@@ -276,14 +276,14 @@ function checkExpiry($pubdate, $daystokeep) {
 }
 
 function refreshPodcast($name) {
-    debug_print("Refreshing podcast ".$name,"PODCASTS");
+    debuglog("Refreshing podcast ".$name,"PODCASTS");
     $x = simplexml_load_file('prefs/podcasts/'.$name.'/info.xml');
     $url = $x->feedurl;
     getNewPodcast(htmlspecialchars_decode($url));
 }
 
 function removePodcast($name) {
-    debug_print("Removing podcast ".$name,"PODCASTS");
+    debuglog("Removing podcast ".$name,"PODCASTS");
     system('rm -fR prefs/podcasts/'.$name, $retval);
 }
 
@@ -533,20 +533,20 @@ function doPodcastHeader($c) {
 }
 
 function markAsListened($c, $url) {
-    debug_print("Marking ".$url." from ".$c." as listened","PODCASTS");
+    debuglog("Marking ".$url." from ".$c." as listened","PODCASTS");
     $x = simplexml_load_file('prefs/podcasts/'.$c.'/info.xml');
     $axp = $x->xpath('//track/link[.="'.htmlspecialchars($url).'"]/parent::*');
-    debug_print("Found Track. Title is ".$axp[0]->{'title'},"PODCASTS");
+    debuglog("Found Track. Title is ".$axp[0]->{'title'},"PODCASTS");
     $axp[0]->{'listened'} = "yes";
     $axp[0]->{'new'} = "no";
     saveFormattedXML($x, 'prefs/podcasts/'.$c.'/info.xml');
 }
 
 function deleteTrack($key, $channel) {
-    debug_print("Marking ".$key." from ".$channel." as deleted","PODCASTS");
+    debuglog("Marking ".$key." from ".$channel." as deleted","PODCASTS");
     $x = simplexml_load_file('prefs/podcasts/'.$channel.'/info.xml');
     $axp = $x->xpath('//track/key[.="'.$key.'"]/parent::*');
-    debug_print("Found Track. Title is ".$axp[0]->{'title'},"PODCASTS");
+    debuglog("Found Track. Title is ".$axp[0]->{'title'},"PODCASTS");
     $axp[0]->{'deleted'} = "yes";
     saveFormattedXML($x, 'prefs/podcasts/'.$channel.'/info.xml');
     if (is_dir('prefs/podcasts/'.$channel.'/'.$axp[0]->key)) {
@@ -555,10 +555,10 @@ function deleteTrack($key, $channel) {
 }
 
 function markKeyAsListened($key, $channel) {
-    debug_print("Marking ".$key." from ".$channel." as listened","PODCASTS");
+    debuglog("Marking ".$key." from ".$channel." as listened","PODCASTS");
     $x = simplexml_load_file('prefs/podcasts/'.$channel.'/info.xml');
     $axp = $x->xpath('//track/key[.="'.$key.'"]/parent::*');
-    debug_print("Found Track. Title is ".$axp[0]->{'title'},"PODCASTS");
+    debuglog("Found Track. Title is ".$axp[0]->{'title'},"PODCASTS");
     $axp[0]->{'listened'} = "yes";
     $axp[0]->{'new'} = "no";
     saveFormattedXML($x, 'prefs/podcasts/'.$channel.'/info.xml');
@@ -580,10 +580,10 @@ function markChannelAsListened($channel) {
 }
 
 function downloadTrack($key, $channel) {
-    debug_print("Downloading ".$key." from ".$channel,"PODCASTS");
+    debuglog("Downloading ".$key." from ".$channel,"PODCASTS");
     $x = simplexml_load_file('prefs/podcasts/'.$channel.'/info.xml');
     $axp = $x->xpath('//track/key[.="'.$key.'"]/parent::*');
-    debug_print("Found Track. URL is is ".$axp[0]->{'link'},"PODCASTS");
+    debuglog("Found Track. URL is is ".$axp[0]->{'link'},"PODCASTS");
 
     mkdir ('prefs/podcasts/'.$channel.'/'.$key);
     $link = (string) $axp[0]->{'link'};
@@ -597,13 +597,13 @@ function downloadTrack($key, $channel) {
     $fp = fopen('prefs/monitor.xml', 'w');
     fwrite($fp, $xml);
     fclose($fp);
-    debug_print('Downloading To prefs/podcasts/'.$channel.'/'.$key.'/'.$filename,"PODCASTS");
+    debuglog('Downloading To prefs/podcasts/'.$channel.'/'.$key.'/'.$filename,"PODCASTS");
     $fp = fopen('prefs/podcasts/'.$channel.'/'.$key.'/'.$filename, 'wb');
     $result = url_get_contents($link, 'RompR Music Player/0.41', false, true, false, $fp);
     fclose($fp);
     if ($result['status'] != "200") {
         header('HTTP/1.0 404 Not Found');
-        debug_print("Failed to get ".$link,"PODCASTS");
+        debuglog("Failed to get ".$link,"PODCASTS");
         system ('rm -fR prefs/podcasts/'.$channel.'/'.$key);
         exit;
     }

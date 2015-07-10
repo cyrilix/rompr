@@ -58,10 +58,9 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
     // Is there something else I could be doing?
 
     function doNextImage(time) {
-        debug.groupend();
         clearTimeout(covertimer);
         if (formObjects.length > 0) {
-            debug.group("COVERSCRAPER","Next Image, delay time is",time);
+            debug.log("COVERSCRAPER","Next Image, delay time is",time);
             timer_running = true;
             covertimer = setTimeout(processForm, time);
         } else {

@@ -1,4 +1,3 @@
-
 <?php
 include ("includes/vars.php");
 include ("includes/functions.php");
@@ -13,7 +12,6 @@ $prefix = (array_key_exists('prefix', $_REQUEST)) ? $_REQUEST['prefix'].'_' : "d
 @open_mpd_connection();
 
 if ($is_connected) {
-    htmlHeaders();
     if ($path == "") {
         print '<div class="menuitem containerbox" style="margin-top:12px;padding-left:8px">
                 <div class="expand" style="font-weight:bold;font-size:120%;padding-top:0.4em">'.get_int_text('button_file_browser').'</div>
@@ -28,7 +26,7 @@ close_mpd();
 
 function doFileBrowse($path, $prefix) {
 	global $connection, $prefs;
-	debug_print("Browsing ".$path,"DIRBROWSER");
+	debuglog("Browsing ".$path,"DIRBROWSER");
 	$parts = true;
     $foundfile = false;
     $filedata = array();
@@ -44,7 +42,7 @@ function doFileBrowse($path, $prefix) {
                         if (!$foundfile) {
                             $foundfile = true;
                         } else {
-                            if (!($prefs['ignore_unplayable']) || substr($filedata['Title'], 0, 12) != "[unplayable]") {
+                            if (!($prefs['ignore_unplayable']) || (array_key_exists('Title', $filedata) && substr($filedata['Title'], 0, 12) != "[unplayable]")) {
                                 printFileItem(getFormatName($filedata), $filedata['file'], $filedata['Time']);
                             }
                             $filedata = array();
@@ -77,12 +75,10 @@ function doFileBrowse($path, $prefix) {
     }
 
     if (array_key_exists('file', $filedata)) {
-        if (!($prefs['ignore_unplayable']) || substr($filedata['Title'], 0, 12) != "[unplayable]") {
+        if (!($prefs['ignore_unplayable']) || (array_key_exists('Title', $filedata) && substr($filedata['Title'], 0, 12) != "[unplayable]")) {
             printFileItem(getFormatName($filedata), $filedata['file'], $filedata['Time']);
         }
     }
-
-    print '</body></html>';
 }
 
 function getFormatName($filedata) {

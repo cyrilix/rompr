@@ -4,14 +4,23 @@ define('SQL_RANDOM_SORT', 'RANDOM()');
 
 function connect_to_database() {
 	global $mysqlc, $prefs;
+	if ($mysqlc !== null) {
+		debuglog("AWOOOGA! ATTEMPTING MULTIPLE DATABASE CONNECTIONS!","SQLITE",1);
+		return;
+	}
 	try {
 		$dsn = "sqlite:prefs/collection_".$prefs['player_backend'].".sq3";
 		$mysqlc = new PDO($dsn);
-		debug_print("Connected to SQLite","MYSQL");
+		debuglog("Connected to SQLite","MYSQL",8);
 	} catch (Exception $e) {
-		debug_print("Couldn't Connect To SQLite - ".$e,"MYSQL");
+		debuglog("Couldn't Connect To SQLite - ".$e,"MYSQL",1);
 		sql_init_fail($e->getMessage());
 	}
+}
+
+function close_database() {
+	global $mysqlc;
+	$mysqlc = null;
 }
 
 function check_sql_tables() {
@@ -30,9 +39,9 @@ function check_sql_tables() {
 		"DateAdded TIMESTAMP DEFAULT CURRENT_TIMESTAMP, ".
 		"isSearchResult TINYINT(1) DEFAULT 0)"))
 	{
-		debug_print("  Tracktable OK","SQLITE_CONNECT");
+		debuglog("  Tracktable OK","SQLITE_CONNECT");
 		if (generic_sql_query("CREATE TRIGGER IF NOT EXISTS updatetime AFTER UPDATE ON Tracktable BEGIN UPDATE Tracktable SET DateAdded = CURRENT_TIMESTAMP WHERE TTindex = old.TTindex; END")) {
-			debug_print("    Update Trigger Created","SQLITE_CONNECT");
+			debuglog("    Update Trigger Created","SQLITE_CONNECT");
 		} else {
 			$err = $mysqlc->errorInfo()[2];
 			return array(false, "Error While Checking Tracktable : ".$err);
@@ -74,7 +83,7 @@ function check_sql_tables() {
 		"Domain CHAR(32), ".
 		"Image VARCHAR(255))"))
 	{
-		debug_print("  Albumtable OK","SQLITE_CONNECT");
+		debuglog("  Albumtable OK","SQLITE_CONNECT");
 		if (generic_sql_query("CREATE INDEX IF NOT EXISTS ni ON Albumtable (Albumname)")) {
 		} else {
 			$err = $mysqlc->errorInfo()[2];
@@ -104,7 +113,7 @@ function check_sql_tables() {
 		"Artistindex INTEGER PRIMARY KEY NOT NULL UNIQUE, ".
 		"Artistname VARCHAR(255))"))
 	{
-		debug_print("  Artisttable OK","SQLITE_CONNECT");
+		debuglog("  Artisttable OK","SQLITE_CONNECT");
 		if (generic_sql_query("CREATE INDEX IF NOT EXISTS ni ON Artisttable (Artistname)")) {
 		} else {
 			$err = $mysqlc->errorInfo()[2];
@@ -119,7 +128,7 @@ function check_sql_tables() {
 		"TTindex INTEGER PRIMARY KEY NOT NULL UNIQUE, ".
 		"Rating TINYINT(1))"))
 	{
-		debug_print("  Ratingtable OK","SQLITE_CONNECT");
+		debuglog("  Ratingtable OK","SQLITE_CONNECT");
 	} else {
 		$err = $mysqlc->errorInfo()[2];
 		return array(false, "Error While Checking Ratingtable : ".$err);
@@ -129,7 +138,7 @@ function check_sql_tables() {
 		"Tagindex INTEGER PRIMARY KEY NOT NULL UNIQUE, ".
 		"Name VARCHAR(255))"))
 	{
-		debug_print("  Tagtable OK","SQLITE_CONNECT");
+		debuglog("  Tagtable OK","SQLITE_CONNECT");
 	} else {
 		$err = $mysqlc->errorInfo()[2];
 		return array(false, "Error While Checking Tagtable : ".$err);
@@ -140,7 +149,7 @@ function check_sql_tables() {
 		"TTindex INTEGER NOT NULL REFERENCES Tracktable(TTindex), ".
 		"PRIMARY KEY (Tagindex, TTindex))"))
 	{
-		debug_print("  TagListtable OK","SQLITE_CONNECT");
+		debuglog("  TagListtable OK","SQLITE_CONNECT");
 	} else {
 		$err = $mysqlc->errorInfo()[2];
 		return array(false, "Error While Checking TagListtable : ".$err);
@@ -150,7 +159,7 @@ function check_sql_tables() {
 		"TTindex INTEGER PRIMARY KEY NOT NULL UNIQUE REFERENCES Tracktable(TTindex), ".
 		"Playcount INT UNSIGNED NOT NULL)"))
 	{
-		debug_print("  Playcounttable OK","SQLITE_CONNECT");
+		debuglog("  Playcounttable OK","SQLITE_CONNECT");
 	} else {
 		$err = $mysqlc->errorInfo()[2];
 		return array(false, "Error While Checking Playcounttable : ".$err);
@@ -160,7 +169,7 @@ function check_sql_tables() {
 		"TTindex INTEGER PRIMARY KEY NOT NULL UNIQUE REFERENCES Tracktable(TTindex), ".
 		"Image VARCHAR(500))"))
 	{
-		debug_print("  Trackimagetable OK","SQLITE_CONNECT");
+		debuglog("  Trackimagetable OK","SQLITE_CONNECT");
 	} else {
 		$err = $mysqlc->errorInfo()[2];
 		return array(false, "Error While Checking Trackimagetable : ".$err);
@@ -177,7 +186,7 @@ function check_sql_tables() {
 			$sv = $obj->Value;
 		}
 		if ($sv == 0) {
-			debug_print("No Schema Version Found - initialising table","SQL_CONNECT");
+			debuglog("No Schema Version Found - initialising table","SQL_CONNECT");
 			generic_sql_query("INSERT INTO Statstable (Item, Value) VALUES ('ListVersion', '0')");
 			generic_sql_query("INSERT INTO Statstable (Item, Value) VALUES ('ArtistCount', '0')");
 			generic_sql_query("INSERT INTO Statstable (Item, Value) VALUES ('AlbumCount', '0')");
@@ -185,7 +194,7 @@ function check_sql_tables() {
 			generic_sql_query("INSERT INTO Statstable (Item, Value) VALUES ('TotalTime', '0')");
 			generic_sql_query("INSERT INTO Statstable (Item, Value) VALUES ('SchemaVer', '".ROMPR_SCHEMA_VERSION."')");
 			$sv = ROMPR_SCHEMA_VERSION;
-			debug_print("Statstable populated", "SQLITE_CONNECT");
+			debuglog("Statstable populated", "SQLITE_CONNECT");
 		}
 	} else {
 		$err = $mysqlc->errorInfo()[2];
@@ -193,19 +202,19 @@ function check_sql_tables() {
 	}
 
 	if ($sv > ROMPR_SCHEMA_VERSION) {
-		debug_print("Schema Mismatch! We are version ".ROMPR_SCHEMA_VERSION." but database is version ".$sv,"MYSQL_CONNECT");
+		debuglog("Schema Mismatch! We are version ".ROMPR_SCHEMA_VERSION." but database is version ".$sv,"MYSQL_CONNECT");
 		return array(false, "Your database has version number ".$sv." but this version of rompr only handles version ".ROMPR_SCHEMA_VERSION);
 	}
 
 	while ($sv < ROMPR_SCHEMA_VERSION) {
 		switch ($sv) {
 			case 0:
-				debug_print("BIG ERROR! No Schema Version found!!","SQL");
+				debuglog("BIG ERROR! No Schema Version found!!","SQL");
 				return array(false, "Database Error - could not read schema version. Cannot continue.");
 				break;
 
 			case 11:
-				debug_print("Updating FROM Schema version 11 TO Scheme version 12","SQL");
+				debuglog("Updating FROM Schema version 11 TO Scheme version 12","SQL");
 				generic_sql_query("ALTER TABLE Tracktable ADD isSearchResult TINYINT(1) DEFAULT 0");
 				generic_sql_query("UPDATE Statstable SET Value = 12 WHERE Item = 'SchemaVer'");
 				break;
@@ -219,8 +228,10 @@ function check_sql_tables() {
 
 function open_transaction() {
 	global $transaction_open;
-	if (generic_sql_query("BEGIN TRANSACTION",true)) {
-		$transaction_open = true;
+	if (!$transaction_open) {
+		if (generic_sql_query("BEGIN TRANSACTION")) {
+			$transaction_open = true;
+		}
 	}
 }
 
@@ -229,30 +240,35 @@ function check_transaction() {
 	if ($transaction_open && $numdone >= ROMPR_MAX_TRACKS_PER_TRANSACTION) {
 		generic_sql_query("COMMIT", true);
 		$numdone = 0;
-		generic_sql_query("BEGIN TRANSACTION",true);
+		generic_sql_query("BEGIN TRANSACTION");
 	}
 }
 
 function close_transaction() {
 	global $transaction_open;
     if ($transaction_open) {
-    	if (generic_sql_query("COMMIT",true)) {
+    	if (generic_sql_query("COMMIT")) {
     		$transaction_open = false;
+    		$numdone = 0;
     	}
     }
 }
 
 function create_foundtracks() {
+	generic_sql_query("DROP TABLE IF EXISTS Foundtracks");
+	generic_sql_query("DROP TABLE IF EXISTS Existingtracks");
 	generic_sql_query("CREATE TEMPORARY TABLE Foundtracks(TTindex INTEGER NOT NULL UNIQUE)");
 	generic_sql_query("CREATE TEMPORARY TABLE Existingtracks(TTindex INTEGER NOT NULL UNIQUE)");
 }
 
 function delete_oldtracks() {
+	generic_sql_query("DROP TABLE IF EXISTS OldTracks");
 	generic_sql_query("CREATE TEMPORARY TABLE OldTracks AS SELECT TTindex FROM Tracktable JOIN Playcounttable USING (TTindex) WHERE Hidden = 1 AND DATETIME('now', '-6 MONTH') > DateAdded AND Playcount < 2", true);
 	generic_sql_query("DELETE FROM Tracktable WHERE TTindex IN (SELECT TTindex FROM OldTracks)", true);
 }
 
 function delete_orphaned_artists() {
+	generic_sql_query("DROP TABLE IF EXISTS Croft");
 	generic_sql_query("CREATE TEMPORARY TABLE Croft AS SELECT Artistindex FROM Tracktable UNION SELECT AlbumArtistindex FROM Albumtable", true);
 	generic_sql_query("DELETE FROM Artisttable WHERE Artistindex NOT IN (SELECT Artistindex FROM Croft)", true);
 }

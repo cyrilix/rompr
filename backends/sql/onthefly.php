@@ -9,7 +9,7 @@ include ("includes/vars.php");
 include ("includes/functions.php");
 include ("utils/imagefunctions.php");
 include ("international.php");
-debug_print("------------------- STARTING -------------------","ONTHEFLY");
+debuglog("------------------- STARTING -------------------","ONTHEFLY");
 include ("backends/sql/backend.php");
 include ("player/mpd/connection.php");
 include ("collection/collection.php");
@@ -25,30 +25,32 @@ $nodata = array (
 );
 
 if ($mysqlc == null) {
-	debug_print("Can't Do on the fly stuff as no SQL connection!","ONTHEFLY");
-	debug_print("------------------- FINISHED -------------------","ONTHEFLY");
+	debuglog("Can't Do on the fly stuff as no SQL connection!","ONTHEFLY");
+	debuglog("------------------- FINISHED -------------------","ONTHEFLY");
 	header('HTTP/1.0 403 Forbidden');
 	exit(0);
 }
 
 $now2 = time();
 $initmem = memory_get_usage();
-debug_print("Memory Used is ".$initmem,"COLLECTION");
+debuglog("Memory Used is ".$initmem,"COLLECTION");
 
+cleanSearchTables();
+prepareCollectionUpdate();
 doCollection($_REQUEST['command']);
 
-debug_print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~","TIMINGS");
-debug_print("Starting Database Update From Collection","TIMINGS");
+debuglog("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~","TIMINGS");
+debuglog("Starting Database Update From Collection","TIMINGS");
 $now = time();
 foreach(array_keys($collection->artists) as $artistkey) {
     do_artist_database_stuff($artistkey, true);
 }
 $dur = format_time(time() - $now);
-debug_print("Database Update From Collection Took ".$dur,"TIMINGS");
-debug_print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~","TIMINGS");
+debuglog("Database Update From Collection Took ".$dur,"TIMINGS");
+debuglog("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~","TIMINGS");
 
 // Now to delete the tracks that were there and aren't any more
-debug_print("Removing tracks that don't exist any more","ONTHEFLY");
+debuglog("Removing tracks that don't exist any more","ONTHEFLY");
 $delcount = 0;
 if ($result = generic_sql_query("SELECT TTindex FROM Tracktable WHERE LastModified IS NOT NULL AND TTindex NOT IN (SELECT TTindex FROM Foundtracks) AND Hidden = 0")) {
 	while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
@@ -60,18 +62,17 @@ if ($result = generic_sql_query("SELECT TTindex FROM Tracktable WHERE LastModifi
 if ($delcount > 0) {
 	checkAlbumsAndArtists();
 }
-
 remove_cruft();
 update_stat('ListVersion',ROMPR_COLLECTION_VERSION);
 update_track_stats();
 close_transaction();
 $returninfo['stats'] = alistheader(get_stat('ArtistCount'), get_stat('AlbumCount'), get_stat('TrackCount'), format_time(get_stat('TotalTime')));
 $dur = format_time(time() - $now2);
-debug_print("On The Fly Database Update Took ".$dur,"ONTHEFLY");
+debuglog("On The Fly Database Update Took ".$dur,"ONTHEFLY");
 $peakmem = memory_get_peak_usage();
 $ourmem = $peakmem - $initmem;
-debug_print("Peak Memory Used Was ".number_format($peakmem)." bytes  - meaning we used ".number_format($ourmem)." bytes.","COLLECTION");
+debuglog("Peak Memory Used Was ".number_format($peakmem)." bytes  - meaning we used ".number_format($ourmem)." bytes.","COLLECTION");
 print json_encode($returninfo);
-debug_print("------------------- FINISHED -------------------","ONTHEFLY");
+debuglog("------------------- FINISHED -------------------","ONTHEFLY");
 
 ?>

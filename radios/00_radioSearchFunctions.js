@@ -23,7 +23,7 @@ function searchRadio() {
 		}
 
 		this.gotTracks = function(data) {
-			debug.debug("SEARCHRADIO ARTIST","Got Tracks",data);
+			debug.trace("SEARCHRADIO ARTIST","Got Tracks",data);
 			tracks = new Array();
 			for (var j in data) {
 				for (var k in data[j].tracks) {

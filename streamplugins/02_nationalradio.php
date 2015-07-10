@@ -21,7 +21,7 @@ if (array_key_exists('populate', $_REQUEST)) {
     $countries = array();
     $genres = array();
 
-    debug_print("Getting ".$base_url,"RADIOS");
+    debuglog("Getting ".$base_url,"RADIOS");
 
     $content = url_get_contents($base_url);
     $DOM = new DOMDocument;
@@ -121,7 +121,7 @@ if (array_key_exists('populate', $_REQUEST)) {
                     if (preg_match('/<b>(.*?)$/', $track['title'], $matches)) {
                         $track['title'] = $matches[1];
                     }
-                    // debug_print("Station : ".$track['title'], "RADIOPARSER");
+                    // debuglog("Station : ".$track['title'], "RADIOPARSER");
                 } else if (preg_match('/<img /', $td_contents)) {
                     $td_contents = preg_replace('/<br\s*\/*>/', '<ROMPR>', $td_contents);
                     $td_rows = explode('<ROMPR>', $td_contents);
@@ -200,7 +200,7 @@ if (array_key_exists('populate', $_REQUEST)) {
         }
     }
 
-    debug_print("Finished","RADIOPARSER");
+    debuglog("Finished","RADIOPARSER");
 
     print '</div>';
 } else {

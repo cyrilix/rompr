@@ -66,13 +66,13 @@ var info_file = function() {
             if (typeof info.Performer == "object") {
                 info.Performer = info.Performer.join(';');
             }
-            html = html + '<tr><td class="fil">'+language.gettext("info_performers")+'</td><td>'+joinartists(info.Performer.split(';'))+'</td></tr>';
+            html = html + '<tr><td class="fil">'+language.gettext("info_performers")+'</td><td>'+concatenate_artist_names(info.Performer.split(';'))+'</td></tr>';
         }
         if (info.Composer) {
             if (typeof info.Composer == "object") {
                 info.Composer = info.Composer.join(';');
             }
-            html = html + '<tr><td class="fil">'+language.gettext("info_composers")+'</td><td>'+joinartists(info.Composer.split(';'))+'</td></tr>';
+            html = html + '<tr><td class="fil">'+language.gettext("info_composers")+'</td><td>'+concatenate_artist_names(info.Composer.split(';'))+'</td></tr>';
         }
         if (info.Comment) {
             if (typeof info.Comment == "object") {
@@ -118,7 +118,7 @@ var info_file = function() {
 
 		collection: function(parent, artistmeta, albummeta, trackmeta) {
 
-			debug.log("FILE PLUGIN", "Creating data collection");
+			debug.trace("FILE PLUGIN", "Creating data collection");
 
 			var self = this;
 			var displaying = false;
@@ -153,7 +153,7 @@ var info_file = function() {
     				var file = parent.playlistinfo.location;
     				var m = file.match(/(^http:\/\/.*item\/\d+)\/file/)
     		        if (m && m[1]) {
-    		        	debug.log("FILE PLUGIN","File is from beets server",m[1]);
+    		        	debug.trace("FILE PLUGIN","File is from beets server",m[1]);
                         self.updateBeetsInformation(m[1]);
     		        } else {
         	            setTimeout(function() {
@@ -176,7 +176,7 @@ var info_file = function() {
                 // Get around possible same origin policy restriction by using a php script
                 $.getJSON('browser/backends/getBeetsInfo.php', 'uri='+thing)
                 .done(function(data) {
-                    debug.log("FILE PLUGIN",'Got info from beets server',data);
+                    debug.trace("FILE PLUGIN",'Got info from beets server',data);
                     trackmeta.fileinfo = {beets: data, player: null};
                     if (data.lyrics) {
                         trackmeta.lyrics = data.lyrics;

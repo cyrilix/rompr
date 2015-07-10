@@ -9,20 +9,12 @@ if (!$dtz) {
 
 @open_mpd_connection();
 
-$prepared = false;
-// Create a new collection
-
 function doCollection($command, $domains = null) {
 
-    global $connection, $collection, $prepared;
+    global $connection, $collection;
     $collection = new musicCollection($connection);
 
-
-    debug_print("Starting Collection Scan ".$command, "MPD");
-    if (!$prepared) {
-        prepareCollectionUpdate();
-        $prepared = true;
-    }
+    debuglog("Starting Collection Scan ".$command, "MPD",4);
     if ($command == "listallinfo") {
         // Forget listallinfo and try to do this in a mopidy and mpd compatible way
         // Also the mpd guys say "don't use listallinfo" and it's disabled in mopidy
@@ -345,74 +337,9 @@ class mpdlistthing {
 
 }
 
-
-
-
-// class mpdlistthing {
-
-//     public function __construct($name, $fullpath, $iscue, $filedata) {
-//         $this->children = array();
-//         $this->name = $name;
-//         $this->fullpath = $fullpath;
-//         $this->isplaylist = $iscue;
-//         $this->filedata = $filedata;
-//         debug_print("New mpdlistthing ".$name." ".$fullpath,"SCANNER");
-//     }
-
-//     public function addpath($path, $fullpath, $is_playlist, $filedata) {
-
-//         $len = (strpos($path, "/") === false) ? strlen($path) : strpos($path, "/");
-//         $firstdir = substr($path, 0, $len);
-//         debug_print("Adding Path ".$path." ".$fullpath." ".$firstdir,"SCANNER");
-//         $flag = false;
-//         if ($firstdir == $path) {
-//             $flag = $is_playlist;
-//         }
-//         if (!array_key_exists($firstdir, $this->children)) {
-//             $this->children[$firstdir] = new mpdlistthing($firstdir, $fullpath, $flag, $filedata);
-//         } else {
-//             if ($this->children[$firstdir]->isplaylist == false && $flag) {
-//                 $this->children[$firstdir]->isplaylist = true;
-//             }
-//         }
-//         if (strpos($path, "/") != false) {
-//             $this->children[$firstdir]->addpath(substr($path, strpos($path, "/")+1, strlen($path)), $fullpath, $is_playlist, $filedata);
-//         }
-//     }
-
-//     public function getHTML($prefix, &$dircount) {
-//         global $dirpath;
-//         if ($this->name != "/") {
-//             if (count($this->children) > 0) {
-//                 // This must be a directory if it has children
-//                 $dirpath = $dirpath.$this->name."/";
-//                 printDirectoryItem(trim($dirpath, '/'), $prefix, $dircount, true);
-//                 $dircount++;
-//             } else if ($this->isplaylist) {
-//                 printPlaylistItem($this->fullpath);
-//             } else {
-//                 printFileItem($this->filedata);
-//             }
-//         } else {
-//             $dirpath = "";
-//         }
-//         foreach($this->children as $thing) {
-//             $thing->getHTML($prefix, $dircount);
-//         }
-//         if (count($this->children) > 0 && $this->name != "/") {
-//             print "</div>\n";
-//             $dirpath = dirname($dirpath);
-//             debug_print("Dirpath is ".$dirpath,"SCANNER");
-//             if ($dirpath == ".") {
-//                 $dirpath = "";
-//             }
-//         }
-//     }
-// }
-
 function getDirItems($path) {
     global $connection, $is_connected;
-    debug_print("Getting Directory Items For ".$path,"GIBBONS");
+    debuglog("Getting Directory Items For ".$path,"GIBBONS",5);
     $items = array();
     $parts = true;
     $lines = array();
@@ -423,7 +350,7 @@ function getDirItems($path) {
     while(!feof($connection) && $parts) {
         $parts = getline($connection, true);
         if ($parts === false) {
-            debug_print("Got OK or ACK from MPD","DIRBROWSER");
+            debuglog("Got OK or ACK from MPD","DIRBROWSER",8);
         } else {
             $lines[] = $parts;
         }

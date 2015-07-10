@@ -6,7 +6,7 @@ include ("international.php");
 include ("backends/sql/backend.php");
 
 $mode = $_REQUEST['mode'];
-debug_print("Populating Recently Added Sorted By ".$mode, "RECENTLY ADDED");
+debuglog("Populating Recently Added Sorted By ".$mode, "RECENTLY ADDED");
 
 $uris = array();
 $qstring = "";
@@ -16,7 +16,7 @@ if ($mode == "random") {
 			array_push($uris, $obj->Uri);
 		}
 	} else {
-		debug_print("Nope, that didn't work","RECENTLY ADDED");
+		debuglog("Nope, that didn't work","RECENTLY ADDED");
 	}
 } else {
 	// This rather cumbersome code gives us albums in a random order but tracks in order.

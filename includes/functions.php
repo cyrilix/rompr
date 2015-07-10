@@ -29,7 +29,7 @@ function format_tracknum($tracknum) {
 }
 
 # url_get_contents function by Andy Langton: http://andylangton.co.uk/
-function url_get_contents($url,$useragent='RompR Music Player/0.63',$headers=false,$follow_redirects=true,$debug=false,$fp=null) {
+function url_get_contents($url,$useragent='RompR Music Player/0.70',$headers=false,$follow_redirects=true,$debug=false,$fp=null) {
 
     global $prefs;
     $url = preg_replace('/ /', '%20', $url);
@@ -194,7 +194,7 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
     print '<div class="expand">'.$name.'</div>';
     print '<div class="fixed playlistrow2 tracktime">';
     if ($duration > 0) {
-        print $duration;
+        print format_time($duration);
     }
     print '</div>';
     if ($lm === null) {
@@ -254,7 +254,7 @@ function albumHeader($name, $spotilink, $id, $exists, $searched, $imgname, $src,
         if (preg_match('/spotify%3Aartist%3A/', $spotilink)) {
             print '<div class="clickable clickartist draggable containerbox menuitem" name="'.preg_replace('/'.get_int_text('label_allartist').'/', '', $name).'">';
         } else if (strtolower(pathinfo($spotilink, PATHINFO_EXTENSION)) == "cue") {
-            debug_print("Cue Sheet found for album ".$name,"FUNCTIONS");
+            debuglog("Cue Sheet found for album ".$name,"FUNCTIONS");
             print '<div class="clickable clickcue draggable containerbox menuitem" name="'.$spotilink.'">';
         } else {
             print '<div class="clickable clicktrack draggable containerbox menuitem" name="'.$spotilink.'">';
@@ -352,8 +352,9 @@ function get_base_url() {
 }
 
 function scan_for_images($albumpath) {
+    debuglog("Album Path Is ".$albumpath, "LOCAL IMAGE SCAN");
     $result = array();
-    if (is_dir("prefs/MusicFolders")) {
+    if (is_dir("prefs/MusicFolders") && $albumpath != ".") {
         $albumpath = munge_filepath($albumpath);
         $result = array_merge($result, get_images($albumpath));
         // Is the album dir part of a multi-disc set?
@@ -376,13 +377,14 @@ function scan_for_images($albumpath) {
 function get_images($dir_path) {
 
     $funkychicken = array();
-    debug_print("    Scanning : ".$dir_path,"GET_IMAGES");
+    $a = basename($dir_path);
+    debuglog("    Scanning : ".$dir_path,"GET_IMAGES");
     $globpath = preg_replace('/(\*|\?|\[)/', '[$1]', $dir_path);
-    debug_print("      Glob Path is ".$globpath,"GET_IMAGES");
+    debuglog("      Glob Path is ".$globpath,"GET_IMAGES");
     $files = glob($globpath."/*.{jpg,png,bmp,gif,jpeg,JPEG,JPG,BMP,GIF,PNG}", GLOB_BRACE);
     foreach($files as $i => $f) {
         $f = preg_replace('/%/', '%25', $f);
-        debug_print("        Found : ".get_base_url()."/".preg_replace('/ /', "%20", $f),"GET_IMAGES");
+        debuglog("        Found : ".get_base_url()."/".preg_replace('/ /', "%20", $f),"GET_IMAGES");
         array_push($funkychicken, get_base_url()."/".preg_replace('/ /', "%20", $f));
     }
     return $funkychicken;
@@ -416,7 +418,7 @@ function find_executable($prog) {
             $c = "PATH=/usr/local/bin:\$PATH PYTHONPATH=/usr/local/lib/python2.7/site-packages /usr/local/bin/";
         }
     }
-    // debug_print("  Executable path is ".$c);
+    // debuglog("  Executable path is ".$c);
     return $c;
 
 }
@@ -429,10 +431,10 @@ function get_file_lock($filename) {
         if (flock($fp, LOCK_EX, $crap)) {
             return true;
         } else {
-            debug_print("FAILED TO GET FILE LOCK ON ".$filename,"FUNCTIONS");
+            debuglog("FAILED TO GET FILE LOCK ON ".$filename,"FUNCTIONS");
         }
     } else {
-        debug_print("FAILED TO OPEN ".$filename,"FUNCTIONS");
+        debuglog("FAILED TO OPEN ".$filename,"FUNCTIONS");
     }
     return false;
 }
@@ -494,6 +496,7 @@ print $title;
 print '</h3>';
 print '<p>'.get_int_text("setup_labeladdresses").'</p>';
 print '<p class="tiny">'.get_int_text("setup_addressnote").'</p>';
+print '<p>NOTE: Mopidy is still supported, but you must now use the MPD frontend in Mopidy</p>';
 print '<form name="mpdetails" action="index.php" method="post">';
 print '<p>'.get_int_text("setup_ipaddress").'<br><input type="text" name="mpd_host" value="'.$prefs['mpd_host'].'" /></p>'."\n";
 print '<hr class="dingleberry" />';
@@ -528,11 +531,23 @@ print '<p>Proxy Server (eg 192.168.3.4:8800)<br><input type="text" name="proxy_h
 print '<p>Proxy Username<br><input type="text" name="proxy_user" value="'.$prefs['proxy_user'].'" /></p>'."\n";
 print '<p>Proxy Password<br><input type="text" name="proxy_password" value="'.$prefs['proxy_password'].'" /></p>'."\n";
 print '<hr class="dingleberry" />';
-print '<p><input type="checkbox" name="debug_enabled" value="1"';
-if ($prefs['debug_enabled']) {
-    print " checked";
+print '<h3>Debug Logging</h3>';
+print '<table width="100%"><tr>';
+for ($i = 0; $i<10; $i++) {
+    print '<td><input type="radio" name="debug_enabled" value="'.$i.'"';
+    if ($prefs['debug_enabled'] == $i) {
+        print " checked";
+    }
+    print '>Level '.$i;
+    if ($i == 0) {
+        print ' (Off)';
+    }
+    print '</input></td>';
+    if ($i == 4) {
+        print '</tr><tr>';
+    }
 }
-print '>'.get_int_text("setup_debug").'</input></p>';
+print '</tr></table>';
 print '<p>Custom Log File</p>';
 print '<p class=tiny>Rompr debug output will be sent to this file, but PHP error messages will still go to the web server error log. The web server needs write access to this file, it must already exist, and you should ensure it gets rotated as it will get large</p>';
 print '<p><input type="text" style="width:90%" name="custom_logfile" value="'.$prefs['custom_logfile'].'" /></p>';
@@ -583,7 +598,7 @@ function update_stream_playlist($url, $name, $image, $creator, $title, $type, $f
         $x = simplexml_load_file($file);
         foreach($x->trackList->track as $i => $track) {
             if($track->location == $url && preg_match('/Unknown Internet Stream/', $track->album)) {
-                debug_print("Found Stream To Update! - ".$file,"RADIO PLAYLISTS");
+                debuglog("Found Stream To Update! - ".$file,"RADIO PLAYLISTS");
                 $track->album = $name;
                 $fp = fopen($file, 'w');
                 if ($fp) {
@@ -616,10 +631,10 @@ function update_stream_playlist($url, $name, $image, $creator, $title, $type, $f
             "</trackList>\n".
             "</playlist>";
 
-        debug_print("Creating new playlist for stream ".$url);
+        debuglog("Creating new playlist for stream ".$url);
         $newname = 'prefs/'.$fname.'_'.md5($url).'.xspf';
         if (file_exists($newname)) {
-            debug_print("Stream Playlist already exists!","STREAMS");
+            debuglog("Stream Playlist already exists!","STREAMS");
         } else {
             file_put_contents($newname, $xml);
         }
@@ -763,7 +778,7 @@ function getWishlist() {
     if ($result = generic_sql_query($qstring)) {
         while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
             $bothclosed = false;
-            debug_print("Found Track ".$obj->track,"WISHLIST");
+            debuglog("Found Track ".$obj->track,"WISHLIST");
             if ($current_artist != $obj->artist) {
                 if ($current_artist != "") {
                     print '</div></div>';
@@ -802,7 +817,7 @@ function getWishlist() {
                 0,
                 $obj->num,
                 $obj->track,
-                null,
+                0,
                 null,
                 null
             );
@@ -811,27 +826,13 @@ function getWishlist() {
 
 }
 
-function htmlHeaders() {
-    $headers =  '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'.
-            '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">'.
-            '<head>'.
-            '<meta http-equiv="cache-control" content="max-age=0" />'.
-            '<meta http-equiv="cache-control" content="no-cache" />'.
-            '<meta http-equiv="expires" content="0" />'.
-            '<meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />'.
-            '<meta http-equiv="pragma" content="no-cache" />'.
-            '</head>'.
-            '<body>';
-    print $headers;
-}
-
 function get_player_ip() {
     global $prefs;
     // SERVER_ADDR reflects the address typed into the browser
-    debug_print("Server Address is ".$_SERVER['SERVER_ADDR'],"INIT");
+    debuglog("Server Address is ".$_SERVER['SERVER_ADDR'],"INIT");
     // REMOTE_ADDR is the address of the machine running the browser
-    debug_print("Remote Address is ".$_SERVER['REMOTE_ADDR'],"INIT");
-    debug_print("mpd host is ".$prefs['mpd_host'],"INIT");
+    debuglog("Remote Address is ".$_SERVER['REMOTE_ADDR'],"INIT");
+    debuglog("mpd host is ".$prefs['mpd_host'],"INIT");
 
     if ($prefs['unix_socket'] != "" || $prefs['mpd_host'] == "localhost" || $prefs['mpd_host'] == "127.0.0.1") {
         return $_SERVER['SERVER_ADDR'] != "::1" ? $_SERVER['SERVER_ADDR'] : $prefs['mpd_host'];
@@ -844,16 +845,16 @@ function get_player_ip() {
 function getCacheData($uri, $cache) {
 
     $me = strtoupper($cache);
-    debug_print("Getting ".$uri, $me);
+    debuglog("Getting ".$uri, $me);
 
     if (file_exists('prefs/jsoncache/'.$cache.'/'.md5($uri))) {
-        debug_print("Returning cached data",$me);
+        debuglog("Returning cached data",$me);
         header("Pragma: From Cache");
         print file_get_contents('prefs/jsoncache/'.$cache.'/'.md5($uri));
     } else {
         $content = url_get_contents($uri);
         $s = $content['status'];
-        debug_print("Response Status was ".$s, $me);
+        debuglog("Response Status was ".$s, $me);
         header("Pragma: Not Cached");
         if ($s == "200") {
             print $content['contents'];

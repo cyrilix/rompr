@@ -23,11 +23,11 @@ $creator = "";
 $image = (array_key_exists('image', $_REQUEST)) ? rawurldecode($_REQUEST['image']) : "newimages/broadcast.svg";
 $usersupplied = (array_key_exists('usersupplied', $_REQUEST)) ? true : false;
 
-debug_print("Getting Internet Stream:","RADIO_PLAYLIST");
-debug_print("  url : ".$url,"RADIO_PLAYLIST");
-debug_print("  station : ".$station,"RADIO_PLAYLIST");
-debug_print("  image : ".$image,"RADIO_PLAYLIST");
-debug_print("  user : ".$usersupplied,"RADIO_PLAYLIST");
+debuglog("Getting Internet Stream:","RADIO_PLAYLIST");
+debuglog("  url : ".$url,"RADIO_PLAYLIST");
+debuglog("  station : ".$station,"RADIO_PLAYLIST");
+debuglog("  image : ".$image,"RADIO_PLAYLIST");
+debuglog("  user : ".$usersupplied,"RADIO_PLAYLIST");
 
 if ($url) {
 
@@ -35,7 +35,7 @@ if ($url) {
 	$type = null;
 
 	$content = url_get_contents($url, $_SERVER['HTTP_USER_AGENT'], false, true, true);
-	debug_print("Playlist Is ".$content['status']." ".$content['contents'],"RADIO_PLAYLIST");
+	debuglog("Playlist Is ".$content['status']." ".$content['contents'],"RADIO_PLAYLIST");
 
 	$content_type = $content['info']['content_type'];
 	// To cope with charsets in the header...
@@ -56,17 +56,17 @@ if ($url) {
 			$type = "xspf";
 			break;
 		case "text/html":
-			debug_print("HTML page returned!","RADIO_PLAYLIST");
+			debuglog("HTML page returned!","RADIO_PLAYLIST");
 			header('HTTP/1.0 404 Not Found');
 			exit (0);
 	}
-	debug_print("Playlist Type From Content Type is ".$type,"RADIO_PLAYLIST");
+	debuglog("Playlist Type From Content Type is ".$type,"RADIO_PLAYLIST");
 
 	if ($type == "" || $type == null) {
 		$type = pathinfo($path, PATHINFO_EXTENSION);
 		$qpos = strpos($type, "?");
 	  	if ($qpos != false) $type = substr($type, 0, $qpos);
-		debug_print("Playlist Type From URL is ".$type,"RADIO_PLAYLIST");
+		debuglog("Playlist Type From URL is ".$type,"RADIO_PLAYLIST");
 	}
 
 	$playlist = null;
@@ -129,7 +129,7 @@ if ($url) {
 		print $output;
 
 	} else {
-		debug_print("Could not determine playlist type","RADIO_PLAYLIST");
+		debuglog("Could not determine playlist type","RADIO_PLAYLIST");
 		header('HTTP/1.0 404 Not Found');
 	}
 }
@@ -184,7 +184,7 @@ class plsFile {
 		$t = array();
 		foreach($this->tracks as $i => $track) {
 			if (in_array($this->tracks[$i]['track'], $t)) {
-				debug_print("Skipping duplicate track entry","RADIO PLAYLIST");
+				debuglog("Skipping duplicate track entry","RADIO PLAYLIST");
 			} else {
 				$output = $output . "<track>\n";
 				$output = $output . xmlnode('album', $this->station);
@@ -241,7 +241,7 @@ class asxFile {
 		$t = array();
 	    foreach($this->xml->Entry as $i => $r) {
 	    	if (in_array((string) $r->ref['href'], $t)) {
-	    		debug_print("Skipping duplicate track entry","RADIO PLAYLIST");
+	    		debuglog("Skipping duplicate track entry","RADIO PLAYLIST");
 	    	} else {
 		        $output = $output . "<track>\n".
 		                            xmlnode('stream', "").
@@ -288,7 +288,7 @@ class xspfFile {
 		$data = preg_replace('/ > /', ' &gt; ', $data);
 		$this->xml = simplexml_load_string($data, 'SimpleXMLElement', LIBXML_NOCDATA);
 		if ($this->xml === false) {
-			header('HTTP/1.0 403 Forbidden');
+			header('HTTP/1.1 400 Bad Request');
 			exit(0);
 		}
 		$this->station = $this->xml->title != null ? $this->xml->title : $station;
@@ -327,7 +327,7 @@ class xspfFile {
 class m3uFile {
 
 	public function __construct($data, $url, $station, $creator, $image) {
-		debug_print("New M3U Station ".$station,"RADIO PLAYLIST");
+		debuglog("New M3U Station ".$station,"RADIO PLAYLIST");
 		$this->url = $url;
 		$this->station = $station;
 		$this->creator = $creator;
@@ -348,7 +348,7 @@ class m3uFile {
 	public function getTracks() {
 
 		$output = "";
-		debug_print("Outputting M3U Station ".$this->station,"RADIO PLAYLIST");
+		debuglog("Outputting M3U Station ".$this->station,"RADIO PLAYLIST");
 		foreach($this->tracks as $i => $track) {
 			$output = $output . "<track>\n";
 			$output = $output . xmlnode('album', $this->station);
@@ -411,7 +411,7 @@ class asfFile {
 class possibleStreamUrl {
 
 	public function __construct($url, $station, $creator, $image) {
-		debug_print("Unknown Playlist Type - treating as stream URL","RADIO_PLAYLIST");
+		debuglog("Unknown Playlist Type - treating as stream URL","RADIO_PLAYLIST");
 		$this->url = $url;
 		$this->station = $station;
 		$this->creator = $creator;
@@ -449,13 +449,13 @@ function checkStationAgain($currenttitle, $tracktitle) {
 function asfOrasx($s) {
 	$type = null;
 	if (preg_match('/^\[Reference\]/', $s)) {
-		debug_print("Type of playlist determined as asf","RADIO_PLAYLIST");
+		debuglog("Type of playlist determined as asf","RADIO_PLAYLIST");
 		$type = "asf";
 	} else if (preg_match('/^<ASX /', $s)) {
-		debug_print("Type of playlist determined as asx","RADIO_PLAYLIST");
+		debuglog("Type of playlist determined as asx","RADIO_PLAYLIST");
 		$type = "asx";
 	} else if (preg_match('/^http:/', $s)) {
-		debug_print("Type of playlist determined as m3u-like","RADIO_PLAYLIST");
+		debuglog("Type of playlist determined as m3u-like","RADIO_PLAYLIST");
 		$type = "m3u";
 	}
 	return $type;

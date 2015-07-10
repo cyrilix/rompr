@@ -55,7 +55,7 @@ var googleSearchURL = "https://www.googleapis.com/customsearch/v1?key="+google_a
 
 function getNewAlbumArt(div) {
 
-    debug.group("ALBUMART","Getting art in",div);
+    debug.log("ALBUMART","Getting art in",div);
     $.each($(div).find("img").filter(filterImages), function () {
             var a = this.getAttribute('name');
             covergetter.GetNewAlbumArt(a);
@@ -76,7 +76,6 @@ function getNewAlbumArt(div) {
 
 function reset() {
     covergetter.reset(-1);
-    debug.groupend();
 }
 
 // I like badgers
@@ -95,7 +94,6 @@ function aADownloadFinished() {
     $("#status").html("");
     $("#progress").fadeOut('slow');
     progress.setProgress(0);
-    debug.groupend();
 }
 
 function onWobblebottomClicked(event) {
@@ -256,10 +254,10 @@ $(document).ready(function () {
     wobbleMyBottom();
     $('#artistcoverslist').mCustomScrollbar({
         theme: "light",
-        scrollInertia: 200,
+        scrollInertia: 300,
         contentTouchScroll: 25,
         mouseWheel: {
-            scrollAmount: 20,
+            scrollAmount: 40,
         },
         advanced: {
             updateOnContentResize: true,
@@ -325,7 +323,7 @@ function dragLeave(ev) {
 }
 
 function handleDrop(ev) {
-    debug.group("ALBUMART","Dropped",ev);
+    debug.log("ALBUMART","Dropped",ev);
     evt = ev.originalEvent;
     $(ev.target).parent().removeClass("highlighted");
     imageEditor.update($(ev.target));
@@ -504,8 +502,10 @@ var imageEditor = function() {
             var searchfor = $("#searchphrase").attr("value");
             debug.log("IMAGEEDITOR","Searching Google for", searchfor);
             $.ajax({
+                type: "POST",
                 dataType: "json",
-                url: 'browser/backends/google.php?uri='+encodeURIComponent(googleSearchURL+"&q="+encodeURIComponent(searchfor)+"&start="+start),
+                url: 'browser/backends/google.php',
+                data: {uri: encodeURIComponent(googleSearchURL+"&q="+encodeURIComponent(searchfor)+"&start="+start)},
                 success: imageEditor.googleSearchComplete,
                 error: function(data) {
                     debug.log("IMAGEEDITOR","FUCKING RAT'S COCKS",data);
@@ -551,7 +551,7 @@ var imageEditor = function() {
         onGoogleSearchClicked: function(event) {
             var clickedElement = findClickableElement(event);
             if (clickedElement.hasClass("clickgimage")) {
-                debug.group("ALBUMART","Search Result clicked :",clickedElement.next().val(), clickedElement.next().next().val());
+                debug.log("ALBUMART","Search Result clicked :",clickedElement.next().val(), clickedElement.next().next().val());
                 event.stopImmediatePropagation();
                 updateImage(clickedElement.next().val(), clickedElement.next().next().val());
             } else if (clickedElement.hasClass("bmenu")) {
@@ -682,7 +682,6 @@ function searchFail() {
     if (imgobj.attr("src") == "") imgobj.addClass('notexist');
     imageEditor.updateBigImg(false);
     animationStop();
-    debug.groupend();
 }
 
 function uploadComplete(data) {
@@ -708,7 +707,6 @@ function uploadComplete(data) {
     }
 
     sendLocalStorageEvent(imagekey);
-    debug.groupend();
 }
 
 
@@ -750,7 +748,7 @@ if ($mysqlc) {
 // Do Local Albums
 
 $allfiles = glob("albumart/small/*.jpg");
-debug_print("There are ".count($allfiles)." Images", "ALBUMART");
+debuglog("There are ".count($allfiles)." Images", "ALBUMART",9);
 
 $count = 0;
 $albums_without_cover = 0;
@@ -758,7 +756,7 @@ do_covers_db_style();
 do_playlists();
 do_radio_stations();
 
-debug_print("There are ".count($allfiles)." unused images", "ALBUMART");
+debuglog("There are ".count($allfiles)." unused images", "ALBUMART",6);
 if (count($allfiles) > 0) {
     if (array_key_exists("cleanup", $_REQUEST)) {
         remove_unused_images();

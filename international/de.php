@@ -121,7 +121,6 @@ $languages['de'] = array (
 	"label_searchresults" => "Suchergebnisse",
 	"label_multiterms" => "Es können mehrere Suchbegriffe gleichzeitig benutzt werden",
 	"label_limitsearch" => "Durchsuche das genannte Backend",
-	"label_filesearch" => "Suche nach Dateien, die den folgenden Suchbegriff enthalten",
 
 	// General multipurpose labels
 	"label_tracks" => "Titel",
@@ -264,7 +263,6 @@ $languages['de'] = array (
 	"setup_unixsocket" => "UNIX-Domain Socket",
 	"setup_mopidy" => "Mopidy-spezifische Einstellungen",
 	"setup_mopidyport" => "Mopidy HTTP Port:",
-	"setup_debug" => "Debug Modus einschalten",
 
 	// Intro Window
 	"intro_title" => "Information über diese Version",

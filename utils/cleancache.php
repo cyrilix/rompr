@@ -9,7 +9,7 @@ chdir('..');
 include("includes/vars.php");
 include("includes/functions.php");
 
-debug_print("Checking Cache","CACHE CLEANER");
+debuglog("Checking Cache","CACHE CLEANER");
 
 // DO NOT REDUCE the values for musicbrainz or discogs
 // - we have to follow their API rules and as we don't check
@@ -34,17 +34,17 @@ clean_cache_dir('prefs/jsoncache/lyrics/', 15552000);
 clean_cache_dir('prefs/imagecache/', 1296000);
 // Clean the albumart temporary upload directory
 clean_cache_dir('albumart/', 1);
-debug_print("Cache has been cleaned","CACHE CLEANER");
+debuglog("Cache has been cleaned","CACHE CLEANER");
 
 function clean_cache_dir($dir, $time) {
 
-    debug_print("Cache Cleaner is running on ".$dir,"CACHE CLEANER");
+    debuglog("Cache Cleaner is running on ".$dir,"CACHE CLEANER");
     $cache = glob($dir."*");
     $now = time();
     foreach($cache as $file) {
         if (!is_dir($file)) {
             if($now - filemtime($file) > $time) {
-                debug_print("Removing file ".$file,"CACHE CLEANER");
+                debuglog("Removing file ".$file,"CACHE CLEANER",4);
                 @unlink ($file);
             }
         }

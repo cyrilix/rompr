@@ -10,7 +10,7 @@ function musicCollectionUpdate() {
         if ($dir == "Spotify Playlists") {
         	musicCollectionSpotifyPlaylistHack();
         } else {
-	        debug_print("Scanning Directory ".$dir, "COLLECTION");
+	        debuglog("Scanning Directory ".$dir, "COLLECTION");
 	        doMpdParse('lsinfo "'.format_for_mpd(local_media_check($dir)).'"', $dirs, null);
 	    }
     }
@@ -21,7 +21,7 @@ function musicCollectionSpotifyPlaylistHack() {
 	$playlists = do_mpd_command("listplaylists", true, true);
     if (array_key_exists('playlist', $playlists)) {
         foreach ($playlists['playlist'] as $pl) {
-	    	debug_print("Scanning Playlist ".$pl,"COLLECTION");
+	    	debuglog("Scanning Playlist ".$pl,"COLLECTION");
 	    	doMpdParse('listplaylistinfo "'.format_for_mpd($pl).'"',$dirs, array("spotify"));
 	    }
 	}

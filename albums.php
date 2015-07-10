@@ -30,27 +30,27 @@ if (array_key_exists('item', $_REQUEST)) {
             $cmd .= " ".$key.' "'.format_for_mpd(html_entity_decode($term[0])).'"';
         }
     }
-    debug_print("Search command : ".$cmd,"MPD SEARCH");
+    debuglog("Search command : ".$cmd,"MPD SEARCH");
     if ($_REQUEST['resultstype'] == "tree") {
         doFileSearch($cmd, $domains);
     } else {
-        prepareSearchTables();
+        cleanSearchTables();
+        prepareCollectionUpdate();
         doCollection($cmd, $domains);
         createAlbumsList();
         dumpAlbums('balbumroot');
     }
-    print '<div class="separator"></div>';
     close_mpd();
 } else if (array_key_exists('browsealbum', $_REQUEST)) {
     include ("player/mpd/connection.php");
     include ("collection/collection.php");
     $doing_search = true;
     $trackbytrack = false;
-    $dont_change_search_status = true;
     $domains = array();
     $albumlink = get_albumlink($_REQUEST['browsealbum']);
     $cmd = 'find file "'.$albumlink.'"';
-    debug_print("Doing Album Browse : ".$cmd,"MPD");
+    debuglog("Doing Album Browse : ".$cmd,"MPD");
+    prepareCollectionUpdate();
     doCollection($cmd, $domains);
     createAlbumsList();
     if (preg_match('/^.+?:album:/', $albumlink)) {
@@ -79,7 +79,7 @@ if (array_key_exists('item', $_REQUEST)) {
             $cmd .= " ".$key.' "'.format_for_mpd(html_entity_decode($term[0])).'"';
         }
     }
-    debug_print("Search command : ".$cmd,"MPD SEARCH");
+    debuglog("Search command : ".$cmd,"MPD SEARCH");
     $doing_search = true;
     $trackbytrack = false;
     doCollection($cmd, $domains);
@@ -95,8 +95,8 @@ if (array_key_exists('item', $_REQUEST)) {
     $trackbytrack = false;
     if ($_REQUEST['resultstype'] == "tree") {
     } else {
+        cleanSearchTables();
         prepareCollectionUpdate();
-        prepareSearchTables();
      }
     doDbCollection($_REQUEST['terms'], $domains, $_REQUEST['resultstype']);
     if ($_REQUEST['resultstype'] == "tree") {
@@ -104,7 +104,6 @@ if (array_key_exists('item', $_REQUEST)) {
         createAlbumsList();
         dumpAlbums('balbumroot');
     }
-    print '<div class="separator"></div>';
     close_mpd();
 } else if (array_key_exists('wishlist', $_REQUEST)) {
     include ("collection/collection.php");
@@ -113,22 +112,24 @@ if (array_key_exists('item', $_REQUEST)) {
 } else if (array_key_exists('rebuild', $_REQUEST)) {
     // This is a request to rebuild the music collection coming from either
     // the mpd or mopidy controller
-    debug_print("======================================================================","TIMINGS");
+    debuglog("======================================================================","TIMINGS");
     include ("player/mpd/connection.php");
     include ("collection/collection.php");
-    debug_print("== Starting Collection Update","TIMINGS");
+    debuglog("== Starting Collection Update","TIMINGS");
     $initmem = memory_get_usage();
-    debug_print("Memory Used is ".$initmem,"COLLECTION");
+    debuglog("Memory Used is ".$initmem,"COLLECTION");
     $now2 = time();
+    cleanSearchTables();
+    prepareCollectionUpdate();
 	doCollection("listallinfo");
     createAlbumsList();
     dumpAlbums('aalbumroot');
     close_mpd();
-    debug_print("== Collection Update And Send took ".format_time(time() - $now2),"TIMINGS");
+    debuglog("== Collection Update And Send took ".format_time(time() - $now2),"TIMINGS");
     $peakmem = memory_get_peak_usage();
     $ourmem = $peakmem - $initmem;
-    debug_print("Peak Memory Used Was ".number_format($peakmem)." bytes  - meaning we used ".number_format($ourmem)." bytes.","COLLECTION");
-    debug_print("======================================================================","TIMINGS");
+    debuglog("Peak Memory Used Was ".number_format($peakmem)." bytes  - meaning we used ".number_format($ourmem)." bytes.","COLLECTION");
+    debuglog("======================================================================","TIMINGS");
 }
 
 function checkDomains($d) {

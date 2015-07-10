@@ -180,20 +180,16 @@ print '<div class="configtitle textcentre"><b>'.get_int_text('button_loadplaylis
 </div>
 
 <?php
-if ($prefs['player_backend'] == "mpd") {
-    print '<div class="topdrop"><i class="icon-floppy topimg tooltip" title="'.get_int_text('button_saveplaylist').'"></i>';
-    ?>
-    <div class="topdropmenu dropshadow rightmenu widemenu stayopen" id="plsaver">
-    <?php
-    print '<div class="configtitle textcentre"><b>'.get_int_text('button_saveplaylist').'</b></div>';
-    print '<div class="containerbox"><div class="expand"><input class="enter" id="playlistname" type="text" size="200"/></div>';
-    print '<button class="fixed">'.get_int_text('button_save').'</button></div>';
-    ?>
-    </div>
-    </div>
-<?php
-}
+print '<div class="topdrop"><i class="icon-floppy topimg tooltip" title="'.get_int_text('button_saveplaylist').'"></i>';
 ?>
+<div class="topdropmenu dropshadow rightmenu widemenu stayopen" id="plsaver">
+<?php
+print '<div class="configtitle textcentre"><b>'.get_int_text('button_saveplaylist').'</b></div>';
+print '<div class="containerbox"><div class="expand"><input class="enter" id="playlistname" type="text" size="200"/></div>';
+print '<button class="fixed">'.get_int_text('button_save').'</button></div>';
+?>
+</div>
+</div>
 
 </div>
 </div>
@@ -204,11 +200,6 @@ if ($prefs['player_backend'] == "mpd") {
 <div id="sources" class="column noborder tleft">
 
     <div id="albumlist" class="invisible noborder">
-    <div id="search" class="invisible noborder selecotron">
-<?php
-include("player/".$prefs['player_backend']."/search.php");
-?>
-    </div>
 <?php
     print '<div class="menuitem containerbox" style="margin-top:12px;padding-left:8px">';
     print '<div class="fixed" style="padding-right:4px"><i onclick="toggleCollectionButtons()" title="'.get_int_text('button_collectioncontrols').'" class="icon-menu playlisticon clickicon lettuce"></i></div>';
@@ -227,6 +218,13 @@ include("player/".$prefs['player_backend']."/search.php");
 ?>
     </div>
     <div id="collection" class="noborder selecotron"></div>
+    </div>
+
+    <div id="searcher" class="invisible noborder">
+<?php
+include("player/".$prefs['player_backend']."/search.php");
+?>
+    <div id="searchresultholder" class="nosborder selecotron"></div>
     </div>
 
     <div id="filelist" class="invisible">

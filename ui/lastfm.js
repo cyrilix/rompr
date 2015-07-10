@@ -4,7 +4,6 @@ function LastFM(user) {
     var logged_in = false;
     var username = user;
     var token = "";
-    this.tunedto = "";
     var self=this;
     var lovebanshown = false;
     var queue = new Array();
@@ -160,7 +159,7 @@ function LastFM(user) {
     }
 
     function LastFMGetRequest(options, success, fail, reqid) {
-        debug.debug("LASTFM","New Request");
+        debug.trace("LASTFM","New Request");
         options.format = "json";
         options.callback = "?";
         var url = "http://ws.audioscrobbler.com/2.0/";
@@ -185,14 +184,14 @@ function LastFM(user) {
                 return;
             }
             queue[0].flag = true;
-            debug.debug("LASTFM","Taking next request from queue",req.url);
+            debug.trace("LASTFM","Taking next request from queue",req.url);
             // Don't use JQuery's getJSON function for cross-site requests as it ignores any
             // error callbacks you give it. I'm using the jsonp plugin, which works.
             $.jsonp({
                 url: req.url,
                 timeout: 30000,
                 success: function(data) {
-                    debug.debug("LASTFM","Request success",data);
+                    debug.trace("LASTFM","Request success",data);
                     throttle = setTimeout(lastfm.getRequest, throttleTime);
                     req = queue.shift();
                     if (data.error) {
@@ -202,7 +201,7 @@ function LastFM(user) {
                             req.fail(data);
                         }
                     } else {
-                        debug.debug("LASTFM","Calling success callback");
+                        debug.trace("LASTFM","Calling success callback");
                         if (req.reqid || req.reqid === 0) {
                             req.success(data, req.reqid);
                         } else {
@@ -226,6 +225,28 @@ function LastFM(user) {
         }
     }
 
+    // function LastFMSignedRequest(options, success, fail) {
+    //     $.ajax({
+    //         type: "POST",
+    //         data: options,
+    //         url: "utils/lastfm_proxy.php",
+    //         dataType: 'xml',
+    //         success: function(data) {
+    //             var s = $(data).find('lfm').attr("status");
+    //             if (s == "ok") {
+    //                 success(data);
+    //             } else {
+    //                 debug.warn("LASTFM","Last FM signed request failed with status",$(data).find('error').text());
+    //                 fail(data);
+    //             }
+    //         },
+    //         error: function(data) {
+    //             debug.error("LASTFM","Last FM signed request error",$(data.responseText).find('error').text());
+    //             fail(data.responseText);
+    //         }
+    //     });
+    // }
+
     function LastFMSignedRequest(options, success, fail) {
 
         // We've passed an object but we need the properties to be in alphabetical order
@@ -246,7 +267,10 @@ function LastFM(user) {
                     fail(data);
                 }
             })
-            .fail(fail);
+            .fail( function(data) {
+                debug.error("LASTFM","Last FM signed request error",$(data.responseText).find('error').text());
+                fail(data);
+            });
     }
 
     var getKeys = function(obj) {

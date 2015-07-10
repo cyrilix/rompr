@@ -18,11 +18,11 @@ function trackDataCollection(currenttrack, nowplayingindex, artistindex, playlis
 	}
 
 	function startSource(source) {
-		debug.mark("TRACKDATA",self.nowplayingindex,"Starting collection",source);
+		debug.trace("TRACKDATA",self.nowplayingindex,"Starting collection",source);
 		var requirements = (nowplaying.getPlugin(source)).getRequirements(self);
 		for (var i in requirements) {
 			if (collections[requirements[i]] === undefined) {
-				debug.mark("TRACKDATA",self.nowplayingindex,"Starting collection",source,"requirement",requirements[i]);
+				debug.trace("TRACKDATA",self.nowplayingindex,"Starting collection",source,"requirement",requirements[i]);
 				startSource(requirements[i]);
 			}
 		}
@@ -71,7 +71,7 @@ function trackDataCollection(currenttrack, nowplayingindex, artistindex, playlis
 
 	this.stopDisplaying = function(waitingon) {
 		for (var coll in collections) {
-			debug.debug("TRACKDATA",self.nowplayingindex,"Telling",coll,"to stop displaying");
+			debug.trace("TRACKDATA",self.nowplayingindex,"Telling",coll,"to stop displaying");
 			collections[coll].stopDisplaying(waitingon);
 		}
 	}
@@ -194,7 +194,7 @@ var nowplaying = function() {
 
 		newTrack: function(playlistinfo, force) {
 
-			debug.log("NOWPLAYING","New Info",playlistinfo);
+			debug.debug("NOWPLAYING","New Info",playlistinfo);
 			if (currentbackendid == playlistinfo.backendid &&
 				force !== true) {
 				return;
@@ -221,7 +221,7 @@ var nowplaying = function() {
 						if (history[j] 	!== undefined) {
 							for (var k in history[j].playlistinfo.metadata.artists) {
 								if (playlistinfo.metadata.artists[i].name == history[j].playlistinfo.metadata.artists[k].name) {
-									debug.log("NOWPLAYING","Using artist info from",j,k,"for",i);
+									debug.trace("NOWPLAYING","Using artist info from",j,k,"for",i);
 									playlistinfo.metadata.artists[i] = history[j].playlistinfo.metadata.artists[k];
 									break acheck;
 								}
@@ -242,12 +242,12 @@ var nowplaying = function() {
 			            if (newalbumartist == albumartist) {
 			            	if (playlistinfo.metadata.album.name == history[j].playlistinfo.metadata.album.name) {
 			            		if (!fa) {
-				            		debug.log("NOWPLAYING","Using album info from",j);
+				            		debug.trace("NOWPLAYING","Using album info from",j);
 				            		playlistinfo.metadata.album = history[j].playlistinfo.metadata.album;
 				            		fa = true;
 				            	}
 			            		if (!ft && playlistinfo.metadata.track.name == history[j].playlistinfo.metadata.track.name) {
-				            		debug.log("NOWPLAYING","Using track info from",j);
+				            		debug.trace("NOWPLAYING","Using track info from",j);
 			            			playlistinfo.metadata.track = history[j].playlistinfo.metadata.track;
 			            			ft = true;
 			            		}
@@ -323,7 +323,7 @@ var nowplaying = function() {
 
         setRating: function(evt) {
         	if (typeof evt == "number") {
-        		debug.log("NOWPLAYING","Button Press Rating Set",evt);
+        		debug.trace("NOWPLAYING","Button Press Rating Set",evt);
         		var rating = evt;
         		var index = findCurrentTrack();
         	} else {

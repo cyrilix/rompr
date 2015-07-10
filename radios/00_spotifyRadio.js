@@ -12,12 +12,12 @@ function spotifyRadio() {
 		var albums = null;
 
 		this.gotSomeAlbums = function(data) {
-			debug.debug("SPOTIRADIO ARTIST","Got albums for",name,data);
+			debug.trace("SPOTIRADIO ARTIST","Got albums for",name,data);
 			albums = new mixAlbum(name, data.items);
 		}
 
 		this.gotRelatedArtists = function(data) {
-			debug.debug("SPOTIRADIO ARTIST","Got related artists for",name,data);
+			debug.trace("SPOTIRADIO ARTIST","Got related artists for",name,data);
 			for (var i in data.artists) {
 				ac: {
 	        		for (var j in self.artists) {
@@ -41,7 +41,7 @@ function spotifyRadio() {
 				debug.shout("SPOTIRADIO ARTIST","Artist",name,"was asked to send a track but has no albums");
 				return false;
 			}
-			debug.debug("SPOTIRADIO ARTIST","Artist",name,"was asked to send a track");
+			debug.trace("SPOTIRADIO ARTIST","Artist",name,"was asked to send a track");
 			albums.sendATrack();
 		}
 
@@ -68,7 +68,7 @@ function spotifyRadio() {
 		this.cansend = true;
 
 		this.gotTracks = function(data) {
-			debug.debug("SPOTIRADIO ALBUM", "Got Tracks For",name,data);
+			debug.trace("SPOTIRADIO ALBUM", "Got Tracks For",name,data);
 			for (var i in data.albums) {
 				for (var j in data.albums[i].tracks.items) {
 					tracks.push({type: 'uri', name: data.albums[i].tracks.items[j].uri});
@@ -96,7 +96,7 @@ function spotifyRadio() {
 	        	player.controller.addTracks([tracks.shift()], playlist.radioManager.playbackStartPos(), null);
 	        	setTimeout(myself.allowsend, 30000);
 			} else {
-				debug.debug("SPOTIRADIO ALBUM",name,"was asked for a track but doesn't have any or is locked");
+				debug.trace("SPOTIRADIO ALBUM",name,"was asked for a track but doesn't have any or is locked");
 			}
 		}
 

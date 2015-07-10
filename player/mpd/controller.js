@@ -110,6 +110,7 @@ function playerController() {
             t += ":" + prefs.mpd_port;
         }
         infobar.notify(infobar.NOTIFY, t);
+        self.reloadPlaylists();
         playlist.radioManager.checkSavedState();
     }
 
@@ -144,7 +145,7 @@ function playerController() {
         });
 	}
 
-    this.updateCollection = function(cmd) {
+    this.scanFiles = function(cmd) {
         prepareForLiftOff(language.gettext("label_updating"));
         prepareForLiftOff2(language.gettext("label_updating"));
         self.do_command_list([[cmd]], function() {
@@ -153,7 +154,7 @@ function playerController() {
         });
     }
 
-    this.reloadAlbumsList = function(uri) {
+    this.loadCollection = function(uri) {
         $.ajax({
             type: "GET",
             url: uri,
@@ -168,7 +169,6 @@ function playerController() {
                     $("#collection").html(data);
                     data = null;
                 }
-                self.reloadPlaylists();
                 player.collectionLoaded = true;
                 scootTheAlbums($("#collection"));
             },
@@ -519,7 +519,7 @@ function playerController() {
             var key = $(this).attr('name');
             var value = $(this).attr("value");
             if (value != "") {
-                debug.debug("PLAYER","Searching for",key, value);
+                debug.trace("PLAYER","Searching for",key, value);
                 if (key == 'tag') {
                     terms[key] = value.split(',');
                 } else {

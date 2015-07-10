@@ -21,5 +21,4 @@ print '<button style="margin-right:4px" class="fixed" onclick="player.controller
 print '<button style="margin-right:4px" class="fixed" onclick="player.controller.search(\'search\')">'.get_int_text("button_search").'</button>';
 ?>
 </div>
-<div id="searchresultholder" class="noselection fullwidth"></div>
 </div>

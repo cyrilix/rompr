@@ -17,7 +17,7 @@ var mostPlayed = function() {
             url: "backends/sql/userRatings.php",
             success: function(data) {
                 if (data.length > 0) {
-                    debug.debug("SMARTPLAYLIST","Got tracks",data);
+                    debug.trace("SMARTPLAYLIST","Got tracks",data);
                     running = true;
                     populating = false;
                     player.controller.addTracks(data, playlist.radioManager.playbackStartPos(), null);

@@ -6,7 +6,7 @@ var info_spotify = function() {
 
     function getTrackHTML(data) {
 
-    	debug.debug(medebug,"Making Track Info From",data);
+    	debug.trace(medebug,"Making Track Info From",data);
     	if (data.error) {
     		return '<h3 align="center">'+data.error+'</h3>';
     	}
@@ -22,7 +22,7 @@ var info_spotify = function() {
 
     function getAlbumHTML(data) {
 
-    	debug.debug(medebug,"Making Album Info From",data);
+    	debug.trace(medebug,"Making Album Info From",data);
     	if (data.error) {
     		return '<h3 align="center">'+data.error+'</h3>';
     	}
@@ -50,7 +50,7 @@ var info_spotify = function() {
 
     function getArtistHTML(data, parent, artistmeta) {
 
-    	debug.debug(medebug,"Making Artist Info From",data);
+    	debug.trace(medebug,"Making Artist Info From",data);
     	if (data.error) {
     		return '<h3 align="center">'+data.error+'</h3>';
     	}
@@ -58,9 +58,12 @@ var info_spotify = function() {
         var h = "";
 
         if (artistmeta.spotify.possibilities && artistmeta.spotify.possibilities.length > 1) {
-            h = h + '<div class="containerbox spotchoices"><div class="bleft fixed spotthing"><img class="spotpossimg" /><span class="spotpossname">All possibilities for "'+artistmeta.spotify.artist.name+'"</span></div>';
+            h = h + '<div class="spotchoices clearfix">'+
+            '<table><tr><td>'+
+            '<div class="bleft tleft spotthing"><span class="spotpossname">All possibilities for "'+artistmeta.spotify.artist.name+'"</span></div>'+
+            '</td><td>';
             for (var i in artistmeta.spotify.possibilities) {
-                h = h + '<div class="fixed infoclick bleft ';
+                h = h + '<div class="tleft infoclick bleft ';
                 if (i == artistmeta.spotify.currentposs) {
                     h = h + 'bsel ';
                 }
@@ -71,6 +74,7 @@ var info_spotify = function() {
                 h = h + '<span class="spotpossname">'+artistmeta.spotify.possibilities[i].name+'</span>';
                 h = h + '</div>';
             }
+            h = h + '</td></tr></table>';
             h = h + '</div>';
         }
 
@@ -140,7 +144,7 @@ var info_spotify = function() {
 
 		collection: function(parent, artistmeta, albummeta, trackmeta) {
 
-			debug.log(medebug, "Creating data collection");
+			debug.trace(medebug, "Creating data collection");
 
 			var self = this;
             var displaying = false;
@@ -167,7 +171,7 @@ var info_spotify = function() {
 			}
 
             this.handleClick = function(source, element, event) {
-                debug.log(medebug,parent.nowplayingindex,source,"is handling a click event");
+                debug.trace(medebug,parent.nowplayingindex,source,"is handling a click event");
                 if (element.hasClass('clickzoomimage')) {
                 	imagePopup.create(element, event, element.attr("src"));
                 } else if (element.hasClass('clickopenalbum')) {
@@ -230,7 +234,7 @@ var info_spotify = function() {
         	function getAlbums() {
         		$("#hibbert").makeSpinner();
 	        	if (artistmeta.spotify.albums === undefined) {
-	        		debug.log(medebug, "Getting Artist Album Info");
+	        		debug.trace(medebug, "Getting Artist Album Info");
 	        		spotify.artist.getAlbums(artistmeta.spotify.id, 'album,single', storeAlbums, self.artist.spotifyError, true)
 	        	} else {
 	        		doAlbums(artistmeta.spotify.albums);
@@ -240,7 +244,7 @@ var info_spotify = function() {
 	        function getArtists() {
         		$("#hibbert").makeSpinner()
 	        	if (artistmeta.spotify.related === undefined) {
-	        		debug.log(medebug, "Getting Artist Related Info");
+	        		debug.trace(medebug, "Getting Artist Related Info");
 	        		spotify.artist.getRelatedArtists(artistmeta.spotify.id, storeArtists, self.artist.spotifyError, true)
 	        	} else {
                     doArtists(artistmeta.spotify.related);
@@ -258,11 +262,11 @@ var info_spotify = function() {
 	        }
 
             function doAlbums(data) {
-            	debug.log(medebug,"DoAlbums",artistmeta.spotify.showing, displaying);
+            	debug.trace(medebug,"DoAlbums",artistmeta.spotify.showing, displaying);
             	if (artistmeta.spotify.showing == "albums" && displaying && data) {
                     var images = {};
                     var imgcount = 0;
-	            	debug.log(medebug,"Doing Albums For Artist",data);
+	            	debug.trace(medebug,"Doing Albums For Artist",data);
 	            	$("#artistalbums").empty().hide();
             		var w = browser.calcMWidth();;
 	            	for (var i in data.items) {
@@ -309,7 +313,7 @@ var info_spotify = function() {
             }
 
             function relatedArtistResponse(data) {
-            	debug.log(medebug, "Got Related Artist Response",data);
+            	debug.trace(medebug, "Got Related Artist Response",data);
             	if (displaying) {
             		var id = data.reqid;
             		var w = browser.calcMWidth() - 24;
@@ -342,7 +346,7 @@ var info_spotify = function() {
 
             function doArtists(data) {
             	if (artistmeta.spotify.showing == "artists" && displaying && data) {
-	            	debug.log(medebug,"Doing Related Artists",data);
+	            	debug.trace(medebug,"Doing Related Artists",data);
                     var images = {};
                     var imgcount = 0;
 	            	$("#artistalbums").empty().hide();
@@ -386,8 +390,8 @@ var info_spotify = function() {
 			this.track = function() {
 
                 function spotifyResponse(data) {
-                    debug.log(medebug, "Got Spotify Track Data");
-                    debug.debug(medebug, data);
+                    debug.trace(medebug, "Got Spotify Track Data");
+                    debug.trace(medebug, data);
                     if (trackmeta.spotify.track === undefined) {
                         trackmeta.spotify.track = data;
                     }
@@ -396,11 +400,11 @@ var info_spotify = function() {
                     }
                     for(var i in data.artists) {
                         if (data.artists[i].name == artistmeta.name) {
-                            debug.log(medebug,parent.nowplayingindex,"Found Spotify ID for",artistmeta.name);
+                            debug.trace(medebug,parent.nowplayingindex,"Found Spotify ID for",artistmeta.name);
                             artistmeta.spotify.id = data.artists[i].id;
                         }
                     }
-                    debug.debug(medebug,"Spotify Data now looks like",artistmeta, albummeta, trackmeta);
+                    debug.trace(medebug,"Spotify Data now looks like",artistmeta, albummeta, trackmeta);
                     self.track.doBrowserUpdate();
                     self.artist.populate();
                 }
@@ -432,7 +436,7 @@ var info_spotify = function() {
                     doBrowserUpdate: function() {
                         if (displaying && trackmeta.spotify !== undefined &&
                         	trackmeta.spotify.track !== undefined) {
-                            debug.mark(medebug,parent.nowplayingindex,"track was asked to display");
+                            debug.trace(medebug,parent.nowplayingindex,"track was asked to display");
                             var accepted = browser.Update(
                             	null,
                             	'track',
@@ -458,8 +462,8 @@ var info_spotify = function() {
 			this.album = function() {
 
                 function spotifyResponse(data) {
-                    debug.log(medebug, "Got Spotify Album Data");
-                    debug.debug(medebug, data);
+                    debug.trace(medebug, "Got Spotify Album Data");
+                    debug.trace(medebug, data);
                     albummeta.spotify.album = data;
                     self.album.doBrowserUpdate();
                 }
@@ -484,7 +488,7 @@ var info_spotify = function() {
                     doBrowserUpdate: function() {
                         if (displaying && albummeta.spotify !== undefined &&
                         	albummeta.spotify.album !== undefined) {
-                            debug.mark(medebug,parent.nowplayingindex,"album was asked to display");
+                            debug.trace(medebug,parent.nowplayingindex,"album was asked to display");
                             var accepted = browser.Update(
                             	null,
                             	'album',
@@ -513,8 +517,8 @@ var info_spotify = function() {
                 var triedWithoutBrackets = false;
 
                 function spotifyResponse(data) {
-                    debug.log(medebug, "Got Spotify Artist Data");
-                    debug.debug(medebug, data);
+                    debug.trace(medebug, "Got Spotify Artist Data");
+                    debug.trace(medebug, data);
                     artistmeta.spotify.artist = data;
                     self.artist.doBrowserUpdate();
                     self.album.populate();
@@ -531,13 +535,13 @@ var info_spotify = function() {
                 }
 
                 function searchResponse(data) {
-                    debug.log(medebug,"Got Spotify Search Data",data);
+                    debug.trace(medebug,"Got Spotify Search Data",data);
                     var m = data.artists.href.match(/\?query=(.+?)\&/);
                     var match;
                     if (m && m[1]) {
                         match = decodeURIComponent(m[1]);
                         match = match.replace(/\+/g,' ');
-                        debug.log(medebug,"We searched for : ",match);
+                        debug.trace(medebug,"We searched for : ",match);
                         match = match.toLowerCase();
                     } else {
                         debug.warn(medebug, "Unable to match href for search artist name");
@@ -566,12 +570,12 @@ var info_spotify = function() {
                 }
 
                 function searchFail() {
-                    debug.log("SPOTIFY PLUGIN","Couldn't find anything for",artistmeta.name);
+                    debug.trace("SPOTIFY PLUGIN","Couldn't find anything for",artistmeta.name);
                     if (!triedWithoutBrackets) {
                         triedWithoutBrackets = true;
                         var test = artistmeta.name.replace(/ \(+.+?\)+$/, '');
                         if (test != artistmeta.name) {
-                            debug.log("SPOTIFY PLUGIN","Searching instead for",test);
+                            debug.trace("SPOTIFY PLUGIN","Searching instead for",test);
                             search(test);
                             return;
                         }
@@ -607,7 +611,7 @@ var info_spotify = function() {
                     doBrowserUpdate: function() {
                         if (displaying && artistmeta.spotify !== undefined &&
                         	artistmeta.spotify.artist !== undefined) {
-                            debug.mark(medebug,parent.nowplayingindex,"artist was asked to display");
+                            debug.trace(medebug,parent.nowplayingindex,"artist was asked to display");
                             var accepted = browser.Update(
                             	null,
                             	'artist',
@@ -621,7 +625,7 @@ var info_spotify = function() {
                                 self.artist.force
                             );
                             if (accepted && artistmeta.spotify.artist.error == undefined) {
-                            	debug.debug(medebug,"Update was accepted by browser");
+                            	debug.trace(medebug,"Update was accepted by browser");
                             	if (artistmeta.spotify.artist.external_urls &&
                             		artistmeta.spotify.artist.external_urls.spotify) {
 	                            	$.get('browser/backends/getspotibio.php?url='+artistmeta.spotify.artist.external_urls.spotify)

@@ -93,47 +93,6 @@ jQuery.fn.makeTagMenu = function(options) {
     });
 }
 
-function toggleSearch() {
-    if (prefs.hide_albumlist) {
-        layoutProcessor.sourceControl("albumlist", grrAnnoyed);
-        ihatefirefox();
-        return false;
-    }
-    var albumScrollOffset = $("#sources .mCSB_container").position().top;
-    if ($("#albumlist").is(':visible')) {
-        if (albumScrollOffset > -90) {
-            $("#search").slideToggle({duration: 'fast', start: setSearchLabelWidth, done: scrollToSearch});
-        } else {
-            $("#search").slideDown({duration: 'fast', start: setSearchLabelWidth, done: scrollToSearch});
-        }
-    } else {
-        layoutProcessor.sourceControl("albumlist", grrAnnoyed);
-    }
-    ihatefirefox();
-    return false;
-}
-
-function scrollToSearch() {
-    $('#sources').mCustomScrollbar("scrollTo", "top", {scrollInertia:200, scrollEasing: "easeOut"});
-}
-
-function grrAnnoyed() {
-    $("#search").slideDown({duration: 'fast', start: setSearchLabelWidth});
-}
-
-function doSomethingClever() {
-    if ($("#albumlist").is(':hidden')) {
-        layoutProcessor.sourceControl("albumlist");
-        if ($("#search").is(':visible')) {
-            $("#search").slideToggle('fast');
-        }
-    } else {
-        if ($("#search").is(':visible')) {
-            $('#sources').mCustomScrollbar("scrollTo", $('#collection').prev().prev().position().top, {scrollInertia:200, scrollEasing: "easeOut"});
-        }
-    }
-}
-
 function getPanelWidths() {
     var sourcesweight = (prefs.sourceshidden) ? 0 : 1;
     var playlistweight = (prefs.playlisthidden) ? 0 : 1;
@@ -298,7 +257,7 @@ function prDragStop(event, ui) {
 function addCustomScrollBar(value) {
     $(value).mCustomScrollbar({
         theme: "light-thick",
-        scrollInertia: 200,
+        scrollInertia: 300,
         contentTouchScroll: 25,
         mouseWheel: {
             scrollAmount: 40,
@@ -381,10 +340,11 @@ var layoutProcessor = function() {
             if (is_hidden != new_state) {
                 if (new_state && prefs.chooser == panel) {
                     $("#"+panel).fadeOut('fast');
-                    var s = ["albumlist", "filelist", "radiolist"];
+                    var s = ["albumlist", "searcher", "filelist", "radiolist"];
                     for (var i in s) {
                         if (s[i] != panel && !prefs["hide_"+s[i]]) {
                             switchsource(s[i]);
+                            if (s[i] == 'searcher') setSearchLabelWidth();
                             break;
                         }
                     }
@@ -434,7 +394,7 @@ var layoutProcessor = function() {
         },
 
         sourceControl: function(source, callback) {
-            sources = ["albumlist", "filelist", "radiolist"];
+            sources = ["albumlist", "searcher", "filelist", "radiolist"];
             if (callback) {
                 sources.push(callback);
             }
@@ -505,8 +465,7 @@ var layoutProcessor = function() {
 
             setDraggable('collection');
             setDraggable('filecollection');
-            setDraggable('search');
-            setDraggable('filesearch');
+            setDraggable('searchresultholder');
             setDraggable("podcastslist");
             setDraggable('artistinformation');
             setDraggable('albuminformation');
@@ -599,13 +558,9 @@ var layoutProcessor = function() {
                     player.controller.search('search');
                 }
             } );
-            if (prefs.hide_albumlist) {
-                $("#search").show({complete: setSearchLabelWidth});
-                ihatefirefox();
-            }
             setControlClicks();
-            $('.choose_albumlist').click(doSomethingClever);
-            $('.choose_searcher').click(toggleSearch);
+            $('.choose_albumlist').click(function(){layoutProcessor.sourceControl('albumlist')});
+            $('.choose_searcher').click(function(){layoutProcessor.sourceControl('searcher', setSearchLabelWidth)});
             $('.choose_filelist').click(function(){layoutProcessor.sourceControl('filelist')});
             $('.choose_radiolist').click(function(){layoutProcessor.sourceControl('radiolist')});
             $('.open_albumart').click(openAlbumArtManager);
@@ -617,7 +572,6 @@ var layoutProcessor = function() {
             $('#expandright').click(function(){expandInfo('right')});
             $('.clear_playlist').click(playlist.clear);
             $("#playlistname").parent().next('button').click(player.controller.savePlaylist);
-            $(".choose_filesearch").click(toggleFileSearch);
 
             $(".lettuce,.tooltip").tipTip({delay: 1000, edgeOffset: 8});
 

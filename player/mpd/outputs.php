@@ -8,11 +8,11 @@ if ($is_connected) {
     foreach ($outputs as $i => $n) {
         if (is_array($n)) {
             foreach ($n as $a => $b) {
-                debug_print($i." - ".$b.":".$a,"AUDIO OUTPUT");
+                debuglog($i." - ".$b.":".$a,"AUDIO OUTPUT");
                 $outputdata[$a][$i] = $b;
             }
         } else {
-            debug_print($i." - ".$n,"AUDIO OUTPUT");
+            debuglog($i." - ".$n,"AUDIO OUTPUT");
             $outputdata[0][$i] = $n;
         }
     }

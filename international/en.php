@@ -256,7 +256,6 @@ $languages['en'] = array (
 	"setup_leaveblank" => "Leave these blank unless you know you need them",
 	"setup_password" => "Password",
 	"setup_unixsocket" => "UNIX-domain socket",
-	"setup_debug" => "Enable Debug Logging",
 
 	// Intro Window
 	"intro_title" => "Information About This Version",
@@ -560,7 +559,7 @@ $languages['en'] = array (
 	"label_resultstree" => "Directory Tree",
 	"label_displayresultsas" => "Display Results As:",
 	"label_files" => "Files",
-	"label_allartist" => "All Tracks By ",
+	"label_allartist" => "All Albums Featuring ",
 	"button_findexact" => "Find Exact Match",
 	"label_albumartist" => "Album Artist",
 	"config_collectionfolders" => "Build Collection From:",

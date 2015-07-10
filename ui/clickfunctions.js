@@ -6,10 +6,8 @@ function setClickHandlers() {
     $("#collection").unbind('dblclick');
     $("#filecollection").unbind('click');
     $("#filecollection").unbind('dblclick');
-    $("#search").unbind('click');
-    $("#search").unbind('dblclick');
-    $("#filesearch").unbind('click');
-    $("#filesearch").unbind('dblclick');
+    $("#searchresultholder").unbind('click');
+    $("#searchresultholder").unbind('dblclick');
     $("#radiolist").unbind('click');
     $("#radiolist").unbind('dblclick');
     $("#storedplaylists").unbind('click');
@@ -17,16 +15,14 @@ function setClickHandlers() {
 
     $("#collection").click(onCollectionClicked);
     $("#filecollection").click(onFileCollectionClicked);
-    $("#search").click(onCollectionClicked);
-    $("#filesearch").click(onFileCollectionClicked);
+    $("#searchresultholder").click(onCollectionClicked);
     $("#radiolist").click(onRadioClicked);
     $("#storedplaylists").click(onFileCollectionClicked);
 
     if (prefs.clickmode == "double") {
         $("#collection").dblclick(onCollectionDoubleClicked);
         $("#filecollection").dblclick(onFileCollectionDoubleClicked);
-        $("#search").dblclick(onCollectionDoubleClicked);
-        $("#filesearch").dblclick(onFileCollectionDoubleClicked);
+        $("#searchresultholder").dblclick(onCollectionDoubleClicked);
         $("#radiolist").dblclick(onRadioDoubleClicked);
         $("#storedplaylists").dblclick(onFileCollectionDoubleClicked);
     }
@@ -571,12 +567,4 @@ function checkServerTimeOffset() {
             debug.error("TIMECHECK","Failed to read server time");
         }
     });
-}
-
-function ihatefirefox() {
-    if (prefs.search_limit_limitsearch) {
-        $("#mopidysearchdomains").show();
-    } else {
-        $("#mopidysearchdomains").hide();
-    }
 }

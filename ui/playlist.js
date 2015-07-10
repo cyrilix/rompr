@@ -138,6 +138,7 @@ function Playlist() {
             item.newtrack(track);
             if (track.backendid == player.status.songid) {
                 currentalbum = count - 1;
+                currentTrack.playlistpos = track.playlistpos;
             }
             finaltrack = parseInt(track.playlistpos);
 
@@ -327,10 +328,10 @@ function Playlist() {
 
     this.playFromEnd = function() {
         if (player.status.state == "stop") {
-            debug.debug("PLAYLIST","Playfromend",finaltrack+1);
+            debug.trace("PLAYLIST","Playfromend",finaltrack+1);
             return finaltrack+1;
         } else {
-            debug.debug("PLAYLIST","Disabling auto-play");
+            debug.trace("PLAYLIST","Disabling auto-play");
             return -1;
         }
     }
@@ -536,12 +537,15 @@ function Playlist() {
             },
 
             actuallyRepopulate: function() {
-                var fromend = playlist.getfinaltrack()+1 - currentTrack.playlistpos;
-                populating = false;
-                debug.log("RADIO MANAGER","Repopulate Check : ",playlist.getfinaltrack(),fromend,chunksize,mode);
-                if (fromend < chunksize && mode) {
-                    playlist.waiting();
-                    radios[mode].populate(prefs.radioparam, chunksize - fromend);
+                if (updatecounter == 0) {
+                    // Don't do anything if we're waiting on playlist updates
+                    var fromend = playlist.getfinaltrack()+1 - currentTrack.playlistpos;
+                    populating = false;
+                    debug.blurt("RADIO MANAGER","Repopulate Check : Final Track :",playlist.getfinaltrack()+1,"Fromend :",fromend,"Chunksize :",chunksize,"Mode :",mode);
+                    if (fromend < chunksize && mode) {
+                        playlist.waiting();
+                        radios[mode].populate(prefs.radioparam, chunksize - fromend);
+                    }
                 }
             },
 

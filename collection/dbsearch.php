@@ -106,7 +106,7 @@ function doDbCollection($terms, $domains, $resultstype) {
 		$qstring .= ")";
 	}
 
-	debug_print("SQL Search String is ".$qstring,"SEARCH");
+	debuglog("SQL Search String is ".$qstring,"SEARCH");
 	$fcount = 0;
 
 	if ($result = sql_prepare_query_later($qstring)) {

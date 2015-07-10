@@ -292,7 +292,6 @@ var layoutProcessor = function() {
             $('.icon-cog-alt.topimg').click(function(){layoutProcessor.sourceControl('chooser')});
             $('.choose_playlist').click(function(){layoutProcessor.sourceControl('playlistm')});
             $("#ratingimage").click(nowplaying.setRating);
-            $(".choose_filesearch").click(toggleFileSearch);
             $("#playlistname").parent().next('button').click(player.controller.savePlaylist);
             $('.clear_playlist').click(playlist.clear);
         }

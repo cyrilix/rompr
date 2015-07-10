@@ -5,7 +5,7 @@ include ("includes/functions.php");
 
 if (array_key_exists('url', $_REQUEST)) {
 	$url = rawurldecode($_REQUEST['url']);
-	debug_print("Adding User External Playlist ".$url,"USERPLAYLIST");
+	debuglog("Adding User External Playlist ".$url,"USERPLAYLIST");
 	$existingfiles = glob('prefs/userplaylists/*');
 	$number = 1;
 	while(in_array('prefs/userplaylists/User_Playlist_'.$number, $existingfiles)) {

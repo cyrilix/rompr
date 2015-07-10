@@ -11,9 +11,9 @@ if(array_key_exists("url", $_REQUEST)) {
 ob_flush();
 
 function get_spotify_page($url) {
-    debug_print("Getting Spotify Page ".$url,"SPOTIBIO");
+    debuglog("Getting Spotify Page ".$url,"SPOTIBIO");
     if (file_exists('prefs/jsoncache/spotify/'.md5($url))) {
-        debug_print("Returning cached data","SPOTIBIO");
+        debuglog("Returning cached data","SPOTIBIO");
         print file_get_contents('prefs/jsoncache/spotify/'.md5($url));
     } else {
         $content = url_get_contents($url);

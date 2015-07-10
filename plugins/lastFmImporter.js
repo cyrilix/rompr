@@ -482,7 +482,7 @@ var lastfmImporter = function() {
 		doSqlStuff: function(data, callback) {
 			if (!data || data.ignore) {
 				if (callback) {
-					debug.debug("LASTFM IMPORTER","Track is undefined or marked as ignore");
+					debug.trace("LASTFM IMPORTER","Track is undefined or marked as ignore");
 					callback();
 				}
 			} else {

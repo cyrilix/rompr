@@ -274,7 +274,7 @@ var faveFinder = function() {
                 }
             );
 
-            debug.debug("FAVEFINDER","Sorted Search Results are",data);
+            debug.trace("FAVEFINDER","Sorted Search Results are",data);
 
             var results = new Array();
             if (req.returnall) {
@@ -282,7 +282,7 @@ var faveFinder = function() {
                 for (var i in data) {
                     if (data[i].tracks) {
                         for (var k = 0; k < data[i].tracks.length; k++) {
-                            debug.debug("FAVEFINDER","Found Track",data[i].tracks[k]);
+                            debug.trace("FAVEFINDER","Found Track",data[i].tracks[k]);
                             f = true;
                             var r = cloneObject(req);
                             // r.data = data[i].tracks[k];
@@ -392,6 +392,7 @@ function updateCollectionDisplay(rdata) {
     //      - which would just look shit.
     debug.log("RATING PLUGIN","Update Display");
     if (rdata && rdata.hasOwnProperty('inserts')) {
+        $('#emptycollection').remove();
         for (var i in rdata.inserts) {
             switch (rdata.inserts[i].type) {
                 case 'insertAfter':
@@ -415,21 +416,17 @@ function updateCollectionDisplay(rdata) {
                     $(rdata.inserts[i].html).prependTo($('#'+rdata.inserts[i].where));
                     break;
             }
-            $(rdata.inserts[i].html).find('img[src="newimages/compact_disc.svg"]').each(function() {
-                debug.log("Getting Image for new album");
-                coverscraper.GetNewAlbumArt($(this).attr('name'));
-            });
         }
     }
     if (rdata && rdata.hasOwnProperty('deletedtracks')) {
-        debug.debug("DELETED TRACKS",rdata.deletedtracks);
+        debug.trace("DELETED TRACKS",rdata.deletedtracks);
         for (var i in rdata.deletedtracks) {
             debug.log("REMOVING",rdata.deletedtracks[i]);
             $('div[name="'+rdata.deletedtracks[i]+'"]').remove();
         }
     }
     if (rdata && rdata.hasOwnProperty('deletedalbums')) {
-        debug.debug("DELETED ALBUMS",rdata.deletedalbums);
+        debug.trace("DELETED ALBUMS",rdata.deletedalbums);
         for (var i in rdata.deletedalbums) {
             debug.log("REMOVING",rdata.deletedalbums[i]);
             $("#"+rdata.deletedalbums[i]).remove();
@@ -437,7 +434,7 @@ function updateCollectionDisplay(rdata) {
         }
     }
     if (rdata && rdata.hasOwnProperty('deletedartists')) {
-        debug.debug("DELETED ARTISTS",rdata.deletedartists);
+        debug.trace("DELETED ARTISTS",rdata.deletedartists);
         for (var i in rdata.deletedartists) {
             $("#"+rdata.deletedartists[i]).remove();
             findPosition(rdata.deletedartists[i]).remove();
@@ -448,4 +445,5 @@ function updateCollectionDisplay(rdata) {
         // statistics box at the top of the collection
         $("#fothergill").html(rdata.stats);
     }
+    scootTheAlbums($("#collection"));
 }

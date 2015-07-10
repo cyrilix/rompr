@@ -15,7 +15,7 @@ error_reporting(0);
 if (array_key_exists("lang", $_REQUEST)) {
     $domain = $_REQUEST["lang"];
 }
-debug_print("Using Language ".$domain,"WIKIPEDIA");
+debuglog("Using Language ".$domain,"WIKIPEDIA");
 
 if(array_key_exists("wiki", $_REQUEST)) {
     // An intra-wiki link from a page we're displaying
@@ -30,7 +30,7 @@ if(array_key_exists("wiki", $_REQUEST)) {
     if ($userdomain == false) {
         // Found a page, but not in the user's chosen domain
         if (array_key_exists('term', $_REQUEST)) {
-            debug_print("Page was retreieved but not in user's chosen language. Checking via a search","WIKIPEDIA");
+            debuglog("Page was retreieved but not in user's chosen language. Checking via a search","WIKIPEDIA");
             $upage = wikipedia_find_exact($_REQUEST['term'], $domain);
             if ($upage != '') {
                 $xml_response = $upage;
@@ -50,7 +50,7 @@ if(array_key_exists("wiki", $_REQUEST)) {
 
 } else if (array_key_exists("album", $_REQUEST)) {
     // Search for an album
-    debug_print("Doing album ".$_REQUEST['album'],"WIKIPEDIA");
+    debuglog("Doing album ".$_REQUEST['album'],"WIKIPEDIA");
     $xml_response = getAlbumWiki(rawurldecode($_REQUEST['album']), rawurldecode($_REQUEST['albumartist']));
     if ($xml_response == null) {
         send_failure(rawurldecode($_REQUEST['album']));
@@ -60,7 +60,7 @@ if(array_key_exists("wiki", $_REQUEST)) {
 
 } else if (array_key_exists("track", $_REQUEST)) {
     // Search for a track
-    debug_print("Doing track ".$_REQUEST['track'],"WIKIPEDIA");
+    debuglog("Doing track ".$_REQUEST['track'],"WIKIPEDIA");
     $xml_response = getTrackWiki(rawurldecode($_REQUEST['track']), rawurldecode($_REQUEST['trackartist']));
     if ($xml_response == null) {
         send_failure(rawurldecode($_REQUEST['track']));
@@ -76,14 +76,14 @@ if(array_key_exists("wiki", $_REQUEST)) {
 // ==========================================================================
 
 function wikipedia_request($url) {
-    debug_print("Getting : ".$url,"WIKIPEDIA");
+    debuglog("Getting : ".$url,"WIKIPEDIA");
     if (file_exists('prefs/jsoncache/wikipedia/'.md5($url))) {
-        debug_print("  Returning cached data","WIKIPEDIA");
+        debuglog("  Returning cached data","WIKIPEDIA");
         return file_get_contents('prefs/jsoncache/wikipedia/'.md5($url));
     } else {
         $content = url_get_contents($url);
         $s = $content['status'];
-        debug_print("Response Status was ".$s, "WIKIPEDIA");
+        debuglog("Response Status was ".$s, "WIKIPEDIA");
         if ($s == "200") {
             file_put_contents('prefs/jsoncache/wikipedia/'.md5($url), $content['contents']);
             return $content['contents'];
@@ -112,15 +112,15 @@ function get_wikipedia_page($page, $site, $langsearch) {
 
     if ($langsearch) {
 
-        debug_print("Request for page ".$page." from ".$site.". Domain is ".$request_domain." and user domain is ".$domain,"WIKIPEDIA");
+        debuglog("Request for page ".$page." from ".$site.". Domain is ".$request_domain." and user domain is ".$domain,"WIKIPEDIA");
 
         $user_link = ($request_domain == $domain) ? $page : null;
         $english_link = ($site == "en.wikipedia.org") ? $page : null;
 
-        debug_print("User Link is ".$user_link." and english link is ".$english_link,"WIKIPEDIA");
+        debuglog("User Link is ".$user_link." and english link is ".$english_link,"WIKIPEDIA");
 
         if ($domain != $request_domain) {
-            debug_print("Asked for page ".$page." from site ".$site." but user wants domain ".$domain,"WIKIPEDIA");
+            debuglog("Asked for page ".$page." from site ".$site." but user wants domain ".$domain,"WIKIPEDIA");
             // Find language links for the requested page
             $langlinks = wikipedia_request("http://".$site."/w/api.php?action=query&prop=langlinks&titles=".$page."&format=xml");
             if ($langlinks !== null) {
@@ -129,7 +129,7 @@ function get_wikipedia_page($page, $site, $langsearch) {
                     foreach($langs->query->pages->page->langlinks->ll as $ll) {
                         $l = $ll['lang'];
                         $t = dom_import_simplexml($ll)->textContent;
-                        debug_print("Found language link ".$l." title ".$t,"WIKIPEDIA");
+                        debuglog("Found language link ".$l." title ".$t,"WIKIPEDIA");
                         if ($l == $domain) {
                             $user_link = preg_replace('/ /', '_', $t);
                         }
@@ -141,8 +141,8 @@ function get_wikipedia_page($page, $site, $langsearch) {
             }
         }
 
-        debug_print("Language Scan Complete for ".$page,"WIKIPEDIA");
-        debug_print("User Link is ".$user_link." and english link is ".$english_link,"WIKIPEDIA");
+        debuglog("Language Scan Complete for ".$page,"WIKIPEDIA");
+        debuglog("User Link is ".$user_link." and english link is ".$english_link,"WIKIPEDIA");
 
         if ($user_link !== null) {
             $format_domain = $domain;
@@ -182,7 +182,7 @@ function get_wikipedia_page($page, $site, $langsearch) {
                 $xml = wikipedia_request('http://'.$format_domain.'.wikipedia.org/w/api.php?action=parse&prop=text&page='.$matches[1].'&format=xml');
                 $info = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
             } else if (preg_match( '/<ul class="redirectText"><li><a href=\"(.*?)\/w\/index.php\?title=(.*?)(\&.+)*\"/', $html, $matches)) {
-                debug_print("Getting redirect page for ".$matches[2]." from ".$matches[1],"WIKIPEDIA");
+                debuglog("Getting redirect page for ".$matches[2]." from ".$matches[1],"WIKIPEDIA");
                 // Wierd. $matches[1] always == "". WTF?
                 $xml = wikipedia_request('http://'.$format_domain.'.wikipedia.org/w/api.php?action=parse&prop=text&page='.$matches[2].'&format=xml');
                 $info = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
@@ -271,13 +271,13 @@ function wikipedia_find_exact($searchfor, $domain) {
 function find_dismbiguation_page($page) {
 
     $searchfor = $page.' (disambiguation)';
-    debug_print("Searching Wikipedia for ".$searchfor, "WIKIPEDIA");
+    debuglog("Searching Wikipedia for ".$searchfor, "WIKIPEDIA");
     $xml = wikipedia_request('http://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=' . rawurlencode($searchfor) . '&srprop=score&format=xml');
     $results = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
 
     foreach ($results->query->search->p as $id) {
         if ($id['title'] == $searchfor) {
-            debug_print("returning disambiguation page for ".$page,"WIKIPEDIA");
+            debuglog("returning disambiguation page for ".$page,"WIKIPEDIA");
             return get_wikipedia_page(preg_replace('/ /', '_', $id['title']), "en.wikipedia.org", true);
         }
     }
@@ -288,7 +288,7 @@ function find_dismbiguation_page($page) {
 function wikipedia_get_list_of_suggestions($term) {
 
     global $domain;
-    debug_print("Getting list of suggestions for ".$term." from ".$domain.".wikipedia.org", "WIKIPEDIA");
+    debuglog("Getting list of suggestions for ".$term." from ".$domain.".wikipedia.org", "WIKIPEDIA");
     $xml = wikipedia_request('http://'.$domain.'.wikipedia.org/w/api.php?action=query&list=search&srsearch=' . rawurlencode($term) . '&srprop=score&format=xml');
     if ($xml != "") {
         $html = '<?xml version="1.0"?><api><parse><text xml:space="preserve">';
@@ -384,7 +384,7 @@ function  wikipedia_artist_search($artist, $disambig) {
     $page = null;
     if ($disambig != "") {
         $searchfor = $artist.' ('.$disambig.')';
-        debug_print("Searching Wikipedia for ".$searchfor, "WIKIPEDIA ARTIST");
+        debuglog("Searching Wikipedia for ".$searchfor, "WIKIPEDIA ARTIST");
         $xml = wikipedia_request('http://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=' . rawurlencode($searchfor) . '&srprop=score&format=xml');
         $artistinfo = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
 
@@ -412,7 +412,7 @@ function  wikipedia_artist_search($artist, $disambig) {
     }
 
     if ($page == null) {
-        debug_print("Searching Wikipedia for ".$artist, "WIKIPEDIA ARTIST");
+        debuglog("Searching Wikipedia for ".$artist, "WIKIPEDIA ARTIST");
         $xml = wikipedia_request('http://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=' . rawurlencode($artist) . '&srprop=score&format=xml');
         $artist2info = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
         foreach ($artist2info->query->search->p as $id) {
@@ -515,7 +515,7 @@ function  wikipedia_artist_search($artist, $disambig) {
 
     if ($page == null && preg_match('/.*\(.*\).*/', $artist)) {
         $sf = trim(preg_replace('/\(.*?\)/','',$artist));;
-        debug_print("Searching Wikipedia for ".$sf, "WIKIPEDIA ARTIST");
+        debuglog("Searching Wikipedia for ".$sf, "WIKIPEDIA ARTIST");
         $xml = wikipedia_request('http://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=' . rawurlencode($sf) . '&srprop=score&format=xml');
         $artist3info = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
         foreach ($artist3info->query->search->p as $id) {
@@ -532,7 +532,7 @@ function  wikipedia_artist_search($artist, $disambig) {
         return '';
     }
 
-    debug_print("Artist search found page ".$page,"WIKIPEDIA ARTIST");
+    debuglog("Artist search found page ".$page,"WIKIPEDIA ARTIST");
     return get_wikipedia_page(preg_replace('/ /', '_', $page), "en.wikipedia.org", true);
 
 }
@@ -577,7 +577,7 @@ function getAlbumWiki($album_name, $artist_name) {
 function wikipedia_album_search($album, $artist) {
 
     $album = munge_album_name($album);
-    debug_print("Searching Wikipedia for ".$album." (album)", "WIKIPEDIA ALBUM");
+    debuglog("Searching Wikipedia for ".$album." (album)", "WIKIPEDIA ALBUM");
     $xml = wikipedia_request('http://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=' . rawurlencode($album." (album)") . '&srprop=score&format=xml');
     $albuminfo = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
 
@@ -585,9 +585,9 @@ function wikipedia_album_search($album, $artist) {
 
     foreach ($albuminfo->query->search->p as $id) {
         $searchstring = prepare_string($album).'\s+\('.prepare_string($artist).' album\)';
-        // debug_print("1. Checking page ".$id['title']." against ".$searchstring, "WIKIDEBUG");
+        // debuglog("1. Checking page ".$id['title']." against ".$searchstring, "WIKIDEBUG");
         if (preg_match('/^\s*' . $searchstring . '/i', $id['title'])) {
-            debug_print("Found Page : ".$id['title'], "WIKIPEDIA");
+            debuglog("Found Page : ".$id['title'], "WIKIPEDIA");
             $page = $id['title'];
             break;
         }
@@ -596,9 +596,9 @@ function wikipedia_album_search($album, $artist) {
     if ($page == null) {
         foreach ($albuminfo->query->search->p as $id) {
             $searchstring = prepare_string($album).'\s+\(album\)';
-            // debug_print("2. Checking page ".$id['title']." against ".$searchstring, "WIKIDEBUG");
+            // debuglog("2. Checking page ".$id['title']." against ".$searchstring, "WIKIDEBUG");
             if (preg_match('/^\s*' . $searchstring . '/i', $id['title'])) {
-                debug_print("Found Page : ".$id['title'], "WIKIPEDIA");
+                debuglog("Found Page : ".$id['title'], "WIKIPEDIA");
                 $page = $id['title'];
                 break;
             }
@@ -608,9 +608,9 @@ function wikipedia_album_search($album, $artist) {
     if ($page == null) {
         foreach ($albuminfo->query->search->p as $id) {
             $searchstring = prepare_string($album).'\s+\(\d+ album\)';
-            // debug_print("2. Checking page ".$id['title']." against ".$searchstring, "WIKIDEBUG");
+            // debuglog("2. Checking page ".$id['title']." against ".$searchstring, "WIKIDEBUG");
             if (preg_match('/^\s*' . $searchstring . '/i', $id['title'])) {
-                debug_print("Found Page : ".$id['title'], "WIKIPEDIA");
+                debuglog("Found Page : ".$id['title'], "WIKIPEDIA");
                 $page = $id['title'];
                 break;
             }
@@ -620,9 +620,9 @@ function wikipedia_album_search($album, $artist) {
     if ($page == null) {
         foreach ($albuminfo->query->search->p as $id) {
             $searchstring = prepare_string($album);
-            // debug_print("3. Checking page ".$id['title']." against ".$searchstring, "WIKIDEBUG");
+            // debuglog("3. Checking page ".$id['title']." against ".$searchstring, "WIKIDEBUG");
             if (preg_match('/^\s*' . $searchstring . '\s*$/i', $id['title'])) {
-                debug_print("Found Page : ".$id['title'], "WIKIPEDIA");
+                debuglog("Found Page : ".$id['title'], "WIKIPEDIA");
                 $page = $id['title'];
                 break;
             }
@@ -630,14 +630,14 @@ function wikipedia_album_search($album, $artist) {
     }
 
     if ($page == null) {
-        debug_print("Searching Wikipedia for ".$album, "WIKIPEDIA ALBUM");
+        debuglog("Searching Wikipedia for ".$album, "WIKIPEDIA ALBUM");
         $xml = wikipedia_request('http://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=' . rawurlencode($album) . '&srprop=score&format=xml');
         $album2info = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
         foreach ($album2info->query->search->p as $id) {
             $searchstring = prepare_string($album);
-            // debug_print("3. Checking page ".$id['title']." against ".$searchstring, "WIKIDEBUG");
+            // debuglog("3. Checking page ".$id['title']." against ".$searchstring, "WIKIDEBUG");
             if (preg_match('/^\s*' . $searchstring . '\s*$/i', $id['title'])) {
-                debug_print("Found Page : ".$id['title'], "WIKIPEDIA");
+                debuglog("Found Page : ".$id['title'], "WIKIPEDIA");
                 $page = $id['title'];
                 break;
             }
@@ -647,7 +647,7 @@ function wikipedia_album_search($album, $artist) {
     if ($page == null) {
         return null;
     }
-    debug_print("Album search found page ".$page,"WIKIPEDIA ALBUM");
+    debuglog("Album search found page ".$page,"WIKIPEDIA ALBUM");
     return get_wikipedia_page(preg_replace('/ /', '_', $page), "en.wikipedia.org", true);
 
 }
@@ -690,7 +690,7 @@ function getTrackWiki($track_name, $artist_name) {
 
 function wikipedia_track_search($track, $trackartist) {
 
-    debug_print("Searching Wikipedia for ".$track." (song) by ".$trackartist, "WIKIPEDIA TRACK");
+    debuglog("Searching Wikipedia for ".$track." (song) by ".$trackartist, "WIKIPEDIA TRACK");
     $xml = wikipedia_request('http://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=' . rawurlencode($track." (song)") . '&srprop=score&format=xml');
     $albuminfo = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
 
@@ -703,9 +703,9 @@ function wikipedia_track_search($track, $trackartist) {
     // Look for 'A Track (An Artist song)'
     foreach ($albuminfo->query->search->p as $id) {
         $searchstring = prepare_string($track).'\s+\('.prepare_string($trackartist).' song\)';
-        // debug_print("1. Checking page ".$id['title']." against ".$searchstring, "WIKIDEBUG");
+        // debuglog("1. Checking page ".$id['title']." against ".$searchstring, "WIKIDEBUG");
         if (preg_match('/^\s*' . $searchstring . '/i', $id['title'])) {
-            debug_print("Found Page : ".$id['title'], "WIKIPEDIA");
+            debuglog("Found Page : ".$id['title'], "WIKIPEDIA");
             $page = $id['title'];
             break;
         }
@@ -715,9 +715,9 @@ function wikipedia_track_search($track, $trackartist) {
     if ($page == null) {
         foreach ($albuminfo->query->search->p as $id) {
             $searchstring = prepare_string($track).'\s+\(song\)';
-            // debug_print("2. Checking page ".$id['title']." against ".$searchstring, "WIKIDEBUG");
+            // debuglog("2. Checking page ".$id['title']." against ".$searchstring, "WIKIDEBUG");
             if (preg_match('/^\s*' . $searchstring . '/i', $id['title'])) {
-                debug_print("Found Page : ".$id['title'], "WIKIPEDIA");
+                debuglog("Found Page : ".$id['title'], "WIKIPEDIA");
                 $page = $id['title'];
                 break;
             }
@@ -728,9 +728,9 @@ function wikipedia_track_search($track, $trackartist) {
     if ($page == null) {
         foreach ($albuminfo->query->search->p as $id) {
             $searchstring = prepare_string($track);
-            // debug_print("3. Checking page ".$id['title']." against ".$searchstring, "WIKIDEBUG");
+            // debuglog("3. Checking page ".$id['title']." against ".$searchstring, "WIKIDEBUG");
             if (preg_match('/^\s*' . $searchstring . '\s*$/i', $id['title'])) {
-                debug_print("Found Page : ".$id['title'], "WIKIPEDIA");
+                debuglog("Found Page : ".$id['title'], "WIKIPEDIA");
                 $page = $id['title'];
                 break;
             }
@@ -738,14 +738,14 @@ function wikipedia_track_search($track, $trackartist) {
     }
 
     if ($page == null) {
-        debug_print("Searching Wikipedia for ".$track, "WIKIPEDIA TRACK");
+        debuglog("Searching Wikipedia for ".$track, "WIKIPEDIA TRACK");
         $xml = wikipedia_request('http://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=' . rawurlencode($track) . '&srprop=score&format=xml');
         $album2info = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);
         foreach ($album2info->query->search->p as $id) {
             $searchstring = prepare_string($track);
-            // debug_print("3. Checking page ".$id['title']." against ".$searchstring, "WIKIDEBUG");
+            // debuglog("3. Checking page ".$id['title']." against ".$searchstring, "WIKIDEBUG");
             if (preg_match('/^\s*' . $searchstring . '\s*$/i', $id['title'])) {
-                debug_print("Found Page : ".$id['title'], "WIKIPEDIA");
+                debuglog("Found Page : ".$id['title'], "WIKIPEDIA");
                 $page = $id['title'];
                 break;
             }
@@ -756,7 +756,7 @@ function wikipedia_track_search($track, $trackartist) {
         return null;
     }
 
-    debug_print("Track search found page ".$page,"WIKIPEDIA TRACK");
+    debuglog("Track search found page ".$page,"WIKIPEDIA TRACK");
     return get_wikipedia_page(preg_replace('/ /', '_', $page), "en.wikipedia.org", true);
 
 }

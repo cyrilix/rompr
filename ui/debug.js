@@ -1,25 +1,46 @@
 window.debug = (function() {
 
 	var level = 9;
-	var ignoring = [];
-	var highlighting = [];
-	var colours = [];
+	var ignoring =  new Array();
+	var highlighting = new Array();
+	var colours =  new Array();
 	var focuson = null;
+	var log_colours = {
+		1: "#FF0000",
+		2: "#FFDD00",
+		3: "#FF00FF",
+		4: "#00CCFF",
+		5: "#00CC00",
+		6: "#0000FF",
+		7: "#000000",
+		8: "#CCCCCC",
+		9: "#DEDEDE"
+	};
+	var log_commands = {
+		1: 'error',
+		2: 'warn',
+		3: 'warn',
+		4: 'log',
+		5: 'log',
+		6: 'log',
+		7: 'log',
+		8: 'log',
+		9: 'log'
+	}
 
-	function doTheLogging(css, module, logtype, args) {
+	function doTheLogging(loglevel, args) {
 
-		if (focuson !== null && focuson != module) {
-			return;
+		if (loglevel > level) return;
+		var module = args.shift();
+		if (ignoring[module] || (focuson !== null && focuson != module)) return;
+		var css = (colours[module]) ? 'color:'+colours[module] : 'color:'+log_colours[loglevel];
+		if (highlighting[module]) {
+			css += ";font-weight:bold";
+		} else if (Object.keys(highlighting).length > 0) {
+			css = "color:#eeeeee";
 		}
 
 		var string = module;
-
-		if (ignoring[module]) {
-			return true;
-		} else if (highlighting[module]) {
-			css = "font-weight:bold";
-		}
-
 		while (string.length < 18) {
 			string = string + " ";
 		}
@@ -33,114 +54,64 @@ window.debug = (function() {
 			}
 		}
 
-		if (css != "") {
-			console[logtype]("%c"+string,css);
-		} else {
-			console[logtype](string);
-		}
+		console[log_commands[loglevel]]("%c"+string,css);
 
+		var sex = false;
 		for (var i in args) {
 			if (typeof(args[i]) == "object" && args[i] !== null && args[i] !== undefined) {
-				if (ignoring[module]) {
-					console.log("                       %O",args[i]);
-				} else {
-					console.log("                     ",args[i]);
-				}
+				console.log(args[i]);
+				sex = true;
 			}
 		}
+		if (sex) console.log("    ");
 
 	}
 
 	return {
 
-		setLevel: function(l) {
-			level = l;
-		},
-
 		// Level 9
 		debug: function() {
-			if (level > 8) {
-				var args = Array.prototype.slice.call(arguments);
-				var module = args.shift();
-				doTheLogging("color:#999999", module, 'log', args);
-			}
+			doTheLogging(9, Array.prototype.slice.call(arguments));
 		},
 
 		// Level 8
-		log: function() {
-			if (level > 7) {
-				var args = Array.prototype.slice.call(arguments);
-				var module = args.shift();
-				doTheLogging("", module, 'log', args);
-			}
+		trace: function() {
+			doTheLogging(8, Array.prototype.slice.call(arguments));
 		},
 
 		// Level 7
-		mark: function() {
-			if (level > 6) {
-				var args = Array.prototype.slice.call(arguments);
-				var module = args.shift();
-				var colour = '#009933';
-				if (colours[module]) { colour = colours[module] }
-				doTheLogging("color:"+colour, module, 'log', args);
-			}
+		log: function() {
+			doTheLogging(7, Array.prototype.slice.call(arguments));
 		},
 
 		// Level 6
+		mark: function() {
+			doTheLogging(6, Array.prototype.slice.call(arguments));
+		},
+
+		// Level 5
 		shout: function() {
-			if (level > 5) {
-				var args = Array.prototype.slice.call(arguments);
-				var module = args.shift();
-				var colour = '#996d00';
-				if (colours[module]) { colour = colours[module] }
-				doTheLogging("color:"+colour, module, 'log', args);
-			}
+			doTheLogging(5, Array.prototype.slice.call(arguments));
+		},
+
+		// Level 4
+		blurt: function() {
+			doTheLogging(4, Array.prototype.slice.call(arguments));
 		},
 
 		// Level 3
 		fail: function() {
-			if (level > 2) {
-				var args = Array.prototype.slice.call(arguments);
-				var module = args.shift();
-				doTheLogging("color:#ff0000", module, 'log', args);
-			}
+			doTheLogging(3, Array.prototype.slice.call(arguments));
 		},
 
 		// Level 2
 		warn: function() {
-			if (level > 1) {
-				var args = Array.prototype.slice.call(arguments);
-				var module = args.shift();
-				doTheLogging("", module, 'warn', args);
-			}
-		},
-
-		// Groups operate at level 2
-		group: function() {
-			if (level > 1) {
-				var args = Array.prototype.slice.call(arguments);
-				var module = args.shift();
-				if (ignoring[module]) {
-  					doTheLogging("", module, 'groupCollapsed', args);
-				} else {
-					doTheLogging("", module, 'group', args);
-				}
-			}
-		},
-
-		groupend: function() {
-			if (level > 1) {
-				console.groupEnd();
-			}
+			doTheLogging(2, Array.prototype.slice.call(arguments));
 		},
 
 		// Level 1
 		error: function() {
-			if (level > 0) {
-				var args = Array.prototype.slice.call(arguments);
-				var module = args.shift();
-				doTheLogging("", module, 'error', args);
-			}
+			doTheLogging(1, Array.prototype.slice.call(arguments));
 		},
 
 		ignore: function(module) {
@@ -155,11 +126,17 @@ window.debug = (function() {
 			focuson = module;
 		},
 
-		// Use this to set the colour used in debug.mark for a specific module
-		// Otherwise, a lurid green will be used :)
-		// Specify your colour as a string, like #fe6830
 		setcolour: function(module, colour) {
 			colours[module] = colour;
+		},
+
+		setLevel: function(l) {
+			level = l;
+			prefs.save({debug_enabled: l});
+		},
+
+		getLevel: function() {
+			return level;
 		}
 
 	}

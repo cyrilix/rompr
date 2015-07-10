@@ -3,18 +3,17 @@ var info_videos = function() {
 	var me = "videos";
 
 	function getVideosHtml(data) {
-		if (data.error && data.master === undefined && data.release === undefined) {
-			return '<h3 align="center">No Videos Found</h3>';
-		}
 		if (data.release && data.release.data.videos) {
 			return doVideos(mungeDiscogsData(data.release.data.videos));
 		} else if (data.master && data.master.data.videos) {
 			return doVideos(mungeDiscogsData(data.master.data.videos));
+		} else {
+			return '<h3 align="center">No Videos Found</h3>';
 		}
 	}
 
 	function mungeDiscogsData(videos) {
-		debug.log("VIDEOS PLUGIN","Doing Videos From Discogs Data",videos);
+		debug.trace("VIDEOS PLUGIN","Doing Videos From Discogs Data",videos);
 		var ids = new Array();
 		for (var i in videos) {
 			var u = videos[i].uri;
@@ -52,18 +51,19 @@ var info_videos = function() {
 	}
 
 	function searchYoutube(term, callback) {
-		debug.log("VIDEOS","Searching Youtube for",term);
-		var url = "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q="+encodeURIComponent(term+' Band')+"&key="+google_api_key;
-		$.getJSON('browser/backends/google.php?uri='+encodeURIComponent(url))
-		.done(function(data) {
-			callback(data)
-		})
-		.fail(function(data) {
-			debug.error("VIDEOS PLUGIN","Youtube search failed",data);
-			callback({error: data});
+		debug.trace("VIDEOS","Searching Youtube for",term);
+		$.ajax({
+			type: "POST",
+			dataType: "json",
+			url: 'browser/backends/google.php',
+			data: {uri: encodeURIComponent("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q="+encodeURIComponent(term+' Band')+"&key="+google_api_key)},
+			success: callback,
+			error: function(data) {
+				debug.error("VIDEOS PLUGIN","Youtube search failed",data);
+				callback({error: data});
+			}
 		});
 	}
-
 
 	return {
 		getRequirements: function(parent) {
@@ -72,7 +72,7 @@ var info_videos = function() {
 
 		collection: function(parent, artistmeta, albummeta, trackmeta) {
 
-			debug.log("VIDEOS PLUGIN", "Creating data collection");
+			debug.trace("VIDEOS PLUGIN", "Creating data collection");
 
 			var self = this;
 			var displaying = false;
@@ -81,7 +81,7 @@ var info_videos = function() {
 			}
 
 			function artistSearchYoutubeDone(data) {
-				debug.log("VIDEOS","Got artist search data",data);
+				debug.trace("VIDEOS","Got artist search data",data);
 				artistmeta.videos.youtube = data;
 				self.artist.doBrowserUpdate();
 			}
@@ -113,7 +113,7 @@ var info_videos = function() {
 						if (albummeta.discogs.album.error === undefined &&
 							albummeta.discogs.album.master === undefined &&
 							albummeta.discogs.album.release === undefined) {
-							debug.log("VIDEOS PLUGIN",parent.nowplayingindex,"No data yet, trying again in 1 second");
+							debug.trace("VIDEOS PLUGIN",parent.nowplayingindex,"No data yet, trying again in 1 second");
 							setTimeout(self.album.populate, 1000);
 							return;
 						}

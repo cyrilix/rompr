@@ -9,13 +9,13 @@ var info_lyrics = function() {
 
 		collection: function(parent, artistmeta, albummeta, trackmeta) {
 
-			debug.log("LYRICS PLUGIN", "Creating data collection");
+			debug.trace("LYRICS PLUGIN", "Creating data collection");
 
 			var self = this;
 			var displaying = false;
 
 			function formatLyrics(data) {
-				debug.log("LYRICS PLUGIN","Formatting Lyrics");
+				debug.trace("LYRICS PLUGIN","Formatting Lyrics");
 				if (data) {
 					data = data.replace(/^(\w)/, '<font size="120%">$1</font>')
 					data = data.replace(/\n/g, '<br>');
@@ -57,7 +57,7 @@ var info_lyrics = function() {
             	} else {
 	            	$.get("browser/backends/getLyrics.php?file="+encodeURIComponent(player.status.file)+"&artist="+encodeURIComponent(getSearchArtist())+"&song="+encodeURIComponent(trackmeta.name))
 	            		.done(function(data) {
-	            			debug.debug("LYRICS",data);
+	            			debug.trace("LYRICS",data);
 	            			trackmeta.lyrics = data;
 	            			self.doBrowserUpdate();
 	            		});
@@ -66,7 +66,7 @@ var info_lyrics = function() {
 
 			this.populate = function() {
 				if (trackmeta.lyrics === undefined) {
-					debug.log("LYRICS PLUGIN",parent.nowplayingindex,"No lyrics yet, trying again in 1 second");
+					debug.trace("LYRICS PLUGIN",parent.nowplayingindex,"No lyrics yet, trying again in 1 second");
 					setTimeout(self.populate, 1000);
 					return;
 				}

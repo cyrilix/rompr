@@ -41,7 +41,7 @@ var infobar = function() {
 
     function scrobble() {
         if (!scrobbled) {
-            debug.debug("INFOBAR","Track is not scrobbled");
+            debug.trace("INFOBAR","Track is not scrobbled");
             scrobbled = true;
             if (lastfm.isLoggedIn()) {
                 if (trackinfo.title != "" && trackinfo.creator != "") {
@@ -76,7 +76,7 @@ var infobar = function() {
                     artist: (lfminfo.creator === undefined) ? trackinfo.creator : lfminfo.creator,
                     album: (lfminfo.album === undefined) ? trackinfo.album : lfminfo.album
                 };
-                debug.debug("INFOBAR","is updating nowplaying",opts);
+                debug.trace("INFOBAR","is updating nowplaying",opts);
                 lastfm.track.updateNowPlaying(opts);
                 nowplaying_updated = true;
             }
@@ -204,7 +204,7 @@ var infobar = function() {
 
             // Fit the nowplaying text in the panel, always trying to make the best use of the available height
             // We adjust by checking width, since we don't wrap lines as that causes hell with the layout
-            debug.log("INFOBAR","Biggerizing",npinfo,numlines);
+            debug.trace("INFOBAR","Biggerizing",npinfo,numlines);
             if (Object.keys(npinfo).length == 0 || $("#nptext").is(':hidden') || $("#infobar").is(':hidden')) {
                 $("#nptext").html("");
                 return;
@@ -218,9 +218,9 @@ var infobar = function() {
             var maxheight = parent.height();
             var splittext = null;
             var maxwidth = parent.width() - 8;
-            debug.log("INFOBAR","Maxwidth is",maxwidth);
+            debug.trace("INFOBAR","Maxwidth is",maxwidth);
             if (maxwidth <= 8) {
-                debug.log("INFOBAR", "Insufficient Space for text");
+                debug.warn("INFOBAR", "Insufficient Space for text");
                 $("#nptext").html("");
                 return;
             }
@@ -354,7 +354,7 @@ var infobar = function() {
             } else {
                 $("#nptext").css("font-size", lines[0].height+"px");
             }
-            debug.log("INFOBAR","Biggerized",numlines);
+            debug.debug("INFOBAR","Biggerized",numlines);
             $("#nptext").empty().html(html);
         },
 
@@ -368,7 +368,7 @@ var infobar = function() {
             $("#albumpicture").attr('class', "notfound");
 
             aImg.onload = function() {
-                debug.debug("ALBUMPICTURE","Image Loaded",$(this).attr("src"));
+                debug.trace("ALBUMPICTURE","Image Loaded",$(this).attr("src"));
                 $("#albumpicture").attr('class', "clickicon");
                 $("#albumpicture").attr("src", $(this).attr("src")).fadeIn('fast');
                 $("#albumpicture").unbind('click');
@@ -387,7 +387,7 @@ var infobar = function() {
 
             return {
                 setSource: function(data) {
-                    debug.debug("ALBUMPICTURE","New source",data.image,"current is",aImg.src);
+                    debug.trace("ALBUMPICTURE","New source",data.image,"current is",aImg.src);
                     if (data.image === null) {
                         // null means playlist.emptytrack. Just fade it out in case we start playing the same album again - 
                         // settings the source to the same url won't trigger the onload event
@@ -404,7 +404,7 @@ var infobar = function() {
                     } else {
                         var re = new RegExp(getRealUrl(data.image)+'$');
                         if (!re.test(getRealUrl(aImg.src))) {
-                            debug.shout("ALBUMPICTURE","Source is being set to ",data.image);
+                            debug.trace("ALBUMPICTURE","Source is being set to ",data.image);
                             aImg.src = data.image;
                         } else if ($("#albumpicture").is(':hidden')) {
                             $("#albumpicture").fadeIn('fast');
@@ -414,9 +414,9 @@ var infobar = function() {
 
                 setSecondarySource: function(data) {
                     if (data.key === undefined || data.key == aImg.getAttribute('name')) {
-                        debug.log("ALBUMPICTURE","Secondary Source is being set to ",data.image,aImg);
+                        debug.trace("ALBUMPICTURE","Secondary Source is being set to ",data.image,aImg);
                         if (data.image != "" && data.image !== null && (aImg.src == "" || aImg.className == "notexist")) {
-                            debug.debug("ALBUMPICTURE","  OK, the criteria have been met");
+                            debug.trace("ALBUMPICTURE","  OK, the criteria have been met");
                             $("#albumpicture").unbind('click');
                             $("#albumpicture").removeClass('clickicon');
                             aImg.src = data.image;
@@ -426,7 +426,7 @@ var infobar = function() {
 
                 setKey: function(key) {
                     if (aImg.name != key) {
-                        debug.log("ALBUMPICTURE","Setting Image Key to ",key);
+                        debug.trace("ALBUMPICTURE","Setting Image Key to ",key);
                         aImg.name = key;
                         $("#albumpicture").attr("name", key);
                         aImg.className = "notfound";
@@ -509,7 +509,7 @@ var infobar = function() {
 
                 setState: function(s) {
                     if (s != state) {
-                        debug.log("INFOBAR","Setting Play Button State");
+                        debug.debug("INFOBAR","Setting Play Button State");
                         state = s;
                         switch (state) {
                             case "play":
@@ -536,7 +536,7 @@ var infobar = function() {
 
         setNowPlayingInfo: function(info) {
             //Now playing info
-            debug.log("INFOBAR","NPinfo",info);
+            debug.trace("INFOBAR","NPinfo",info);
             trackinfo = info;
             lfminfo = {};
             scrobbled = false;
@@ -567,7 +567,7 @@ var infobar = function() {
                 }
             }
             if (info.backendid === -1) {
-                debug.log("INFOBAR","Fading out Album Picture")
+                debug.trace("INFOBAR","Fading out Album Picture")
                 $("#stars").fadeOut('fast');
                 $("#dbtags").fadeOut('fast');
                 $("#playcount").fadeOut('fast');
@@ -692,7 +692,7 @@ var infobar = function() {
 
         volumeKey: function(inc) {
             var volume = parseInt(player.status.volume);
-            debug.debug("INFOBAR","Volume key with volume on",volume);
+            debug.trace("INFOBAR","Volume key with volume on",volume);
             volume = volume + inc;
             if (volume > 100) { volume = 100 };
             if (volume < 0) { volume = 0 };

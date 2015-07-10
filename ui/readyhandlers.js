@@ -44,11 +44,8 @@ $(document).ready(function(){
     }
     window.addEventListener("storage", onStorageChanged, false);
     $("#sortable").click(onPlaylistClicked);
-    layoutProcessor.sourceControl(prefs.chooser);
+    layoutProcessor.sourceControl(prefs.chooser, setSearchLabelWidth);
     layoutProcessor.adjustLayout();
     $(window).bind('resize', layoutProcessor.adjustLayout);
-    if (prefs.chooser == "searchpane") {
-        ihatefirefox();
-    }
     pluginManager.setupPlugins();
 });

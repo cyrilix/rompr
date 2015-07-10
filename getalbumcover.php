@@ -3,7 +3,7 @@ ob_start();
 include ("includes/vars.php");
 include ("includes/functions.php");
 include ("utils/imagefunctions.php");
-debug_print("------- Searching For Album Art --------","GETALBUMCOVER");
+debuglog("------- Searching For Album Art --------","GETALBUMCOVER");
 include ("backends/sql/backend.php");
 
 // Discogs functionality removed in version 0.50 after discogs strated requiring
@@ -48,7 +48,7 @@ if (array_key_exists("src", $_REQUEST)) {
         list($in_collection, $artist, $album, $mbid, $albumpath, $spotilink, $found) = $fn($fname);
     }
     if (!$found) {
-        debug_print("Image key could not be found!","GETALBUMCOVER");
+        debuglog("Image key could not be found!","GETALBUMCOVER");
         header("HTTP/1.1 404 Not Found");
         ob_flush();
         exit(0);
@@ -56,7 +56,7 @@ if (array_key_exists("src", $_REQUEST)) {
 }
 
 if (preg_match('/\d+/', $mbid) && !preg_match('/-/', $mbid)) {
-    debug_print(" Supplied MBID of ".$mbid." looks more like a Discogs ID","GETALBUMCOVER");
+    debuglog(" Supplied MBID of ".$mbid." looks more like a Discogs ID","GETALBUMCOVER");
     $mbid = "";
 }
 
@@ -67,15 +67,15 @@ if ($mbid != "") {
     $searchfunctions = array( 'tryLocal', 'trySpotify', 'tryLastFM', 'tryMusicBrainz' );
 }
 
-debug_print("  KEY     : ".$fname,"GETALBUMCOVER");
-debug_print("  SOURCE  : ".$src,"GETALBUMCOVER");
-debug_print("  UPLOAD  : ".$file,"GETALBUMCOVER");
-debug_print("  STREAM  : ".$stream,"GETALBUMCOVER");
-debug_print("  ARTIST  : ".$artist,"GETALBUMCOVER");
-debug_print("  ALBUM   : ".$album,"GETALBUMCOVER");
-debug_print("  MBID    : ".$mbid,"GETALBUMCOVER");
-debug_print("  PATH    : ".$albumpath,"GETALBUMCOVER");
-debug_print("  SPOTIFY : ".$spotilink,"GETALBUMCOVER");
+debuglog("  KEY     : ".$fname,"GETALBUMCOVER");
+debuglog("  SOURCE  : ".$src,"GETALBUMCOVER");
+debuglog("  UPLOAD  : ".$file,"GETALBUMCOVER");
+debuglog("  STREAM  : ".$stream,"GETALBUMCOVER");
+debuglog("  ARTIST  : ".$artist,"GETALBUMCOVER");
+debuglog("  ALBUM   : ".$album,"GETALBUMCOVER");
+debuglog("  MBID    : ".$mbid,"GETALBUMCOVER");
+debuglog("  PATH    : ".$albumpath,"GETALBUMCOVER");
+debuglog("  SPOTIFY : ".$spotilink,"GETALBUMCOVER");
 
 // Attempt to download an image file
 
@@ -105,7 +105,7 @@ if ($file != "") {
     }
     if ($src == "") {
         $error = 1;
-        debug_print("  No art was found. Try the Tate Modern","GETALBUMCOVER");
+        debuglog("  No art was found. Try the Tate Modern","GETALBUMCOVER");
     }
 }
 
@@ -124,7 +124,7 @@ if ($in_collection) {
 }
 
 if ($download_file != "" && file_exists($download_file)) {
-    debug_print("Removing downloaded file ".$download_file,"GETALBUMCOVER");
+    debuglog("Removing downloaded file ".$download_file,"GETALBUMCOVER");
     unlink($download_file);
 }
 
@@ -132,7 +132,7 @@ $o = array( 'url' => $small_file, 'origimage' => $big_file, 'delaytime' => $dela
 header('Content-Type: application/json; charset=utf-8');
 print json_encode($o);
 
-debug_print("--------------------------------------------","GETALBUMCOVER");
+debuglog("--------------------------------------------","GETALBUMCOVER");
 
 ob_flush();
 
@@ -145,9 +145,9 @@ function check_stream($fname) {
             $retval[1] = "Internet Radio";
             $retval[2] = $ax->trackList->track[0]->album;
             $retval[6] = true;
-            debug_print("Found stream file ".$stream,"GETALBUMCOVER");
+            debuglog("Found stream file ".$stream,"GETALBUMCOVER");
         } else {
-            debug_print(" Supplied stream file not found!","GETALBUMCOVER");
+            debuglog(" Supplied stream file not found!","GETALBUMCOVER");
         }
     }
     return $retval;
@@ -167,7 +167,7 @@ function check_playlist($fname) {
                     $retval[4] = rawurldecode($track['dir']);
                     $retval[5] = rawurldecode($track['spotify']['album']);
                     $retval[6] = true;
-                    debug_print("Found album in playlist","DEBUGGING");
+                    debuglog("Found album in playlist","DEBUGGING");
                     break;
                 }
             }
@@ -179,12 +179,12 @@ function check_playlist($fname) {
 
 function get_user_file($src, $fname, $tmpname) {
     global $error;
-    debug_print("  Uploading ".$src." ".$fname." ".$tmpname,"GETALBUMCOVER");
+    debuglog("  Uploading ".$src." ".$fname." ".$tmpname,"GETALBUMCOVER");
     $download_file = "prefs/".$fname;
     if (move_uploaded_file($tmpname, $download_file)) {
-        debug_print("    File ".$src." is valid, and was successfully uploaded.","GETALBUMCOVER");
+        debuglog("    File ".$src." is valid, and was successfully uploaded.","GETALBUMCOVER");
     } else {
-        debug_print("    Possible file upload attack!","GETALBUMCOVER");
+        debuglog("    Possible file upload attack!","GETALBUMCOVER");
         header('HTTP/1.0 403 Forbidden');
         ob_flush();
         exit(0);
@@ -206,7 +206,7 @@ function tryLocal() {
         $info = pathinfo($file);
         $file_name = strtolower(rawurldecode(html_entity_decode(basename($file,'.'.$info['extension']))));
         if ($file_name == $fname) {
-            debug_print("    Returning archived image","GETALBUMCOVER");
+            debuglog("    Returning archived image","GETALBUMCOVER");
             return $file;
         }
     }
@@ -215,7 +215,7 @@ function tryLocal() {
         $file_name = strtolower(rawurldecode(html_entity_decode(basename($file,'.'.$info['extension']))));
         if ($file_name == strtolower($artist." - ".$album) ||
             $file_name == strtolower($album)) {
-            debug_print("    Returning file matching album name","GETALBUMCOVER");
+            debuglog("    Returning file matching album name","GETALBUMCOVER");
             return $file;
         }
     }
@@ -224,14 +224,14 @@ function tryLocal() {
             $info = pathinfo($file);
             $file_name = strtolower(rawurldecode(html_entity_decode(basename($file,'.'.$info['extension']))));
             if ($file_name == $name) {
-                debug_print("    Returning ".$file,"GETALBUMCOVER");
+                debuglog("    Returning ".$file,"GETALBUMCOVER");
                 return $file;
             }
         }
     }
     // If we haven't found one but there's only one, then return that
     if (count($files) == 1) {
-        debug_print("    Returning ".$files[0],"GETALBUMCOVER");
+        debuglog("    Returning ".$files[0],"GETALBUMCOVER");
         return $files[0];
     }
     return "";
@@ -244,27 +244,27 @@ function trySpotify() {
         return "";
     }
     $image = "";
-    debug_print("  Trying Spotify for ".$spotilink,"GETALBUMCOVER");
+    debuglog("  Trying Spotify for ".$spotilink,"GETALBUMCOVER");
 
     // php strict prevents me from doing end(explode()) because
     // only variables can be passed by reference. Stupid php.
     $spaffy = explode(":", $spotilink);
     $spiffy = end($spaffy);
     $url = 'https://api.spotify.com/v1/albums/'.$spiffy;
-    debug_print("      Getting ".$url,"GETALBUMCOVER");
+    debuglog("      Getting ".$url,"GETALBUMCOVER");
     $content = url_get_contents($url);
 
     if ($content['contents'] && $content['contents'] != "") {
         $data = json_decode($content['contents']);
         if (array_key_exists(0, $data->{'images'})) {
             $image = $data->{'images'}[0]->{'url'};
-            debug_print("    Returning result from Spotify : ".$image,"GETALBUMCOVER");
+            debuglog("    Returning result from Spotify : ".$image,"GETALBUMCOVER");
        } else {
-            debug_print("    No Spotify Image Found","GETALBUMCOVER");
+            debuglog("    No Spotify Image Found","GETALBUMCOVER");
 
        }
     } else {
-        debug_print("    Spotify API data not retrieved","GETALBUMCOVER");
+        debuglog("    Spotify API data not retrieved","GETALBUMCOVER");
     }
     $delaytime = 1000;
     return $image;
@@ -281,10 +281,10 @@ function tryLastFM() {
 
     $al = munge_album_name($album);
 
-    debug_print("  Trying last.FM for ".$artist." ".$al,"GETALBUMCOVER");
+    debuglog("  Trying last.FM for ".$artist." ".$al,"GETALBUMCOVER");
     $xml = loadXML("http://ws.audioscrobbler.com", "/2.0/?method=album.getinfo&api_key=15f7532dff0b8d84635c757f9f18aaa3&album=".rawurlencode($al)."&artist=".rawurlencode($artist)."&autocorrect=1");
     if ($xml === false) {
-        debug_print("    Received error response from Last.FM","GETALBUMCOVER");
+        debuglog("    Received error response from Last.FM","GETALBUMCOVER");
         return "";
     } else {
         foreach ($xml->album->image as $i => $image) {
@@ -299,13 +299,13 @@ function tryLastFM() {
         }
         if ($mbid == "") {
             $mbid = $xml->album->mbid;
-            debug_print("      Last.FM gave us the MBID of ".$mbid,"GETALBUMCOVER");
+            debuglog("      Last.FM gave us the MBID of ".$mbid,"GETALBUMCOVER");
         }
     }
     if ($retval != "") {
-        debug_print("    Last.FM gave us ".$retval,"GETALBUMCOVER");
+        debuglog("    Last.FM gave us ".$retval,"GETALBUMCOVER");
     } else {
-        debug_print("    No cover found on Last.FM","GETALBUMCOVER");
+        debuglog("    No cover found on Last.FM","GETALBUMCOVER");
     }
     $delaytime = 1000;
 
@@ -322,17 +322,17 @@ function tryMusicBrainz() {
     }
     $retval = "";
     // Let's get some information from musicbrainz about this album
-    debug_print("  Getting MusicBrainz release info for ".$mbid,"GETALBUMCOVER");
+    debuglog("  Getting MusicBrainz release info for ".$mbid,"GETALBUMCOVER");
     $release_info = url_get_contents('http://musicbrainz.org/ws/2/release/'.$mbid.'?inc=release-groups');
     if ($release_info['status'] != "200") {
-        debug_print("    Error response from musicbrainz","GETALBUMCOVER");
+        debuglog("    Error response from musicbrainz","GETALBUMCOVER");
         return "";
     }
     $x = simplexml_load_string($release_info['contents'], 'SimpleXMLElement', LIBXML_NOCDATA);
 
     if ($x->{'release'}->{'cover-art-archive'}->{'artwork'} == "true" &&
         $x->{'release'}->{'cover-art-archive'}->{'front'} == "true") {
-        debug_print("    Musicbrainz has artwork for this release", "GETALBUMCOVER");
+        debuglog("    Musicbrainz has artwork for this release", "GETALBUMCOVER");
         $retval = "http://coverartarchive.org/release/".$mbid."/front";
     }
 
@@ -353,16 +353,16 @@ function loadXML($domain, $path) {
 function save_base64_data($data, $fname) {
     global $error;
     global $convert_path;
-    debug_print("  Saving base64 data","GETALBUMCOVER");
+    debuglog("  Saving base64 data","GETALBUMCOVER");
     $image = explode('base64,',$data);
     $download_file = "albumart/".$fname;
     file_put_contents($download_file, base64_decode($image[1]));
 
         $o = array();
         $c = $convert_path."identify \"".$download_file."\" 2>&1";
-        // debug_print("    Command is ".$c,"GETALBUMCOVER");
+        // debuglog("    Command is ".$c,"GETALBUMCOVER");
         $r = exec( $c, $o);
-        debug_print("    Return value from identify was ".$r,"GETALBUMCOVER");
+        debuglog("    Return value from identify was ".$r,"GETALBUMCOVER");
 
     $error = 0;
     return $download_file;
@@ -370,7 +370,7 @@ function save_base64_data($data, $fname) {
 
 function update_stream_image($stream, $image) {
     if (file_exists($stream)) {
-        debug_print("    Updating stream playlist ".$stream,"GETALBUMCOVER");
+        debuglog("    Updating stream playlist ".$stream,"GETALBUMCOVER");
         $x = simplexml_load_file($stream);
         foreach($x->trackList->track as $i => $track) {
             $track->image = $image;

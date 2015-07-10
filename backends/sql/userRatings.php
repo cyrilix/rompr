@@ -4,7 +4,7 @@ include ("includes/vars.php");
 include ("includes/functions.php");
 include ("utils/imagefunctions.php");
 include ("international.php");
-debug_print("--------------------------START---------------------","USERRATING");
+debuglog("--------------------------START---------------------","USERRATING",4);
 include ("backends/sql/backend.php");
 include("player/mpd/connection.php");
 
@@ -19,7 +19,7 @@ $nodata = array (
 );
 
 if ($mysqlc == null) {
-	debug_print("Can't Do ratings stuff as no SQL connection!","RATINGS");
+	debuglog("Can't Do ratings stuff as no SQL connection!","RATINGS",1);
 	header('HTTP/1.0 403 Forbidden');
 	exit(0);
 }
@@ -43,7 +43,7 @@ if (substr($image,0,4) == "http") {
 $attributes = array_key_exists('attributes', $_POST) ? $_POST['attributes'] : null;
 if ( array_key_exists('attribute', $_POST) &&
 	 array_key_exists('value', $_POST)) {
-	debug_print("WARNING! Old-style attribute-value pair. Update the code!","USERRATING");
+	debuglog("WARNING! Old-style attribute-value pair. Update the code!","USERRATING",2);
 	$attributes = array(
 		array( "attribute" => $_POST['attribute'], "value" => $_POST['value'] )
 	);
@@ -86,13 +86,13 @@ switch ($_POST['action']) {
 		if (remove_tag_from_db($_POST['value'])) {
 			print '<html></html>';
 		} else {
-			header('HTTP/1.0 403 Forbidden');
+			header('HTTP/1.1 400 Bad Request');
 		}
 		break;
 
 	case 'get':
 		if ($artist === null || $title === null) {
-			header('HTTP/1.0 403 Forbidden');
+			header('HTTP/1.1 400 Bad Request');
 			exit(0);
 		}
 		$ttids = find_item(	$uri,
@@ -115,8 +115,8 @@ switch ($_POST['action']) {
 		if ($artist === null ||
 			$title === null ||
 			$attributes == null) {
-			debug_print("Something is not set","USERRATING");
-			header('HTTP/1.0 403 Forbidden');
+			debuglog("Something is not set","USERRATING",2);
+			header('HTTP/1.1 400 Bad Request');
 			exit(0);
 		}
 		$ttids = find_item(	forcedUriOnly(false,getDomain($uri)) ? $uri : null,
@@ -127,7 +127,7 @@ switch ($_POST['action']) {
 							forcedUriOnly(false,getDomain($uri)));
 
 		if (count($ttids) == 0) {
-			debug_print("Doing an INCREMENT action - Found NOTHING so creating hidden track","USERRATING");
+			debuglog("Doing an INCREMENT action - Found NOTHING so creating hidden track","USERRATING",6);
 			// So we need to create a new hidden track
 			check_album_image();
 			$ttids[0] = create_new_track(	$title,
@@ -154,9 +154,9 @@ switch ($_POST['action']) {
 
 		if (count($ttids) > 0) {
 			foreach ($ttids as $ttid) {
-				debug_print("Doing an INCREMENT action - Found TTID ".$ttid,"USERRATING");
+				debuglog("Doing an INCREMENT action - Found TTID ".$ttid,"USERRATING",9);
 				foreach ($attributes as $pair) {
-					debug_print("Setting ".$pair["attribute"]." to ".$pair["value"],"USERRATING");
+					debuglog("(Increment) Setting ".$pair["attribute"]." to ".$pair["value"]." on ".$ttid,"USERRATING",6);
 					increment_value($ttid, $pair["attribute"], $pair["value"]);
 				}
 				$returninfo['metadata'] = get_all_data($ttid);
@@ -234,8 +234,8 @@ switch ($_POST['action']) {
 		if ($artist === null ||
 			$title === null ||
 			$attributes == null) {
-			debug_print("Something is not set","USERRATING");
-			header('HTTP/1.0 403 Forbidden');
+			debuglog("Something is not set","USERRATING",1);
+			header('HTTP/1.1 400 Bad Request');
 			exit(0);
 		}
 
@@ -273,7 +273,7 @@ switch ($_POST['action']) {
 											0,
 											$trackimage,
 											0);
-			debug_print("Created New Track with TTindex ".$ttids[0],"USERRATINGS");
+			debuglog("Created New Track with TTindex ".$ttids[0],"USERRATINGS",5);
 		} else if (count($ttids) == 1) {
 			// Check to see if the track we've returned is a wishlist track, and update its info
 			if ($uri && $album) {
@@ -287,11 +287,11 @@ switch ($_POST['action']) {
 					if (is_array($pair["value"])) {
 						$dbg = implode($pair["value"], ", ");
 					}
-					debug_print("Setting ".$pair["attribute"]." to ".$dbg." on TTindex ".$ttid,"USERRATING");
+					debuglog("Setting ".$pair["attribute"]." to ".$dbg." on TTindex ".$ttid,"USERRATING",6);
 					$result = true;
 					$r = set_attribute($ttid, $pair["attribute"], $pair["value"]);
 					if ($r == false) {
-						debug_print("FAILED Setting ".$pair["attribute"]." to ".$dbg,"USERRATING");
+						debuglog("FAILED Setting ".$pair["attribute"]." to ".$dbg,"USERRATING",2);
 						$result = false;
 					}
 				}
@@ -306,14 +306,14 @@ switch ($_POST['action']) {
 			$returninfo['stats'] = alistheader(get_stat('ArtistCount'), get_stat('AlbumCount'), get_stat('TrackCount'), format_time(get_stat('TotalTime')));
 			print json_encode($returninfo);
 		} else {
-			debug_print("TTID Not Found","USERRATING");
-			header('HTTP/1.0 403 Forbidden');
+			debuglog("TTID Not Found","USERRATING",2);
+			header('HTTP/1.1 417 Expectation Failed');
 		}
 		break;
 
 	case 'remove':
 		if ($artist === null || $title === null) {
-			header('HTTP/1.0 403 Forbidden');
+			header('HTTP/1.1 400 Bad Request');
 			exit(0);
 		}
 		$ttids = find_item(	$uri,
@@ -325,11 +325,11 @@ switch ($_POST['action']) {
 		if (count($ttids) > 0) {
 			foreach ($ttids as $ttid) {
 				foreach ($attributes as $pair) {
-					debug_print("Removing ".$pair["attribute"]." ".$pair["value"],"USERRATING");
+					debuglog("Removing ".$pair["attribute"]." ".$pair["value"],"USERRATING");
 					$result = true;
 					$r = remove_tag($ttid, $pair["value"]);
 					if ($r == false) {
-						debug_print("FAILED Removing ".$pair["attribute"]." ".$pair["value"],"USERRATING");
+						debuglog("FAILED Removing ".$pair["attribute"]." ".$pair["value"],"USERRATING",2);
 						$result = false;
 					}
 				}
@@ -340,7 +340,8 @@ switch ($_POST['action']) {
 			}
 			print json_encode($returninfo);
 		} else {
-			header('HTTP/1.0 403 Forbidden');
+			debuglog("TTID Not Found","USERRATING",2);
+			header('HTTP/1.1 417 Expectation Failed');
 		}
 		break;
 
@@ -348,7 +349,7 @@ switch ($_POST['action']) {
 	case 'delete':
 		$ttids = find_item($uri, null, null, null, null, false);
 		if (count($ttids) == 0) {
-			header('HTTP/1.0 403 Forbidden');
+			header('HTTP/1.1 400 Bad Request');
 		} else {
 			delete_track(array_shift($ttids));
 		}
@@ -357,7 +358,7 @@ switch ($_POST['action']) {
 	case 'deletewl':
 		$ttid = find_wishlist_item(html_entity_decode($artist), html_entity_decode($album), html_entity_decode($title));
 		if ($ttid == null) {
-			header('HTTP/1.0 403 Forbidden');
+			header('HTTP/1.1 400 Bad Request');
 		} else {
 			delete_track($ttid);
 		}
@@ -402,14 +403,14 @@ switch ($_POST['action']) {
 close_transaction();
 close_mpd();
 
-debug_print("---------------------------END----------------------","USERRATING");
+debuglog("---------------------------END----------------------","USERRATING",4);
 
 function forcedUriOnly($u,$d) {
 
 	// Some mopidy backends - YouTube and SoundCloud - can return the same artist/album/track info
-	// for multiple different tracks. This gives us a problem because find_item will thinkk they're the same.
+	// for multiple different tracks. This gives us a problem because find_item will think they're the same.
 	// So for those backends we always force urionly to be true
-	debug_print("Checking the spanner monkey : ".$d,"USERRATINGS");
+	debuglog("Checking the spanner monkey : ".$d,"USERRATINGS",9);
 
 	if ($u || $d == "youtube" || $d == "soundcloud") {
 		return true;
@@ -425,7 +426,7 @@ function preparePlaylist() {
 }
 
 function doPlaylist($playlist, $limit) {
-	debug_print("Loading Playlist ".$playlist,"RATINGS");
+	debuglog("Loading Playlist ".$playlist,"RATINGS");
 	$sqlstring = "";
 	$tags = null;
 	$random = true;
@@ -464,7 +465,7 @@ function doPlaylist($playlist, $limit) {
 				$sqlstring = "SELECT DISTINCT TTindex FROM Tracktable JOIN TagListtable USING (TTindex) JOIN Tagtable USING (Tagindex) WHERE (";
 				$tags = array();
 				foreach ($taglist as $i => $tag) {
-					debug_print("Getting tag playlist for ".$tag,"PLAYLISTS");
+					debuglog("Getting tag playlist for ".$tag,"PLAYLISTS",6);
 					$tags[] = trim($tag);
 					if ($i > 0) {
 						$sqlstring .= " OR ";
@@ -492,7 +493,7 @@ function delete_track($ttid) {
 		$returninfo['stats'] = alistheader(get_stat('ArtistCount'), get_stat('AlbumCount'), get_stat('TrackCount'), format_time(get_stat('TotalTime')));
 		print json_encode($returninfo);
 	} else {
-		header('HTTP/1.0 403 Forbidden');
+		header('HTTP/1.1 400 Bad Request');
 	}
 }
 
@@ -521,19 +522,19 @@ function check_wishlist_doodads($ttids) {
 		while ($ttidobj = $stmt->fetch(PDO::FETCH_OBJ)) {
 			if ($ttidobj->Uri == null) {
 				if ($up1 = sql_prepare_query("UPDATE Tracktable SET Uri = ? WHERE TTindex = ?", $uri, $ttids[0])) {
-					debug_print("  .. Updated track URI","USERRATINGS");
+					debuglog("  .. Updated track URI for ex-wishlist item","USERRATINGS",5);
 					$donesomething = true;
 				} else {
-					debug_print("  .. FAILED to update Track URI!","USERRATINGS");
+					debuglog("  .. FAILED to update Track URI!","USERRATINGS",2);
 				}
 				if ($ttidobj->Albumindex == null) {
 					$albumai = check_artist($albumartist, true);
 					$albumindex = check_album($album, $albumai, $spotilink, $image, $date, "no", md5($albumartist." ".$album), null, getDomain($uri), true);
 					if ($up2 = sql_prepare_query("UPDATE Tracktable SET Albumindex = ? WHERE TTindex = ?", $albumindex, $ttids[0])) {
-						debug_print("  .. Updated track album index","USERRATINGS");
+						debuglog("  .. Updated track album index for wishlist item","USERRATINGS",5);
 						$donesomething = true;
 					} else {
-						debug_print("  .. FAILED to update Track Album Index!","USERRATINGS");
+						debuglog("  .. FAILED to update Track Album Index!","USERRATINGS",2);
 					}
 				}
 			}

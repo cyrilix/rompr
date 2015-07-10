@@ -80,7 +80,7 @@ var podcasts = function() {
 	function doDummyProgressBars() {
 		for(var i = 0; i < downloadQueue.length; i++) {
 			var track = downloadQueue[i].track;
-			debug.debug("PODCAST DOWNLOAD","Putting Dummy Progress Bar in",track);
+			debug.trace("PODCAST DOWNLOAD","Putting Dummy Progress Bar in",track);
 		    $('i[name="poddownload_'+track+'"]').makeSpinner();
 		}
 	}
@@ -247,12 +247,12 @@ var podcasts = function() {
 
 		checkMarkPodcastAsListened: function(file) {
 		    if (file.match(/^http:/)) {
-		        debug.debug("PODCASTS","Looking for podcast",file);
+		        debug.trace("PODCASTS","Looking for podcast",file);
 		        var p = $("#podcastslist").find('div[name="'+file+'"]');
 		        if (p.length == 1) {
 		            var divid = p.parent().attr("id");
 		            podid = divid.replace(/podcast_/, '');
-		            debug.debug("PODCASTS", "We just listened to",file,"from",podid);
+		            debug.trace("PODCASTS", "We just listened to",file,"from",podid);
 		            $.ajax( {
 		                type: "GET",
 		                url: "streamplugins/01_podcasts.php",
@@ -283,12 +283,12 @@ var podcasts = function() {
 			updatenext = null;
 			$('div[id^="podcast_"]').each( function() {
 				var id = $(this).attr('id');
-				debug.debug("PODCASTS", "Looking for unlistened items in",id);
+				debug.trace("PODCASTS", "Looking for unlistened items in",id);
 				var obj =  $(this).find('.newpodicon');
 				var unl = $(this).find('.oldpodicon');
 				var num = obj.length;
 				var numl = unl.length;
-				debug.debug("PODCASTS", "... the count is",num,numl);
+				debug.trace("PODCASTS", "... the count is",num,numl);
 				total += num;
 				utotal += numl;
 				var indicator = $(this).prev().find('.podnumber');
@@ -302,7 +302,7 @@ var podcasts = function() {
 				}
 
 				obj = $(this).find('.podnextupdate');
-				debug.debug("PODCASTS","Channel",obj.parent().attr("id"),"Next update is",obj.val());
+				debug.trace("PODCASTS","Channel",obj.parent().attr("id"),"Next update is",obj.val());
 				if (obj.val() != 0 && (updatetime === null || obj.val() < updatetime)) {
 					updatetime = obj.val();
 					updatenext = obj.parent().attr("id");

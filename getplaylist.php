@@ -9,11 +9,11 @@ include ("backends/sql/backend.php");
 header('Content-Type: application/json; charset=utf-8');
 $trackbytrack = false;
 doCollection("playlistinfo");
-debug_print("Collection scan playlistinfo finished","GETPLAYLIST");
+debuglog("Collection scan playlistinfo finished","GETPLAYLIST");
 $foundartists = array();
 outputPlaylist();
 
-debug_print("Playlist Output Is Done","GETPLAYLIST");
+debuglog("Playlist Output Is Done","GETPLAYLIST");
 
 function outputPlaylist() {
     global $playlist;

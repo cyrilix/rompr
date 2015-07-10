@@ -6,7 +6,7 @@ var info_soundcloud = function() {
 
 	function getTrackHTML(data) {
 
-        debug.debug("SOUNDCLOUD PLUGIN","Creating track HTML from",data);
+        debug.trace("SOUNDCLOUD PLUGIN","Creating track HTML from",data);
         var html = '<div class="containerbox info-detail-layout">';
         html = html + '<div class="info-box-fixed info-border-right info-box-list">';
 
@@ -43,7 +43,7 @@ var info_soundcloud = function() {
 	}
 
 	function getArtistHTML(data) {
-        debug.debug("SOUNDCLOUD PLUGIN","Creating artist HTML from",data);
+        debug.trace("SOUNDCLOUD PLUGIN","Creating artist HTML from",data);
         var html = '<div class="containerbox info-detail-layout">';
         html = html + '<div class="info-box-fixed info-border-right info-box-list">';
 

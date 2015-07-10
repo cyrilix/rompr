@@ -271,7 +271,7 @@ var browser = function() {
             debug.mark("BROWSER", "Got",type,"info from",source,"for index",nowplayingindex);
             if (force === true || (source == waitingon.source && nowplayingindex == waitingon.index)) {
                 if (force === true || waitingon[type]) {
-                    debug.log("BROWSER", "  .. and we are going to display it");
+                    debug.trace("BROWSER", "  .. and we are going to display it");
                     if (data.data !== null && (source == "file" || data.name !== "")) {
                         if ($("#"+type+"information").is(':hidden')) {
                             $("#"+type+"information").show();

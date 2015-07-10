@@ -2,7 +2,6 @@ var info_discogs = function() {
 
 	var me = "discogs";
 	var medebug = 'DISCOGS PLUGIN';
-	debug.setcolour(medebug, '#1133ff');
 
 	function getURLs(urls) {
 		var html = "";
@@ -64,7 +63,7 @@ var info_discogs = function() {
 	}
 
 	function sanitizeDiscogsResult(name) {
-		debug.debug(medebug,"Sanitising",name);
+		debug.trace(medebug,"Sanitising",name);
 		name = decodeURIComponent(name);
 		name = name.replace(/\* /,' ');
 		name = name.replace(/\(\d+\)/,'');
@@ -76,13 +75,13 @@ var info_discogs = function() {
     		name = name.replace(new RegExp(val, "ig"), numbers[val]);
     	}
 		name = name.replace(/\s+$/,'');
-		debug.debug(medebug,"  ... Sanitised",name.toLowerCase());
+		debug.trace(medebug,"  ... Sanitised",name.toLowerCase());
 		return name.toLowerCase();
 	}
 
 	function getReleaseHTML(data) {
 		var html = "";
-		debug.debug(medebug,"Generating release HTML for",data.id);
+		debug.trace(medebug,"Generating release HTML for",data.id);
 		if (data.data.releases.length > 0) {
         	html = html + '<div class="mbbox clearfix"><span style="float:right">PAGES: ';
         	for (var i = 1; i <= data.data.pagination.pages; i++) {
@@ -155,12 +154,12 @@ var info_discogs = function() {
         	}
         	html = html + '</span></div>';
 		}
-		debug.debug(medebug,"Returning release HTML for",data.id);
+		debug.trace(medebug,"Returning release HTML for",data.id);
 		return html;
 	}
 
 	function getAlbumHTML(data) {
-		debug.debug(medebug,"Creating HTML from release/master data",data);
+		debug.trace(medebug,"Creating HTML from release/master data",data);
 
 		if (data.error && data.master === undefined && data.release === undefined) {
 			return '<h3 align="center">'+data.error.error+'</h3>';
@@ -206,8 +205,7 @@ var info_discogs = function() {
         if (data.release && data.release.data.extraartists && data.release.data.extraartists.length > 0) {
 			html = html + '<div class="mbbox underline"><b>'+language.gettext("discogs_personnel")+'</b></div>';
 			for (var i in data.release.data.extraartists) {
-				html = html + '<div class="mbbox"><b>'+data.release.data.extraartists[i].name+
-							'</b> - '+data.release.data.extraartists[i].role+'</div>';
+				html = html + '<div class="mbbox">'+data.release.data.extraartists[i].role+' <b>'+data.release.data.extraartists[i].name+'</b></div>';
 			}
 		}
 
@@ -282,7 +280,7 @@ var info_discogs = function() {
 
 		collection: function(parent, artistmeta, albummeta, trackmeta) {
 
-			debug.log(medebug, "Creating data collection");
+			debug.trace(medebug, "Creating data collection");
 
 			var self = this;
 			var displaying = false;
@@ -306,7 +304,7 @@ var info_discogs = function() {
 			}
 
 			this.handleClick = function(source, element, event) {
-				debug.log(medebug,parent.nowplayingindex,source,"is handling a click event");
+				debug.trace(medebug,parent.nowplayingindex,source,"is handling a click event");
 				if (element.hasClass('clickdoartist')) {
 					var targetdiv = element.parent().next();
 					if (!(targetdiv.hasClass('full')) && element.isClosed()) {
@@ -414,7 +412,7 @@ var info_discogs = function() {
 			function getArtistData(id) {
 				debug.mark(medebug,parent.nowplayingindex,"Getting data for artist with ID",id);
 				if (artistmeta.discogs['artist_'+id] === undefined) {
-					debug.log(medebug,parent.nowplayingindex," ... retrieivng data");
+					debug.trace(medebug,parent.nowplayingindex," ... retrieivng data");
 					discogs.artist.getInfo(
 						'artist_'+id,
 						id,
@@ -422,7 +420,7 @@ var info_discogs = function() {
 						self.artist.extraResponseHandler
 					);
 				} else {
-					debug.log(medebug,parent.nowplayingindex," ... displaying what we've already got");
+					debug.trace(medebug,parent.nowplayingindex," ... displaying what we've already got");
 					putArtistData(artistmeta.discogs['artist_'+id], "artist_"+id);
 				}
 			}
@@ -440,7 +438,7 @@ var info_discogs = function() {
 			function getArtistReleases(name, page) {
 				debug.mark(medebug,parent.nowplayingindex,"Looking for release info for",name,"page",page);
 				if (artistmeta.discogs['discography_'+name+"_"+page] === undefined) {
-					debug.log(medebug,"  ... retreiving them");
+					debug.trace(medebug,"  ... retreiving them");
 					discogs.artist.getReleases(
 						name,
 						page,
@@ -449,7 +447,7 @@ var info_discogs = function() {
 						self.artist.releaseResponseHandler
 					);
 				} else {
-					debug.log(medebug,"  ... displaying what we've already got",artistmeta.discogs['discography_'+name+"_"+page]);
+					debug.trace(medebug,"  ... displaying what we've already got",artistmeta.discogs['discography_'+name+"_"+page]);
 					putArtistReleases(artistmeta.discogs['discography_'+name+"_"+page], 'discography_'+name);
 				}
 			}
@@ -469,7 +467,7 @@ var info_discogs = function() {
 				if (data.error) {
 					return '<h3 align="center">'+data.error+'</h3>';
 				}
-				debug.debug(medebug, "Creating Artist HTML",data);
+				debug.trace(medebug, "Creating Artist HTML",data);
 		        var html = '<div class="containerbox info-detail-layout">';
 		    	html = html + '<div class="info-box-fixed info-box-list info-border-right">';
 
@@ -524,7 +522,7 @@ var info_discogs = function() {
 			        		if (n && n[1]) {
 			        			debug.shout(medebug,"Found unpopulated artist reference",n[1]);
 								if (artistmeta.discogs['artist_'+n[1]] === undefined) {
-									debug.debug(medebug,parent.nowplayingindex," ... retrieivng data");
+									debug.trace(medebug,parent.nowplayingindex," ... retrieivng data");
 									discogs.artist.getInfo(
 										'artist_'+n[1],
 										n[1],
@@ -532,7 +530,7 @@ var info_discogs = function() {
 										self.artist.extraResponseHandler2
 									);
 								} else {
-									debug.debug(medebug,parent.nowplayingindex," ... displaying what we've already got");
+									debug.trace(medebug,parent.nowplayingindex," ... displaying what we've already got");
 									var name = artistmeta.discogs['artist_'+n[1]].data.name;
 									var link = artistmeta.discogs['artist_'+n[1]].data.uri;
 									p = p.replace(new RegExp('<span name="'+n[1]+'">'+n[1]+'<\/span>', 'g'), '<a href="'+link+'" target="_blank">'+name+'</a>');
@@ -676,10 +674,10 @@ var info_discogs = function() {
 							var l1 = s.pop();
 							var l2 = s.pop();
 							var lookingfor = '/'+l2+'/'+l1;
-							debug.log(medebug,parent.nowplayingindex,"scanning search data for",lookingfor);
+							debug.trace(medebug,parent.nowplayingindex,"scanning search data for",lookingfor);
 							for (var i in data.data.results) {
 								if (data.data.results[i].uri == lookingfor) {
-									debug.debug(medebug, "Found artist with ID",data.data.results[i].id);
+									debug.trace(medebug, "Found artist with ID",data.data.results[i].id);
 									artistmeta.discogs.artistid = data.data.results[i].id;
 									break;
 								}
@@ -688,7 +686,7 @@ var info_discogs = function() {
 								// just be a little bit careful
 								for (var i in data.data.results) {
 									if (decodeURIComponent(data.data.results[i].uri.toLowerCase()) == decodeURIComponent(lookingfor.toLowerCase())) {
-										debug.debug(medebug, "Found artist with ID",data.data.results[i].id);
+										debug.trace(medebug, "Found artist with ID",data.data.results[i].id);
 										artistmeta.discogs.artistid = data.data.results[i].id;
 										break;
 									}
@@ -715,10 +713,10 @@ var info_discogs = function() {
 							artistmeta.discogs.artistid = null;
 							var lookingfor = artistmeta.name;
 							lookingfor = sanitizeDiscogsResult(lookingfor);
-							debug.log(medebug,parent.nowplayingindex,"scanning search data for",lookingfor);
+							debug.trace(medebug,parent.nowplayingindex,"scanning search data for",lookingfor);
 							for (var i in data.data.results) {
 								if (sanitizeDiscogsResult(data.data.results[i].title) == lookingfor) {
-									debug.debug(medebug, "Found artist with ID",data.data.results[i].id);
+									debug.trace(medebug, "Found artist with ID",data.data.results[i].id);
 									artistmeta.discogs.artistid = data.data.results[i].id;
 									break;
 								}
@@ -739,7 +737,7 @@ var info_discogs = function() {
 					},
 
 					artistResponseHandler: function(data) {
-						debug.log(medebug,parent.nowplayingindex,"got artist data",data);
+						debug.trace(medebug,parent.nowplayingindex,"got artist data",data);
 						if (data) {
 							artistmeta.discogs['artist_'+artistmeta.discogs.artistid] = data;
 							self.artist.doBrowserUpdate();
@@ -955,7 +953,7 @@ var info_discogs = function() {
 							if (a) {
 								discogs.album.search(a,
 									function(data) {
-										debug.log(medebug,parent.nowplayingindex,"Album Search Results",data);
+										debug.trace(medebug,parent.nowplayingindex,"Album Search Results",data);
 										// We're gonna be really basic here, as a thorough search is a PITA to implement
 										var compartist = sanitizeDiscogsResult(getSearchArtist()+' - '+munge_album_name(albummeta.name));
 										for(var i in data.data.results) {
@@ -1023,7 +1021,7 @@ var info_discogs = function() {
 						if (trackmeta.discogs.track.error === undefined &&
 							trackmeta.discogs.track.master === undefined) {
 							if (trackmeta.discogs.tracklink === undefined) {
-								debug.log(medebug,parent.nowplayingindex,"Track asked to populate but no link yet");
+								debug.trace(medebug,parent.nowplayingindex,"Track asked to populate but no link yet");
 								retries--;
 								if (retries == 0) {
 									debug.warn(medebug,parent.nowplayingindex,"Track giving up on bloody musicbrainz");
@@ -1098,7 +1096,7 @@ var info_discogs = function() {
 							if (a) {
 								discogs.album.search(a,
 									function(data) {
-										debug.log(medebug,parent.nowplayingindex,"Track Search Results",data);
+										debug.trace(medebug,parent.nowplayingindex,"Track Search Results",data);
 										// We're gonna be really basic here, as a thorough search is a PITA to implement (see getalbumcover.php)
 										var compartist = sanitizeDiscogsResult(parent.playlistinfo.creator+' - '+trackmeta.name);
 										for (var i in data.data.results) {

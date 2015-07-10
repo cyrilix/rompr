@@ -1,5 +1,4 @@
 <?php
-
 function open_mpd_connection() {
     global $prefs;
     global $connection;
@@ -65,7 +64,6 @@ function parse_mpd_var($in_str) {
     if(strncmp("OK", $got,strlen("OK"))==0)
         return true;
     if(strncmp("ACK", $got,strlen("ACK"))==0) {
-        debug_print("MPD command error : ".$got,"MPD");
         return array(0 => false, 1 => $got);
     }
     $key = trim(strtok($got, ":"));
@@ -79,7 +77,7 @@ function do_mpd_command($command, $return_array = false, $force_array_results = 
     $retarr = array();
     if ($is_connected) {
 
-        debug_print("MPD Command ".$command,"MPD");
+        debuglog("MPD Command ".$command,"MPD",9);
 
         $success = fputs($connection, $command."\n");
         if ($success) {
@@ -94,9 +92,9 @@ function do_mpd_command($command, $return_array = false, $force_array_results = 
                         break;
                     }
                     if ($var[0] == false) {
+                        debuglog("Error for '".$command."'' : ".$var[1],"MPD",1);
                         if ($return_array == true) {
                             $retarr['error'] = $var[1];
-                            debug_print("Setting Error Flag","MPD");
                         } else {
                             return false;
                         }

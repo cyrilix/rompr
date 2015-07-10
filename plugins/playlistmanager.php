@@ -36,7 +36,7 @@ function print_playlists_as_json() {
     	        $matches = array();
     	        $link = $track->url;
     	        if ($prefs['player_backend'] == "mpd" && preg_match("/api\.soundcloud\.com\/tracks\/(\d+)\//", $track->url, $matches)) {
-    	            debug_print(" ... Link is SoundCloud","PLAYLISTS");
+    	            debuglog(" ... Link is SoundCloud","PLAYLISTS");
     	            $link = "soundcloud://track/".$matches[1];
     	        }
     	        $pls[rawurlencode($name)][] = array(

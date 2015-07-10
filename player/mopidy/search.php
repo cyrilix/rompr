@@ -18,13 +18,6 @@ print '<input class="autoset toggle" type="checkbox" id="search_limit_limitsearc
 print '</div>';
 
 print '<div class="dropmenu styledinputs" id="mopidysearchdomains" style="margin-top:4px">';
-// foreach ($searchlimits as $domain => $text) {
-//     // Need 'fullwidth' for bloody stupid firefox. divs are SUPPOSED to fill the width of their container, fuckwits.
-//     print '<div class="indent containerbox padright fullwidth dropdown-container">';
-//     print '<input type="checkbox" class="searchdomain autoset toggle" id="search_limit_'.$domain.'" value="'.$domain.'"';
-//     print '><label for="search_limit_'.$domain.'">'.$text.'</label>';
-//     print '</div>';
-// }
 print '</div>';
 ?>
 <div class="containerbox">
@@ -34,5 +27,4 @@ print '<button style="margin-right:4px" class="fixed" onclick="player.controller
 print '<button style="margin-right:4px" class="fixed" onclick="player.controller.search(\'search\')">'.get_int_text("button_search").'</button>';
 ?>
 </div>
-<div id="searchresultholder" class="noselection fullwidth"></div>
 </div>

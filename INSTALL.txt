@@ -20,15 +20,3 @@ Actually, it may well be possible to get this to run on Windows, if mpd or mopid
 to work then there's probably a LAMP stack for Windows that will run apache and php
 OK. But I don't intend to go buy a Windows computer just to find out.
 
-
-Ubuntu Users can now install from my PPA:
-==========================================
-
-	http://launchpad.net/~fatgerman-m/+archive/rompr
-
-Just follow the instructions to add the PPA, then
-
-	sudo apt-get install mpd-client-rompr
-
-This will install rompr and the Apache webserver. If you want to use a different webserver
-such as nginx, please read the wiki link above.

@@ -17,7 +17,7 @@ if (array_key_exists('playlist', $_REQUEST)) {
     if (is_array($playlists) && array_key_exists('playlist', $playlists)) {
         sort($playlists['playlist'], SORT_STRING);
         foreach ($playlists['playlist'] as $pl) {
-            debug_print("Adding Playlist To List : ".$pl,"MPD PLAYLISTS");
+            debuglog("Adding Playlist : ".$pl,"MPD PLAYLISTS",8);
             add_playlist(rawurlencode($pl), htmlentities($pl), 'icon-doc-text', 'clickloadplaylist', true, $c, false);
             $c++;
         }
@@ -55,7 +55,7 @@ function do_playlist_tracks($pl, $icon) {
             $link = $track->url;
             $class = "clicktrack";
             if (preg_match("/api\.soundcloud\.com\/tracks\/(\d+)\//", $track->url, $matches)) {
-                debug_print(" ... Link is SoundCloud","PLAYLISTS");
+                debuglog(" ... Link is SoundCloud","PLAYLISTS",8);
                 $link = "soundcloud://track/".$matches[1];
                 $class = "clickcue";
             }
@@ -106,7 +106,7 @@ function add_playlist($link, $name, $icon, $class, $delete, $count, $is_user) {
             break;
 
         default:
-            debug_print("ERROR! Not permitted type passed to add_playlist", "MPD_PLAYLISTS");
+            debuglog("ERROR! Not permitted type passed to add_playlist", "MPD_PLAYLISTS",2);
             break;
 
 

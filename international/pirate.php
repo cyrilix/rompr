@@ -115,7 +115,6 @@ $languages['pirate'] = array (
 	"label_searchresults" => "T' findings",
 	"label_multiterms" => "Ye can use all o' these at once, if ye desires",
 	"label_limitsearch" => "T' Specifics",
-	"label_filesearch" => "Look in t'boxes fer",
 
 	// General multipurpose labels
 	"label_tracks" => "shantys",
@@ -242,7 +241,6 @@ $languages['pirate'] = array (
 	"setup_unixsocket" => "UNIX-domain socket",
 	"setup_mopidy" => "Mopidy-specific Settings",
 	"setup_mopidyport" => "Mopidy HTTP port:",
-	"setup_debug" => "Enable Capn's Log",
 
 	// Intro Window
 	"intro_title" => "Yarrrrrrrrrrrrr!",

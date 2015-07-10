@@ -4,7 +4,7 @@ function download_file($src, $fname, $convert_path) {
     global $error;
 
     $download_file = "albumart/".$fname;
-    debug_print("   Downloading Image ".$src." to ".$download_file,"GETALBUMCOVER");
+    debuglog("   Downloading Image ".$src." to ".$download_file,"GETALBUMCOVER");
 
     if (file_exists($download_file)) {
         unlink ($download_file);
@@ -17,18 +17,18 @@ function download_file($src, $fname, $convert_path) {
         check_file($download_file, $aagh['contents']);
         $o = array();
         $c = $convert_path."identify \"".$download_file."\" 2>&1";
-        // debug_print("    Command is ".$c,"GETALBUMCOVER");
+        // debuglog("    Command is ".$c,"GETALBUMCOVER");
         $r = exec( $c, $o);
-        debug_print("    Return value from identify was ".$r,"GETALBUMCOVER");
+        debuglog("    Return value from identify was ".$r,"GETALBUMCOVER");
         if ($r == '' ||
             preg_match('/GIF 1x1/', $r) ||
             preg_match('/unable to open/', $r) ||
             preg_match('/no decode delegate/', $r)) {
-            debug_print("      Broken/Invalid file returned","GETALBUMCOVER");
+            debuglog("      Broken/Invalid file returned","GETALBUMCOVER");
             $error = 1;
         }
     } else {
-        debug_print("    File open failed!","GETALBUMCOVER");
+        debuglog("    File open failed!","GETALBUMCOVER");
         $error = 1;
     }
     return $download_file;
@@ -37,15 +37,15 @@ function download_file($src, $fname, $convert_path) {
 function saveImage($fname, $in_collection, $stream) {
     global $convert_path;
     global $download_file;
-    debug_print("  Saving Image ".$download_file,"GETALBUMCOVER");
+    debuglog("  Saving Image ".$download_file,"GETALBUMCOVER");
     $small_file = null;
     $anglofile = null;
     if ($in_collection || $stream != '') {
-        debug_print("    Saving image to albumart folder");
+        debuglog("    Saving image to albumart folder");
         $small_file = "albumart/small/".$fname.".jpg";
         $anglofile = "albumart/asdownloaded/".$fname.".jpg";
     } else {
-        debug_print("    Saving image to image cache");
+        debuglog("    Saving image to image cache");
         $small_file = "prefs/imagecache/".$fname."_small.jpg";
         $anglofile = "prefs/imagecache/".$fname."_asdownloaded.jpg";
     }
@@ -60,9 +60,9 @@ function saveImage($fname, $in_collection, $stream) {
     // -alpha remove removes the alpha (transparency) channel if it exists - JPEG doesn't have one of these and
     // trying to resize PNGs with alpha channels and save them as JPEGs gives horrid results with convert
     $o = array();
-    debug_print("Creating file ".$small_file,"SAVEIMAGE");
+    debuglog("Creating file ".$small_file,"SAVEIMAGE");
     $r = exec( $convert_path."convert \"".$download_file."\" -resize 82x82 -background black -alpha remove -gravity center -extent 82x82 \"".$small_file."\" 2>&1", $o);
-    debug_print("Creating file ".$anglofile,"SAVEIMAGE");
+    debuglog("Creating file ".$anglofile,"SAVEIMAGE");
     $r = exec( $convert_path."convert \"".$download_file."\" -background black -alpha remove \"".$anglofile."\" 2>&1", $o);
 
     return array($small_file, $anglofile);
@@ -72,11 +72,11 @@ function check_file($file, $data) {
     // NOTE. WE've configured curl to follow redirects, so in truth this code should never do anything
     $matches = array();
     if (preg_match('/See: (.*)/', $data, $matches)) {
-        debug_print("    Check_file has found a silly musicbrainz diversion ".$data,"GETALBUMCOVER");
+        debuglog("    Check_file has found a silly musicbrainz diversion ".$data,"GETALBUMCOVER");
         $new_url = $matches[1];
         system('rm "'.$file.'"');
         $aagh = url_get_contents($new_url);
-        debug_print("    check_file is getting ".$new_url,"GETALBUMCOVER");
+        debuglog("    check_file is getting ".$new_url,"GETALBUMCOVER");
         $fp = fopen($file, "x");
         if ($fp) {
             fwrite($fp, $aagh['contents']);

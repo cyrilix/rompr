@@ -17,7 +17,7 @@ var faveAlbums = function() {
             url: "radios/favealbums.php",
             success: function(data) {
                 if (data && data.length > 0) {
-                    debug.debug("FAVEALBUMS","Got tracks",data);
+                    debug.trace("FAVEALBUMS","Got tracks",data);
                     running = true;
                     populating = false;
                     tracks = data;

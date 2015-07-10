@@ -14,11 +14,11 @@ ob_flush();
 function get_lfm_page($page, $lang) {
     $url = $page."/+wiki";
    if ($lang) {
-        debug_print("Getting Bio with language ".$lang,"LFMBIO");
+        debuglog("Getting Bio with language ".$lang,"LFMBIO");
         $url .= "?lang=".$lang;
     }
     if (file_exists('prefs/jsoncache/lastfm/'.md5($url))) {
-        debug_print("Returning cached data","LFMBIO");
+        debuglog("Returning cached data","LFMBIO");
         print file_get_contents('prefs/jsoncache/lastfm/'.md5($url));
     } else {
         $content = url_get_contents($url);

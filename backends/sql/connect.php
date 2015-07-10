@@ -11,25 +11,25 @@ function probe_database() {
 	// the database type. This does mean we get some duplicate code but this is
 	// so much better for the user.
 	global $mysqlc, $prefs;
-	debug_print("Attempting to connect to MYSQL Server","SQL_CONNECT");
+	debuglog("Attempting to connect to MYSQL Server","SQL_CONNECT",4);
 	try {
 		$dsn = "mysql:host=".$prefs['mysql_host'].";port=".$prefs['mysql_port'].";dbname=".$prefs['mysql_database'];
 		$mysqlc = new PDO($dsn, $prefs['mysql_user'], $prefs['mysql_password']);
-		debug_print("Connected to MySQL","SQL_CONNECT");
+		debuglog("Connected to MySQL","SQL_CONNECT",5);
 		$prefs['collection_type'] = 'mysql';
 	} catch (Exception $e) {
-		debug_print("Couldn't connect to MySQL - ".$e,"SQL_CONNECT");
+		debuglog("Couldn't connect to MySQL - ".$e,"SQL_CONNECT",3);
 		$mysqlc = null;
 	}
 	if ($mysqlc == null) {
-		debug_print("Attempting to use SQLite Database");
+		debuglog("Attempting to use SQLite Database",4);
 		try {
 			$dsn = "sqlite:prefs/collection_mpd.sq3";
 			$mysqlc = new PDO($dsn);
-			debug_print("Connected to SQLite","MYSQL");
+			debuglog("Connected to SQLite","MYSQL");
 			$prefs['collection_type'] = 'sqlite';
 		} catch (Exception $e) {
-			debug_print("Couldn't use SQLite Either - ".$e,"MYSQL");
+			debuglog("Couldn't use SQLite Either - ".$e,"MYSQL",3);
 			$mysqlc = null;
 		}
 	}
@@ -42,20 +42,20 @@ function probe_database() {
 function show_sql_error($text = "    MYSQL Error: ", $stmt = null) {
 	global $mysqlc;
 	$obj = $stmt == null ? $mysqlc : $stmt;
-	debug_print($text." : ".$obj->errorInfo()[2],"MYSQL");
+	debuglog($text." : ".$obj->errorInfo()[2],"MYSQL",1);
 }
 
 function generic_sql_query($qstring, $log = false, $showerror = true) {
 	global $mysqlc;
-	if ($log) debug_print($qstring,"SQL_QUERY");
+	if ($log) debuglog($qstring,"SQL_QUERY");
 	if (($result = $mysqlc->query($qstring)) !== FALSE) {
-		if ($log) debug_print("Done : ".($result->rowCount())." rows affected","SQL_QUERY");
+		if ($log) debuglog("Done : ".($result->rowCount())." rows affected","SQL_QUERY");
 	} else {
 		if ($log) {
 			show_sql_error();
 		} else {
 			if ($showerror) {
-				debug_print("Command Failed : ".$qstring,"SQL_QUERY");
+				debuglog("Command Failed : ".$qstring,"SQL_QUERY",2);
 				show_sql_error();
 			}
 		}
@@ -88,16 +88,16 @@ function sql_prepare_query() {
 	global $mysqlc;
 	$numArgs = func_num_args();
 	$query = func_get_arg(0);
-	// if (!is_string($query)) {
-	// 	$callers=debug_backtrace();
-	// 	var_dump($callers[1]); exit(0); //['function'];
-	// }
 	$stmt = $mysqlc->prepare($query);
 	if ($stmt !== FALSE) {
 		$args = array();
 		for ($i = 1; $i < $numArgs; $i++) $args[] = func_get_arg($i);
-		// debug_print("Pseudo query: ".dbg_params($query, $args),"SQL_QUERY");
-		return $stmt->execute($args) ? $stmt : FALSE;
+		if ($stmt->execute($args)) {
+			return $stmt;
+		} else {
+			show_sql_error();
+			return false;
+		}
 	} else {
 		show_sql_error();
 	}
@@ -108,26 +108,31 @@ function sql_prepare_query_later($query) {
 	global $mysqlc;
 	$stmt = $mysqlc->prepare($query);
 	if ($stmt === FALSE) {
-		show_sql_error("Query Prep Error For ".$query);
+		show_sql_error("Query Prep Error For ".$query,2);
 	}
 	return $stmt;
 }
 
-function check_albumslist() {
-	$retval = "false";
+function checkCollectionStatus() {
 	if ($result = generic_sql_query("SELECT Value FROM Statstable WHERE Item = 'ListVersion'")) {
 		$lv = 0;
 		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+			$found = true;
 			$lv = $obj->Value;
 		}
 		if ($lv == ROMPR_COLLECTION_VERSION) {
-			debug_print("Collection version is correct","MYSQL");
-			$retval = "true";
+			debuglog("Collection version is correct","MYSQL",8);
+			return "0";
 		} else {
-			debug_print("Collection version is outdated - ".$lv, "MYSQL");
+			if ($lv > 0) {
+				debuglog("Collection version is outdated - ".$lv, "MYSQL",4);
+				return "1";
+			} else {
+				debuglog("Collection has not been built".$lv, "MYSQL",7);
+				return "2";
+			}
 		}
 	}
-	return $retval;
 }
 
 ?>

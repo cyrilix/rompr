@@ -91,11 +91,12 @@
 </div>
 
 <div id='searchpane' class="noborder scroller mainpane invisible">
-<div id="search" class="noborder searchbox selecotron">
+<div id="search" class="noborder searchbox">
 <?php
 include("player/".$prefs['player_backend']."/search.php");
 ?>
 </div>
+<div id="searchresultholder" class="nosborder selecotron"></div>
 </div>
 
 <div id="filelist" class="noborder scroller mainpane invisible">

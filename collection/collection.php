@@ -1,6 +1,6 @@
 <?php
 
-include ("player/".$prefs['player_backend']."/streamhandler.php");
+include ("player/mpd/streamhandler.php");
 
 $numtracks = 0;
 $numalbums = 0;
@@ -75,7 +75,7 @@ class album {
 
     public function setSpotilink($link) {
         if ($this->spotilink != null && $link != $this->spotilink) {
-            debug_print("WARNING! Album ".$this->name." has more than one album link","COLLECTION");
+            debuglog("WARNING! Album ".$this->name." has more than one album link","COLLECTION");
         }
         $this->spotilink = $link;
     }
@@ -261,10 +261,10 @@ class artist {
             }
         }
         if ($ak) {
-            debug_print("Removing album ".$object->name." from artist ".$this->name, "COLLECTION");
+            debuglog("Removing album ".$object->name." from artist ".$this->name, "COLLECTION");
             unset($this->albums[$ak]);
         } else {
-            debug_print("AWOOGA! Removing album ".$object->name." from artist ".$this->name." FAILED!", "COLLECTION");
+            debuglog("AWOOGA! Removing album ".$object->name." from artist ".$this->name." FAILED!", "COLLECTION");
         }
     }
 
@@ -412,11 +412,11 @@ class musicCollection {
         global $current_album, $current_artist, $abm, $current_domain, $playlist, $prefs, $trackbytrack, $putinplaylistarray;
 
         if ($prefs['ignore_unplayable'] && substr($name, 0, 12) == "[unplayable]") {
-            debug_print("Ignoring unplayable track ".$file,"COLLECTION");
+            debuglog("Ignoring unplayable track ".$file,"COLLECTION");
             return true;
         }
         if (substr($name, 0, 9) == "[loading]") {
-            debug_print("Ignoring unloaded track ".$file,"COLLECTION");
+            debuglog("Ignoring unloaded track ".$file,"COLLECTION");
             return true;
         }
 
@@ -557,7 +557,7 @@ class musicCollection {
         $abm->newTrack($t);
         if ($abm->spotilink == null && $spotialbum != null) {
             $abm->setSpotilink($spotialbum);
-            debug_print("Setting Album Link for ".$abm->name,"COLLECTION");
+            debuglog("Setting Album Link for ".$abm->name,"COLLECTION");
         // } else if ($linktype == ROMPR_ALBUM) {
         //     $abm->setSpotilink($file);
         }
@@ -740,7 +740,7 @@ function process_file(&$filedata) {
     if ($spotialbum === null) {
         $spotialbum = (array_key_exists('playlist',$filedata) && strtolower(pathinfo(unwanted_array($filedata['playlist']), PATHINFO_EXTENSION)) == "cue") ? unwanted_array($filedata['playlist']) : null;
         if ($spotialbum != null) {
-            debug_print("Found CUE sheet for album ".$album,"COLLECTION");
+            debuglog("Found CUE sheet for album ".$album,"COLLECTION");
         }
     }
     // Album Image
@@ -886,7 +886,7 @@ function process_file(&$filedata) {
                             $composer, $performers, $linktype);
 
     $numtracks++;
-    // debug_print("Processed ".$numtracks." tracks. Memory used is ".memory_get_usage(),"COLLECTION");
+    // debuglog("Processed ".$numtracks." tracks. Memory used is ".memory_get_usage(),"COLLECTION");
     $totaltime += $duration;
 }
 
@@ -923,15 +923,15 @@ function getStuffFromXSPF($url) {
     foreach($stream_xspfs as $i => $x) {
         foreach($x->trackList->track as $i => $track) {
             if($track->location == $url) {
-                debug_print("FOUND STATION ".$url,"THING");
+                debuglog("FOUND STATION ".$url,"THING");
                 $image = (string) $track->image;
                 if (preg_match('/^http:/', $image)) {
                     $image = "getRemoteImage.php?url=".$image;
                 }
-                $type = (string) $track->type;
-                if ($type == "") {
+                // $type = (string) $track->type;
+                // if ($type == "") {
                     $type = "stream";
-                }
+                // }
                 return array (
                     true,
                     (string) $track->title,
@@ -996,10 +996,16 @@ function getDummyStation($url) {
     $f = getDomain($url);
     switch ($f) {
         case "http":
-        case "mms":
-        case "rtsp":
         case "https":
+        case "mms":
+        case "mmsh":
+        case "mmst":
+        case "mmsu":
+        case "gopher":
+        case "rtp":
+        case "rtsp":
         case "rtmp":
+        case "rtmpt":
         case "rtmps":
             return "Radio";
             break;

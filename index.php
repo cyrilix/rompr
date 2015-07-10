@@ -1,34 +1,32 @@
 <?php
 include("includes/vars.php");
 
-// SVN versions of this release had composergenrename as a string but it's now an arry
+// SVN versions of this release had composergenrename as a string but it's now an array
 if (!is_array($prefs['composergenrename'])) {
     $prefs['composergenrename'] = array($prefs['composergenrename']);
 }
 
-debug_print("=================****==================","INIT");
+debuglog("=================****==================","INIT",2);
 
 include("includes/functions.php");
 include("international.php");
-
-debug_print($_SERVER['SCRIPT_FILENAME'],"INIT");
-debug_print($_SERVER['PHP_SELF'],"INIT");
 
 //
 // See if there are any POST values from the setup screen
 //
 
 if (array_key_exists('mpd_host', $_POST)) {
-    $prefs['debug_enabled'] = false;
+    $prefs['debug_enabled'] = 0;
     foreach ($_POST as $i => $value) {
-        if ($i == 'debug_enabled') {
-            $value = true;
-        }
-        debug_print("Setting Pref ".$i." to ".$value,"INIT");
+        debuglog("Setting Pref ".$i." to ".$value,"INIT", 1);
         $prefs[$i] = $value;
     }
+    $logger->setLevel($prefs['debug_enabled']);
     savePrefs();
 }
+
+debuglog($_SERVER['SCRIPT_FILENAME'],"INIT",9);
+debuglog($_SERVER['PHP_SELF'],"INIT",9);
 
 //
 // Has the user asked for the setup screen?
@@ -46,10 +44,10 @@ if (array_key_exists('setup', $_REQUEST)) {
 include 'utils/Mobile_Detect.php';
 if (array_key_exists('mobile', $_REQUEST)) {
     $skin = ($_REQUEST['mobile'] == "phone") ? "phone" : "desktop";
-    debug_print("Request asked for skin: ".$skin,"INIT");
+    debuglog("Request asked for skin: ".$skin,"INIT",6);
 } else if(array_key_exists('skin', $_REQUEST)) {
     $skin = $_REQUEST['skin'];
-    debug_print("Request asked for skin: ".$skin,"INIT");
+    debuglog("Request asked for skin: ".$skin,"INIT",6);
     if (!is_dir('skins/'.$skin)) {
         print '<h3>Skin '.$skin.' does not exist!</h3>';
         exit(0);
@@ -57,16 +55,16 @@ if (array_key_exists('mobile', $_REQUEST)) {
 } else {
     $detect = new Mobile_Detect();
     if ($detect->isMobile() && !$detect->isTablet()) {
-        debug_print("Mobile Browser Detected!","INIT");
+        debuglog("Mobile Browser Detected!","INIT",4);
         $skin = "phone";
     } else {
-        debug_print("Not a mobile browser","INIT");
+        debuglog("Not a mobile browser","INIT",4);
         $skin = "desktop";
     }
 }
-debug_print("Using skin : ".$skin,"INIT");
+debuglog("Using skin : ".$skin,"INIT",6);
 if (file_exists('skins/'.$skin.'/skin.requires')) {
-    debug_print("Loading Skin Requirements File","INIT");
+    debuglog("Loading Skin Requirements File","INIT",9);
     $skinrequires = file('skins/'.$skin.'/skin.requires');
 } else {
     $skinrequires = array();
@@ -74,13 +72,13 @@ if (file_exists('skins/'.$skin.'/skin.requires')) {
 
 include("player/mpd/connection.php");
 if (!$is_connected) {
-    debug_print("MPD Connection Failed","INIT");
+    debuglog("MPD Connection Failed","INIT",1);
     askForMpdValues(get_int_text("setup_connectfail"));
     exit();
 } else {
     $mpd_status = do_mpd_command("status", true);
     if (array_key_exists('error', $mpd_status)) {
-        debug_print("MPD Password Failed or other status failure","INIT");
+        debuglog("MPD Password Failed or other status failure","INIT",2);
         close_mpd();
         askForMpdValues(get_int_text("setup_connecterror").$mpd_status['error']);
         exit();
@@ -93,10 +91,10 @@ if (!$is_connected) {
 // we're running mopidy. It's flaky but I don't see another way.
 $r = do_mpd_command('readmessages', false);
 if ($r === false) {
-    debug_print("Looks like we're running Mopidy","INIT");
+    debuglog("Looks like we're running Mopidy","INIT",4);
     $prefs['player_backend'] = "mopidy";
 } else {
-    debug_print("Looks like we're running MPD","INIT");
+    debuglog("Looks like we're running MPD","INIT",4);
     $prefs['player_backend'] = "mpd";
 }
 
@@ -104,7 +102,7 @@ if ($prefs['unix_socket'] != '') {
     // If we're connected by a local socket we can read the music directory
     $arse = do_mpd_command('config', true);
     if (array_key_exists('music_directory', $arse)) {
-        debug_print("Music Directory Is ".$arse['music_directory'],"INIT");
+        debuglog("Music Directory Is ".$arse['music_directory'],"INIT",9);
         $prefs['music_directory'] = $arse['music_directory'];
         if (is_link("prefs/MusicFolders")) {
             system ("unlink prefs/MusicFolders");
@@ -147,8 +145,8 @@ if ($result == false) {
 //
 include ("includes/firstrun.php");
 
-debug_print("Initialisation done. Let's Boogie!", "INIT");
-debug_print("=================****==================","STARTED UP");
+debuglog("Initialisation done. Let's Boogie!", "INIT",9);
+debuglog("=================****==================","STARTED UP",2);
 
 ?>
 
@@ -167,7 +165,7 @@ foreach ($skinrequires as $s) {
     $s = trim($s);
     $ext = strtolower(pathinfo($s, PATHINFO_EXTENSION));
     if ($ext == "css") {
-        debug_print("Including Skin Requirement ".$s,"INIT");
+        debuglog("Including Skin Requirement ".$s,"INIT",6);
         print '<link rel="stylesheet" type="text/css" href="'.$s.'" />'."\n";
     }
 }
@@ -218,7 +216,7 @@ include('includes/globals.php');
 <script language="javascript">
 
 function aADownloadFinished() {
-    debug.log("INDEX","Album Art Download Has Finished");
+    debug.trace("INDEX","Album Art Download Has Finished");
 }
 var playlist = new Playlist();
 var player = new multiProtocolController();
@@ -235,18 +233,19 @@ foreach($inc as $i) {
 $inc = glob("browser/plugins/*.js");
 ksort($inc);
 foreach($inc as $i) {
-    debug_print("Including Plugin ".$i,"INIT");
+    debuglog("Including Info Panel Plugin ".$i,"INIT",6);
     print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
 }
 $inc = glob("radios/*.js");
 ksort($inc);
 foreach($inc as $i) {
+    debuglog("Including Smart Radio Plugin ".$i,"INIT",7);
     print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
 }
 if ($skin == "desktop") {
     $inc = glob("plugins/*.js");
     foreach($inc as $i) {
-        debug_print("Including Plugin ".$i,"INIT");
+        debuglog("Including Plugin ".$i,"INIT",5);
         print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
     }
 }
@@ -258,7 +257,7 @@ foreach ($skinrequires as $s) {
     $s = trim($s);
     $ext = strtolower(pathinfo($s, PATHINFO_EXTENSION));
     if ($ext == "js") {
-        debug_print("Including Skin Requirement ".$s,"INIT");
+        debuglog("Including Skin Requirement ".$s,"INIT",7);
         print '<script type="text/javascript" src="'.$s.'"></script>'."\n";
     }
 }
@@ -268,7 +267,7 @@ print '<script type="text/javascript" src="skins/'.$skin.'/skin.js"></script>'."
 </head>
 
 <?php
-debug_print("Including skins/".$skin.'/skin.php',"LAYOUT");
+debuglog("Including skins/".$skin.'/skin.php',"LAYOUT",7);
 include('skins/'.$skin.'/skin.php');
 ?>
 

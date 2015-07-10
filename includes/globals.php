@@ -116,13 +116,8 @@ print "    var tags = ".json_encode($translations);
 }();
 
 <?php
-print "var albumslistexists = ".check_albumslist().";\n";
-
-if ($prefs['debug_enabled']) {
-    print "debug.setLevel(8);\n";
-} else {
-    print "debug.setLevel(0);\n";
-}
+print "var collection_status = ".checkCollectionStatus().";\n";
+print "debug.setLevel(".$prefs['debug_enabled'].");\n";
 
 print "var interfaceLanguage = '".$interface_language."';\n";
 print "var browserLanguage = '".$browser_language."';\n";

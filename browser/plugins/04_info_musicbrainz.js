@@ -2,7 +2,6 @@ var info_musicbrainz = function() {
 
 	var me = "musicbrainz";
 	var medebug = "MBNZ PLUGIN";
-	debug.setcolour(medebug, '#11ee99');
 
 	function getYear(data) {
 		try {
@@ -454,7 +453,7 @@ var info_musicbrainz = function() {
 
 		collection: function(parent, artistmeta, albummeta, trackmeta) {
 
-			debug.log(medebug, "Creating data collection");
+			debug.trace(medebug, "Creating data collection");
 
 			var self = this;
 			var displaying = false;
@@ -477,7 +476,7 @@ var info_musicbrainz = function() {
 			}
 
 			this.handleClick = function(source, element, event) {
-				debug.log(medebug,parent.nowplayingindex,source,"is handling a click event");
+				debug.trace(medebug,parent.nowplayingindex,source,"is handling a click event");
 				if (element.hasClass('clickdoartist')){
 					var targetdiv = element.parent().next();
 					if (!(targetdiv.hasClass('full')) && element.isClosed()) {
@@ -564,14 +563,14 @@ var info_musicbrainz = function() {
 			function getArtistData(id) {
 				debug.mark(medebug,parent.nowplayingindex,"Getting data for artist with ID",id);
 				if (artistmeta.musicbrainz[id] === undefined) {
-					debug.log(medebug,parent.nowplayingindex," ... retrieivng data");
+					debug.trace(medebug,parent.nowplayingindex," ... retrieivng data");
 					musicbrainz.artist.getInfo(
 						id,
 						self.artist.extraResponseHandler,
 						self.artist.extraResponseHandler
 					);
 				} else {
-					debug.log(medebug,parent.nowplayingindex," ... displaying what we've already got");
+					debug.trace(medebug,parent.nowplayingindex," ... displaying what we've already got");
 					putArtistData(artistmeta.musicbrainz[id], id);
 				}
 			}
@@ -589,7 +588,7 @@ var info_musicbrainz = function() {
 			function getArtistReleases(id, target) {
 				debug.mark(medebug,parent.nowplayingindex,"Looking for release info with id",id,target);
 				if (artistmeta.musicbrainz[target] === undefined) {
-					debug.log(medebug,"  ... retreiving them");
+					debug.trace(medebug,"  ... retreiving them");
 					musicbrainz.artist.getReleases(
 						id,
 						target,
@@ -597,7 +596,7 @@ var info_musicbrainz = function() {
 						self.artist.releaseResponseHandler
 					);
 				} else {
-					debug.log(medebug,"  ... displaying what we've already got",artistmeta.musicbrainz[target]);
+					debug.trace(medebug,"  ... displaying what we've already got",artistmeta.musicbrainz[target]);
 					putArtistReleases(artistmeta.musicbrainz[target], target);
 				}
 			}
@@ -697,7 +696,7 @@ var info_musicbrainz = function() {
 		        html = html + '</div>';
 		        html = html + '</div>';
 		        if (data['cover-art-archive'].artwork == true) {
-		        	debug.log(medebug,"There is cover art available");
+		        	debug.trace(medebug,"There is cover art available");
 			        html = html + '<div class="cleft info-box-fixed" id="coverart">';
 			        html = html + getCoverArt();
 			        html = html + '</div>';
@@ -709,7 +708,7 @@ var info_musicbrainz = function() {
 			function getCoverArt() {
 				debug.mark(medebug,parent.nowplayingindex,"Getting Cover Art");
 				if (albummeta.musicbrainz.coverart === undefined) {
-					debug.log(medebug,parent.nowplayingindex," ... retrieivng data");
+					debug.trace(medebug,parent.nowplayingindex," ... retrieivng data");
 					musicbrainz.album.getCoverArt(
 						albummeta.musicbrainz_id,
 						self.album.coverResponseHandler,
@@ -717,7 +716,7 @@ var info_musicbrainz = function() {
 					);
 					return "";
 				} else {
-					debug.log(medebug,parent.nowplayingindex," ... displaying what we've already got");
+					debug.trace(medebug,parent.nowplayingindex," ... displaying what we've already got");
 					return (getCoverHTML(albummeta.musicbrainz.coverart));
 				}
 			}
@@ -769,7 +768,7 @@ var info_musicbrainz = function() {
 							} else {
 								artistmeta.musicbrainz[artistmeta.musicbrainz_id] = data;
 								var wikilinks = { user: null, english: null, anything: null };
-								debug.log(medebug,parent.nowplayingindex,"wikipedia language is",wikipedia.getLanguage());
+								debug.trace(medebug,parent.nowplayingindex,"wikipedia language is",wikipedia.getLanguage());
 
 								var domain = '^http://'+wikipedia.getLanguage();
 								var re = new RegExp(domain);
@@ -784,13 +783,13 @@ var info_musicbrainz = function() {
 										// user's chosen language, but it's definitely best if we prioritise them here
 										var wikitemp = data.relations[i].url.resource;
 										if (re.test(wikitemp)) {
-											debug.log(medebug,parent.nowplayingindex,"found user domain wiki link");
+											debug.trace(medebug,parent.nowplayingindex,"found user domain wiki link");
 											wikilinks.user = wikitemp;
 										} else if (wikitemp.match(/en.wikipedia.org/)) {
-											debug.log(medebug,parent.nowplayingindex,"found english domain wiki link");
+											debug.trace(medebug,parent.nowplayingindex,"found english domain wiki link");
 											wikilinks.english = wikitemp;
 										} else {
-											debug.log(medebug,parent.nowplayingindex,"found wiki link");
+											debug.trace(medebug,parent.nowplayingindex,"found wiki link");
 											wikilinks.anything = wikitemp;
 										}
 									}
@@ -801,13 +800,13 @@ var info_musicbrainz = function() {
 								}
 								if (update.wikipedia.artistlink == null) {
 									if (wikilinks.user) {
-										debug.log(medebug,parent.nowplayingindex,"using user domain wiki link",wikilinks.user);
+										debug.trace(medebug,parent.nowplayingindex,"using user domain wiki link",wikilinks.user);
 										update.wikipedia.artistlink = wikilinks.user;
 									} else if (wikilinks.english) {
-										debug.log(medebug,parent.nowplayingindex,"using english domain wiki link",wikilinks.english);
+										debug.trace(medebug,parent.nowplayingindex,"using english domain wiki link",wikilinks.english);
 										update.wikipedia.artistlink = wikilinks.english;
 									} else if (wikilinks.anything) {
-										debug.log(medebug,parent.nowplayingindex,"using any old domain wiki link",wikilinks.anything);
+										debug.trace(medebug,parent.nowplayingindex,"using any old domain wiki link",wikilinks.anything);
 										update.wikipedia.artistlink = wikilinks.anything;
 									}
 
@@ -827,7 +826,7 @@ var info_musicbrainz = function() {
 
 					extraResponseHandler: function(data) {
 						if (data) {
-							debug.log(medebug,parent.nowplayingindex,"got extra artist data for",data.id,data);
+							debug.trace(medebug,parent.nowplayingindex,"got extra artist data for",data.id,data);
 							artistmeta.musicbrainz[data.id] = data;
 							putArtistData(artistmeta.musicbrainz[data.id], data.id);
 						}
@@ -836,7 +835,7 @@ var info_musicbrainz = function() {
 
 					releaseResponseHandler: function(data) {
 						if (data) {
-							debug.log(medebug,parent.nowplayingindex,"got release data for",data.id,data);
+							debug.trace(medebug,parent.nowplayingindex,"got release data for",data.id,data);
 							artistmeta.musicbrainz[data.id] = data;
 							putArtistReleases(artistmeta.musicbrainz[data.id], data.id);
 						}
@@ -919,7 +918,7 @@ var info_musicbrainz = function() {
 						if (data) {
 							albummeta.musicbrainz.album = data;
 							var wikilinks = { user: null, english: null, anything: null };
-							debug.log(medebug,parent.nowplayingindex,"wikipedia language is",wikipedia.getLanguage());
+							debug.trace(medebug,parent.nowplayingindex,"wikipedia language is",wikipedia.getLanguage());
 
 							var domain = '^http://'+wikipedia.getLanguage();
 							var re = new RegExp(domain);
@@ -928,13 +927,13 @@ var info_musicbrainz = function() {
 									debug.mark(medebug,parent.nowplayingindex,"has found a Wikipedia album link",data.relations[i].url.resource);
 									var wikitemp = data.relations[i].url.resource;
 									if (re.test(wikitemp)) {
-										debug.log(medebug,parent.nowplayingindex,"found user domain wiki link");
+										debug.trace(medebug,parent.nowplayingindex,"found user domain wiki link");
 										wikilinks.user = wikitemp;
 									} else if (wikitemp.match(/en.wikipedia.org/)) {
-										debug.log(medebug,parent.nowplayingindex,"found english domain wiki link");
+										debug.trace(medebug,parent.nowplayingindex,"found english domain wiki link");
 										wikilinks.english = wikitemp;
 									} else {
-										debug.log(medebug,parent.nowplayingindex,"found wiki link");
+										debug.trace(medebug,parent.nowplayingindex,"found wiki link");
 										wikilinks.anything = wikitemp;
 									}
 								}
@@ -945,13 +944,13 @@ var info_musicbrainz = function() {
 							}
 							if (update.wikipedia.albumlink == null) {
 								if (wikilinks.user) {
-									debug.log(medebug,parent.nowplayingindex,"using user domain wiki link",wikilinks.user);
+									debug.trace(medebug,parent.nowplayingindex,"using user domain wiki link",wikilinks.user);
 									update.wikipedia.albumlink = wikilinks.user;
 								} else if (wikilinks.english) {
-									debug.log(medebug,parent.nowplayingindex,"using english domain wiki link",wikilinks.english);
+									debug.trace(medebug,parent.nowplayingindex,"using english domain wiki link",wikilinks.english);
 									update.wikipedia.albumlink = wikilinks.english;
 								} else if (wikilinks.anything) {
-									debug.log(medebug,parent.nowplayingindex,"using any old domain wiki link",wikilinks.anything);
+									debug.trace(medebug,parent.nowplayingindex,"using any old domain wiki link",wikilinks.anything);
 									update.wikipedia.albumlink = wikilinks.anything;
 								}
 

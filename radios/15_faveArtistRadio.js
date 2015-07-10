@@ -16,7 +16,7 @@ var faveArtistRadio = function() {
             url: "backends/sql/userRatings.php",
             success: function(data) {
                 if (data.length > 0) {
-                    debug.debug("FAVE ARTIST RADIO","Got artists",data);
+                    debug.trace("FAVE ARTIST RADIO","Got artists",data);
                     for (var i in data) {
                     	tuner.newArtist(data[i].name);
                     }

@@ -611,7 +611,6 @@ div.item
 {
     float:right;
     margin-left:12px;
-    margin-right:6px;
     padding-right:0px;
 }
 
@@ -850,13 +849,6 @@ table.motherfucker tr td
 .giraffe
 {
     width:100%;
-}
-
-.separator
-{
-     margin-top:8px;
-     margin-bottom:8px;
-     width:100%;
 }
 
 .middle

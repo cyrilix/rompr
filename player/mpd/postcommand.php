@@ -21,13 +21,13 @@ if ($is_connected) {
             switch ($cmd[0]) {
                 case "additem":
                     require_once("backends/sql/backend.php");
-                    debug_print("Adding Item ".$cmd[1],"POSTCOMMAND");
+                    debuglog("Adding Item ".$cmd[1],"POSTCOMMAND");
                     $cmds = array_merge($cmds, getItemsToAdd($cmd[1], null));
                     break;
 
                 case "addartist":
                     require_once("backends/sql/backend.php");
-                    debug_print("Getting tracks for Artist ".$cmd[1],"MPD");
+                    debuglog("Getting tracks for Artist ".$cmd[1],"MPD");
                     doCollection('find "artist" "'.format_for_mpd($cmd[1]).'"',array("spotify"));
                     $cmds = array_merge($cmds, $collection->getAllTracks("add"));
                     break;
@@ -36,7 +36,7 @@ if ($is_connected) {
                     $oldimage = md5('Playlist '.$cmd[1]);
                     $newimage = md5('Playlist '.$cmd[2]);
                     if (file_exists('albumart/small/'.$oldimage.'.jpg')) {
-                        debug_print("Renaming playlist image for ".$cmd[1]." to ".$cmd[2],"MPD");
+                        debuglog("Renaming playlist image for ".$cmd[1]." to ".$cmd[2],"MPD");
                         system('mv "albumart/small/'.$oldimage.'.jpg" "albumart/small/'.$newimage.'.jpg"');
                         system('mv "albumart/asdownloaded/'.$oldimage.'.jpg" "albumart/asdownloaded/'.$newimage.'.jpg"');
                     }
@@ -105,7 +105,7 @@ if ($is_connected) {
         fputs($connection, "command_list_begin\n");
 
         foreach ($cmds as $c) {
-            debug_print("Command List: ".$c,"POSTCOMMAND");
+            debuglog("Command List: ".$c,"POSTCOMMAND",6);
             fputs($connection, $c."\n");
             $done++;
             // Command lists have a maximum length, 50 seems to be the default
@@ -116,35 +116,35 @@ if ($is_connected) {
             }
         }
 
-        $cmd_status = do_mpd_command("command_list_end", true);
+        $cmd_status = do_mpd_command("command_list_end", true, false);
     }
 
     //
     // Query mpd's status
     //
-    $mpd_status = do_mpd_command ("status", true);
+    $mpd_status = do_mpd_command ("status", true, false);
     if (is_array($cmd_status) && !array_key_exists('error', $mpd_status) && array_key_exists('error', $cmd_status)) {
-        debug_print("Command List Error ".$cmd_status['error'],"POSTCOMMAND");
+        debuglog("Command List Error ".$cmd_status['error'],"POSTCOMMAND",1);
         $mpd_status = array_merge($mpd_status, $cmd_status);
     }
 
     if (array_key_exists('song', $mpd_status) && !array_key_exists('error', $mpd_status)) {
         $songinfo = array();
-        $songinfo = do_mpd_command('playlistinfo "' . $mpd_status['song'] . '"', true);
+        $songinfo = do_mpd_command('currentsong', true, false);
         $mpd_status = array_merge($mpd_status, $songinfo);
     }
 
     $arse = array();
-    $arse = do_mpd_command('replay_gain_status', true);
+    $arse = do_mpd_command('replay_gain_status', true, false);
     $mpd_status = array_merge($mpd_status, $arse);
 
     if (array_key_exists('error', $mpd_status)) {
-        debug_print("Clearing Player Error ".$mpd_status['error'],"MPD");
+        debuglog("Clearing Player Error ".$mpd_status['error'],"MPD",7);
         fputs($connection, "clearerror\n");
     }
 
     if ($mpd_status['single'] == 1 && array_key_exists('state', $mpd_status) && ($mpd_status['state'] == "pause" || $mpd_status['state'] == "stop")) {
-        debug_print("Cancelling Single Mode","MPD");
+        debuglog("Cancelling Single Mode","MPD",9);
         fputs($connection, 'single "0"'."\n");
         $mpd_status['single'] = 0;
     }

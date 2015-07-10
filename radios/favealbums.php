@@ -5,7 +5,7 @@ include ("includes/functions.php");
 include ("international.php");
 include ("backends/sql/backend.php");
 
-debug_print("Populating Favourite Album Radio", "FAVEALBUMS");
+debuglog("Populating Favourite Album Radio", "FAVEALBUMS");
 
 $uris = array();
 $qstring = "";
