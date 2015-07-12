@@ -1908,7 +1908,7 @@ function cleanSearchTables() {
 
 	// Any track that was previously a '2' (added to database as search result) but now
 	// has a playcount needs to become a zero and be hidden.
-	generic_sql_query("UPDATE Tracktable SET Hidden = 1, isSearchResult = 0 WHERE TTindex IN (SELECT TTindex FROM Tracktable JOIN Playcounttable USING (TTindex) WHERE isSearchResult = 2)");
+	hide_played_tracks();
 
 	// remove any remaining '2's
 	generic_sql_query("DELETE FROM Tracktable WHERE isSearchResult = 2");

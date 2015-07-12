@@ -273,6 +273,10 @@ function delete_orphaned_artists() {
 	generic_sql_query("DELETE FROM Artisttable WHERE Artistindex NOT IN (SELECT Artistindex FROM Croft)", true);
 }
 
+function hide_played_tracks() {
+	generic_sql_query("UPDATE Tracktable SET Hidden = 1, isSearchResult = 0 WHERE TTindex IN (SELECT TTindex FROM Tracktable JOIN Playcounttable USING (TTindex) WHERE isSearchResult = 2)", true);
+}
+
 function sql_recent_tracks() {
 	return "SELECT Uri FROM Tracktable WHERE DATETIME('now', '-1 MONTH') <= DATETIME(DateAdded) AND Hidden = 0 AND isSearchResult < 2 AND Uri IS NOT NULL ORDER BY RANDOM()";
 }
