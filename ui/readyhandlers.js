@@ -26,6 +26,7 @@ $(document).ready(function(){
     browser.createButtons();
     setClickHandlers();
     setChooserButtons();
+    replacePlayerOptions();
     $(".toggle").click(togglePref);
     $(".saveotron").keyup(saveTextBoxes);
     $(".saveomatic").change(saveSelectBoxes);

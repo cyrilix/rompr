@@ -100,7 +100,6 @@ $languages['fr'] = array (
 	"label_update_error" => "Echec de la génération de la liste de musique locale !",
 	"label_notsupported" => "Opération non supportée !",
 	"label_playlisterror" => "Quelque chose s'est mal passé dans la récupération de la liste de lecture !",
-	"label_mpd_no" => "MPD ne peut pas ajuster le volume quand il n'y a pas de lecture",
 	"label_downloading" => "Téléchargement ...",
 	"button_OK" => "OK",
 	"button_cancel" => "Annuler",

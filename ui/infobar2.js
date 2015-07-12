@@ -26,11 +26,6 @@ var infobar = function() {
                 }
             },
 
-            restoreState: function() {
-                volume = prefs.volume;
-                volumecontrol.setProgress(parseInt(prefs.volume));
-            },
-
             getVolume: function() {
                 return volume;
             },
@@ -626,13 +621,7 @@ var infobar = function() {
         },
 
         setvolume: function(e, u) {
-            var volume = u.value;
-            debug.log("INFOBAR","Saving volume",volume);
-            if (player.controller.volume(volume)) {
-                prefs.save({volume: parseInt(volume.toString())});
-            } else {
-                volumeslider.restoreState();
-            }
+            player.controller.volume(u.value);
         },
 
         volumemoved: function(e, u) {

@@ -105,7 +105,6 @@ $languages['it'] = array (
 	"label_update_error" => "Creazione della Collezione Musicale fallita!",
 	"label_notsupported" => "Operazione non supportata!",
 	"label_playlisterror" => "Qualcosa è andato storto recuperando la playlist!",
-	"label_mpd_no" => "MPD non può regolare il volume mentre la riproduzione è arrestata",
 	"label_downloading" => "Scaricamento...",
 	"button_OK" => "OK",
 	"button_cancel" => "Annulla",

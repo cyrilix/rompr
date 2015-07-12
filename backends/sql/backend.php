@@ -56,18 +56,22 @@ function find_item($uri,$title,$artist,$album,$albumartist,$urionly) {
 	//		Then by Track, Artist, and Album NULL (meaning wishlist)
 	// We return ALL tracks found, because you might have the same track on multiple backends, and set metadata on them all.
 	// This means that when getting metadata it doesn't matter which one we match on.
-	// When we Get Metadata we do supply a URI if we have one, just because.
+	// When we Get Metadata we do supply a URI BUT we don't use it if we have one, just because.
+	// $urionly can be set to force looking up only by URI. This is used by when we need to import a specific version of
+	// the track  - currently from either the Last.FM importer or when we add a spotify album to the collection
+
+	// FIXME! There is one scenario where the above fails. If you tag or rate a track, and then add it to the collection again
+	// from another backend later on, the rating doesn't get picked up by the new copy. Looking everything up by name/album/artist 
+	// (i.e. ignoring the URI in find_item) doesn't fix this because the collection display still doesn't show the rating as that's looked up by TTindex.
 
 	// If we don't supply an album to this function that's because we're listening to the radio.
 	// In that case we look for a match where there is something in the album field and then for where album is NULL
 
-	// $urionly can be set to force looking up only by URI. This is used by when we need to import a specific version of
-	// the track  - currently from either the Last.FM importer or when we add a spotify album to the collection
 
 	debuglog("Looking for item ".$title,"MYSQL");
 	$ttids = array();
 
-	if ($uri) {
+	if ($urionly && $uri) {
 		debuglog("  Trying by URI ".$uri,"MYSQL");
 		if ($stmt = sql_prepare_query("SELECT TTindex FROM Tracktable WHERE Uri = ?", $uri)) {
 			while ($ttidobj = $stmt->fetch(PDO::FETCH_OBJ)) {

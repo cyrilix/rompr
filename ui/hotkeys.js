@@ -172,7 +172,6 @@ var shortcuts = function() {
             var keybpu = popupWindow.create(400,1024,"keybpu",true,language.gettext("title_keybindings"));
             $("#popupcontents").append('<table align="center" cellpadding="2" id="keybindtable" width="90%"></table>');
             for (var i in hotkeys) {
-                // $("#keybindtable").append('<tr><td width="50%" align="right">'+language.gettext(i).initcaps()+'</td><td>'+format_keyinput(i, hotkeys[i])+'</td>'+format_clearbutton(i)+'</tr>');
                 $("#keybindtable").append('<tr><td width="50%" align="right">'+language.gettext(i).initcaps()+'</td><td>'+format_keyinput(i, hotkeys[i])+'</td></tr>');
             }
             $(".buttonchange").keydown( shortcuts.change );

@@ -7,13 +7,52 @@ print "var skin = '".$skin."';\n";
 print 'var prefs = '.json_encode($prefs)."\n";
 ?>
 
-prefs.prefsInLocalStorage = ["sourceshidden", "playlisthidden", "infosource", "playlistcontrolsvisible",
-                            "sourceswidthpercent", "playlistwidthpercent", "downloadart", "clickmode", "chooser",
-                            "hide_albumlist", "hide_filelist", "hide_radiolist", "hidebrowser",
-                            "shownupdatewindow", "scrolltocurrent", "volume", "alarm_ramptime", "alarm_snoozetime",
-                            "lastfmlang", "user_lang", "fontsize", "fontfamily", "alarmtime", "alarmon", "synctags",
-                            "synclove", "synclovevalue", "alarmramp", "radiomode", "radioparam", "onthefly",
-                            "theme", "icontheme", "coversize", "mediacentremode", "collectioncontrolsvisible", "displayresultsas"];
+prefs.prefsInLocalStorage = [
+    "sourceshidden",
+    "playlisthidden",
+    "infosource",
+    "playlistcontrolsvisible",
+    "sourceswidthpercent",
+    "playlistwidthpercent",
+    "downloadart",
+    "clickmode",
+    "chooser",
+    "hide_albumlist", 
+    "hide_filelist",
+    "hide_radiolist",
+    "hidebrowser",
+    "shownupdatewindow", 
+    "scrolltocurrent",
+    "alarmtime",
+    "alarmon",
+    "alarm_ramptime",
+    "alarm_snoozetime",
+    "lastfmlang",
+    "user_lang",
+    "synctags",
+    "synclove",
+    "synclovevalue",
+    "alarmramp",
+    "radiomode",
+    "radioparam",
+    "consumeradio",
+    "onthefly",
+    "theme",
+    "icontheme",
+    "coversize",
+    "fontsize",
+    "fontfamily",
+    "mediacentremode",
+    "collectioncontrolsvisible",
+    "displayresultsas",
+    "crossfade_duration",
+    "radiocountry",
+    "search_limit_limitsearch",
+    "scrobblepercent",
+    "updateeverytime",
+    "fullbiobydefault",
+    "mopidy_search_domains"
+];
 
 // Update old pre-JSON prefs
 if (localStorage.getItem("prefs.prefversion") == null) {
@@ -38,6 +77,11 @@ prefs.prefsInLocalStorage.forEach(function(p) {
         prefs[p] = JSON.parse(localStorage.getItem("prefs."+p));
     }
 });
+
+// Because this is used to set the radio buttons to the correct state
+prefs.currenthost = getCookie('currenthost');
+// Because player_backend might be overridden by another user in another browser
+setCookie('player_backend',prefs.player_backend,1);
 
 $("#albumcoversize").attr("href", "coversizes/"+prefs.coversize);
 $("#theme").attr("href", "themes/"+prefs.theme);
@@ -73,6 +117,7 @@ prefs.save = function(options, callback) {
         }
     }
     if (postSave) {
+        debug.log("PREFS",JSON.stringify(prefsToSave),prefsToSave);
         $.post('saveprefs.php', {prefs: JSON.stringify(prefsToSave)}, function() {
             if (callback) {
                 callback();

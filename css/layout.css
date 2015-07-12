@@ -1726,3 +1726,8 @@ div.lyrics p
     width:100%;
     height:auto;
 }
+
+.slt
+{
+    white-space: nowrap;
+}

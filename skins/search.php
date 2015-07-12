@@ -12,7 +12,7 @@ print '<i>'.get_int_text("label_multiterms").'</i>';
 <?php
 foreach ($sterms as $label => $term) {
     print '<div class="containerbox padright dropdown-container">';
-	print '<div class="fixed searchlabel"><span class="slt"><b>'.ucfirst(strtolower(get_int_text($label))).'</b></span></div>';
+	print '<div class="fixed searchlabel"><span class="slt"><b>'.ucwords(strtolower(get_int_text($label))).'</b></span></div>';
     print '<div class="expand"><input class="searchterm enter" name="'.$term.'" type="text" /></div>';
     print '</div>';
 }

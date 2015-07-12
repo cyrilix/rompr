@@ -1,6 +1,6 @@
 <?php
 
-define('ROMPR_MAX_TRACKS_PER_TRANSACTION', 1000);
+define('ROMPR_MAX_TRACKS_PER_TRANSACTION', 500);
 define('ROMPR_COLLECTION_VERSION', 2);
 define('ROMPR_SCHEMA_VERSION', 12);
 define('ROMPR_PLAYLIST_FILE', 'prefs/playlist.json');
@@ -12,100 +12,157 @@ $connection = null;
 $is_connected = false;
 $mysqlc = null;
 
-$prefs = array( "mpd_host" => "localhost",
-                "mpd_port" => 6600,
-                "mpd_password" => "",
-                "unix_socket" => '',
-                'crossfade_duration' => 5,
-                "volume" => 100,
-                "lastfm_user" => "",
-                "lastfm_scrobbling" => false,
-                "lastfm_autocorrect" => false,
-                "theme" => "Darkness.css",
-                "scrobblepercent" => 50,
-                "sourceshidden" => false,
-                "playlisthidden" => false,
-                "infosource" => "lastfm",
-                "chooser" => "albumlist",
-                "sourceswidthpercent" => 22,
-                "playlistwidthpercent" => 22,
-                "shownupdatewindow" => 0,
-                "updateeverytime" => false,
-                "downloadart" => true,
-                "autotagname" => "",
-                "sortbydate" => false,
-                "notvabydate" => false,
-                "playlistcontrolsvisible" => false,
-                "clickmode" => "double",
-                "lastfm_country_code" => "GB",
-                "country_userset" => false,
-                "hide_albumlist" => false,
-                "hide_filelist" => false,
-                "hide_radiolist" => false,
-                "hidebrowser" => false,
-                "fullbiobydefault" => true,
-                "lastfmlang" => "default",
-                "lastfm_session_key" => "",
-                "user_lang" => "en",
-                "music_directory_albumart" => "",
-                "search_limit_limitsearch" => false,
-                "scrolltocurrent" => false,
-                "debug_enabled" => 0,
-                "radiocountry" => "http://www.listenlive.eu/uk.html",
-                "mysql_host" => "localhost",
-                "mysql_database" => "romprdb",
-                "mysql_user" => "rompr",
-                "mysql_password" => "romprdbpass",
-                "mysql_port" => "3306",
-                "fontsize" => "02-Normal.css",
-                "fontfamily" => "Verdana.css",
-                "alarmtime" => 43200,
-                "alarmon" => false,
-                "alarmramp" => false,
-                "synctags" => false,
-                "synclove" => false,
-                "synclovevalue" => "5",
-                "proxy_host" => "",
-                "proxy_user" => "",
-                "proxy_password" => "",
-                "ignore_unplayable" => true,
-                "icontheme" => "Modern-Light",
-                "radiomode" => "",
-                "radioparam" => "",
-                "onthefly" => false,
-                "sortbycomposer" => false,
-                "composergenre" => false,
-                "composergenrename" => array("Classical"),
-                "displaycomposer" => true,
-                "custom_logfile" => "",
-                "consumeradio" => false,
-                "artistsatstart" => array("Various Artists","Soundtracks"),
-                "nosortprefixes" => array("The"),
-                "sortcollectionby" => "artist",
-                "alarm_ramptime" => 30,
-                "alarm_snoozetime" => 8,
-                "coversize" => "10-Small.css",
-                "mediacentremode" => false,
-                "collectioncontrolsvisible" => false,
-                "displayresultsas" => "collection",
-                "mopidy_collection_folders" => array("Spotify Playlists","Local media","SoundCloud/Liked"),
-                "mopidy_search_domains" => array("local", "spotify")
-                );
+$prefs = array( 
+    // Things that only make sense as backend options, not per-user options
+    "music_directory_albumart" => "",
+    "mysql_host" => "localhost",
+    "mysql_database" => "romprdb",
+    "mysql_user" => "rompr",
+    "mysql_password" => "romprdbpass",
+    "mysql_port" => "3306",
+    "proxy_host" => "",
+    "proxy_user" => "",
+    "proxy_password" => "",
+    "ignore_unplayable" => true,
+    "sortbycomposer" => false,
+    "composergenre" => false,
+    "composergenrename" => array("Classical"),
+    "mopidy_collection_folders" => array("Spotify Playlists","Local media","SoundCloud/Liked"),
+    "lastfm_country_code" => "GB",
+    "country_userset" => false,
+    "debug_enabled" => 0,
+    "custom_logfile" => "",
+    "player_backend" => "",
+
+    // Things that could be set on a per-user basis but need to be known by the backend
+    "mpd_host" => "localhost",
+    "mpd_port" => 6600,
+    "mpd_password" => "",
+    "unix_socket" => '',
+    "sortbydate" => false,
+    "notvabydate" => false,
+    "displaycomposer" => true,
+    "artistsatstart" => array("Various Artists","Soundtracks"),
+    "nosortprefixes" => array("The"),
+    "sortcollectionby" => "artist",
+
+    // These are currently saved in the backend, as the most likely scenario is one user
+    // with multiple browsers. But what if it's multiple users?
+    "lastfm_user" => "",
+    "lastfm_scrobbling" => false,
+    "lastfm_autocorrect" => false,
+    "lastfm_session_key" => "",    
+    "autotagname" => "",
+
+    // All of these are saved in the browser, so these are only defaults
+    "sourceshidden" => false,
+    "playlisthidden" => false,
+    "infosource" => "lastfm",
+    "playlistcontrolsvisible" => false,
+    "sourceswidthpercent" => 22,
+    "playlistwidthpercent" => 22,
+    "downloadart" => true,
+    "clickmode" => "double",
+    "chooser" => "albumlist",
+    "hide_albumlist" => false,
+    "hide_filelist" => false,
+    "hide_radiolist" => false,
+    "hidebrowser" => false,
+    "shownupdatewindow" => 0,
+    "scrolltocurrent" => false,
+    "alarmtime" => 43200,
+    "alarmon" => false,
+    "alarmramp" => false,
+    "alarm_ramptime" => 30,
+    "alarm_snoozetime" => 8,
+    "lastfmlang" => "default",
+    "user_lang" => "en",
+    "synctags" => false,
+    "synclove" => false,
+    "synclovevalue" => "5",
+    "radiomode" => "",
+    "radioparam" => "",
+    "consumeradio" => false,
+    "onthefly" => false,
+    "theme" => "Darkness.css",
+    "icontheme" => "Modern-Light",
+    "coversize" => "10-Small.css",
+    "fontsize" => "02-Normal.css",
+    "fontfamily" => "Verdana.css",
+    "mediacentremode" => false,
+    "collectioncontrolsvisible" => false,
+    "displayresultsas" => "collection",
+    'crossfade_duration' => 5,
+    "radiocountry" => "http://www.listenlive.eu/uk.html",
+    "search_limit_limitsearch" => false,
+    "scrobblepercent" => 50,
+    "updateeverytime" => false,
+    "fullbiobydefault" => true,
+    "mopidy_search_domains" => array("local", "spotify")
+
+);
+
+// ====================================================================
+// Load Saved Preferences
 
 if (file_exists('prefs/prefs')) {
+    // Convert old-style prefs file
     include("utils/convertprefs.php");
 } else if (file_exists('prefs/prefs.var')) {
+    // Else, load new-style prefs file
     loadPrefs();
 }
 
 if ($prefs['debug_enabled'] === true) {
-    $prefs['debug_enabled'] = 8;
+    // Convert old-style debug pref
+    $prefs['debug_enabled'] = 7;
 }
 
+$logger = new debug_logger($prefs['custom_logfile'], $prefs['debug_enabled']);
+
+if (!array_key_exists('multihosts', $prefs)) { 
+    $prefs['multihosts'] = new stdClass; 
+    $prefs['multihosts']->Default = (object) [ 
+            'host' => $prefs['mpd_host'],
+            'port' => $prefs['mpd_port'],
+            'password' => $prefs['mpd_password'],
+            'socket' => $prefs['unix_socket']
+    ];
+    setcookie('currenthost','Default',time()+365*24*60*60*10);
+    $prefs['currenthost'] = 'Default';
+    savePrefs();
+}
+
+// Prefs can be overridden by cookies
+foreach ($_COOKIE as $a => $v) {
+    if (array_key_exists($a, $prefs)) {
+        $prefs[$a] = $v;
+        if ($a == 'debug_enabled') {
+            $logger->setLevel($v);
+        }
+        debuglog("Pref ".$a." overridden by Cookie  - Value : ".$v,"COOKIE",8);
+    }
+}
+
+debuglog("Using MPD Host ".$prefs['currenthost'],"INIT",8);
+
+if (!array_key_exists('currenthost', $_COOKIE)) {
+    setcookie('currenthost',$prefs['currenthost'],time()+365*24*60*60*10);
+}
+
+$prefs['mpd_host'] = $prefs['multihosts']->$prefs['currenthost']->host;
+$prefs['mpd_port'] = $prefs['multihosts']->$prefs['currenthost']->port;
+$prefs['mpd_password'] = $prefs['multihosts']->$prefs['currenthost']->password;
+$prefs['unix_socket'] = $prefs['multihosts']->$prefs['currenthost']->socket;
+
+
 if (is_dir('albumart/original')) {
+    // Re-arrange the saved album art 
     system('mv albumart/small albumart/not_used_anymore');
     system('mv albumart/original albumart/small');
 }
+
+// ====================================================================
 
 function savePrefs() {
 
@@ -189,8 +246,6 @@ class debug_logger {
         $this->loglevel = intval($level);
     }
 }
-
-$logger = new debug_logger($prefs['custom_logfile'], $prefs['debug_enabled']);
 
 function debuglog($text, $module = "", $level = 7) {
     global $logger;

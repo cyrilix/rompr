@@ -103,7 +103,6 @@ $languages['en'] = array (
 	"label_update_error" => "Failed to generate music collection.",
 	"label_notsupported" => "Operation not supported!",
 	"label_playlisterror" => "Something went wrong retrieving the playlist!",
-	"label_mpd_no" => "MPD cannot adjust volume while playback is stopped",
 	"label_downloading" => "Downloading...",
 	"button_OK" => "OK",
 	"button_cancel" => "Cancel",

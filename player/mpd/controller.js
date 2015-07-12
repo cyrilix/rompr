@@ -104,11 +104,12 @@ function playerController() {
 
     this.ready = function() {
         debug.mark("MPD","Player is ready");
-        var t = "Connected to "+prefs.player_backend.capitalize() + " at " + player_ip;
+        var t = "Connected to "+getCookie('currenthost')+" ("+prefs.player_backend.capitalize() + " at " + player_ip;
         if (prefs.unix_socket) {
         } else {
             t += ":" + prefs.mpd_port;
         }
+        t += ")";
         infobar.notify(infobar.NOTIFY, t);
         self.reloadPlaylists();
         playlist.radioManager.checkSavedState();

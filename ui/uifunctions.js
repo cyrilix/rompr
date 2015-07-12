@@ -3,7 +3,12 @@ function openAlbumArtManager() {
 }
 
 function reloadWindow() {
-    location.reload(true);
+    var a = window.location.href;
+    if (a.match(/index.php/)) {
+        location.assign(a.replace(/index.php/,''));
+    } else {
+        location.reload(true);
+    }
 }
 
 function forceCollectionReload() {
@@ -106,6 +111,10 @@ function togglePref(event) {
             callback = forceCollectionReload;
             break;
 
+        case "alarmon":
+            callback = alarm.toggle;
+            break;
+
     }
     prefs.save(prefobj, callback);
 }
@@ -129,6 +138,12 @@ function toggleRadio(event) {
                 player.controller.reSearch();
             }
             break;
+
+        case 'currenthost':
+            callback = function() {
+                setCookie('currenthost',prefs.currenthost,3650);
+                reloadWindow();
+            }
     }
     prefs.save(prefobj, callback);
 }
@@ -429,8 +444,7 @@ var imagePopup = function() {
 }();
 
 function outputswitch(id) {
-    player.controller.doOutput(id, $('#outputbutton'+id).isToggledOff());
-    $('#outputbutton'+id).switchToggle($('#outputbutton'+id).isToggledOff());
+    player.controller.doOutput(id, !$('#outputbutton_'+id).is(':checked'));
 }
 
 var popupWindow = function() {
@@ -503,19 +517,12 @@ var popupWindow = function() {
         },
         setsize:function() {
             var winsize = getWindowSize();
-            var windowScroll = getScrollXY();
             var lsize = layoutProcessor.maxPopupSize(winsize);
-            if (lsize.width > wantedwidth) { lsize.width = wantedwidth; }
-            if (lsize.height > wantedheight) { lsize.height = wantedheight; }
-            var x = (winsize.x - lsize.width)/2 + windowScroll.x;
-            var y = (winsize.y - lsize.height)/2 + windowScroll.y;
-            popup.style.width = parseInt(lsize.width) + 'px';
-            userheight = lsize.height;
-            if (!wantshrink) {
-                popup.style.height = parseInt(lsize.height) + 'px';
+            var psize = $("#cheese").outerHeight(true)+$("#popupcontents").children().first().children().first().outerHeight(true)+16;
+            if (psize < wantedheight && psize < winsize.y && psize < lsize.height) {
+                $(popup).css('height',(psize+16)+"px");
+                $("#popupcontents").css('height', $("#popupcontents").children().first().children().first().outerHeight(true)+"px")
             }
-            popup.style.top = parseInt(y) + 'px';
-            popup.style.left = parseInt(x) + 'px';
         },
         onClose: function(callback) {
             closeCall = callback;
@@ -537,6 +544,11 @@ function setPlaylistButtons() {
                 $("#replaygain_"+v).switchToggle("off");
             }
         });
+    }
+    if (player.status.xfade !== undefined && player.status.xfade !== null && 
+        player.status.xfade > 0 && player.status.xfade != prefs.crossfade_duration) {
+        prefs.save({crossfade_duration: player.status.xfade});
+        $("#crossfade_duration").val(player.status.xfade);
     }
 }
 
@@ -759,8 +771,6 @@ function getrgbs(percent) {
     percent = Math.min(percent, 100);
     var highr = Math.round(155+percent);
     var highg = Math.round(75+percent);
-    // var lowalpha = Math.min(percent/75, 1);
-    // var highalpha = Math.min(percent/25, 1);
     var lowalpha = 0.8;
     var highalpha = 1;
 
@@ -1238,15 +1248,6 @@ function makeHoverWork(ev) {
 } 
 
 function checkSearchDomains() {
-    // $("#mopidysearchdomains").find('.searchdomain').each( function() {
-    //     var v = $(this).attr("value");
-    //     if (v == "radio_de") {
-    //         v = "radio-de";
-    //     }
-    //     if (!player.canPlay(v)) {
-    //         $(this).parent().remove();
-    //     }
-    // });
     $("#mopidysearchdomains").makeDomainChooser({
         default_domains: prefs.mopidy_search_domains,
     });
@@ -1371,3 +1372,110 @@ $.widget("rompr.makeDomainChooser", {
     }
 
 });
+
+function editPlayerDefs() {
+    $("#configpanel").slideToggle('fast');
+    var playerpu = popupWindow.create(600,600,"playerpu",true,"Players");
+
+    $("#popupcontents").append('<div class="pref textcentre"><p>You can define as many players as you like and switch between them or use them all simultaneously from different browsers. All the players will share the same Collection database.</p>'+
+        '<p><b>Do NOT access multiple players from the same browser simultaneously.</b></p></div>');
+
+    $("#popupcontents").append('<table align="center" cellpadding="2" id="playertable" width="96%"></table>');
+    $("#playertable").append('<tr><th>NAME</th><th>HOST</th><th>PORT</th><th>PASSWORD</th><th>UNIX SOCKET</th></tr>');
+    for (var i in prefs.multihosts) {
+        $("#playertable").append('<tr class="hostdef" name="'+escape(i)+'">'+
+            '<td><input type="text" size="30" name="name" value="'+i+'"/></td>'+
+            '<td><input type="text" size="30" name="host" value="'+prefs.multihosts[i]['host']+'"/></td>'+
+            '<td><input type="text" size="30" name="port" value="'+prefs.multihosts[i]['port']+'"/></td>'+
+            '<td><input type="text" size="30" name="password" value="'+prefs.multihosts[i]['password']+'"/></td>'+
+            '<td><input type="text" size="30" name="socket" value="'+prefs.multihosts[i]['socket']+'"/></td>'+
+            '<td><i class="icon-cancel-circled smallicon clickicon clickremhost"></i></td>'+
+            '</tr>'
+        );
+    }
+    $("#popupcontents").append('<div class="pref">'+
+        '<i class="icon-plus smallicon clickicon tleft" onclick="addNewPlayerRow()"></i>'+
+        '<button class="tright" onclick="updatePlayerChoices()">'+language.gettext('button_OK')+'</button>'+
+        '<button class="tright" onclick="popupWindow.close()">'+language.gettext('button_cancel')+'</button>'+
+        '</div>');
+    $('.clickremhost').click(removePlayerDef);
+    popupWindow.open();
+}
+
+function removePlayerDef(event) {
+    if (unescape($(event.target).parent().parent().attr('name')) == prefs.currenthost) {
+        infobar.notify(infobar.ERROR, "You cannot delete the player you're currently using");
+    } else {
+        $(event.target).parent().parent().remove();
+        popupWindow.setsize();
+    }
+}
+
+function updatePlayerChoices() {
+    var newhosts = new Object();
+    var reloadNeeded = false;
+    var error = false;
+    $("#playertable").find('tr.hostdef').each(function() {
+        var currentname = unescape($(this).attr('name'));
+        var newname = "";
+        var temp = new Object();
+        $(this).find('input').each(function() {
+            if ($(this).attr('name') == 'name') {
+                newname = $(this).val();
+            } else {
+                temp[$(this).attr('name')] = $(this).val();
+            }
+        });
+
+        newhosts[newname] = temp;
+        if (currentname == prefs.currenthost) {
+            if (newname != currentname) {
+                debug.log("Current Player renamed to "+newname,"PLAYERS");
+                reloadNeeded = newname;
+            }
+            if (temp.host != prefs.mpd_host || temp.port != prefs.mpd_port
+                || temp.socket != prefs.unix_socket || temp.password != prefs.mpd_password) {
+                debug.log("Current Player connection details changed","PLAYERS");
+                reloadNeeded = newname;
+            }
+        }
+    });
+    debug.log("PLAYERS",newhosts);
+    if (reloadNeeded !== false) {
+        prefs.save({currenthost: reloadNeeded}, function() {
+            prefs.save({multihosts: newhosts}, function() {
+                setCookie('currenthost',reloadNeeded,3650);
+                reloadWindow();
+            });
+        });
+    } else {
+        prefs.save({multihosts: newhosts});
+        replacePlayerOptions();
+        setPrefs();
+        $("#playerdefs > .savulon").click(toggleRadio);
+    }
+    popupWindow.close();
+}
+
+function replacePlayerOptions() {
+    $("#playerdefs").empty();
+    for (var i in prefs.multihosts) {
+        $("#playerdefs").append('<input type="radio" class="topcheck savulon" name="currenthost" value="'+i+'" id="host_'+escape(i)+'">'+
+        '<label for="host_'+escape(i)+'">'+i+'</label><br/>');
+    }
+}
+
+function addNewPlayerRow() {
+    $("#playertable").append('<tr class="hostdef" name="New">'+
+        '<td><input type="text" size="30" name="name" value="New"/></td>'+
+        '<td><input type="text" size="30" name="host" value=""/></td>'+
+        '<td><input type="text" size="30" name="port" value=""/></td>'+
+        '<td><input type="text" size="30" name="password" value=""/></td>'+
+        '<td><input type="text" size="30" name="socket" value=""/></td>'+
+        '<td><i class="icon-cancel-circled smallicon clickicon clickremhost"></i></td>'+
+        '</tr>'
+    );
+    popupWindow.setsize();
+    $('.clickremhost').unbind('click');
+    $('.clickremhost').click(removePlayerDef);
+}

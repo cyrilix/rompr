@@ -17,13 +17,17 @@ if ($is_connected) {
         }
     }
 
-    print '<table>';
+    print '<div class="styledinputs">';
     for ($i = 0; $i < count($outputdata); $i++) {
-        print '<tr><td>'.$outputdata[$i]['outputname'].'</td>';
-        $icon = ($outputdata[$i]['outputenabled'] == 1) ? "on" : "off";
-        print '<td><div id="outputbutton'.$i.'" style="margin-left:12px" onclick="outputswitch('.$i.')" class="togglebutton clickicon icon-toggle-'.$icon.'"></div></td></tr>';
+        print '<input type="checkbox" id="outputbutton_'.$i.'"';
+        if ($outputdata[$i]['outputenabled'] == 1) {
+            print ' checked';
+        }
+        print '><label for="outputbutton_'.$i.'" onclick="outputswitch('.$i.')">'.$outputdata[$i]['outputname'].'</label>';
     }
-    print '</table>';
+    print '</div>';
+
+
 }
 close_mpd($connection);
 ?>

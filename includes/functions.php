@@ -497,6 +497,7 @@ print '</h3>';
 print '<p>'.get_int_text("setup_labeladdresses").'</p>';
 print '<p class="tiny">'.get_int_text("setup_addressnote").'</p>';
 print '<p>NOTE: Mopidy is still supported, but you must now use the MPD frontend in Mopidy</p>';
+print '<p>This is the DEFAULT values. You can specify multiple different servers from the application</p>';
 print '<form name="mpdetails" action="index.php" method="post">';
 print '<p>'.get_int_text("setup_ipaddress").'<br><input type="text" name="mpd_host" value="'.$prefs['mpd_host'].'" /></p>'."\n";
 print '<hr class="dingleberry" />';
@@ -786,7 +787,7 @@ function getWishlist() {
                 }
                 $current_artist = $obj->artist;
                 artistHeader("wishlistartist_".$count, null, $obj->artist, null);
-                print '<div id="wishlistartist_'.$count.'" class="dropmenu">';
+                print '<div id="wishlistartist_'.$count.'" class="dropmenu '.$divtype.'">';
                 $count++;
                 $divtype = ($divtype == "album1") ? "album2" : "album1";
             }

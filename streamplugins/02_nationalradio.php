@@ -13,7 +13,6 @@ if (array_key_exists('populate', $_REQUEST)) {
 
     if (array_key_exists('country', $_REQUEST)) {
         $prefs['radiocountry'] = $_REQUEST['country'];
-        savePrefs();
     }
 
     print '<div class="noselection fullwidth">';

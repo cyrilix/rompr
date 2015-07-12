@@ -107,20 +107,10 @@ print '<div class="pref styledinputs">
 <input class="autoset toggle" type="checkbox" id="updateeverytime">
 <label for="updateeverytime">'.get_int_text('config_updateonstart').'</label>
 </div>';
-if ($prefs['player_backend'] == "mopidy") {
-    print '<div class="pref styledinputs">
-    <input class="autoset toggle" type="checkbox" id="ignore_unplayable">
-    <label for="ignore_unplayable">'.get_int_text('config_ignore_unplayable').'</label>
-    </div>';
-}
 print '<div class="pref styledinputs">
 <input class="autoset toggle" type="checkbox" id="onthefly">
 <label for="onthefly">'.get_int_text('config_onthefly').'</label>
 </div>';
-if ($prefs['player_backend'] == "mopidy") {
-    print '<div class="pref" id="mopidycollectionoptions">'.
-    '<b>'.get_int_text('config_collectionfolders').'</b></div>';
-}
 print '<div class="pref textcentre">
 <button id="donkeykong" onclick="checkCollection(true, false)">'.get_int_text('config_updatenow').'</button>
 </div>';
@@ -137,7 +127,6 @@ print '<div class="pref styledinputs">
 <input class="autoset toggle" type="checkbox" id="notvabydate">
 <label for="notvabydate">'.get_int_text('config_notvabydate').'</label><br/>
 </div>';
-
 print '<div class="pref"><b>'.get_int_text('config_artistfirst').'
 <input class="saveotron prefinput arraypref" id="artistsatstart" type="text" size="256" />
 </b></div>';
@@ -145,6 +134,16 @@ print '<div class="pref"><b>'.get_int_text('config_nosortprefixes').'
 <input class="saveotron prefinput arraypref" id="nosortprefixes" type="text" size="128" />
 </b></div>';
 
+print '<div class="textcentre ucfirst configtitle"><b>Global Music Collection Options</b></div>';
+print '<div class="tiny" style="margin-bottom:1em">These options affect everyone who uses this installation of RompR</div>';
+if ($prefs['player_backend'] == "mopidy") {
+    print '<div class="pref styledinputs">
+    <input class="autoset toggle" type="checkbox" id="ignore_unplayable">
+    <label for="ignore_unplayable">'.get_int_text('config_ignore_unplayable').'</label>
+    </div>';
+    print '<div class="pref" id="mopidycollectionoptions">'.
+    '<b>'.get_int_text('config_collectionfolders').'</b></div>';
+}
 print '<div class="pref styledinputs">
 <input class="autoset toggle" type="checkbox" id="sortbycomposer">
 <label for="sortbycomposer">'.get_int_text('config_sortbycomposer').'</label>
@@ -210,6 +209,15 @@ if ($prefs['player_backend'] == "mpd") {
 print '</div><div class="pref">'.get_int_text('config_crossfade').'<input class="saveotron prefinput" id="crossfade_duration" type="text" size="3""/>';
 }
 print '</div>';
+
+// Players
+print '<div class="textcentre configtitle"><b>Players</b></div>';
+print '<div class="pref styledinputs" id="playerdefs">';
+print '</div>';
+print '<div class="pref textcentre">
+<button onclick="editPlayerDefs()">Edit Players...</button>
+</div>';
+
 
 // Last.FM
 print '<div class="textcentre configtitle">

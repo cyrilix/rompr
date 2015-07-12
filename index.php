@@ -16,11 +16,21 @@ include("international.php");
 //
 
 if (array_key_exists('mpd_host', $_POST)) {
-    $prefs['debug_enabled'] = 0;
     foreach ($_POST as $i => $value) {
         debuglog("Setting Pref ".$i." to ".$value,"INIT", 1);
         $prefs[$i] = $value;
     }
+    if (!array_key_exists('multihosts', $prefs)) { 
+        $prefs['multihosts'] = new stdClass; 
+    }
+    $prefs['multihosts']->Default = (object) [ 
+            'host' => $prefs['mpd_host'],
+            'port' => $prefs['mpd_port'],
+            'password' => $prefs['mpd_password'],
+            'socket' => $prefs['unix_socket']
+    ];
+    setcookie('currenthost','Default',time()+365*24*60*60*10);
+    $prefs['currenthost'] = 'Default';
     $logger->setLevel($prefs['debug_enabled']);
     savePrefs();
 }
