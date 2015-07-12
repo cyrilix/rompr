@@ -1916,7 +1916,7 @@ function cleanSearchTables() {
 	// Set '1's back to '0's
 	generic_sql_query("UPDATE Tracktable SET isSearchResult = 0 WHERE isSearchResult = 1");
 
-	// This may leave some orphaned albums snd artists
+	// This may leave some orphaned albums and artists
 	remove_cruft();
 
 	//

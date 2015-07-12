@@ -347,7 +347,7 @@ switch ($_POST['action']) {
 
 
 	case 'delete':
-		$ttids = find_item($uri, null, null, null, null, false);
+		$ttids = find_item($uri, null, null, null, null, true);
 		if (count($ttids) == 0) {
 			header('HTTP/1.1 400 Bad Request');
 		} else {
