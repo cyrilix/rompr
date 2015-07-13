@@ -1201,6 +1201,7 @@ function doPluginDropStuff(name,attributes,fn) {
                     data: track,
                     dataType: 'json',
                     success: function(rdata) {
+                        updateCollectionDisplay(rdata);
                         dotags();
                     },
                     error: function(data) {
