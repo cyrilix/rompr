@@ -83,7 +83,6 @@ $prefs = array(
     "radiomode" => "",
     "radioparam" => "",
     "consumeradio" => false,
-    "onthefly" => false,
     "theme" => "Darkness.css",
     "icontheme" => "Modern-Light",
     "coversize" => "10-Small.css",

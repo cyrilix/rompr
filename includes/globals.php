@@ -36,7 +36,6 @@ prefs.prefsInLocalStorage = [
     "radiomode",
     "radioparam",
     "consumeradio",
-    "onthefly",
     "theme",
     "icontheme",
     "coversize",

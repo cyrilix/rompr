@@ -6,7 +6,6 @@ include ("includes/functions.php");
 include ("collection/collection.php");
 include ("player/mpd/connection.php");
 include ("backends/sql/backend.php");
-$trackbytrack = false;
 
 switch ($_REQUEST['action']) {
 

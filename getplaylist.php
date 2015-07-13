@@ -7,7 +7,6 @@ include ("player/mpd/connection.php");
 include ("backends/sql/backend.php");
 
 header('Content-Type: application/json; charset=utf-8');
-$trackbytrack = false;
 doCollection("playlistinfo");
 debuglog("Collection scan playlistinfo finished","GETPLAYLIST");
 $foundartists = array();

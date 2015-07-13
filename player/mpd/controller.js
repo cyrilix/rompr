@@ -160,18 +160,15 @@ function playerController() {
             type: "GET",
             url: uri,
             timeout: 800000,
-            dataType: (uri.match(/onthefly\.php/)) ? "json" : "html",
+            dataType: "html",
             success: function(data) {
-                if (uri.match(/onthefly\.php/)) {
-                    updateCollectionDisplay(data);
-                    $("#spinner_fothergill").remove();
-                    infobar.notify(infobar.NOTIFY,"Music Collection Updated");
-                } else {
-                    $("#collection").html(data);
-                    data = null;
-                }
+                $("#collection").html(data);
+                data = null;
                 player.collectionLoaded = true;
-                scootTheAlbums($("#collection"));
+                if (uri.match(/rebuild/)) {
+                    infobar.notify(infobar.NOTIFY,"Music Collection Updated");
+                    scootTheAlbums($("#collection"));
+                }
             },
             error: function(data) {
                 $("#collection").html('<p align="center"><b><font color="red">Failed To Generate Collection :</font></b><br>'+data.responseText+"<br>"+data.statusText+"</p>");

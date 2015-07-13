@@ -583,18 +583,10 @@ function saveRadioOrder() {
     });
 }
 
-function doingOnTheFly() {
-    return (player.collectionLoaded && prefs.onthefly);
-}
-
 function prepareForLiftOff(text) {
-    if (doingOnTheFly()) {
-        doSomethingUseful('fothergill', text);
-        infobar.notify(infobar.PERMNOTIFY,text);
-    } else {
-        $("#collection").empty();
-        doSomethingUseful('collection', text);
-    }
+    infobar.notify(infobar.PERMNOTIFY,text);
+    $("#collection").empty();
+    doSomethingUseful('collection', text);
 }
 
 function prepareForLiftOff2(text) {
@@ -648,13 +640,12 @@ function checkPoll(data) {
         update_load_timer = setTimeout( pollAlbumList, 1000);
         update_load_timer_running = true;
     } else {
-        var getalbums = doingOnTheFly() ? 'backends/sql/onthefly.php?command=listallinfo' : 'albums.php?rebuild=yes';
         if (prefs.hide_filelist && !prefs.hide_albumlist) {
-            loadCollection(getalbums, null);
+            loadCollection('albums.php?rebuild=yes', null);
         } else if (prefs.hidealbumlist && !prefs.hide_filelist) {
             loadCollection(null, 'dirbrowser.php');
         } else if (!prefs.hidealbumlist && !prefs.hide_filelist) {
-            loadCollection(getalbums, 'dirbrowser.php');
+            loadCollection('albums.php?rebuild=yes', 'dirbrowser.php');
         }
     }
 }
@@ -831,20 +822,13 @@ function removeTrackFromDb(element) {
     var trackToGo = trackDiv.attr("name");
     debug.log("DB_TRACKS","Remove track from database",trackToGo);
     trackDiv.fadeOut('fast');
-    $.ajax({
-        url: "backends/sql/userRatings.php",
-        type: "POST",
-        data: {action: 'delete', uri: decodeURIComponent(trackToGo)},
-        dataType: 'json',
-        success: function(rdata) {
-            debug.log("DB TRACKS","Track was removed");
-            updateCollectionDisplay(rdata);
-        },
-        error: function() {
-            debug.log("DB TRACKS", "Failed to remove track");
+    dbQueue.request(
+        {action: 'delete', uri: decodeURIComponent(trackToGo)},
+        updateCollectionDisplay,
+        function() {
             infobar.notify(infobar.ERROR, "Failed to remove track!");
         }
-    });
+    );
 }
 
 function populateTagMenu(callback) {

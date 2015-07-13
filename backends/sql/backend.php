@@ -1380,12 +1380,9 @@ function remove_cruft() {
 	generic_sql_query("DELETE FROM Trackimagetable WHERE TTindex NOT IN (SELECT TTindex FROM Tracktable)", true);
 }
 
-function do_artist_database_stuff($artistkey, $sendupdates = false) {
+function do_artist_database_stuff($artistkey) {
 
-    global $collection, $artist_created, $album_created, $find_track, $update_track, $prefs, $onthefly;
-    if ($sendupdates === false) {
-    	$sendupdates = $onthefly;
-    }
+    global $collection, $find_track, $update_track, $prefs;
 
     $artistname = $collection->artistName($artistkey);
 
@@ -1395,7 +1392,7 @@ function do_artist_database_stuff($artistkey, $sendupdates = false) {
     // It speeds things up a bit and stops us unnecessarily creating artists when certain backends
     // return only albums.
     if ($collection->artistNumTracks($artistkey) == 0) {
-    	// debuglog("Artist ".$artistname." has no albums. Ignoring it","MYSQL");
+    	debuglog("Artist ".$artistname." has no albums. Ignoring it","MYSQL",9);
     	return false;
     }
 
@@ -1407,7 +1404,7 @@ function do_artist_database_stuff($artistkey, $sendupdates = false) {
     }
 
 	$artist_created = false;
-    $artistindex = check_artist($artistname, $sendupdates);
+    $artistindex = check_artist($artistname, false);
     if ($artistindex == null) {
     	debuglog("ERROR! Checked artist ".$artistname." and index is still null!","MYSQL",1);
         return false;
@@ -1421,7 +1418,7 @@ function do_artist_database_stuff($artistkey, $sendupdates = false) {
     		// and many radio backends are also the same. We don't want these in the database;
     		// they don't get added even without this check because there are no tracks BUT
     		// the album does get created and then remove_cruft has to delete it again).
-    		// debuglog("Album ".$album->name." has no tracks. Ignoring it","MYSQL");
+    		debuglog("Album ".$album->name." has no tracks. Ignoring it","MYSQL",9);
     		continue;
     	}
 
@@ -1439,7 +1436,7 @@ function do_artist_database_stuff($artistkey, $sendupdates = false) {
             md5($album->artist." ".$album->name),
             $album->musicbrainz_albumid,
             $album->domain,
-            $sendupdates
+            false
         );
 
         if ($albumindex == null) {
@@ -1449,23 +1446,14 @@ function do_artist_database_stuff($artistkey, $sendupdates = false) {
 
         $ttidupdate = false;
         foreach($album->tracks as $trackobj) {
-			$ttidupdate = check_and_update_track($trackobj, $albumindex, $artistindex, $artistname, $sendupdates);
+			check_and_update_track($trackobj, $albumindex, $artistindex, $artistname);
         }
 
-    	if ($sendupdates && ($artist_created == false || $prefs['sortcollectionby'] == "album") && $album_created) {
-    		send_list_updates(false, $album_created, null, false);
-    	} else if ($ttidupdate) {
-        	// We only need to send_list_updates once per album since it sends the entire track listing for that album.
-        	send_list_updates(false, false, $ttidupdate, false);
-        }
     } /* End of Artist Album Loop */
 
-    if ($sendupdates && $artist_created && $prefs['sortcollectionby'] == "artist") {
-		send_list_updates($artist_created, false, null, false);
-	}
 }
 
-function do_track_by_track($artistname, $albumname, $domain, $spotialbum, $trackobject, $sendupdates = false) {
+function do_track_by_track($artistname, $albumname, $domain, $spotialbum, $trackobject) {
 
 	// The difference between this and the above function is that this one takes tracks as they come in direct
 	// from the backend - without being collectionised. This is faster and uses less RAM but does rely on the tags
@@ -1474,10 +1462,7 @@ function do_track_by_track($artistname, $albumname, $domain, $spotialbum, $track
 	// The collectionizer was designed to sort tracks without those tags so if those tags exist they don't need
 	// to be collectionized.
 
-	global $mysqlc, $album_created, $artist_created, $find_track, $update_track, $prefs, $onthefly;
-    if ($sendupdates === false) {
-    	$sendupdates = $onthefly;
-    }
+	global $mysqlc, $find_track, $update_track, $prefs;
 
 	static $current_albumartist = null;
 	static $current_album = null;
@@ -1487,15 +1472,8 @@ function do_track_by_track($artistname, $albumname, $domain, $spotialbum, $track
 	static $albumindex = null;
 	static $albumartistindex = null;
 
-	static $wecreatedartist = null;
-	static $wecreatedalbum = null;
-
-	static $createdartists = array();
-	static $createdalbums = array();
-
 	if ($current_albumartist != $artistname) {
-		$artist_created = false;
-		$albumartistindex = check_artist($artistname, $sendupdates);
+		$albumartistindex = check_artist($artistname, false);
 	}
     if ($albumartistindex == null) {
     	debuglog("ERROR! Checked artist ".$artistname." and index is still null!","MYSQL_TBT",1);
@@ -1508,7 +1486,6 @@ function do_track_by_track($artistname, $albumname, $domain, $spotialbum, $track
 
     if ($current_albumartist != $artistname || $current_album != $albumname || $current_domain != $domain ||
     	($spotialbum != null && $spotialbum != $current_albumlink)) {
-    	$album_created = false;
         $albumindex = check_album(
             $albumobj->name,
             $albumartistindex,
@@ -1519,7 +1496,7 @@ function do_track_by_track($artistname, $albumname, $domain, $spotialbum, $track
             md5($albumobj->artist." ".$albumobj->name),
             $albumobj->musicbrainz_albumid,
             $albumobj->domain,
-            $sendupdates
+            false
         );
 
         if ($albumindex == null) {
@@ -1537,29 +1514,13 @@ function do_track_by_track($artistname, $albumname, $domain, $spotialbum, $track
 		// The album we've just created must only have one track, but this makes sure we use the track object
 		// that is part of the album. This MAY be important due to various assumptions and the fact that PHP
 		// insists on copying variables rather than passing by reference.
-		$ttidupdate = check_and_update_track($trackobj, $albumindex, $albumartistindex, $artistname, $sendupdates);
+		check_and_update_track($trackobj, $albumindex, $albumartistindex, $artistname);
 	}
 
-	if ($sendupdates) {
-		if ($artist_created && $current_albumartist != $wecreatedartist && $prefs['sortcollectionby'] == "artist") {
-			debuglog("Sending List Updates for Artist ".$artist_created,"TBT",6);
-			send_list_updates($artist_created, false, null, false);
-			$wecreatedartist = $current_albumartist;
-			$createdartists[] = (int) $artist_created;
-		} else if ($album_created  && $current_album != $wecreatedalbum && (!(in_array((int) $albumartistindex, $createdartists)) ||  $prefs['sortcollectionby'] == "album")) {
-			debuglog("Sending List Updates for Album ".$album_created,"TBT",6);
-			send_list_updates(false, $album_created, null, false);
-			$wecreatedalbum = $current_album;
-			$createdalbums[] = (int) $album_created;
-		} else if ($ttidupdate && !(in_array((int) $albumartistindex, $createdartists)) && !(in_array((int) $albumindex, $createdalbums))) {
-			debuglog("Sending List Updates for Track ".$ttidupdate,"TBT",6);
-	    	send_list_updates(false, false, $ttidupdate, false);
-		}
-	}
 }
 
-function check_and_update_track($trackobj, $albumindex, $artistindex, $artistname, $sendupdates) {
-	global $find_track, $update_track, $artist_created, $album_created, $numdone, $prefs, $doing_search;
+function check_and_update_track($trackobj, $albumindex, $artistindex, $artistname) {
+	global $find_track, $update_track, $numdone, $prefs, $doing_search;
 	static $current_trackartist = null;
 	static $trackartistindex = null;
 	$ttidupdate = false;
@@ -1625,9 +1586,6 @@ function check_and_update_track($trackobj, $albumindex, $artistindex, $artistnam
 	    	}
 
 			if ($update_track->execute(array($trackobj->number, $trackobj->duration, $trackobj->disc, $newlastmodified, $trackobj->url, $albumindex, $newsearchresult, $ttid))) {
-				if ($sendupdates && $artist_created == false && $album_created == false) {
-					$ttidupdate = $ttid;
-				}
 				$numdone++;
 				check_transaction();
 			} else {
@@ -1675,9 +1633,6 @@ function check_and_update_track($trackobj, $albumindex, $artistindex, $artistnam
         );
         $numdone++;
 		check_transaction();
-		if ($sendupdates && ($artist_created == false || $prefs['sortcollectionby'] == "album") && $album_created == false) {
-			$ttidupdate = $ttid;
-		}
 	}
     if ($ttid == null) {
     	debuglog("ERROR! No ttid for track ".$trackobj->name,"MYSQL",1);
@@ -1686,7 +1641,6 @@ function check_and_update_track($trackobj, $albumindex, $artistindex, $artistnam
     		generic_sql_query("INSERT INTO Foundtracks (TTindex) VALUES (".$ttid.")", false, false);
     	}
     }
-    return $ttidupdate;
 }
 
 function dumpAlbums($which) {

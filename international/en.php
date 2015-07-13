@@ -509,7 +509,6 @@ $languages['en'] = array (
 	"label_charts" => "Your Top 40",
 	"label_choosedomains" => "Search these sources:",
 	"label_dragtoprio" => "(Drag to change priority)",
-	"config_onthefly" => "Background Collection Updates",
 	"button_subscribe" => "Subscribe",
 	"config_sortbycomposer" => "Use Composer as Sort Artist",
 	"config_composergenre" => " .. only if Genre is:",

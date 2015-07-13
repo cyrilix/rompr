@@ -25,7 +25,6 @@ if (array_key_exists('item', $_REQUEST)) {
     include ("player/mpd/connection.php");
     include ("collection/collection.php");
     $doing_search = true;
-    $trackbytrack = false;
     $cmd = $_REQUEST['command'];
     $domains = checkDomains($_REQUEST);
     foreach ($_REQUEST['mpdsearch'] as $key => $term) {
@@ -52,7 +51,6 @@ if (array_key_exists('item', $_REQUEST)) {
     include ("player/mpd/connection.php");
     include ("collection/collection.php");
     $doing_search = true;
-    $trackbytrack = false;
     $domains = array();
     $albumlink = get_albumlink($_REQUEST['browsealbum']);
     $cmd = 'find file "'.$albumlink.'"';
@@ -88,7 +86,6 @@ if (array_key_exists('item', $_REQUEST)) {
     }
     debuglog("Search command : ".$cmd,"MPD SEARCH");
     $doing_search = true;
-    $trackbytrack = false;
     doCollection($cmd, $domains);
     print json_encode($collection->tracks_as_array());
     close_mpd();
@@ -99,7 +96,6 @@ if (array_key_exists('item', $_REQUEST)) {
     include ("collection/collection.php");
     include("collection/dbsearch.php");
     $doing_search = true;
-    $trackbytrack = false;
     if ($_REQUEST['resultstype'] == "tree") {
     } else {
         cleanSearchTables();
@@ -126,6 +122,7 @@ if (array_key_exists('item', $_REQUEST)) {
     $initmem = memory_get_usage();
     debuglog("Memory Used is ".$initmem,"COLLECTION");
     $now2 = time();
+    $trackbytrack = true;
     cleanSearchTables();
     prepareCollectionUpdate();
 	doCollection("listallinfo");

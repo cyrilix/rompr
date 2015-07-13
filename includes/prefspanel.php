@@ -107,10 +107,6 @@ print '<div class="pref styledinputs">
 <input class="autoset toggle" type="checkbox" id="updateeverytime">
 <label for="updateeverytime">'.get_int_text('config_updateonstart').'</label>
 </div>';
-print '<div class="pref styledinputs">
-<input class="autoset toggle" type="checkbox" id="onthefly">
-<label for="onthefly">'.get_int_text('config_onthefly').'</label>
-</div>';
 print '<div class="pref textcentre">
 <button id="donkeykong" onclick="checkCollection(true, false)">'.get_int_text('config_updatenow').'</button>
 </div>';

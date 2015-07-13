@@ -513,7 +513,6 @@ $languages['it'] = array (
 	"label_charts" => "La tua Top 40",
 	"label_choosedomains" => "Cerca in queste fonti:",
 	"label_dragtoprio" => "(Trascina per modificare la priorità)",
-	"config_onthefly" => "Aggiornamenti delle collezioni in background",
 	"button_subscribe" => "Iscriviti",
 	"config_sortbycomposer" => "Usa il Compositore come ordinamento per Artista",
 	"config_composergenre" => " .. solo se il Genere è:",

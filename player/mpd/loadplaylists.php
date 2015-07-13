@@ -5,7 +5,6 @@ include ("includes/functions.php");
 include ("collection/collection.php");
 include ("player/mpd/connection.php");
 include ("backends/sql/backend.php");
-$trackbytrack = false;
 
 if (array_key_exists('playlist', $_REQUEST)) {
     $pl = $_REQUEST['playlist'];

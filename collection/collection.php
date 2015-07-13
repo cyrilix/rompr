@@ -24,7 +24,7 @@ $collection = null;
 
 $dbterms = array( 'tags' => null, 'rating' => null );
 
-$trackbytrack = true;
+$trackbytrack = false;
 
 class album {
     public function __construct($name, $artist, $domain, $folder = null) {
@@ -829,9 +829,9 @@ function process_file(&$filedata) {
 
         case "youtube":
             $folder = $file;
-            $artist = (array_key_exists('Artist', $filedata)) ? unwanted_array($filedata['Artist']) : munge_youtube_track_into_artist($name);
-            $album = (array_key_exists('Album', $filedata)) ? unwanted_array($filedata['Album']) : munge_youtube_track_into_album($name);
-            $name = (array_key_exists('Title', $filedata)) ? unwanted_array($filedata['Title']) : munge_youtube_track_into_title($name);
+            $artist = munge_youtube_track_into_artist($name);
+            $album = munge_youtube_track_into_album($name);
+            $name = munge_youtube_track_into_title($name);
             $albumartist = $artist;
             break;
 
