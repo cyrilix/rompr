@@ -929,7 +929,7 @@ function do_albums_from_database($which, $fragment = false, $use_artistindex = f
 			$artistthing = (!$use_artistindex && $prefs['sortcollectionby'] == "album") ? $obj->Artistname : null;
 			if ($fragment === false) {
 				$exists = ($obj->Image && $obj->Image !== "") ? "yes" : "no";
-				$albumlink = ($t == "a" || preg_match('/:album:|:artist:/', $obj->Spotilink)) ? rawurlencode($obj->Spotilink) : null;
+				$albumlink = ($t == "a" || preg_match('/:album:|:artist:/', $obj->Spotilink) || preg_match('/^podcast/', $obj->Spotilink)) ? rawurlencode($obj->Spotilink) : null;
 				albumHeader(
 					$obj->Albumname,
 					$albumlink,
@@ -1078,6 +1078,9 @@ function do_tracks_from_database($which, $fragment = false) {
                     $currdisc = $obj->Disc;
 	                print '<div class="discnumber indent">'.ucfirst(strtolower(get_int_text("musicbrainz_disc"))).' '.$currdisc.'</div>';
 				}
+				// $track_is_album = (preg_match('/^.+?:album:/', $obj->Uri) || preg_match('/^podcast/', $obj->Uri)) ? $obj->Uri : false;
+				// $track_is_album = (preg_match('/^.+?:album:/', $obj->Uri) || preg_match('/^internetarchive/', $obj->Uri)) ? $obj->Uri : false;
+				// browsing the album doesn't work for podcasts or internetarchive
 				$track_is_album = (preg_match('/^.+?:album:/', $obj->Uri)) ? $obj->Uri : false;
 				$track_is_artist = (preg_match('/^.+?:artist:/', $obj->Uri)) ? $obj->Uri : false;
 				albumTrack(

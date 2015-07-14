@@ -267,6 +267,10 @@ class mpdlistthing {
             $filedata['file_display_name'] = (array_key_exists('Title', $filedata)) ? $filedata['Title'] : basename($decodedpath);
             $decodedpath = preg_replace('/soundcloud:song/','soundcloud/'.$filedata['Artist'],$decodedpath);
         
+        } else if (preg_match('/^internetarchive:/', $decodedpath)) {
+            $filedata['file_display_name'] = $filedata['Album'];
+            $decodedpath = preg_replace('/internetarchive:/','internetarchive/',$decodedpath);
+        
         } else if (preg_match('/youtube:video\//', $decodedpath)) {
             $filedata['file_display_name'] = (array_key_exists('Title', $filedata)) ? $filedata['Title'] : basename($decodedpath);
             $decodedpath = preg_replace('/youtube:video/','youtube',$decodedpath);

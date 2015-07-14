@@ -11,10 +11,6 @@ $xspf_loaded = false;
 $stream_xspfs = array();
 $podcasts = array();
 
-$current_artist = "";
-$current_album = "";
-$abm = false;
-$current_domain = "local";
 $playlist = array();
 $putinplaylistarray = false;
 
@@ -409,14 +405,19 @@ class musicCollection {
                                 $spotialbum, $spotiartist, $domain, $lastmodified,
                                 $composer, $performers, $linktype) {
 
-        global $current_album, $current_artist, $abm, $current_domain, $playlist, $prefs, $trackbytrack, $putinplaylistarray;
+        global $playlist, $prefs, $trackbytrack, $putinplaylistarray;
+
+        static $current_artist = "";
+        static $current_album = "";
+        static $abm = false;
+        static $current_domain = "local";
 
         if ($prefs['ignore_unplayable'] && substr($name, 0, 12) == "[unplayable]") {
-            debuglog("Ignoring unplayable track ".$file,"COLLECTION");
+            debuglog("Ignoring unplayable track ".$file,"COLLECTION",9);
             return true;
         }
         if (substr($name, 0, 9) == "[loading]") {
-            debuglog("Ignoring unloaded track ".$file,"COLLECTION");
+            debuglog("Ignoring unloaded track ".$file,"COLLECTION",9);
             return true;
         }
 
@@ -512,28 +513,32 @@ class musicCollection {
         // Does an album with this name by this aritst already exist?
         if ($abm === false) {
             if ($albumartist == null) {
-                // Does an album with this name where the tracks are in the same directory exist?
-                // We don't need to do this if albumartist is set - this is for detecting
-                // badly tagged compilations, but we also need to do this for all spotify tracks
-                // as multiple albums can have the same name.
-                $abm = $this->findAlbum($album, null, $directory, $domain);
-                if ($abm !== false) {
-                    // We found one - it's not by the same artist so we need to mark it as a compilation if it isn't already
-                    if ($albumartist == null && !($abm->isCompilation())) {
-                        // Create various artists group if it isn't there
-                        if (!array_key_exists("various artists", $this->artists)) {
-                            $this->artists["various artists"] = new artist("Various Artists");
+                // Does an album by this sortartist with this name already exist?
+                $abm = $this->findAlbum($album, $sortartist, null, $domain);
+                if ($abm === false) {
+                    // Does an album with this name where the tracks are in the same directory exist?
+                    // We don't need to do this if albumartist is set - this is for detecting
+                    // badly tagged compilations, but we also need to do this for all spotify tracks
+                    // as multiple albums can have the same name.
+                    $abm = $this->findAlbum($album, null, $directory, $domain);
+                    if ($abm !== false) {
+                        // We found one - it's not by the same artist so we need to mark it as a compilation if it isn't already
+                        if ($albumartist == null && !($abm->isCompilation())) {
+                            // Create various artists group if it isn't there
+                            if (!array_key_exists("various artists", $this->artists)) {
+                                $this->artists["various artists"] = new artist("Various Artists");
+                            }
+                            // Add the album to the various artists group
+                            $this->artists["various artists"]->newAlbum($abm);
+                            $abm->setAsCompilation();
                         }
-                        // Add the album to the various artists group
-                        $this->artists["various artists"]->newAlbum($abm);
-                        $abm->setAsCompilation();
                     }
                 }
             }
             if ($abm == false) {
                 // if ($domain == "spotify") {
                 //     // For Spotify we set  directory to the spotilink. However, at present we don't get those
-                //     // forevery track from the MPD protocol/
+                //     // for every track from the MPD protocol/
                 //     $abm = $this->findAlbum($album, null, $directory, $domain);
                 // } else {
                     $abm = $this->findAlbum($album, $sortartist, $directory, $domain);
@@ -807,8 +812,8 @@ function process_file(&$filedata) {
 
     switch($domain) {
         // Some domain-specific fixups for mpd's soundcloud playlist plugin and
-        // various unhelpful mopidy backends. Basically this is to help prevent
-        // the collection putting things under 'Various Artists'
+        // various unhelpful mopidy backends. There's no consistency of behaviour in the Mopidy backends
+        // so to provide some kind of consistency of display we have to do a lot of work.
         case "soundcloud":
             if ($prefs['player_backend'] == "mpd") {
                 if (array_key_exists('Name', $filedata)) {
@@ -839,21 +844,30 @@ function process_file(&$filedata) {
             $folder = $spotialbum;
             break;
 
+        case "internetarchive":
+            $spotialbum = $file;
+            $folder = $file;
+            $albumartist = "Internet Archive";
+            break;
+
         case "podcast http":
         case "podcast https":
         case "podcast ftp":
         case "podcast file":
             $folder = dirname($file);
-            if ($albumartist == null) {
+            $matches = array();
+            $a = preg_match('/podcast\+http:\/\/(.*?)\//', $file, $matches);
+            if ($a == 1) {
+                $albumartist = $matches[1];
+                $album = $name;
+                $album = preg_replace('/^Album\:\s*/','',$album);
+                $spotialbum = $file;
+            } else {
                 $albumartist = "Podcasts";
-                $matches = array();
-                $a = preg_match('/podcast\+http:\/\/(.*?)\//', $file, $matches);
-                if ($a == 1) {
-                    $album = $matches[1];
-                }
-                if ($artist == "http" || $artist == "https" || $artist == "ftp" || $artist == "file") {
-                    $artist = $albumartist;
-                }
+            }
+            if ($artist == "http" || $artist == "https" || $artist == "ftp" || $artist == "file" ||
+                substr($artist,0,7) == "podcast") {
+                $artist = $albumartist;
             }
             break;
 

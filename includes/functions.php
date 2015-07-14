@@ -287,6 +287,13 @@ function albumHeader($name, $spotilink, $id, $exists, $searched, $imgname, $src,
                 print '<i class="icon-'.$d.'-circled playlisticon fixed"></i>';
                 break;
 
+            case "podcast":
+            case "podcast http":
+            case "podcast ftp":
+            case "podcast file":
+                print '<i class="icon-podcast-circled playlisticon fixed"></i>';
+                break;
+
             case "tunein":
             case "radio-de":
             case "dirble":
