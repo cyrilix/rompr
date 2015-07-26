@@ -49,4 +49,5 @@ $(document).ready(function(){
     layoutProcessor.adjustLayout();
     $(window).bind('resize', layoutProcessor.adjustLayout);
     pluginManager.setupPlugins();
+    setTheme(prefs.theme);
 });

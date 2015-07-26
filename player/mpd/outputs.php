@@ -23,7 +23,8 @@ if ($is_connected) {
         if ($outputdata[$i]['outputenabled'] == 1) {
             print ' checked';
         }
-        print '><label for="outputbutton_'.$i.'" onclick="outputswitch('.$i.')">'.$outputdata[$i]['outputname'].'</label>';
+        print '><label for="outputbutton_'.$i.'" onclick="outputswitch('.$i.')">'.
+            $outputdata[$i]['outputname'].'</label>';
     }
     print '</div>';
 

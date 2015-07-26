@@ -29,7 +29,7 @@ $artist = array_key_exists('artist', $_POST) ? $_POST['artist'] : null;;
 $trackno = array_key_exists('trackno', $_POST) ? $_POST['trackno'] : null;
 $duration = array_key_exists('duration', $_POST) ? $_POST['duration'] : null;
 $albumartist = array_key_exists('albumartist', $_POST) ? $_POST['albumartist'] : $artist;
-$spotilink = array_key_exists('spotilink', $_POST) ? $_POST['spotilink'] : null;
+$albumuri = array_key_exists('albumuri', $_POST) ? $_POST['albumuri'] : null;
 $image = array_key_exists('image', $_POST) ? $_POST['image'] : null;
 $album = array_key_exists('album', $_POST) ? $_POST['album'] : null;
 $uri = array_key_exists('uri', $_POST) ? $_POST['uri'] : null;
@@ -127,7 +127,8 @@ switch ($_POST['action']) {
 							forcedUriOnly(false,getDomain($uri)));
 
 		if (count($ttids) == 0) {
-			debuglog("Doing an INCREMENT action - Found NOTHING so creating hidden track","USERRATING",6);
+			debuglog(
+				"Doing an INCREMENT action - Found NOTHING so creating hidden track","USERRATING",6);
 			// So we need to create a new hidden track
 			check_album_image();
 			$ttids[0] = create_new_track(	$title,
@@ -135,7 +136,7 @@ switch ($_POST['action']) {
 											$trackno,
 											$duration,
 											$albumartist,
-											$spotilink,
+											$albumuri,
 											$image,
 											$album,
 											$date,
@@ -156,7 +157,9 @@ switch ($_POST['action']) {
 			foreach ($ttids as $ttid) {
 				debuglog("Doing an INCREMENT action - Found TTID ".$ttid,"USERRATING",9);
 				foreach ($attributes as $pair) {
-					debuglog("(Increment) Setting ".$pair["attribute"]." to ".$pair["value"]." on ".$ttid,"USERRATING",6);
+					debuglog(
+						"(Increment) Setting ".$pair["attribute"]." to ".$pair["value"]." on ".
+						$ttid,"USERRATING",6);
 					increment_value($ttid, $pair["attribute"], $pair["value"]);
 				}
 				$returninfo['metadata'] = get_all_data($ttid);
@@ -187,11 +190,12 @@ switch ($_POST['action']) {
 		}
 		if ($ttid != null) {
 
-			// If we found it, just make sure it's not hidden. This is slightly trickier than it sounds
-			// because if it is it might cause a new album and/or artist to appear in the collection when
-			// we unhide it.
-			// The code to do this already exists in set_attribute. If it's hidden it will have no attributes
-			// (except a playcount) so we can check if it's hidden and if it is, set its rating to 0.
+			// If we found it, just make sure it's not hidden.
+			// This is slightly trickier than it sounds because if it is it might cause a new album
+			// and/or artist to appear in the collection when we unhide it.
+			// The code to do this already exists in set_attribute.
+			// If it's hidden it will have no attributes (except a playcount) so we can check if
+			// it's hidden and if it is, set its rating to 0.
 			if (track_is_hidden($ttid) || track_is_searchresult($ttid)) {
 				set_attribute($ttid, "Rating", "0");
 				update_track_stats();
@@ -211,7 +215,7 @@ switch ($_POST['action']) {
 										$trackno,
 										$duration,
 										$albumartist,
-										$spotilink,
+										$albumuri,
 										$image,
 										$album,
 										$date,
@@ -259,7 +263,7 @@ switch ($_POST['action']) {
 											$trackno,
 											$duration,
 											$albumartist,
-											$spotilink,
+											$albumuri,
 											$image,
 											$album,
 											$date,
@@ -287,7 +291,8 @@ switch ($_POST['action']) {
 					if (is_array($pair["value"])) {
 						$dbg = implode($pair["value"], ", ");
 					}
-					debuglog("Setting ".$pair["attribute"]." to ".$dbg." on TTindex ".$ttid,"USERRATING",6);
+					debuglog(
+						"Setting ".$pair["attribute"]." to ".$dbg." on TTindex ".$ttid,"USERRATING",6);
 					$result = true;
 					$r = set_attribute($ttid, $pair["attribute"], $pair["value"]);
 					if ($r == false) {
@@ -303,7 +308,8 @@ switch ($_POST['action']) {
 				$album_created = false;
 			}
 			update_track_stats();
-			$returninfo['stats'] = alistheader(get_stat('ArtistCount'), get_stat('AlbumCount'), get_stat('TrackCount'), format_time(get_stat('TotalTime')));
+			$returninfo['stats'] = alistheader(get_stat('ArtistCount'), get_stat('AlbumCount'),
+				get_stat('TrackCount'), format_time(get_stat('TotalTime')));
 			print json_encode($returninfo);
 		} else {
 			debuglog("TTID Not Found","USERRATING",2);
@@ -321,7 +327,7 @@ switch ($_POST['action']) {
 							$artist,
 							$album,
 							$albumartist,
-							forcedUriOnly(false, getDomain($uri)));
+							forcedUriOnly($urionly, getDomain($uri)));
 		if (count($ttids) > 0) {
 			foreach ($ttids as $ttid) {
 				foreach ($attributes as $pair) {
@@ -329,7 +335,8 @@ switch ($_POST['action']) {
 					$result = true;
 					$r = remove_tag($ttid, $pair["value"]);
 					if ($r == false) {
-						debuglog("FAILED Removing ".$pair["attribute"]." ".$pair["value"],"USERRATING",2);
+						debuglog(
+							"FAILED Removing ".$pair["attribute"]." ".$pair["value"],"USERRATING",2);
 						$result = false;
 					}
 				}
@@ -356,7 +363,8 @@ switch ($_POST['action']) {
 		break;
 
 	case 'deletewl':
-		$ttid = find_wishlist_item(html_entity_decode($artist), html_entity_decode($album), html_entity_decode($title));
+		$ttid = find_wishlist_item(html_entity_decode($artist),
+			html_entity_decode($album), html_entity_decode($title));
 		if ($ttid == null) {
 			header('HTTP/1.1 400 Bad Request');
 		} else {
@@ -368,7 +376,8 @@ switch ($_POST['action']) {
 		remove_cruft();
 		update_track_stats();
 		$returninfo = array();
-		$returninfo['stats'] = alistheader(get_stat('ArtistCount'), get_stat('AlbumCount'), get_stat('TrackCount'), format_time(get_stat('TotalTime')));
+		$returninfo['stats'] = alistheader(get_stat('ArtistCount'), get_stat('AlbumCount'),
+			get_stat('TrackCount'), format_time(get_stat('TotalTime')));
 		print json_encode($returninfo);
 		break;
 
@@ -398,6 +407,12 @@ switch ($_POST['action']) {
 		print json_encode($uris);
 		break;
 
+	case 'artistfromalbum':
+		debuglog("Getting Artist From Album ".$album,"USERRATINGS",8);
+		$result = array('artistid' => find_artist_from_album($album));
+		print json_encode($result);
+		break;
+
 }
 
 close_transaction();
@@ -408,7 +423,8 @@ debuglog("---------------------------END----------------------","USERRATING",4);
 function forcedUriOnly($u,$d) {
 
 	// Some mopidy backends - YouTube and SoundCloud - can return the same artist/album/track info
-	// for multiple different tracks. This gives us a problem because find_item will think they're the same.
+	// for multiple different tracks.
+	// This gives us a problem because find_item will think they're the same.
 	// So for those backends we always force urionly to be true
 	debuglog("Checking the spanner monkey : ".$d,"USERRATINGS",9);
 
@@ -432,37 +448,48 @@ function doPlaylist($playlist, $limit) {
 	$random = true;
 	switch($playlist) {
 		case "1stars":
-			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden=0 AND isSearchResult < 2 AND Rating > 0";
+			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri
+				IS NOT NULL AND Hidden=0 AND isSearchResult < 2 AND Rating > 0";
 			break;
 		case "2stars":
-			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden=0 AND isSearchResult < 2 AND Rating > 1";
+			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri
+				IS NOT NULL AND Hidden=0 AND isSearchResult < 2 AND Rating > 1";
 			break;
 		case "3stars":
-			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden=0 AND isSearchResult < 2 AND Rating > 2";
+			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri
+				IS NOT NULL AND Hidden=0 AND isSearchResult < 2 AND Rating > 2";
 			break;
 		case "4stars":
-			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden=0 AND isSearchResult < 2 AND Rating > 3";
+			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri
+				IS NOT NULL AND Hidden=0 AND isSearchResult < 2 AND Rating > 3";
 			break;
 		case "5stars":
-			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden=0 AND isSearchResult < 2 AND Rating > 4";
+			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Ratingtable USING (TTindex) WHERE Uri
+				IS NOT NULL AND Hidden=0 AND isSearchResult < 2 AND Rating > 4";
 			break;
 		case "mostplayed":
-			// Used to be tracks with above average playcount, now also includes any rated tracks. Still called mostplayed :)
+			// Used to be tracks with above average playcount, now also includes any rated tracks.
+			// Still called mostplayed :)
 			$avgplays = getAveragePlays();
-			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Playcounttable USING (TTindex) LEFT JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden = 0 AND isSearchResult < 2 AND (Playcount > ".$avgplays." OR Rating IS NOT NULL)";
+			$sqlstring = "SELECT TTindex FROM Tracktable JOIN Playcounttable USING (TTindex)
+				LEFT JOIN Ratingtable USING (TTindex) WHERE Uri IS NOT NULL AND Hidden = 0 AND
+				isSearchResult < 2 AND (Playcount > ".$avgplays." OR Rating IS NOT NULL)";
 			break;
 		case "allrandom":
-			$sqlstring = "SELECT TTindex FROM Tracktable WHERE Uri IS NOT NULL AND Hidden=0 AND isSearchResult < 2";
+			$sqlstring = "SELECT TTindex FROM Tracktable WHERE Uri IS NOT NULL AND Hidden=0 AND
+				isSearchResult < 2";
 			break;
 		case "neverplayed":
-			// LEFT JOIN (used here and above) means that the right-hand side of the JOIN will be NULL if TTindex doesn't exist on that side. Very handy.
-			// http://dev.mysql.com/doc/refman/5.0/en/join.html
-			$sqlstring = "SELECT Tracktable.TTindex FROM Tracktable LEFT JOIN Playcounttable ON Tracktable.TTindex = Playcounttable.TTindex WHERE Playcounttable.TTindex IS NULL";
+			// LEFT JOIN (used here and above) means that the right-hand side of the JOIN will be
+			// NULL if TTindex doesn't exist on that side. Very handy.
+			$sqlstring = "SELECT Tracktable.TTindex FROM Tracktable LEFT JOIN Playcounttable ON
+				Tracktable.TTindex = Playcounttable.TTindex WHERE Playcounttable.TTindex IS NULL";
 			break;
 		default:
 			if (preg_match('/tag\+(.*)/', $playlist, $matches)) {
 				$taglist = split(',', $matches[1]);
-				$sqlstring = "SELECT DISTINCT TTindex FROM Tracktable JOIN TagListtable USING (TTindex) JOIN Tagtable USING (Tagindex) WHERE (";
+				$sqlstring = "SELECT DISTINCT TTindex FROM Tracktable JOIN TagListtable USING
+					(TTindex) JOIN Tagtable USING (Tagindex) WHERE (";
 				$tags = array();
 				foreach ($taglist as $i => $tag) {
 					debuglog("Getting tag playlist for ".$tag,"PLAYLISTS",6);
@@ -472,7 +499,8 @@ function doPlaylist($playlist, $limit) {
 					}
 					$sqlstring .=  "Tagtable.Name = ?";
 				}
-				$sqlstring .= ") AND Tracktable.Uri IS NOT NULL AND Tracktable.Hidden = 0 AND Tracktable.isSearchResult < 2 ";
+				$sqlstring .= ") AND Tracktable.Uri IS NOT NULL AND Tracktable.Hidden = 0 AND
+					Tracktable.isSearchResult < 2 ";
 			}
 			break;
 	}
@@ -490,7 +518,8 @@ function delete_track($ttid) {
 		checkAlbumsAndArtists();
 		remove_cruft();
 		update_track_stats();
-		$returninfo['stats'] = alistheader(get_stat('ArtistCount'), get_stat('AlbumCount'), get_stat('TrackCount'), format_time(get_stat('TotalTime')));
+		$returninfo['stats'] = alistheader(get_stat('ArtistCount'), get_stat('AlbumCount'),
+			get_stat('TrackCount'), format_time(get_stat('TotalTime')));
 		print json_encode($returninfo);
 	} else {
 		header('HTTP/1.1 400 Bad Request');
@@ -503,7 +532,8 @@ function check_album_image() {
 	// last.FM importer
 	global $album, $albumartist, $error, $download_file, $convert_path, $image;
 	$imagekey = md5($albumartist." ".$album);
-	if (preg_match('#^getRemoteImage\.php#', $image) && !file_exists('albumart/small/'.$imagekey.'.jpg')) {
+	if (preg_match('#^getRemoteImage\.php#', $image) &&
+		!file_exists('albumart/small/'.$imagekey.'.jpg')) {
 		$u = get_base_url();
 		$u = preg_replace('#backends/sql#', '', $u);
 		$convert_path = find_executable('convert');
@@ -516,12 +546,14 @@ function check_album_image() {
 }
 
 function check_wishlist_doodads($ttids) {
-	global $uri, $albumartist, $album, $spotilink, $image, $date;
+	global $uri, $albumartist, $album, $albumuri, $image, $date;
 	$donesomething = false;
-	if ($stmt = sql_prepare_query("SELECT Uri, Albumindex FROM Tracktable WHERE TTindex = ?", $ttids[0])) {
+	if ($stmt = sql_prepare_query(
+		"SELECT Uri, Albumindex FROM Tracktable WHERE TTindex = ?", $ttids[0])) {
 		while ($ttidobj = $stmt->fetch(PDO::FETCH_OBJ)) {
 			if ($ttidobj->Uri == null) {
-				if ($up1 = sql_prepare_query("UPDATE Tracktable SET Uri = ? WHERE TTindex = ?", $uri, $ttids[0])) {
+				if ($up1 = sql_prepare_query(
+					"UPDATE Tracktable SET Uri = ? WHERE TTindex = ?", $uri, $ttids[0])) {
 					debuglog("  .. Updated track URI for ex-wishlist item","USERRATINGS",5);
 					$donesomething = true;
 				} else {
@@ -529,8 +561,11 @@ function check_wishlist_doodads($ttids) {
 				}
 				if ($ttidobj->Albumindex == null) {
 					$albumai = check_artist($albumartist, true);
-					$albumindex = check_album($album, $albumai, $spotilink, $image, $date, "no", md5($albumartist." ".$album), null, getDomain($uri), true);
-					if ($up2 = sql_prepare_query("UPDATE Tracktable SET Albumindex = ? WHERE TTindex = ?", $albumindex, $ttids[0])) {
+					$albumindex = check_album($album, $albumai, $albumuri, $image, $date, "no",
+						md5($albumartist." ".$album), null, getDomain($uri), true);
+					if ($up2 = sql_prepare_query(
+						"UPDATE Tracktable SET Albumindex = ? WHERE TTindex = ?",
+						$albumindex, $ttids[0])) {
 						debuglog("  .. Updated track album index for wishlist item","USERRATINGS",5);
 						$donesomething = true;
 					} else {

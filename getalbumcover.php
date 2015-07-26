@@ -17,7 +17,7 @@ $artist = "";
 $album = "";
 $mbid = "";
 $albumpath = "";
-$spotilink = "";
+$albumuri = "";
 $small_file = "";
 $big_file = "";
 $base64data = "";
@@ -45,7 +45,7 @@ if (array_key_exists("src", $_REQUEST)) {
 } else {
     while ($found == false && count($findalbum) > 0) {
         $fn = array_shift($findalbum);
-        list($in_collection, $artist, $album, $mbid, $albumpath, $spotilink, $found) = $fn($fname);
+        list($in_collection, $artist, $album, $mbid, $albumpath, $albumuri, $found) = $fn($fname);
     }
     if (!$found) {
         debuglog("Image key could not be found!","GETALBUMCOVER");
@@ -67,15 +67,15 @@ if ($mbid != "") {
     $searchfunctions = array( 'tryLocal', 'trySpotify', 'tryLastFM', 'tryMusicBrainz' );
 }
 
-debuglog("  KEY     : ".$fname,"GETALBUMCOVER");
-debuglog("  SOURCE  : ".$src,"GETALBUMCOVER");
-debuglog("  UPLOAD  : ".$file,"GETALBUMCOVER");
-debuglog("  STREAM  : ".$stream,"GETALBUMCOVER");
-debuglog("  ARTIST  : ".$artist,"GETALBUMCOVER");
-debuglog("  ALBUM   : ".$album,"GETALBUMCOVER");
-debuglog("  MBID    : ".$mbid,"GETALBUMCOVER");
-debuglog("  PATH    : ".$albumpath,"GETALBUMCOVER");
-debuglog("  SPOTIFY : ".$spotilink,"GETALBUMCOVER");
+debuglog("  KEY      : ".$fname,"GETALBUMCOVER");
+debuglog("  SOURCE   : ".$src,"GETALBUMCOVER");
+debuglog("  UPLOAD   : ".$file,"GETALBUMCOVER");
+debuglog("  STREAM   : ".$stream,"GETALBUMCOVER");
+debuglog("  ARTIST   : ".$artist,"GETALBUMCOVER");
+debuglog("  ALBUM    : ".$album,"GETALBUMCOVER");
+debuglog("  MBID     : ".$mbid,"GETALBUMCOVER");
+debuglog("  PATH     : ".$albumpath,"GETALBUMCOVER");
+debuglog("  ALBUMURI : ".$albumuri,"GETALBUMCOVER");
 
 // Attempt to download an image file
 
@@ -165,7 +165,7 @@ function check_playlist($fname) {
                     $retval[2] = $track['album'];
                     $retval[3] = $track['metadata']['album']['musicbrainz_id'];
                     $retval[4] = rawurldecode($track['dir']);
-                    $retval[5] = rawurldecode($track['spotify']['album']);
+                    $retval[5] = rawurldecode($track['metadata']['album']['uri']);
                     $retval[6] = true;
                     debuglog("Found album in playlist","DEBUGGING");
                     break;
@@ -175,21 +175,6 @@ function check_playlist($fname) {
         release_file_lock($fp);
     }
     return $retval;
-}
-
-function get_user_file($src, $fname, $tmpname) {
-    global $error;
-    debuglog("  Uploading ".$src." ".$fname." ".$tmpname,"GETALBUMCOVER");
-    $download_file = "prefs/".$fname;
-    if (move_uploaded_file($tmpname, $download_file)) {
-        debuglog("    File ".$src." is valid, and was successfully uploaded.","GETALBUMCOVER");
-    } else {
-        debuglog("    Possible file upload attack!","GETALBUMCOVER");
-        header('HTTP/1.0 403 Forbidden');
-        ob_flush();
-        exit(0);
-    }
-    return $download_file;
 }
 
 function tryLocal() {
@@ -238,17 +223,17 @@ function tryLocal() {
 }
 
 function trySpotify() {
-    global $spotilink;
+    global $albumuri;
     global $delaytime;
-    if ($spotilink == "" || substr($spotilink, 0, 8) != 'spotify:') {
+    if ($albumuri == "" || substr($albumuri, 0, 8) != 'spotify:') {
         return "";
     }
     $image = "";
-    debuglog("  Trying Spotify for ".$spotilink,"GETALBUMCOVER");
+    debuglog("  Trying Spotify for ".$albumuri,"GETALBUMCOVER");
 
     // php strict prevents me from doing end(explode()) because
     // only variables can be passed by reference. Stupid php.
-    $spaffy = explode(":", $spotilink);
+    $spaffy = explode(":", $albumuri);
     $spiffy = end($spaffy);
     $url = 'https://api.spotify.com/v1/albums/'.$spiffy;
     debuglog("      Getting ".$url,"GETALBUMCOVER");

@@ -18,12 +18,12 @@ function LastFM(user) {
         var html = "";
         if (data.affiliations) {
             if (data.affiliations.physicals) {
-                html = html + '<li><b>'+language.gettext("lastfm_buyoncd")+'</b></li>';
-                html = html + doBuyTable(getArray(data.affiliations.physicals.affiliation));
+                html += '<li><b>'+language.gettext("lastfm_buyoncd")+'</b></li>';
+                html += doBuyTable(getArray(data.affiliations.physicals.affiliation));
             }
             if (data.affiliations.downloads) {
-                html = html + '<li><b>'+language.gettext("lastfm_download")+'</b></li>';
-                html = html + doBuyTable(getArray(data.affiliations.downloads.affiliation));
+                html += '<li><b>'+language.gettext("lastfm_download")+'</b></li>';
+                html += doBuyTable(getArray(data.affiliations.downloads.affiliation));
             }
         }
         return html;
@@ -32,16 +32,16 @@ function LastFM(user) {
     function doBuyTable(values) {
         var html = "";
         for(var i in values) {
-            html = html + '<li><img width="12px" src="'+values[i].supplierIcon+'">&nbsp;<a href="'+values[i].buyLink+'" target="_blank">'+
+            html += '<li><span><img width="12px" src="'+values[i].supplierIcon+'">&nbsp;<a href="'+values[i].buyLink+'" target="_blank">'+
                             values[i].supplierName+'</a>';
             if (values[i].price) {
                 if (values[i].price.formatted) {
-                    html = html + '    '+values[i].price.formatted;
+                    html += '&nbsp;&nbsp;'+values[i].price.formatted;
                 } else {
-                    html = html + '    '+values[i].price.amount;
+                    html += '&nbsp;&nbsp;'+values[i].price.amount;
                 }
             }
-            html = html +'</li>';
+            html = html +'</span></li>';
         }
         return html;
     }

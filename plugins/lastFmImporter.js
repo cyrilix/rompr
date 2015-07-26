@@ -13,12 +13,14 @@ var lastfmImporter = function() {
 	var finished = false;
 	var throttleBackReset = null;
 	var searchcount = 0;
+	var trawler = null;
 
 	var chosensources = new Array();
 
 	function putRow(t) {
 
-		var fancy = $('<tr>', { class: "invisible", id: "trackrow"+t.key,  style: "border-top:1px solid #454545" });
+		var fancy = $('<tr>', { class: "invisible", id: "trackrow"+t.key,
+			style: "border-top:1px solid #454545" });
 
 		var row = '<td><img id="imgfound'+t.key+'" class="smallcover';
 		if (t.image) {
@@ -55,7 +57,8 @@ var lastfmImporter = function() {
 
 	function displayFinishBits() {
 		if ($("#reviewfirst").is(':checked')) {
-			$("#hoobajoob").html('<button class="fixed" onclick="lastfmImporter.importEverything()">'+language.gettext("button_importnow")+'</button>');
+			$("#hoobajoob").html('<button class="fixed" onclick="lastfmImporter.importEverything()">'
+				+language.gettext("button_importnow")+'</button>');
 		} else {
 			$("#hoobajoob").html('<h3 align="center">'+language.gettext("label_finished")+'</h3>');
 		}
@@ -64,12 +67,13 @@ var lastfmImporter = function() {
  	}
 
 	function doNextBatch() {
-		// Note : totalpages = eg 57 but totaltracks/perpage might give eg 56.2 if the last page has only 20 tracks
-		// and perpage is 100. Using that for the % calculation prevents the progress bar skipping backwards
+		// Note : totalpages = eg 57 but totaltracks/perpage might give eg 56.2 if the last page
+		// has only 20 tracks and perpage is 100. Using that for the % calculation prevents the
+		// progress bar skipping backwards
 		var p = (currpage/(totaltracks/perpage))*100;
 		debug.shout("LASTM IMPORTER","doNextBatch. Progress is",p.toFixed(2),currpage,totalpages);
 		progressbar.setProgress(p.toFixed(2));
-		if (faveFinder.queueLength() == 0) {
+		if (trawler.queueLength() == 0) {
 			spbar.setProgress(p.toFixed(2));
 		}
 		currpage++;
@@ -98,20 +102,20 @@ var lastfmImporter = function() {
 		var html = "";
 		var u = data.uri;
 		if (u.match(/spotify:/)) {
-			html = html + '<i class="icon-spotify-circled smallicon"></i>';
+			html += '<i class="icon-spotify-circled smallicon"></i>';
 		} else if (u.match(/soundcloud:/)) {
-			html = html + '<i class="icon-soundcloud-circled smallicon"></i>';
+			html += '<i class="icon-soundcloud-circled smallicon"></i>';
 		} else if (u.match(/youtube:/)) {
-			html = html + '<i class="icon-youtube-circled smallicon"></i>';
+			html += '<i class="icon-youtube-circled smallicon"></i>';
 		} else if (u.match(/gmusic:/)) {
-			html = html + '<i class="icon-gmusic-circled smallicon"></i>';
+			html += '<i class="icon-gmusic-circled smallicon"></i>';
 		}
-		html = html + '<b>'+data.title+'</b><br><i>by </i>';
-		html = html + data.artist+'<br><i>on </i>';
-		html = html + data.album;
+		html += '<b>'+data.title+'</b><br><i>by </i>';
+		html += data.artist+'<br><i>on </i>';
+		html += data.album;
 		var arse = data.uri;
 		if (arse.indexOf(":") > 0) {
-			html = html + '  <i>(' + arse.substr(0, arse.indexOf(":")) + ')</i>';
+			html += '  <i>(' + arse.substr(0, arse.indexOf(":")) + ')</i>';
 		}
 		return html;
 	}
@@ -119,38 +123,56 @@ var lastfmImporter = function() {
 	return {
 
 		open: function() {
+			if (trawler == null) {
+				trawler = new faveFinder(true);
+			}
 			if (impu == null) {
-	        	impu = browser.registerExtraPlugin("impu", language.gettext("lastfm_import"), lastfmImporter);
+	        	impu = browser.registerExtraPlugin("impu", language.gettext("lastfm_import"),
+	        		lastfmImporter);
 	        	if (!lastfm.isLoggedIn()) {
-		            $("#impufoldup").append('<h3 align="center">'+language.gettext("lastfm_pleaselogin")+'</h3>');
+		            $("#impufoldup").append('<h3 align="center">'+
+		            	language.gettext("lastfm_pleaselogin")+'</h3>');
 		            impu.slideToggle('fast');
 		            return;
 	        	}
 
 	            $("#impufoldup").append(
 	            	'<div name="beefheart" class="containerbox vertical">'+
-	            		'<div style="margin-left:8px;margin-right:8px;margin-top:4px;margin-bottom:4px" class="containerbox">'+
-	            			'<div class="fixed menuitem" style="width:10em"><b>Last.FM</b></div>'+
-	            			'<div class="expand menuitem" id="lfmprogress"></div>'+
-	            		'</div>'+
-						'<div style="margin-left:8px;margin-right:8px;margin-top:4px;margin-bottom:12px" class="containerbox">'+
-	            			'<div class="fixed menuitem" style="width:10em"><b>Track Search</b></div>'+
-	            			'<div class="expand menuitem" id="searchprogress"></div>'+
-	            		'</div>'+
+            		'<div style="margin-left:8px;margin-right:8px;margin-top:4px;margin-bottom:4px"'+
+            		' class="containerbox">'+
+        			'<div class="fixed menuitem" style="width:10em"><b>Last.FM</b></div>'+
+        			'<div class="expand menuitem" id="lfmprogress"></div>'+
+	        		'</div>'+
+					'<div style="margin-left:8px;margin-right:8px;margin-top:4px;margin-bottom:12px"'+
+					' class="containerbox">'+
+        			'<div class="fixed menuitem" style="width:10em"><b>Track Search</b></div>'+
+        			'<div class="expand menuitem" id="searchprogress"></div>'+
+            		'</div>'+
 	            	'</div>'
 	            	);
 
 				// Have to let these be created visible or the layout doesn't work
 				$('[name="beefheart"]').hide();
 
-	            $("#impufoldup").append('<div id="hoobajoob" style="margin-left:24px;margin-right:24px;margin-top:8px;margin-bottom:4px;padding:4px;" class="containerbox bordered">'+
+	            $("#impufoldup").append('<div id="hoobajoob" style="margin-left:24px;'+
+	            	'margin-right:24px;margin-top:8px;margin-bottom:4px;padding:4px;" '+
+	            	'class="containerbox bordered">'+
 	            	'<div class="expand styledinputs">'+
-	            	'<input id="hubba1" type="radio" class="topcheck" name="importc" value="onlyloved" checked><label for="hubba1">'+language.gettext("label_onlyloved")+'</label><br>'+
-	            	'<input id="hubba2" type="radio" class="topcheck" name="importc" value="onlytagged"><label for="hubba2">'+language.gettext("label_onlytagged")+'</label><br>'+
-	            	'<input id="hubba3" type="radio" class="topcheck" name="importc" value="both"><label for="hubba3">'+language.gettext("label_tagandlove")+'</label><br>'+
-	            	'<input id="hubba4" type="radio" class="topcheck" name="importc" value="all"><label for="hubba4">'+language.gettext("label_everything")+'</label></div>'+
+	            	'<input id="hubba1" type="radio" class="topcheck" name="importc" '+
+	            	'value="onlyloved" checked><label for="hubba1">'+
+	            	language.gettext("label_onlyloved")+'</label><br>'+
+	            	'<input id="hubba2" type="radio" class="topcheck" name="importc" '+
+	            	'value="onlytagged"><label for="hubba2">'+
+	            	language.gettext("label_onlytagged")+'</label><br>'+
+	            	'<input id="hubba3" type="radio" class="topcheck" name="importc" '+
+	            	'value="both"><label for="hubba3">'+language.gettext("label_tagandlove")+
+	            	'</label><br>'+
+	            	'<input id="hubba4" type="radio" class="topcheck" name="importc" value="all">'+
+	            	'<label for="hubba4">'+language.gettext("label_everything")+'</label></div>'+
 
-	            	'<div class="expand"><div class="containerbox dropdown-container"><div class="divlabel">'+language.gettext("label_giveloved")+'</div><div class="selectholder inbrowser">'+
+	            	'<div class="expand"><div class="containerbox dropdown-container">'+
+	            	'<div class="divlabel">'+language.gettext("label_giveloved")+
+	            	'</div><div class="selectholder inbrowser">'+
 	            	'<select id="goo">'+
 	            	'<option value="5">5 '+language.gettext("stars")+'</option>'+
 	            	'<option value="4">4 '+language.gettext("stars")+'</option>'+
@@ -160,8 +182,10 @@ var lastfmImporter = function() {
 	            	'<option value="0">'+language.gettext("norating")+'</option>'+
 	            	'</select></div></div>'+
 	            	'<div class="styledinputs">'+
-	            	'<input type="checkbox" class="topcheck" id="reviewfirst"><label for="reviewfirst">'+language.gettext("label_review")+'</label><br>'+
-	            	'<input type="checkbox" class="topcheck" id="wishlist"><label for="wishlist">'+language.gettext("label_addtowish")+'</label>'+
+	            	'<input type="checkbox" class="topcheck" id="reviewfirst"><label for="reviewfirst">'+
+	            	language.gettext("label_review")+'</label><br>'+
+	            	'<input type="checkbox" class="topcheck" id="wishlist"><label for="wishlist">'+
+	            	language.gettext("label_addtowish")+'</label>'+
 	            	'</div>'+
 	            	'</div>'+
 	            	'<div id="domchooser" class="expand clickicon"></div>'+
@@ -169,9 +193,10 @@ var lastfmImporter = function() {
 	            	'</div>');
 
 				if (prefs.player_backend == "mopidy") {
-					$("#domchooser").append('<div class="pref">'+language.gettext("label_choosedomains")+'<br>'+language.gettext("label_dragtoprio")+'</div>');
+					$("#domchooser").append('<div class="pref">'+language.gettext("label_choosedomains")+
+						'<br>'+language.gettext("label_dragtoprio")+'</div>');
 					$("#domchooser").makeDomainChooser({
-						default_domains: faveFinder.getPriorities(),
+						default_domains: trawler.getPriorities(),
 						sources_not_to_choose: {
 					                bassdrive: 1,
 					                dirble: 1,
@@ -181,19 +206,19 @@ var lastfmImporter = function() {
 					                podcast: 1,
 					        }
 					});
-					$("#domchooser").sortable({
-						items: ".brianblessed",
-						axis: "y",
-						containment: "#domchooser",
-						scroll: false,
-						tolerance: "pointer"
+					$("#domchooser").sortableTrackList({
+						items: '.brianblessed'
 					});
 				} else {
 					$("#domchooser").remove();
 				}
 				$("#goo").val(prefs.synclovevalue);
-	            $("#impufoldup").append('<table id="frankzappa" class="invisible" align="center" cellpadding="2" width="95%" style="border-collapse:collapse"></table>');
-	            $("#frankzappa").append('<tr><th></th><th>'+language.gettext("label_track")+'</th><th>'+language.gettext("label_tags")+'</th><th>Plays</th><th>'+language.gettext("lastfm_loved")+'</th><th>'+language.gettext("label_oneresult")+'</th></tr>');
+	            $("#impufoldup").append('<table id="frankzappa" class="invisible" align="center" '+
+	            	'cellpadding="2" width="95%" style="border-collapse:collapse"></table>');
+	            $("#frankzappa").append('<tr><th></th><th>'+language.gettext("label_track")+
+	            	'</th><th>'+language.gettext("label_tags")+'</th><th>Plays</th><th>'+
+	            	language.gettext("lastfm_loved")+'</th><th>'+language.gettext("label_oneresult")+
+	            	'</th></tr>');
 
 	            progressbar = new progressBar("lfmprogress", "horizontal");
 	            spbar = new progressBar("searchprogress", "horizontal");
@@ -206,7 +231,8 @@ var lastfmImporter = function() {
 	            stopped = false;
 	            finished = false;
 	            lastkey = 0;
-				// This tends to hammer last.fm and they don't like it, so throttle our requests right back
+				// This tends to hammer last.fm and they don't like it,
+				// so throttle our requests right back
 				lastfm.setThrottling(1500);
 				searchcount = 0;
 			} else {
@@ -216,17 +242,22 @@ var lastfmImporter = function() {
 
 		go: function() {
 			if (!stopped) {
-				chosensources = $("#domchooser").makeDomainChooser("getSelection");
-				debug.log("LASTFM IMPORTER","Chosen domains: ",chosensources);
-				chosensources.reverse();
-				faveFinder.setPriorities(chosensources);
+				if ($("#domchooser").length > 0) {
+					chosensources = $("#domchooser").makeDomainChooser("getSelection");
+					debug.log("LASTFM IMPORTER","Chosen domains: ",chosensources);
+					chosensources.reverse();
+					trawler.setPriorities(chosensources);
+				} else {
+					trawler.setPriorities([]);
+				}
 				if ($("#hoobajoob").is(':visible')) {
 					$("#hoobajoob").slideToggle(500);
 					$('[name="beefheart"]').slideToggle(600, function() {
 						$("#frankzappa").fadeIn('fast');
 					});
 				}
-				lastfm.library.getTracks(perpage, currpage, lastfmImporter.gotNextBatch, lastfmImporter.failed);
+				lastfm.library.getTracks(perpage, currpage, lastfmImporter.gotNextBatch,
+					lastfmImporter.failed);
 			}
 		},
 
@@ -243,7 +274,8 @@ var lastfmImporter = function() {
 					if (data.tracks.track[i].image &&
 						data.tracks.track[i].image[data.tracks.track[i].image.length-1] &&
 						data.tracks.track[i].image[data.tracks.track[i].image.length-1]['#text']) {
-						var x = data.tracks.track[i].image[data.tracks.track[i].image.length-1]['#text'];
+						var x = data.tracks.track[i].
+							image[data.tracks.track[i].image.length-1]['#text'];
 						if (!x.match(/default_album_.*?\.png/)) {
 							d.image = "getRemoteImage.php?url="+x;
 						}
@@ -261,18 +293,22 @@ var lastfmImporter = function() {
 						d.duration = Math.round(data.tracks.track[i].duration/1000);
 					}
 					d.key = key;
-					// We can save ourselves some time by not bothering to carry on here if we know we don't need to
-					var doit = ($('[name="importc"]:checked').val() == "onlytagged" && data.tracks.track[i].tagcount == 0) ? false : true;
+					// We can save ourselves some time by not bothering to carry on here if we
+					// know we don't need to
+					var doit = ($('[name="importc"]:checked').val() == "onlytagged" &&
+						data.tracks.track[i].tagcount == 0) ? false : true;
 					if (doit) {
 						databits[key] = {index: 0, data: [d]};
 						lastkey = key;
 						if (data.tracks.track[i].tagcount > 0) {
-							lastfm.track.getTags({artist: d.artist, track: d.title}, lastfmImporter.gotTags, lastfmImporter.gotNoTags, key);
+							lastfm.track.getTags({artist: d.artist, track: d.title},
+								lastfmImporter.gotTags, lastfmImporter.gotNoTags, key);
 						}
 						// We have to do a getInfo lookup just to see if it's loved.
-						// They do like to make using your loved tracks difficult, which kind of begs the question
-						// What the hell are Loved Tracks for these days?
-						lastfm.track.getInfo({artist: d.artist, track: d.title}, lastfmImporter.gotTrackinfo, lastfmImporter.gotNoTrackinfo, key);
+						// They do like to make using your loved tracks difficult, which kind of
+						// begs the question What the hell are Loved Tracks for these days?
+						lastfm.track.getInfo({artist: d.artist, track: d.title},
+							lastfmImporter.gotTrackinfo, lastfmImporter.gotNoTrackinfo, key);
 					}
 
 				}
@@ -312,12 +348,15 @@ var lastfmImporter = function() {
 		gotTrackinfo: function(data, reqid) {
 			if (!stopped) {
 				debug.log("LASTFM IMPORTER","Got TrackInfo for",reqid,data);
-				databits[reqid].data[databits[reqid].index].loved = (data.track.userloved && data.track.userloved == "1") ? true : false;
-				// Since Last.FM requests are queued, we know that when we get this we've got all the data
+				databits[reqid].data[databits[reqid].index].loved = (data.track.userloved &&
+					data.track.userloved == "1") ? true : false;
+				// Since Last.FM requests are queued, we know that when we get this
+				// we've got all the data
 
 				databits[reqid].data[databits[reqid].index].Rating = 0;
 				if (databits[reqid].data[databits[reqid].index].loved === false &&
-					($('[name="importc"]:checked').val() == "onlyloved" || $('[name="importc"]:checked').val() == "both" )) {
+					($('[name="importc"]:checked').val() == "onlyloved" ||
+						$('[name="importc"]:checked').val() == "both" )) {
 					// We don't want this one
 					databits[reqid].data[databits[reqid].index].ignore = true;
 				} else {
@@ -328,13 +367,15 @@ var lastfmImporter = function() {
 						databits[reqid].data[databits[reqid].index].Rating = 0;
 					}
 					if (data.track.userplaycount) {
-						databits[reqid].data[databits[reqid].index].Playcount = data.track.userplaycount;
+						databits[reqid].data[databits[reqid].index].Playcount =
+							data.track.userplaycount;
 					} else {
 						databits[reqid].data[databits[reqid].index].Playcount = "1";
 					}
 					putRow(databits[reqid].data[databits[reqid].index]);
 					databits[reqid].data[databits[reqid].index].reqid = reqid;
-					faveFinder.findThisOne(databits[reqid].data[databits[reqid].index], lastfmImporter, false, true, chosensources);
+					trawler.findThisOne(databits[reqid].data[databits[reqid].index],
+						lastfmImporter.updateDatabase, true);
 					searchcount++;
 				}
 				var p = (reqid/totaltracks)*100;
@@ -357,7 +398,6 @@ var lastfmImporter = function() {
 
 		updateDatabase: function(results) {
 			debug.log("LASTFMIMPORTER","Got Track results",results);
-			// faveFinder calls back into here
 			searchcount--;
 			var data = results[0];
 			if (stopped) {
@@ -370,22 +410,27 @@ var lastfmImporter = function() {
 			spbar.setProgress(p.toFixed(2));
 
 			var html = '<div>';
-			var html2 = '<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>';
+			var html2 = '<tr><td></td><td></td><td></td><td></td><td>'+
+				'</td><td></td><td></td><td></td></tr>';
 			if (data.uri) {
 				$.each(databits[data.reqid].data, function(i,r) {
 					r.ignore = false;
 				});
-				html = html + trackHtml(data);
+				html += trackHtml(data);
 				if (results.length > 1 && $("#reviewfirst").is(':checked')) {
-					html = html + '<br /><span class="clickicon tiny plugclickable dropchoices infoclick" name="'+data.key+'"> '+language.gettext("label_moreresults", [(results.length - 1)]);
+					html += '<br /><span class="clickicon tiny plugclickable dropchoices infoclick"'+
+						' name="'+data.key+'"> '+language.gettext("label_moreresults",
+							[(results.length - 1)]);
 					html = html +'</span></div>';
-					html2 = '<tr><td></td><td></td><td></td><td></td><td></td><td><div id="choices'+data.key+'" class="invisible">';
+					html2 = '<tr><td></td><td></td><td></td><td></td><td></td><td><div id="choices'+
+						data.key+'" class="invisible">';
 					for (var i = 1; i < results.length; i++) {
-						html2 = html2 + '<div class="backhi plugclickable infoclick choosenew" name="'+i+'" style="margin-bottom:4px">'+trackHtml(results[i])+'</div>';
+						html2 = html2 + '<div class="backhi plugclickable infoclick choosenew" name="'+
+							i+'" style="margin-bottom:4px">'+trackHtml(results[i])+'</div>';
 					}
 					html2 = html2 + '</div></td><td></td><td></td></tr>';
 				} else {
-					html = html + '</div>';
+					html += '</div>';
 				}
 			} else {
 				html = "<b><i>"+language.gettext("label_notfound")+"</i></b></div>";
@@ -399,8 +444,11 @@ var lastfmImporter = function() {
 				lastfmImporter.doSqlStuff(data, false);
 			} else {
 				if (databits[data.reqid].data[0].ignore == false) {
-					$("#trackrow"+data.key).append('<td align="center" class="invisible"><i class="icon-cancel-circled playlisticon clickicon plugclickable infoclick removerow"></i></td>');
-					$("#trackrow"+data.key).append('<td align="center" class="invisible"><button class="plugclickable infoclick importrow">Import</button></td>');
+					$("#trackrow"+data.key).append('<td align="center" class="invisible">'+
+						'<i class="icon-cancel-circled playlisticon clickicon plugclickable infoclick'+
+						' removerow"></i></td>');
+					$("#trackrow"+data.key).append('<td align="center" class="invisible">'+
+						'<button class="plugclickable infoclick importrow">Import</button></td>');
 					$("#trackrow"+data.key).after(html2);
 					$("#trackrow"+data.key+' td:last').fadeIn('fast');
 					$("#trackrow"+data.key+' td:last').prev().fadeIn('fast');
@@ -436,7 +484,8 @@ var lastfmImporter = function() {
 			clickedElement.attr("name", databits[key].index);
 			databits[key].index = index;
 			var html = '<div>' + trackHtml(databits[key].data[index]) +
-			'<br /><span class="clickicon tiny plugclickable dropchoices infoclick" name="'+key+'"> '+language.gettext("label_moreresults", [(databits[key].data.length - 1)]);
+			'<br /><span class="clickicon tiny plugclickable dropchoices infoclick" name="'+key+'"> '+
+				language.gettext("label_moreresults", [(databits[key].data.length - 1)]);
 			html = html +'</span></div>';
 			$("#trackfound"+key).html(html);
 			$("#imgfound"+key).attr("src", databits[key].data[index].image);
@@ -475,7 +524,8 @@ var lastfmImporter = function() {
 			var clickedElement = $(event.target).parent().parent().attr("id");
 			debug.log("LASTFM IMPORTER","Import row",clickedElement);
 			var key = parseInt(clickedElement.replace('trackrow',''));
-			debug.log("LASTFMIMPORTER","Importing",databits[key], databits[key].data[databits[key].index]);
+			debug.log("LASTFMIMPORTER","Importing",databits[key],
+				databits[key].data[databits[key].index]);
 			lastfmImporter.doSqlStuff(databits[key].data[databits[key].index], false);
 		},
 
@@ -487,10 +537,11 @@ var lastfmImporter = function() {
 				}
 			} else {
 				// We do the set twice. Which is inefficient but important:
-				// The first one sets urionly (by doing an 'add' action), which ensures the specific version of
-				// the track gets added to the database if it doesn't already exist.
+				// The first one sets urionly (by doing an 'add' action),
+				// which ensures the specific version of the track gets added to the database
+				// if it doesn't already exist.
 				// The second time we send no uri and don't set urionly, which ensures that
-				// any other matching tracks - eg from a different backend - also get the metadata applied.
+				// any other matching tracks - eg from a different backend - also get the metadata
 
 				data.action = "add";
 				debug.mark("LASTFM IMPORTER","Ensuring track exists in database:",data);
@@ -517,7 +568,8 @@ var lastfmImporter = function() {
 							data.attributes.push({attribute: 'Tags', value: data.tags});
 						}
 						if (data.attributes.length > 0) {
-							debug.mark("LASTFM IMPORTER","Setting attributes on all versions of track",data);
+							debug.mark("LASTFM IMPORTER","Setting attributes on all versions of track"
+								,data);
 					        $.ajax({
 					            url: "backends/sql/userRatings.php",
 					            type: "POST",
@@ -527,7 +579,8 @@ var lastfmImporter = function() {
 					                debug.log("LASTFM IMPORTER","Success",rdata);
 					                updateCollectionDisplay(rdata);
 					                data.ignore = true;
-									$("#trackrow"+data.key+' td:last').html('<i class="icon-tick medicon"></i>');
+									$("#trackrow"+data.key+' td:last').
+										html('<i class="icon-tick medicon"></i>');
 									if (callback) setTimeout(callback, 1000);
 								},
 					            error: function(rdata) {
@@ -539,7 +592,8 @@ var lastfmImporter = function() {
 					    } else {
 					    	debug.log("LASTFM IMPORTER","No Attributes to set on track");
 			                data.ignore = true;
-							$("#trackrow"+data.key+' td:last').html('<i class="icon-tick medicon"></i>');
+							$("#trackrow"+data.key+' td:last').
+								html('<i class="icon-tick medicon"></i>');
 							if (callback) setTimeout(callback, 1000);
 					    }
 					},
@@ -556,12 +610,14 @@ var lastfmImporter = function() {
 		importEverything: function() {
 			if ($("#hoobajoob").is(':visible')) {
 				$('[name="beefheart"]').children()[1].remove();
-				$('[name="beefheart"] div:last').prev().html('<b>'+language.gettext("label_progress")+'</b>');
+				$('[name="beefheart"] div:last').prev().html('<b>'+
+					language.gettext("label_progress")+'</b>');
 				$("#hoobajoob").hide();
 				$('[name="beefheart"]').slideToggle(600);
 				progressbar.setProgress(0);
 				// Remove the delete and 'import' boxes from the rows
-				$('#frankzappa tr').each(function() { $(this).children('td').last().html('').prev().html('') });
+				$('#frankzappa tr').each(function() {
+					$(this).children('td').last().html('').prev().html('') });
 			}
 
 			if (databits.length > 0) {

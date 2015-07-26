@@ -306,11 +306,16 @@ function doPodcast($c) {
     }
     print '<div class="whatdoicallthis">'.format_text((string) $y->description).'</div>';
     print '<div class="clearfix bumpad">';
-    print '<i title="'.get_int_text("podcast_delete").'" class="icon-cancel-circled podicon clickable clickicon podremove tright fridge" name="podremove_'.$pm.'"></i>';
-    print '<i title="'.get_int_text("podcast_configure").'" class="icon-cog-alt podicon clickable clickicon podconf tleft fridge" name="podconf_'.$pm.'"></i>';
-    print '<i title="'.get_int_text("podcast_refresh").'" class="icon-refresh podicon clickable clickicon podrefresh tleft fridge" name="podrefresh_'.$pm.'"></i>';
-    print '<i title="'.get_int_text("podcast_download_all").'" class="icon-download podicon clickable clickicon podgroupload tleft fridge" name="podgroupload_'.$pm.'"></i>';
-    print '<i title="'.get_int_text("podcast_mark_all").'" class="icon-headphones podicon clickable clickicon podgrouplisten tleft fridge" name="podgrouplisten_'.$pm.'"></i>';
+    print '<i title="'.get_int_text("podcast_delete").'" class="icon-cancel-circled podicon '.
+        'clickable clickicon podremove tright fridge" name="podremove_'.$pm.'"></i>';
+    print '<i title="'.get_int_text("podcast_configure").'" class="icon-cog-alt podicon clickable '.
+        'clickicon podconf tleft fridge" name="podconf_'.$pm.'"></i>';
+    print '<i title="'.get_int_text("podcast_refresh").'" class="icon-refresh podicon clickable '.
+        'clickicon podrefresh tleft fridge" name="podrefresh_'.$pm.'"></i>';
+    print '<i title="'.get_int_text("podcast_download_all").'" class="icon-download podicon '.
+        'clickable clickicon podgroupload tleft fridge" name="podgroupload_'.$pm.'"></i>';
+    print '<i title="'.get_int_text("podcast_mark_all").'" class="icon-headphones podicon '.
+        'clickable clickicon podgrouplisten tleft fridge" name="podgrouplisten_'.$pm.'"></i>';
     print '</div>';
     $class = "dropmenu marged";
     if ((array_key_exists('channel', $_REQUEST) && $_REQUEST['channel'] == $pm) &&
@@ -338,7 +343,8 @@ function doPodcast($c) {
     print '<input type="hidden" class="podauto" value="'.$y->autodownload.'" />';
 
     print '<div class="containerbox vertical podoptions">';
-    print '<div class="containerbox fixed dropdown-container"><div class="divlabel">'.get_int_text("podcast_display").'</div>';
+    print '<div class="containerbox fixed dropdown-container"><div class="divlabel">'.
+        get_int_text("podcast_display").'</div>';
     print '<div class="selectholder">';
     print '<select name="displaymode" onchange="podcasts.changeOption(event)">';
     $options =  '<option value="all">'.get_int_text("podcast_display_all").'</option>'.
@@ -350,7 +356,8 @@ function doPodcast($c) {
     print '</select>';
     print '</div></div>';
 
-    print '<div class="containerbox fixed dropdown-container"><div class="divlabel">'.get_int_text("podcast_refresh").'</div>';
+    print '<div class="containerbox fixed dropdown-container"><div class="divlabel">'.
+        get_int_text("podcast_refresh").'</div>';
     print '<div class="selectholder">';
     print '<select name="refreshoption" onchange="podcasts.changeOption(event)">';
     $options =  '<option value="never">'.get_int_text("podcast_refresh_never").'</option>'.
@@ -366,9 +373,11 @@ function doPodcast($c) {
     print '</select>';
     print '</div></div>';
 
-    print '<div class="containerbox fixed dropdown-container"><div class="divlabel">'.get_int_text("podcast_expire").'</div>';
+    print '<div class="containerbox fixed dropdown-container"><div class="divlabel">'.
+        get_int_text("podcast_expire").'</div>';
     print '<div class="selectholder">';
-    print '<select title="'.get_int_text("podcast_expire_tooltip").'" name="daystokeep" class="fridge" onchange="podcasts.changeOption(event)">';
+    print '<select title="'.get_int_text("podcast_expire_tooltip").
+        '" name="daystokeep" class="fridge" onchange="podcasts.changeOption(event)">';
     $options =  '<option value="0">'.get_int_text("podcast_expire_never").'</option>'.
                 '<option value="7">'.get_int_text("podcast_expire_week").'</option>'.
                 '<option value="14">'.get_int_text("podcast_expire_2week").'</option>'.
@@ -384,9 +393,11 @@ function doPodcast($c) {
     print '</select>';
     print '</div></div>';
 
-    print '<div class="containerbox fixed dropdown-container"><div class="divlabel">'.get_int_text("podcast_keep").'</div>';
+    print '<div class="containerbox fixed dropdown-container"><div class="divlabel">'.
+        get_int_text("podcast_keep").'</div>';
     print '<div class="selectholder">';
-    print '<select title="'.get_int_text("podcast_keep_tooltip").'" name="numtokeep" class="fridge" onchange="podcasts.changeOption(event)">';
+    print '<select title="'.get_int_text("podcast_keep_tooltip").
+        '" name="numtokeep" class="fridge" onchange="podcasts.changeOption(event)">';
     $options =  '<option value="0">'.get_int_text("podcast_keep_0").'</option>'.
                 '<option value="1">1</option>'.
                 '<option value="5">5</option>'.
@@ -403,7 +414,8 @@ function doPodcast($c) {
     print '</select>';
     print '</div></div>';
 
-    print '<div class="containerbox fixed dropdown-container"><div class="divlabel">'.get_int_text("podcast_sortmode").'</div>';
+    print '<div class="containerbox fixed dropdown-container"><div class="divlabel">'.
+        get_int_text("podcast_sortmode").'</div>';
     print '<div class="selectholder">';
     print '<select name="sortmode" onchange="podcasts.changeOption(event)">';
     $options =  '<option value="newestfirst">'.get_int_text("podcast_newestfirst").'</option>'.
@@ -419,21 +431,25 @@ function doPodcast($c) {
     if ($y->keepdownloaded == "true") {
         print ' checked';
     }
-    print '><label for="podkd" class="fridge" title="'.get_int_text("podcast_kd_tooltip").'" name="keepdownloaded" onclick="podcasts.changeOption(event)">'.get_int_text("podcast_keep_downloaded").'</label></div>';
+    print '><label for="podkd" class="fridge" title="'.get_int_text("podcast_kd_tooltip").
+        '" name="keepdownloaded" onclick="podcasts.changeOption(event)">'.
+        get_int_text("podcast_keep_downloaded").'</label></div>';
 
     print '<div class="containerbox fixed bumpad styledinputs">';
     print '<input type="checkbox" class="topcheck podautodown" id="podad"';
     if ($y->autodownload == "true") {
         print ' checked';
     }
-    print '><label for="podad" name="autodownload" onclick="podcasts.changeOption(event)">'.get_int_text("podcast_auto_download").'</label></div>';
+    print '><label for="podad" name="autodownload" onclick="podcasts.changeOption(event)">'.
+        get_int_text("podcast_auto_download").'</label></div>';
 
     print '<div class="containerbox fixed bumpad styledinputs">';
     print '<input type="checkbox" class="topcheck" id="podhd"';
     if ($y->hidedescriptions == "true") {
         print ' checked';
     }
-    print '><label for="podhd" name="hidedescriptions" onclick="podcasts.changeOption(event)">'.get_int_text("podcast_hidedescriptions").'</label></div>';
+    print '><label for="podhd" name="hidedescriptions" onclick="podcasts.changeOption(event)">'.
+        get_int_text("podcast_hidedescriptions").'</label></div>';
 
     print '</div>';
     if ($y->sortmode == "oldestfirst") {
@@ -466,15 +482,19 @@ function format_episode(&$y, &$item, $pm) {
     if ($y->displaymode == "downloaded" && !is_dir('prefs/podcasts/'.$pm.'/'.$item->key)) {
         return;
     }
-    print '<div class="clickable clicktrack item podcastitem draggable" name="'.htmlspecialchars_decode($item->link).'">';
+    print '<div class="clickable clicktrack item podcastitem draggable" name="'.
+        htmlspecialchars_decode($item->link).'">';
     print '<div class="containerbox">';
     if ($item->new == "yes") {
-        print '<i title="'.get_int_text("podcast_tooltip_new").'" class="icon-sun fixed newpodicon fridge"></i>';
+        print '<i title="'.get_int_text("podcast_tooltip_new").
+            '" class="icon-sun fixed newpodicon fridge"></i>';
     } else if ($item->listened == "no") {
-        print '<i title="'.get_int_text("podcast_tooltip_notnew").'" class="icon-unlistened fixed oldpodicon fridge"></i>';
+        print '<i title="'.get_int_text("podcast_tooltip_notnew").
+            '" class="icon-unlistened fixed oldpodicon fridge"></i>';
     }
     print '<div class="podtitle expand">'.$item->title.'</div></div>';
-    print '<div class="whatdoicallthis padright clearfix"><span class="tleft"><i>'.$item->pubdate.'</i></span>';
+    print '<div class="whatdoicallthis padright clearfix"><span class="tleft"><i>'.
+        $item->pubdate.'</i></span>';
     if ($item->duration != 0) {
         print '<span class="tright">'.format_time($item->duration).'</span>';
     }
@@ -486,7 +506,8 @@ function format_episode(&$y, &$item, $pm) {
         if ($expiretime < time()) {
             print '<div><b>'.get_int_text("podcast_expired").'</b></div>';
         } else if ($expiretime - time() < 86400) {
-            print '<div><b><font color="red">'.get_int_text("podcast_timeleft", array($timeleft))."</font></b></div>";
+            print '<div><b><font color="red">'.get_int_text("podcast_timeleft", array($timeleft)).
+                "</font></b></div>";
         } else {
             print '<div><b>'.get_int_text("podcast_timeleft", array($timeleft))."</b></div>";
         }
@@ -498,14 +519,18 @@ function format_episode(&$y, &$item, $pm) {
     }
     print '<div class="clearfix" name="podcontrols_'.$pm.'">';
     if (is_dir('prefs/podcasts/'.$pm.'/'.$item->key)) {
-        print '<i class="icon-floppy podicon tleft fridge" title="'.get_int_text("podcast_tooltip_downloaded").'"></i>';
+        print '<i class="icon-floppy podicon tleft fridge" title="'.
+            get_int_text("podcast_tooltip_downloaded").'"></i>';
     } else {
-        print '<i class="icon-download podicon clickable clickicon tleft poddownload fridge" title="'.get_int_text("podcast_tooltip_download").'" name="poddownload_'.$item->key.'"></i>';
+        print '<i class="icon-download podicon clickable clickicon tleft poddownload fridge" title="'.
+            get_int_text("podcast_tooltip_download").'" name="poddownload_'.$item->key.'"></i>';
     }
     if ($item->listened == "no") {
-        print '<i class="icon-headphones podicon clickable clickicon tleft podmarklistened fridge" title="'.get_int_text("podcast_tooltip_mark").'" name="podmarklistened_'.$item->key.'"></i>';
+        print '<i class="icon-headphones podicon clickable clickicon tleft podmarklistened fridge" title="'.
+            get_int_text("podcast_tooltip_mark").'" name="podmarklistened_'.$item->key.'"></i>';
     }
-    print '<i class="icon-cancel-circled podicon clickable clickicon tright podtrackremove fridge" title="'.get_int_text("podcast_tooltip_delepisode").'" name="podtrackremove_'.$item->key.'" ></i>';
+    print '<i class="icon-cancel-circled podicon clickable clickicon tright podtrackremove fridge" title="'.
+        get_int_text("podcast_tooltip_delepisode").'" name="podtrackremove_'.$item->key.'" ></i>';
     print '</div>';
     print '</div>';
 }

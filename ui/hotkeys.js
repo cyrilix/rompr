@@ -117,7 +117,7 @@ var shortcuts = function() {
                     button_ratefive: function() { nowplaying.setRating(5) },
                     button_togglesources: function() { expandInfo('left') },
                     button_toggleplaylist: function() { expandInfo('right') },
-                    config_hidebrowser: function() { $("#hidebrowser").attr("checked", !$("#hidebrowser").is(':checked')); prefs.save({hidebrowser: $("#hidebrowser").is(':checked')}, hideBrowser) },
+                    config_hidebrowser: function() { $("#hidebrowser").prop("checked", !$("#hidebrowser").is(':checked')); prefs.save({hidebrowser: $("#hidebrowser").is(':checked')}, hideBrowser) },
                     button_updatecollection: function(){ checkCollection(true, false) },
                     button_nextsource: function() { browser.nextSource(1) }
     };

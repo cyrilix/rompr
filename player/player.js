@@ -26,6 +26,7 @@ function multiProtocolController() {
     this.urischemes = new Object();
 
     this.collectionLoaded = false;
+    this.updatingcollection = false;
 
     this.controller = new playerController();
 

@@ -48,15 +48,17 @@ var browser = function() {
             history[i].mastercollection.stopDisplaying();
         }
         // Remember, here we tell artist, album, and track to display even if we only want one of them.
-        // This is because we need the new collections to handle clicks and other stuff, as otherwise it all gets
-        // very out of hand and impossible to follow, mainly because it's super tricky to keep the
-        // stopDisplaying/displayData displaying flags all in sync since they're global to one dataCollection
-        // and not individual for artist, album, and track. (This was tried before and got stupid).
+        // This is because we need the new collections to handle clicks and other stuff,
+        // as otherwise it all gets very out of hand and impossible to follow,
+        // mainly because it's super tricky to keep the stopDisplaying/displayData displaying flags
+        // all in sync since they're global to one dataCollection and not individual for artist,
+        // album, and track. (This was tried before and got stupid).
         history[ptr].mastercollection.sendDataToBrowser(waitingon);
         if (displaypointer == history.length-1) {
             // We only allow artist switching on the current playing track.
-            // It's not that it doesn't work, but it means the artist switch gets added to the end of history
-            // and then you have to go back to get to the current track, which means things stop auto-updating.
+            // It's not that it doesn't work, but it means the artist switch gets added to
+            // the end of history and then you have to go back to get to the current track,
+            // which means things stop auto-updating.
             // Also it makes truncating the history really hard.
             // TODO perhaps artist switches should be spliced in?
             history[ptr].mastercollection.doArtistChoices();
@@ -70,38 +72,45 @@ var browser = function() {
 
     function waitingBanner(which) {
         var html = '<div class="containerbox infosection menuitem">';
-        html = html + '<h2 class="expand"><span class="ucfirst">'+language.gettext("label_"+which)+'</span> : '+language.gettext("info_gettinginfo")+'</h2>';
-        html = html + '<div class="fixed" style="vertical-align:middle"><i class="icon-spin6 smallcover-svg spinner"></i></div>';
-        html = html + '</div>';
+        html += '<h2 class="expand"><span class="ucfirst">'+language.gettext("label_"+which)+
+            '</span> : '+language.gettext("info_gettinginfo")+'</h2>';
+        html += '<div class="fixed" style="vertical-align:middle">'+
+            '<i class="icon-spin6 smallcover-svg spinner"></i></div>';
+        html += '</div>';
         return html;
     }
 
     function banner(data, title, hidden, source, close) {
         var html = '<div class="containerbox infosection menuitem">';
         if (source) {
-            html = html + '<h2 class="expand"><span class="ucfirst">'+language.gettext("label_"+title)+'</span> : ' + data.name + '</h2>';
+            html += '<h2 class="expand"><span class="ucfirst">'+
+                language.gettext("label_"+title)+'</span> : ' + data.name + '</h2>';
         } else {
-            html = html + '<h2 class="expand">' + data.name + '</h2>';
+            html += '<h2 class="expand">' + data.name + '</h2>';
         }
-        html = html + '<div class="fixed" style="vertical-align:middle;padding:12px"><a href="#" class="infoclick frog">';
-        html = html + '<i class="icon-menu topimg"></i>';
-        html = html + '</a></div>';
+        html += '<div class="fixed" style="vertical-align:middle;padding:12px">'+
+            '<a href="#" class="infoclick frog">';
+        html += '<i class="icon-menu topimg"></i>';
+        html += '</a></div>';
         if (source) {
             if (data.link === null) {
-                html = html + '<div class="fixed" style="vertical-align:middle"><i class="'+sources[source].icon+' smallcover-svg"></i></div>';
+                html += '<div class="fixed" style="vertical-align:middle"><i class="'+
+                    sources[source].icon+' smallcover-svg"></i></div>';
             } else {
-                html = html + '<div class="fixed" style="vertical-align:middle"><a href="'+
-                    data.link + '" title="'+language.gettext("info_newtab")+'" target="_blank"><i class="'+sources[source].icon+' smallcover-svg"></i></a></div>';
+                html += '<div class="fixed" style="vertical-align:middle"><a href="'+
+                    data.link + '" title="'+language.gettext("info_newtab")+'" target="_blank">'+
+                    '<i class="'+sources[source].icon+' smallcover-svg"></i></a></div>';
             }
         } else if (close) {
-            html = html + '<div class="fixed" style="vertical-align:middle"><i class="icon-cancel-circled playlisticon infoclick clickicon tadpole"></i></div>';
+            html += '<div class="fixed" style="vertical-align:middle">'+
+                '<i class="icon-cancel-circled playlisticon infoclick clickicon tadpole"></i></div>';
         }
-        html = html + '</div>';
-        html = html + '<div class="foldup" id="'+title+'foldup"';
+        html += '</div>';
+        html += '<div class="foldup" id="'+title+'foldup"';
         if (hidden) {
-            html = html + ' style="display:none"';
+            html += ' style="display:none"';
         }
-        html = html + '>';
+        html += '>';
         return html;
     }
 
@@ -139,25 +148,25 @@ var browser = function() {
         var html;
         var bits = ["artist","album","track"];
         html = '<div class="configtitle textcentre"><b>'+language.gettext("button_history")+'</b></div>';
-        html = html + '<table class="histable" width="100%">';
+        html += '<table class="histable" width="100%">';
         for (var i = 1; i < history.length; i++) {
             var clas="top";
             if (i == displaypointer) {
                 clas = clas + " current";
             }
-            html = html + '<tr class="'+clas+'" onclick="browser.doHistory('+i+')">';
-            html = html + '<td><i class="'+sources[history[i].source].icon+' medicon"></i></td>';
-            html = html + '<td>';
+            html += '<tr class="'+clas+'" onclick="browser.doHistory('+i+')">';
+            html += '<td><i class="'+sources[history[i].source].icon+' medicon"></i></td>';
+            html += '<td>';
             bits.forEach(function(n) {
                 if (history[i][n].collection) {
-                    html = html + history[i][n].collection.bannername()+'<br />';
+                    html += history[i][n].collection.bannername()+'<br />';
                 } else {
-                    html = html + language.gettext("label_"+n)+' : '+history[i][n].name+'<br>';
+                    html += language.gettext("label_"+n)+' : '+history[i][n].name+'<br>';
                 }
             });
-            html = html + '</td></tr>';
+            html += '</td></tr>';
         }
-        html = html + '</table>';
+        html += '</table>';
         $("#historypanel").html(html);
     }
 
@@ -417,7 +426,7 @@ var browser = function() {
 
         registerExtraPlugin: function(id, name, parent) {
             if (prefs.hidebrowser) {
-                $("#hidebrowser").attr("checked", !$("#hidebrowser").is(':checked'));
+                $("#hidebrowser").prop("checked", !$("#hidebrowser").is(':checked'));
                 prefs.save({hidebrowser: $("#hidebrowser").is(':checked')}, hideBrowser);
             }
             var displayer = $('<div>', {id: id+"information", class: "infotext invisible"}).insertBefore('#artistinformation');

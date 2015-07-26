@@ -75,15 +75,12 @@ if (array_key_exists('populate', $_REQUEST)) {
 			if ($link != "") {
 				$items->item($i)->nodeValue = "";
 				$f = $DOM->createDocumentFragment();
-				$f->appendXML('<p><i class="icon-no-response-playbutton medicon clickable clickicon clickstream" name="http://dir.xiph.org'.$link.'" streamimg="newimages/icecast.svg"></i></p>');
+				$f->appendXML('<p><i class="icon-no-response-playbutton medicon clickicon clickable clickstream draggable" name="http://dir.xiph.org'.$link.'" streamimg="newimages/icecast.svg"></i></p>');
 				$items->item($i)->appendChild($f);
 			}
 		}
 	}
 
-	// Why I can't just output that node to HTML is anybody's guess.
-	// PHP is a bit shit sometimes. Written by programmers, who don't think like normal people.
-	// Of course, it might be possible to do it, but if it is then it sure isn't obvious.
 	$outdoc = new DOMDocument;
 	$outdoc->formatOutput = true;
 	$stuff = $outdoc->importNode($stuff, true);

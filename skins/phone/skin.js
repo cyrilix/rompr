@@ -35,11 +35,13 @@ jQuery.fn.makeTagMenu = function(options) {
         $(this).append(settings.labelhtml);
         var holder = $('<div>', { class: "expand"}).appendTo($(this));
         var dropbutton = $('<i>', { class: 'fixed combo-button'}).appendTo($(this));
-        var textbox = $('<input>', { type: "text", class: tbc, name: settings.textboxname }).appendTo(holder);
+        var textbox = $('<input>', { type: "text", class: tbc, name: settings.textboxname }).
+            appendTo(holder);
         var dropbox = $('<div>', {class: "drop-box tagmenu dropshadow"}).appendTo(holder);
         var menucontents = $('<div>', {class: "tagmenu-contents"}).appendTo(dropbox);
         if (settings.buttontext !== null) {
-            var submitbutton = $('<button>', {class: "fixed"+settings.buttonclass, style: "margin-left: 8px"}).appendTo($(this));
+            var submitbutton = $('<button>', {class: "fixed"+settings.buttonclass,
+                style: "margin-left: 8px"}).appendTo($(this));
             submitbutton.html(settings.buttontext);
             if (settings.buttonfunc) {
                 submitbutton.click(function() {
@@ -94,7 +96,8 @@ function addCustomScrollBar(value) {
 }
 
 function setTopIconSize(panels) {
-    var imw = (parseInt($('.topimg').first().css('margin-left')) + parseInt($('.topimg').first().css('margin-right')));
+    var imw = (parseInt($('.topimg').first().css('margin-left')) + parseInt($('.topimg').
+        first().css('margin-right')));
     var imh = parseInt($('.topimg').first().css('max-height'))
     panels.forEach( function(div) {
         if ($(div).is(':visible')) {
@@ -120,7 +123,8 @@ var layoutProcessor = function() {
         usesKeyboard: false,
 
         afterHistory: function() {
-            layoutProcessor.sourceControl('infopane', function() { layoutProcessor.goToBrowserPanel('artist')});
+            layoutProcessor.sourceControl('infopane',
+                function() { layoutProcessor.goToBrowserPanel('artist')});
         },
 
         addInfoSource: function(name, obj) {
@@ -157,7 +161,8 @@ var layoutProcessor = function() {
 
         setTagAdderPosition: function(position) {
             var ws = getWindowSize();
-            var wa = parseInt($("#tagadder").css("padding-left")) + parseInt($("#tagadder").css("padding-right"));
+            var wa = parseInt($("#tagadder").css("padding-left")) + parseInt($("#tagadder").
+                css("padding-right"));
             $("#tagadder").css({top: "0px", left: "0px", width: (ws.x-wa)+"px", height: ws.y+"px"});
         },
 
@@ -174,9 +179,11 @@ var layoutProcessor = function() {
         },
 
         scrollPlaylistToCurrentTrack: function() {
-            if (prefs.scrolltocurrent && player.status.songid && $('.track[romprid="'+player.status.songid+'"]').length > 0) {
+            if (prefs.scrolltocurrent && player.status.songid &&
+                $('.track[romprid="'+player.status.songid+'"]').length > 0) {
                 $('#pscroller').animate({
-                   scrollTop: $('div.track[romprid="'+player.status.songid+'"]').offset().top - $('#sortable').offset().top - $('#pscroller').height()/2
+                   scrollTop: $('div.track[romprid="'+player.status.songid+
+                    '"]').offset().top - $('#sortable').offset().top - $('#pscroller').height()/2
                 }, 500);
             }
         },
@@ -190,7 +197,7 @@ var layoutProcessor = function() {
                 return;
             }
             $("#"+prefs.chooser).hide();
-            $("#"+source).show(); 
+            $("#"+source).show();
             prefs.save({chooser: source});
             layoutProcessor.adjustLayout();
             if (callback) {
@@ -215,19 +222,22 @@ var layoutProcessor = function() {
                     $("#nowplayingfiddler").css({height: "40px", "margin-bottom": "4px" });
                     $("#nptext").detach().appendTo("#nowplayingfiddler");
                     layoutProcessor.playlistInNowplaying = true;
-                    $("#playlistm").detach().prependTo("#nowplaying").removeClass('mainpane').css({height: "100%"}).show();
+                    $("#playlistm").detach().prependTo("#nowplaying").removeClass('mainpane').
+                        css({height: "100%"}).show();
                     $(".choose_playlist").hide();
                     if (prefs.chooser == "playlistm") {
                         layoutProcessor.sourceControl("infobar");
                     }
                 } else if (t <= 200 && layoutProcessor.playlistInNowplaying) {
-                    $("#playlistm").detach().appendTo("body").addClass('mainpane').css({height: newheight+"px"}).hide();
+                    $("#playlistm").detach().appendTo("body").addClass('mainpane').
+                        css({height: newheight+"px"}).hide();
                     $("#nptext").detach().appendTo("#nowplaying");
                     $("#nowplayingfiddler").css({height: "0px", "margin-bottom": "0px"});
                     layoutProcessor.playlistInNowplaying = false;
                     $(".choose_playlist").show();
                 }
-                t = ws.y - $("#patrickmoore").offset().top - $("#amontobin").outerHeight(true) - $("#nowplayingfiddler").outerHeight(true);
+                t = ws.y - $("#patrickmoore").offset().top - $("#amontobin").outerHeight(true) -
+                    $("#nowplayingfiddler").outerHeight(true);
                 $("#nowplaying").css({height: t+"px", width: hack+"px"});
                 infobar.updateWindowValues();
                 infobar.rejigTheText();
@@ -238,6 +248,10 @@ var layoutProcessor = function() {
         },
 
         fanoogleMenus: function(jq) {
+
+        },
+
+        scrollCollectionTo: function(jq) {
 
         },
 
@@ -269,10 +283,10 @@ var layoutProcessor = function() {
             // Work around iOS7 input/select bug - when touching a select or input
             // the entire browser will freeze (for a very long time). Workaround is to
             // use our own touchend event listener.
-            $('input,select').bind("touchend", function (e) {  
+            $('input,select').bind("touchend", function (e) {
                  e.preventDefault();
                  e.stopImmediatePropagation();
-                 e.target.focus(); 
+                 e.target.focus();
             });
             setControlClicks();
             $('.choose_nowplaying').click(function(){layoutProcessor.sourceControl('infobar')});
@@ -282,7 +296,8 @@ var layoutProcessor = function() {
             $('.choose_radiolist').click(function(){layoutProcessor.sourceControl('radiolist')});
             $('.choose_infopanel').click(function(){layoutProcessor.sourceControl('infopane')});
             $('.choose_playlistman').click(function(){layoutProcessor.sourceControl('playlistman')});
-            $('.choose_pluginplaylists').click(function(){layoutProcessor.sourceControl('pluginplaylistholder')});
+            $('.choose_pluginplaylists').click(function(){layoutProcessor.sourceControl(
+                'pluginplaylistholder')});
             $('.choose_prefs').click(function(){layoutProcessor.sourceControl('prefsm')});
             $('.choose_history').click(function(){layoutProcessor.sourceControl('historypanel')});
             $('.icon-rss.npicon').click(function(){podcasts.doPodcast('nppodiput')});

@@ -206,6 +206,11 @@ function onRadioClicked(event) {
         event.stopImmediatePropagation();
         var n = clickedElement.attr('name');
         podcasts.markChannelAsListened(n.replace(/podgrouplisten_/, ''));
+    } else if (prefs.clickmode == "double") {
+        if (clickedElement.hasClass("clickstream")) {
+            event.stopImmediatePropagation();
+            trackSelect(event, clickedElement);
+        }
     } else if (prefs.clickmode == "single") {
         onRadioDoubleClicked(event);
     }
@@ -213,13 +218,10 @@ function onRadioClicked(event) {
 
 function onRadioDoubleClicked(event) {
     var clickedElement = findClickableElement(event);
-    if (clickedElement.hasClass("clickstream")) {
-        event.stopImmediatePropagation();
-        getInternetPlaylist(clickedElement.attr("name"), clickedElement.attr("streamimg"), clickedElement.attr("streamname"), null);
-    } else if (clickedElement.hasClass("clickradio")) {
-        event.stopImmediatePropagation();
-        playUserStream(clickedElement.attr("name"));
-    } else if (clickedElement.hasClass("clicktrack")) {
+    if (clickedElement.hasClass("clicktrack") ||
+        clickedElement.hasClass("clickstream") ||
+        clickedElement.hasClass("clickradio")) {
+
         event.stopImmediatePropagation();
         playlist.addItems(clickedElement, null);
     }
@@ -277,7 +279,7 @@ function doMenu(event, element) {
     return false;
 }
 
-function doAlbumMenu(event, element, inbrowser) {
+function doAlbumMenu(event, element, inbrowser, callback) {
 
     if (event) {
         event.stopImmediatePropagation();
@@ -301,6 +303,7 @@ function doAlbumMenu(event, element, inbrowser) {
                 $(this).removeClass("notfilled");
                 $(this).menuReveal(function() {
                     scootTheAlbums($(this));
+                    if (callback) callback();
                     $.each($(this).find('input.expandalbum'), function() {
                         debug.log("CLICKFUNCTIONS", "Album has link to get all tracks");
                         element.makeSpinner();
@@ -336,7 +339,9 @@ function doAlbumMenu(event, element, inbrowser) {
                 });
             });
         } else {
-            $('#'+menutoopen).menuReveal();
+            $('#'+menutoopen).menuReveal(function() {
+                if (callback) callback();
+            });
         }
         element.toggleOpen();
     } else {
@@ -394,46 +399,8 @@ function plMenuHack() {
 }
 
 function setDraggable(divname) {
-
     if (layoutProcessor.supportsDragDrop) {
-        $("#"+divname).draggable({
-            connectToSortable: "#sortable",
-            appendTo: 'body',
-            scroll: false,
-            addClasses: false,
-            helperPos: true,
-            helper: function(event) {
-                var clickedElement = findClickableElement(event);
-                var dragger = document.createElement('div');
-                dragger.setAttribute("id", "dragger");
-                $(dragger).addClass("draggable dragsort containerbox vertical dropshadow");
-                if (!clickedElement.hasClass("selected")) {
-                    if (clickedElement.hasClass("clickalbum") ||
-                        clickedElement.hasClass("clickloadplaylist")) {
-                        albumSelect(event, clickedElement);
-                    } else if (clickedElement.hasClass("clicktrack") || clickedElement.hasClass("clickcue")) {
-                        trackSelect(event, clickedElement);
-                    }
-                }
-                if ($(".selected").length > 6) {
-                    $(dragger).append('<div class="containerbox menuitem">'+
-                        '<div class="smallcover fixed"><i class="icon-music smallcover-svg"></i></div>'+
-                        '<div class="expand"><h3>'+$(".selected").length+' Items</h3></div>'+
-                        '</div>');
-                } else {
-                    $(".selected").clone().removeClass("selected").appendTo(dragger);
-                }
-                // Little hack to make dragging from the various tag/rating/playlist managers
-                // look prettier
-                $(dragger).find('tr').wrap('<table></table>');
-                $(dragger).find('.icon-cancel-circled').remove();
-
-                var pos = {top: event.pageY - 12, left: event.pageX - 80};
-                $(dragger).css({top: pos.top+"px", left: pos.left+"px"});
-
-                return dragger;
-            }
-        });
+        $('#'+divname).trackdragger();
     }
 }
 

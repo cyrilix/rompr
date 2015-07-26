@@ -6,15 +6,34 @@
 print '<div class="textcentre configtitle"><b>'.get_int_text('settings_appearance').'</b></div>';
 
 // Theme
-print '<div class="pref containerbox dropdown-container"><div class="divlabel">'.get_int_text('config_theme').'</div><div class="selectholder"><select id="themeselector" class="saveomatic">';
+print '<div class="pref containerbox dropdown-container"><div class="divlabel">'.
+    get_int_text('config_theme').
+    '</div><div class="selectholder"><select id="themeselector" class="saveomatic">';
 $themes = glob("themes/*.css");
 foreach($themes as $theme) {
     print '<option value="'.basename($theme).'">'.preg_replace('/\.css$/', "", basename($theme)).'</option>';
 }
 print '</select></div></div>';
 
+// Custom Background
+print '<div id="custombackground" class="pref containerbox dropdown-container">
+<div class="divlabel">'.get_int_text('config_background').'
+<div id="cusbgname" class="tiny" style="font-weight:normal"></div>
+</div>
+<div class="selectholder-noselect">
+<form id="backimageform" action="backimage.php" method="post" enctype="multipart/form-data">
+<input type="hidden" name="currbackground" value="" />
+<input type="file" name="imagefile" class="infowiki">
+<input type="button" onclick="changeBackgroundImage()" value="'.get_int_text('albumart_uploadbutton').'">
+<i class="icon-cancel-circled clickicon playlisticonr" onclick="clearBgImage()"></i>
+</form>
+</div>
+</div>';
+
 // Icon Theme
-print '<div class="pref containerbox dropdown-container"><div class="divlabel">'.get_int_text('config_icontheme').'</div><div class="selectholder"><select id="iconthemeselector" class="saveomatic">';
+print '<div class="pref containerbox dropdown-container"><div class="divlabel">'.
+    get_int_text('config_icontheme').
+    '</div><div class="selectholder"><select id="iconthemeselector" class="saveomatic">';
 $themes = glob("iconsets/*");
 foreach($themes as $theme) {
     print '<option value="'.basename($theme).'">'.basename($theme).'</option>';
@@ -22,26 +41,35 @@ foreach($themes as $theme) {
 print '</select></div></div>';
 
 // Font
-print '<div class="pref containerbox dropdown-container"><div class="divlabel">'.get_int_text('config_fontname').'</div><div class="selectholder"><select id="fontfamilyselector" class="saveomatic">';
+print '<div class="pref containerbox dropdown-container"><div class="divlabel">'.
+    get_int_text('config_fontname').
+    '</div><div class="selectholder"><select id="fontfamilyselector" class="saveomatic">';
 $themes = glob("fonts/*.css");
 foreach($themes as $theme) {
-    print '<option value="'.preg_replace("#fonts/#", "", $theme).'">'.preg_replace('/fonts\/(.*?)\.css$/', "$1", $theme).'</option>';
+    print '<option value="'.preg_replace("#fonts/#", "", $theme).'">'.
+        preg_replace('/fonts\/(.*?)\.css$/', "$1", $theme).'</option>';
 }
 print '</select></div></div>';
 
 //Font Size
-print '<div class="pref containerbox dropdown-container"><div class="divlabel">'.get_int_text('config_fontsize').'</div><div class="selectholder"><select id="fontsizeselector" class="saveomatic">';
+print '<div class="pref containerbox dropdown-container"><div class="divlabel">'.
+    get_int_text('config_fontsize').
+    '</div><div class="selectholder"><select id="fontsizeselector" class="saveomatic">';
 $themes = glob("sizes/*.css");
 foreach($themes as $theme) {
-    print '<option value="'.preg_replace("#sizes/#", "", $theme).'">'.preg_replace('/sizes\/\d+-(.*?)\.css$/', "$1", $theme).'</option>';
+    print '<option value="'.preg_replace("#sizes/#", "", $theme).'">'.
+        preg_replace('/sizes\/\d+-(.*?)\.css$/', "$1", $theme).'</option>';
 }
 print '</select></div></div>';
 
 // Album Cover Size
-print '<div class="pref containerbox dropdown-container"><div class="divlabel">'.get_int_text('config_coversize').'</div><div class="selectholder"><select id="coversizeselector" class="saveomatic">';
+print '<div class="pref containerbox dropdown-container"><div class="divlabel">'.
+    get_int_text('config_coversize').
+    '</div><div class="selectholder"><select id="coversizeselector" class="saveomatic">';
 $themes = glob("coversizes/*.css");
 foreach($themes as $theme) {
-    print '<option value="'.preg_replace("#coversizes/#", "", $theme).'">'.preg_replace('/coversizes\/\d+-(.*?)\.css$/', "$1", $theme).'</option>';
+    print '<option value="'.preg_replace("#coversizes/#", "", $theme).'">'.
+        preg_replace('/coversizes\/\d+-(.*?)\.css$/', "$1", $theme).'</option>';
 }
 print '</select></div></div>';
 
@@ -69,7 +97,9 @@ print '<div class="pref styledinputs">
 // Biography and Language
 print '<div class="textcentre ucfirst configtitle"><b>'.get_int_text('settings_language').'</b></div>';
 
-print '<div class="pref containerbox dropdown-container"><div class="divlabel">'.get_int_text('settings_interface').'</div><div class="selectholder"><select id="langselector" onchange="changelanguage()">';
+print '<div class="pref containerbox dropdown-container"><div class="divlabel">'.
+get_int_text('settings_interface').
+'</div><div class="selectholder"><select id="langselector" onchange="changelanguage()">';
 $langs = glob("international/*.php");
 foreach($langs as $lang) {
     if (basename($lang) != "en.php" && basename($lang) != $interface_language.".php") {
@@ -90,14 +120,18 @@ print '<div class="pref styledinputs">
 <input type="radio" class="topcheck savulon" name="lastfmlang" value="browser" id="langbr">
 <label for="langbr">'.get_int_text('config_lastfmbrowser').'</label><br/>
 <input type="radio" class="topcheck savulon" name="lastfmlang" value="user" id="languser">
-<label for="languser">'.get_int_text('config_lastfmlanguser').'</label><input class="saveotron" id="user_lang" style="width:4em;margin-left:1em" type="text" size="4" /><br/>
+<label for="languser">'.get_int_text('config_lastfmlanguser').
+'</label><input class="saveotron" id="user_lang" style="width:4em;margin-left:1em" type="text" size="4" /><br/>
 <div class="tiny">'.get_int_text('config_langinfo').'</div>
 </div>';
 
-print '<div class="pref containerbox dropdown-container"><div class="divlabel">'.get_int_text('config_country').'</div><div class="selectholder"><select class="saveomatic" id="lastfm_country_codeselector">';
+print '<div class="pref containerbox dropdown-container"><div class="divlabel">'.
+get_int_text('config_country').
+'</div><div class="selectholder"><select class="saveomatic" id="lastfm_country_codeselector">';
 $x = simplexml_load_file('iso3166.xml');
 foreach($x->CountryEntry as $i => $c) {
-    print '<option value="'.$c->CountryCode.'">'.mb_convert_case($c->CountryName, MB_CASE_TITLE, "UTF-8")."</option>\n";
+    print '<option value="'.$c->CountryCode.'">'.
+        mb_convert_case($c->CountryName, MB_CASE_TITLE, "UTF-8")."</option>\n";
 }
 print '</select></div></div>';
 
@@ -108,7 +142,8 @@ print '<div class="pref styledinputs">
 <label for="updateeverytime">'.get_int_text('config_updateonstart').'</label>
 </div>';
 print '<div class="pref textcentre">
-<button id="donkeykong" onclick="checkCollection(true, false)">'.get_int_text('config_updatenow').'</button>
+<button name="donkeykong" onclick="checkCollection(true, false)">'.get_int_text('config_updatenow').
+    '</button>
 </div>';
 if ($prefs['player_backend'] == "mpd") {
     print '<div class="pref textcentre">
@@ -117,7 +152,8 @@ if ($prefs['player_backend'] == "mpd") {
 }
 
 // Collection Sorting Options
-print '<div class="textcentre ucfirst configtitle"><b>'.get_int_text('config_sortoptions').'</b></div>';
+print '<div class="textcentre ucfirst configtitle"><b>'.get_int_text('config_sortoptions').
+    '</b></div>';
 // Album Sorting
 print '<div class="pref styledinputs">
 <input class="autoset toggle" type="checkbox" id="notvabydate">
@@ -131,7 +167,8 @@ print '<div class="pref"><b>'.get_int_text('config_nosortprefixes').'
 </b></div>';
 
 print '<div class="textcentre ucfirst configtitle"><b>Global Music Collection Options</b></div>';
-print '<div class="tiny" style="margin-bottom:1em">These options affect everyone who uses this installation of RompR</div>';
+print '<div class="tiny" style="margin-bottom:1em">
+These options affect everyone who uses this installation of RompR</div>';
 if ($prefs['player_backend'] == "mopidy") {
     print '<div class="pref styledinputs">
     <input class="autoset toggle" type="checkbox" id="ignore_unplayable">
@@ -182,7 +219,8 @@ print '<div class="pref styledinputs">
 <label for="displaycomposer">'.get_int_text('config_displaycomposer').'</label>
 </div>';
 if ($skin != "phone") {
-print '<div class="pref textcentre"><button onclick="shortcuts.edit()">'.get_int_text('config_editshortcuts').'</button></div>'."\n";
+print '<div class="pref textcentre"><button onclick="shortcuts.edit()">'.
+    get_int_text('config_editshortcuts').'</button></div>'."\n";
 }
 
 // Click Policy
@@ -199,10 +237,14 @@ print '<input class="autoset toggle" type="checkbox" id="mediacentremode">
 </div>';
 
 // Audio Outputs
-print '<div class="textcentre configtitle"><b>'.get_int_text('config_audiooutputs').'</b></div><div class="pref">';
+print '<div class="textcentre configtitle"><b>'.get_int_text('config_audiooutputs').
+    '</b></div><div class="pref">';
 include("player/mpd/outputs.php");
 if ($prefs['player_backend'] == "mpd") {
-print '</div><div class="pref">'.get_int_text('config_crossfade').'<input class="saveotron prefinput" id="crossfade_duration" type="text" size="3""/>';
+print '</div><div class="pref containerbox dropdown-container"><div class="fixed" style="margin-right:2em">'.
+    get_int_text('config_crossfade').
+    '</div>'.
+    '<input class="saveotron prefinput expand" style="margin-right:1em" id="crossfade_duration" type="text" size="3""/>';
 }
 print '</div>';
 
@@ -219,7 +261,10 @@ print '<div class="pref textcentre">
 print '<div class="textcentre configtitle">
 <i class="icon-lastfm-1 medicon"></i><b>'.get_int_text('label_lastfm').'</b>
 </div><div class="pref">'.get_int_text('config_lastfmusername');
-print '<br/><div class="containerbox"><div class="expand"><input class="enter" name="user" type="text" size="30" value="'.$prefs['lastfm_user'].'"/></div><button class="fixed" onclick="lastfmlogin()">'.get_int_text('config_loginbutton').'</button></div>';
+print '<br/><div class="containerbox"><div class="expand">'.
+    '<input class="enter" name="user" type="text" size="30" value="'.$prefs['lastfm_user'].'"/>'.
+    '</div><button class="fixed" onclick="lastfmlogin()">'.get_int_text('config_loginbutton').
+    '</button></div>';
 print '</div>';
 print '<div class="pref styledinputs">
 <input class="autoset toggle" type="checkbox" id="lastfm_scrobbling">

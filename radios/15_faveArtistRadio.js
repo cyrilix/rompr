@@ -62,17 +62,19 @@ var faveArtistRadio = function() {
 		},
 
 		modeHtml: function(p) {
-			return '<i class="icon-wifi modeimg"/></i><span class="modespan">'+language.gettext("label_radio_fartist")+'</span>';
+			return '<i class="icon-wifi modeimg"/></i><span class="modespan">'+
+				language.gettext("label_radio_fartist")+'</span>';
 		},
 
         setup: function() {
-            var html = '<div class="containerbox spacer backhi dropdown-container" onclick="playlist.radioManager.load(\'faveArtistRadio\', null)">';
+            var html = '<div class="containerbox spacer backhi dropdown-container" '+
+            	'onclick="playlist.radioManager.load(\'faveArtistRadio\', null)">';
 
-            html = html + '<div class="fixed">';
-            html = html + '<i class="icon-wifi smallicon"></i></div>';
-            html = html + '<div class="expand">'+language.gettext('label_radio_fartist')+'</div>';
+            html += '<div class="fixed">';
+            html += '<i class="icon-wifi smallicon"></i></div>';
+            html += '<div class="expand">'+language.gettext('label_radio_fartist')+'</div>';
 
-            html = html + '</div>';
+            html += '</div>';
             $("#pluginplaylists_everywhere").append(html);
         }
 	}

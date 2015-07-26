@@ -564,6 +564,7 @@ $languages['en'] = array (
 	"button_videos" => "Related Videos",
 	"google_error" => "Could not contact Google",
 	"label_allrandom" => "All Tracks At Random",
+	"config_background" => "BACKGROUND IMAGE",
 
 	//CHANGED in 0.60
 	"config_country" => "COUNTRY (for Last.FM and Spotify)",

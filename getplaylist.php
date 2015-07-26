@@ -50,9 +50,9 @@ function outputPlaylist() {
             "stream" => $track->stream,
             "playlistpos" => $track->playlistpos,
             "genre" => $track->genre,
-            "spotify" => array (
-                "album" => $track->getSpotiAlbum()
-            ),
+            // "spotify" => array (
+            //     "album" => $track->getAlbumUri('spotify')
+            // ),
             // Never send null in any musicbrainz id as it prevents plugins from
             // waiting on lastfm to find one
             "metadata" => array(
@@ -62,6 +62,7 @@ function outputPlaylist() {
                     "name" => $track->album,
                     "artist" => $track->albumobject->artist,
                     "musicbrainz_id" => unwanted_array($track->musicbrainz_albumid),
+                    "uri" => $track->getAlbumUri(null)
                 ),
                 "track" => array(
                     "name" => $track->name,
@@ -75,7 +76,7 @@ function outputPlaylist() {
         // All kinds of places we get artist names from:
         // Composer, Performer, Track Artist, Album Artist
         // Note that we filter duplicates
-        // This creates the metadata array used by the info panel and nowplaying - 
+        // This creates the metadata array used by the info panel and nowplaying -
         // Metadata such as scrobbles and ratings will still use the Album Artist
 
         if ($prefs['displaycomposer']) {
@@ -168,9 +169,9 @@ function do_performers(&$track, &$info) {
 
 function do_albumartist(&$track, &$info) {
     $albumartist = null;
-    if (!($track->type == "stream" && $track->albumobject->artist == "Radio") && 
-        strtolower($track->albumobject->artist) != "various artists" && 
-        strtolower($track->albumobject->artist) != "various") 
+    if (!($track->type == "stream" && $track->albumobject->artist == "Radio") &&
+        strtolower($track->albumobject->artist) != "various artists" &&
+        strtolower($track->albumobject->artist) != "various")
     {
         $albumartist = $track->albumobject->artist;
     }

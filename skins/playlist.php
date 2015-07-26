@@ -1,14 +1,16 @@
 <div id="horse" class="fullwidth">
 <table width="100%"><tr><td align="left" style="width:17px">
 <?php
-print '<i onclick="togglePlaylistButtons()" title="'.get_int_text('button_playlistcontrols').'" class="icon-menu playlisticon clickicon lettuce"></i>';
+print '<i onclick="togglePlaylistButtons()" title="'.get_int_text('button_playlistcontrols').
+	'" class="icon-menu playlisticon clickicon lettuce"></i>';
 ?>
 </td>
 <td align="left" id="pltracks"></td>
 <td align="right" id="pltime"></td>
 <td align="right" style="width:17px">
 <?php
-print '<i title="'.get_int_text('button_clearplaylist').'" class="icon-trash playlisticon clickicon lettuce clear_playlist"></i>';
+print '<i title="'.get_int_text('button_clearplaylist').
+	'" class="icon-trash playlisticon clickicon lettuce clear_playlist"></i>';
 ?>
 </td>
 </tr>
@@ -24,19 +26,35 @@ if ($prefs['player_backend'] == "mpd") {
 <table width="90%" align="center">
 <tr>
 <?php
-print '<td width="50%" align="right"><div class="togglecontainer"><div class="togglediv tgtl">'.get_int_text('button_random').
-'</div><div class="togglebutton clickicon icon-toggle-off" id="random" onclick="player.controller.toggleRandom()"></div>'.
-'</div></td>';
-print '<td width="50%" align="left"><div class="togglecontainer">'.
-'<div class="togglebutton clickicon icon-toggle-off" id="crossfade" onclick="player.controller.toggleCrossfade()"></div><div class="togglediv tgtr">'.
-get_int_text('button_crossfade').'</div></div></td>';
+print '<td width="50%" align="right">'.
+		'<div class="togglecontainer">'.
+			'<div class="togglediv tgtl">'.get_int_text('button_random').'</div>'.
+			'<div class="togglebutton clickicon icon-toggle-off" '.
+				'id="random" onclick="player.controller.toggleRandom()"></div>'.
+		'</div>'.
+	'</td>';
+print '<td width="50%" align="left">'.
+		'<div class="togglecontainer">'.
+			'<div class="togglebutton clickicon icon-toggle-off" id="crossfade" '.
+				'onclick="player.controller.toggleCrossfade()"></div>'.
+			'<div class="togglediv tgtr">'.get_int_text('button_crossfade').'</div>'.
+		'</div>'.
+	'</td>';
 print '</tr><tr>';
-print '<td width="50%" align="right"><div class="togglecontainer"><div class="togglediv tgtl">'.get_int_text('button_repeat').
-'</div><div class="togglebutton clickicon icon-toggle-off" id="repeat" onclick="player.controller.toggleRepeat()"></div>'.
-'</div></td>';
-print '<td width="50%" align="left"><div class="togglecontainer">'.
-'<div class="togglebutton clickicon icon-toggle-off" id="consume" onclick="player.controller.toggleConsume()"></div><div class="togglediv tgtr">'.
-get_int_text('button_consume').'</div></div></td>';
+print '<td width="50%" align="right">'.
+		'<div class="togglecontainer">'.
+			'<div class="togglediv tgtl">'.get_int_text('button_repeat').'</div>'.
+			'<div class="togglebutton clickicon icon-toggle-off" '.
+				'id="repeat" onclick="player.controller.toggleRepeat()"></div>'.
+		'</div>'.
+	'</td>';
+print '<td width="50%" align="left">'.
+		'<div class="togglecontainer">'.
+			'<div class="togglebutton clickicon icon-toggle-off" id="consume" '.
+				'onclick="player.controller.toggleConsume()"></div>'.
+			'<div class="togglediv tgtr">'.get_int_text('button_consume').'</div>'.
+		'</div>'.
+	'</td>';
 ?>
 </tr>
 </table><hr>
@@ -69,22 +87,26 @@ get_int_text('button_consume').'</div></div></td>';
 	<tr>
 		<td align="center">
 			<div class="togglecontainer">
-				<div class="togglebutton clickicon clickreplaygain icon-toggle-off" id="replaygain_off"></div>
+				<div class="togglebutton clickicon clickreplaygain icon-toggle-off"
+					id="replaygain_off"></div>
 			</div>
 		</td>
 		<td align="center">
 			<div class="togglecontainer">
-				<div class="togglebutton clickicon clickreplaygain icon-toggle-off" id="replaygain_track"></div>
+				<div class="togglebutton clickicon clickreplaygain icon-toggle-off"
+					id="replaygain_track"></div>
 			</div>
 		</td>
 		<td align="center">
 			<div class="togglecontainer">
-				<div class="togglebutton clickicon clickreplaygain icon-toggle-off" id="replaygain_album"></div>
+				<div class="togglebutton clickicon clickreplaygain icon-toggle-off"
+					id="replaygain_album"></div>
 			</div>
 		</td>
 		<td align="center">
 			<div class="togglecontainer">
-				<div class="togglebutton clickicon clickreplaygain icon-toggle-off" id="replaygain_auto"></div>
+				<div class="togglebutton clickicon clickreplaygain icon-toggle-off"
+					id="replaygain_auto"></div>
 			</div>
 		</td>
 	</tr>
@@ -92,13 +114,22 @@ get_int_text('button_consume').'</div></div></td>';
 <?php
 } else {
 	print '<table width="90%" align="center"><tr>';
-	print '<td align="center"><div class="togglecontainer"><div class="togglediv">'.get_int_text('button_random').'</div></td>';
-	print '<td align="center"><div class="togglecontainer"><div class="togglediv">'.get_int_text('button_repeat').'</div></td>';
-	print '<td align="center"><div class="togglecontainer"><div class="togglediv">'.get_int_text('button_consume').'</div></td>';
+	print '<td align="center"><div class="togglecontainer"><div class="togglediv">'.
+		get_int_text('button_random').'</div></td>';
+	print '<td align="center"><div class="togglecontainer"><div class="togglediv">'.
+		get_int_text('button_repeat').'</div></td>';
+	print '<td align="center"><div class="togglecontainer"><div class="togglediv">'.
+		get_int_text('button_consume').'</div></td>';
 	print '</tr><tr>';
-	print '<td align="center"><div class="togglecontainer"><div class="togglebutton clickicon icon-toggle-off" id="random" onclick="player.controller.toggleRandom()"></div></div></td>';
-	print '<td align="center"><div class="togglecontainer"><div class="togglebutton clickicon icon-toggle-off" id="repeat" onclick="player.controller.toggleRepeat()"></div></div></td>';
-	print '<td align="center"><div class="togglecontainer"><div class="togglebutton clickicon icon-toggle-off" id="consume" onclick="player.controller.toggleConsume()"></div></div></td>';
+	print '<td align="center"><div class="togglecontainer">
+		<div class="togglebutton clickicon icon-toggle-off" id="random" '.
+		'onclick="player.controller.toggleRandom()"></div></div></td>';
+	print '<td align="center">
+		<div class="togglecontainer"><div class="togglebutton clickicon icon-toggle-off" '.
+		'id="repeat" onclick="player.controller.toggleRepeat()"></div></div></td>';
+	print '<td align="center">
+		<div class="togglecontainer"><div class="togglebutton clickicon icon-toggle-off" '.
+		'id="consume" onclick="player.controller.toggleConsume()"></div></div></td>';
 	print '</tr></table>';
 }
 ?>

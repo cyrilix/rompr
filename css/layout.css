@@ -105,23 +105,32 @@ select:hover{
     padding-left:2px;
 }
 
+.selectholder-noselect
+{
+    width:50%;
+    margin-top:4px;
+    margin-bottom:4px;
+    padding-left:2px;
+    margin-left:1em;
+}
+
 .selectholder:hover{
-    background:#fff url('../newimages/blobdown2-hi.svg') right 2px center no-repeat;    
+    background:#fff url('../newimages/blobdown2-hi.svg') right 2px center no-repeat;
 }
 
 .combobox-entry
 {
-    background:#fff url('../newimages/blobdown2.svg') right 2px center no-repeat;    
+    background:#fff url('../newimages/blobdown2.svg') right 2px center no-repeat;
 }
 
 .combobox-entry:hover
 {
-    background:#fff url('../newimages/blobdown2-hi.svg') right 2px center no-repeat;    
+    background:#fff url('../newimages/blobdown2-hi.svg') right 2px center no-repeat;
 }
 
 .clearbox {
-    background:#fff url('../newimages/edit-delete.svg') right 2px center no-repeat;  
-    background-size:12px 12px;      
+    background:#fff url('../newimages/edit-delete.svg') right 2px center no-repeat;
+    background-size:12px 12px;
 }
 
 .combo-button
@@ -141,7 +150,7 @@ select:hover{
     box-sizing: border-box;
 }
 
-button 
+button
 {
     font-size:100%;
     margin-bottom:4px;
@@ -624,6 +633,12 @@ div.item
 .standout ul li
 {
     line-height:1.5em;
+}
+
+.tracktime .standout ul li
+{
+    display: inline-block;
+    margin-left: 2em;
 }
 
 .holdingcell

@@ -34,11 +34,13 @@ jQuery.fn.makeTagMenu = function(options) {
         }
         $(this).append(settings.labelhtml);
         var holder = $('<div>', { class: "expand"}).appendTo($(this));
-        var textbox = $('<input>', { type: "text", class: tbc, name: settings.textboxname }).appendTo(holder);
+        var textbox = $('<input>', { type: "text", class: tbc, name: settings.textboxname }).
+            appendTo(holder);
         var dropbox = $('<div>', {class: "drop-box tagmenu dropshadow"}).appendTo(holder);
         var menucontents = $('<div>', {class: "tagmenu-contents"}).appendTo(dropbox);
         if (settings.buttontext !== null) {
-            var submitbutton = $('<button>', {class: "fixed"+settings.buttonclass, style: "margin-left: 8px"}).appendTo($(this));
+            var submitbutton = $('<button>', {class: "fixed"+settings.buttonclass,
+                style: "margin-left: 8px"}).appendTo($(this));
             submitbutton.html(settings.buttontext);
             if (settings.buttonfunc) {
                 submitbutton.click(function() {
@@ -123,7 +125,7 @@ function setExpandIcons() {
     var i = (prefs.sourceshidden) ? "icon-angle-double-right" : "icon-angle-double-left";
     $("#expandleft").removeClass("icon-angle-double-right icon-angle-double-left").addClass(i);
     i = (prefs.playlisthidden) ? "icon-angle-double-left" : "icon-angle-double-right";
-    $("#expandright").removeClass("icon-angle-double-right icon-angle-double-left").addClass(i);    
+    $("#expandright").removeClass("icon-angle-double-right icon-angle-double-left").addClass(i);
 }
 
 function animatePanels() {
@@ -156,8 +158,8 @@ jQuery.fn.animatePanel = function(options) {
     panel = panel.replace(/controls/,'');
     if (settings[panel] > 0 && this.is(':hidden')) {
         this.show();
-    } 
-    this.animate({width: settings[panel]+"%"}, 
+    }
+    this.animate({width: settings[panel]+"%"},
         {
             duration: settings.speed[panel],
             always: function() {
@@ -195,7 +197,8 @@ function hideBrowser() {
 }
 
 function setTopIconSize(panels) {
-    var imw = (parseInt($('.topimg').first().css('margin-left')) + parseInt($('.topimg').first().css('margin-right')));
+    var imw = (parseInt($('.topimg').first().css('margin-left')) +
+        parseInt($('.topimg').first().css('margin-right')));
     panels.forEach( function(div) {
         if ($(div).is(':visible')) {
             var icons = $(div+" .topimg");
@@ -214,44 +217,6 @@ function playlistControlButton(button) {
         togglePlaylistButtons()
     }
     $("#"+button).click();
-}
-
-function srDrag(event, ui) {
-    var size = getWindowSize();
-    if (ui.offset.left < 120) { ui.offset.left = 120; }
-    prefs.sourceswidthpercent = ((ui.offset.left+8)/size.x)*100;
-    if (prefs.sourceswidthpercent + prefs.playlistwidthpercent > 100 || prefs.hidebrowser) {
-        prefs.playlistwidthpercent = 100 - prefs.sourceswidthpercent;
-    }
-    doThatFunkyThang();
-    setTopIconSize(["#sourcescontrols", "#infopanecontrols"]);
-    $(this).data('draggable').position.left = 0;
-}
-
-function srDragStop(event, ui) {
-    setTopIconSize(["#sourcescontrols", "#infopanecontrols", "#playlistcontrols"]);
-    browser.rePoint();
-    prefs.save({sourceswidthpercent: prefs.sourceswidthpercent});
-    prefs.save({playlistwidthpercent: prefs.playlistwidthpercent});
-}
-
-function prDrag(event, ui) {
-    var size = getWindowSize();
-    if ((size.x - ui.offset.left) < 120) { ui.offset.left = size.x - 120; }
-    prefs.playlistwidthpercent = (((size.x - ui.offset.left))/size.x)*100;
-    if (prefs.sourceswidthpercent + prefs.playlistwidthpercent > 100 || prefs.hidebrowser) {
-        prefs.sourceswidthpercent = 100 - prefs.playlistwidthpercent;
-    }
-    doThatFunkyThang();
-    setTopIconSize(["#infopanecontrols", "#playlistcontrols"]);
-    $(this).data('draggable').position.left = 0;
-}
-
-function prDragStop(event, ui) {
-    setTopIconSize(["#sourcescontrols", "#infopanecontrols", "#playlistcontrols"]);
-    browser.rePoint();
-    prefs.save({sourceswidthpercent: prefs.sourceswidthpercent});
-    prefs.save({playlistwidthpercent: prefs.playlistwidthpercent})
 }
 
 function addCustomScrollBar(value) {
@@ -378,19 +343,36 @@ var layoutProcessor = function() {
         },
 
         scrollPlaylistToCurrentTrack: function() {
-            if (prefs.scrolltocurrent && $('.track[romprid="'+player.status.songid+'"],.booger[romprid="'+player.status.songid+'"]').length > 0) {
+            if (prefs.scrolltocurrent && $('.track[romprid="'+player.status.songid+
+                '"],.booger[romprid="'+player.status.songid+'"]').length > 0) {
                 $('#pscroller').mCustomScrollbar("stop");
                 $('#pscroller').mCustomScrollbar("update");
-                var pospixels = Math.round($('div.track[romprid="'+player.status.songid+'"],.booger[romprid="'+player.status.songid+'"]').position().top - ($("#sortable").parent().parent().height()/2));
+                var pospixels = Math.round($('div.track[romprid="'+player.status.songid+
+                    '"],.booger[romprid="'+player.status.songid+'"]').position().top -
+                    ($("#sortable").parent().parent().height()/2));
                 if (pospixels < 0) { pospixels = 0 }
-                if (pospixels > $("#sortable").parent().height()) { pospixels = $("#sortable").parent().height()}
-                debug.log("LAYOUT","Scrolling Playlist To Song:",player.status.songid,"ScrollOffset",pospixels,"Track Pos Offset",$('div.track[romprid="'+player.status.songid+'"],.booger[romprid="'+player.status.songid+'"]').position().top,"Viewport Height",$("#sortable").parent().parent().height());
+                if (pospixels > $("#sortable").parent().height()) {
+                    pospixels = $("#sortable").parent().height();
+                }
+                debug.log("LAYOUT","Scrolling Playlist To Song:",player.status.songid);
                 $('#pscroller').mCustomScrollbar(
                     "scrollTo",
                     pospixels,
                     { scrollInertia: 0 }
                 );
             }
+        },
+
+        scrollCollectionTo: function(jq) {
+            debug.log("LAYOUT","Scrolling Collection To",jq,
+                jq.position().top,$("#collection").parent().parent().parent().height()/2);
+            var pospixels = Math.round(jq.position().top -
+                $("#collection").parent().parent().parent().height()/2);
+            debug.log("LAYOUT","Scrolling Collection To",pospixels);
+            $("#sources").mCustomScrollbar('update').mCustomScrollbar('scrollTo', pospixels,
+                { scrollInertia: 1000,
+                  scrollEasing: 'easeOut' }
+            );
         },
 
         sourceControl: function(source, callback) {
@@ -437,98 +419,61 @@ var layoutProcessor = function() {
 
         initialise: function() {
             $("#sortable").disableSelection();
-            $("#sortable").sortable({
-                items: ".sortable",
-                axis: 'y',
-                containment: '#sortable',
-                scroll: true,
-                scrollSpeed: 40,
-                scrollparent: "#pscroller",
-                customscrollbars: true,
-                scrollSensitivity: 100,
-                start: function(event, ui) {
-                    ui.item.css("background", "#555555");
-                    ui.item.css("opacity", "0.7")
-                },
-                stop: playlist.dragstopped
-            });
-
-            $("#yourradiolist").sortable({
-                items: ".clickradio,.clickstream",
-                axis: "y",
-                containment: "#yourradiolist",
-                scroll: true,
-                scrollSpeed: 10,
-                tolerance: 'pointer',
-                stop: saveRadioOrder
-            });
-
             setDraggable('collection');
             setDraggable('filecollection');
             setDraggable('searchresultholder');
             setDraggable("podcastslist");
+            setDraggable("somafmlist");
+            setDraggable("bbclist");
+            setDraggable("icecastlist");
             setDraggable('artistinformation');
             setDraggable('albuminformation');
             setDraggable('storedplaylists');
 
-            // Make the entire playlist area accept drops from the collection
-            $("#pscroller").droppable({
-                //accept: ".draggable",
-                addClasses: false,
-                greedy: true,
-                drop: playlist.draggedToEmpty,
-                hoverClass: "highlighted"
+            $("#sortable").acceptDroppedTracks({
+                scroll: true,
+                scrollparent: '#pscroller'
+            });
+            $("#sortable").sortableTrackList({
+                items: '.sortable',
+                outsidedrop: playlist.dragstopped,
+                insidedrop: playlist.dragstopped,
+                scroll: true,
+                scrollparent: '#pscroller',
+                scrollspeed: 80,
+                scrollzone: 120
             });
 
-            // We have to set the sortable as droppable, even though the draggables
-            // are connected to it. This means we can set the 'greedy' option.
-            // Otherwise the drop event bubbles up when we drop over the sortable
-            // and the pscroller event captures it first.
-            $("#sortable").droppable({
-                //accept: ".draggable",
-                addClasses: false,
-                greedy: true,
-                drop: function() {},
+            $("#pscroller").acceptDroppedTracks({
+                ondrop: playlist.draggedToEmpty,
+                coveredby: '#sortable'
             });
 
-            $("#sourcesresizer").draggable({
-                containment: '#headerbar',
-                axis: 'x'
+            $("#yourradiolist").sortableTrackList({
+                items: ".menuitem",
+                insidedrop: saveRadioOrder,
+                scroll: true,
+                scrollparent: "#radiolist",
+                scrollspeed: 80,
+                scrollzone:120,
+                allowdragout: true
             });
-            $("#sourcesresizer").bind("drag", srDrag);
-            $("#sourcesresizer").bind("dragstop", srDragStop);
-            $("#playlistresizer").draggable({
-                containment: 'headerbar',
-                axis: 'x'
+
+            $('#sourcesresizer').resizeHandle({
+                adjusticons: ['#sourcescontrols', '#infopanecontrols'],
+                side: 'left'
             });
-            $("#playlistresizer").bind("drag", prDrag);
-            $("#playlistresizer").bind("dragstop", prDragStop);
+            $('#playlistresizer').resizeHandle({
+                adjusticons: ['#playlistcontrols', '#infopanecontrols'],
+                side: 'right'
+            });
             animatePanels();
-            $(".topdrop").click(function(ev) {
-                var ours = $(this)[0];
-                $('.topdropmenu').each(function() {
-                    if ($(this).is(':visible') && $(this).parent()[0] != ours) {
-                        $(this).slideToggle('fast');
-                    }
-                });
-                $(this).find('.topdropmenu').slideToggle('fast', function() {
-                    if ($(this).is(':visible')) {
-                        layoutProcessor.fanoogleMenus($(this));
-                    } else {
-                        $(this).css({left: "", top: ""});
-                    }
-                });
+
+            $(".topdropmenu").floatingMenu({
+                handleClass: 'dragmenu',
+                addClassTo: 'configtitle'
             });
 
-            $(".topdropmenu").each(function() {$(this).find('.configtitle').first().addClass('dragmenu').append('<i class="icon-cancel-circled playlisticonr tright clickicon closemenu"></i>') });
-
-            $(".closemenu").click(function() {$(this).parent().parent().parent().parent().prev().click() });
-
-            $(".topdropmenu").draggable({
-                containment: 'body',
-                handle: '.configtitle'
-            });
-    
             $(".stayopen").click(function(ev) {ev.stopPropagation() });
 
             $("#volumecontrol").bind('mousedown', function(event){
@@ -538,18 +483,19 @@ var layoutProcessor = function() {
             }).bind('mousemove', function(event) {
                 event.preventDefault();
                 infobar.volumeMouseMove(event);
-                return false;                
+                return false;
             }).bind('mouseup', function(event) {
                 event.preventDefault();
                 infobar.volumeDragEnd(event);
-                return false;                
+                return false;
             }).bind('mouseout', function(event) {
                 event.preventDefault();
                 infobar.volumeTouchEnd(event);
                 return false;
             });
             $(".enter").keyup( onKeyUp );
-            $.each([ "#sources", "#infopane", "#pscroller", ".topdropmenu", ".drop-box" ], function( index, value ) {
+            $.each([ "#sources", "#infopane", "#pscroller", ".topdropmenu", ".drop-box" ],
+                function( index, value ) {
                 addCustomScrollBar(value);
             });
             shortcuts.load();
@@ -560,7 +506,8 @@ var layoutProcessor = function() {
             } );
             setControlClicks();
             $('.choose_albumlist').click(function(){layoutProcessor.sourceControl('albumlist')});
-            $('.choose_searcher').click(function(){layoutProcessor.sourceControl('searcher', setSearchLabelWidth)});
+            $('.choose_searcher').click(function(){layoutProcessor.sourceControl('searcher',
+                setSearchLabelWidth)});
             $('.choose_filelist').click(function(){layoutProcessor.sourceControl('filelist')});
             $('.choose_radiolist').click(function(){layoutProcessor.sourceControl('radiolist')});
             $('.open_albumart').click(openAlbumArtManager);

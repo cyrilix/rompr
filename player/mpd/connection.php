@@ -50,7 +50,8 @@ function doMpdParse($command, &$dirs, $domains) {
                         if (!$foundfile) {
                             $foundfile = true;
                         } else {
-                            if (!is_array($domains) || in_array(getDomain(unwanted_array($filedata['file'])),$domains)) {
+                            if (!is_array($domains) ||
+                                in_array(getDomain(unwanted_array($filedata['file'])),$domains)) {
                                 process_file($filedata);
                             }
                             $filedata = array();
@@ -61,7 +62,8 @@ function doMpdParse($command, &$dirs, $domains) {
                     switch ($parts[0]) {
                         case "Last-Modified":
                             if (array_key_exists('file', $filedata)) {
-                                // We don't want the Last-Modified stamps of the directories to be used for the files.
+                                // We don't want the Last-Modified stamps of the directories
+                                // to be used for the files.
                                 $multivalues[] = strtotime($parts[1]);
                             }
                             break;
@@ -75,7 +77,8 @@ function doMpdParse($command, &$dirs, $domains) {
                     // (in fact this could happen with any tag!)
 
                     if (array_key_exists($parts[0], $filedata)) {
-                        $filedata[$parts[0]] = array_unique(array_merge($filedata[$parts[0]], $multivalues));
+                        $filedata[$parts[0]] = array_unique(
+                            array_merge($filedata[$parts[0]], $multivalues));
                     } else {
                         $filedata[$parts[0]] = array_unique($multivalues);
                     }
@@ -112,14 +115,17 @@ function doFileSearch($cmd, $domains = null) {
                     } else {
                         if ($dbterms['tags'] !== null || $dbterms['rating'] !== null) {
                             // If this is a search and we have tags or ratings to search for, check them here.
-                            if (check_url_against_database($filedata['file'], $dbterms['tags'], $dbterms['rating']) == true) {
-                                if (!is_array($domains) || in_array(getDomain(unwanted_array($filedata['file'])),$domains)) {
+                            if (check_url_against_database($filedata['file'],
+                                    $dbterms['tags'], $dbterms['rating']) == true) {
+                                if (!is_array($domains) || in_array(
+                                        getDomain(unwanted_array($filedata['file'])),$domains)) {
                                     $tree->newItem($filedata);
                                     $fcount++;
                                 }
                             }
                         }  else {
-                            if (!is_array($domains) || in_array(getDomain(unwanted_array($filedata['file'])),$domains)) {
+                            if (!is_array($domains) || in_array(
+                                    getDomain(unwanted_array($filedata['file'])),$domains)) {
                                 $tree->newItem($filedata);
                                 $fcount++;
                             }
@@ -170,23 +176,25 @@ function printFileSearch($tree, $fcount) {
             <tr><td align="left">'.$fcount.' '.get_int_text('label_files').'</td></tr>
             </table>
             </div>';
-    $tree->getHTML($prefix, $dircount);    
+    $tree->getHTML($prefix, $dircount);
 }
 
 function printFileItem($displayname, $fullpath, $time) {
     global $prefs;
     $ext = strtolower(pathinfo($fullpath, PATHINFO_EXTENSION));
-    print '<div class="clickable clicktrack ninesix draggable indent containerbox padright line" name="'.rawurlencode($fullpath).'">';
+    print '<div class="clickable clicktrack ninesix draggable indent containerbox padright line" name="'.
+        rawurlencode($fullpath).'">';
     print '<i class="'.audioClass($ext).' fixed smallicon"></i>';
     print '<div class="expand">'.$displayname.'</div>';
     if ($time > 0) {
         print '<div class="fixed playlistrow2 tracktime">'.format_time($time).'</div>';
     }
-    print '</div>';                     
+    print '</div>';
 }
 
 function printPlaylistItem($displayname, $fullpath) {
-    print '<div class="clickable clickcue ninesix draggable indent containerbox padright line" name="'.rawurlencode($fullpath).'">';
+    print '<div class="clickable clickcue ninesix draggable indent containerbox padright line" name="'.
+        rawurlencode($fullpath).'">';
     print '<i class="icon-doc-text fixed smallicon"></i>';
     print '<div class="expand">'.$displayname.'</div>';
     print '</div>';
@@ -194,7 +202,8 @@ function printPlaylistItem($displayname, $fullpath) {
 
 function printDirectoryItem($fullpath, $displayname, $prefix, $dircount, $printcontainer = false) {
     $c = ($printcontainer) ? "searchdir" : "directory";
-    print '<div class="clickable '.$c.' clickalbum draggable containerbox menuitem clickdir" name="'.$prefix.$dircount.'">';
+    print '<div class="clickable '.$c.' clickalbum draggable containerbox menuitem clickdir" name="'.
+        $prefix.$dircount.'">';
     print '<input type="hidden" name="'.rawurlencode($fullpath).'">';
     print '<i class="icon-toggle-closed menu mh fixed" name="'.$prefix.$dircount.'"></i>';
     print '<i class="icon-folder-open-empty fixed smallicon"></i>';
@@ -222,7 +231,7 @@ class mpdlistthing {
 
         global $prefs;
 
-        // This should only be called from outside the tree. 
+        // This should only be called from outside the tree.
         // This is the root object's pre-parser
 
         if (array_key_exists('playlist', $filedata)) {
@@ -239,7 +248,8 @@ class mpdlistthing {
         // All the different fixups for all the different mopidy backends
         // and their various random ways of doing things.
         if (preg_match('/podcast\+http:\/\//', $decodedpath)) {
-            $filedata['file_display_name'] = (array_key_exists('Title', $filedata)) ? $filedata['Title'] : basename($decodedpath);
+            $filedata['file_display_name'] = (array_key_exists('Title', $filedata)) ?
+                $filedata['Title'] : basename($decodedpath);
             $filedata['file_display_name'] = preg_replace('/Album: /','',$filedata['file_display_name']);
             $decodedpath = preg_replace('/podcast\+http:\/\//','podcast/',$decodedpath);
         
@@ -260,24 +270,29 @@ class mpdlistthing {
         } else if (preg_match('/:track:/', $decodedpath)) {
             $matches = array();
             $a = preg_match('/(.*?):(.*?):(.*)/',$decodedpath,$matches);
-            $decodedpath = $matches[1]."/".$matches[2]."/".$filedata['Artist']."/".$filedata['Album']."/".$matches[3];
+            $decodedpath = $matches[1]."/".$matches[2]."/".$filedata['Artist']."/".
+                $filedata['Album']."/".$matches[3];
             $filedata['file_display_name'] = $filedata['Title'];
         
         } else if (preg_match('/soundcloud:song\//', $decodedpath)) {
-            $filedata['file_display_name'] = (array_key_exists('Title', $filedata)) ? $filedata['Title'] : basename($decodedpath);
-            $decodedpath = preg_replace('/soundcloud:song/','soundcloud/'.$filedata['Artist'],$decodedpath);
+            $filedata['file_display_name'] = (array_key_exists('Title', $filedata)) ?
+                $filedata['Title'] : basename($decodedpath);
+            $decodedpath = preg_replace('/soundcloud:song/','soundcloud/'.
+                $filedata['Artist'],$decodedpath);
         
         } else if (preg_match('/^internetarchive:/', $decodedpath)) {
             $filedata['file_display_name'] = $filedata['Album'];
             $decodedpath = preg_replace('/internetarchive:/','internetarchive/',$decodedpath);
         
         } else if (preg_match('/youtube:video\//', $decodedpath)) {
-            $filedata['file_display_name'] = (array_key_exists('Title', $filedata)) ? $filedata['Title'] : basename($decodedpath);
+            $filedata['file_display_name'] = (array_key_exists('Title', $filedata)) ?
+                $filedata['Title'] : basename($decodedpath);
             $decodedpath = preg_replace('/youtube:video/','youtube',$decodedpath);
         
         } else {
             if ($prefs['player_backend'] == "mopidy") {
-                $filedata['file_display_name'] = (array_key_exists('Title', $filedata)) ? $filedata['Title'] : basename($decodedpath);
+                $filedata['file_display_name'] = (array_key_exists('Title', $filedata)) ?
+                    $filedata['Title'] : basename($decodedpath);
             } else {
                 $filedata['file_display_name'] = basename($filedata['file']);
             }
@@ -309,7 +324,8 @@ class mpdlistthing {
         if ($this->name !== null) {
             if (count($this->children) > 0) {
                 // Must be a directory
-                printDirectoryItem($this->parent->getName($this->name), $this->name, $prefix, $dircount, true);
+                printDirectoryItem($this->parent->getName($this->name), $this->name,
+                    $prefix, $dircount, true);
                 $dircount++;
                 foreach ($this->children as $child) {
                     $child->getHTML($prefix, $dircount);
@@ -319,7 +335,8 @@ class mpdlistthing {
                 if (array_key_exists('playlist', $this->filedata)) {
                     printPlaylistItem($this->filedata['file_display_name'],$this->filedata['file']);
                 } else {
-                    printFileItem($this->filedata['file_display_name'],$this->filedata['file'], $this->filedata['Time']);
+                    printFileItem($this->filedata['file_display_name'],
+                        $this->filedata['file'], $this->filedata['Time']);
                 }
             }
         } else {

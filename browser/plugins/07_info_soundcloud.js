@@ -8,36 +8,36 @@ var info_soundcloud = function() {
 
         debug.trace("SOUNDCLOUD PLUGIN","Creating track HTML from",data);
         var html = '<div class="containerbox info-detail-layout">';
-        html = html + '<div class="info-box-fixed info-border-right info-box-list">';
+        html += '<div class="info-box-fixed info-border-right info-box-list">';
 
         if (data.artwork_url) {
-            html = html +  '<img src="' + data.artwork_url + '" class="clrboth" style="margin:8px" />';
+            html +=  '<img src="' + data.artwork_url + '" class="clrboth" style="margin:8px" />';
         }
-        html = html + '<ul><li><h3>'+language.gettext("soundcloud_trackinfo")+':</h3></li>';
-        html = html + '<li><b>'+language.gettext("soundcloud_plays")+':</b> '+formatSCMessyBits(data.playback_count)+'</li>';
-        html = html + '<li><b>'+language.gettext("soundcloud_downloads")+':</b> '+formatSCMessyBits(data.download_count)+'</li>';
-        html = html + '<li><b>'+language.gettext("soundcloud_faves")+':</b> '+formatSCMessyBits(data.favoritings_count)+'</li>';
-        html = html + '<li><b>'+language.gettext("soundcloud_state")+'</b> '+formatSCMessyBits(data.state)+'</li>';
-        html = html + '<li><b>'+language.gettext("info_genre")+'</b> '+formatSCMessyBits(data.genre)+'</li>';
-        html = html + '<li><b>'+language.gettext("info_label")+'</b> '+formatSCMessyBits(data.label_name)+'</li>';
-        html = html + '<li><b>'+language.gettext("soundcloud_license")+':</b> '+formatSCMessyBits(data.license)+'</li>';
+        html += '<ul><li><h3>'+language.gettext("soundcloud_trackinfo")+':</h3></li>';
+        html += '<li><b>'+language.gettext("soundcloud_plays")+':</b> '+formatSCMessyBits(data.playback_count)+'</li>';
+        html += '<li><b>'+language.gettext("soundcloud_downloads")+':</b> '+formatSCMessyBits(data.download_count)+'</li>';
+        html += '<li><b>'+language.gettext("soundcloud_faves")+':</b> '+formatSCMessyBits(data.favoritings_count)+'</li>';
+        html += '<li><b>'+language.gettext("soundcloud_state")+'</b> '+formatSCMessyBits(data.state)+'</li>';
+        html += '<li><b>'+language.gettext("info_genre")+'</b> '+formatSCMessyBits(data.genre)+'</li>';
+        html += '<li><b>'+language.gettext("info_label")+'</b> '+formatSCMessyBits(data.label_name)+'</li>';
+        html += '<li><b>'+language.gettext("soundcloud_license")+':</b> '+formatSCMessyBits(data.license)+'</li>';
         if (data.purchase_url) {
-            html = html + '<li><b><a href="' + data.purchase_url + '" target="_blank">'+language.gettext("soundcloud_buy")+'</a></b></li>';
+            html += '<li><b><a href="' + data.purchase_url + '" target="_blank">'+language.gettext("soundcloud_buy")+'</a></b></li>';
         }
-        html = html + '<li><a href="' + data.permalink_url + '" title="View In New Tab" target="_blank"><b>'+language.gettext("soundcloud_view")+'</b></a></li>';
-        html = html + '</ul>';
-        html = html + '</div>';
+        html += '<li><a href="' + data.permalink_url + '" title="View In New Tab" target="_blank"><b>'+language.gettext("soundcloud_view")+'</b></a></li>';
+        html += '</ul>';
+        html += '</div>';
 
-        html = html + '<div class="info-box-expand stumpy">';
-		html = html + '<div id="similarartists" class="bordered" style="position:relative">'+
+        html += '<div class="info-box-expand stumpy">';
+		html += '<div id="similarartists" class="bordered" style="position:relative">'+
                     '<div id="scprog"></div>'+
                     '<img id="gosblin" />'+
                     '</div>';
         var d = formatSCMessyBits(data.description);
         d = d.replace(/\n/g, "</p><p>");
-        html = html + '<p>'+d+'</p>';
-        html = html + '</div>';
-        html = html + '</div>';
+        html += '<p>'+d+'</p>';
+        html += '</div>';
+        html += '</div>';
         return html;
 
 	}
@@ -45,26 +45,26 @@ var info_soundcloud = function() {
 	function getArtistHTML(data) {
         debug.trace("SOUNDCLOUD PLUGIN","Creating artist HTML from",data);
         var html = '<div class="containerbox info-detail-layout">';
-        html = html + '<div class="info-box-fixed info-border-right info-box-list">';
+        html += '<div class="info-box-fixed info-border-right info-box-list">';
 
         if (data.avatar_url) {
-            html = html +  '<img src="' + data.avatar_url + '" class="clrboth" style="margin:8px" />';
+            html +=  '<img src="' + data.avatar_url + '" class="clrboth" style="margin:8px" />';
         }
-        html = html + '<ul><li><h3>'+language.gettext("soundcloud_user")+':</h3></li>';
-        html = html + '<li><b>'+language.gettext("soundcloud_fullname")+':</b> '+formatSCMessyBits(data.full_name)+'</li>';
-        html = html + '<li><b>'+language.gettext("soundcloud_Country")+':</b> '+formatSCMessyBits(data.country)+'</li>';
-        html = html + '<li><b>'+language.gettext("soundcloud_city")+':</b> '+formatSCMessyBits(data.city)+'</li>';
+        html += '<ul><li><h3>'+language.gettext("soundcloud_user")+':</h3></li>';
+        html += '<li><b>'+language.gettext("soundcloud_fullname")+':</b> '+formatSCMessyBits(data.full_name)+'</li>';
+        html += '<li><b>'+language.gettext("soundcloud_Country")+':</b> '+formatSCMessyBits(data.country)+'</li>';
+        html += '<li><b>'+language.gettext("soundcloud_city")+':</b> '+formatSCMessyBits(data.city)+'</li>';
         if (data.website) {
-            html = html + '<li><b><a href="' + data.website + '" target="_blank">'+language.gettext("soundcloud_website")+'</a></b></li>';
+            html += '<li><b><a href="' + data.website + '" target="_blank">'+language.gettext("soundcloud_website")+'</a></b></li>';
         }
-        html = html + '</ul>';
-        html = html + '</div>';
-        html = html + '<div class="info-box-expand stumpy">';
+        html += '</ul>';
+        html += '</div>';
+        html += '<div class="info-box-expand stumpy">';
         var f = formatSCMessyBits(data.description)
         f = f.replace(/\n/g, "</p><p>");
-        html = html + '<p>'+ f +'</p>';
-        html = html + '</div>';
-        html = html + '</div>';
+        html += '<p>'+ f +'</p>';
+        html += '</div>';
+        html += '</div>';
 		return html;
 	}
 
@@ -278,7 +278,7 @@ var info_soundcloud = function() {
 						if (displaying) {
 					        var w = Math.round($("#similarartists").width()*percent/100);
 							if (percent == 0) {
-								var h = 0;								
+								var h = 0;
 							} else {
 								var h = $("#similarartists").height() - 8;
 							}

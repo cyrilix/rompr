@@ -45,7 +45,7 @@ var info_videos = function() {
 			return '<h3 align="center">No Videos Found</h3>';
 		}
 		for (var i in videos) {
-			html = html + '<div class="video"><iframe class="youtubevid" src="http://www.youtube.com/embed/'+videos[i]+'"></iframe></div>';
+			html += '<div class="video"><iframe class="youtubevid" src="http://www.youtube.com/embed/'+videos[i]+'"></iframe></div>';
 		}
 		return html;
 	}

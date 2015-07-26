@@ -43,9 +43,9 @@ function trackDataCollection(currenttrack, nowplayingindex, artistindex, playlis
 		for (var i in playlistinfo.metadata.artists) {
 			var html = '<span class="infoclick clickartistchoose bleft';
 			if (playlistinfo.metadata.artists[i].nowplayingindex == self.nowplayingindex) {
-				html = html + ' bsel'
+				html += ' bsel'
 			}
-			html = html + '">'+playlistinfo.metadata.artists[i].name+'</span>'+
+			html += '">'+playlistinfo.metadata.artists[i].name+'</span>'+
 			'<input type="hidden" value="'+playlistinfo.metadata.artists[i].nowplayingindex+'" />';
 			htmlarr.push(html);
 		}

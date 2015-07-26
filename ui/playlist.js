@@ -186,8 +186,7 @@ function Playlist() {
 
     this.draggedToEmpty = function(event, ui) {
         debug.log("PLAYLIST","Something was dropped on the empty playlist area",event,ui);
-        ui.item = ui.helper;
-        playlist.dragstopped(event,ui);
+        playlist.addItems($('.selected').filter(removeOpenItems), "");
     }
 
     this.dragstopped = function(event, ui) {
@@ -195,35 +194,48 @@ function Playlist() {
 
         event.stopImmediatePropagation();
         var moveto  = (function getMoveTo(i) {
-            debug.log("PLAYLIST", "Drag Stopped",i.next());
+            debug.log("PLAYLIST", "Finding Next Item In List",i.next(),i.parent());
             if (i.next().hasClass('track')) {
+                debug.log("PLAYLIST","Next Item Is Track");
                 return parseInt(i.next().attr("name"));
             }
-            if (i.next().hasClass('item')) {
+            if (i.next().hasClass('trackgroup') && i.next().is(':hidden')) {
+                debug.log("PLAYLIST","Next Item is hidden trackgroup");
+                // Need to account for these - you can't see them so it
+                // looks like you're dragging to the next item below it therfore
+                // that's how we must behave
+                return getMoveTo(i.next());
+            }
+            if (i.next().hasClass('item') || i.next().hasClass('trackgroup')) {
+                debug.log("PLAYLIST","Next Item Is Item or Trackgroup",
+                    parseInt(i.next().attr("name")),
+                    tracklist[parseInt(i.next().attr("name"))].getFirst());
                 return tracklist[parseInt(i.next().attr("name"))].getFirst();
             }
             if (i.parent().hasClass('trackgroup')) {
+                debug.log("PLAYLIST","Parent Item is Trackgroup");
                 return getMoveTo(i.parent());
             }
+            debug.log("PLAYLIST","Dropped at end?");
             return (parseInt(finaltrack))+1;
-        })($(ui.item));
+        })(ui);
 
-        if (ui.item.hasClass("draggable")) {
+        if (ui.hasClass("draggable")) {
             // Something dragged from the albums list
             debug.log("PLAYLIST","Something was dropped from the albums list");
+            doSomethingUseful(ui.attr('id'), language.gettext('label_incoming'));
             playlist.addItems($('.selected').filter(removeOpenItems), moveto);
-            $("#dragger").remove();
-        } else if (ui.item.hasClass('track') || ui.item.hasClass('item')) {
+        } else if (ui.hasClass('track') || ui.hasClass('item')) {
             // Something dragged within the playlist
-            var elementmoved = ui.item.hasClass('track') ? 'track' : 'item';
+            var elementmoved = ui.hasClass('track') ? 'track' : 'item';
             switch (elementmoved) {
                 case "track":
-                    var firstitem = parseInt(ui.item.attr("name"));
+                    var firstitem = parseInt(ui.attr("name"));
                     var numitems = 1;
                     break;
                 case "item":
-                    var firstitem = tracklist[parseInt(ui.item.attr("name"))].getFirst();
-                    var numitems = tracklist[parseInt(ui.item.attr("name"))].getSize();
+                    var firstitem = tracklist[parseInt(ui.attr("name"))].getFirst();
+                    var numitems = tracklist[parseInt(ui.attr("name"))].getSize();
                     break;
             }
             // If we move DOWN we have to calculate what the position will be AFTER the items have been moved.
@@ -263,6 +275,17 @@ function Playlist() {
                 } else if ($(element).hasClass('clickcue')) {
                     tracks.push({  type: "cue",
                                     name: decodeURIComponent(uri)});
+                } else if ($(element).hasClass('clickstream')) {
+                    tracks.push({  type: "stream",
+                                    url: decodeURIComponent(uri),
+                                    image: $(element).attr('streamimg') || 'null',
+                                    station: $(element).attr('streamname') || 'null',
+                                    usersupplied: $(element).attr('supply') || 'null'
+                                });
+                } else if ($(element).hasClass('clickradio')) {
+                    tracks.push({  type: "userstream",
+                                    name: decodeURIComponent(uri),
+                                });
                 } else if ($(element).hasClass('clickloadplaylist')) {
                     tracks.push({ type: "playlist",
                                     name: decodeURIComponent($(element).children().first().attr('name'))});
@@ -276,7 +299,7 @@ function Playlist() {
             }
         });
         if (tracks.length > 0) {
-            self.waiting();
+            if (moveto === null || moveto == "") { self.waiting(); }
             var playpos = (moveto === null) ? playlist.playFromEnd() : null;
             player.controller.addTracks(tracks, playpos, moveto);
             $('.selected').removeClass('selected');
@@ -310,17 +333,17 @@ function Playlist() {
     }
 
     // This is used for adding stream playlists ONLY
-    this.newInternetRadioStation = function(list) {
-        var tracks = [];
-        $(list).find("track").each( function() {
-            tracks.push({   type: "uri",
-                            name: $(this).find("location").text()}
-            );
-        });
-        if (tracks.length > 0) {
-            player.controller.addTracks(tracks, playlist.playFromEnd(), null);
-        }
-    }
+    // this.newInternetRadioStation = function(list) {
+    //     var tracks = [];
+    //     $(list).find("track").each( function() {
+    //         tracks.push({   type: "uri",
+    //                         name: $(this).find("location").text()}
+    //         );
+    //     });
+    //     if (tracks.length > 0) {
+    //         player.controller.addTracks(tracks, playlist.playFromEnd(), null);
+    //     }
+    // }
 
     this.hideItem = function(i) {
         tracklist[i].rollUp();
@@ -473,7 +496,7 @@ function Playlist() {
                 }
                 if (prefs.player_backend == "mopidy") {
                     $("#radiodomains").makeDomainChooser({
-                        default_domains: faveFinder.getPriorities(),
+                        default_domains: trackFinder.getPriorities(),
                         sources_not_to_choose: {
                                     bassdrive: 1,
                                     dirble: 1,
@@ -602,92 +625,92 @@ function Playlist() {
                     (tracks[trackpointer].albumartist != "" && tracks[trackpointer].albumartist != tracks[trackpointer].creator)) {
                     showartist = true;
                 }
-                html = html + '<div name="'+tracks[trackpointer].playlistpos+'" romprid="'+tracks[trackpointer].backendid+'" class="track clickable clickplaylist sortable containerbox ';
+                html += '<div name="'+tracks[trackpointer].playlistpos+'" romprid="'+tracks[trackpointer].backendid+'" class="track clickable clickplaylist sortable containerbox ';
                 if (tracks[trackpointer].backendid == player.status.songid) {
-                    html = html + 'playlistcurrentitem menuitem">';
+                    html += 'playlistcurrentitem menuitem">';
                 } else {
-                    html = html + 'playlistitem menuitem">';
+                    html += 'playlistitem menuitem">';
                 }
                 if (tracks[trackpointer].trackimage) {
-                    html = html + '<div class="smallcover fixed"><img class="smallcover" src="'+tracks[trackpointer].trackimage+'" /></div>';
+                    html += '<div class="smallcover fixed"><img class="smallcover" src="'+tracks[trackpointer].trackimage+'" /></div>';
                 }
                 var l = tracks[trackpointer].location;
                 if (tracks[trackpointer].tracknumber) {
-                    html = html + '<div class="tracknumbr fixed"';
+                    html += '<div class="tracknumbr fixed"';
                     if (tracks.length > 99 ||
                         tracks[trackpointer].tracknumber > 99) {
-                        html = html + ' style="width:3em"';
+                        html += ' style="width:3em"';
                     }
-                    html = html + '>'+format_tracknum(tracks[trackpointer].tracknumber)+'</div>';
+                    html += '>'+format_tracknum(tracks[trackpointer].tracknumber)+'</div>';
                 }
                 if (l.substring(0, 7) == "spotify") {
-                    html = html + '<i class="icon-spotify-circled playlisticon fixed"></i>';
+                    html += '<i class="icon-spotify-circled playlisticon fixed"></i>';
                 } else if (l.substring(0, 6) == "gmusic") {
-                    html = html + '<i class="icon-gmusic-circled playlisticon fixed"></i>';
+                    html += '<i class="icon-gmusic-circled playlisticon fixed"></i>';
                 } else if (tracks[trackpointer].type == "podcast") {
-                    html = html + '<i class="icon-podcast-circled playlisticon fixed"></i>';
+                    html += '<i class="icon-podcast-circled playlisticon fixed"></i>';
                 }
                 if (showartist) {
-                    html = html + '<div class="containerbox vertical expand">';
-                    html = html + '<div class="line">'+tracks[trackpointer].title+'</div>';
-                    html = html + '<div class="line playlistrow2">'+tracks[trackpointer].creator+'</div>';
-                    html = html + '</div>';
+                    html += '<div class="containerbox vertical expand">';
+                    html += '<div class="line">'+tracks[trackpointer].title+'</div>';
+                    html += '<div class="line playlistrow2">'+tracks[trackpointer].creator+'</div>';
+                    html += '</div>';
                 } else {
-                    html = html + '<div class="expand line">'+tracks[trackpointer].title+'</div>';
+                    html += '<div class="expand line">'+tracks[trackpointer].title+'</div>';
                 }
-                html = html + '<div class="tracktime tiny fixed">'+formatTimeString(tracks[trackpointer].duration)+'</div>';
-                html = html + '<i class="icon-cancel-circled playlisticonr fixed clickable clickicon clickremovetrack" romprid="'+tracks[trackpointer].backendid+'"></i>';
-                html = html + '</div>';
+                html += '<div class="tracktime tiny fixed">'+formatTimeString(tracks[trackpointer].duration)+'</div>';
+                html += '<i class="icon-cancel-circled playlisticonr fixed clickable clickicon clickremovetrack" romprid="'+tracks[trackpointer].backendid+'"></i>';
+                html += '</div>';
             }
             // Close the rollup div we added in the header
-            html = html + '</div>'
+            html += '</div>'
             return html;
         }
 
         this.header = function() {
             var html = "";
-            html = html + '<div name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="item clickable clickplaylist sortable containerbox playlistalbum ';
+            html += '<div name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="item clickable clickplaylist sortable containerbox playlistalbum ';
             if (self.index == currentalbum) {
-                html = html + 'playlistcurrenttitle">';
+                html += 'playlistcurrenttitle">';
             } else {
-                html = html + 'playlisttitle">';
+                html += 'playlisttitle">';
             }
             if (tracks[0].image && tracks[0].image != "") {
                 // An image was supplied - either a local one or supplied by the backend
-                html = html + '<div class="smallcover fixed clickable clickicon clickrollup selfcentered" romprname="'+self.index+'"><img class="smallcover fixed" name="'+tracks[0].key+'" src="'+tracks[0].image+'"/></div>';
+                html += '<div class="smallcover fixed clickable clickicon clickrollup selfcentered" romprname="'+self.index+'"><img class="smallcover fixed" name="'+tracks[0].key+'" src="'+tracks[0].image+'"/></div>';
             } else {
                 if (prefs.downloadart) {
                     // This is so we can get albumart when we're playing spotify
                     // Once mopidy starts supplying us with images, we can dump this code
                     // Note - this is required for when we load a spotify playlist because the albums won't be
                     // present in the window anywhere else
-                    html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index
+                    html += '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index
                                 + '"><img class="smallcover updateable notexist fixed clickable clickicon clickrollup" romprname="'+self.index
                                 +'" name="'+tracks[0].key+'" /></div>';
                     coverscraper.setCallback(this.updateImages, tracks[0].key);
                     coverscraper.GetNewAlbumArt(tracks[0].key);
                 } else {
-                    html = html + '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover fixed notexist" name="'+tracks[0].key+'"/></div>';
+                    html += '<div class="smallcover fixed clickable clickicon clickrollup" romprname="'+self.index+'"><img class="smallcover fixed notexist" name="'+tracks[0].key+'"/></div>';
                 }
             }
-            html = html + '<div class="containerbox vertical expand selfcentered">';
-            html = html + '<div class="bumpad">'+self.artist+'</div>';
-            html = html + '<div class="bumpad">'+self.album+'</div>';
-            html = html + '</div>';
+            html += '<div class="containerbox vertical expand selfcentered">';
+            html += '<div class="bumpad">'+self.artist+'</div>';
+            html += '<div class="bumpad">'+self.album+'</div>';
+            html += '</div>';
 
-            html = html + '<div class="containerbox vertical fixed">';
+            html += '<div class="containerbox vertical fixed">';
             // These next two currently need wrapping in divs for the sake of Safari
-            html = html + '<div class="expand clickable clickicon clickremovealbum" name="'+self.index+'"><i class="icon-cancel-circled playlisticonr"></i></div>';
-            if (tracks[0].spotify && tracks[0].spotify.album && tracks[0].spotify.album.substring(0,7) == "spotify") {
-                html = html + '<div class="fixed clickable clickicon clickaddwholealbum" name="'+self.index+'"><i class="icon-music playlisticonr"></i></div>';
+            html += '<div class="expand clickable clickicon clickremovealbum" name="'+self.index+'"><i class="icon-cancel-circled playlisticonr"></i></div>';
+            if (tracks[0].metadata.album.url && tracks[0].metadata.album.uri.substring(0,7) == "spotify") {
+                html += '<div class="fixed clickable clickicon clickaddwholealbum" name="'+self.index+'"><i class="icon-music playlisticonr"></i></div>';
             }
-            html = html + '</div>';
-            html = html + '</div>';
-            html = html + '<div class="trackgroup';
+            html += '</div>';
+            html += '</div>';
+            html += '<div class="trackgroup';
             if (rolledup) {
-                html = html + ' invisible';
+                html += ' invisible';
             }
-            html = html + '" name="'+self.index+'">';
+            html += '" name="'+self.index+'">';
             return html;
         }
 
@@ -789,43 +812,43 @@ function Playlist() {
         this.getHTML = function() {
             var html = self.header();
             for (var trackpointer in tracks) {
-                html = html + '<div name="'+tracks[trackpointer].playlistpos+'" romprid="'+tracks[trackpointer].backendid+'" class="booger clickable clickplaylist containerbox playlistitem menuitem">';
-                html = html + '<i class="icon-radio-tower playlisticon fixed"></i>';
-                html = html + '<div class="containerbox vertical expand">';
-                html = html + '<div class="playlistrow2 line">'+tracks[trackpointer].stream+'</div>';
-                html = html + '<div class="tiny line">'+tracks[trackpointer].location+'</div>';
-                html = html + '</div>';
-                html = html + '</div>';
+                html += '<div name="'+tracks[trackpointer].playlistpos+'" romprid="'+tracks[trackpointer].backendid+'" class="booger clickable clickplaylist containerbox playlistitem menuitem">';
+                html += '<i class="icon-radio-tower playlisticon fixed"></i>';
+                html += '<div class="containerbox vertical expand">';
+                html += '<div class="playlistrow2 line">'+tracks[trackpointer].stream+'</div>';
+                html += '<div class="tiny line">'+tracks[trackpointer].location+'</div>';
+                html += '</div>';
+                html += '</div>';
             }
             // Close the rollup div we added in the header
-            html = html + '</div>';
+            html += '</div>';
             return html;
         }
 
         this.header = function() {
             var html = "";
-            html = html + '<div name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="item clickable clickplaylist sortable containerbox playlistalbum ';
+            html += '<div name="'+self.index+'" romprid="'+tracks[0].backendid+'" class="item clickable clickplaylist sortable containerbox playlistalbum ';
             if (self.index == currentalbum) {
-                html = html + 'playlistcurrenttitle">';
+                html += 'playlistcurrenttitle">';
             } else {
-                html = html + 'playlisttitle">';
+                html += 'playlisttitle">';
             }
             var image = (tracks[0].image) ? tracks[0].image : "newimages/broadcast.svg";
-            html = html + '<div class="smallcover fixed clickable clickicon clickrollup selfcentered" romprname="'+self.index+'"><img class="smallcover" name="'+tracks[0].key+'"" src="'+image+'"/></div>';
-            html = html + '<div class="containerbox vertical expand selfcentered">';
-            html = html + '<div class="bumpad">'+tracks[0].creator+'</div>';
-            html = html + '<div class="bumpad">'+tracks[0].album+'</div>';
-            html = html + '</div>';
-            html = html + '<div class="containerbox vertical fixed">';
-            html = html + '<div class="clickable clickicon clickremovealbum expand" name="'+self.index+'"><i class="icon-cancel-circled playlisticonr"></i></div>';
-            html = html + '<div class="clickable clickicon clickaddfave fixed" name="'+self.index+'"><i class="icon-radio-tower playlisticonr"></i></div>';
-            html = html + '</div>';
-            html = html + '</div>';
-            html = html + '<div class="trackgroup';
+            html += '<div class="smallcover fixed clickable clickicon clickrollup selfcentered" romprname="'+self.index+'"><img class="smallcover" name="'+tracks[0].key+'"" src="'+image+'"/></div>';
+            html += '<div class="containerbox vertical expand selfcentered">';
+            html += '<div class="bumpad">'+tracks[0].creator+'</div>';
+            html += '<div class="bumpad">'+tracks[0].album+'</div>';
+            html += '</div>';
+            html += '<div class="containerbox vertical fixed">';
+            html += '<div class="clickable clickicon clickremovealbum expand" name="'+self.index+'"><i class="icon-cancel-circled playlisticonr"></i></div>';
+            html += '<div class="clickable clickicon clickaddfave fixed" name="'+self.index+'"><i class="icon-radio-tower playlisticonr"></i></div>';
+            html += '</div>';
+            html += '</div>';
+            html += '<div class="trackgroup';
             if (rolledup) {
-                html = html + ' invisible';
+                html += ' invisible';
             }
-            html = html + '" name="'+self.index+'">';
+            html += '" name="'+self.index+'">';
             return html;
         }
 

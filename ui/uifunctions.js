@@ -24,13 +24,16 @@ function saveSelectBoxes(event) {
 
     switch(prefname) {
         case "theme":
-            $("#theme").attr({href: 'themes/'+$("#themeselector").val()});
+            // $("#theme").attr({href: 'themes/'+$("#themeselector").val()});
+            setTheme($("#themeselector").val());
             setTimeout(layoutProcessor.adjustLayout, 1000);
             break;
 
         case "icontheme":
-            $("#icontheme-theme").attr("href", "iconsets/"+$("#iconthemeselector").val()+"/theme.css");
-            $("#icontheme-adjustments").attr("href", "iconsets/"+$("#iconthemeselector").val()+"/adjustments.css");
+            $("#icontheme-theme").attr("href", "iconsets/"+$("#iconthemeselector")
+                .val()+"/theme.css");
+            $("#icontheme-adjustments").attr("href",
+                "iconsets/"+$("#iconthemeselector").val()+"/adjustments.css");
             setTimeout(layoutProcessor.adjustLayout, 1000);
             break;
 
@@ -98,11 +101,11 @@ function togglePref(event) {
         case 'ignore_unplayable':
         case 'sortbycomposer':
         case 'composergenre':
-            $("#donkeykong").makeFlasher({flashtime: 0.5, repeats: 3});
+            $('[name="donkeykong"]').makeFlasher({flashtime: 0.5, repeats: 3});
             break;
 
         case 'displaycomposer':
-        debug.log("PREFS","Display Composer Option was changed");
+            debug.log("PREFS","Display Composer Option was changed");
             callback = player.controller.doTheNowPlayingHack;
             break
 
@@ -158,14 +161,14 @@ function doTheSave() {
     var callback = null;
     $(".saveotron").each( function() {
         if ($(this).hasClass("arraypref")) {
-            felakuti[$(this).attr("id")] = $(this).attr("value").split(',');
+            felakuti[$(this).attr("id")] = $(this).val().split(',');
         } else {
-            felakuti[$(this).attr("id")] = $(this).attr("value");
+            felakuti[$(this).attr("id")] = $(this).val();
         }
         switch ($(this).attr("id")) {
             case "composergenrename":
                 if (felakuti.composergenrename != prefs.composergenrename) {
-                    $("#donkeykong").makeFlasher({flashtime:0.5, repeats: 3});
+                    $('[name="donkeykong"]').makeFlasher({flashtime:0.5, repeats: 3});
                 }
                 break;
 
@@ -178,9 +181,9 @@ function doTheSave() {
                 break;
 
             case "crossfade_duration":
-                if (felakuti.crossfade_duration != player.status.xfade && 
-                    player.status.xfade !== undefined && 
-                    player.status.xfade !== null && 
+                if (felakuti.crossfade_duration != player.status.xfade &&
+                    player.status.xfade !== undefined &&
+                    player.status.xfade !== null &&
                     player.status.xfade > 0) {
                     callback = function() { player.controller.setCrossfade(felakuti.crossfade_duration) }
                 }
@@ -198,7 +201,7 @@ function setPrefs() {
     $("#scrobwrangler").click( setscrob );
 
     $.each($('.autoset'), function() {
-        $(this).attr("checked", prefs[$(this).attr("id")]);
+        $(this).prop("checked", prefs[$(this).attr("id")]);
     });
 
     $.each($('.saveotron'), function() {
@@ -217,7 +220,7 @@ function setPrefs() {
 
     $.each($('.savulon'), function() {
         var prefname = $(this).attr("name");
-        $("[name="+prefname+"][value="+prefs[prefname]+"]").attr("checked", true);
+        $("[name="+prefname+"][value="+prefs[prefname]+"]").prop("checked", true);
     });
 
 }
@@ -250,59 +253,20 @@ function toggleCollectionButtons() {
     $("#collectionbuttons").slideToggle('fast');
     var p = !prefs.collectioncontrolsvisible;
     prefs.save({ collectioncontrolsvisible: p });
-    return false;    
+    return false;
 }
 
 function lastfmlogin() {
-    var user = $("#configpanel").find('input[name|="user"]').attr("value");
+    var user = $("#configpanel").find('input[name|="user"]').val();
     lastfm.login(user);
     $("#configpanel").fadeOut(1000);
 }
 
 function doInternetRadio(input) {
-    getInternetPlaylist($("#"+input).attr("value"), null, null, null, true);
-}
-
-function getInternetPlaylist(url, image, station, creator, usersupplied) {
-    debug.log("GENERAL","Getting Internet Playlist",url, image, station, creator, usersupplied);
-    playlist.waiting();
-    data = {url: encodeURIComponent(url)};
-    if (image) { data.image = encodeURIComponent(image) }
-    if (station) { data.station = encodeURIComponent(station) }
-    if (creator) { data.creator = encodeURIComponent(creator) }
-
-    $.ajax( {
-        type: "GET",
-        url: "utils/getInternetPlaylist.php",
-        cache: false,
-        contentType: "text/xml; charset=utf-8",
-        data: data,
-        dataType: "xml",
-        success: function(data) {
-            playlist.newInternetRadioStation(data);
-        },
-        error: function(data, status) {
-            playlist.repopulate();
-            infobar.notify(infobar.ERROR, language.gettext("label_tunefailed"));
-        }
-    } );
-}
-
-function playUserStream(xspf) {
-    playlist.waiting();
-    $.ajax( {
-        type: "GET",
-        url: "utils/getUserStreamPlaylist.php",
-        cache: false,
-        contentType: "text/xml; charset=utf-8",
-        data: {name: xspf},
-        dataType: "xml",
-        success: playlist.newInternetRadioStation,
-        error: function(data, status) {
-            playlist.repopulate();
-            infobar.notify(infobar.ERROR, language.gettext("label_tunefailed"));
-        }
-    } );
+    var el = new Array();
+    el.push($('<div>', {class: 'invisible clickstream', name: $("#"+input).val(), supply: 'user'}));
+    playlist.addItems(el, null);
+    el[0].remove();
 }
 
 function removeUserStream(xspf) {
@@ -325,6 +289,29 @@ function removeUserStream(xspf) {
     } );
 }
 
+function changeBackgroundImage() {
+    $('[name="currbackground"]').val(prefs.theme);
+    var formElement = document.getElementById('backimageform');
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "backimage.php");
+    xhr.responseType = "json";
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            debug.log("BIMAGE", xhr.response);
+            if (xhr.response.image) {
+                $('body').css('background-image', 'url("'+xhr.response.image+'")');
+                $('body').css('background-size', 'cover');
+                $('body').css('background-repeat', 'no-repeat');
+                $('#cusbgname').html(xhr.response.image.split(/[\\/]/).pop());
+            }
+        } else {
+            debug.fail("BIMAGE", "FAILED");
+        }
+    };
+    xhr.send(new FormData(formElement));
+
+}
+
 var imagePopup = function() {
     var wikipopup = null;
     var imagecontainer = null;
@@ -345,8 +332,10 @@ var imagePopup = function() {
             debug.log("IMAGEPOPUP", "Creating new popup",source);
             debug.log("IMAGEPOPUP", "Current popup source is",image.src);
             if(wikipopup == null){
-                wikipopup = $('<div>', { id: 'wikipopup', onclick: 'imagePopup.close()', class: 'dropshadow'}).appendTo($('body'));
-                imagecontainer = $('<img>', { id: 'imagecontainer', onclick: 'imagePopup.close()', src: ''}).appendTo($('body'));
+                wikipopup = $('<div>', { id: 'wikipopup', onclick: 'imagePopup.close()',
+                    class: 'dropshadow'}).appendTo($('body'));
+                imagecontainer = $('<img>', { id: 'imagecontainer', onclick: 'imagePopup.close()',
+                    src: ''}).appendTo($('body'));
             } else {
                 wikipopup.empty();
                 imagecontainer.fadeOut('fast');
@@ -360,7 +349,8 @@ var imagePopup = function() {
                                   height: '48px',
                                   top: top+'px',
                                   left: left+'px'});
-            wikipopup.append($('<i>', {class: 'icon-spin6 smallcover-svg spinner', style: 'position:relative;top:8px;left:8px'}));
+            wikipopup.append($('<i>', {class: 'icon-spin6 smallcover-svg spinner',
+                style: 'position:relative;top:8px;left:8px'}));
             wikipopup.fadeIn('fast');
             if (source !== undefined) {
                 if (source == image.src) {
@@ -393,7 +383,8 @@ var imagePopup = function() {
                 imgheight = Math.round(imgheight * scale);
                 imgwidth = Math.round(imgwidth * scale);
             }
-            debug.log("POPUP","Calculated Image size is",imgwidth,imgheight,(imgwidth/image.width),(imgheight/image.height));
+            debug.log("POPUP","Calculated Image size is",imgwidth,imgheight,(imgwidth/image.width),
+                (imgheight/image.height));
             var popupwidth = imgwidth+36;
             var popupheight = imgheight+36;
 
@@ -431,7 +422,8 @@ var imagePopup = function() {
                                           src: image.src });
 
                     imagecontainer.fadeIn('slow');
-                    wikipopup.append($('<i>', {class: 'icon-cancel-circled playlisticon tright clickicon', style: 'margin-top:4px;margin-right:4px'}));
+                    wikipopup.append($('<i>', {class: 'icon-cancel-circled playlisticon tright clickicon',
+                        style: 'margin-top:4px;margin-right:4px'}));
                 }
             );
         },
@@ -472,9 +464,11 @@ var popupWindow = function() {
             popup.setAttribute('id',id);
             popup.style.height = 'auto';
             $(popup).append('<div id="cheese"></div>');
-            $("#cheese").append('<table width="100%"><tr><td width="30px"></td><td align="center"><h2>'+title+
+            $("#cheese").append('<table width="100%"><tr><td width="30px"></td><td align="center"><h2>'+
+                title+
                 '</h2></td><td align="right" width="30px">'+
-                '<i class="icon-cancel-circled playlisticon clickicon" onclick="popupWindow.close()"></i></td></tr></table>');
+                '<i class="icon-cancel-circled playlisticon clickicon" onclick="popupWindow.close()">'+
+                '</i></td></tr></table>');
             $(popup).append('<div id="popupcontents"></div>');
             var winsize = getWindowSize();
             var windowScroll = getScrollXY();
@@ -518,10 +512,12 @@ var popupWindow = function() {
         setsize:function() {
             var winsize = getWindowSize();
             var lsize = layoutProcessor.maxPopupSize(winsize);
-            var psize = $("#cheese").outerHeight(true)+$("#popupcontents").children().first().children().first().outerHeight(true)+16;
+            var psize = $("#cheese").outerHeight(true)+$("#popupcontents")
+                .children().first().children().first().outerHeight(true)+16;
             if (psize < wantedheight && psize < winsize.y && psize < lsize.height) {
                 $(popup).css('height',(psize+16)+"px");
-                $("#popupcontents").css('height', $("#popupcontents").children().first().children().first().outerHeight(true)+"px")
+                $("#popupcontents").css('height', $("#popupcontents").children().first()
+                    .children().first().outerHeight(true)+"px");
             }
         },
         onClose: function(callback) {
@@ -545,7 +541,7 @@ function setPlaylistButtons() {
             }
         });
     }
-    if (player.status.xfade !== undefined && player.status.xfade !== null && 
+    if (player.status.xfade !== undefined && player.status.xfade !== null &&
         player.status.xfade > 0 && player.status.xfade != prefs.crossfade_duration) {
         prefs.save({crossfade_duration: player.status.xfade});
         $("#crossfade_duration").val(player.status.xfade);
@@ -599,6 +595,10 @@ function prepareForLiftOff2(text) {
 */
 
 function checkCollection(forceup, rescan) {
+    if (forceup && player.updatingcollection) {
+        infobar.notify(infobar.ERROR, "Already Updating Collection!");
+        return;
+    }
     var update = forceup;
     if (prefs.updateeverytime) {
         debug.mark("GENERAL","Updating Collection due to preference");
@@ -611,6 +611,7 @@ function checkCollection(forceup, rescan) {
         }
     }
     if (update) {
+        player.updatingcollection = true;
         $("#searchresultholder").html('');
         player.controller.scanFiles(rescan ? 'rescan' : 'update');
     } else {
@@ -718,9 +719,10 @@ function doSomethingUseful(div,text) {
     if (typeof div == "string") {
         html = '<div class="containerbox bar" id= "spinner_'+div+'">';
     }
-    html = html + '<div class="fixed" style="vertical-align:middle;padding-left:8px"><i class="icon-spin6 smallcover-svg spinner"></i></div>';
-    html = html + '<h3 class="expand ucfirst label">'+text+'</h3>';
-    html = html + '</div>';
+    html += '<div class="fixed" style="vertical-align:middle;padding-left:8px">'+
+        '<i class="icon-spin6 smallcover-svg spinner"></i></div>';
+    html += '<h3 class="expand ucfirst label">'+text+'</h3>';
+    html += '</div>';
     if (typeof div == "object") {
         div.append(html);
     } else if (typeof div == "string") {
@@ -765,7 +767,8 @@ function getrgbs(percent) {
     var lowalpha = 0.8;
     var highalpha = 1;
 
-    return "rgba(150,75,0,"+lowalpha+") 0%,rgba("+highr+","+highg+",0,"+highalpha+") "+percent+"%,rgba(0,0,0,0.1) "+percent+"%,rgba(0,0,0,0.1) 100%)";
+    return "rgba(150,75,0,"+lowalpha+") 0%,rgba("+highr+","+highg+",0,"+highalpha+") "+percent+
+        "%,rgba(0,0,0,0.1) "+percent+"%,rgba(0,0,0,0.1) 100%)";
 
 }
 
@@ -852,7 +855,7 @@ var tagAdder = function() {
     return {
         show: function(evt, idx) {
             if (evt.target == lastelement) {
-                tagAdder.close();                
+                tagAdder.close();
             }  else {
                 index = idx;
                 var position = getPosition(evt);
@@ -881,8 +884,8 @@ var pluginManager = function() {
     // They must supply a label and either an action function, a setup function, or both.
     // The setup function will be called as soon as all the page scripts have loaded,
     // before the layout is initialised. If a plugin wishes to add icons to the layout,
-    // or hotkeys, it should do it here. 
-    // If an action function is provided the plugin's label will be added to the dropdown list 
+    // or hotkeys, it should do it here.
+    // If an action function is provided the plugin's label will be added to the dropdown list
     // above the info panel and the action function will be called when the label is clicked.
     // Note that plugins are not used in the mobile layout - for memory reasons. Most plugins
     // provide services that are not useful on a mobile screen anyway.
@@ -908,7 +911,8 @@ var pluginManager = function() {
             for (var i in plugins) {
                 if (plugins[i].action) {
                     debug.log("PLUGINS","Setting up Plugin",plugins[i].label);
-                    $("#specialplugins").append('<div class="backhi clickable clickicon noselection menuitem" name="'+i+'">'+plugins[i].label+'</div>');
+                    $("#specialplugins").append('<div class="backhi clickable clickicon noselection'+
+                        ' menuitem" name="'+i+'">'+plugins[i].label+'</div>');
                 }
             }
             $("#specialplugins .clickicon").click(function() {
@@ -978,7 +982,7 @@ function addAlbumTracksToCollection(data) {
             track.duration = data.tracks.items[i].duration_ms/1000;
             track.disc = data.tracks.items[i].disc_number;
             track.albumartist = joinartists(data.artists);
-            track.spotilink = data.uri;
+            track.albumuri = data.uri;
             if (data.images) {
                 for (var j in data.images) {
                     if (data.images[j].url) {
@@ -1099,17 +1103,27 @@ function showUpdateWindow() {
         $("#popupcontents").append('<div id="fnarkler" class="mw-headline"></div>');
         $("#fnarkler").append('<p align="center">'+language.gettext("intro_welcome")+' '+rompr_version+'</p>');
         if (skin != "desktop") {
-            $("#fnarkler").append('<p align="center">'+language.gettext("intro_viewingmobile")+' <a href="/rompr/?skin=desktop">/rompr/?skin=desktop</a></p>');
+            $("#fnarkler").append('<p align="center">'+language.gettext("intro_viewingmobile")+
+                ' <a href="/rompr/?skin=desktop">/rompr/?skin=desktop</a></p>');
         } else {
-            $("#fnarkler").append('<p align="center">'+language.gettext("intro_viewmobile")+' <a href="/rompr/?skin=phone">/rompr/?skin=phone</a></p>');
+            $("#fnarkler").append('<p align="center">'+language.gettext("intro_viewmobile")+
+                ' <a href="/rompr/?skin=phone">/rompr/?skin=phone</a></p>');
         }
-        $("#fnarkler").append('<p align="center">'+language.gettext("intro_basicmanual")+' <a href="https://sourceforge.net/p/rompr/wiki/Basic%20Manual/" target="_blank">http://sourceforge.net/p/rompr/wiki/Basic%20Manual/</a></p>');
-        $("#fnarkler").append('<p align="center">'+language.gettext("intro_forum")+' <a href="https://sourceforge.net/p/rompr/discussion/" target="_blank">http://sourceforge.net/p/rompr/discussion/</a></p>');
-        $("#fnarkler").append('<p align="center">RompR needs translators! If you want to get involved, please read <a href="https://sourceforge.net/p/rompr/wiki/Translating%20RompR/" target="_blank">this</a></p>');
+        $("#fnarkler").append('<p align="center">'+language.gettext("intro_basicmanual")+
+            ' <a href="https://sourceforge.net/p/rompr/wiki/Basic%20Manual/" target="_blank">'+
+            'http://sourceforge.net/p/rompr/wiki/Basic%20Manual/</a></p>');
+        $("#fnarkler").append('<p align="center">'+language.gettext("intro_forum")+
+            ' <a href="https://sourceforge.net/p/rompr/discussion/" target="_blank">'+
+            'http://sourceforge.net/p/rompr/discussion/</a></p>');
+        $("#fnarkler").append('<p align="center">RompR needs translators! If you want to get'+
+            ' involved, please read <a href="https://sourceforge.net/p/rompr/wiki/Translating%20RompR/"'+
+            ' target="_blank">this</a></p>');
         if (prefs.player_backend == "mopidy") {
-            $("#fnarkler").append('<p align="center"><b>Mopidy is STILL SUPPORTED! Rompr now uses the Mopidy MPD frontend</b></p>');
+            $("#fnarkler").append('<p align="center"><b>Mopidy is STILL SUPPORTED! Rompr now uses '+
+                'the Mopidy MPD frontend</b></p>');
             $("#fnarkler").append('<p align="center"><b>'+language.gettext("intro_mopidy")+'</b></p>');
-            $("#fnarkler").append('<p align="center"><a href="https://sourceforge.net/p/rompr/wiki/Rompr%20and%20Mopidy/" target="_blank">'+language.gettext("intro_mopidywiki")+'</a></p>');
+            $("#fnarkler").append('<p align="center"><a href="https://sourceforge.net/p/rompr/wiki/Rompr%20and%20Mopidy/"'+
+                ' target="_blank">'+language.gettext("intro_mopidywiki")+'</a></p>');
         }
         $("#fnarkler").append('<p><button style="width:8em" class="tright" onclick="popupWindow.close()">OK</button></p>');
         popupWindow.open();
@@ -1118,7 +1132,9 @@ function showUpdateWindow() {
 }
 
 function removeOpenItems(index) {
-    if ($(this).hasClass('clicktrack') || $(this).hasClass('clickcue')) {
+    if ($(this).hasClass('clicktrack') ||
+        $(this).hasClass('clickcue') ||
+        $(this).hasClass('clickstream')) {
         return true;
     }
     // Filter out artist and album items whose dropdowns have been populated -
@@ -1216,7 +1232,7 @@ function doPluginDropStuff(name,attributes,fn) {
             fn(name);
         }
     })();
-    
+
 }
 
 function makeHoverWork(ev) {
@@ -1230,7 +1246,7 @@ function makeHoverWork(ev) {
     } else {
         jq.css('cursor','auto');
     }
-} 
+}
 
 function checkSearchDomains() {
     $("#mopidysearchdomains").makeDomainChooser({
@@ -1248,8 +1264,9 @@ function doMopidyCollectionOptions() {
     // Mopidy Folders to browse when building the collection
 
     // spotifyweb folders are SLOW, but that's to be expected.
-    // We use 'Albums' to get 'Your Music' because, although it requires more requests than 'Songs', each response will be small
-    // enough to handle easily and there's less danger of timeouts or running into memory issues or pagination.
+    // We use 'Albums' to get 'Your Music' because, although it requires more requests than 'Songs',
+    // each response will be small enough to handle easily and there's less danger of timeouts or
+    // running into memory issues or pagination.
 
     var domains = {
         local: [{dir: "Local media", label: "Local Media"}],
@@ -1265,7 +1282,7 @@ function doMopidyCollectionOptions() {
     for (var i in domains) {
         if (player.canPlay(i)) {
             for (var j in domains[i]) {
-                var fum = 
+                var fum =
                     '<div class="styledinputs indent">'+
                     '<input class="mopocol" type="checkbox" id="mopcol_'+i+j+'"';
                     if (prefs.mopidy_collection_folders.indexOf(domains[i][j].dir) > -1) {
@@ -1290,7 +1307,7 @@ function doMopidyCollectionOptions() {
 }
 
 $.widget("rompr.makeDomainChooser", {
-    
+
     options: {
         default_domains: [],
         sources_not_to_choose: {
@@ -1317,30 +1334,34 @@ $.widget("rompr.makeDomainChooser", {
     _create: function() {
         var self = this;
         this.options.holder = $('<div>').appendTo(this.element);
-        var p = faveFinder.getPriorities();
-        p.reverse();
+        var p = this.options.default_domains;
+        // p.reverse();
         for (var i in p) {
             if (player.canPlay(p[i])) {
                 var makeunique = $("[id^='"+p[i]+"_import_domain']").length+1;
                 var id = p[i]+'_import_domain_'+makeunique;
-                this.options.holder.append('<div class="brianblessed styledinputs"><input type="checkbox" class="topcheck" id="'+id+'"><label for="'+id+'">'+p[i].capitalize()+'</label></div>');
+                this.options.holder.append('<div class="brianblessed styledinputs">'+
+                    '<input type="checkbox" class="topcheck" id="'+id+'"><label for="'+id+'">'+
+                    p[i].capitalize()+'</label></div>');
             }
         }
         for (var i in player.urischemes) {
             if (p.indexOf(i) == -1 && !this.options.sources_not_to_choose.hasOwnProperty(i)) {
                 var makeunique = $("[id^='"+i+"_import_domain']").length+1;
                 var id = i+'_import_domain_'+makeunique;
-                this.options.holder.append('<div class="brianblessed styledinputs"><input type="checkbox" class="topcheck" id="'+id+'"><label for="'+id+'">'+i.capitalize()+'</label></div>');
+                this.options.holder.append('<div class="brianblessed styledinputs">'+
+                    '<input type="checkbox" class="topcheck" id="'+id+'"><label for="'+id+'">'+
+                    i.capitalize()+'</label></div>');
             }
         }
         this.options.holder.find('.topcheck').each(function() {
             var n = $(this).attr("id");
             var d = n.substr(0, n.indexOf('_'));
             if (self.options.default_domains.indexOf(d) > -1) {
-                $(this).attr("checked", true);
+                $(this).prop("checked", true);
             }
         });
-        this.options.holder.disableSelection();        
+        this.options.holder.disableSelection();
     },
 
     _setOption: function(key, value) {
@@ -1362,7 +1383,9 @@ function editPlayerDefs() {
     $("#configpanel").slideToggle('fast');
     var playerpu = popupWindow.create(600,600,"playerpu",true,"Players");
 
-    $("#popupcontents").append('<div class="pref textcentre"><p>You can define as many players as you like and switch between them or use them all simultaneously from different browsers. All the players will share the same Collection database.</p>'+
+    $("#popupcontents").append('<div class="pref textcentre"><p>You can define as many players as '+
+        'you like and switch between them or use them all simultaneously from different browsers. '+
+        'All the players will share the same Collection database.</p>'+
         '<p><b>Do NOT access multiple players from the same browser simultaneously.</b></p></div>');
 
     $("#popupcontents").append('<table align="center" cellpadding="2" id="playertable" width="96%"></table>');
@@ -1445,8 +1468,9 @@ function updatePlayerChoices() {
 function replacePlayerOptions() {
     $("#playerdefs").empty();
     for (var i in prefs.multihosts) {
-        $("#playerdefs").append('<input type="radio" class="topcheck savulon" name="currenthost" value="'+i+'" id="host_'+escape(i)+'">'+
-        '<label for="host_'+escape(i)+'">'+i+'</label><br/>');
+        $("#playerdefs").append('<input type="radio" class="topcheck savulon" name="currenthost" value="'+
+            i+'" id="host_'+escape(i)+'">'+
+            '<label for="host_'+escape(i)+'">'+i+'</label><br/>');
     }
 }
 
@@ -1463,4 +1487,642 @@ function addNewPlayerRow() {
     popupWindow.setsize();
     $('.clickremhost').unbind('click');
     $('.clickremhost').click(removePlayerDef);
+}
+
+$.widget("rompr.resizeHandle", $.ui.mouse, {
+    widgetEventPrefix: "resize",
+    options: {
+        adjusticons: [],
+        side: 'left'
+    },
+
+    _create: function() {
+        this.dragging = false;
+        this._mouseInit();
+    },
+
+    _mouseCapture: function(event) {
+        this.dragging = true;
+        this.startX = event.clientX;
+        this.elementStartX = this.element.offset().left;
+        this.winsize = getWindowSize();
+        this.widthadjust = this.element.outerWidth(true);
+        return true;
+    },
+
+    _mouseStart: function(event) {
+        return true;
+    },
+
+    _mouseDrag: function(event) {
+        if (this.dragging) {
+            var distance = event.clientX - this.startX;
+            if (this.options.side == 'left') {
+                var size = Math.max(this.elementStartX + distance + this.widthadjust, 120);
+                prefs.sourceswidthpercent = (size/this.winsize.x)*100;
+            } else {
+                var size = Math.max(this.winsize.x - (this.elementStartX + distance), 120);
+                prefs.playlistwidthpercent = (size/this.winsize.x)*100;
+            }
+            if (prefs.sourceswidthpercent + prefs.playlistwidthpercent > 100 || prefs.hidebrowser) {
+                if (this.options.side == 'left') {
+                    prefs.playlistwidthpercent = 100 - prefs.sourceswidthpercent;
+                } else {
+                    prefs.sourceswidthpercent = 100 - prefs.playlistwidthpercent;
+                }
+            }
+            doThatFunkyThang();
+            setTopIconSize(this.options.adjusticons);
+        }
+        return true;
+    },
+
+    _mouseStop: function(event) {
+        this.dragging = false;
+        setTopIconSize(["#sourcescontrols", "#infopanecontrols", "#playlistcontrols"]);
+        browser.rePoint();
+        prefs.save({sourceswidthpercent: prefs.sourceswidthpercent});
+        prefs.save({playlistwidthpercent: prefs.playlistwidthpercent});
+        return true;
+    }
+
+});
+
+$.widget("rompr.trackdragger", $.ui.mouse, {
+    options: {
+
+    },
+
+    _create: function() {
+        this.dragging = false;
+        this._mouseInit();
+    },
+
+    _mouseCapture: function() {
+        return true;
+    },
+
+    _mouseStart: function(event) {
+        var clickedElement = findClickableElement(event);
+        if (!clickedElement.hasClass('draggable')) {
+            return false;
+        }
+        this.dragging = true;
+        if (!clickedElement.hasClass("selected")) {
+            if (clickedElement.hasClass("clickalbum") ||
+                clickedElement.hasClass("clickloadplaylist")) {
+                albumSelect(event, clickedElement);
+            } else if (clickedElement.hasClass("clicktrack") ||
+                        clickedElement.hasClass("clickcue") ||
+                        clickedElement.hasClass('clickstream')) {
+                trackSelect(event, clickedElement);
+            }
+        }
+        this.dragger = $('<div>', {id: 'dragger', class: 'draggable dragsort containerbox vertical dropshadow'}).appendTo('body');
+        if ($(".selected").length > 6) {
+            this.dragger.append('<div class="containerbox menuitem">'+
+                '<div class="smallcover fixed"><i class="icon-music smallcover-svg"></i></div>'+
+                '<div class="expand"><h3>'+$(".selected").length+' Items</h3></div>'+
+                '</div>');
+        } else {
+            $(".selected").clone().removeClass("selected").appendTo(this.dragger);
+        }
+        // Little hack to make dragging from the various tag/rating/playlist managers
+        // look prettier
+        this.dragger.find('tr').wrap('<table></table>');
+        this.dragger.find('.icon-cancel-circled').remove();
+        this.drag_x_offset = event.pageX - clickedElement.offset().left;
+        var pos = {top: event.pageY - 12, left: event.pageX - this.drag_x_offset};
+        this.dragger.css({top: pos.top+"px", left: pos.left+"px"});
+        this.dragger.fadeIn('fast');
+        $('.trackacceptor').acceptDroppedTracks('dragstart');
+        return true;
+    },
+
+    _mouseDrag: function(event) {
+        if (this.dragging) {
+            var pos = {top: event.pageY - 12, left: event.pageX - this.drag_x_offset};
+            this.dragger.css({top: pos.top+"px", left: pos.left+"px"});
+        }
+        $('.trackacceptor').each(function() {
+            if ($(this).acceptDroppedTracks('checkMouseOver', event)) {
+                // Break out of the each loop
+                return false;
+            }
+        });
+        return true;
+    },
+
+    _mouseStop: function(event) {
+        this.dragging = false;
+        this.dragger.remove();
+        $('.trackacceptor').each(function() {
+            if ($(this).acceptDroppedTracks('dragstop', event)) {
+                return false;
+            }
+        });
+        return true;
+    }
+
+});
+
+$.widget("rompr.acceptDroppedTracks", {
+    options: {
+        ondrop: null,
+        coveredby: null,
+        scroll: false,
+        scrollparent: ''
+    },
+
+    _create: function() {
+        this.element.addClass('trackacceptor');
+        this.dragger_is_over = false;
+    },
+
+    dragstart: function() {
+        this.dragger_is_over = false;
+        // For custom scrollbars the bounding box needs to be the scrollparent
+        var vbox = (this.options.scroll) ? $(this.options.scrollparent) : this.element;
+        this.bbox = {
+            left:   this.element.offset().left,
+            top:    Math.max(vbox.offset().top, this.element.offset().top),
+            right:  this.element.offset().left + this.element.width(),
+            bottom: Math.min(vbox.offset().top + vbox.height(), this.element.offset().top + this.element.height())
+        }
+        if (this.options.coveredby !== null) {
+            // ONLY works in playlist for sending correct events to correct targets
+            this.bbox.top = $(this.options.coveredby).offset().top + $(this.options.coveredby).height();
+        }
+        if (this.element.hasClass('sortabletracklist')) {
+             this.element.sortableTrackList('dragstart');
+        }
+
+    },
+
+    dragstop: function(event) {
+        debug.log("UITHING","dragstop",this.element.attr("id"));
+        if (this.dragger_is_over && this.options.ondrop !== null) {
+            debug.log("UITHING","Dropped onto wotsit thingy",this.element.attr("id"));
+            this.dragger_is_over = false;
+            this.element.removeClass('highlighted');
+            this.options.ondrop(event, this.element);
+            return true;
+        }
+        if (this.dragger_is_over && this.element.hasClass('sortabletracklist')) {
+            debug.log("UITHING","Dropped ontp sortable tracklist",this.element.attr("id"));
+            this.dragger_is_over = false;
+            this.element.removeClass('highlighted');
+            this.element.sortableTrackList('dropped', event);
+            return true;
+        }
+        this.dragger_is_over = false;
+        this.element.removeClass('highlighted');
+        return false;
+    },
+
+    checkMouseOver: function(event) {
+        if (event.pageX > this.bbox.left && event.pageX < this.bbox.right &&
+            event.pageY > this.bbox.top && event.pageY < this.bbox.bottom) {
+            if (!this.dragger_is_over) {
+                this.dragger_is_over = true;
+                this.element.addClass('highlighted');
+            }
+            if (this.dragger_is_over && this.element.hasClass('sortabletracklist')) {
+                this.element.sortableTrackList('do_intersect_stuff', event, $("#dragger"));
+            }
+            return true;
+        } else {
+            if (this.dragger_is_over) {
+                debug.log("UITHING","Dragger is NOT over",this.element.attr("id"));
+                this.element.removeClass('highlighted');
+                if (this.element.hasClass('sortabletracklist')) {
+                    this.element.sortableTrackList('dragleave');
+                }
+                this.dragger_is_over = false;
+            }
+            return false;
+        }
+    }
+
+ });
+
+$.widget("rompr.sortableTrackList", $.ui.mouse, {
+    options: {
+        items: '',
+        outsidedrop: null,
+        insidedrop: null,
+        scroll: false,
+        scrollparent: '',
+        scrollspeed: 0,
+        scrollzone: 0,
+        allowdragout: false
+    },
+
+    _create: function() {
+        this.element.addClass('sortabletracklist');
+        this.helper = null;
+        this.dragger = null;
+        this.dragging = false;
+        this.draggingout = false;
+        this._scrollcheck = null;
+        this._mouseInit();
+    },
+
+    dragstart: function() {
+        // For custom scrollbars the bounding box needs to be the scrollparent
+        var vbox = (this.options.scroll) ? $(this.options.scrollparent) : this.element;
+        this.bbox = {
+            left:   this.element.offset().left,
+            top:    Math.max(vbox.offset().top, this.element.offset().top),
+            right:  this.element.offset().left + this.element.width(),
+            bottom: Math.min(vbox.offset().top + vbox.height(), this.element.offset().top + this.element.height())
+        }
+        if (this.helper) this.helper.remove();
+        this.helper = null;
+    },
+
+    do_intersect_stuff: function(event, item) {
+        // This is vertical sortable lists so we're only gonna care
+        // about vertical sorting.
+        var self = this;
+        clearTimeout(this._scrollcheck);
+        this._mouseEvent = event;
+        this._item = item;
+        var scrolled = this._checkScroll(event);
+        this.element.find(this.options.items).each(function() {
+            var jq = $(this);
+            var bbox = {
+                top: jq.offset().top,
+                middle: jq.offset().top + jq.height()/2,
+                bottom: jq.offset().top + jq.height()
+            }
+            if (event.pageY > bbox.top && event.pageY <= bbox.middle) {
+                // Put a helper above the current item
+                self._checkHelper.call(self, item);
+                self.helper.detach().insertBefore(jq);
+                return false;
+            } else if (event.pageY > bbox.middle && event.pageY < bbox.bottom) {
+                self._checkHelper.call(self, item);
+                self.helper.detach().insertAfter(jq);
+                return false;
+            }
+        });
+        if (scrolled) {
+            this._scrollcheck = setTimeout($.proxy(this._checkMouseHover, this), 100);
+        }
+
+    },
+
+    _checkHelper: function(item) {
+        if (this.helper) return true;
+        if (this.element.find(this.options.items).first().is('tr')) {
+            this.helper = $('<tr>', {
+                id: this.element.attr('id')+'_sorthelper',
+            });
+        } else {
+            this.helper = $('<div>', {
+                id: this.element.attr('id')+'_sorthelper',
+            });
+        }
+        this.helper.css('height', (item.height()+12)+"px");
+        this.helper.attr('class', item.hasClass('draggable') ? 'draggable' : 'something');
+        this.helper.empty();
+    },
+
+    _checkScroll: function(event) {
+        // Custom Scrollbars ONLY
+        var scrolled = false;
+        if (this.options.scroll) {
+            if (event.pageY < this.bbox.top + this.options.scrollzone) {
+                $(this.options.scrollparent).mCustomScrollbar('scrollTo', '+='+
+                    this.options.scrollspeed, {scrollInertia: 100, scrollEasing: "easeOut"});
+                scrolled = true;
+            } else if (event.pageY > this.bbox.bottom - this.options.scrollzone) {
+                $(this.options.scrollparent).mCustomScrollbar('scrollTo', '-='+
+                    this.options.scrollspeed, {scrollInertia: 100, scrollEasing: "easeOut"});
+                scrolled = true;
+            }
+        }
+        return scrolled;
+
+    },
+
+    _checkMouseHover: function() {
+        this.do_intersect_stuff(this._mouseEvent, this._item);
+    },
+
+    dragleave: function() {
+        this.helper.remove();
+        this.helper = null;
+        clearTimeout(this._scrollcheck);
+    },
+
+    dropped: function(event) {
+        // This is called when something from OUTSIDE the list has been dropped onto us
+        debug.log("STL","Dropped",event);
+        clearTimeout(this._scrollcheck);
+        this.options.outsidedrop(event, this.helper);
+    },
+
+    // Local dragging functions
+
+    _findDraggable: function(event) {
+        var el = $(event.target);
+        while (!el.hasClass(this.options.items.replace(/^\./,'')) && el != this.element) {
+            el = el.parent();
+        }
+        return el;
+    },
+
+    _mouseStart: function(event) {
+        debug.log("SORTABLE","Mouse Start",event);
+        var dragged = this._findDraggable(event);
+        this.dragged_original_pos = dragged.prev();
+        if (this.dragger) this.dragger.remove();
+        this.dragger = dragged.clone().appendTo('body');
+        this.dragger.find('.icon-cancel-circled').remove();
+        if (this.dragger.is('tr')) {
+            this.dragger.wrap('<table></table>');
+        }
+        this.dragger.css({
+            position: 'absolute',
+            top: dragged.offset().top + 'px',
+            left: dragged.offset().left + 'px',
+            width: dragged.width() + 'px'
+        });
+        this.drag_x_offset = event.pageX - this.dragger.offset().left;
+        this.dragger.addClass('dropshadow');
+        if (this.helper) this.helper.remove();
+        this.helper = null;
+        this._checkHelper(dragged);
+        this.helper.detach().insertAfter(dragged);
+        this.original = dragged.detach();
+        this.dragstart();
+        this.dragging = true;
+        return true;
+    },
+
+    _mouseDrag: function(event) {
+        clearTimeout(this._scrollcheck);
+        if (this.dragging) {
+            if ((event.pageX > this.bbox.right || event.pageX < this.bbox.left) &&
+                this.options.allowdragout)
+            {
+                clearTimeout(this._scrollcheck);
+                this.dragging = false;
+                this.draggingout = true;
+                var pos = {top: event.pageY - 12, left: event.pageX - this.drag_x_offset};
+                this.dragger.css({top: pos.top+"px", left: pos.left+"px"});
+                this.original.insertAfter(this.dragged_original_pos);
+                this.original.addClass('selected');
+                this.helper.detach();
+                this.dragger.attr('id','dragger');
+                this.dragger.addClass('draggable');
+                $('.trackacceptor').acceptDroppedTracks('dragstart');
+            } else {
+                var pos = {top: event.pageY - 12, left: event.pageX - this.drag_x_offset};
+                if (pos.top > this.bbox.top && pos.top < this.bbox.bottom) {
+                    this.dragger.css('top',pos.top+'px');
+                    if (this.options.allowdragout) {
+                        this.dragger.css('left',pos.left+'px');
+                    }
+                    this.do_intersect_stuff(event, this.dragger);
+                }
+            }
+        } else if (this.draggingout) {
+            var pos = {top: event.pageY - 12, left: event.pageX - this.drag_x_offset};
+            this.dragger.css({top: pos.top+"px", left: pos.left+"px"});
+            $('.trackacceptor').each(function() {
+                if ($(this).acceptDroppedTracks('checkMouseOver', event)) {
+                    // Break out of the each loop
+                    return false;
+                }
+            });
+        }
+        return true;
+    },
+
+    _mouseStop: function(event) {
+        clearTimeout(this._scrollcheck);
+        if (this.dragging) {
+            this.dragger.remove();
+            this.original.insertAfter(this.helper);
+            this.helper.remove();
+            this.helper = null;
+            this.dragging = false;
+            if (this.options.insidedrop) {
+                this.options.insidedrop(event, this.original);
+            }
+        } else if (this.draggingout) {
+            debug.log("STL","Dragged out and onto something else");
+            this.dragger.remove();
+            this.draggedout = false;
+            if (this.helper) this.helper.remove();
+            this.helper = null;
+            $('.trackacceptor').each(function() {
+                if ($(this).acceptDroppedTracks('dragstop', event)) {
+                    return false;
+                }
+            });
+        }
+        return true;
+    }
+});
+
+$.widget("rompr.floatingMenu", $.ui.mouse, {
+    options: {
+        handleClass: null,
+        addClassTo: null
+    },
+
+    _create: function() {
+        var self = this;
+        this.dragging = false;
+        this._mouseInit();
+        if (this.options.addClassTo) {
+            this.element.find('.'+this.options.addClassTo).first().addClass(this.options.handleClass)
+                .append('<i class="icon-cancel-circled playlisticonr tright clickicon closemenu"></i>');
+        }
+        this._parent = this.element.parent();
+        this.element.find('.closemenu').click($.proxy(self.toggleMenu, self));
+        this._parent.click($.proxy(self.toggleMenu, self));
+    },
+
+    _mouseCapture: function() {
+        return true;
+    },
+
+    _findSourceElement: function(event) {
+        var el = $(event.target);
+        while (!el.hasClass(this.options.handleClass) &&
+                el != this.element)
+        {
+            el = el.parent();
+        }
+        if (el.hasClass(this.options.handleClass)) {
+            return true;
+        } else {
+            return false;
+        }
+    },
+
+    _mouseStart: function(event) {
+        if (this.options.handleClass && this._findSourceElement(event) === false) {
+            return false;
+        }
+        this.dragging = true;
+        this.drag_x_offset = event.pageX - this.element.offset().left;
+        this.drag_y_offset = event.pageY - this.element.offset().top;
+        this.element.detach().appendTo('body');
+        this._mouseDrag(event);
+        return true;
+    },
+
+    _mouseDrag: function(event) {
+        if (this.dragging) {
+            var pos = {top: event.pageY - this.drag_y_offset, left: event.pageX - this.drag_x_offset};
+            this.element.css({top: pos.top+"px", left: pos.left+"px"});
+        }
+        return true;
+    },
+
+    _mouseStop: function(event) {
+        this.dragging = false;
+        return true;
+    },
+
+    toggleMenu: function() {
+        var self = this;
+        if (this.element.is(':visible')) {
+            this.element.slideToggle('fast', function() {
+                self.element.css({left: "", top: ""}).detach().appendTo(self._parent);
+            });
+        } else {
+            $('.topdropmenu').each(function() {
+                if ($(this).is(':visible') && $(this) != self.element && !$(this).parent().is('body')) {
+                    $(this).slideToggle('fast');
+                }
+            });
+            this.element.slideToggle('fast', function() {
+                layoutProcessor.fanoogleMenus($(this));
+            });
+        }
+    }
+
+});
+
+function findPosition(key) {
+    // The key is the id of a dropdown div.  But that div won't exist if the dropdown hasn't been
+    // opened. So we see if it does, and if it doesn't then we use the name attribute of the
+    // toggle arrow button to locate the position.
+    if ($("#"+key).length > 0) {
+        return $("#"+key);
+    } else {
+        return $('i[name="'+key+'"]').parent()
+    }
+}
+ 
+function updateCollectionDisplay(rdata, markit) {
+    // rdata contains an HTML fragment to insert into the collection
+    // and a marker for where to insert it. Otherwise we would have
+    // to rebuild the whole artist list every time and this would
+    // (a) take a long time and
+    // (b) cause any opened dropdowns to be mysteriously closed
+    //      - which would just look shit.
+    debug.log("RATING PLUGIN","Update Display");
+    if (rdata && rdata.hasOwnProperty('inserts')) {
+        $('#emptycollection').remove();
+        for (var i in rdata.inserts) {
+            switch (rdata.inserts[i].type) {
+                case 'insertAfter':
+                    // insertAfter is something to insert into a list - either the main list of
+                    // artists or an artist's album dropdown.
+                    debug.log("RATING PLUGIN", "insertAfter",rdata.inserts[i].where);
+                    $(rdata.inserts[i].html).insertAfter(findPosition(rdata.inserts[i].where));
+                    break;
+
+                case 'insertInto':
+                    // insertInto is html to replace the contents of a div.
+                    // This will be a track listing for an album and we always return all tracks.
+                    debug.log("RATING PLUGIN", "insertInto",rdata.inserts[i].where);
+                    $("#"+rdata.inserts[i].where).html(rdata.inserts[i].html);
+                    break;
+
+                case 'insertAtStart':
+                    // insertAtStart tells us to insert the html at the beginning of
+                    // the specified dropdown.
+                    // In this case if the dropdown doesn't exist we must do nothing
+                    debug.log("RATING PLUGIN", "insertAtStart",rdata.inserts[i].where);
+                    $(rdata.inserts[i].html).prependTo($('#'+rdata.inserts[i].where));
+                    break;
+            }
+        }
+    }
+
+    if (markit && rdata && rdata.hasOwnProperty('displaynewtrack')
+        && rdata.displaynewtrack.albumindex != null && rdata.displaynewtrack.trackuri != "") {
+        layoutProcessor.sourceControl('albumlist', function() {
+            displayCollectionInsert(rdata.displaynewtrack);
+        });
+    }
+
+    if (rdata && rdata.hasOwnProperty('deletedtracks')) {
+        debug.trace("DELETED TRACKS",rdata.deletedtracks);
+        for (var i in rdata.deletedtracks) {
+            debug.log("REMOVING",rdata.deletedtracks[i]);
+            $('div[name="'+rdata.deletedtracks[i]+'"]').remove();
+        }
+    }
+    if (rdata && rdata.hasOwnProperty('deletedalbums')) {
+        debug.trace("DELETED ALBUMS",rdata.deletedalbums);
+        for (var i in rdata.deletedalbums) {
+            debug.log("REMOVING",rdata.deletedalbums[i]);
+            $("#"+rdata.deletedalbums[i]).remove();
+            findPosition(rdata.deletedalbums[i]).remove();
+        }
+    }
+    if (rdata && rdata.hasOwnProperty('deletedartists')) {
+        debug.trace("DELETED ARTISTS",rdata.deletedartists);
+        for (var i in rdata.deletedartists) {
+            $("#"+rdata.deletedartists[i]).remove();
+            findPosition(rdata.deletedartists[i]).remove();
+        }
+    }
+    if (rdata && rdata.hasOwnProperty('stats')) {
+        // stats is another html fragment which is the contents of the
+        // statistics box at the top of the collection
+        $("#fothergill").html(rdata.stats);
+    }
+    scootTheAlbums($("#collection"));
+}
+
+function flashTrack(uri) {
+    $('[name="'+uri+'"]').makeFlasher({flashtime: 0.5, repeats: 5});
+    layoutProcessor.scrollCollectionTo($('[name="'+uri+'"]'));
+}
+
+function displayCollectionInsert(details) {
+
+    debug.log("COLLECTION","Displaying New Insert",details);
+
+    if ($('i[name="aartist'+details.artistindex+'"]').isClosed()) {
+        debug.log("COLLECTION","Opening Menu","aartist"+details.artistindex);
+        doAlbumMenu(null, $('i[name="aartist'+details.artistindex+'"]'), false, function() {
+            if ($('i[name="aalbum'+details.albumindex+'"]').isClosed()) {
+                debug.log("COLLECTION","Opening Menu","aalbum"+details.albumindex);
+                doAlbumMenu(null, $('i[name="aalbum'+details.albumindex+'"]'), false, function() {
+                    flashTrack(details.trackuri);
+                });
+            } else {
+                flashTrack(details.trackuri);
+            }
+        });
+    } else if ($('i[name="aalbum'+details.albumindex+'"]').isClosed()) {
+        debug.log("COLLECTION","Opening Menu","aalbum"+details.albumindex);
+        doAlbumMenu(null, $('i[name="aalbum'+details.albumindex+'"]'), false, function() {
+            flashTrack(details.trackuri);
+        });
+    } else {
+        flashTrack(details.trackuri);
+    }
 }

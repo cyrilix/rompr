@@ -25,8 +25,12 @@ set_time_limit(240);
 <link rel="stylesheet" id="icontheme-theme" type="text/css" />
 <link rel="stylesheet" id="icontheme-adjustments" type="text/css" />
 <link type="text/css" href="css/jquery.mCustomScrollbar.css" rel="stylesheet" />
-<script type="text/javascript" src="jquery/jquery-1.8.3-min.js"></script>
-<script type="text/javascript" src="jquery/jquery-ui.js"></script>
+<!-- <script type="text/javascript" src="jquery/jquery-1.8.3-min.js"></script> -->
+
+<script type="text/javascript" src="jquery/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="jquery/jquery-migrate-1.2.1.js"></script>
+
+<script type="text/javascript" src="jquery/jquery-ui.min.js"></script>
 <script type="text/javascript" src="jquery/jquery.mCustomScrollbar.concat.min.js"></script>
 <script type="text/javascript" src="skins/desktop/skin.js"></script>
 <script type="text/javascript" src="ui/functions.js"></script>
@@ -424,7 +428,7 @@ var imageEditor = function() {
                     $.getJSON("utils/findLocalImages.php?path="+path, imageEditor.gotLocalImages)
                 }
 
-                $("#imagekey").attr("value", imagekey);
+                $("#imagekey").val(imagekey);
                 $('#searchphrase').keyup(imageEditor.bumblefuck);
             }
         },
@@ -499,7 +503,7 @@ var imageEditor = function() {
         },
 
         search: function() {
-            var searchfor = $("#searchphrase").attr("value");
+            var searchfor = $("#searchphrase").val();
             debug.log("IMAGEEDITOR","Searching Google for", searchfor);
             $.ajax({
                 type: "POST",
@@ -815,9 +819,13 @@ function do_covers_db_style() {
                 $class = $class . " notexist";
                 $albums_without_cover++;
             }
-            print '<input type="hidden" value="'.get_album_directory($album['Albumindex'], $album['Spotilink']).'" />';
+            print '<input type="hidden" value="'.get_album_directory($album['Albumindex'], $album['AlbumUri']).'" />';
             print '<input type="hidden" value="'.rawurlencode($artist['Artistname']." ".munge_album_name($album['Albumname'])).'" />';
-            print '<img class="'.$class.'" name="'.$album['ImgKey'].'" height="82px" width="82px" src="'.$src.'" />';
+            print '<img class="'.$class.'" name="'.$album['ImgKey'].'" height="82px" width="82px" ';
+            if ($src != "") {
+                print 'src="'.$src.'" ';
+            }
+            print '/>';
 
             print '</div>';
             print '<div class="albumimg fixed"><table><tr><td align="center">'.$album['Albumname'].'</td></tr></table></div>';

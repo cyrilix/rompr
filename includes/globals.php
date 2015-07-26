@@ -17,11 +17,11 @@ prefs.prefsInLocalStorage = [
     "downloadart",
     "clickmode",
     "chooser",
-    "hide_albumlist", 
+    "hide_albumlist",
     "hide_filelist",
     "hide_radiolist",
     "hidebrowser",
-    "shownupdatewindow", 
+    "shownupdatewindow",
     "scrolltocurrent",
     "alarmtime",
     "alarmon",
@@ -83,7 +83,8 @@ prefs.currenthost = getCookie('currenthost');
 setCookie('player_backend',prefs.player_backend,1);
 
 $("#albumcoversize").attr("href", "coversizes/"+prefs.coversize);
-$("#theme").attr("href", "themes/"+prefs.theme);
+setTheme(prefs.theme);
+// $("#theme").attr("href", "themes/"+prefs.theme);
 $("#fontsize").attr("href", "sizes/"+prefs.fontsize);
 $("#fontfamily").attr("href", "fonts/"+prefs.fontfamily);
 $("#icontheme-theme").attr("href", "iconsets/"+prefs.icontheme+"/theme.css");
@@ -125,6 +126,31 @@ prefs.save = function(options, callback) {
     } else if (callback) {
         callback();
     }
+}
+
+function setTheme(theme) {
+    $('body').css('background-image', '');
+    $('body').css('background-size', '');
+    $('body').css('background-repeat', '');
+    $("#theme").attr("href", "themes/"+theme);
+    $.getJSON('backimage.php?getbackground='+theme, function(data) {
+        if (data.image) {
+            $('body').css('background-image', 'url("'+data.image+'")');
+            $('body').css('background-size', 'cover');
+            $('body').css('background-repeat', 'no-repeat');
+            $('#cusbgname').html(data.image.split(/[\\/]/).pop())
+        } else {
+            $('#cusbgname').html('');
+        }
+    });
+}
+
+function clearBgImage() {
+    $('body').css('background-image', '');
+    $.getJSON('backimage.php?clearbackground='+prefs.theme, function(data) {
+        $('[name=imagefile').val('');
+    });
+    $('#cusbgname').html('');
 }
 
 var google_api_key = "AIzaSyDAErKEr1g1J3yqHA0x6Ckr5jubNIF2YX4";

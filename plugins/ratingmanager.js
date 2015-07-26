@@ -7,20 +7,20 @@ var ratingManager = function() {
 		var html = '<table align="center" style="border-collapse:collapse;width:96%"><tr class="tagh"><th colspan="3" align="center"><i class="icon-'+title+'-stars rating-icon-big"></i></th></tr>';
 		for (var i in tracks) {
 			if (tracks[i].Uri && prefs.player_backend == "mpd" && tracks[i].Uri.match(/soundcloud:/)) {
-				html = html + '<tr class="infoclick draggable clickable clickcue" name="'+encodeURIComponent(tracks[i].Uri)+'"><td width="40px"><img class="smallcover';
+				html += '<tr class="infoclick draggable clickable clickcue" name="'+encodeURIComponent(tracks[i].Uri)+'"><td width="40px"><img class="smallcover';
 			} else {
-				html = html + '<tr class="infoclick draggable clickable clicktrack" name="'+encodeURIComponent(tracks[i].Uri)+'"><td width="40px"><img class="smallcover';
+				html += '<tr class="infoclick draggable clickable clicktrack" name="'+encodeURIComponent(tracks[i].Uri)+'"><td width="40px"><img class="smallcover';
 			}
 			if (tracks[i].Image) {
-				html = html + '" src="'+tracks[i].Image;
+				html += '" src="'+tracks[i].Image;
 			} else {
-				html = html + ' notfound';
+				html += ' notfound';
 			}
-			html = html + '" /></td><td class="dan"><b>'+tracks[i].Title+'</b><br><i>by</i> <b>'+tracks[i].Artist+
+			html += '" /></td><td class="dan"><b>'+tracks[i].Title+'</b><br><i>by</i> <b>'+tracks[i].Artist+
 				'</b><br><i>on</i> <b>'+tracks[i].Album+'</b></td>';
-			html = html + '<td align="center" style="vertical-align:middle"><i class="icon-cancel-circled playlisticon clickicon infoclick plugclickable clickremrat"></i></td></tr>';
+			html += '<td align="center" style="vertical-align:middle"><i class="icon-cancel-circled playlisticon clickicon infoclick plugclickable clickremrat"></i></td></tr>';
 		}
-		html = html + '</table>';
+		html += '</table>';
 		holder.html(html);
 	}
 
@@ -81,10 +81,8 @@ var ratingManager = function() {
 				debug.log("RATMANAGER",i);
 				holders[i] = $('<div>', {class: 'tagholder selecotron noselection', id: 'ratman_'+i}).appendTo($("#ratmunger"));
 				putTracks(holders[i], data[i], i);
-				holders[i].droppable({
-					addClasses: false,
-					drop: ratingManager.dropped,
-					hoverClass: 'highlighted'
+				holders[i].acceptDroppedTracks({
+					ondrop: ratingManager.dropped
 				});
 			}
             rmg.slideToggle('fast', function() {
@@ -133,7 +131,9 @@ var ratingManager = function() {
 	        	data: {action: 'ratlist'},
 	        	dataType: 'json',
 	        	success: function(data) {
-	        		putTracks(holders[rat], data[rat], rat);
+	        		for (var i in holders) {
+		        		putTracks(holders[i], data[i], i);
+	        		}
 	        		browser.rePoint();
 	        	},
 	        	error: function() {
@@ -145,7 +145,7 @@ var ratingManager = function() {
 
 		dropped: function(event, ui) {
 	        event.stopImmediatePropagation();
-	        var rat = $(event.target).attr("id");
+	        var rat = ui.attr("id");
 	        rat = rat.replace(/ratman_/,'');
 	        doPluginDropStuff(rat,[{ attribute: 'Rating', value: rat }],ratingManager.reloadRatList)
 		},

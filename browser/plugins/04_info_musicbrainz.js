@@ -45,51 +45,51 @@ var info_musicbrainz = function() {
 		}
 
         var html = '<div class="containerbox info-detail-layout">';
-    	html = html + '<div class="info-box-fixed info-box-list info-border-right">';
-        html = html + '<ul><li>'+data.disambiguation+'</li></ul>';
+    	html += '<div class="info-box-fixed info-box-list info-border-right">';
+        html += '<ul><li>'+data.disambiguation+'</li></ul>';
         if (data.type !== null) {
-        	html = html + '<ul><li><b>'+language.gettext("title_type")+': </b>'+data.type+'</li></ul>';
+        	html += '<ul><li><b>'+language.gettext("title_type")+': </b>'+data.type+'</li></ul>';
         }
         if (data.aliases && data.aliases.length > 0) {
-	        html = html + '<br><ul><li><b>'+language.gettext("discogs_aliases")+'</b></li>';
+	        html += '<br><ul><li><b>'+language.gettext("discogs_aliases")+'</b></li>';
 	        for (var i in data.aliases) {
-	        	html = html + '<li>'+data.aliases[i].name + '</li>';
+	        	html += '<li>'+data.aliases[i].name + '</li>';
 	        }
-	        html = html + '</ul>';
+	        html += '</ul>';
 	    }
 
         if (data.begin_area) {
-        	html = html + '<br><ul><li><b>'+language.gettext("musicbrainz_origin")+': </b>'+data.begin_area.name+", "+data.area.name+'</li></ul>';
+        	html += '<br><ul><li><b>'+language.gettext("musicbrainz_origin")+': </b>'+data.begin_area.name+", "+data.area.name+'</li></ul>';
         } else if (data.area) {
-        	html = html + '<br><ul><li><b>'+language.gettext("musicbrainz_origin")+': </b>'+data.area.name+'</li></ul>';
+        	html += '<br><ul><li><b>'+language.gettext("musicbrainz_origin")+': </b>'+data.area.name+'</li></ul>';
         }
         if (data['life-span'] && data['life-span'].begin !== null) {
-        	html = html + '<br><ul><li><b>'+language.gettext("musicbrainz_active")+': </b>'+data['life-span'].begin+" - "+(data['life-span'].end || language.gettext("musicbrainz_now"))+'</li></ul>';
+        	html += '<br><ul><li><b>'+language.gettext("musicbrainz_active")+': </b>'+data['life-span'].begin+" - "+(data['life-span'].end || language.gettext("musicbrainz_now"))+'</li></ul>';
         }
         if (data.rating && data.rating.value !== null) {
-        	html = html + '<br><ul><li><b>'+language.gettext("musicbrainz_rating")+': </b>'+data.rating.value+"/5 from "+data.rating['votes-count']+' votes</li></ul>';
+        	html += '<br><ul><li><b>'+language.gettext("musicbrainz_rating")+': </b>'+data.rating.value+"/5 from "+data.rating['votes-count']+' votes</li></ul>';
         }
-        html = html + '<br>'+getURLs(data.relations, true);
-        html = html + '</div>';
+        html += '<br>'+getURLs(data.relations, true);
+        html += '</div>';
 
-    	html = html + '<div class="info-box-expand stumpy">';
+    	html += '<div class="info-box-expand stumpy">';
         if (expand) {
-			html = html + '<div class="mbbox"><i class="icon-expand-up medicon clickexpandbox infoclick tleft" name="'+data.id+'"></i></div>';
+			html += '<div class="mbbox"><i class="icon-expand-up medicon clickexpandbox infoclick tleft" name="'+data.id+'"></i></div>';
 		}
 
         if (data.annotation) {
         	var a = data.annotation;
         	a = a.replace(/\n/, '<br>');
         	a = a.replace(/\[(.*?)\|(.*?)\]/g, '<a href="$1" target="_blank">$2</a>');
-        	html = html + '<div class="mbbox underline"><b>'+language.gettext("musicbrainz_notes")+':</b></div><div class="mbbox">'+a+'</div>';
+        	html += '<div class="mbbox underline"><b>'+language.gettext("musicbrainz_notes")+':</b></div><div class="mbbox">'+a+'</div>';
         }
 
         if (data.tags && data.tags.length > 0) {
-	        html = html + '<div class="mbbox underline"><b>'+language.gettext("musicbrainz_tags")+'</b></div><div class="statsbox">';
+	        html += '<div class="mbbox underline"><b>'+language.gettext("musicbrainz_tags")+'</b></div><div class="statsbox">';
 	        for (var i in data.tags) {
-	        	html = html + '<span class="mbtag">'+data.tags[i].name+'</span> ';
+	        	html += '<span class="mbtag">'+data.tags[i].name+'</span> ';
 	        }
-	        html = html + '</div>';
+	        html += '</div>';
 	    }
 
 	    var bandMembers = new Array();
@@ -104,20 +104,20 @@ var info_musicbrainz = function() {
     		}
     	}
     	if (bandMembers.length > 0) {
-        	html = html + '<div class="mbbox underline"><b>'+language.gettext("discogs_bandmembers")+'</b></div>'+getMembers(bandMembers);
+        	html += '<div class="mbbox underline"><b>'+language.gettext("discogs_bandmembers")+'</b></div>'+getMembers(bandMembers);
     	}
     	if (memberOf.length > 0) {
-        	html = html + '<div class="mbbox underline"><b>'+language.gettext("discogs_memberof")+'</b></div>'+getMembers(memberOf);
+        	html += '<div class="mbbox underline"><b>'+language.gettext("discogs_memberof")+'</b></div>'+getMembers(memberOf);
     	}
 
-		html = html + '<div class="mbbox underline">';
-	    html = html + '<i class="icon-toggle-closed menu infoclick clickdodiscography" name="'+data.id+'"></i>';
-	    html = html + '<span class="title-menu">'+language.gettext("discogs_discography", [data.name.toUpperCase()])+'</span></div>';
-	    html = html + '<div name="discography_'+data.id+'" class="invisible">';
-        html = html + '</div>';
+		html += '<div class="mbbox underline">';
+	    html += '<i class="icon-toggle-closed menu infoclick clickdodiscography" name="'+data.id+'"></i>';
+	    html += '<span class="title-menu">'+language.gettext("discogs_discography", [data.name.toUpperCase()])+'</span></div>';
+	    html += '<div name="discography_'+data.id+'" class="invisible">';
+        html += '</div>';
 
-        html = html + '</div>';
-        html = html + '</div>';
+        html += '</div>';
+        html += '</div>';
         return html;
 
 	}
@@ -129,15 +129,15 @@ var info_musicbrainz = function() {
         for (var i in data) {
 			if (already_done[data[i].artist.id] !== true) {
 				debug.debug(medebug,"New Artist",data[i].artist.id,data[i].artist.name,data[i].begin,data[i].end);
-    			html = html + '<div class="mbbox">';
+    			html += '<div class="mbbox">';
     			// The already_done flag is just there because artist can appear multiple times in this data
     			// if they did multiple stints in the band.
 
-				html = html + '<i class="icon-toggle-closed menu infoclick clickdoartist" name="'+data[i].artist.id+'"></i>';
-    			html = html + '<span class="title-menu">'+data[i].artist.name+'  </span>'+"AYEARS_"+data[i].artist.id;
+				html += '<i class="icon-toggle-closed menu infoclick clickdoartist" name="'+data[i].artist.id+'"></i>';
+    			html += '<span class="title-menu">'+data[i].artist.name+'  </span>'+"AYEARS_"+data[i].artist.id;
     			ayears[data[i].artist.id] = doSpan(data[i]);
-    			html = html + '</div>';
-    			html = html + '<div name="'+data[i].artist.id+'" class="invisible"></div>';
+    			html += '</div>';
+    			html += '<div name="'+data[i].artist.id+'" class="invisible"></div>';
     			already_done[data[i].artist.id] = true;
     		} else {
 				debug.debug(medebug,"Repeat Artist",data[i].artist.id,data[i].artist.name,data[i].begin,data[i].end);
@@ -167,84 +167,84 @@ var info_musicbrainz = function() {
 			}
 			switch (relations[i].type) {
 				case "wikipedia":
-					html = html + '<li><i class="icon-wikipedia smallicon padright"></i><a href="'+u+'" target="_blank">Wikipedia ('+d[1]+')</a></li>';
+					html += '<li><i class="icon-wikipedia smallicon padright"></i><a href="'+u+'" target="_blank">Wikipedia ('+d[1]+')</a></li>';
 					break;
 
 				case "wikidata":
-					html = html + '<li><i class="icon-wikipedia smallicon padright"></i><a href="'+u+'" target="_blank">Wikidata</a></li>';
+					html += '<li><i class="icon-wikipedia smallicon padright"></i><a href="'+u+'" target="_blank">Wikidata</a></li>';
 					break;
 
 				case "discography":
-					html = html + '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_externaldiscography", [d[1]])+'</a></li>';
+					html += '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_externaldiscography", [d[1]])+'</a></li>';
 					break;
 
 				case "musicmoz":
-					html = html + '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">Musicmoz</a></li>';
+					html += '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">Musicmoz</a></li>';
 					break;
 
 				case "allmusic":
-					html = html + '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">Allmusic</a></li>';
+					html += '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">Allmusic</a></li>';
 					break;
 
 				case "BBC Music page":
-					html = html + '<li><i class="icon-bbc-logo smallicon padright"></i><a href="'+u+'" target="_blank">BBC Music Page</a></li>';
+					html += '<li><i class="icon-bbc-logo smallicon padright"></i><a href="'+u+'" target="_blank">BBC Music Page</a></li>';
 					break;
 
 				case "discogs":
-					html = html + '<li><i class="icon-discogs smallicon padright"></i><a href="'+u+'" target="_blank">Discogs</a></li>';
+					html += '<li><i class="icon-discogs smallicon padright"></i><a href="'+u+'" target="_blank">Discogs</a></li>';
 					break;
 
 				case "official homepage":
-					html = html + '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_officalhomepage", [d[1]])+'</a></li>';
+					html += '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_officalhomepage", [d[1]])+'</a></li>';
 					break;
 
 				case "fanpage":
-					html = html + '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_fansite", [d[1]])+'</a></li>';
+					html += '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_fansite", [d[1]])+'</a></li>';
 					break;
 
 				case "lyrics":
-					html = html + '<li><i class="icon-doc-text-1 smallicon padright"></i><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_lyrics", [d[1]])+'</a></li>';
+					html += '<li><i class="icon-doc-text-1 smallicon padright"></i><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_lyrics", [d[1]])+'</a></li>';
 					break;
 
 				case "secondhandsongs":
-					html = html + '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">Secondhand Songs</a></li>';
+					html += '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">Secondhand Songs</a></li>';
 					break;
 
 				case "IMDb":
-					html = html + '<li><i class="icon-imdb-logo smallicon padright"></i><a href="'+u+'" target="_blank">IMDb</a></li>';
+					html += '<li><i class="icon-imdb-logo smallicon padright"></i><a href="'+u+'" target="_blank">IMDb</a></li>';
 					break;
 
 				case "social network":
 					if (u.match(/last\.fm/i)) {
-						html = html + '<li><i class="icon-lastfm-1 smallicon padright"></i><a href="'+u+'" target="_blank">Last.FM</a></li>';
+						html += '<li><i class="icon-lastfm-1 smallicon padright"></i><a href="'+u+'" target="_blank">Last.FM</a></li>';
 					} else if (u.match(/facebook\.com/i)) {
-						html = html + '<li><i class="icon-facebook-logo smallicon padright"></i><a href="'+u+'" target="_blank">Facebook</a></li>';
+						html += '<li><i class="icon-facebook-logo smallicon padright"></i><a href="'+u+'" target="_blank">Facebook</a></li>';
 					} else {
-						html = html + '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_social", [d[1]])+'</a></li>';
+						html += '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_social", [d[1]])+'</a></li>';
 					}
 					break;
 
 				case "youtube":
-					html = html + '<li><i class="icon-youtube-circled smallicon padright"></i><a href="'+u+'" target="_blank">YouTube</a></li>';
+					html += '<li><i class="icon-youtube-circled smallicon padright"></i><a href="'+u+'" target="_blank">YouTube</a></li>';
 					break;
 
 				case "myspace":
-					html = html + '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">Myspace</a></li>';
+					html += '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">Myspace</a></li>';
 					break;
 
 				case "microblog":
 					if (u.match(/twitter\.com/i)) {
-						html = html + '<li><i class="icon-twitter-logo smallicon padright"></i><a href="'+u+'" target="_blank">Twitter</a></li>';
+						html += '<li><i class="icon-twitter-logo smallicon padright"></i><a href="'+u+'" target="_blank">Twitter</a></li>';
 					} else {
-						html = html + '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_microblog", [d[1]])+'</a></li>';
+						html += '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_microblog", [d[1]])+'</a></li>';
 					}
 					break;
 
 				case "review":
 					if (u.match(/bbc\.co\.uk/i)) {
-						html = html + '<li<i class="icon-bbc-logo smallicon padright"></i><a href="'+u+'" target="_blank">BBC Music Review</a></li>';
+						html += '<li<i class="icon-bbc-logo smallicon padright"></i><a href="'+u+'" target="_blank">BBC Music Review</a></li>';
 					} else {
-						html = html + '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_review", [d[1]])+'</a></li>';
+						html += '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_review", [d[1]])+'</a></li>';
 					}
 					break;
 
@@ -253,12 +253,12 @@ var info_musicbrainz = function() {
 
 				default:
 					if (relations[i].url) {
-						html = html + '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">'+d[1]+'</a></li>';
+						html += '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">'+d[1]+'</a></li>';
 						break;
 					}
 			}
 		}
-		html = html + '</ul>'
+		html += '</ul>'
 		return html;
 
 	}
@@ -271,7 +271,7 @@ var info_musicbrainz = function() {
 		if (data['release-groups'].length > 0) {
 			var dby = data['release-groups'].sort(albumsbyyear);
         	var html = '<div class="mbbox"><table class="padded" width="100%">';
-        	html = html + '<tr><th>'+language.gettext("title_year")+'</th><th>'+language.gettext("title_title")+' / '
+        	html += '<tr><th>'+language.gettext("title_year")+'</th><th>'+language.gettext("title_title")+' / '
         				+language.getUCtext("label_artist")+'</th><th>'+language.gettext("title_type")+'</th><th>'
         				+language.gettext("musicbrainz_rating")+'</th><th>'+language.gettext("discogs_external")+'</th></tr>'
         	for (var i in dby) {
@@ -280,8 +280,8 @@ var info_musicbrainz = function() {
         		if (y == 0) {
         			y = "-";
         		}
-        		html = html + '<tr><td>'+y+'</td>';
-        		html = html + '<td><a href="http://www.musicbrainz.org/release-group/'+dby[i].id+'" target="_blank">'+dby[i].title+'</a>';
+        		html += '<tr><td>'+y+'</td>';
+        		html += '<td><a href="http://www.musicbrainz.org/release-group/'+dby[i].id+'" target="_blank">'+dby[i].title+'</a>';
 
         		var ac = dby[i]['artist-credit'][0].name;
         		var jp = dby[i]['artist-credit'][0].joinphrase;
@@ -289,20 +289,20 @@ var info_musicbrainz = function() {
         			ac = ac + " "+jp+" "+dby[i]['artist-credit'][j].name;
         		}
 
-        		html = html + '<br><i>'+ac+'</i></td><td>';
-        		html = html + dby[i]['secondary-types'].join(' ');
-        		html = html + ' ' + (dby[i]['primary-type'] || "");
-        		html = html + '</td><td>';
+        		html += '<br><i>'+ac+'</i></td><td>';
+        		html += dby[i]['secondary-types'].join(' ');
+        		html += ' ' + (dby[i]['primary-type'] || "");
+        		html += '</td><td>';
         		if (dby[i].rating['votes-count'] == 0) {
-        			html = html + language.gettext("musicbrainz_novotes");
+        			html += language.gettext("musicbrainz_novotes");
         		} else {
-        			html = html + language.gettext("musicbrainz_votes", [dby[i].rating.value, dby[i].rating['votes-count']]);
+        			html += language.gettext("musicbrainz_votes", [dby[i].rating.value, dby[i].rating['votes-count']]);
         		}
-        		html = html + '</td><td>';
-        		html = html + getURLs(dby[i].relations);
-        		html = html + '</td></tr>';
+        		html += '</td><td>';
+        		html += getURLs(dby[i].relations);
+        		html += '</td></tr>';
         	}
-        	html = html + '</table></div>';
+        	html += '</table></div>';
         	return html;
         } else {
         	return "";
@@ -313,10 +313,10 @@ var info_musicbrainz = function() {
 		var html = "";
 		if (data) {
 			for (var i in data.images) {
-				html = html + '<div class="infoclick clickzoomimage">';
-				html = html + '<img style="margin:1em" src="getRemoteImage.php?url='+data.images[i].thumbnails.small+'" />';
-				html = html + '</div>';
-				html = html + '<input type="hidden" value="getRemoteImage.php?url='+data.images[i].image+'" />';
+				html += '<div class="infoclick clickzoomimage">';
+				html += '<img style="margin:1em" src="getRemoteImage.php?url='+data.images[i].thumbnails.small+'" />';
+				html += '</div>';
+				html += '<input type="hidden" value="getRemoteImage.php?url='+data.images[i].image+'" />';
 			}
 		}
 		return html;
@@ -327,20 +327,20 @@ var info_musicbrainz = function() {
 			return '<h3 align="center">'+data.error.error+'</h3>';
 		}
         var html = '<div class="containerbox info-detail-layout">';
-    	html = html + '<div class="info-box-fixed info-box-list info-border-right">';
+    	html += '<div class="info-box-fixed info-box-list info-border-right">';
 		if (data.recording) {
 			if (data.recording.disambiguation) {
-				html = html + '<ul>'+data.recording.disambiguation+'</ul>';
+				html += '<ul>'+data.recording.disambiguation+'</ul>';
 			}
 		}
 		if (data.work) {
 			if (data.work.disambiguation) {
-				html = html + '<ul>'+data.work.disambiguation+'</ul>';
+				html += '<ul>'+data.work.disambiguation+'</ul>';
 			}
 		}
 
 		if (data.recording.rating && data.recording.rating.value !== null) {
-        	html = html + '<br><ul><li><b>RATING: </b>'
+        	html += '<br><ul><li><b>RATING: </b>'
         				+language.gettext("musicbrainz_votes", [data.recording.rating.value, data.recording.rating['votes-count']])
         				+'</li></ul>';
         }
@@ -356,10 +356,10 @@ var info_musicbrainz = function() {
 				rels.push(data.recording.relations[i]);
 			}
 		}
-		html = html + getURLs(rels, true);
-		html = html + '</div>';
+		html += getURLs(rels, true);
+		html += '</div>';
 
-    	html = html + '<div class="info-box-expand stumpy">';
+    	html += '<div class="info-box-expand stumpy">';
 		if ((data.work && data.work.annotation) || (data.recording && data.recording.annotation)) {
 			var a  = "";
 			if (data.work && data.work.annotation) {
@@ -370,34 +370,34 @@ var info_musicbrainz = function() {
 			}
         	a = a.replace(/\n/, '<br>');
         	a = a.replace(/\[(.*?)\|(.*?)\]/, '<a href="$1" target="_blank">$2</a>');
-        	html = html + '<div class="mbbox underline"><b>'+language.gettext("musicbrainz_notes")+':</b></div><div class="mbbox">'+a+'</div>';
+        	html += '<div class="mbbox underline"><b>'+language.gettext("musicbrainz_notes")+':</b></div><div class="mbbox">'+a+'</div>';
 		}
 
         if (data.recording && data.recording.tags && data.recording.tags.length > 0) {
-	        html = html + '<div class="mbbox underline"><b>'+language.gettext("musicbrainz_tags")+'</b></div><div class="statsbox">';
+	        html += '<div class="mbbox underline"><b>'+language.gettext("musicbrainz_tags")+'</b></div><div class="statsbox">';
 	        for (var i in data.recording.tags) {
-	        	html = html + '<span class="mbtag">'+data.recording.tags[i].name+'</span> ';
+	        	html += '<span class="mbtag">'+data.recording.tags[i].name+'</span> ';
 	        }
-	        html = html + '</div>';
+	        html += '</div>';
 	    }
-	    html = html + doCredits(rels);
+	    html += doCredits(rels);
 
 	    if (data.recording && data.recording.releases && data.recording.releases.length > 0) {
-			html = html + '<div class="mbbox underline"><b>'+language.gettext("musicbrainz_appears")+'</b></div><div class="mbbox"><table class="padded">';
+			html += '<div class="mbbox underline"><b>'+language.gettext("musicbrainz_appears")+'</b></div><div class="mbbox"><table class="padded">';
 			for (var i in data.recording.releases) {
-				html = html + '<tr><td><b><a href="http://www.musicbrainz.org/release/'+
+				html += '<tr><td><b><a href="http://www.musicbrainz.org/release/'+
 							data.recording.releases[i].id+'" target="_blank">'+
 							data.recording.releases[i].title+'</a></b></td><td>'+
 							data.recording.releases[i].date+'</td><td><i>'+
 							data.recording.releases[i].status+','+
 							data.recording.releases[i].country+'</i></td></tr>';
 			}
-			html = html + '</table></div>';
+			html += '</table></div>';
 
 	    }
 
 
-		html = html + '</div>';
+		html += '</div>';
 		return html;
 
 	}
@@ -408,34 +408,34 @@ var info_musicbrainz = function() {
 	    for (var i in rels) {
 	    	if (rels[i].artist) {
 	    		if (doit) {
-					html = html + '<div class="mbbox underline"><b>'+language.gettext("musicbrainz_credits")+'</b></div><div class="mbbox"><table class="padded">';
+					html += '<div class="mbbox underline"><b>'+language.gettext("musicbrainz_credits")+'</b></div><div class="mbbox"><table class="padded">';
 					doit = false;
 				}
-	    		html = html + '<tr><td class="ucfirst">'+rels[i].type;
+	    		html += '<tr><td class="ucfirst">'+rels[i].type;
 	    		if (rels[i].attributes) {
 	    			var c = false;
 	    			for (var j in rels[i].attributes) {
 	    				if (j == 0) {
-	    					html = html + ' (';
+	    					html += ' (';
 	    					c = true;
 	    				} else {
 	    					html = html +', ';
 	    				}
-	    				html = html + rels[i].attributes[j];
+	    				html += rels[i].attributes[j];
 	    			}
 	    			if (c) {
-	    				html = html + ')';
+	    				html += ')';
 	    			}
 	    		}
 	    		html = html +'</td><td><a href="http://www.musicbrainz.org/artist/'+rels[i].artist.id+'" target="_blank">'+rels[i].artist.name+'</a>';
 	    		if (rels[i].artist.disambiguation) {
-	    			html = html + ' <i>('+rels[i].artist.disambiguation+')</i>';
+	    			html += ' <i>('+rels[i].artist.disambiguation+')</i>';
 	    		}
 	    		html = html +'</td></tr>';
 	    	}
 	    }
 	    if (!doit) {
-	    	html = html + '</table></div>';
+	    	html += '</table></div>';
 	    }
 	    return html;
 	}
@@ -617,91 +617,91 @@ var info_musicbrainz = function() {
 				}
 
 		        var html = '<div class="containerbox info-detail-layout">';
-		    	html = html + '<div class="info-box-fixed info-box-list info-border-right">';
-		        html = html + '<ul><li>'+data.disambiguation+'</li></ul>';
-		        html = html + '<ul><li><b>'+language.gettext("musicbrainz_status")+': </b>';
+		    	html += '<div class="info-box-fixed info-box-list info-border-right">';
+		        html += '<ul><li>'+data.disambiguation+'</li></ul>';
+		        html += '<ul><li><b>'+language.gettext("musicbrainz_status")+': </b>';
 		        if (data.status) {
 		        	html = html +data.status+" ";
 		        }
         		for(var j in data['release-group']['secondary-types']) {
-        			html = html + data['release-group']['secondary-types'][j] + " ";
+        			html += data['release-group']['secondary-types'][j] + " ";
         		}
-        		html = html + (data['release-group']['primary-type'] || "");
-		        html = html + '</li></ul>';
+        		html += (data['release-group']['primary-type'] || "");
+		        html += '</li></ul>';
 		        if (data['release-group'] && data['release-group']['first-release-date']) {
-		        	html = html + '<ul><li><b>'+language.gettext("musicbrainz_date")+': </b>'+data['release-group']['first-release-date']+'</li></ul>';
+		        	html += '<ul><li><b>'+language.gettext("musicbrainz_date")+': </b>'+data['release-group']['first-release-date']+'</li></ul>';
 		        } else {
-		        	html = html + '<ul><li><b>'+language.gettext("musicbrainz_date")+': </b>'+data.date+'</li></ul>';
+		        	html += '<ul><li><b>'+language.gettext("musicbrainz_date")+': </b>'+data.date+'</li></ul>';
 		        }
 		        if (data.country) {
-		        	html = html + '<ul><li><b>'+language.gettext("musicbrainz_country")+': </b>'+data.country+'</li></ul>';
+		        	html += '<ul><li><b>'+language.gettext("musicbrainz_country")+': </b>'+data.country+'</li></ul>';
 		        }
 		        if (data['label-info'] && data['label-info'].length > 0) {
-			        html = html + '<ul><li><b>'+language.gettext("title_label")+': </b></li>';
+			        html += '<ul><li><b>'+language.gettext("title_label")+': </b></li>';
 			        for (var i in data['label-info']) {
 			        	if (data['label-info'][i].label) {
-			        		html = html + '<li>'+data['label-info'][i].label.name+'</li>';
+			        		html += '<li>'+data['label-info'][i].label.name+'</li>';
 			        	}
 			        }
-			        html = html + '</ul>';
+			        html += '</ul>';
 			    }
-		        html = html + '<br>'+getURLs(data.relations, true);
-				html = html + '</div>';
+		        html += '<br>'+getURLs(data.relations, true);
+				html += '</div>';
 
-		        html = html + '<div class="info-box-expand stumpy">';
+		        html += '<div class="info-box-expand stumpy">';
 				if (data.annotation) {
 					var a = data.annotation;
 		        	a = a.replace(/\n/, '<br>');
 		        	a = a.replace(/\[(.*?)\|(.*?)\]/, '<a href="$1" target="_blank">$2</a>');
-		        	html = html + '<div class="mbbox underline"><b>'+language.gettext("musicbrainz_notes")+':</b></div><div class="mbbox">'+a+'</div>';
+		        	html += '<div class="mbbox underline"><b>'+language.gettext("musicbrainz_notes")+':</b></div><div class="mbbox">'+a+'</div>';
 				}
 
 		        if (data.tags && data.tags.length > 0) {
-			        html = html + '<div class="mbbox underline"><b>'+language.gettext("musicbrainz_tags")+'</b></div><div class="statsbox">';
+			        html += '<div class="mbbox underline"><b>'+language.gettext("musicbrainz_tags")+'</b></div><div class="statsbox">';
 			        for (var i in data.tags) {
-			        	html = html + '<span class="mbtag">'+data.tags[i].name+'</span> ';
+			        	html += '<span class="mbtag">'+data.tags[i].name+'</span> ';
 			        }
-			        html = html + '</div>';
+			        html += '</div>';
 			    }
 
-			    html = html + doCredits(data.relations);
+			    html += doCredits(data.relations);
 
-    			html = html + '<div class="mbbox underline"><b>'+language.gettext("discogs_tracklisting")+'</b></div><div class="mbbox"><table class="padded">';
+    			html += '<div class="mbbox underline"><b>'+language.gettext("discogs_tracklisting")+'</b></div><div class="mbbox"><table class="padded">';
     			for (var i in data.media) {
-    				html = html + '<tr><th colspan="3"><b>'+language.gettext("musicbrainz_disc")+' '+data.media[i].position;
+    				html += '<tr><th colspan="3"><b>'+language.gettext("musicbrainz_disc")+' '+data.media[i].position;
     				if (data.media[i].title !== null && data.media[i].title != "") {
-    					html = html + " - " + data.media[i].title;
+    					html += " - " + data.media[i].title;
     				}
-    				html = html + '</b></th></tr>';
+    				html += '</b></th></tr>';
     				for (var j in data.media[i].tracks) {
-    					html = html + '<tr><td>'+data.media[i].tracks[j].number+'</td>';
-    					html = html + '<td>'+data.media[i].tracks[j].title;
+    					html += '<tr><td>'+data.media[i].tracks[j].number+'</td>';
+    					html += '<td>'+data.media[i].tracks[j].title;
     					if (data['artist-credit'][0].name == "Various Artists" && data.media[i].tracks[j]['artist-credit']) {
-    						html = html + '<br><i>';
+    						html += '<br><i>';
     						var jp = "";
     						for (var k in data.media[i].tracks[j]['artist-credit']) {
     							if (jp != "") {
-    								html = html + " "+jp+" ";
+    								html += " "+jp+" ";
     							}
-    							html = html + data.media[i].tracks[j]['artist-credit'][k].name;
+    							html += data.media[i].tracks[j]['artist-credit'][k].name;
     							jp = data.media[i].tracks[j]['artist-credit'][k].joinphrase;
     						}
-    						html = html + '</i>';
+    						html += '</i>';
     					}
-    					html = html + '</td>';
-    					html = html + '<td>'+formatTimeString(Math.round(data.media[i].tracks[j].length/1000))+'</td></tr>';
+    					html += '</td>';
+    					html += '<td>'+formatTimeString(Math.round(data.media[i].tracks[j].length/1000))+'</td></tr>';
     				}
     			}
-    			html = html + '</table>';
-		        html = html + '</div>';
-		        html = html + '</div>';
+    			html += '</table>';
+		        html += '</div>';
+		        html += '</div>';
 		        if (data['cover-art-archive'].artwork == true) {
 		        	debug.trace(medebug,"There is cover art available");
-			        html = html + '<div class="cleft info-box-fixed" id="coverart">';
-			        html = html + getCoverArt();
-			        html = html + '</div>';
+			        html += '<div class="cleft info-box-fixed" id="coverart">';
+			        html += getCoverArt();
+			        html += '</div>';
 			    }
-		        html = html + '</div>';
+		        html += '</div>';
 		        return html;
 	        }
 

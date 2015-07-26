@@ -46,7 +46,6 @@ function getline($connection, $rd = false) {
         }
         $key = trim(strtok($got, ":"));
         $val = trim(strtok("\0"));
-        // Ignore 'directory' tags since we don't need them and therefore we don't need to make the parser handle them
         if ($val != '' && $val != null && ($rd || $key != "directory")) {
             return array($key, $val);
         } else {
@@ -73,7 +72,7 @@ function parse_mpd_var($in_str) {
 
 function do_mpd_command($command, $return_array = false, $force_array_results = false) {
 
-    global $is_connected, $connection;
+    global $is_connected, $connection, $prefs;
     $retarr = array();
     if ($is_connected) {
 
@@ -119,7 +118,11 @@ function do_mpd_command($command, $return_array = false, $force_array_results = 
                 }
             }
         } else {
-            $retarr['error'] = "There was an error communicating with MPD! (could not write to socket)";
+            if (array_key_exists('player_backend', $prefs)) {
+                $retarr['error'] = "There was an error communicating with ".ucfirst($prefs['player_backend'])."! (could not write to socket)";
+            } else {
+                $retarr['error'] = "There was an error communicating with the player! (could not write to socket)";
+            }
         }
     }
     return $retarr;

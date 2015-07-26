@@ -1,7 +1,9 @@
 <?php
 
 function is_stream($domain, $filedata) {
-    $streamdomains = array("http", "https", "mms", "mmsh", "mmst", "mmsu", "gopher", "rtp", "rtsp", "rtmp", "rtmpt", "rtmps", "dirble", "tunein", "radio-de", "audioaddict", "oe1");
+    $streamdomains = array(
+        "http", "https", "mms", "mmsh", "mmst", "mmsu", "gopher", "rtp", "rtsp", "rtmp", "rtmpt",
+        "rtmps", "dirble", "tunein", "radio-de", "audioaddict", "oe1");
     $f = unwanted_array($filedata['file']);
 	if (in_array($domain, $streamdomains) &&
         !preg_match('#/item/\d+/file$#', $f) &&
@@ -11,7 +13,7 @@ function is_stream($domain, $filedata) {
 		return true;
 	} else {
         # Need to return false if this is NOT a stream (i.e Time > 0)
-		return (!array_key_exists('Time', $filedata) || unwanted_array($filedata['Time'] == 0));
+		// return (!array_key_exists('Time', $filedata) || unwanted_array($filedata['Time'] == 0));
 	}
 }
 
@@ -34,7 +36,10 @@ function getStreamInfo($filedata, $domain) {
 
     if (!$track_found) {
 
-        debuglog("Stream Track was not found in stored library","STREAMHANDLER",5);
+        debuglog(
+            "Stream Track ".$url." from ".$domain." was not found in stored library","STREAMHANDLER"
+            ,5
+        );
 
         if (strrpos($url, '#') !== false) {
             # Fave radio stations added by Cantata/MPDroid
@@ -60,12 +65,25 @@ function getStreamInfo($filedata, $domain) {
         }
 
         // This is to do with something odd that Mopidy does, but I forget what.
-        if (array_key_exists('Album', $filedata) && array_key_exists('Artist', $filedata) && array_key_exists('Title', $filedata) &&
-            unwanted_array($filedata['Artist']) != "" && unwanted_array($filedata['Title']) != "") {
+        if (array_key_exists('Album', $filedata) &&
+            array_key_exists('Artist', $filedata) &&
+            array_key_exists('Title', $filedata) &&
+            unwanted_array($filedata['Album']) != "" &&
+            unwanted_array($filedata['Artist']) != "" &&
+            unwanted_array($filedata['Title']) != "") {
             $album = unwanted_array($filedata['Album']);
             $artist = unwanted_array($filedata['Title']);
             $name = unwanted_array($filedata['Artist']);
         }
+
+        if ((!array_key_exists('Album', $filedata) || unwanted_array($filedata['Album']) == "") &&
+            array_key_exists('Artist', $filedata) &&
+            array_key_exists('Title', $filedata)) {
+            $artist = unwanted_array($filedata['Artist']);
+            $album = unwanted_array($filedata['Title']);
+            $name= "";
+        }
+
 
         // Pretty up the images for some mopidy stream domains
         switch ($domain) {
@@ -81,14 +99,21 @@ function getStreamInfo($filedata, $domain) {
                 break;
 
             case "http":
-                if (array_key_exists('Title', $filedata) && unwanted_array($filedata['Title']) == 'Bassdrive - Worldwide Drum and Bass Radio') {
+                if (array_key_exists('Title', $filedata) &&
+                    unwanted_array($filedata['Title']) ==
+                    'Bassdrive - Worldwide Drum and Bass Radio') {
+                        $image = "newimages/bassdrive-logo.svg";
+                }
+                if (preg_match('/archives.bassdrivearchive.com/', $url)) {
                     $image = "newimages/bassdrive-logo.svg";
                 }
                 break;
         }
 
-        $image = (array_key_exists('Image', $filedata) && $filedata['Image'] !== null) ? unwanted_array($filedata['Image']) : $image;
-        $duration = (array_key_exists('Time', $filedata) && $filedata['Time'] != 0) ? unwanted_array($filedata['Time']) : $duration;
+        $image = (array_key_exists('Image', $filedata) && $filedata['Image'] !== null) ?
+            unwanted_array($filedata['Image']) : $image;
+        $duration = (array_key_exists('Time', $filedata) && $filedata['Time'] != 0) ?
+            unwanted_array($filedata['Time']) : $duration;
     }
 
 	return array( $name,

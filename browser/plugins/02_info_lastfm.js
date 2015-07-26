@@ -9,10 +9,10 @@ var info_lastfm = function() {
 
     function sectionHeader(data) {
         var html = '<div class="holdingcell">';
-        html = html + '<div class="standout stleft statsbox"><ul>';
-        html = html + '<li><b>'+language.gettext("lastfm_listeners")+'</b> '+data.listeners()+'</li>';
-        html = html + '<li><b>'+language.gettext("lastfm_plays")+'</b> '+data.playcount()+'</li>';
-        html = html + '<li><b>'+language.gettext("lastfm_yourplays")+'</b> '+data.userplaycount()+'</li>';
+        html += '<div class="standout stleft statsbox"><ul>';
+        html += '<li><b>'+language.gettext("lastfm_listeners")+'</b> '+data.listeners()+'</li>';
+        html += '<li><b>'+language.gettext("lastfm_plays")+'</b> '+data.playcount()+'</li>';
+        html += '<li><b>'+language.gettext("lastfm_yourplays")+'</b> '+data.userplaycount()+'</li>';
         return html;
     }
 
@@ -20,9 +20,9 @@ var info_lastfm = function() {
     	debug.trace(medebug,"    Doing Tags");
         var html = '<ul><li><b>'+language.gettext("lastfm_toptags")+'</b></li><li><table class="tablehundred">';
         for(var i in taglist) {
-            html = html + '<tr><td><a href="'+taglist[i].url+'" target="_blank">'+taglist[i].name+'</a></td>';
+            html += '<tr><td><a href="'+taglist[i].url+'" target="_blank">'+taglist[i].name+'</a></td>';
         }
-        html = html + '</table></li></ul>';
+        html += '</table></li></ul>';
         return html;
     }
 
@@ -44,16 +44,16 @@ var info_lastfm = function() {
 
     function tagsInput(type) {
         var html = '<ul class="holdingcell"><li><b>'+language.gettext("lastfm_addtags")+'</b></li>';
-        html = html + '<li class="tiny">'+language.gettext("lastfm_addtagslabel")+'</li>';
-        html = html + '<li><input class="enter tiny inbrowser" type="text"></input>';
-        html = html + '<button class="infoclick clickaddtags tiny">'+language.gettext("button_add")+'</button>'+
+        html += '<li class="tiny">'+language.gettext("lastfm_addtagslabel")+'</li>';
+        html += '<li><input class="enter tiny inbrowser" type="text"></input>';
+        html += '<button class="infoclick clickaddtags tiny">'+language.gettext("button_add")+'</button>'+
                         '<i class="smallicon tright" id="tagadd'+type+'"></i></li></ul>';
         return html;
     }
 
     function doUserTags(name) {
         var html = '<ul><li><b>'+language.gettext("lastfm_yourtags")+'</b></li><li><table class="tablehundred" name="'+name+'tagtable">';
-        html = html + '</table></li></ul>';
+        html += '</table></li></ul>';
         return html;
     }
 
@@ -81,7 +81,7 @@ var info_lastfm = function() {
 
     function appendTag(table, name, url) {
         var html = '<tr class="newtag"><td><a href="'+url+'" target="_blank">'+name+'</a></td>';
-        html = html + '<td><i class="icon-cancel-circled playlisticon infoclick clickremovetag" title="'+language.gettext("lastfm_removetag")+'"></i></td>';
+        html += '<td><i class="icon-cancel-circled playlisticon infoclick clickremovetag" title="'+language.gettext("lastfm_removetag")+'"></i></td>';
         $('table[name="'+table+'tagtable"]').append(html);
         $(".newtag").fadeIn('fast', function(){
             $(this).find('[title]').tipTip({delay: 1000, edgeOffset: 8});
@@ -94,57 +94,57 @@ var info_lastfm = function() {
             return formatLastFmError(lfmdata);
         }
         var html = sectionHeader(lfmdata);
-        html = html + '</ul><br>';
+        html += '</ul><br>';
 
-        html = html + doTags(lfmdata.tags());
+        html += doTags(lfmdata.tags());
         if (lastfm.isLoggedIn()) {
-             html = html + tagsInput("artist");
-             html = html + doUserTags("artist");
+             html += tagsInput("artist");
+             html += doUserTags("artist");
         }
 
-        html = html + '</div><div class="statsbox">';
+        html += '</div><div class="statsbox">';
 
         var bigurl = lfmdata.image("mega");
         var imageurl = lfmdata.image("extralarge");
         if (imageurl != '') {
-            html = html +  '<img class="stright standout'
+            html +=  '<img class="stright standout'
             if (bigurl && bigurl != imageurl) {
-                html = html + ' infoclick clickzoomimage';
+                html += ' infoclick clickzoomimage';
             }
-            html = html + '" src="getRemoteImage.php?url=' + imageurl + '" />';
+            html += '" src="getRemoteImage.php?url=' + imageurl + '" />';
             if (bigurl && bigurl != imageurl) {
-                html = html + '<input type="hidden" value="getRemoteImage.php?url='+bigurl+'" />';
+                html += '<input type="hidden" value="getRemoteImage.php?url='+bigurl+'" />';
             }
         }
-        html = html +  '<div id="artistbio">';
+        html +=  '<div id="artistbio">';
         if (artistmeta.lastfm.fullbio !== undefined &&
             artistmeta.lastfm.fullbio !== null) {
-            html = html + formatBio(artistmeta.lastfm.fullbio, null);
+            html += formatBio(artistmeta.lastfm.fullbio, null);
         } else {
-            html = html + formatBio(lfmdata.bio(), lfmdata.url());
+            html += formatBio(lfmdata.bio(), lfmdata.url());
         }
-        html = html + '</div></div>';
-        html = html + '</div>';
+        html += '</div></div>';
+        html += '</div>';
 
         var similies = lfmdata.similar();
         if (similies.length > 0) {
-            html = html + '<div id="similarartists" class="bordered"><h3 align="center">'+language.gettext("lastfm_simar")+'</h3>';
-            html = html + '<table width="100%" cellspacing="0" cellpadding="0"><tr><td align="center"><div class="smlrtst">';
+            html += '<div id="similarartists" class="bordered"><h3 align="center">'+language.gettext("lastfm_simar")+'</h3>';
+            html += '<table width="100%" cellspacing="0" cellpadding="0"><tr><td align="center"><div class="smlrtst">';
             for(var i in similies) {
-                html = html + '<div class="simar">';
-                html = html + '<table><tr><td align="center">';
+                html += '<div class="simar">';
+                html += '<table><tr><td align="center">';
                 var mi = lfmdata.similarimage(i, "medium");
                 var bi = lfmdata.similarimage(i, "mega");
                 if (!bi) bi = mi;
                 if (mi) {
-                    html = html + '<img class="infoclick clickzoomimage" src="getRemoteImage.php?url='+lfmdata.similarimage(i, "medium")+'"><input type="hidden" value="getRemoteImage.php?url='+lfmdata.similarimage(i, "mega")+'" />';
+                    html += '<img class="infoclick clickzoomimage" src="getRemoteImage.php?url='+lfmdata.similarimage(i, "medium")+'"><input type="hidden" value="getRemoteImage.php?url='+lfmdata.similarimage(i, "mega")+'" />';
                 }
-                html = html + '</td></tr>';
-                html = html + '<tr><td align="center"><a href="'+similies[i].url+'" target="_blank">'+similies[i].name+'</a></td></tr>';
-                html = html + '</table>';
-                html = html + '</div>';
+                html += '</td></tr>';
+                html += '<tr><td align="center"><a href="'+similies[i].url+'" target="_blank">'+similies[i].name+'</a></td></tr>';
+                html += '</table>';
+                html += '</div>';
             }
-            html = html + '</div></td></tr></table></div>';
+            html += '</div></td></tr></table></div>';
         }
         return html;
     }
@@ -154,43 +154,43 @@ var info_lastfm = function() {
             return formatLastFmError(lfmdata);
         }
         var html = sectionHeader(lfmdata);
-        html = html + '<br><ul id="buyalbum"><li><b>'+language.gettext("lastfm_buyalbum")+'&nbsp;</b><i class="icon-basket-circled smallicon infoclick clickbuy" id="buyalbumbutton"></i></li></ul>';
-        html = html + '</ul><br>';
+        html += '<br><ul id="buyalbum"><li><b>'+language.gettext("lastfm_buyalbum")+'&nbsp;</b><i class="icon-basket-circled smallicon infoclick clickbuy" id="buyalbumbutton"></i></li></ul>';
+        html += '</ul><br>';
 
-        html = html + doTags(lfmdata.tags());
+        html += doTags(lfmdata.tags());
         if (lastfm.isLoggedIn()) {
-            html = html + tagsInput("album");
-            html = html + doUserTags("album");
+            html += tagsInput("album");
+            html += doUserTags("album");
         }
 
-        html = html + '</div><div class="statsbox">';
+        html += '</div><div class="statsbox">';
         var imageurl = lfmdata.image("large");
         var bigurl = lfmdata.image("mega");
         if (imageurl != '') {
-            html = html +  '<img class="stright standout'
+            html +=  '<img class="stright standout'
             if (bigurl && bigurl != imageurl) {
-                html = html + ' infoclick clickzoomimage';
+                html += ' infoclick clickzoomimage';
             }
-            html = html + '" src="getRemoteImage.php?url=' + imageurl + '" />';
+            html += '" src="getRemoteImage.php?url=' + imageurl + '" />';
             if (bigurl && bigurl != imageurl) {
-                html = html + '<input type="hidden" value="getRemoteImage.php?url='+bigurl+'" />';
+                html += '<input type="hidden" value="getRemoteImage.php?url='+bigurl+'" />';
             }
         }
-        html = html +  '<p>';
-        html = html + '<b>'+language.gettext("lastfm_releasedate")+' : </b>'+lfmdata.releasedate();
-        html = html + '<p>'+formatBio(lfmdata.bio())+'</p>';
-        html = html +  '</p><p><b>'+language.gettext("discogs_tracklisting")+'</b></p><table>';
+        html +=  '<p>';
+        html += '<b>'+language.gettext("lastfm_releasedate")+' : </b>'+lfmdata.releasedate();
+        html += '<p>'+formatBio(lfmdata.bio())+'</p>';
+        html +=  '</p><p><b>'+language.gettext("discogs_tracklisting")+'</b></p><table>';
         var tracks = lfmdata.tracklisting();
         for(var i in tracks) {
-            html = html + '<tr><td>';
-            if (tracks[i]['@attr']) { html = html + tracks[i]['@attr'].rank+':'; }
-            html = html + '</td><td>'+tracks[i].name+'</td><td>'+formatTimeString(tracks[i].duration)+'</td>';
-            html = html + '<td align="right"><a target="_blank" title="'+language.gettext("lastfm_viewtrack")+'" href="'+tracks[i].url+'"><i class="icon-lastfm-1 smallicon"></i></a></td><td align="right">';
-            html = html + '</td></tr>';
+            html += '<tr><td>';
+            if (tracks[i]['@attr']) { html += tracks[i]['@attr'].rank+':'; }
+            html += '</td><td>'+tracks[i].name+'</td><td>'+formatTimeString(tracks[i].duration)+'</td>';
+            html += '<td align="right"><a target="_blank" title="'+language.gettext("lastfm_viewtrack")+'" href="'+tracks[i].url+'"><i class="icon-lastfm-1 smallicon"></i></a></td><td align="right">';
+            html += '</td></tr>';
         }
-        html = html + '</table>';
-        html = html + '</div>'
-        html = html + '</div>';
+        html += '</table>';
+        html += '</div>'
+        html += '</div>';
         return html;
     }
 
@@ -199,20 +199,20 @@ var info_lastfm = function() {
             return formatLastFmError(lfmdata);
         }
         var html = sectionHeader(lfmdata);
-        html = html + '<li name="userloved">';
+        html += '<li name="userloved">';
         html = html +'</li>';
 
-        html = html + '<br><ul id="buytrack"><li><b>'+language.gettext("lastfm_buytrack")+'&nbsp;</b><i class="icon-basket-circled smallicon infoclick clickbuy" id="buytrackbutton"></i></li></ul>';
-        html = html + '</ul><br>';
+        html += '<br><ul id="buytrack"><li><b>'+language.gettext("lastfm_buytrack")+'&nbsp;</b><i class="icon-basket-circled smallicon infoclick clickbuy" id="buytrackbutton"></i></li></ul>';
+        html += '</ul><br>';
 
-        html = html + doTags(lfmdata.tags());
+        html += doTags(lfmdata.tags());
         if (lastfm.isLoggedIn()) {
-            html = html + tagsInput("track");
-            html = html + doUserTags("track");
+            html += tagsInput("track");
+            html += doUserTags("track");
         }
-        html = html + '</div>';
-        html = html + '<p>'+formatBio(lfmdata.bio())+'</p>';
-        html = html + '</div>';
+        html += '</div>';
+        html += '<p>'+formatBio(lfmdata.bio())+'</p>';
+        html += '</div>';
         return html;
     }
 
@@ -324,10 +324,10 @@ var info_lastfm = function() {
             function doUserLoved(flag) {
                 var html = "";
                 if (flag) {
-                    html = html + '<b>'+language.gettext("lastfm_loved")+':</b> '+language.gettext("label_yes");
+                    html += '<b>'+language.gettext("lastfm_loved")+':</b> '+language.gettext("label_yes");
                     html = html+'&nbsp;&nbsp;&nbsp;<i title="'+language.gettext("lastfm_unlove")+'" class="icon-heart-broken smallicon infoclick clickunlove"></i>';
                 } else {
-                    html = html + '<li><b>'+language.gettext("lastfm_loved")+':</b> '+language.gettext("label_no");
+                    html += '<li><b>'+language.gettext("lastfm_loved")+':</b> '+language.gettext("label_no");
                     html = html+'&nbsp;&nbsp;&nbsp;<i title="'+language.gettext("lastfm_lovethis")+'" class="icon-heart smallicon infoclick clicklove"></i>';
                 }
                 $('li[name="userloved"]').html(html);

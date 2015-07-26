@@ -32,6 +32,9 @@ if (!is_dir('prefs/jsoncache/google')) {
 if (!is_dir('prefs/userplaylists')) {
 	mkdir('prefs/userplaylists');
 }
+if (!is_dir('prefs/userbackgrounds')) {
+	mkdir('prefs/userbackgrounds');
+}
 if (file_exists('prefs/keybindings')) {
 	unlink('prefs/keybindings');
 }

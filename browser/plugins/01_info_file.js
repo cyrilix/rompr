@@ -19,32 +19,32 @@ var info_file = function() {
             }
         }
         if (file == "null" || file == "undefined") file = "";
-        html = html + '<div class="indent"><table><tr><td class="fil">'+language.gettext("info_file")+'</td><td>'+file;
-        if (file.match(/^http:\/\/.*item\/\d+\/file/)) html = html + ' <i>'+language.gettext("info_from_beets")+'</i>';
+        html += '<div class="indent"><table><tr><td class="fil">'+language.gettext("info_file")+'</td><td>'+file;
+        if (file.match(/^http:\/\/.*item\/\d+\/file/)) html += ' <i>'+language.gettext("info_from_beets")+'</i>';
         if (info.file) {
             var f = info.file.match(/^podcast[\:|\+](http.*?)\#/);
             if (f && f[1]) {
-                html = html + '<button onclick="podcasts.doPodcast(\'filepodiput\')">'+language.gettext('button_subscribe')+'</button>'+
+                html += '<button onclick="podcasts.doPodcast(\'filepodiput\')">'+language.gettext('button_subscribe')+'</button>'+
                                 '<input type="hidden" id="filepodiput" value="'+f[1]+'" />';
             }
         }
-        html = html + '</td></tr>';
-        if (filetype != "") {
-            html = html + '<tr><td class="fil">'+language.gettext("info_format")+'</td><td>'+filetype+'</td></tr>';
+        html += '</td></tr>';
+        if (filetype != "" && !file.match(/^http/)) {
+            html += '<tr><td class="fil">'+language.gettext("info_format")+'</td><td>'+filetype+'</td></tr>';
         }
         if (info.bitrate && info.bitrate != 'None' && info.bitrate != 0) {
-            html = html + '<tr><td class="fil">'+language.gettext("info_bitrate")+'</td><td>'+info.bitrate+'</td></tr>';
+            html += '<tr><td class="fil">'+language.gettext("info_bitrate")+'</td><td>'+info.bitrate+'</td></tr>';
         }
         var ai = info.audio;
         if (ai) {
             var p = ai.split(":");
-            html = html + '<tr><td class="fil">'+language.gettext("info_samplerate")+'</td><td>'+p[0]+' Hz, '+p[1]+' Bit, ';
+            html += '<tr><td class="fil">'+language.gettext("info_samplerate")+'</td><td>'+p[0]+' Hz, '+p[1]+' Bit, ';
             if (p[2] == 1) {
-                html = html + language.gettext("info_mono");
+                html += language.gettext("info_mono");
             } else if (p[2] == 2) {
-                html = html + language.gettext("info_stereo");
+                html += language.gettext("info_stereo");
             } else {
-                html = html + p[2]+' '+language.gettext("info_channels");
+                html += p[2]+' '+language.gettext("info_channels");
             }
             '</td></tr>';
         }
@@ -52,33 +52,33 @@ var info_file = function() {
             if (typeof info.Date == "string") {
                 info.Date = info.Date.split(';');
             }
-            html = html + '<tr><td class="fil">'+language.gettext("info_date")+'</td><td>'+info.Date[0]+'</td></tr>';
+            html += '<tr><td class="fil">'+language.gettext("info_date")+'</td><td>'+info.Date[0]+'</td></tr>';
         }
 
         if (info.Genre) {
             if (typeof info.Genre == "string") {
                 info.Genre = info.Genre.split(';');
             }
-            html = html + '<tr><td class="fil">'+language.gettext("info_genre")+'</td><td>'+info.Genre.join(', ')+'</td></tr>';
+            html += '<tr><td class="fil">'+language.gettext("info_genre")+'</td><td>'+info.Genre.join(', ')+'</td></tr>';
         }
 
         if (info.Performer) {
             if (typeof info.Performer == "object") {
                 info.Performer = info.Performer.join(';');
             }
-            html = html + '<tr><td class="fil">'+language.gettext("info_performers")+'</td><td>'+concatenate_artist_names(info.Performer.split(';'))+'</td></tr>';
+            html += '<tr><td class="fil">'+language.gettext("info_performers")+'</td><td>'+concatenate_artist_names(info.Performer.split(';'))+'</td></tr>';
         }
         if (info.Composer) {
             if (typeof info.Composer == "object") {
                 info.Composer = info.Composer.join(';');
             }
-            html = html + '<tr><td class="fil">'+language.gettext("info_composers")+'</td><td>'+concatenate_artist_names(info.Composer.split(';'))+'</td></tr>';
+            html += '<tr><td class="fil">'+language.gettext("info_composers")+'</td><td>'+concatenate_artist_names(info.Composer.split(';'))+'</td></tr>';
         }
         if (info.Comment) {
             if (typeof info.Comment == "object") {
                 info.Comment = info.Comment.join('<br>');
             }
-            html = html + '<tr><td class="fil">'+language.gettext("info_comment")+'</td><td>'+info.Comment+'</td></tr>';
+            html += '<tr><td class="fil">'+language.gettext("info_comment")+'</td><td>'+info.Comment+'</td></tr>';
         }
         return html;
     }
@@ -89,25 +89,25 @@ var info_file = function() {
         var file = unescape(player.status.file);
         var gibbons = [ 'year', 'genre', 'label', 'disctitle', 'encoder'];
         if (!file) { return "" }
-        html = html + '<div class="indent"><table class="motherfucker"><tr><td class="fil">'+language.gettext("info_file")+'</td><td>'+file;
-        html = html + ' <i>'+language.gettext("info_from_beets")+'</i>';
+        html += '<div class="indent"><table class="motherfucker"><tr><td class="fil">'+language.gettext("info_file")+'</td><td>'+file;
+        html += ' <i>'+language.gettext("info_from_beets")+'</i>';
         html = html +'</td></tr>';
-        html = html + '<tr><td class="fil">'+language.gettext("info_format")+'</td><td>'+data.format+'</td></tr>';
-        if (data.bitrate)  html = html + '<tr><td class="fil">'+language.gettext("info_bitrate")+'</td><td>'+data.bitrate+'</td></tr>';
-        html = html + '<tr><td class="fil">'+language.gettext("info_samplerate")+'</td><td>'+data.samplerate+' Hz, '+data.bitdepth+' Bit, ';
+        html += '<tr><td class="fil">'+language.gettext("info_format")+'</td><td>'+data.format+'</td></tr>';
+        if (data.bitrate)  html += '<tr><td class="fil">'+language.gettext("info_bitrate")+'</td><td>'+data.bitrate+'</td></tr>';
+        html += '<tr><td class="fil">'+language.gettext("info_samplerate")+'</td><td>'+data.samplerate+' Hz, '+data.bitdepth+' Bit, ';
         if (data.channels == 1) {
-            html = html + language.gettext("info_mono");
+            html += language.gettext("info_mono");
         } else if (data.channels == 2) {
             html = html +language.gettext("info_stereo");
         } else {
-            html = html + data.channels +' '+language.gettext("info_channels");
+            html += data.channels +' '+language.gettext("info_channels");
         }
-        html = html + '</td></tr>';
+        html += '</td></tr>';
         $.each(gibbons, function (i,g) {
-            if (data[g]) html = html + '<tr><td class="fil">'+language.gettext("info_"+g)+'</td><td>'+data[g]+'</td></tr>';
+            if (data[g]) html += '<tr><td class="fil">'+language.gettext("info_"+g)+'</td><td>'+data[g]+'</td></tr>';
         });
-        if (data.composer) html = html + '<tr><td class="fil">'+language.gettext("info_composers")+'</td><td>'+data.composer+'</td></tr>';
-        if (data.comments) html = html + '<tr><td class="fil">'+language.gettext("info_comment")+'</td><td>'+data.comments+'</td></tr>';
+        if (data.composer) html += '<tr><td class="fil">'+language.gettext("info_composers")+'</td><td>'+data.composer+'</td></tr>';
+        if (data.comments) html += '<tr><td class="fil">'+language.gettext("info_comment")+'</td><td>'+data.comments+'</td></tr>';
         return html;
     }
 
@@ -196,24 +196,24 @@ var info_file = function() {
                 var html = "";
                 if (trackmeta.usermeta) {
                     if (trackmeta.usermeta.Playcount) {
-                        html = html + '<tr><td class="fil">Play Count:</td><td>'+trackmeta.usermeta.Playcount;
-                        html = html + '</td></tr>';
+                        html += '<tr><td class="fil">Play Count:</td><td>'+trackmeta.usermeta.Playcount;
+                        html += '</td></tr>';
                     }
-                    html = html + '<tr><td class="fil">Rating:</td><td>';
-                    html = html + '<i class="icon-'+trackmeta.usermeta.Rating+'-stars rating-icon-big infoclick clicksetrating"></i>';
-                    html = html + '<input type="hidden" value="'+parent.nowplayingindex+'" />';
-                    html = html + '</td></tr>';
-                    html = html + '<tr><td class="fil" style="vertical-align:top">'+language.gettext("musicbrainz_tags")+'</td><td>';
-                    html = html + '<table cellpadding="0" cellspacing="0">';
+                    html += '<tr><td class="fil">Rating:</td><td>';
+                    html += '<i class="icon-'+trackmeta.usermeta.Rating+'-stars rating-icon-big infoclick clicksetrating"></i>';
+                    html += '<input type="hidden" value="'+parent.nowplayingindex+'" />';
+                    html += '</td></tr>';
+                    html += '<tr><td class="fil" style="vertical-align:top">'+language.gettext("musicbrainz_tags")+'</td><td>';
+                    html += '<table cellpadding="0" cellspacing="0">';
                     for(var i = 0; i < trackmeta.usermeta.Tags.length; i++) {
-                        html = html + '<tr><td><span>'+trackmeta.usermeta.Tags[i]+'<i class="icon-cancel-circled clickicon tagremover playlisticon" onclick="nowplaying.removeTag(event)"></i></span></td></tr>';
+                        html += '<tr><td><span>'+trackmeta.usermeta.Tags[i]+'<i class="icon-cancel-circled clickicon tagremover playlisticon" onclick="nowplaying.removeTag(event)"></i></span></td></tr>';
                     }
-                    html = html + '<tr><td><i class="icon-plus infoclick smallicon clickaddtags" style="margin:0"></i></td></tr>';
-                    html = html + '</table>';
-                    html = html + '</td></tr>';
+                    html += '<tr><td><i class="icon-plus infoclick smallicon clickaddtags" style="margin:0"></i></td></tr>';
+                    html += '</table>';
+                    html += '</td></tr>';
                 }
-                html = html + '</table>';
-                html = html + '</div>';
+                html += '</table>';
+                html += '</div>';
                 return html;
             }
 

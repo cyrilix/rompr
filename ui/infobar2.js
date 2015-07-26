@@ -333,9 +333,9 @@ var infobar = function() {
 
             var html = "";
             for (var i in lines) {
-                html = html + '<span style="font-size:'+lines[i].height+'px;line-height:'+Math.round(lines[i].height*1.5)+'px">'+lines[i].text+'</span>';
+                html += '<span style="font-size:'+lines[i].height+'px;line-height:'+Math.round(lines[i].height*1.5)+'px">'+lines[i].text+'</span>';
                 if (i < lines.length-1) {
-                    html = html + '<br />';
+                    html += '<br />';
                 }
             }
 
@@ -384,7 +384,7 @@ var infobar = function() {
                 setSource: function(data) {
                     debug.trace("ALBUMPICTURE","New source",data.image,"current is",aImg.src);
                     if (data.image === null) {
-                        // null means playlist.emptytrack. Just fade it out in case we start playing the same album again - 
+                        // null means playlist.emptytrack. Just fade it out in case we start playing the same album again -
                         // settings the source to the same url won't trigger the onload event
                         $("#albumpicture").fadeOut('fast');
                     } else if (data.image == "") {
@@ -392,7 +392,7 @@ var infobar = function() {
                         $("#albumpicture").unbind('click');
                         $("#albumpicture").removeClass('clickicon');
                         $("#albumpicture").attr('class', "notexist");
-                        $("#albumpicture").attr('src','');
+                        // $("#albumpicture").attr('src','');
                         if ($("#albumpicture").is(':hidden')) {
                             $("#albumpicture").fadeIn('fast');
                         }
@@ -402,7 +402,15 @@ var infobar = function() {
                             debug.trace("ALBUMPICTURE","Source is being set to ",data.image);
                             aImg.src = data.image;
                         } else if ($("#albumpicture").is(':hidden')) {
-                            $("#albumpicture").fadeIn('fast');
+                            $("#albumpicture").attr("src", aImg.src).fadeIn('fast');
+                        } else if ($("#albumpicture").hasClass('notexist') ||
+                            $("#albumpicture").hasClass('notfound')) {
+                            $("#albumpicture").removeClass('notfound');
+                            $("#albumpicture").removeClass('notexist');
+                            $("#albumpicture").attr('class', "clickicon");
+                            $("#albumpicture").attr("src", aImg.src).fadeIn('fast');
+                            $("#albumpicture").click(infobar.albumImage.displayOriginalImage);
+                            setTimeout(infobar.biggerize, 1000);
                         }
                     }
                 },
@@ -475,11 +483,12 @@ var infobar = function() {
                     var firefoxcrapnesshack = Math.round(Math.random()*10000);
                     infobar.albumImage.setSource({image: "albumart/asdownloaded/firefoxiscrap/"+aImg.name+"---"+firefoxcrapnesshack.toString()});
                     $('img[name="'+aImg.name+'"]').attr("src", "albumart/asdownloaded/firefoxiscrap/"+aImg.name+"---"+firefoxcrapnesshack.toString());
+                    playlist.repopulate();
                 },
 
                 uploadfail: function() {
                     $("albumpicture").removeClass('spinner').addClass('nospin');
-                    infobar.notify(infobar.ERROR, "Image Upload Failed!");                    
+                    infobar.notify(infobar.ERROR, "Image Upload Failed!");
                 }
 
             }
@@ -555,7 +564,7 @@ var infobar = function() {
             if (info.location != "") {
                 var f = info.location.match(/^podcast[\:|\+](http.*?)\#/);
                 if (f && f[1]) {
-                    $("#nppodiput").attr("value", f[1]);
+                    $("#nppodiput").val(f[1]);
                     $("#subscribe").fadeIn('fast');
                 } else {
                     $("#subscribe").fadeOut('fast');
@@ -620,10 +629,6 @@ var infobar = function() {
             return false;
         },
 
-        setvolume: function(e, u) {
-            player.controller.volume(u.value);
-        },
-
         volumemoved: function(e, u) {
             if (sliderclamps == 0 && volumeslider.dragging) {
                 // Double interlock to prevent hammering mpd:
@@ -644,10 +649,10 @@ var infobar = function() {
             infobar.volumemoved(null, infobar.vCalc(e));
         },
 
-        volumeTouchEnd: function() {
+        volumeTouchEnd: function(e) {
             if (volumeslider.dragging) {
+                infobar.volumemoved(null, infobar.vCalc(e));
                 volumeslider.dragging = false;
-                infobar.setvolume(null, { value: volumeslider.getVolume() });
             }
         },
 
@@ -658,8 +663,8 @@ var infobar = function() {
         },
 
         volumeDragEnd: function(e) {
+            infobar.volumemoved(null, infobar.vCalc(e));
             volumeslider.dragging = false;
-            infobar.setvolume(null, infobar.vCalc(e));
         },
 
         vCalc: function(e) {
@@ -694,11 +699,11 @@ var infobar = function() {
         notify: function(type, message) {
             var html = '<div class="containerbox menuitem">';
             if (type == infobar.NOTIFY || type == infobar.PERMNOTIFY) {
-                html = html + '<div class="fixed"><i class="icon-info-circled smallcover-svg"></i></div>';
+                html += '<div class="fixed"><i class="icon-info-circled smallcover-svg"></i></div>';
             } else if (type == infobar.ERROR || type == infobar.PERMERROR) {
-                html = html + '<div class="fixed"><i class="icon-attention-1 smallcover-svg"></i></div>';
+                html += '<div class="fixed"><i class="icon-attention-1 smallcover-svg"></i></div>';
             }
-            html = html + '<div class="expand indent">'+message+'</div></div>';
+            html += '<div class="expand indent">'+message+'</div></div>';
             $('#notifications').empty().html(html);
             html = null;
             clearTimeout(notifytimer);

@@ -3,43 +3,62 @@ var wishlistViewer = function() {
 	var wlv = null;
 
 	function removeTrackFromWl(element) {
-	    var trackDiv = element.parent();
-	    var albumDiv = trackDiv.parent();
-	    var albumHeaderDiv = albumDiv.prev();
-	    var albumContainer = albumHeaderDiv.parent();
-	    var artistDiv = albumContainer.prev();
 
-	    var title = trackDiv.children('.expand').html();
-	    var album = albumHeaderDiv.children('.expand').html();
-	    album = album.replace(/\s*<span.*$/,'');
-	    var artist = artistDiv.children('.expand').html();
-	    debug.log("DB_TRACKS","Remove track from database",title,album,artist);
+		// Find the div containing the track title
+		while (!element.hasClass('clicktrack')) {
+			element = element.parent();
+		}
+		var trackDiv = element;
+		var trackDivContainer = trackDiv.parent();
+		var tracktitle = trackDiv.find('.expand').first().html();
+
+		var albumtitle = null;
+		var artistname = null;
+		var albumDiv = null;
+		var artistDiv = null;
+
+		var test = trackDiv.parent().attr('id');
+		if (test.match(/wishlistartist/)) {
+			artistDiv = trackDiv.parent().prev();
+			artistAlbumContainer = trackDiv.parent();
+			artistname = artistDiv.children('.expand').first().html();
+		} else if (test.match(/wishlistalbum/)) {
+			albumDiv = trackDiv.parent().prev();
+			artistAlbumContainer = albumDiv.parent();
+			albumtitle = albumDiv.children('.expand').first().html();
+			artistDiv = albumDiv.parent().prev();
+			artistname = artistDiv.children('.expand').first().html();
+		} else {
+			debug.error("WISHLIST","Couldn't parse layout!!");
+            infobar.notify(infobar.ERROR, "Failed to remove track!");
+			return false;
+		}
+
+	    debug.log("DB_TRACKS","Remove track from database",tracktitle,albumtitle,artistname);
 	    // Note: The returninfo method we use for deleting collection tracks doesn't work here
 	    // because that doesn't count albums where the tracks have no URI as visible albums.
 	    // - which is what it needs to do. So we fudge.
 	    $.ajax({
 	        url: "backends/sql/userRatings.php",
 	        type: "POST",
-	        data: {action: 'deletewl', artist: artist, album: album, title: title},
+	        data: {action: 'deletewl', artist: artistname, album: albumtitle, title: tracktitle},
 	        dataType: 'json',
 	        success: function(rdata) {
 	            debug.log("DB TRACKS","Track was removed");
 	            trackDiv.fadeOut('fast', function() {
 	                trackDiv.remove();
-	                if (albumDiv.children().length == 0) {
-	                    debug.log("DB_TRACK", "Album Div Is Empty");
-	                    albumDiv.remove();
-	                    albumHeaderDiv.fadeOut('fast', function() {
-	                        albumHeaderDiv.remove();
-	                        if (albumContainer.children().length == 0) {
-	                            debug.log("DB_TRACK", "Artist Div Is Empty");
-	                            albumContainer.remove();
-	                            artistDiv.fadeOut('fast', function() {
-	                                artistDiv.remove();
-	                            });
-	                        }
-	                    });
+	                if (albumDiv) {
+	                	if (trackDivContainer.children().length == 0) {
+	                		debug.log("WISHLIST","Album Div is Empty");
+	                		trackDivContainer.remove();
+	                		albumDiv.remove();
+	                	}
 	                }
+                	if (artistAlbumContainer.children().length == 0) {
+                		debug.log("WISHLIST","Artist Has No More Tracks");
+                		artistAlbumContainer.remove();
+                		artistDiv.remove();
+                	}
 	            });
 	        },
 	        error: function() {
@@ -50,18 +69,36 @@ var wishlistViewer = function() {
 	}
 
 	function getTrackBuyLinks(element) {
-	    var trackDiv = element.parent().parent();
-	    var artistDiv = trackDiv.parent().parent().prev();
-	    var title = unescapeHtml(trackDiv.children('.expand').html());
-	    var artist = unescapeHtml(artistDiv.children('.expand').html());
-	    debug.log("DB_TRACKS","Getting Buy Links For",title,artist);
-	    element.makeSpinner();
-	    var bugger = element.parent();
-	    lastfm.track.getBuylinks({track: title, artist: artist},
+		// Find the div containing the track title
+		var clickedElement = element;
+		while (!element.hasClass('clicktrack')) {
+			element = element.parent();
+		}
+		var trackDiv = element;
+		var tracktitle = unescapeHtml(trackDiv.find('.expand').first().html());
+
+		var test = trackDiv.parent().attr('id');
+		if (test.match(/wishlistartist/)) {
+			artistDiv = trackDiv.parent().prev();
+		} else if (test.match(/wishlistalbum/)) {
+			albumDiv = trackDiv.parent().prev();
+			artistDiv = albumDiv.parent().prev();
+		} else {
+			debug.error("WISHLIST","Couldn't parse layout!!");
+            infobar.notify(infobar.ERROR, "Failed to find links for track!");
+			return false;
+		}
+		artistname = unescapeHtml(artistDiv.children('.expand').first().html());
+	    debug.log("DB_TRACKS","Getting Buy Links For",tracktitle,artistname);
+	    clickedElement.makeSpinner();
+	    var bugger = clickedElement.parent();
+	    lastfm.track.getBuylinks({track: tracktitle, artist: artistname},
 	    	function(data) {
 	    		bugger.fadeOut('fast', function() {
-		    		bugger.html('<div class="standout"><ul>'+lastfm.getBuyLinks(data)+'</ul></div>');
-		    		bugger.slideToggle('fast');
+	    			// bugger.prev().removeClass('expand').addClass('fixed');
+	    			bugger.removeClass('fixed').addClass('expand')
+	    				.html('<div class="standout"><ul>'+lastfm.getBuyLinks(data)+'</ul></div>')
+		    			.slideToggle('fast');
 	    		});
 	    	},
 	    	function(data) {

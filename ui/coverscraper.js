@@ -14,7 +14,7 @@ function coverScraper(size, useLocalStorage, sendUpdates, enabled) {
     var stream = null;
     var mbid = null;
     var albumpath = null;
-    var spotilink = null;
+    // var AlbumUri = null;
     var covertimer = null;
     var callbacks = new Array();
 

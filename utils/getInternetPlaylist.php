@@ -6,132 +6,134 @@
 
 // Called with : 	url   	:  	The remote playlist to download or stream to add
 //					station :	The name of the radio station (Groove Salad)
-//					creator :	Not used for radio streams
 //					image   :	The image to use in the playlist
 
 // The generated playlists can be updated later if no information is known -
 // the playlist will handle that when it gets stream info from mpd
 
-chdir('..');
-include ("includes/vars.php");
-include ("includes/functions.php");
-include ("international.php");
+function load_internet_playlist($url, $image, $station, $usersupplied) {
 
-$url = rawurldecode($_REQUEST['url']);
-$station = (array_key_exists('station', $_REQUEST)) ? rawurldecode($_REQUEST['station']) : "Unknown Internet Stream";
-$creator = "";
-$image = (array_key_exists('image', $_REQUEST)) ? rawurldecode($_REQUEST['image']) : "newimages/broadcast.svg";
-$usersupplied = (array_key_exists('usersupplied', $_REQUEST)) ? true : false;
+	$station = ($station == 'null') ? 'Unknown Internet Stream' : $station;
+	$image = ($image == 'null') ? 'newimages/broadcast.svg' : $image;
+	$usersupplied = ($usersupplied == 'null') ? false : true;
+	$creator = "";
 
-debuglog("Getting Internet Stream:","RADIO_PLAYLIST");
-debuglog("  url : ".$url,"RADIO_PLAYLIST");
-debuglog("  station : ".$station,"RADIO_PLAYLIST");
-debuglog("  image : ".$image,"RADIO_PLAYLIST");
-debuglog("  user : ".$usersupplied,"RADIO_PLAYLIST");
+	debuglog("Getting Internet Stream:","RADIO_PLAYLIST");
+	debuglog("  url : ".$url,"RADIO_PLAYLIST");
+	debuglog("  station : ".$station,"RADIO_PLAYLIST");
+	debuglog("  image : ".$image,"RADIO_PLAYLIST");
+	debuglog("  user : ".$usersupplied,"RADIO_PLAYLIST");
 
-if ($url) {
 
-	$path = $url;
-	$type = null;
+	if ($url) {
 
-	$content = url_get_contents($url, $_SERVER['HTTP_USER_AGENT'], false, true, true);
-	debuglog("Playlist Is ".$content['status']." ".$content['contents'],"RADIO_PLAYLIST");
+		$path = $url;
+		$type = null;
 
-	$content_type = $content['info']['content_type'];
-	// To cope with charsets in the header...
-	// case "audio/x-scpls;charset=UTF-8";
-	$content_type = preg_replace('/;.*/','',$content_type);
+		$content = url_get_contents($url, $_SERVER['HTTP_USER_AGENT'], false, true, true);
+		debuglog("Playlist Is ".$content['status']." ".$content['contents'],"RADIO_PLAYLIST");
 
-	switch ($content_type) {
-		case "video/x-ms-asf":
-			$type = asfOrasx($content['contents']);
-			break;
-		case "audio/x-scpls":
-			$type = "pls";
-			break;
-		case "audio/x-mpegurl":
-			$type = "m3u";
-			break;
-		case "application/xspf+xml":
-			$type = "xspf";
-			break;
-		case "text/html":
-			debuglog("HTML page returned!","RADIO_PLAYLIST");
-			header('HTTP/1.0 404 Not Found');
-			exit (0);
-	}
-	debuglog("Playlist Type From Content Type is ".$type,"RADIO_PLAYLIST");
+		$content_type = $content['info']['content_type'];
+		// To cope with charsets in the header...
+		// case "audio/x-scpls;charset=UTF-8";
+		$content_type = preg_replace('/;.*/','',$content_type);
 
-	if ($type == "" || $type == null) {
-		$type = pathinfo($path, PATHINFO_EXTENSION);
-		$qpos = strpos($type, "?");
-	  	if ($qpos != false) $type = substr($type, 0, $qpos);
-		debuglog("Playlist Type From URL is ".$type,"RADIO_PLAYLIST");
-	}
-
-	$playlist = null;
-
-	if ($content['status'] == "200" && $content['contents'] != "") {
-
-		switch ($type) {
-			case "pls":
-			case "PLS":
-				$playlist = new plsFile($content['contents'], $url, $station, $creator, $image);
+		switch ($content_type) {
+			case "video/x-ms-asf":
+				$type = asfOrasx($content['contents']);
 				break;
-			case "asx";
-			case "ASX";
-				$playlist = new asxFile($content['contents'], $url, $station, $creator, $image);
+			case "audio/x-scpls":
+				$type = "pls";
 				break;
-			case "asf";
-			case "ASF";
-				$playlist = new asfFile($content['contents'], $url, $station, $creator, $image);
+			case "audio/x-mpegurl":
+				$type = "m3u";
 				break;
-			case "xspf";
-			case "XSPF";
-				$playlist = new xspfFile($content['contents'], $url, $station, $creator, $image);
+			case "application/xspf+xml":
+				$type = "xspf";
 				break;
-			case "m3u";
-			case "M3U";
-				$playlist = new m3uFile($content['contents'], $url, $station, $creator, $image);
-				break;
-			default;
-				$playlist = new possibleStreamUrl($url, $station, $creator, $image);
-				break;
-
+			case "text/html":
+				debuglog("HTML page returned!","RADIO_PLAYLIST");
+				header('HTTP/1.0 404 Not Found');
+				exit (0);
 		}
-	} else if ($content['status'] == "404") {
+		debuglog("Playlist Type From Content Type is ".$type,"RADIO_PLAYLIST");
+
+		if ($type == "" || $type == null) {
+			$type = pathinfo($path, PATHINFO_EXTENSION);
+			$qpos = strpos($type, "?");
+		  	if ($qpos != false) $type = substr($type, 0, $qpos);
+			debuglog("Playlist Type From URL is ".$type,"RADIO_PLAYLIST");
+		}
+
 		$playlist = null;
-	} else {
-		$playlist = new possibleStreamUrl($url, $station, $creator, $image);
-	}
 
-	if ($playlist) {
-		list($tl, $st) = $playlist->getTracks();
-		header('Content-Type: text/xml; charset=utf-8');
-		$output = '<?xml version="1.0" encoding="utf-8"?>'."\n".
-		          "<playlist>\n".
-		          "<playlisturl>".htmlspecialchars($url)."</playlisturl>\n".
-				  '<trackList>'."\n";
-		$output = $output . $tl;
-		$output = $output . "</trackList>\n</playlist>\n";
+		if ($content['status'] == "200" && $content['contents'] != "") {
 
-		$fp = null;
-		if ($usersupplied) {
-			$fp = fopen('prefs/USERSTREAM_'.md5($url).'.xspf', 'w');
+			switch ($type) {
+				case "pls":
+				case "PLS":
+					$playlist = new plsFile($content['contents'], $url, $station, $creator, $image);
+					break;
+				case "asx";
+				case "ASX";
+					$playlist = new asxFile($content['contents'], $url, $station, $creator, $image);
+					break;
+				case "asf";
+				case "ASF";
+					$playlist = new asfFile($content['contents'], $url, $station, $creator, $image);
+					break;
+				case "xspf";
+				case "XSPF";
+					$playlist = new xspfFile($content['contents'], $url, $station, $creator, $image);
+					break;
+				case "m3u";
+				case "M3U";
+					$playlist = new m3uFile($content['contents'], $url, $station, $creator, $image);
+					break;
+				default;
+					$playlist = new possibleStreamUrl($url, $station, $creator, $image);
+					break;
+
+			}
+		} else if ($content['status'] == "404") {
+			$playlist = null;
 		} else {
-			$fp = fopen('prefs/STREAM_'.md5($url).'.xspf', 'w');
+			$playlist = new possibleStreamUrl($url, $station, $creator, $image);
 		}
-		if ($fp) {
-		    fwrite($fp, $output);
+
+		if ($playlist) {
+			list($tl, $st) = $playlist->getTracks();
+			header('Content-Type: text/xml; charset=utf-8');
+			$output = '<?xml version="1.0" encoding="utf-8"?>'."\n".
+			          "<playlist>\n".
+			          "<playlisturl>".htmlspecialchars($url)."</playlisturl>\n".
+					  '<trackList>'."\n";
+			$output = $output . $tl;
+			$output = $output . "</trackList>\n</playlist>\n";
+
+			$fp = null;
+			$fname = ($usersupplied) ? 'prefs/USERSTREAM_'.md5($url).'.xspf' : 'prefs/STREAM_'.md5($url).'.xspf';
+			$fp = fopen($fname, 'w');
+			if ($fp) {
+			    fwrite($fp, $output);
+			}
+			fclose($fp);
+
+			return get_tracks_from_stream_playlist($fname);
+
+		} else {
+			debuglog("Could not determine playlist type","RADIO_PLAYLIST");
 		}
-		fclose($fp);
-
-		print $output;
-
-	} else {
-		debuglog("Could not determine playlist type","RADIO_PLAYLIST");
-		header('HTTP/1.0 404 Not Found');
 	}
+}
+
+function get_tracks_from_stream_playlist($fname) {
+	$retarr = array();
+	$x = simplexml_load_file($fname);
+	foreach ($x->trackList->track as $i => $track) {
+		$retarr[] = 'add "'.format_for_mpd($track->location).'"';
+	}
+	return $retarr;
 }
 
 // [playlist]

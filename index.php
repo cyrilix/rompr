@@ -20,10 +20,10 @@ if (array_key_exists('mpd_host', $_POST)) {
         debuglog("Setting Pref ".$i." to ".$value,"INIT", 1);
         $prefs[$i] = $value;
     }
-    if (!array_key_exists('multihosts', $prefs)) { 
-        $prefs['multihosts'] = new stdClass; 
+    if (!array_key_exists('multihosts', $prefs)) {
+        $prefs['multihosts'] = new stdClass;
     }
-    $prefs['multihosts']->Default = (object) [ 
+    $prefs['multihosts']->Default = (object) [
             'host' => $prefs['mpd_host'],
             'port' => $prefs['mpd_port'],
             'password' => $prefs['mpd_password'],
@@ -130,7 +130,7 @@ close_mpd();
 // XML backend no longer supported. Force switch to SQLite.
 if (array_key_exists('collection_type', $prefs) && $prefs['collection_type'] == "xml") {
     $prefs['collection_type'] = "sqlite";
-} 
+}
 
 include( "backends/sql/connect.php");
 if (array_key_exists('collection_type', $prefs)) {
@@ -180,7 +180,6 @@ foreach ($skinrequires as $s) {
     }
 }
 ?>
-<link rel="stylesheet" type="text/css" href="css/jquery-ui.css" />
 <link rel="stylesheet" id="theme" type="text/css" />
 <link rel="stylesheet" id="fontsize" type="text/css" />
 <link rel="stylesheet" id="fontfamily" type="text/css" />
@@ -188,9 +187,10 @@ foreach ($skinrequires as $s) {
 <link rel="stylesheet" id="icontheme-adjustments" type="text/css" />
 <link rel="stylesheet" id="albumcoversize" type="text/css" />
 <!-- JQuery : http://jquery.com -->
-<script type="text/javascript" src="jquery/jquery-1.8.3-min.js"></script>
+<script type="text/javascript" src="jquery/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="jquery/jquery-migrate-1.2.1.js"></script>
 <!-- JQueryUI is required for $.widget even in the mobile version -->
-<script type="text/javascript" src="jquery/jquery-ui.js"></script>
+<script type="text/javascript" src="jquery/jquery-ui.min.js"></script>
 <!-- JQuery AJAX form plugin : http://malsup.com/jquery/form/ -->
 <script type="text/javascript" src="jquery/jquery.form.js"></script>
 <!-- JQuery JSONP Plugin. My saviour : https://github.com/jaubourg/jquery-jsonp -->
@@ -210,6 +210,7 @@ foreach ($skinrequires as $s) {
 <script type="text/javascript" src="ui/infobar2.js"></script>
 <script type="text/javascript" src="ui/playlist.js"></script>
 <script type="text/javascript" src="ui/coverscraper.js"></script>
+<script type="text/javascript" src="ui/favefinder.js"></script>
 <?php
 $inc = glob("streamplugins/*.js");
 foreach($inc as $i) {
@@ -232,6 +233,7 @@ var playlist = new Playlist();
 var player = new multiProtocolController();
 var lastfm = new LastFM(prefs.lastfm_user);
 var coverscraper = new coverScraper(0, false, false, prefs.downloadart);
+var trackFinder = new faveFinder(false);
 </script>
 
 <script type="text/javascript" src="ui/podcasts.js"></script>

@@ -141,7 +141,7 @@ var podcasts = function() {
     	},
 
 		doPodcast: function(input) {
-		    var url = $("#"+input).attr("value");
+		    var url = $("#"+input).val();
 		    debug.log("PODCAST","Getting podcast",url);
 		    doSomethingUseful('cocksausage', language.gettext("label_downloading"));
 		    $.ajax( {

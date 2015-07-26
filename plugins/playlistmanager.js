@@ -5,27 +5,34 @@ var playlistManager = function() {
 
 	function putTracks(holder, tracks, title) {
 		var html = '<input type="hidden" value="'+title+'">';
-		html = html + '<table align="center" style="border-collapse:collapse;width:96%';
+		html += '<table align="center" style="border-collapse:collapse;width:96%';
 		if (tracks.length > 0 && tracks[0].plimage != "") {
 			debug.log("PLAYLISTMANAGER",title,"has a background image of",tracks[0].plimage);
-			html = html + ';background-image:url(\''+tracks[0].plimage+'\');background-size:contain;background-repeat:no-repeat'
+			html += ';background-image:url(\''+tracks[0].plimage+'\');background-size:contain;background-repeat:no-repeat'
 		}
-		html = html + '">'+
+		html += '">'+
 		'<tr class="tagh"><th colspan="2" align="center">'+decodeURIComponent(title)+'</th>'+
 		'<th width="20px"><i class="icon-floppy playlisticon clickicon infoclick plugclickable clickrenplaylist"></i></th>'+
 		'<th width="20px"><i class="icon-cancel-circled playlisticon clickicon infoclick plugclickable clickdelplaylist"></i></th></tr>';
-		for (var i in tracks) {
-			html = html + '<tr class="draggable" name="playmanitem_'+i+'"><td width="40px"><img class="smallcover';
-			if (tracks[i].Image) {
-				html = html + '" src="'+tracks[i].Image;
-			} else {
-				html = html + ' notfound';
+		if (tracks.length == 0) {
+			// Add a blank entry so we've got something to drop onto. Also the dropping doesn't work
+			// without at least one sortable in the target.
+			// html += '<tr class="sortable" name="playmanitem_0"><td style="height:24px"></td></tr>';
+			html += '<tr class="sortable" name="dummy" romprpos="playmanitem_0"><td style="height:24px"></td></tr>';
+		} else {
+			for (var i in tracks) {
+				html += '<tr class="sortable draggable infoclick clickable clicktrack" name="'+tracks[i].Uri+'" romprpos="playmanitem_'+i+'"><td width="40px"><img class="smallcover';
+				if (tracks[i].Image) {
+					html += '" src="'+tracks[i].Image;
+				} else {
+					html += ' notfound';
+				}
+				html += '" /></td><td colspan="2" class="dan"><b>'+tracks[i].Title+'</b><br><i>by</i> <b>'+tracks[i].Artist+
+					'</b><br><i>on</i> <b>'+tracks[i].Album+'</b></td>';
+				html += '<td class="dogsticks" align="center" style="vertical-align:middle"><i class="icon-cancel-circled playlisticon clickicon infoclick plugclickable clickremplay" name="'+tracks[i].pos+'"></i></td></tr>';
 			}
-			html = html + '" /></td><td colspan="2" class="dan"><b>'+tracks[i].Title+'</b><br><i>by</i> <b>'+tracks[i].Artist+
-				'</b><br><i>on</i> <b>'+tracks[i].Album+'</b></td>';
-			html = html + '<td class="dogsticks" align="center" style="vertical-align:middle"><i class="icon-cancel-circled playlisticon clickicon infoclick plugclickable clickremplay" name="'+tracks[i].pos+'"></i></td></tr>';
 		}
-		html = html + '</table>';
+		html += '</table>';
 		holder.html(html);
 	}
 
@@ -94,28 +101,20 @@ var playlistManager = function() {
 				debug.log("PLAYLISTMANAGER",i);
 				holders[i] = $('<div>', {class: 'tagholder selecotron noselection'}).appendTo($("#playmunger"));
 				putTracks(holders[i], data[i], i);
-				holders[i].droppable({
-					addClasses: false,
-					drop: playlistManager.dropped,
-					hoverClass: 'highlighted'
+				holders[i].acceptDroppedTracks({
+					scroll: true,
+					scrollparent: '#infopane'
 				});
-	            holders[i].sortable({
-	                items: ".draggable",
-	                axis: 'y',
-	                containment: holders[i],
-	                scroll: true,
-	                scrollSpeed: 30,
-	                scrollparent: "#infopane",
-	                customscrollbars: true,
-	                scrollSensitivity: 100,
-	                start: function(event, ui) {
-	                    ui.item.css("background", "#555555");
-	                    ui.item.css("opacity", "0.7");
-	                    ui.item.find('.dogsticks').remove();
-	                    ui.item.find('tr').wrap('<table></table>');
-	                },
-	                stop: playlistManager.dragstopped
-	            });
+				holders[i].sortableTrackList({
+					items: '.sortable',
+					outsidedrop: playlistManager.dropped,
+					insidedrop: playlistManager.dragstopped,
+					scroll: true,
+					allowdragout: true,
+					scrollparent: '#infopane',
+					scrollspeed: 80,
+					scrollzone: 120
+				});
 			}
             pmg.slideToggle('fast', function() {
 	            $("#playmunger").masonry({
@@ -131,7 +130,7 @@ var playlistManager = function() {
 		handleClick: function(element, event) {
 			if (element.hasClass('clickremplay')) {
 		        var list = element.parent().parent().parent().parent().parent().children('input').first().val();
-		        var pos = element.attr('name');
+		        var pos = element.attr('romprpos');
 		        debug.log("PLAYLISTMANAGER","Removing Track",pos,"from playlist",list);
 		        player.controller.deletePlaylistTrack(list,pos, function() {
 		        	reloadPlaylist(list);
@@ -164,7 +163,7 @@ var playlistManager = function() {
 		dropped: function(event, ui) {
 	        event.stopImmediatePropagation();
 	        var tracks = new Array();
-	        var playlist = $(event.target).children('input').first().val();
+	        var playlist = ui.parent().parent().parent().children('input').first().val();
 	        $.each($('.selected').filter(removeOpenItems), function (index, element) {
 	        	if ($(element).hasClass('directory')) {
 	        		var uri = decodeURIComponent($(element).children('input').first().attr('name'));
@@ -177,8 +176,22 @@ var playlistManager = function() {
 		        }
 	        });
 	        $('.selected').removeClass('selected');
+	        var moveto = null;
+	        var playlistlength = null;
+	        var next = ui.next('.sortable').attr('romprpos');
+	        if (next) {
+	        	debug.log("PLAYLISTMANAGER","Next Item Is",next);
+	        	next = next.replace(/playmanitem_/, '');
+	        	moveto = next;
+	        	playlistlength = ui.parent().children('.sortable').last().attr('romprpos');
+	        	if (playlistlength) {
+	        		playlistlength = parseInt(playlistlength.replace(/playmanitem_/,''));
+	        		playlistlength += 1;
+	        	}
+	        }
 	        if (tracks.length > 0) {
-		        player.controller.addTracksToPlaylist(playlist,tracks,function() {
+	        	debug.log("PLAYLISTMANAGER","Dragged to position",moveto);
+		        player.controller.addTracksToPlaylist(playlist,tracks,moveto,playlistlength,function() {
 		        	reloadPlaylist(playlist);
 		        	player.controller.checkProgress();
 		        	player.controller.reloadPlaylists();
@@ -204,15 +217,18 @@ var playlistManager = function() {
 
 		dragstopped: function(event, ui) {
 	        event.stopImmediatePropagation();
-			var playlist = $(ui.item).parent().parent().parent().children('input').val();
-			var item = $(ui.item).attr('name');
+			var playlist = ui.parent().parent().parent().children('input').val();
+			var item = ui.attr('romprpos');
 			item = item.replace(/playmanitem_/,'');
-			var next = $(ui.item).next().attr('name');
+			var next = ui.next().attr('romprpos');
 			if (typeof next == "undefined") {
-				next = $(ui.item).prev().attr('name');
+				next = ui.prev().attr('romprpos');
 			}
 			next = next.replace(/playmanitem_/,'');
 			debug.log("PLAYLISTMANAGER","Dragged item",item,"to position",next,"within playlist",playlist);
+			// Oooh it's daft but the position we have to send is the position AFTER the track has been
+			// taken out of the list but before it's been put back in.
+			if (next > item) next--;
 			player.controller.movePlaylistTracks(playlist,item,next,function() {
 	        	reloadPlaylist(playlist);
 	        	player.controller.checkProgress();
@@ -227,27 +243,20 @@ var playlistManager = function() {
 			var playlist = rawurlencode($('[name=newplaylistnameinput]').val());
 			holders[playlist] = $('<div>', {class: 'tagholder selecotron noselection'}).prependTo($("#playmunger"));
 			putTracks(holders[playlist],[],playlist);
-			holders[playlist].droppable({
-				addClasses: false,
-				drop: playlistManager.dropped,
-				hoverClass: 'highlighted'
+			holders[playlist].acceptDroppedTracks({
+				scroll: true,
+				scrollparent: '#infopane'
 			});
-            holders[playlist].sortable({
-                items: ".draggable",
-                axis: 'y',
-                containment: holders[playlist],
-                scroll: true,
-                scrollSpeed: 10,
-                tolerance: 'pointer',
-                scrollparent: "#infopane",
-                customscrollbars: true,
-                scrollSensitivity: 60,
-                start: function(event, ui) {
-                    ui.item.css("background", "#555555");
-                    ui.item.css("opacity", "0.7")
-                },
-                stop: playlistManager.dragstopped
-            });
+			holders[playlist].sortableTrackList({
+				items: '.sortable',
+				outsidedrop: playlistManager.dropped,
+				insidedrop: playlistManager.dragstopped,
+				scroll: true,
+				allowdragout: true,
+				scrollparent: '#infopane',
+				scrollspeed: 80,
+				scrollzone: 40
+			});
 			$("#playmunger").masonry('prepended', holders[playlist]);
 			browser.rePoint();
 		}

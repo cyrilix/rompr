@@ -5,40 +5,40 @@ var charts = function() {
 
 	function putItems(holder, data, title) {
 		var html = '<table align="center" style="border-collapse:collapse;width:96%"><tr class="tagh"><th colspan="3" align="center">'+title+'</th></tr>';
-		html = html + '<tr class="chartheader">';
+		html += '<tr class="chartheader">';
 		for (var i in data[0]) {
 			if (i != 'uri') {
-				html = html + '<td><b>'+language.gettext(i)+'</b></td>';
+				html += '<td><b>'+language.gettext(i)+'</b></td>';
 			}
 		}
 		var maxplays = data[0].soundcloud_plays;
 		debug.log("CHARTS","Max plays for",title,"is",maxplays);
-		html = html + '</tr>';
+		html += '</tr>';
 		for (var i in data) {
 			if (data[i].uri) {
 				if (prefs.player_backend == "mpd" && data[i].uri.match(/soundcloud:/)) {
-					html = html + '<tr class="chart infoclick draggable clickable clickcue backhi" name="'+encodeURIComponent(data[i].uri)+'">';
+					html += '<tr class="chart infoclick draggable clickable clickcue backhi" name="'+encodeURIComponent(data[i].uri)+'">';
 				} else {
-					html = html + '<tr class="chart infoclick draggable clickable clicktrack backhi" name="'+encodeURIComponent(data[i].uri)+'">';
+					html += '<tr class="chart infoclick draggable clickable clicktrack backhi" name="'+encodeURIComponent(data[i].uri)+'">';
 				}
 			} else {
-				html = html + '<tr class="chart">';
+				html += '<tr class="chart">';
 			}
 			var n = 0;
 			for (var j in data[i]) {
 				if (j != "uri") {
-					html = html + '<td>'+data[i][j]+'</td>';
+					html += '<td>'+data[i][j]+'</td>';
 				}
 				n++;
 			}
-			html = html + '</tr>';
+			html += '</tr>';
 
 			var percent = (data[i].soundcloud_plays/maxplays)*100;
-			html = html + '<tr style="height:4px"><td class="chartbar" colspan="'+n+'" style="background:linear-gradient(to right, '+getrgbs(percent)+'"></td></tr>';
-			html = html + '<tr style="height:0.75em"><td colspan="'+n+'"></td></tr>';
+			html += '<tr style="height:4px"><td class="chartbar" colspan="'+n+'" style="background:linear-gradient(to right, '+getrgbs(percent)+'"></td></tr>';
+			html += '<tr style="height:0.75em"><td colspan="'+n+'"></td></tr>';
 
 		}
-		html = html + '</table>';
+		html += '</table>';
 		holder.html(html);
 	}
 

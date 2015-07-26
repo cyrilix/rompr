@@ -358,7 +358,7 @@ div.normalmenu
 
 div.widemenu
 {
-    width:380px;
+    width:420px;
 }
 
 div.leftmenu
@@ -370,7 +370,7 @@ div.leftmenu
 div.rightmenu.widemenu
 {
     top:30px;
-    left:-366px;
+    left:-400px;
 }
 
 div.rightmenu.normalmenu

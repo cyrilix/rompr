@@ -104,7 +104,8 @@ function playerController() {
 
     this.ready = function() {
         debug.mark("MPD","Player is ready");
-        var t = "Connected to "+getCookie('currenthost')+" ("+prefs.player_backend.capitalize() + " at " + player_ip;
+        var t = "Connected to "+getCookie('currenthost')+" ("+prefs.player_backend.capitalize() +
+            " at " + player_ip;
         if (prefs.unix_socket) {
         } else {
             t += ":" + prefs.mpd_port;
@@ -122,13 +123,15 @@ function playerController() {
             url: 'player/mpd/postcommand.php',
             data: {commands: list},
             success: function(data) {
-                player.status = data;
-                debug.debug("MPD","Status",player.status);
-                if (player.status.playlist !== plversion) {
-                    playlist.repopulate();
+                if (data) {
+                    player.status = data;
+                    debug.debug("MPD","Status",player.status);
+                    if (player.status.playlist !== plversion) {
+                        playlist.repopulate();
+                    }
+                    plversion = player.status.playlist;
+                    infobar.setStartTime(player.status.elapsed);
                 }
-                plversion = player.status.playlist;
-                infobar.setStartTime(player.status.elapsed);
                 if (callback) {
                     callback();
                     infobar.updateWindowValues();
@@ -163,17 +166,27 @@ function playerController() {
             dataType: "html",
             success: function(data) {
                 $("#collection").html(data);
+                if ($('#emptycollection').length > 0) {
+                    if (!$('#collectionbuttons').is(':visible')) {
+                        toggleCollectionButtons();
+                    }
+                    $('[name="donkeykong"]').makeFlasher({flashtime: 0.5, repeats: 3});
+                }
                 data = null;
                 player.collectionLoaded = true;
+                player.updatingcollection = false;
                 if (uri.match(/rebuild/)) {
                     infobar.notify(infobar.NOTIFY,"Music Collection Updated");
                     scootTheAlbums($("#collection"));
                 }
             },
             error: function(data) {
-                $("#collection").html('<p align="center"><b><font color="red">Failed To Generate Collection :</font></b><br>'+data.responseText+"<br>"+data.statusText+"</p>");
+                $("#collection").html(
+                    '<p align="center"><b><font color="red">Failed To Generate Collection :</font>'+
+                    '</b><br>'+data.responseText+"<br>"+data.statusText+"</p>");
                 debug.error("PLAYER","Failed to generate albums list",data);
                 infobar.notify(infobar.ERROR,"Music Collection Update Failed");
+                player.updatingcollection = false;
             }
         });
     }
@@ -262,8 +275,11 @@ function playerController() {
         openpl = null;
         oldplname = name;
         debug.log("MPD","Renaming Playlist",name,e);
-        var rmppu = popupWindow.create(400,300,"rmppu",true,language.gettext("label_renameplaylist"),e.clientX,e.clientY);
-        $("#popupcontents").append('<div class="containerbox" style="margin-left:8px"><div class="expand"><input class="enter" id="newplname" type="text" size="200" /></div><button class="fixed">Rename</button></div>');
+        var rmppu = popupWindow.create(400,300,"rmppu",true,language.gettext("label_renameplaylist"),
+            e.clientX,e.clientY);
+        $("#popupcontents").append('<div class="containerbox" style="margin-left:8px">'+
+            '<div class="expand"><input class="enter" id="newplname" type="text" size="200" />'+
+            '</div><button class="fixed">Rename</button></div>');
         $("#newplname").parent().next('button').click(player.controller.doRenamePlaylist);
         $("#newplname").keyup(onKeyUp);
         popupWindow.open();
@@ -271,20 +287,25 @@ function playerController() {
 
     this.doRenamePlaylist = function() {
         popupWindow.close();
-        self.do_command_list([["rename", decodeURIComponent(oldplname), $("#newplname").val()]], function() {
-            self.reloadPlaylists();
-            if (playlistManager) {
-                playlistManager.reloadAll();
+        self.do_command_list([["rename", decodeURIComponent(oldplname), $("#newplname").val()]],
+            function() {
+                self.reloadPlaylists();
+                if (playlistManager) {
+                    playlistManager.reloadAll();
+                }
             }
-        });
+        );
     }
 
     this.renameUserPlaylist = function(name, e) {
         openpl = null;
         oldplname = name;
         debug.log("MPD","Renaming Playlist",name,e);
-        var rmppu = popupWindow.create(400,300,"rmppu",true,language.gettext("label_renameplaylist"),e.clientX,e.clientY);
-        $("#popupcontents").append('<div class="containerbox" style="margin-left:8px"><div class="expand"><input class="enter" id="newplname" type="text" size="200" /></div><button class="fixed">Rename</button></div>');
+        var rmppu = popupWindow.create(400,300,"rmppu",true,language.gettext("label_renameplaylist")
+            ,e.clientX,e.clientY);
+        $("#popupcontents").append('<div class="containerbox" style="margin-left:8px">'+
+            '<div class="expand"><input class="enter" id="newplname" type="text" size="200" />'+
+            '</div><button class="fixed">Rename</button></div>');
         $("#newplname").parent().next('button').click(player.controller.doRenameUserPlaylist);
         $("#newplname").keyup(onKeyUp);
         popupWindow.open();
@@ -411,7 +432,8 @@ function playerController() {
 	}
 
 	this.toggleCrossfade = function() {
-	    var new_value = (player.status.xfade === undefined || player.status.xfade === null || player.status.xfade == 0) ? prefs.crossfade_duration : 0;
+	    var new_value = (player.status.xfade === undefined || player.status.xfade === null ||
+            player.status.xfade == 0) ? prefs.crossfade_duration : 0;
 	    self.do_command_list([["crossfade",new_value]]);
 	}
 
@@ -460,10 +482,16 @@ function playerController() {
                 case "artist":
                     cmdlist.push(['addartist',v.name]);
                     break;
+                case "stream":
+                    cmdlist.push(['loadstreamplaylist',v.url,v.image,v.station,v.usersupplied]);
+                    break;
+                case "userstream":
+                    cmdlist.push(['loaduserstream',v.name]);
+                    break;
     		}
 		});
-		// Note : playpos, if set, will point to the first track position
-		// BEFORE we move it.
+		// Note : playpos will only be set if at_pos isn't, because at_pos is only set when
+        // dragging to the playlist, for which action auto-play is always disabled
         if (prefs.mediacentremode) {
             cmdlist.push(['play']);
         } else if (playpos !== null && playpos > -1) {
@@ -484,8 +512,15 @@ function playerController() {
 		if (num > 1) {
 			itemstomove = itemstomove + ":" + (parseInt(first)+parseInt(num));
 		}
-		debug.log("PLAYER", "Move command is move&arg="+itemstomove+"&arg2="+moveto);
-		self.do_command_list([["move",itemstomove,moveto]]);
+        if (itemstomove == moveto) {
+            // This can happen if you drag the final track from one album to a position below the next album's
+            // header but before its first track. This doesn't change its position in the playlist but the item
+            // in the display will have moved and we need to move it back.
+            playlist.repopulate();
+        } else {
+		    debug.log("PLAYER", "Move command is move&arg="+itemstomove+"&arg2="+moveto);
+		    self.do_command_list([["move",itemstomove,moveto]]);
+        }
 	}
 
 	this.stopafter = function() {
@@ -515,7 +550,7 @@ function playerController() {
         lastsearchcmd = command;
         $("#collectionsearcher").find('.searchterm').each( function() {
             var key = $(this).attr('name');
-            var value = $(this).attr("value");
+            var value = $(this).val();
             if (value != "") {
                 debug.trace("PLAYER","Searching for",key, value);
                 if (key == 'tag') {
@@ -531,7 +566,9 @@ function playerController() {
             termcount++;
         }
         var domains = new Array();
-        if (prefs.search_limit_limitsearch) {
+        if (prefs.search_limit_limitsearch && $('#mopidysearchdomains').length > 0) {
+            // The second term above is just in case we're swapping between MPD and Mopidy
+            // - it prevents an illegal invocation in JQuery if limitsearch is true for MPD
             domains = $("#mopidysearchdomains").makeDomainChooser("getSelection");
         }
         if (termcount > 0) {
@@ -640,7 +677,7 @@ function playerController() {
                 } else {
                     AlanPartridge = 0;
                     setTheClock( self.checkchange, 1000);
-                }                
+                }
             }
         } else {
             setTheClock(self.checkchange, 10000);
@@ -673,13 +710,15 @@ function playerController() {
         self.do_command_list([["replay_gain_mode",x]]);
     }
 
-    this.addTracksToPlaylist = function(playlist,tracks,callback) {
+    this.addTracksToPlaylist = function(playlist,tracks,moveto,playlistlength,callback) {
         var cmds = new Array();
         for (var i in tracks) {
             if (tracks[i].uri) {
-                cmds.push(['playlistadd',decodeURIComponent(playlist),tracks[i].uri]);
+                cmds.push(['playlistadd',decodeURIComponent(playlist),tracks[i].uri,
+                    moveto,playlistlength]);
             } else if (tracks[i].dir) {
-                cmds.push(['playlistadddir',decodeURIComponent(playlist),tracks[i].dir]);
+                cmds.push(['playlistadddir',decodeURIComponent(playlist),tracks[i].dir,
+                    moveto,playlistlength]);
             }
         }
         self.do_command_list(cmds,callback);
@@ -688,7 +727,7 @@ function playerController() {
     this.movePlaylistTracks = function(playlist,from,to,callback) {
         var cmds = new Array();
         cmds.push(['playlistmove',decodeURIComponent(playlist),from,to]);
-        self.do_command_list(cmds,callback);        
+        self.do_command_list(cmds,callback);
     }
 
 }

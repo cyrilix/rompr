@@ -29,7 +29,8 @@ function format_tracknum($tracknum) {
 }
 
 # url_get_contents function by Andy Langton: http://andylangton.co.uk/
-function url_get_contents($url,$useragent='RompR Music Player/0.70',$headers=false,$follow_redirects=true,$debug=false,$fp=null) {
+function url_get_contents($url,$useragent='RompR Music Player/0.70',
+    $headers=false,$follow_redirects=true,$debug=false,$fp=null) {
 
     global $prefs;
     $url = preg_replace('/ /', '%20', $url);
@@ -93,7 +94,8 @@ function url_get_contents($url,$useragent='RompR Music Player/0.70',$headers=fal
 function format_time($t,$f=':') // t = seconds, f = separator
 {
     if (($t/86400) >= 1) {
-        return sprintf("%d%s%2d%s%02d%s%02d", ($t/86400), " ".get_int_text("label_days")." ", ($t/3600)%24, $f, ($t/60)%60, $f, $t%60);
+        return sprintf("%d%s%2d%s%02d%s%02d", ($t/86400), " ".get_int_text("label_days")." ",
+            ($t/3600)%24, $f, ($t/60)%60, $f, $t%60);
     }
     if (($t/3600) >= 1) {
         return sprintf("%2d%s%02d%s%02d", ($t/3600), $f, ($t/60)%60, $f, $t%60);
@@ -122,7 +124,7 @@ function munge_album_name($name) {
     $b = preg_replace('/(\(|\[)\d+\s*of\s*\d+(\)|\])/i', "", $b);       // (1 of 2) or (1of2) (or with [ ])
     $b = preg_replace('/(\(|\[)\d+\s*-\s*\d+(\)|\])/i', "", $b);        // (1 - 2) or (1-2) (or with [ ])
     $b = preg_replace('/(\(|\[)Remastered(\)|\])/i', "", $b);           // (Remastered) (or with [ ])
-    $b = preg_replace('/(\(|\[).*?bonus .*(\)|\])/i', "", $b);      // (With Bonus Tracks) (or with [ ])
+    $b = preg_replace('/(\(|\[).*?bonus .*(\)|\])/i', "", $b);          // (With Bonus Tracks) (or with [ ])
     $b = preg_replace('/\s+-\s*$/', "", $b);                            // Chops any stray - off the end that could have been left by the previous
     $b = preg_replace('#\s+$#', '', $b);
     $b = preg_replace('#^\s+#', '', $b);
@@ -137,8 +139,10 @@ function sanitsizeDiscogsResult($name) {
 function alistheader($nart, $nalb, $ntra, $tim) {
     return '<div style="margin-bottom:4px">'.
     '<table width="100%" class="playlistitem">'.
-    '<tr><td align="left">'.$nart.' '.get_int_text("label_artists").'</td><td align="right">'.$nalb.' '.get_int_text("label_albums").'</td></tr>'.
-    '<tr><td align="left">'.$ntra.' '.get_int_text("label_tracks").'</td><td align="right">'.$tim.'</td></tr>'.
+    '<tr><td align="left">'.$nart.' '.get_int_text("label_artists").
+    '</td><td align="right">'.$nalb.' '.get_int_text("label_albums").'</td></tr>'.
+    '<tr><td align="left">'.$ntra.' '.get_int_text("label_tracks").
+    '</td><td align="right">'.$tim.'</td></tr>'.
     '</table>'.
     '</div>';
 }
@@ -149,13 +153,16 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
     if (substr($name,0,7) == "Artist:") return true;
     if ($artist || $rating > 0) {
         if ($prefs['player_backend'] == "mpd" && getDomain($url) == "soundcloud") {
-            print '<div class="clickable clickcue ninesix draggable indent containerbox vertical padright" name="'.$url.'">';
+            print '<div class="clickable clickcue ninesix draggable indent containerbox '.
+                'vertical padright" name="'.$url.'">';
         } else {
-            print '<div class="clickable clicktrack ninesix draggable indent containerbox vertical padright" name="'.$url.'">';
+            print '<div class="clickable clicktrack ninesix draggable indent containerbox '.
+                'vertical padright" name="'.$url.'">';
         }
         print '<div class="containerbox line">';
     } else {
-        print '<div class="clickable clicktrack ninesix draggable indent containerbox padright line" name="'.$url.'">';
+        print '<div class="clickable clicktrack ninesix draggable indent containerbox '.
+            'padright line" name="'.$url.'">';
     }
     if ($number && $number != "") {
         print '<div class="tracknumber fixed"';
@@ -210,7 +217,8 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
         if (!$artist) {
             print '</div>';
         }
-        print '<div class="containerbox line"><div class="tracknumber fixed"></div><div class="expand playlistrow2">';
+        print '<div class="containerbox line"><div class="tracknumber fixed"></div>'.
+            '<div class="expand playlistrow2">';
         print '<i class="icon-'.trim($rating).'-stars rating-icon-small"></i>';
         print '</div></div>';
     }
@@ -218,12 +226,13 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
 
 }
 
-function artistHeader($id, $spotilink, $name, $numalbums = null) {
+function artistHeader($id, $albumuri, $name, $numalbums = null) {
     global $divtype;
-    if ($spotilink) {
-        print '<div class="clickable clicktrack draggable containerbox menuitem'.$divtype.'" name="'.$spotilink.'">';
+    if ($albumuri) {
+        print '<div class="clickable clicktrack draggable containerbox menuitem'.$divtype.
+            '" name="'.$albumuri.'">';
         print '<i class="icon-toggle-closed menu mh fixed" name="'.$id.'"></i>';
-        $d = getDomain($spotilink);
+        $d = getDomain($albumuri);
         $d = preg_replace('/\+.*/','', $d);
         switch ($d) {
             case "spotify":
@@ -237,7 +246,8 @@ function artistHeader($id, $spotilink, $name, $numalbums = null) {
         print '<div class="expand saname">'.$name.'</div>';
         print '</div>';
     } else {
-        print '<div class="clickable clickalbum draggable containerbox menuitem '.$divtype.'" name="'.$id.'">';
+        print '<div class="clickable clickalbum draggable containerbox menuitem '.
+            $divtype.'" name="'.$id.'">';
         print '<i class="icon-toggle-closed menu mh fixed" name="'.$id.'"></i>';
         print '<div class="expand">'.$name.'</div>';
         print '</div>';
@@ -245,19 +255,25 @@ function artistHeader($id, $spotilink, $name, $numalbums = null) {
 }
 
 function noAlbumsHeader() {
-    print '<div class="playlistrow2" style="padding-left:64px">'.get_int_text("label_noalbums").'</div>';
+    print '<div class="playlistrow2" style="padding-left:64px">'.
+        get_int_text("label_noalbums").'</div>';
 }
 
-function albumHeader($name, $spotilink, $id, $exists, $searched, $imgname, $src, $date, $numtracks = null, $aname = null) {
+function albumHeader($name, $albumuri, $id, $exists, $searched, $imgname, $src,
+    $date, $numtracks = null, $aname = null) {
+    
     global $prefs;
-    if ($spotilink) {
-        if (preg_match('/spotify%3Aartist%3A/', $spotilink)) {
-            print '<div class="clickable clickartist draggable containerbox menuitem" name="'.preg_replace('/'.get_int_text('label_allartist').'/', '', $name).'">';
-        } else if (strtolower(pathinfo($spotilink, PATHINFO_EXTENSION)) == "cue") {
+    if ($albumuri) {
+        if (preg_match('/spotify%3Aartist%3A/', $albumuri)) {
+            print '<div class="clickable clickartist draggable containerbox menuitem" name="'.
+                preg_replace('/'.get_int_text('label_allartist').'/', '', $name).'">';
+        } else if (strtolower(pathinfo($albumuri, PATHINFO_EXTENSION)) == "cue") {
             debuglog("Cue Sheet found for album ".$name,"FUNCTIONS");
-            print '<div class="clickable clickcue draggable containerbox menuitem" name="'.$spotilink.'">';
+            print '<div class="clickable clickcue draggable containerbox menuitem" name="'
+                .$albumuri.'">';
         } else {
-            print '<div class="clickable clicktrack draggable containerbox menuitem" name="'.$spotilink.'">';
+            print '<div class="clickable clicktrack draggable containerbox menuitem" name="'
+                .$albumuri.'">';
         }
     } else {
         print '<div class="clickable clickalbum draggable containerbox menuitem" name="'.$id.'">';
@@ -275,8 +291,8 @@ function albumHeader($name, $spotilink, $id, $exists, $searched, $imgname, $src,
         print '<img class="smallcover fixed" name="'.$imgname.'" src="'.$src.'" />'."\n";
     }
     print '</div>';
-    if ($spotilink) {
-        $d = getDomain($spotilink);
+    if ($albumuri) {
+        $d = getDomain($albumuri);
         $d = preg_replace('/\+.*/','', $d);
         switch($d) {
             case "spotify":
@@ -298,10 +314,11 @@ function albumHeader($name, $spotilink, $id, $exists, $searched, $imgname, $src,
             case "radio-de":
             case "dirble":
             case "bassdrive":
-                print '<div class="playlisticon fixed"><img height="12px" src="newimages/'.$d.'-logo.png" /></div>';
+                print '<div class="playlisticon fixed"><img height="12px" src="newimages/'.
+                    $d.'-logo.png" /></div>';
                 break;
         }
-        if (strtolower(pathinfo($spotilink, PATHINFO_EXTENSION)) == "cue") {
+        if (strtolower(pathinfo($albumuri, PATHINFO_EXTENSION)) == "cue") {
             print '<i class="icon-doc-text playlisticon fixed"></i>';
         }
     }
@@ -481,12 +498,14 @@ function getDomain($d) {
 
 function askForMpdValues($title) {
     global $prefs;
-print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" '.
+'"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 <title>RompR</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=100%, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0" />
+<meta name="viewport" content="width=100%, initial-scale=1.0, maximum-scale=1.0, '.
+'minimum-scale=1.0, user-scalable=0" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <link rel="stylesheet" type="text/css" href="css/layout.css" />
 <link rel="shortcut icon" href="newimages/favicon.ico" />
@@ -506,11 +525,14 @@ print '<p class="tiny">'.get_int_text("setup_addressnote").'</p>';
 print '<p>NOTE: Mopidy is still supported, but you must now use the MPD frontend in Mopidy</p>';
 print '<p>This is the DEFAULT values. You can specify multiple different servers from the application</p>';
 print '<form name="mpdetails" action="index.php" method="post">';
-print '<p>'.get_int_text("setup_ipaddress").'<br><input type="text" name="mpd_host" value="'.$prefs['mpd_host'].'" /></p>'."\n";
+print '<p>'.get_int_text("setup_ipaddress").'<br><input type="text" name="mpd_host" value="'.
+    $prefs['mpd_host'].'" /></p>'."\n";
 print '<hr class="dingleberry" />';
 print '<h3>'.get_int_text("setup_mpd").'</h3>';
-print '<p>'.get_int_text("setup_port").'<br><input type="text" name="mpd_port" value="'.$prefs['mpd_port'].'" /></p>'."\n";
-print '<p>'.get_int_text("setup_password").'<br><input type="text" name="mpd_password" value="'.$prefs['mpd_password'].'" /></p>'."\n";
+print '<p>'.get_int_text("setup_port").'<br><input type="text" name="mpd_port" value="'.
+    $prefs['mpd_port'].'" /></p>'."\n";
+print '<p>'.get_int_text("setup_password").'<br><input type="text" name="mpd_password" value="'.
+    $prefs['mpd_password'].'" /></p>'."\n";
 print '<p>'.get_int_text("setup_unixsocket").'</p>';
 print '<input type="text" name="unix_socket" value="'.$prefs['unix_socket'].'" /></p>';
 
@@ -528,16 +550,24 @@ if (array_key_exists('collection_type', $prefs) && $prefs['collection_type'] == 
 }
 print '>Full Database Collection</input></p>';
 print '<p class="tiny">Fast and full featured - requires MySQL Server:</p>';
-print '<p>Server<br><input type="text" name="mysql_host" value="'.$prefs['mysql_host'].'" /></p>'."\n";
-print '<p>Port<br><input type="text" name="mysql_port" value="'.$prefs['mysql_port'].'" /></p>'."\n";
-print '<p>Database<br><input type="text" name="mysql_database" value="'.$prefs['mysql_database'].'" /></p>'."\n";
-print '<p>Username<br><input type="text" name="mysql_user" value="'.$prefs['mysql_user'].'" /></p>'."\n";
-print '<p>Password<br><input type="text" name="mysql_password" value="'.$prefs['mysql_password'].'" /></p>'."\n";
+print '<p>Server<br><input type="text" name="mysql_host" value="'.
+    $prefs['mysql_host'].'" /></p>'."\n";
+print '<p>Port<br><input type="text" name="mysql_port" value="'.
+    $prefs['mysql_port'].'" /></p>'."\n";
+print '<p>Database<br><input type="text" name="mysql_database" value="'.
+    $prefs['mysql_database'].'" /></p>'."\n";
+print '<p>Username<br><input type="text" name="mysql_user" value="'.
+    $prefs['mysql_user'].'" /></p>'."\n";
+print '<p>Password<br><input type="text" name="mysql_password" value="'.
+    $prefs['mysql_password'].'" /></p>'."\n";
 print '<hr class="dingleberry" />';
 print '<h3>Proxy Settings</h3>';
-print '<p>Proxy Server (eg 192.168.3.4:8800)<br><input type="text" name="proxy_host" value="'.$prefs['proxy_host'].'" /></p>'."\n";
-print '<p>Proxy Username<br><input type="text" name="proxy_user" value="'.$prefs['proxy_user'].'" /></p>'."\n";
-print '<p>Proxy Password<br><input type="text" name="proxy_password" value="'.$prefs['proxy_password'].'" /></p>'."\n";
+print '<p>Proxy Server (eg 192.168.3.4:8800)<br><input type="text" name="proxy_host" value="'.
+    $prefs['proxy_host'].'" /></p>'."\n";
+print '<p>Proxy Username<br><input type="text" name="proxy_user" value="'.
+    $prefs['proxy_user'].'" /></p>'."\n";
+print '<p>Proxy Password<br><input type="text" name="proxy_password" value="'.
+    $prefs['proxy_password'].'" /></p>'."\n";
 print '<hr class="dingleberry" />';
 print '<h3>Debug Logging</h3>';
 print '<table width="100%"><tr>';
@@ -557,8 +587,11 @@ for ($i = 0; $i<10; $i++) {
 }
 print '</tr></table>';
 print '<p>Custom Log File</p>';
-print '<p class=tiny>Rompr debug output will be sent to this file, but PHP error messages will still go to the web server error log. The web server needs write access to this file, it must already exist, and you should ensure it gets rotated as it will get large</p>';
-print '<p><input type="text" style="width:90%" name="custom_logfile" value="'.$prefs['custom_logfile'].'" /></p>';
+print '<p class=tiny>Rompr debug output will be sent to this file, but PHP error messages will
+ still go to the web server error log. The web server needs write access to this file, it must
+ already exist, and you should ensure it gets rotated as it will get large</p>';
+print '<p><input type="text" style="width:90%" name="custom_logfile" value="'.
+    $prefs['custom_logfile'].'" /></p>';
 print '<p><input type="submit" value="OK" /></p>';
 print'    </form>
     </div>
@@ -582,13 +615,15 @@ function sql_init_fail($message) {
 <h4 align="center">It's all gone horribly wrong</h2>
 <br>
 <?php
-print '<h3 align="center">Rompr encountered an error while checking your '.ucfirst($prefs['collection_type']).' database.</h3>';
+print '<h3 align="center">Rompr encountered an error while checking your '.
+    ucfirst($prefs['collection_type']).' database.</h3>';
 ?>
 <h3 align="center">An SQLite or MySQL database is required to run Rompr</h3>
 <h3 align="center">You may find it helpful to <a href="https://sourceforge.net/p/rompr/wiki/Enabling%20Rating%20and%20Tagging/" target="_blank">Read The Wiki</a></h3>
 <h3 align="center">The error message was:</h3><br>
 <?php
-    print '<div class="bordered" style="width:75%;margin:auto"><p align="center"><b>'.$message.'</b></p></div><br><br></body></html>';
+    print '<div class="bordered" style="width:75%;margin:auto"><p align="center"><b>'.
+        $message.'</b></p></div><br><br></body></html>';
     askForMpdValues("");
     exit(0);
 
@@ -758,12 +793,21 @@ function getWishlist() {
         connect_to_database();
     }
 
-    $qstring = 'SELECT wishlist.*, Ratingtable.Rating FROM 
-                (SELECT Tracktable.TTindex AS ttindex, Tracktable.Title AS track, Tracktable.TrackNo AS num, Tracktable.Duration AS time, Tracktable.Disc as disc, Artisttable.Artistname AS artist, Albumtable.Albumname AS album, Albumtable.Image AS image, Albumtable.ImgKey AS imgkey FROM Tracktable JOIN Artisttable USING (Artistindex) JOIN Albumtable ON Tracktable.Albumindex = Albumtable.Albumindex WHERE Uri IS NULL AND Hidden = 0
-                UNION
-                SELECT Tracktable.TTindex AS ttindex, Tracktable.Title AS track, Tracktable.TrackNo AS num, Tracktable.Duration AS time, Tracktable.Disc as disc, Artisttable.Artistname AS artist, "" AS Albumname, NULL as Image, NULL AS ImgKey FROM Tracktable JOIN Artisttable USING (Artistindex) WHERE Albumindex IS NULL AND Uri IS NULL AND Hidden = 0) AS wishlist
-                LEFT JOIN Ratingtable ON Ratingtable.TTindex = wishlist.ttindex
-                ORDER BY ';
+    $qstring =
+        'SELECT wishlist.*, Ratingtable.Rating FROM
+        (SELECT Tracktable.TTindex AS ttindex, Tracktable.Title AS track, Tracktable.TrackNo
+            AS num, Tracktable.Duration AS time, Tracktable.Disc as disc, Artisttable.Artistname
+            AS artist, Albumtable.Albumname AS album, Albumtable.Image AS image, Albumtable.ImgKey
+            AS imgkey FROM Tracktable JOIN Artisttable USING (Artistindex) JOIN Albumtable ON
+            Tracktable.Albumindex = Albumtable.Albumindex WHERE Uri IS NULL AND Hidden = 0
+        UNION
+        SELECT Tracktable.TTindex AS ttindex, Tracktable.Title AS track, Tracktable.TrackNo
+            AS num, Tracktable.Duration AS time, Tracktable.Disc as disc, Artisttable.Artistname
+            AS artist, "" AS Albumname, NULL as Image, NULL AS ImgKey FROM Tracktable JOIN
+            Artisttable USING (Artistindex) WHERE Albumindex IS NULL AND Uri IS NULL AND Hidden = 0)
+        AS wishlist
+        LEFT JOIN Ratingtable ON Ratingtable.TTindex = wishlist.ttindex
+        ORDER BY ';
     foreach ($prefs['artistsatstart'] as $a) {
         $qstring .= "CASE WHEN LOWER(artist) = LOWER('".$a."') THEN 1 ELSE 2 END, ";
     }
@@ -771,7 +815,8 @@ function getWishlist() {
         $qstring .= "(CASE ";
         foreach($prefs['nosortprefixes'] AS $p) {
             $phpisshitsometimes = strlen($p)+2;
-            $qstring .= "WHEN LOWER(artist) LIKE '".strtolower($p)." %' THEN LOWER(SUBSTR(artist,".$phpisshitsometimes.")) ";
+            $qstring .= "WHEN LOWER(artist) LIKE '".strtolower($p)." %' THEN LOWER(SUBSTR(artist,".
+                $phpisshitsometimes.")) ";
         }
         $qstring .= "ELSE LOWER(artist) END)";
     } else {
@@ -873,6 +918,21 @@ function getCacheData($uri, $cache) {
         }
     }
 
+}
+
+function get_user_file($src, $fname, $tmpname) {
+    global $error;
+    debuglog("  Uploading ".$src." ".$fname." ".$tmpname,"GETALBUMCOVER");
+    $download_file = "prefs/".$fname;
+    if (move_uploaded_file($tmpname, $download_file)) {
+        debuglog("    File ".$src." is valid, and was successfully uploaded.","GETALBUMCOVER");
+    } else {
+        debuglog("    Possible file upload attack!","GETALBUMCOVER");
+        header('HTTP/1.0 403 Forbidden');
+        ob_flush();
+        exit(0);
+    }
+    return $download_file;
 }
 
 ?>

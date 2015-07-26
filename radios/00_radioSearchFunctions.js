@@ -27,9 +27,10 @@ function searchRadio() {
 			tracks = new Array();
 			for (var j in data) {
 				for (var k in data[j].tracks) {
-					if (!data[j].tracks[k].uri.match(/:album:/) && !data[j].tracks[k].uri.match(/:artist:/)) {
+					if (!data[j].tracks[k].uri.match(/:album:/) &&
+						!data[j].tracks[k].uri.match(/:artist:/)) {
 						tracks.push({type: 'uri', name: data[j].tracks[k].uri});
-					}	
+					}
 				}
 			}
 			if (tracks.length > 0) {
@@ -51,7 +52,7 @@ function searchRadio() {
 					var d = t.name.substr(0, t.name.indexOf(':'));
 					if (n.indexOf(d) == -1) {
 						continue;
-					}					
+					}
 				}
 				self.sending--;
         		player.controller.addTracks([t], playlist.radioManager.playbackStartPos(), null);

@@ -118,26 +118,32 @@ var alarm = function() {
 				infobar.notify(infobar.NOTIFY, "Snooze OFF");
 				$("#alarmclock").stopFlasher();
 				alarm.setAlarm();
+				$("#freddibnah").text('Snooze...');
 			} else {
-				debug.log("ALARM","Snoozing");
-				player.controller.pause();
-				clearTimeout(alarmtimer);
-				clearTimeout(inctimer);
-				if (prefs.alarmramp) {
-					player.controller.volume(uservol);
+				if (player.status.state == "play") {
+					debug.log("ALARM","Snoozing");
+					player.controller.pause();
+					clearTimeout(alarmtimer);
+					clearTimeout(inctimer);
+					if (prefs.alarmramp) {
+						player.controller.volume(uservol);
+					}
+					alarmtimer = setTimeout(alarm.Ding, prefs.alarm_snoozetime*60000);
+					$("#alarmclock").makeFlasher({flashtime: 10, repeats: prefs.alarm_snoozetime*6});
+					snoozing = true;
+					debug.log("ALARM","Alarm will go off in",prefs.alarm_snoozetime,"minutes");
+					infobar.notify(infobar.NOTIFY, "Snoozing....");
+					$("#freddibnah").text('UnSnooze...');
 				}
-				alarmtimer = setTimeout(alarm.Ding, prefs.alarm_snoozetime*60000);
-				$("#alarmclock").makeFlasher({flashtime: 10, repeats: prefs.alarm_snoozetime*6});
-				snoozing = true;
-				debug.log("ALARM","Alarm will go off in",prefs.alarm_snoozetime,"minutes");
-				infobar.notify(infobar.NOTIFY, "Snoozing....");
 			}
 		},
 
 		setup: function() {
 			var html =
-				'<div class="topdrop"><i id="alarmclock" class="icon-alarm topimg tooltip" title="'+language.gettext('button_alarm')+'"></i>'+
+				'<div class="topdrop"><i id="alarmclock" class="icon-alarm topimg tooltip" title="'+
+				language.gettext('button_alarm')+'"></i>'+
 				'<div class="topdropmenu dropshadow rightmenu normalmenu stayopen" id="alarmpanel">'+
+				'<div class="textcentre configtitle"><b>'+language.gettext('button_alarm')+'</b></div>'+
 				'<div class="noselection">'+
 				'<table align="center"><tr>'+
 				'<td align="center"><i class="icon-increase smallicon clickicon" onmousedown="alarm.startInc(3600)" onmouseup="alarm.stopInc()" onmouseout="alarm.stopInc()"></i></td>'+
@@ -148,13 +154,18 @@ var alarm = function() {
 				'<td align="center"><i class="icon-decrease smallicon clickicon" onmousedown="alarm.startInc(-3600)" onmouseup="alarm.stopInc()" onmouseout="alarm.stopInc()" /></td>'+
 				'<td width="2%"></td><td align="center"><i class="icon-decrease smallicon clickicon" onmousedown="alarm.startInc(-60)" onmouseup="alarm.stopInc()" onmouseout="alarm.stopInc()" /></td>'+
 				'</tr></table>';
-			html = html + '<table align="center">';
-			html = html + '<tr><td><div class="styledinputs textcentre"><input type="checkbox" class="autoset toggle" id="alarmon"><label for="alarmon">ON</label></div></td></tr>';
-			html = html + '<tr><td><div class="styledinputs textcentre"><input type="checkbox" class="autoset toggle" id="alarmramp"><label for="alarmramp">'+language.gettext('config_alarm_ramp')+'</label></div></td></tr>';
-			html = html + '<tr><td align="center" colspan="2">'+language.gettext('config_ramptime')+'&nbsp;<input class="saveotron prefinputUsers/bob/Sites/rompr" id="alarm_ramptime" type="text" size="2" /></td></tr>';
-			html = html + '<tr><td align="center" colspan="2">'+language.gettext('config_snoozetime')+'&nbsp;<input class="saveotron prefinputUsers/bob/Sites/rompr" id="alarm_snoozetime" type="text" size="2" /></td></tr>';
-			html = html + '</table>';
-			html = html + '</div></div></div>';
+			html += '<table align="center" width="95%">';
+			html += '<tr>';
+			html += '<td colspan="3"><div class="styledinputs textcentre"><input type="checkbox" class="autoset toggle" id="alarmon"><label for="alarmon">ON</label></div></td>';
+			html += '</tr>';
+			html += '<tr>';
+			html += '<td colspan="3"><div class="styledinputs textcentre"><input type="checkbox" class="autoset toggle" id="alarmramp"><label for="alarmramp">'+language.gettext('config_alarm_ramp')+'</label></div></td>';
+			html += '</tr>';
+			html += '<tr><td colspan="2">'+language.gettext('config_ramptime')+'</td><td><input class="saveotron prefinputUsers/bob/Sites/rompr" id="alarm_ramptime" type="text" size="2" /></td></tr>';
+			html += '<tr><td colspan="2">'+language.gettext('config_snoozetime')+'</td><td><input class="saveotron prefinputUsers/bob/Sites/rompr" id="alarm_snoozetime" type="text" size="2" /></td></tr>';
+			html += '<tr><td colspan="3" align="center" colspan="2"><button id="freddibnah" onclick="alarm.snooze()">Snooze...</button></td></tr>';
+			html += '</table>';
+			html += '</div></div></div>';
 
 			$("#righthandtop").prepend(html);
 			html = null;

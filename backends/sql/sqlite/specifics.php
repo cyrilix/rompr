@@ -75,7 +75,7 @@ function check_sql_tables() {
 		"Albumindex INTEGER PRIMARY KEY NOT NULL UNIQUE, ".
 		"Albumname VARCHAR(255), ".
 		"AlbumArtistindex INTEGER, ".
-		"Spotilink VARCHAR(255), ".
+		"AlbumUri VARCHAR(255), ".
 		"Year YEAR, ".
 		"Searched TINYINT(1), ".
 		"ImgKey CHAR(32), ".
@@ -87,22 +87,22 @@ function check_sql_tables() {
 		if (generic_sql_query("CREATE INDEX IF NOT EXISTS ni ON Albumtable (Albumname)")) {
 		} else {
 			$err = $mysqlc->errorInfo()[2];
-			return array(false, "Error While Checking Tracktable : ".$err);
+			return array(false, "Error While Checking Albumtable : ".$err);
 		}
 		if (generic_sql_query("CREATE INDEX IF NOT EXISTS aai ON Albumtable (AlbumArtistindex)")) {
 		} else {
 			$err = $mysqlc->errorInfo()[2];
-			return array(false, "Error While Checking Tracktable : ".$err);
+			return array(false, "Error While Checking Albumtable : ".$err);
 		}
 		if (generic_sql_query("CREATE INDEX IF NOT EXISTS di ON Albumtable (Domain)")) {
 		} else {
 			$err = $mysqlc->errorInfo()[2];
-			return array(false, "Error While Checking Tracktable : ".$err);
+			return array(false, "Error While Checking Albumtable : ".$err);
 		}
 		if (generic_sql_query("CREATE INDEX IF NOT EXISTS ii ON Albumtable (ImgKey)")) {
 		} else {
 			$err = $mysqlc->errorInfo()[2];
-			return array(false, "Error While Checking Tracktable : ".$err);
+			return array(false, "Error While Checking Albumtable : ".$err);
 		}
 	} else {
 		$err = $mysqlc->errorInfo()[2];
@@ -117,7 +117,7 @@ function check_sql_tables() {
 		if (generic_sql_query("CREATE INDEX IF NOT EXISTS ni ON Artisttable (Artistname)")) {
 		} else {
 			$err = $mysqlc->errorInfo()[2];
-			return array(false, "Error While Checking Tracktable : ".$err);
+			return array(false, "Error While Checking Artisttable : ".$err);
 		}
 	} else {
 		$err = $mysqlc->errorInfo()[2];
@@ -217,6 +217,38 @@ function check_sql_tables() {
 				debuglog("Updating FROM Schema version 11 TO Scheme version 12","SQL");
 				generic_sql_query("ALTER TABLE Tracktable ADD isSearchResult TINYINT(1) DEFAULT 0");
 				generic_sql_query("UPDATE Statstable SET Value = 12 WHERE Item = 'SchemaVer'");
+				break;
+
+			case 12;
+				debuglog("Updating FROM Schema version 12 TO Scheme version 13","SQL");
+				// First attempt didn't work
+				generic_sql_query("UPDATE Statstable SET Value = 13 WHERE Item = 'SchemaVer'");
+				break;
+
+			case 13:
+				// SQLite doesn't let you rename or remove a column. Holy Shitting heck.
+				debuglog("Updating FROM Schema version 13 TO Scheme version 14","SQL");
+				generic_sql_query("CREATE TABLE Albumtable_New(".
+					"Albumindex INTEGER PRIMARY KEY NOT NULL UNIQUE, ".
+					"Albumname VARCHAR(255), ".
+					"AlbumArtistindex INTEGER, ".
+					"AlbumUri VARCHAR(255), ".
+					"Year YEAR, ".
+					"Searched TINYINT(1), ".
+					"ImgKey CHAR(32), ".
+					"mbid CHAR(40), ".
+					"Domain CHAR(32), ".
+					"Image VARCHAR(255))");
+				generic_sql_query("INSERT INTO Albumtable_New SELECT Albumindex, Albumname,
+					AlbumArtistindex, Spotilink AS AlbumUri, Year, Searched, ImgKey, mbid, Domain, Image
+					FROM Albumtable");
+				generic_sql_query("DROP TABLE Albumtable");
+				generic_sql_query("ALTER TABLE Albumtable_New RENAME TO Albumtable");
+				generic_sql_query("CREATE INDEX IF NOT EXISTS ni ON Albumtable (Albumname)");
+				generic_sql_query("CREATE INDEX IF NOT EXISTS aai ON Albumtable (AlbumArtistindex)");
+				generic_sql_query("CREATE INDEX IF NOT EXISTS di ON Albumtable (Domain)");
+				generic_sql_query("CREATE INDEX IF NOT EXISTS ii ON Albumtable (ImgKey)");
+				generic_sql_query("UPDATE Statstable SET Value = 14 WHERE Item = 'SchemaVer'");
 				break;
 
 		}

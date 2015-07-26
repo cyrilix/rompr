@@ -36,7 +36,8 @@ function doDbCollection($terms, $domains, $resultstype) {
 		$qstring .=") AS j ON j.TTindex = t.TTindex ";
 	}
 	if (array_key_exists('rating', $terms)) {
-		$qstring .= "JOIN (SELECT * FROM Ratingtable WHERE Rating >= ".$terms['rating'].") AS rat ON rat.TTindex = t.TTindex ";
+		$qstring .= "JOIN (SELECT * FROM Ratingtable WHERE Rating >= ".
+			$terms['rating'].") AS rat ON rat.TTindex = t.TTindex ";
 	}
 	$qstring .= "JOIN Artisttable AS a1 ON a1.Artistindex = t.Artistindex ";
 	$qstring .= "JOIN Albumtable AS al ON al.Albumindex = t.Albumindex ";
@@ -121,7 +122,7 @@ function doDbCollection($terms, $domains, $resultstype) {
 					'Track' => $obj->TrackNo,
 					'Image' => $obj->Image,
 					'Time' => $obj->Duration,
-					'SpotiAlbum' => $obj->Spotilink,
+					'AlbumUri' => $obj->AlbumUri,
 					'Date' => $obj->Year,
 					'Last-Modified' => $obj->LastModified
 				);

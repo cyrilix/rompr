@@ -14,11 +14,11 @@ var info_discogs = function() {
 					u = 'http://'+u;
 				}
 				if (u.match(/wikipedia/i)) {
-					html = html + '<li><i class="icon-wikipedia smallicon menu padright"></i><a href="'+u+'" target="_blank">Wikipedia ('+d[1]+')</a></li>';
+					html += '<li><i class="icon-wikipedia smallicon menu padright"></i><a href="'+u+'" target="_blank">Wikipedia ('+d[1]+')</a></li>';
 				} else if (u.match(/facebook/i)) {
-					html = html + '<li><i class="icon-facebook-logo smallicon padright"></i><a href="'+u+'" target="_blank">Facebook</a></li>';
+					html += '<li><i class="icon-facebook-logo smallicon padright"></i><a href="'+u+'" target="_blank">Facebook</a></li>';
 				} else {
-					html = html + '<li><i class="icon-noicon smallicon menu padright"></i><a href="'+u+'" target="_blank">'+d[1]+'</a></li>';
+					html += '<li><i class="icon-noicon smallicon menu padright"></i><a href="'+u+'" target="_blank">'+d[1]+'</a></li>';
 				}
 			}
 		}
@@ -83,76 +83,76 @@ var info_discogs = function() {
 		var html = "";
 		debug.trace(medebug,"Generating release HTML for",data.id);
 		if (data.data.releases.length > 0) {
-        	html = html + '<div class="mbbox clearfix"><span style="float:right">PAGES: ';
+        	html += '<div class="mbbox clearfix"><span style="float:right">PAGES: ';
         	for (var i = 1; i <= data.data.pagination.pages; i++) {
         		if (i == data.data.pagination.page) {
-        			html = html + " <b>"+i+"</b>";
+        			html += " <b>"+i+"</b>";
         		} else {
         			var a = data.data.pagination.urls.last || data.data.pagination.urls.first;
         			var b = a.match(/artists\/(\d+)\/releases/);
         			if (b && b[1]) {
-        				html = html + ' <a href="#" class="infoclick clickreleasepage" name="'+b[1]+'">'+i+'</a>';
+        				html += ' <a href="#" class="infoclick clickreleasepage" name="'+b[1]+'">'+i+'</a>';
         			}
         		}
         	}
-        	html = html + '</span></div>';
-        	html = html + '<div class="mbbox"><table class="padded" width="100%">';
-        	html = html + '<tr><th>'+language.gettext("title_year")+'</th><th>'+language.gettext("title_title")+'</th><th>'
+        	html += '</span></div>';
+        	html += '<div class="mbbox"><table class="padded" width="100%">';
+        	html += '<tr><th>'+language.gettext("title_year")+'</th><th>'+language.gettext("title_title")+'</th><th>'
         				+language.getUCtext("label_artist")+'</th><th>'+language.gettext("title_type")+'</th><th>'+language.gettext("title_label")+'</th></tr>';
         	for (var i in data.data.releases) {
-        		html = html + '<tr>';
+        		html += '<tr>';
         		if (data.data.releases[i].year) {
-        			html = html + '<td>'+data.data.releases[i].year+'</td>';
+        			html += '<td>'+data.data.releases[i].year+'</td>';
         		} else {
-        			html = html + '<td></td>';
+        			html += '<td></td>';
         		}
         		if (data.data.releases[i].title) {
-        			html = html + '<td><a href="#" class="infoclick clickgetdiscstuff" target="_blank">'+
+        			html += '<td><a href="#" class="infoclick clickgetdiscstuff" target="_blank">'+
         							data.data.releases[i].title+
         							'</a><input type="hidden" value="'+data.data.releases[i].resource_url+'" />';
         			if (data.data.releases[i].role && data.data.releases[i].role != 'Main') {
         				var r = data.data.releases[i].role;
         				r = r.replace(/([a-z])([A-Z])/, '$1 $2');
-        				html = html + '<br>(<i>'+r+'</i>)'
+        				html += '<br>(<i>'+r+'</i>)'
         			}
         			if (data.data.releases[i].trackinfo) {
-        				html = html + '<br>(<i>'+data.data.releases[i].trackinfo+'</i>)'
+        				html += '<br>(<i>'+data.data.releases[i].trackinfo+'</i>)'
         			}
-        			html = html + '</td>';
+        			html += '</td>';
         		} else {
-        			html = html + '<td></td>';
+        			html += '<td></td>';
         		}
         		if (data.data.releases[i].artist) {
-        			html = html + '<td>'+data.data.releases[i].artist+'</td>';
+        			html += '<td>'+data.data.releases[i].artist+'</td>';
         		} else {
-        			html = html + '<td></td>';
+        			html += '<td></td>';
         		}
         		if (data.data.releases[i].format) {
-        			html = html + '<td>'+data.data.releases[i].format+'</td>';
+        			html += '<td>'+data.data.releases[i].format+'</td>';
         		} else {
-        			html = html + '<td></td>';
+        			html += '<td></td>';
         		}
         		if (data.data.releases[i].label) {
-        			html = html + '<td>'+data.data.releases[i].label+'</td>';
+        			html += '<td>'+data.data.releases[i].label+'</td>';
         		} else {
-        			html = html + '<td></td>';
+        			html += '<td></td>';
         		}
-        		html = html + '</tr>';
+        		html += '</tr>';
         	}
-        	html = html + '</table></div>';
-        	html = html + '<div class="mbbox clearfix"><span style="float:right">'+language.gettext("label_pages")+': ';
+        	html += '</table></div>';
+        	html += '<div class="mbbox clearfix"><span style="float:right">'+language.gettext("label_pages")+': ';
         	for (var i = 1; i <= data.data.pagination.pages; i++) {
         		if (i == data.data.pagination.page) {
-        			html = html + " <b>"+i+"</b>";
+        			html += " <b>"+i+"</b>";
         		} else {
         			var a = data.data.pagination.urls.last || data.data.pagination.urls.first;
         			var b = a.match(/artists\/(\d+)\/releases/);
         			if (b && b[1]) {
-        				html = html + ' <a href="#" class="infoclick clickreleasepage" name="'+b[1]+'">'+i+'</a>';
+        				html += ' <a href="#" class="infoclick clickreleasepage" name="'+b[1]+'">'+i+'</a>';
         			}
         		}
         	}
-        	html = html + '</span></div>';
+        	html += '</span></div>';
 		}
 		debug.trace(medebug,"Returning release HTML for",data.id);
 		return html;
@@ -166,75 +166,75 @@ var info_discogs = function() {
 		}
 
         var html = '<div class="containerbox info-detail-layout">';
-    	html = html + '<div class="info-box-fixed info-box-list info-border-right">';
+    	html += '<div class="info-box-fixed info-box-list info-border-right">';
 		if (data.release) {
-			html = html + getStyles(data.release.data.styles);
+			html += getStyles(data.release.data.styles);
 		} else {
-			html = html + getStyles(data.master.data.styles);
+			html += getStyles(data.master.data.styles);
 		}
 		if (data.release) {
-			html = html + getGenres(data.release.data.genres);
+			html += getGenres(data.release.data.genres);
 		} else {
-			html = html + getGenres(data.master.data.genres);
+			html += getGenres(data.master.data.genres);
 		}
 
 		if (data.release) {
-			html = html + '<br><ul><li><b>'+language.gettext("discogs_companies")+'</b></li>';
+			html += '<br><ul><li><b>'+language.gettext("discogs_companies")+'</b></li>';
 			for (var i in data.release.data.companies) {
-				html = html + '<li>'+data.release.data.companies[i].entity_type_name+
+				html += '<li>'+data.release.data.companies[i].entity_type_name+
 							" "+data.release.data.companies[i].name+'</li>';
 
 			}
-			html = html + '</ul>';
+			html += '</ul>';
 		}
 
-		html = html + '</div>';
+		html += '</div>';
 
-    	html = html + '<div class="info-box-expand stumpy">';
+    	html += '<div class="info-box-expand stumpy">';
         if (data.master && data.master.data.notes) {
         	var n = data.master.data.notes;
         	n = n.replace(/\n/g, '<br>');
-        	html = html + '<p>'+n+'</p>';
+        	html += '<p>'+n+'</p>';
         }
 
         if (data.release && data.release.data.notes) {
         	var n = formatNotes(data.release.data.notes);
-        	html = html + '<p>'+n+'</p>';
+        	html += '<p>'+n+'</p>';
         }
 
         if (data.release && data.release.data.extraartists && data.release.data.extraartists.length > 0) {
-			html = html + '<div class="mbbox underline"><b>'+language.gettext("discogs_personnel")+'</b></div>';
+			html += '<div class="mbbox underline"><b>'+language.gettext("discogs_personnel")+'</b></div>';
 			for (var i in data.release.data.extraartists) {
-				html = html + '<div class="mbbox">'+data.release.data.extraartists[i].role+' <b>'+data.release.data.extraartists[i].name+'</b></div>';
+				html += '<div class="mbbox">'+data.release.data.extraartists[i].role+' <b>'+data.release.data.extraartists[i].name+'</b></div>';
 			}
 		}
 
 		if (data.release) {
-			html = html + getTracklist(data.release.data.tracklist)
+			html += getTracklist(data.release.data.tracklist)
 		} else {
-			html = html + getTracklist(data.master.data.tracklist)
+			html += getTracklist(data.master.data.tracklist)
 		}
 
-		html = html + '</div>';
-		html = html + '</div>';
+		html += '</div>';
+		html += '</div>';
 		return html;
 	}
 
 	function getStyles(styles) {
 		var html = '<br><ul><li><b>'+language.gettext("discogs_styles")+'</b></li>';
 		for (var i in styles) {
-			html = html + '<li>'+styles[i]+'</li>';
+			html += '<li>'+styles[i]+'</li>';
 		}
-		html = html + '</ul>';
+		html += '</ul>';
 		return html;
 	}
 
 	function getGenres(genres) {
 		var html = '<br><ul><li><b>'+language.gettext("discogs_genres")+'</b></li>';
 		for (var i in genres) {
-			html = html + '<li>'+genres[i]+'</li>';
+			html += '<li>'+genres[i]+'</li>';
 		}
-		html = html + '</ul>';
+		html += '</ul>';
 		return html;
 	}
 
@@ -242,34 +242,34 @@ var info_discogs = function() {
 		var html = '<div class="mbbox underline"><b>'+language.gettext("discogs_tracklisting")+'</b></div><div class="mbbox"><table class="padded">';
 		for (var i in tracks) {
 			if (tracks[i].position == "") {
-				html = html + '<tr><th colspan="3">'+tracks[i].title+'</th></tr>';
+				html += '<tr><th colspan="3">'+tracks[i].title+'</th></tr>';
 			} else {
-				html = html + '<tr><td>'+tracks[i].position+'</td>';
-				html = html + '<td><b>'+tracks[i].title+'</b>';
+				html += '<tr><td>'+tracks[i].position+'</td>';
+				html += '<td><b>'+tracks[i].title+'</b>';
 				if (tracks[i].artists && tracks[i].artists.length > 0) {
-					html = html + '<br><i>';
+					html += '<br><i>';
 					var jp = "";
 					for (var k in tracks[i].artists) {
 						if (jp != "") {
-							html = html + " "+jp+" ";
+							html += " "+jp+" ";
 						}
-						html = html + tracks[i].artists[k].name;
+						html += tracks[i].artists[k].name;
 						jp = tracks[i].artists[k].join;
 					}
-					html = html + '</i>';
+					html += '</i>';
 				}
 
 				if (tracks[i].extraartists) {
 					for (var j in tracks[i].extraartists) {
-						html = html + '<br><i>'+tracks[i].extraartists[j].role+
+						html += '<br><i>'+tracks[i].extraartists[j].role+
 									' - '+tracks[i].extraartists[j].name+'</i>';
 					}
 				}
-				html = html + '</td>';
-				html = html + '<td>'+tracks[i].duration+'</td></tr>';
+				html += '</td>';
+				html += '<td>'+tracks[i].duration+'</td></tr>';
 			}
 		}
-		html = html + '</table></div>';
+		html += '</table></div>';
 		return html;
 	}
 
@@ -469,39 +469,39 @@ var info_discogs = function() {
 				}
 				debug.trace(medebug, "Creating Artist HTML",data);
 		        var html = '<div class="containerbox info-detail-layout">';
-		    	html = html + '<div class="info-box-fixed info-box-list info-border-right">';
+		    	html += '<div class="info-box-fixed info-box-list info-border-right">';
 
 			    if (data.data.realname && data.data.realname != "") {
-			        html = html + '<br><ul><li><b>'+language.gettext("discogs_realname")+'</b> '+data.data.realname+'</li>';
+			        html += '<br><ul><li><b>'+language.gettext("discogs_realname")+'</b> '+data.data.realname+'</li>';
 			    }
 
 		        if (data.data.aliases && data.data.aliases.length > 0) {
-			        html = html + '<br><ul><li><b>'+language.gettext("discogs_aliases")+'</b></li>';
+			        html += '<br><ul><li><b>'+language.gettext("discogs_aliases")+'</b></li>';
 			        for (var i in data.data.aliases) {
-			        	html = html + '<li>'+data.data.aliases[i].name+'</li>';
+			        	html += '<li>'+data.data.aliases[i].name+'</li>';
 			        }
-			        html = html + '</ul>';
+			        html += '</ul>';
 			    }
 
 		        if (data.data.namevariations && data.data.namevariations.length > 0) {
-			        html = html + '<br><ul><li><b>'+language.gettext("discogs_alsoknown")+'</b></li>';
+			        html += '<br><ul><li><b>'+language.gettext("discogs_alsoknown")+'</b></li>';
 			        for (var i in data.data.namevariations) {
-			        	html = html + '<li>'+data.data.namevariations[i]+'</li>';
+			        	html += '<li>'+data.data.namevariations[i]+'</li>';
 			        }
-			        html = html + '</ul>';
+			        html += '</ul>';
 			    }
 
 		        if (data.data.urls && data.data.urls.length > 0) {
-			        html = html + '<br><ul><li><b>'+language.gettext("discogs_external")+'</b></li>';
-			        html = html + getURLs(data.data.urls);
-			        html = html + '</ul>';
+			        html += '<br><ul><li><b>'+language.gettext("discogs_external")+'</b></li>';
+			        html += getURLs(data.data.urls);
+			        html += '</ul>';
 			    }
-			    html = html + '</div>';
+			    html += '</div>';
 
-	        	html = html + '<div class="info-box-expand stumpy">';
-		        html = html + '<div class="holdingcell">';
+	        	html += '<div class="info-box-expand stumpy">';
+		        html += '<div class="holdingcell">';
 		        if (expand) {
-					html = html + '<i class="icon-expand-up medicon clickexpandbox infoclick tleft" name="'+data.data.id+'"></i>';
+					html += '<i class="icon-expand-up medicon clickexpandbox infoclick tleft" name="'+data.data.id+'"></i>';
 				}
 
 		        if (data.data.profile) {
@@ -540,42 +540,42 @@ var info_discogs = function() {
 			        }
 
 
-			        html = html + '<p>'+p+'</p>';
+			        html += '<p>'+p+'</p>';
 			    }
-			    html = html + '</div>';
+			    html += '</div>';
 
 			    if (data.data.members && data.data.members.length > 0) {
-		        	html = html + '<div class="mbbox underline"><b>'+language.gettext("discogs_bandmembers")+'</b></div>';
-		        	html = html + doMembers(data.data.members);
+		        	html += '<div class="mbbox underline"><b>'+language.gettext("discogs_bandmembers")+'</b></div>';
+		        	html += doMembers(data.data.members);
 			    }
 
 			    if (data.data.groups && data.data.groups.length > 0) {
-		        	html = html + '<div class="mbbox underline"><b>'+language.gettext("discogs_memberof")+'</b></div>';
-		        	html = html + doMembers(data.data.groups);
+		        	html += '<div class="mbbox underline"><b>'+language.gettext("discogs_memberof")+'</b></div>';
+		        	html += doMembers(data.data.groups);
 			    }
 
-				html = html + '<div class="mbbox underline">';
-			    html = html + '<i class="icon-toggle-closed menu infoclick clickdodiscography" name="'+data.data.id+'"></i>';
-			    html = html + '<span class="title-menu">'+language.gettext("discogs_discography", [data.data.name.toUpperCase()])+'</span></div>';
-			    html = html + '<div name="discography_'+data.data.id+'" class="invisible">';
-			    html = html + '</div>';
+				html += '<div class="mbbox underline">';
+			    html += '<i class="icon-toggle-closed menu infoclick clickdodiscography" name="'+data.data.id+'"></i>';
+			    html += '<span class="title-menu">'+language.gettext("discogs_discography", [data.data.name.toUpperCase()])+'</span></div>';
+			    html += '<div name="discography_'+data.data.id+'" class="invisible">';
+			    html += '</div>';
 
-		        html = html + '</div>';
+		        html += '</div>';
 
-		        html = html + '</div>';
+		        html += '</div>';
 		        return html;
 			}
 
 			function doMembers(members) {
 				var html = "";
 		    	for (var i in members) {
-		    		html = html + '<div class="mbbox">';
-        			html = html + '<i class="icon-toggle-closed menu infoclick clickdoartist" name="'+members[i].id+'"></i>';
+		    		html += '<div class="mbbox">';
+        			html += '<i class="icon-toggle-closed menu infoclick clickdoartist" name="'+members[i].id+'"></i>';
         			var n = members[i].name;
         			n = n.replace(/ \(\d+\)$/, '');
-        			html = html + '<span class="title-menu">'+n+'</span>';
-        			html = html + '</div>';
-	        		html = html + '<div name="artist_'+members[i].id+'" class="invisible"></div>';
+        			html += '<span class="title-menu">'+n+'</span>';
+        			html += '</div>';
+	        		html += '<div name="artist_'+members[i].id+'" class="invisible"></div>';
 		    	}
 		    	return html;
 		    }

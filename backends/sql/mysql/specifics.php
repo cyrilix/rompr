@@ -54,7 +54,7 @@ function check_sql_tables() {
 		"PRIMARY KEY(Albumindex), ".
 		"Albumname VARCHAR(255), ".
 		"AlbumArtistindex INT UNSIGNED, ".
-		"Spotilink VARCHAR(255), ".
+		"AlbumUri VARCHAR(255), ".
 		"Year YEAR, ".
 		"Searched TINYINT(1) UNSIGNED, ".
 		"ImgKey CHAR(32), ".
@@ -290,6 +290,19 @@ function check_sql_tables() {
 				generic_sql_query("ALTER TABLE Tracktable ADD isSearchResult TINYINT(1) UNSIGNED DEFAULT 0");
 				generic_sql_query("UPDATE Statstable SET Value = 12 WHERE Item = 'SchemaVer'");
 				break;
+
+			case 12:
+				debuglog("Updating FROM Schema version 12 TO Scheme version 13","SQL");
+				generic_sql_query("ALTER TABLE Albumtable CHANGE Spotilink AlbumUri VARCHAR(255)");
+				generic_sql_query("UPDATE Statstable SET Value = 13 WHERE Item = 'SchemaVer'");
+				break;
+
+			case 13:
+				debuglog("Updating FROM Schema version 13 TO Scheme version 14","SQL");
+				// Nothing to do here, this is for SQLite only.
+				generic_sql_query("UPDATE Statstable SET Value = 14 WHERE Item = 'SchemaVer'");
+				break;
+
 		}
 		$sv++;
 	}

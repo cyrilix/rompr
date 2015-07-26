@@ -69,7 +69,8 @@ var recentlyaddedtracks = function() {
 		},
 
         modeHtml: function(param) {
-            return '<i class="icon-music modeimg"></i><span class="modespan">'+language.gettext("label_recentlyadded_"+param)+'</span>&nbsp;';
+            return '<i class="icon-music modeimg"></i><span class="modespan">'+
+                language.gettext("label_recentlyadded_"+param)+'</span>&nbsp;';
         },
 
         stop: function() {
@@ -79,20 +80,24 @@ var recentlyaddedtracks = function() {
 
         setup: function() {
 
-            var html = '<div class="containerbox spacer backhi dropdown-container" onclick="playlist.radioManager.load(\'recentlyaddedtracks\', \'random\')">';
+            var html = '<div class="containerbox spacer backhi dropdown-container" '+
+                'onclick="playlist.radioManager.load(\'recentlyaddedtracks\', \'random\')">';
 
-            html = html + '<div class="fixed">';
-            html = html + '<i class="icon-music smallicon"></i></div>';
-            html = html + '<div class="expand">'+language.gettext('label_recentlyadded_random')+'</div>';
+            html += '<div class="fixed">';
+            html += '<i class="icon-music smallicon"></i></div>';
+            html += '<div class="expand">'+
+                language.gettext('label_recentlyadded_random')+'</div>';
 
-            html = html + '</div>';
-            html = html + '<div class="containerbox spacer backhi dropdown-container" onclick="playlist.radioManager.load(\'recentlyaddedtracks\', \'byalbum\')">';
+            html += '</div>';
+            html += '<div class="containerbox spacer backhi dropdown-container" '+
+                'onclick="playlist.radioManager.load(\'recentlyaddedtracks\', \'byalbum\')">';
 
-            html = html + '<div class="fixed">';
-            html = html + '<i class="icon-music smallicon"></i></div>';
-            html = html + '<div class="expand">'+language.gettext('label_recentlyadded_byalbum')+'</div>';
+            html += '<div class="fixed">';
+            html += '<i class="icon-music smallicon"></i></div>';
+            html += '<div class="expand">'+language.gettext('label_recentlyadded_byalbum')+
+                '</div>';
 
-            html = html + '</div>';
+            html += '</div>';
             $("#pluginplaylists").append(html);
 
         }

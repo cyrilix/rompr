@@ -2,17 +2,14 @@
 
 define('ROMPR_MAX_TRACKS_PER_TRANSACTION', 500);
 define('ROMPR_COLLECTION_VERSION', 2);
-define('ROMPR_SCHEMA_VERSION', 12);
+define('ROMPR_SCHEMA_VERSION', 14);
 define('ROMPR_PLAYLIST_FILE', 'prefs/playlist.json');
 define('ROMPR_VERSION', 0.70);
-define('ROMPR_ARTIST', 0);
-define('ROMPR_ALBUM', 1);
-define('ROMPR_FILE', 2);
 $connection = null;
 $is_connected = false;
 $mysqlc = null;
 
-$prefs = array( 
+$prefs = array(
     // Things that only make sense as backend options, not per-user options
     "music_directory_albumart" => "",
     "mysql_host" => "localhost",
@@ -51,7 +48,7 @@ $prefs = array(
     "lastfm_user" => "",
     "lastfm_scrobbling" => false,
     "lastfm_autocorrect" => false,
-    "lastfm_session_key" => "",    
+    "lastfm_session_key" => "",
     "autotagname" => "",
 
     // All of these are saved in the browser, so these are only defaults
@@ -119,9 +116,9 @@ if ($prefs['debug_enabled'] === true) {
 
 $logger = new debug_logger($prefs['custom_logfile'], $prefs['debug_enabled']);
 
-if (!array_key_exists('multihosts', $prefs)) { 
-    $prefs['multihosts'] = new stdClass; 
-    $prefs['multihosts']->Default = (object) [ 
+if (!array_key_exists('multihosts', $prefs)) {
+    $prefs['multihosts'] = new stdClass;
+    $prefs['multihosts']->Default = (object) [
             'host' => $prefs['mpd_host'],
             'port' => $prefs['mpd_port'],
             'password' => $prefs['mpd_password'],
@@ -156,7 +153,7 @@ $prefs['unix_socket'] = $prefs['multihosts']->$prefs['currenthost']->socket;
 
 
 if (is_dir('albumart/original')) {
-    // Re-arrange the saved album art 
+    // Re-arrange the saved album art
     system('mv albumart/small albumart/not_used_anymore');
     system('mv albumart/original albumart/small');
 }
@@ -234,7 +231,7 @@ class debug_logger {
         $in = str_repeat(" ", 20 - strlen($module));
         if ($this->outfile != "") {
             $col = $this->debug_colours[$level];
-            error_log(strftime('%T')." : \033[".$col."m".$module.$in.": ".$out."\033[0m\n",3,$this->outfile);
+            error_log(strftime('%T')." : \033[".$col."m".$module.$in.$out."\033[0m\n",3,$this->outfile);
         } else {
             error_log($module.$in.": ".$out,0);
         }

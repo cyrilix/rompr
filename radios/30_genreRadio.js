@@ -84,7 +84,8 @@ var genreRadio = function() {
 					tuner.sending = 0;
 					tuner.artistindex = 0;
 					for (var k = 0; k < data[i].artists.length; k++) {
-						tuner.newArtist(data[i].artists[k].name, data[i].artists[k].uri.substr(15, data[i].artists[k].uri.length), false);
+						tuner.newArtist(data[i].artists[k].name, data[i].artists[k].uri.substr(15,
+							data[i].artists[k].uri.length), false);
 					}
 				}
 			}
@@ -111,17 +112,22 @@ var genreRadio = function() {
 		},
 
 		modeHtml: function(g) {
-            return '<i class="icon-wifi modeimg"/></i><span class="modespan ucfirst">'+g+' '+language.gettext('label_radio')+'</span>';
+            return '<i class="icon-wifi modeimg"/></i><span class="modespan ucfirst">'+g+' '+
+            	language.gettext('label_radio')+'</span>';
 		},
 
 		setup: function() {
             var html = '<div class="containerbox dropdown-container spacer">';
-            html = html + '<div class="fixed"><i class="icon-wifi smallicon"/></i></div>';
-            html = html + '<div class="fixed padright"><span style="vertical-align:middle">'+language.gettext('label_genre')+'</span></div>';
-            html = html + '<div class="expand dropdown-holder"><input class="enter" id="humphrey" type="text" onkeyup="onKeyUp(event)" /></div>';
-            html = html + '<button class="fixed" style="margin-left:8px;vertical-align:middle" onclick="playlist.radioManager.load(\'genreRadio\', $(\'#humphrey\').val())">'+language.gettext('button_playradio')+'</button>';
-            html = html + '</div>';
-            html = html + '</div>';
+            html += '<div class="fixed"><i class="icon-wifi smallicon"/></i></div>';
+            html += '<div class="fixed padright"><span style="vertical-align:middle">'+
+            	language.gettext('label_genre')+'</span></div>';
+            html += '<div class="expand dropdown-holder"><input class="enter" id="humphrey" '+
+            	'type="text" onkeyup="onKeyUp(event)" /></div>';
+            html += '<button class="fixed" style="margin-left:8px;vertical-align:middle" '+
+            	'onclick="playlist.radioManager.load(\'genreRadio\', $(\'#humphrey\').val())">'+
+            	language.gettext('button_playradio')+'</button>';
+            html += '</div>';
+            html += '</div>';
             $("#pluginplaylists_everywhere").append(html);
 		}
 

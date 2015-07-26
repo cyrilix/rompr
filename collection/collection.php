@@ -32,7 +32,7 @@ class album {
         $this->iscompilation = false;
         $this->musicbrainz_albumid = null;
         $this->datestamp = null;
-        $this->spotilink = null;
+        $this->uri = null;
         $this->domain = $domain;
         $this->image = null;
         $this->artistobject = null;
@@ -41,7 +41,7 @@ class album {
         $numalbums++;
     }
 
-    public function newTrack(&$object) {
+    public function newTrack($object) {
         $this->tracks[] = $object;
         if ($this->folder == null) {
             $this->folder = $object->folder;
@@ -69,11 +69,11 @@ class album {
         return $this->iscompilation;
     }
 
-    public function setSpotilink($link) {
-        if ($this->spotilink != null && $link != $this->spotilink) {
-            debuglog("WARNING! Album ".$this->name." has more than one album link","COLLECTION");
+    public function setAlbumUri($link) {
+        if ($this->uri != null && $link != $this->uri) {
+            debuglog("WARNING! Album ".$this->name." has more than one URI","COLLECTION",5);
         }
-        $this->spotilink = $link;
+        $this->uri = $link;
     }
 
     public function setImage($image) {
@@ -152,6 +152,7 @@ class album {
     }
 
     public function setAsCompilation() {
+        debuglog("Setting album ".$this->name." as a compilation","COLLECTION",8);
         $this->artist = "Various Artists";
         $this->iscompilation = true;
     }
@@ -177,14 +178,14 @@ class album {
         // as discs and only do the sort if they're not the same. This'll also
         // sort out badly tagged local files. It's essential that disc numbers are set
         // because the database will not find the tracks otherwise.
-        if ($always == false && $this->numOfDiscs > 0 && ($this->numOfTrackOnes <= 1 || $this->numOfTrackOnes == $this->numOfDiscs)) return $this->numOfDiscs;
+        if ($always == false && $this->numOfDiscs > 0 &&
+            ($this->numOfTrackOnes <= 1 || $this->numOfTrackOnes == $this->numOfDiscs)) {
+               return $this->numOfDiscs;
+        }
 
         $discs = array();
         $number = 1;
         foreach ($this->tracks as $ob) {
-            // if (substr($ob->name,0,6) == "Album:" && count($this->tracks) > 1) {
-            //     continue;
-            // }
             if ($ob->number !== '') {
                 $track_no = intval($ob->number);
             } else {
@@ -238,14 +239,24 @@ class artist {
     public function __construct($name) {
         $this->name = $name;
         $this->albums = array();
-        $this->spotilink = null;
+        $this->uri = null;
     }
 
-    public function newAlbum(&$object) {
+    public function newAlbum($object) {
         // Pass an album object to this function
-        $key = md5(strtolower($object->name).$object->domain.$object->folder);
+        $key = preg_replace("/\W|_/", '',
+            strtolower($object->name).$object->domain.$object->folder);
         $this->albums[$key] = $object;
         $object->setArtistObject($this);
+    }
+
+    public function checkAlbum($album, $directory, $domain) {
+        $key = preg_replace("/\W|_/", '', strtolower($album).$domain.$directory);
+        if (array_key_exists($key, $this->albums)) {
+            debuglog("Checkalbum found album ".$album." by ".$this->name,"COLLECTION",7);
+            return $this->albums[$key];
+        }
+        return false;
     }
 
     public function pleaseReleaseMe($object) {
@@ -260,7 +271,9 @@ class artist {
             debuglog("Removing album ".$object->name." from artist ".$this->name, "COLLECTION");
             unset($this->albums[$ak]);
         } else {
-            debuglog("AWOOGA! Removing album ".$object->name." from artist ".$this->name." FAILED!", "COLLECTION");
+            debuglog(
+                "AWOOGA! Removing album ".$object->name." from artist ".$this->name.
+                " FAILED!", "COLLECTION");
         }
     }
 
@@ -284,10 +297,10 @@ class artist {
 }
 
 class track {
-    public function __construct($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
-                                $type, $image, $backendid, $playlistpos, $station,
-                                $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack,
-                                $lastmodified, $composer, $performers) {
+    public function __construct($name, $file, $duration, $number, $date, $genre, $artist, $album,
+                                $directory, $type, $image, $backendid, $playlistpos, $station,
+                                $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist,
+                                $mbtrack, $lastmodified, $composer, $performers) {
 
         $this->artist = $artist;
         $this->album = $album;
@@ -334,8 +347,17 @@ class track {
         }
     }
 
-    public function getSpotiAlbum() {
-        return $this->albumobject->spotilink;
+    public function getAlbumUri($domain) {
+        if ($domain === null) {
+            return $this->albumobject->uri;
+        } else {
+            $u = $this->albumobject->uri;
+            if ($u !== null && getDomain($u) == $domain) {
+                return $u;
+            } else {
+                return null;
+            }
+        }
     }
 
     public function setAlbumObject($object) {
@@ -362,35 +384,43 @@ class musicCollection {
     public function __construct($connection) {
         $this->connection = $connection;
         $this->artists = array();
-        $this->albums = array();
     }
 
     private function findAlbumByName($album) {
         $results = array();
-        foreach($this->albums as $object) {
-            if(strtolower($object->name) == $album) {
-                $results[] = $object;
+        foreach ($this->artists as $art) {
+            foreach ($art->albums as $object) {
+                if(strtolower($object->name) == $album) {
+                    $results[] = $object;
+                }
             }
         }
         return $results;
     }
 
+    private function checkAlbum($album, $artist, $directory, $domain) {
+        $a = false;
+        if ($artist && $directory) {
+            $albm = trim($album);
+            $a = $this->artists[$artist]->checkAlbum($album, $directory, $domain);
+        }
+        return $a;
+    }
+
     private function findAlbum($album, $artist, $directory, $domain) {
         if ($artist != null) {
-            // $a = md5(trim(strtolower($album)).$domain);
-            $art = strtolower($artist);
             $albm = trim($album);
-            // if (array_key_exists($a, $this->artists[$art]->albums)) {
-            //     return $this->artists[$art]->albums[$a];
-            // }
-            foreach ($this->artists[$art]->albums as $object) {
+            debuglog("Looking for album ".$album." by ".$artist,"COLLECTION", 5);
+            foreach ($this->artists[$artist]->albums as $object) {
                 if ($albm == $object->name && $domain == $object->domain) {
                     return $object;
                 }
             }
         }
         if ($directory != null && $directory != ".") {
-            foreach ($this->findAlbumByName(trim(strtolower($album))) as $object) {
+            debuglog("Looking for album ".$album." in ".$directory,"COLLECTION", 5);
+            $albs = $this->findAlbumByName(trim(strtolower($album)));
+            foreach ($albs as $object) {
                 if ($directory == $object->folder && $object->domain == $domain) {
                     return $object;
                 }
@@ -399,18 +429,17 @@ class musicCollection {
         return false;
     }
 
-    public function newTrack($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
-                                $type, $image, $backendid, $playlistpos, $station,
-                                $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack,
-                                $spotialbum, $spotiartist, $domain, $lastmodified,
-                                $composer, $performers, $linktype) {
+    public function newTrack($name, $file, $duration, $number, $date, $genre, $artist, $album,
+                                $directory, $type, $image, $backendid, $playlistpos, $station,
+                                $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist,
+                                $mbtrack, $albumuri, $domain, $lastmodified,
+                                $composer, $performers) {
 
         global $playlist, $prefs, $trackbytrack, $putinplaylistarray;
 
-        static $current_artist = "";
-        static $current_album = "";
+        static $current_artist = null;
+        static $current_album = null;
         static $abm = false;
-        static $current_domain = "local";
 
         if ($prefs['ignore_unplayable'] && substr($name, 0, 12) == "[unplayable]") {
             debuglog("Ignoring unplayable track ".$file,"COLLECTION",9);
@@ -430,8 +459,9 @@ class musicCollection {
         }
 
         if ($prefs['sortbycomposer'] && $composer !== null) {
-            if ($prefs['composergenre'] && $genre && checkComposerGenre($genre, $prefs['composergenrename'])) {
-                $sortartist = $composer;
+            if ($prefs['composergenre'] && $genre &&
+                checkComposerGenre($genre, $prefs['composergenrename'])) {
+                    $sortartist = $composer;
             } else if (!$prefs['composergenre']) {
                 $sortartist = $composer;
             }
@@ -445,60 +475,28 @@ class musicCollection {
         }
 
         if ($trackbytrack && $albumartist !== null && $disc !== null) {
-            $t = new track($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
-                            $type, $image, $backendid, $playlistpos, $station,
+            $t = new track($name, $file, $duration, $number, $date, $genre, $artist, $album,
+                            $directory, $type, $image, $backendid, $playlistpos, $station,
                             $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist,
                             $mbtrack, $lastmodified, $composer, $performers);
 
-            do_track_by_track($sortartist, $album, $domain, $spotialbum, $t);
+            do_track_by_track($sortartist, $album, $domain, $albumuri, $t);
             return true;
         }
 
         $artistkey = strtolower($sortartist);
 
-        // If artist doesn't exist, create it - indexed by all lower case name for convenient sorting and grouping
+        // If artist doesn't exist, create it -
+        // indexed by all lower case name for convenient sorting and grouping
         if (!array_key_exists($artistkey, $this->artists)) {
             $this->artists[$artistkey] = new artist($sortartist);
         }
 
-        if ($this->artists[$artistkey]->spotilink == null ) {
-            if ($spotiartist != null) {
-                $this->artists[$artistkey]->spotilink = $spotiartist;
-            }
-        }
-
-        // if ($linktype == ROMPR_ARTIST) {
-        //     return;
-        // }
-
-        // // Keep albums from different domains separate
-        // if ($linktype == ROMPR_ALBUM) {
-        //     if ($domain == "spotify" && $directory !== null) {
-        //         $abm = $this->findAlbum($album, null, $directory, $domain);
-        //     } else {                
-        //         $abm = $this->findAlbum($album, $artistkey, null, $domain);
-        //     }
-        //     if ($abm == false) {
-        //         $abm = new album($album, $sortartist, $domain, $directory);
-        //         $this->albums[] = $abm;
-        //         $this->artists[$artistkey]->newAlbum($abm);
-        //     }
-        //     $abm->setSpotilink($file);
-        //     if ($image) {
-        //         $abm->setImage($image);
-        //     }
-        //     if ($date) {
-        //         $abm->setDate($date);
-        //     }
-        //     $current_artist = $sortartist;
-        //     $current_album = $album;
-        //     $current_domain = $domain;
-        //     return true;
-        // }
-
         // NOTE: Spotify can have mutliple albums with the same name.
         // if ($domain == "spotify" || $album != $current_album || $sortartist != $current_artist || $domain != $current_domain) {
-        if ($album != $current_album || $sortartist != $current_artist || $domain != $current_domain) {
+        if (($current_album && $current_artist) &&
+            ($album != $current_album->name || $sortartist != $current_artist->name ||
+            $domain != $current_album->domain)) {
             $abm = false;
         }
 
@@ -508,63 +506,130 @@ class musicCollection {
                         $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist,
                         $mbtrack, $lastmodified, $composer, $performers);
 
-        // Albums are not indexed by name, since we may have 2 or more albums with the same name by multiple artists
+        // Albums are not indexed by name, since we may have 2 or more albums with the same name
+        // by multiple artists
 
-        // Does an album with this name by this aritst already exist?
-        if ($abm === false) {
-            if ($albumartist == null) {
-                // Does an album by this sortartist with this name already exist?
-                $abm = $this->findAlbum($album, $sortartist, null, $domain);
-                if ($abm === false) {
-                    // Does an album with this name where the tracks are in the same directory exist?
-                    // We don't need to do this if albumartist is set - this is for detecting
-                    // badly tagged compilations, but we also need to do this for all spotify tracks
-                    // as multiple albums can have the same name.
-                    $abm = $this->findAlbum($album, null, $directory, $domain);
-                    if ($abm !== false) {
-                        // We found one - it's not by the same artist so we need to mark it as a compilation if it isn't already
-                        if ($albumartist == null && !($abm->isCompilation())) {
-                            // Create various artists group if it isn't there
-                            if (!array_key_exists("various artists", $this->artists)) {
-                                $this->artists["various artists"] = new artist("Various Artists");
-                            }
-                            // Add the album to the various artists group
-                            $this->artists["various artists"]->newAlbum($abm);
-                            $abm->setAsCompilation();
-                        }
-                    }
+        // Same album name, same directory, album artist NOT set
+        // Therefore MUST be sortartist != current_artist and therefore this is a compilation
+        // (or domain *could* be different but we mitigate that by setting folder carefully)
+        // This check goes first, because it's the most likely.
+        if ($abm === false && $albumartist == null &&
+            $current_album && $album == $current_album->name &&
+            $directory == $current_album->folder) {
+
+            $abm = $current_album;
+            if (!$abm->isCompilation()) {
+                debuglog(
+                    "Album ".$album." has no AlbumArtist tags but is a compilation","COLLECTION",6);
+                // Create various artists group if it isn't there
+                if (!array_key_exists("various artists", $this->artists)) {
+                    $this->artists["various artists"] = new artist("Various Artists");
                 }
+                // Add the album to the various artists group
+                $this->artists["various artists"]->newAlbum($abm);
+                $abm->setAsCompilation();
             }
-            if ($abm == false) {
-                // if ($domain == "spotify") {
-                //     // For Spotify we set  directory to the spotilink. However, at present we don't get those
-                //     // for every track from the MPD protocol/
-                //     $abm = $this->findAlbum($album, null, $directory, $domain);
-                // } else {
-                    $abm = $this->findAlbum($album, $sortartist, $directory, $domain);
-                // }
-
-            }
-            if ($abm === false) {
-                // We didn't find the album, so create it
-                $abm = new album($album, $sortartist, $domain, $directory);
-                $this->albums[] = $abm;
-                $this->artists[$artistkey]->newAlbum($abm);
-            }
-            // Store current artist and album so we only have to do the search if one of them changes.
-            // This saves a minor but not insignificant number of CPU cycles, which will be noticeable with
-            // large collections on slow servers (eg Intel Atom/Raspberry Pi).
-            // This one change provided a 10% speed increase on my Atom-based server.
-            $current_artist = $sortartist;
-            $current_album = $album;
-            $current_domain = $domain;
+            $current_artist = $this->artists[$artistkey];
+            $current_album = $abm;
         }
+
+        if ($abm === false) {
+            // Still not found. Do we have an album by this sort artist with this name
+            // in this directory on this domain?
+            $abm = $this->checkAlbum($album, $artistkey, $directory, $domain);
+            if ($abm) {
+                $current_artist = $this->artists[$artistkey];
+                $current_album = $abm;
+            }
+        }
+
+        // The following 2 checks are the slowest by a fair way but we're unlikely ever to
+        // actually get here I think, provided most people's collections are vageuly organised
+        // into directories the above two checks should find the album.
+        // That only leaves these to run once for every new album with null albumartist.... hmmmm...
+
+        if ($albumartist == null && $abm === false) {
+            // Do we have an album by this sortartist with this name, in any directory
+            $abm = $this->findAlbum($album, $artistkey, null, $domain);
+            if ($abm) {
+                debuglog("Found album ".$album." using artist with no directory","COLLECTION",6);
+                $current_artist = $this->artists[$artistkey];
+                $current_album = $abm;
+            }
+        }
+
+        if ($albumartist == null && $abm === false) {
+            // Do we have an album by this name, in the same directory
+            $abm = $this->findAlbum($album, null, $directory, $domain);
+            if ($abm !== false) {
+                debuglog("Found album ".$album." using directory","COLLECTION",6);
+                // Yes we do, and as all the previous checks failed it MUST be a compilation
+                if (!($abm->isCompilation())) {
+                    // Create various artists group if it isn't there
+                    if (!array_key_exists("various artists", $this->artists)) {
+                        $this->artists["various artists"] = new artist("Various Artists");
+                    }
+                    // Add the album to the various artists group
+                    $this->artists["various artists"]->newAlbum($abm);
+                    $abm->setAsCompilation();
+                }
+                $current_artist = $this->artists[$artistkey];
+                $current_album = $abm;
+            }
+        }
+
+
+            // if ($albumartist == null) {
+            //     // Does an album by this sortartist with this name already exist?
+            //     $abm = $this->findAlbum($album, $artistkey, null, $domain);
+            //     if ($abm === false) {
+            //         // Does an album with this name where the tracks are in the same directory exist?
+            //         // We don't need to do this if albumartist is set - this is for detecting
+            //         // badly tagged compilations, but we also need to do this for all spotify tracks
+            //         // as multiple albums can have the same name.
+            //         $abm = $this->findAlbum($album, null, $directory, $domain);
+            //         if ($abm !== false) {
+            //             // We found one - it's not by the same artist so we need to mark it as a
+            //             // compilation if it isn't already
+            //             if ($albumartist == null && !($abm->isCompilation())) {
+            //                 // Create various artists group if it isn't there
+            //                 if (!array_key_exists("various artists", $this->artists)) {
+            //                     $this->artists["various artists"] = new artist("Various Artists");
+            //                 }
+            //                 // Add the album to the various artists group
+            //                 $this->artists["various artists"]->newAlbum($abm);
+            //                 $abm->setAsCompilation();
+            //             }
+            //         }
+            //     }
+            // }
+        // if ($abm == false) {
+
+            // Do we actually need this?
+
+            // if ($domain == "spotify") {
+            //     // For Spotify we set  directory to the album uri. However, at present we don't get those
+            //     // for every track from the MPD protocol/
+            //     $abm = $this->findAlbum($album, null, $directory, $domain);
+            // } else {
+                // debuglog("We're in the wierd bit for album ".$album,"COLLECTION", 6);
+                // $abm = $this->findAlbum($album, $artistkey, $directory, $domain);
+            // }
+
+        // }
+        if ($abm === false) {
+            // We didn't find the album, so create it
+            $abm = new album($album, $sortartist, $domain, $directory);
+            $this->artists[$artistkey]->newAlbum($abm);
+            $current_artist = $this->artists[$artistkey];
+            $current_album = $abm;
+        }
+
+        // }
         $abm->newTrack($t);
-        if ($abm->spotilink == null && $spotialbum != null) {
-            $abm->setSpotilink($spotialbum);
-            debuglog("Setting Album Link for ".$abm->name,"COLLECTION");
-        // } else if ($linktype == ROMPR_ALBUM) {
-        //     $abm->setSpotilink($file);
+        if ($abm->uri == null && $albumuri != null) {
+            debuglog("Setting Album URI for ".$abm->name,"COLLECTION");
+            $abm->setAlbumUri($albumuri);
         }
 
         if ($playlistpos !== null) {
@@ -574,13 +639,17 @@ class musicCollection {
         }
     }
 
-    // NOTE :   If it's a track from a compilation not tagged with 'various artists', it's now been added to various artists
+    // NOTE :   If it's a track from a compilation not tagged with 'various artists',
+    //          it's now been added to various artists
     //              and the album has the iscompilation flag set
     //              and the artist name for the album set to Various Artists
-    //          Tracks which have 'Various Artists' as the artist/album artist name in the ID3 tag will be in the various artists group too,
-    //              but 'iscompilation' will not be set unless as least one of the tracks on the album has something else as the artist name.
+    //          Tracks which have 'Various Artists' as the artist/album artist name in the ID3 tag
+    //          will be in the various artists group too,
+    //              but 'iscompilation' will not be set unless as least one of the tracks on the
+    //              album has something else as the artist name.
     //              This shouldn't matter.
-    //          In fact, following some recent changes, I don't think we even need the isCompilation flag.
+    //          In fact, following some recent changes, I don't think we even need the
+    //          isCompilation flag.
 
     public function getSortedArtistList() {
         $temp = array_keys($this->artists);
@@ -605,8 +674,8 @@ class musicCollection {
         return $this->artists[$artist]->albums;
     }
 
-    public function spotilink($artist) {
-        return $this->artists[$artist]->spotilink;
+    public function artistUri($artist) {
+        return $this->artists[$artist]->uri;
     }
 
     public function getAllTracks($cmd) {
@@ -635,9 +704,9 @@ class musicCollection {
                             "title" => $trackobj->name,
                             "artist" => $a,
                             "albumartist" => $albumartist,
-                            "track_no" => $trackobj->number,
-                            "disc_no" => $trackobj->disc,
-                            "spotilink" => $album->spotilink,
+                            "trackno" => $trackobj->number,
+                            "disc" => $trackobj->disc,
+                            "albumuri" => $album->uri,
                             "image" => $album->getImage('asdownloaded'),
                             "trackimage" => $trackobj->getImage(),
                         );
@@ -708,15 +777,16 @@ function munge_youtube_track_into_title($t) {
         return $matches[1];
     } else {
         return $t;
-    }    
+    }
 }
 
-function process_file(&$filedata) {
+function process_file($filedata) {
 
     global $numtracks, $totaltime, $prefs, $dbterms, $collection;
 
     list ( $file, $domain, $type, $station, $stream)
-        = array ( unwanted_array($filedata['file']), getDomain(unwanted_array($filedata['file'])), "local", null, "");
+        = array ( unwanted_array($filedata['file']), getDomain(unwanted_array($filedata['file'])),
+            "local", null, "");
 
     if ($dbterms['tags'] !== null || $dbterms['rating'] !== null) {
         // If this is a search and we have tags or ratings to search for, check them here.
@@ -727,13 +797,18 @@ function process_file(&$filedata) {
 
     $unmopfile  = preg_replace('/^.+?:(track|album|artist):/', '', $file);
     // Track Name
-    $name = (array_key_exists('Title', $filedata)) ? unwanted_array($filedata['Title']) : rawurldecode(basename($file));
+    $name = (array_key_exists('Title', $filedata)) ?
+        unwanted_array($filedata['Title']) : rawurldecode(basename($file));
     // Album Name
-    $album = (array_key_exists('Album', $filedata)) ? unwanted_array($filedata['Album']) : rawurldecode(basename(dirname($unmopfile)));
+    $album = (array_key_exists('Album', $filedata)) ?
+        unwanted_array($filedata['Album']) : rawurldecode(basename(dirname($unmopfile)));
     // Track Artist(s)
-    $artist = (array_key_exists('Artist', $filedata)) ? $filedata['Artist'] : rawurldecode(basename(dirname(dirname($unmopfile))));
+    $artist = (array_key_exists('Artist', $filedata)) ?
+        $filedata['Artist'] : rawurldecode(basename(dirname(dirname($unmopfile))));
     // Track Number
-    $number = (array_key_exists('Track', $filedata)) ? format_tracknum(ltrim(unwanted_array($filedata['Track']), '0')) : format_tracknum(rawurldecode(basename($file)));
+    $number = (array_key_exists('Track', $filedata)) ?
+        format_tracknum(ltrim(unwanted_array($filedata['Track']), '0')) :
+        format_tracknum(rawurldecode(basename($file)));
     // Album Artist(s)
     $albumartist = (array_key_exists('AlbumArtist', $filedata)) ? $filedata['AlbumArtist'] : null;
 
@@ -741,10 +816,12 @@ function process_file(&$filedata) {
     $duration = (array_key_exists('Time', $filedata)) ? unwanted_array($filedata['Time']) : 0;
     // External Album URI (mopidy only)
     // OR cue sheet link (mpd only). We're only doing CUE sheets, not M3U
-    $spotialbum = (array_key_exists('SpotiAlbum',$filedata)) ? $filedata['SpotiAlbum'] : null;
-    if ($spotialbum === null) {
-        $spotialbum = (array_key_exists('playlist',$filedata) && strtolower(pathinfo(unwanted_array($filedata['playlist']), PATHINFO_EXTENSION)) == "cue") ? unwanted_array($filedata['playlist']) : null;
-        if ($spotialbum != null) {
+    $albumuri = (array_key_exists('AlbumUri',$filedata)) ? $filedata['AlbumUri'] : null;
+    if ($albumuri === null) {
+        $albumuri = (array_key_exists('playlist',$filedata) &&
+            strtolower(pathinfo(unwanted_array($filedata['playlist']), PATHINFO_EXTENSION)) == "cue") ?
+            unwanted_array($filedata['playlist']) : null;
+        if ($albumuri != null) {
             debuglog("Found CUE sheet for album ".$album,"COLLECTION");
         }
     }
@@ -753,11 +830,14 @@ function process_file(&$filedata) {
     // Date
     $date = (array_key_exists('Date',$filedata)) ? unwanted_array($filedata['Date']) : null;
     // Backend-Supplied LastModified Date
-    $lastmodified = (array_key_exists('Last-Modified',$filedata)) ? unwanted_array($filedata['Last-Modified']) : 0;
+    $lastmodified = (array_key_exists('Last-Modified',$filedata)) ?
+        unwanted_array($filedata['Last-Modified']) : 0;
     // Disc Number
-    $disc = (array_key_exists('Disc', $filedata)) ? format_tracknum(ltrim(unwanted_array($filedata['Disc']), '0')) : null;
+    $disc = (array_key_exists('Disc', $filedata)) ?
+        format_tracknum(ltrim(unwanted_array($filedata['Disc']), '0')) : null;
     // Musicbrainz Album ID
-    $mbalbum = (array_key_exists('MUSICBRAINZ_ALBUMID', $filedata)) ? unwanted_array($filedata['MUSICBRAINZ_ALBUMID']) : "";
+    $mbalbum = (array_key_exists('MUSICBRAINZ_ALBUMID', $filedata)) ?
+        unwanted_array($filedata['MUSICBRAINZ_ALBUMID']) : "";
     // Composer(s)
     $composer = (array_key_exists('Composer', $filedata)) ? $filedata['Composer'] : null;
     // Performer(s)
@@ -765,17 +845,18 @@ function process_file(&$filedata) {
     // Genre
     $genre = (array_key_exists('Genre', $filedata)) ? unwanted_array($filedata['Genre']) : null;
     // Musicbrainz Track Artist ID(s)
-    $mbartist = (array_key_exists('MUSICBRAINZ_ARTISTID', $filedata)) ? $filedata['MUSICBRAINZ_ARTISTID'] : "";
+    $mbartist = (array_key_exists('MUSICBRAINZ_ARTISTID', $filedata)) ?
+        $filedata['MUSICBRAINZ_ARTISTID'] : "";
     // Musicbrainz Album Artist ID - we can only handle one album artist
-    $mbalbumartist = (array_key_exists('MUSICBRAINZ_ALBUMARTISTID', $filedata)) ? unwanted_array($filedata['MUSICBRAINZ_ALBUMARTISTID']) : "";
+    $mbalbumartist = (array_key_exists('MUSICBRAINZ_ALBUMARTISTID', $filedata)) ?
+        unwanted_array($filedata['MUSICBRAINZ_ALBUMARTISTID']) : "";
     // Musicbrainz Track ID
-    $mbtrack = (array_key_exists('MUSICBRAINZ_TRACKID', $filedata)) ? unwanted_array($filedata['MUSICBRAINZ_TRACKID']) : "";
+    $mbtrack = (array_key_exists('MUSICBRAINZ_TRACKID', $filedata)) ?
+        unwanted_array($filedata['MUSICBRAINZ_TRACKID']) : "";
     // Backend-Supplied playlist ID
     $backendid = (array_key_exists('Id',$filedata)) ? unwanted_array($filedata['Id']) : null;
     // Backend-supplied playlist position
     $playlistpos = (array_key_exists('Pos',$filedata)) ? unwanted_array($filedata['Pos']) : null;
-    // External Album Artist Link(s) (mopidy only)
-    $spotiartist = (array_key_exists('SpotiArtist',$filedata)) ? unwanted_array($filedata['SpotiArtist']) : null;
 
     // Capture tracks where the basename/dirname route didn't work
     if ($artist == "." || $artist == "" || $artist == " & ") {
@@ -785,34 +866,28 @@ function process_file(&$filedata) {
         $album = '';
     }
 
-    if (preg_match('/^.*?:artist:/', $file)) {
-        $linktype = ROMPR_ALBUM;
-        // So, we don't do spotiartist links any more, Mopidy munges them into 'tracks'
-        // and we munge them into albums
-        $spotialbum = $file;
+    // if (preg_match('/^.*?:artist:/', $file)) {
+    if (strpos($file, ':artist:') !== false) {
+        $albumuri = $file;
         $album = get_int_text("label_allartist").concatenate_artist_names($artist);
         $image = "newimages/artist-icon.png";
         $disc = 0;
         $number = 0;
-    } else if (preg_match('/^.*?:album:/', $file)) {
-        $linktype = ROMPR_ALBUM;
-        $spotialbum = $file;
+    } else if (strpos($file, ':album:') !== false) {
+        $albumuri = $file;
         $disc = 0;
         $number = 0;
-    } else {
-        $linktype = ROMPR_FILE;
     }
 
     // Sometimes the file domain can be http but the album domain is correct
     // this is true eg for bassdrive
-    if ($linktype == ROMPR_ALBUM && $spotialbum !== null &&
-        getDomain($spotialbum) != getDomain($file)) {
-        $domain = getDomain($spotialbum);
+    if ($albumuri !== null && getDomain($albumuri) != getDomain($file)) {
+        $domain = getDomain($albumuri);
     }
 
     switch($domain) {
-        // Some domain-specific fixups for mpd's soundcloud playlist plugin and
-        // various unhelpful mopidy backends. There's no consistency of behaviour in the Mopidy backends
+        // Some domain-specific fixups for mpd's soundcloud playlist plugin and various unhelpful
+        // mopidy backends. There's no consistency of behaviour in the Mopidy backends
         // so to provide some kind of consistency of display we have to do a lot of work.
         case "soundcloud":
             if ($prefs['player_backend'] == "mpd") {
@@ -841,11 +916,11 @@ function process_file(&$filedata) {
             break;
 
         case "spotify":
-            $folder = $spotialbum;
+            $folder = $albumuri;
             break;
 
         case "internetarchive":
-            $spotialbum = $file;
+            $albumuri = $file;
             $folder = $file;
             $albumartist = "Internet Archive";
             break;
@@ -861,7 +936,7 @@ function process_file(&$filedata) {
                 $albumartist = $matches[1];
                 $album = $name;
                 $album = preg_replace('/^Album\:\s*/','',$album);
-                $spotialbum = $file;
+                $albumuri = $file;
             } else {
                 $albumartist = "Podcasts";
             }
@@ -894,10 +969,10 @@ function process_file(&$filedata) {
     }
 
     $collection->newTrack(  $name, $file, $duration, $number, $date, $genre, $artist, $album, $folder,
-                            $type, $image, $backendid, $playlistpos, $station,
-                            $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack,
-                            $spotialbum, $spotiartist, $domain, $lastmodified,
-                            $composer, $performers, $linktype);
+                            $type, $image, $backendid, $playlistpos, $station, $albumartist, $disc,
+                            $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack,
+                            $albumuri, $domain, $lastmodified,
+                            $composer, $performers);
 
     $numtracks++;
     // debuglog("Processed ".$numtracks." tracks. Memory used is ".memory_get_usage(),"COLLECTION");

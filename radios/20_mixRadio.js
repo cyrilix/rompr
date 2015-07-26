@@ -44,8 +44,10 @@ var mixRadio = function() {
 	function searchForNextArtist() {
 		idhunting++;
 		if (idhunting < fartists.length) {
-			debug.shout("MIX RADIO","Searching for spotify ID for",idhunting,fartists.length,fartists[idhunting].name);
-			spotify.artist.search(fartists[idhunting].name, mixRadio.gotArtists, mixRadio.lookupFail);
+			debug.shout("MIX RADIO","Searching for spotify ID for",idhunting,fartists.length,
+				fartists[idhunting].name);
+			spotify.artist.search(fartists[idhunting].name, mixRadio.gotArtists,
+				mixRadio.lookupFail);
 		}
 	}
 
@@ -78,20 +80,22 @@ var mixRadio = function() {
 		},
 
 		modeHtml: function(p) {
-			return '<i class="icon-wifi modeimg"/></i><span class="modespan">'+language.gettext("label_radio_mix")+'</span>';
+			return '<i class="icon-wifi modeimg"/></i><span class="modespan">'+
+				language.gettext("label_radio_mix")+'</span>';
 		},
 
         setup: function() {
 
             if (player.canPlay('spotify')) {
 
-	            var html = '<div class="containerbox spacer backhi dropdown-container" onclick="playlist.radioManager.load(\'mixRadio\', null)">';
+	            var html = '<div class="containerbox spacer backhi dropdown-container" '+
+	            	'onclick="playlist.radioManager.load(\'mixRadio\', null)">';
 
-	            html = html + '<div class="fixed">';
-	            html = html + '<i class="icon-spotify-circled smallicon"></i></div>';
-	            html = html + '<div class="expand">'+language.gettext('label_radio_mix')+'</div>';
+	            html += '<div class="fixed">';
+	            html += '<i class="icon-spotify-circled smallicon"></i></div>';
+	            html += '<div class="expand">'+language.gettext('label_radio_mix')+'</div>';
 
-	            html = html + '</div>';
+	            html += '</div>';
 	            $("#pluginplaylists_spotify").append(html);
 	        }
         },
@@ -108,13 +112,16 @@ var mixRadio = function() {
         		check: {
 	        		for (var j in tuner.artists) {
 	        			if (tuner.artists[j].getName() == data.artists.items[i].name) {
-	        				debug.shout("MIX RADIO", "Ignoring artist",data.artists.items[i].name,"because it already exists");
+	        				debug.shout("MIX RADIO", "Ignoring artist",data.artists.items[i].name,
+	        					"because it already exists");
 	        				found = true;
 	        				break check;
 	        			}
 	        		}
-	        		if (data.artists.items[i].name.toLowerCase() == fartists[idhunting].name.toLowerCase()) {
-	        			debug.shout("MIX RADIO","Found Spotify ID for artist",idhunting,fartists[idhunting].name);
+	        		if (data.artists.items[i].name.toLowerCase() ==
+	        				fartists[idhunting].name.toLowerCase()) {
+	        			debug.shout("MIX RADIO","Found Spotify ID for artist",
+	        				idhunting,fartists[idhunting].name);
 	        			tuner.newArtist(data.artists.items[i].name, data.artists.items[i].id, true);
 	    				found = true;
 	    				break;
@@ -122,7 +129,8 @@ var mixRadio = function() {
     			}
         	}
         	if (!found) {
-        		debug.shout("MIX RADIO","Failed to find Spotify ID for artist",fartists[idhunting].name);
+        		debug.shout("MIX RADIO","Failed to find Spotify ID for artist",
+        			fartists[idhunting].name);
         	}
         	searchForNextArtist();
         },
