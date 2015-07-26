@@ -151,42 +151,40 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
     global $prefs;
     if (substr($name,0,6) == "Album:") return true;
     if (substr($name,0,7) == "Artist:") return true;
-    if ($artist || $rating > 0) {
-        if ($prefs['player_backend'] == "mpd" && getDomain($url) == "soundcloud") {
-            print '<div class="clickable clickcue ninesix draggable indent containerbox '.
-                'vertical padright" name="'.$url.'">';
-        } else {
-            print '<div class="clickable clicktrack ninesix draggable indent containerbox '.
-                'vertical padright" name="'.$url.'">';
-        }
-        print '<div class="containerbox line">';
+
+    $d = getDomain($url);
+
+    if ($prefs['player_backend'] == "mpd" && $d == "soundcloud") {
+        $class = 'clickcue';
     } else {
-        print '<div class="clickable clicktrack ninesix draggable indent containerbox '.
-            'padright line" name="'.$url.'">';
+        $class = 'clicktrack';
     }
-    if ($number && $number != "") {
+
+    if ($image) {
+        $class .= ' line';
+    }
+
+    // Outer container
+    print '<div class="clickable '.$class.' ninesix draggable indent containerbox padright"
+    name="'.$url.'">';
+
+    // Track Number
+    if ($number && $number != "" && $number > 0) {
         print '<div class="tracknumber fixed"';
         if ($numtracks > 99 || $number > 99) {
             print ' style="width:3em"';
         }
-        if ($number > 0) {
-            print '>'.$number.'</div>';
-        } else {
-            print '></div>';
-        }
+        print '>'.$number.'</div>';
     }
-    $d = getDomain($url);
+    
+    // Track Image and Backend Image
     switch ($d) {
         case "soundcloud":
         case "youtube":
-            if ($image !== null) {
+            if ($image) {
                 print '<div class="smallcover fixed">';
                 print '<img class="smallcover fixed';
-                if ($image == '') {
-                    print ' notfound" />';
-                } else {
-                    print '" src="'.$image.'" />';
-                }
+                print '" src="'.$image.'" />';
                 print '</div>';
             }
             print '<i class="icon-'.$d.'-circled playlisticon fixed"></i>';
@@ -197,33 +195,34 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
             print '<i class="icon-'.$d.'-circled playlisticon fixed"></i>';
             break;
     }
+
+    // Track Title, Artist, and Rating
     if ((string) $name == "") $name = urldecode($url);
-    print '<div class="expand">'.$name.'</div>';
+    print '<div class="expand containerbox vertical">';
+    print '<div class="fixed">'.$name.'</div>';
+    if ($artist) {
+        print '<div class="fixed playlistrow2">'.$artist.'</div>';
+    }
+    if ($rating > 0) {
+        print '<div class="fixed playlistrow2">';
+        print '<i class="icon-'.trim($rating).'-stars rating-icon-small"></i>';
+        print '</div>';
+    }
+    print '</div>';
+
+    // Track Duration
     print '<div class="fixed playlistrow2 tracktime">';
     if ($duration > 0) {
         print format_time($duration);
     }
     print '</div>';
+
+    // Delete Button
     if ($lm === null) {
         print '<i class="icon-cancel-circled playlisticonr fixed clickable clickicon clickremdb"></i>';
     }
-    if ($artist) {
-        print '</div><div class="containerbox line">';
-        print '<div class="tracknumber fixed"></div>';
-        print '<div class="expand playlistrow2">'.$artist.'</div>';
-        print '</div>';
-    }
-    if ($rating > 0) {
-        if (!$artist) {
-            print '</div>';
-        }
-        print '<div class="containerbox line"><div class="tracknumber fixed"></div>'.
-            '<div class="expand playlistrow2">';
-        print '<i class="icon-'.trim($rating).'-stars rating-icon-small"></i>';
-        print '</div></div>';
-    }
-    print '</div>';
 
+    print '</div>';
 }
 
 function artistHeader($id, $albumuri, $name, $numalbums = null) {
@@ -703,11 +702,6 @@ function concatenate_artist_names($art) {
 }
 
 function unwanted_array($a) {
-
-    // Have seen stuff coming in from mpd as multiple values
-    // when they shouldn't be - i.e track number etc.
-    // doCollection does mostly handle this by discarding most
-    // duplicate values.
 
     if (is_array($a)) {
         return $a[0];

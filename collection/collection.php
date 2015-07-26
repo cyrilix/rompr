@@ -466,7 +466,7 @@ class musicCollection {
                 $sortartist = $composer;
             }
         }
-        // All of the above possibilites (except $station) can come in from either backend
+        // All of the above possibilites (except $station) come in
         // as an array of strings. For sorting the collection we want one string.
         $sortartist = concatenate_artist_names($sortartist);
         //Some discogs tags have 'Various' instead of 'Various Artists'
@@ -784,9 +784,9 @@ function process_file($filedata) {
 
     global $numtracks, $totaltime, $prefs, $dbterms, $collection;
 
-    list ( $file, $domain, $type, $station, $stream)
-        = array ( unwanted_array($filedata['file']), getDomain(unwanted_array($filedata['file'])),
-            "local", null, "");
+    $file = $filedata['file'][0];
+
+    list ( $domain, $type, $station, $stream) = array ( getDomain($file), "local", null, "");
 
     if ($dbterms['tags'] !== null || $dbterms['rating'] !== null) {
         // If this is a search and we have tags or ratings to search for, check them here.
@@ -796,67 +796,66 @@ function process_file($filedata) {
     }
 
     $unmopfile  = preg_replace('/^.+?:(track|album|artist):/', '', $file);
+
     // Track Name
     $name = (array_key_exists('Title', $filedata)) ?
-        unwanted_array($filedata['Title']) : rawurldecode(basename($file));
+        $filedata['Title'][0] : rawurldecode(basename($file));
     // Album Name
     $album = (array_key_exists('Album', $filedata)) ?
-        unwanted_array($filedata['Album']) : rawurldecode(basename(dirname($unmopfile)));
+        $filedata['Album'][0] : rawurldecode(basename(dirname($unmopfile)));
     // Track Artist(s)
     $artist = (array_key_exists('Artist', $filedata)) ?
         $filedata['Artist'] : rawurldecode(basename(dirname(dirname($unmopfile))));
     // Track Number
     $number = (array_key_exists('Track', $filedata)) ?
-        format_tracknum(ltrim(unwanted_array($filedata['Track']), '0')) :
+        format_tracknum(ltrim($filedata['Track'][0], '0')) :
         format_tracknum(rawurldecode(basename($file)));
     // Album Artist(s)
     $albumartist = (array_key_exists('AlbumArtist', $filedata)) ? $filedata['AlbumArtist'] : null;
 
     // Track Duration
-    $duration = (array_key_exists('Time', $filedata)) ? unwanted_array($filedata['Time']) : 0;
+    $duration = (array_key_exists('Time', $filedata)) ? $filedata['Time'][0] : 0;
     // External Album URI (mopidy only)
     // OR cue sheet link (mpd only). We're only doing CUE sheets, not M3U
-    $albumuri = (array_key_exists('AlbumUri',$filedata)) ? $filedata['AlbumUri'] : null;
+    $albumuri = (array_key_exists('X-AlbumUri',$filedata)) ? $filedata['X-AlbumUri'][0] : null;
     if ($albumuri === null) {
         $albumuri = (array_key_exists('playlist',$filedata) &&
-            strtolower(pathinfo(unwanted_array($filedata['playlist']), PATHINFO_EXTENSION)) == "cue") ?
-            unwanted_array($filedata['playlist']) : null;
+            strtolower(pathinfo($filedata['playlist'][0], PATHINFO_EXTENSION)) == "cue") ?
+            $filedata['playlist'][0] : null;
         if ($albumuri != null) {
             debuglog("Found CUE sheet for album ".$album,"COLLECTION");
         }
     }
     // Album Image
-    $image = (array_key_exists('Image', $filedata)) ? unwanted_array($filedata['Image']) : null;
+    $image = (array_key_exists('X-AlbumImage', $filedata)) ? $filedata['X-AlbumImage'][0] : null;
     // Date
-    $date = (array_key_exists('Date',$filedata)) ? unwanted_array($filedata['Date']) : null;
+    $date = (array_key_exists('Date',$filedata)) ? $filedata['Date'][0] : null;
     // Backend-Supplied LastModified Date
-    $lastmodified = (array_key_exists('Last-Modified',$filedata)) ?
-        unwanted_array($filedata['Last-Modified']) : 0;
+    $lastmodified = (array_key_exists('Last-Modified',$filedata)) ? $filedata['Last-Modified'][0] : 0;
     // Disc Number
     $disc = (array_key_exists('Disc', $filedata)) ?
-        format_tracknum(ltrim(unwanted_array($filedata['Disc']), '0')) : null;
+        format_tracknum(ltrim($filedata['Disc'][0], '0')) : null;
     // Musicbrainz Album ID
-    $mbalbum = (array_key_exists('MUSICBRAINZ_ALBUMID', $filedata)) ?
-        unwanted_array($filedata['MUSICBRAINZ_ALBUMID']) : "";
+    $mbalbum = (array_key_exists('MUSICBRAINZ_ALBUMID', $filedata)) ? $filedata['MUSICBRAINZ_ALBUMID'][0] : "";
     // Composer(s)
     $composer = (array_key_exists('Composer', $filedata)) ? $filedata['Composer'] : null;
     // Performer(s)
     $performers = (array_key_exists('Performer', $filedata)) ? $filedata['Performer'] : null;
     // Genre
-    $genre = (array_key_exists('Genre', $filedata)) ? unwanted_array($filedata['Genre']) : null;
+    $genre = (array_key_exists('Genre', $filedata)) ? $filedata['Genre'][0] : null;
     // Musicbrainz Track Artist ID(s)
     $mbartist = (array_key_exists('MUSICBRAINZ_ARTISTID', $filedata)) ?
         $filedata['MUSICBRAINZ_ARTISTID'] : "";
     // Musicbrainz Album Artist ID - we can only handle one album artist
     $mbalbumartist = (array_key_exists('MUSICBRAINZ_ALBUMARTISTID', $filedata)) ?
-        unwanted_array($filedata['MUSICBRAINZ_ALBUMARTISTID']) : "";
+        $filedata['MUSICBRAINZ_ALBUMARTISTID'][0] : "";
     // Musicbrainz Track ID
     $mbtrack = (array_key_exists('MUSICBRAINZ_TRACKID', $filedata)) ?
-        unwanted_array($filedata['MUSICBRAINZ_TRACKID']) : "";
+        $filedata['MUSICBRAINZ_TRACKID'][0] : "";
     // Backend-Supplied playlist ID
-    $backendid = (array_key_exists('Id',$filedata)) ? unwanted_array($filedata['Id']) : null;
+    $backendid = (array_key_exists('Id',$filedata)) ? $filedata['Id'][0] : null;
     // Backend-supplied playlist position
-    $playlistpos = (array_key_exists('Pos',$filedata)) ? unwanted_array($filedata['Pos']) : null;
+    $playlistpos = (array_key_exists('Pos',$filedata)) ? $filedata['Pos'][0] : null;
 
     // Capture tracks where the basename/dirname route didn't work
     if ($artist == "." || $artist == "" || $artist == " & ") {
@@ -866,7 +865,6 @@ function process_file($filedata) {
         $album = '';
     }
 
-    // if (preg_match('/^.*?:artist:/', $file)) {
     if (strpos($file, ':artist:') !== false) {
         $albumuri = $file;
         $album = get_int_text("label_allartist").concatenate_artist_names($artist);
@@ -892,7 +890,7 @@ function process_file($filedata) {
         case "soundcloud":
             if ($prefs['player_backend'] == "mpd") {
                 if (array_key_exists('Name', $filedata)) {
-                    $name = unwanted_array($filedata['Name']);
+                    $name = $filedata['Name'][0];
                     $album = "SoundCloud";
                     $arse = explode(' - ',$name);
                     $artist = $arse[0];

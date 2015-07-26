@@ -19,7 +19,7 @@ function musicCollectionUpdate() {
     fclose($monitor);
 }
 
-function musicCollectionSpotifyPlaylistHack() {
+function musicCollectionSpotifyPlaylistHack($monitor) {
 	$dirs = array();
 	$playlists = do_mpd_command("listplaylists", true, true);
     if (array_key_exists('playlist', $playlists)) {

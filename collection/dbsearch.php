@@ -114,17 +114,17 @@ function doDbCollection($terms, $domains, $resultstype) {
 		if ($result->execute($parameters)) {
 			while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 				$filedata = array(
-					'Artist' => $obj->Artistname,
-					'Album' => $obj->Albumname,
-					'AlbumArtist' => $obj->AlbumArtistName,
-					'file' => $obj->Uri,
-					'Title' => $obj->Title,
-					'Track' => $obj->TrackNo,
-					'Image' => $obj->Image,
-					'Time' => $obj->Duration,
-					'AlbumUri' => $obj->AlbumUri,
-					'Date' => $obj->Year,
-					'Last-Modified' => $obj->LastModified
+					'Artist' => array($obj->Artistname),
+					'Album' => array($obj->Albumname),
+					'AlbumArtist' => array($obj->AlbumArtistName),
+					'file' => array($obj->Uri),
+					'Title' => array($obj->Title),
+					'Track' => array($obj->TrackNo),
+					'Image' => array($obj->Image),
+					'Time' => array($obj->Duration),
+					'AlbumUri' => array($obj->AlbumUri),
+					'Date' => array($obj->Year),
+					'Last-Modified' => array($obj->LastModified)
 				);
 				if ($resultstype == "tree") {
                     $tree->newItem($filedata);

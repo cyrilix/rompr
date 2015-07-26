@@ -442,6 +442,16 @@ button
     cursor:default;
 }
 
+.clicktrack
+{
+    margin-bottom: 2px;
+}
+
+.clickcur
+{
+    margin-bottom: 2px;
+}
+
 .line
 {
     -webkit-box-align:center;

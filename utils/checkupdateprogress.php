@@ -1,6 +1,5 @@
 <?php
 chdir('..');
-include("includes/vars.php");
 $LastLine = "";
 if ($fp = fopen('prefs/monitor', 'r')) {
 	fseek($fp, -1, SEEK_END);
@@ -14,7 +13,6 @@ if ($fp = fopen('prefs/monitor', 'r')) {
     	fseek($fp, $pos--);
 	}
 	fclose($fp);
-	debuglog("Update Progress Is ".$LastLine,"COLLECTION",3);
 }
 print json_encode(array('current' => $LastLine));
 ?>

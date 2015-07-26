@@ -10,7 +10,7 @@ var wishlistViewer = function() {
 		}
 		var trackDiv = element;
 		var trackDivContainer = trackDiv.parent();
-		var tracktitle = trackDiv.find('.expand').first().html();
+		var tracktitle = trackDiv.find('.expand').first().children('.fixed').first().html();
 
 		var albumtitle = null;
 		var artistname = null;
