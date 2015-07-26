@@ -6,14 +6,12 @@ $streamdomains = array(
 function is_stream($domain, $filedata) {
     global $streamdomains;
     $f = $filedata['file'][0];
-    debuglog("Checking ".$f." from ".$domain,"STREAMHANDLER",4);
 	if (in_array($domain, $streamdomains) &&
         !preg_match('#/item/\d+/file$#', $f) &&
         strpos($f, 'vk.me') === false &&
         strpos($f, 'oe1:archive') === false &&
         strpos($f, 'http://leftasrain.com') === false)
     {
-		debuglog("   It IS a stream","STREAMHANDLER",4);
         return true;
 	} else {
         return false;
