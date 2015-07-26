@@ -11,6 +11,7 @@ function playerController() {
     var oldplname;
     var thenowplayinghack = false;
     var lastsearchcmd = "search";
+    var monitortimer = null;
 
     function updateStreamInfo() {
 
@@ -165,6 +166,7 @@ function playerController() {
             timeout: 800000,
             dataType: "html",
             success: function(data) {
+                clearTimeout(monitortimer);
                 $("#collection").html(data);
                 if ($('#emptycollection').length > 0) {
                     if (!$('#collectionbuttons').is(':visible')) {
@@ -181,6 +183,7 @@ function playerController() {
                 }
             },
             error: function(data) {
+                clearTimeout(monitortimer);
                 $("#collection").html(
                     '<p align="center"><b><font color="red">Failed To Generate Collection :</font>'+
                     '</b><br>'+data.responseText+"<br>"+data.statusText+"</p>");
@@ -189,6 +192,28 @@ function playerController() {
                 player.updatingcollection = false;
             }
         });
+        monitortimer = setTimeout(self.checkUpdateMonitor,2000);
+    }
+
+    this.checkUpdateMonitor = function() {
+        $.ajax({
+            type: "GET",
+            url: 'utils/checkupdateprogress.php',
+            dataType: 'json',
+            success: function(data) {
+                debug.log("UPDATE",data);
+                $('#updatemonitor').html(data.current);
+                if (player.updatingcollection) {
+                    monitortimer = setTimeout(self.checkUpdateMonitor,2000);
+                }
+            },
+            error: function(data) {
+                debug.log("UPDATE","ERROR",data);
+                if (player.updatingcollection) {
+                    monitortimer = setTimeout(self.checkUpdateMonitor,2000);
+                }
+            }
+        })
     }
 
     this.reloadFilesList = function(uri) {

@@ -583,6 +583,7 @@ function prepareForLiftOff(text) {
     infobar.notify(infobar.PERMNOTIFY,text);
     $("#collection").empty();
     doSomethingUseful('collection', text);
+    var x = $('<div>',{ id: 'updatemonitor', class: 'tiny', style: 'padding-left:1em;margin-right:1em'}).insertAfter($('#spinner_collection'));
 }
 
 function prepareForLiftOff2(text) {

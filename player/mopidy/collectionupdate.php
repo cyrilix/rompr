@@ -4,16 +4,19 @@ define('ROMPR_MULTIVALUE_SEPARATOR',';');
 
 function musicCollectionUpdate() {
 	global $prefs;
+	$monitor = fopen('prefs/monitor','w');
     $dirs = $prefs['mopidy_collection_folders'];
     while (count($dirs) > 0) {
         $dir = array_shift($dirs);
         if ($dir == "Spotify Playlists") {
-        	musicCollectionSpotifyPlaylistHack();
+        	musicCollectionSpotifyPlaylistHack($monitor);
         } else {
 	        debuglog("Scanning Directory ".$dir, "COLLECTION",8);
+	        fwrite($monitor, "\nScanning Directory ".$dir);
 	        doMpdParse('lsinfo "'.format_for_mpd(local_media_check($dir)).'"', $dirs, null);
 	    }
     }
+    fclose($monitor);
 }
 
 function musicCollectionSpotifyPlaylistHack() {
@@ -22,6 +25,7 @@ function musicCollectionSpotifyPlaylistHack() {
     if (array_key_exists('playlist', $playlists)) {
         foreach ($playlists['playlist'] as $pl) {
 	    	debuglog("Scanning Playlist ".$pl,"COLLECTION",8);
+	        fwrite($monitor, "\nScanning Playlist ".$pl);
 	    	doMpdParse('listplaylistinfo "'.format_for_mpd($pl).'"',$dirs, array("spotify"));
 	    }
 	}
