@@ -1024,7 +1024,7 @@ function doTheTrackAddingThing() {
 function addedATrack(rdata) {
     debug.log("ADD ALBUM","Success",rdata);
     if (rdata) {
-        updateCollectionDisplay(rdata);
+        updateCollectionDisplay(rdata, true);
     }
     doTheTrackAddingThing();
 }

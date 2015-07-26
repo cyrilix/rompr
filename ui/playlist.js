@@ -701,7 +701,7 @@ function Playlist() {
             html += '<div class="containerbox vertical fixed">';
             // These next two currently need wrapping in divs for the sake of Safari
             html += '<div class="expand clickable clickicon clickremovealbum" name="'+self.index+'"><i class="icon-cancel-circled playlisticonr"></i></div>';
-            if (tracks[0].metadata.album.url && tracks[0].metadata.album.uri.substring(0,7) == "spotify") {
+            if (tracks[0].metadata.album.uri && tracks[0].metadata.album.uri.substring(0,7) == "spotify") {
                 html += '<div class="fixed clickable clickicon clickaddwholealbum" name="'+self.index+'"><i class="icon-music playlisticonr"></i></div>';
             }
             html += '</div>';
@@ -783,8 +783,8 @@ function Playlist() {
         }
 
         this.addToCollection = function() {
-            if (tracks[0].spotify && tracks[0].spotify.album && tracks[0].spotify.album.substring(0,14) == "spotify:album:") {
-                spotify.album.getInfo(tracks[0].spotify.album.substring(14,tracks[0].spotify.album.length), addAlbumTracksToCollection, failedToAddAlbum, false)
+            if (tracks[0].metadata.album.uri && tracks[0].metadata.album.uri.substring(0,14) == "spotify:album:") {
+                spotify.album.getInfo(tracks[0].metadata.album.uri.substring(14,tracks[0].metadata.album.uri.length), addAlbumTracksToCollection, failedToAddAlbum, false)
             } else {
                 debug.error("PLAYLIST","Trying to add non-spotify album to the collection!");
             }

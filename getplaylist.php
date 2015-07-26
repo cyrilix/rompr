@@ -50,23 +50,18 @@ function outputPlaylist() {
             "stream" => $track->stream,
             "playlistpos" => $track->playlistpos,
             "genre" => $track->genre,
-            // "spotify" => array (
-            //     "album" => $track->getAlbumUri('spotify')
-            // ),
-            // Never send null in any musicbrainz id as it prevents plugins from
-            // waiting on lastfm to find one
             "metadata" => array(
                 "iscomposer" => 'false',
                 "artists" => array(),
                 "album" => array(
                     "name" => $track->album,
                     "artist" => $track->albumobject->artist,
-                    "musicbrainz_id" => unwanted_array($track->musicbrainz_albumid),
+                    "musicbrainz_id" => $track->albumobject->musicbrainz_albumid,
                     "uri" => $track->getAlbumUri(null)
                 ),
                 "track" => array(
                     "name" => $track->name,
-                    "musicbrainz_id" => unwanted_array($track->musicbrainz_trackid),
+                    "musicbrainz_id" => $track->musicbrainz_trackid,
                 ),
             )
         );

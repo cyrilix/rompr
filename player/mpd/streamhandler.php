@@ -1,26 +1,29 @@
 <?php
+$streamdomains = array(
+    "http", "https", "mms", "mmsh", "mmst", "mmsu", "gopher", "rtp", "rtsp", "rtmp", "rtmpt",
+    "rtmps", "dirble", "tunein", "radio-de", "audioaddict", "oe1");
 
 function is_stream($domain, $filedata) {
-    $streamdomains = array(
-        "http", "https", "mms", "mmsh", "mmst", "mmsu", "gopher", "rtp", "rtsp", "rtmp", "rtmpt",
-        "rtmps", "dirble", "tunein", "radio-de", "audioaddict", "oe1");
-    $f = unwanted_array($filedata['file']);
+    global $streamdomains;
+    $f = $filedata['file'][0];
+    debuglog("Checking ".$f." from ".$domain,"STREAMHANDLER",4);
 	if (in_array($domain, $streamdomains) &&
         !preg_match('#/item/\d+/file$#', $f) &&
-        !preg_match('#oe1:archive:#', $f) &&
-        !preg_match('#vk\.me#', $f) &&
-        !preg_match('#http://leftasrain.com/#', $f)) {
-		return true;
+        strpos($f, 'vk.me') === false &&
+        strpos($f, 'oe1:archive') === false &&
+        strpos($f, 'http://leftasrain.com') === false)
+    {
+		debuglog("   It IS a stream","STREAMHANDLER",4);
+        return true;
 	} else {
-        # Need to return false if this is NOT a stream (i.e Time > 0)
-		// return (!array_key_exists('Time', $filedata) || unwanted_array($filedata['Time'] == 0));
+        return false;
 	}
 }
 
 // MPD Stream handling function
 function getStreamInfo($filedata, $domain) {
 
-    $url = unwanted_array($filedata['file']);
+    $url = $filedata['file'][0];
 
     list (  $track_found,
             $name,
@@ -46,44 +49,37 @@ function getStreamInfo($filedata, $domain) {
             $album = substr($url, strrpos($url, '#')+1, strlen($url));
         }
 
-        if (array_key_exists('Name', $filedata)) {
-            debuglog("Setting album to ".unwanted_array($filedata['Name']),"STREAMHANDLER");
-            $album = unwanted_array($filedata['Name']);
+        if ($filedata['Name'] !== null) {
+            debuglog("Setting album to ".$filedata['Name'][0],"STREAMHANDLER");
+            $album = $filedata['Name'][0];
         }
 
-        if (array_key_exists('Title', $filedata) && !array_key_exists('Name', $filedata)) {
+        if ($filedata['Title'] !== null && $filedata['Name'] == null) {
             $name = '';
-            $album = unwanted_array($filedata['Title']);
+            $album = $filedata['Title'][0];
         }
 
-        if (array_key_exists('Genre', $filedata) && unwanted_array($filedata['Genre']) == "Podcast") {
-            $album = array_key_exists('Album', $filedata) ? $filedata['Album'] : $album;
-            $name = array_key_exists('Title', $filedata) ? $filedata['Title'] : "";
-            $artist = array_key_exists('Artist', $filedata) ? $filedata['Artist'] : "";
+        if ($filedata['Genre'][0] == "Podcast") {
+            $album = ($filedata['Album'] !== null) ? $filedata['Album'][0] : $album;
+            $name = ($filedata['Title'] !== null) ? $filedata['Title'][0] : "";
+            $artist = ($filedata['Artist'] !== null) ? concatenate_artist_names($filedata['Artist']) : "";
             $image = "newimages/podcast-logo.svg";
             $type = "podcast";
         }
 
-        // This is to do with something odd that Mopidy does, but I forget what.
-        if (array_key_exists('Album', $filedata) &&
-            array_key_exists('Artist', $filedata) &&
-            array_key_exists('Title', $filedata) &&
-            unwanted_array($filedata['Album']) != "" &&
-            unwanted_array($filedata['Artist']) != "" &&
-            unwanted_array($filedata['Title']) != "") {
-            $album = unwanted_array($filedata['Album']);
-            $artist = unwanted_array($filedata['Title']);
-            $name = unwanted_array($filedata['Artist']);
+        // This is for sorting out some kind of Mopidy-related oddness but I can't remember
+        // what it was or whether it's still relevant.
+        if ($filedata['Album'] != null && $filedata['Artist'] != null && $filedata['Title'] != null) {
+            $album = $filedata['Album'][0];
+            $artist = $filedata['Title'][0];
+            $name = $filedata['Artist'][0];
         }
 
-        if ((!array_key_exists('Album', $filedata) || unwanted_array($filedata['Album']) == "") &&
-            array_key_exists('Artist', $filedata) &&
-            array_key_exists('Title', $filedata)) {
-            $artist = unwanted_array($filedata['Artist']);
-            $album = unwanted_array($filedata['Title']);
+        if ($filedata['Album'] == null && $filedata['Artist'] != null && $filedata['Title'] != null) {
+            $artist = concatenate_artist_names($filedata['Artist']);
+            $album = $filedata['Title'][0];
             $name= "";
         }
-
 
         // Pretty up the images for some mopidy stream domains
         switch ($domain) {
@@ -99,21 +95,15 @@ function getStreamInfo($filedata, $domain) {
                 break;
 
             case "http":
-                if (array_key_exists('Title', $filedata) &&
-                    unwanted_array($filedata['Title']) ==
-                    'Bassdrive - Worldwide Drum and Bass Radio') {
-                        $image = "newimages/bassdrive-logo.svg";
-                }
-                if (preg_match('/archives.bassdrivearchive.com/', $url)) {
+                if (strpos($url, 'bassdrive.com') !== false) {
                     $image = "newimages/bassdrive-logo.svg";
+                    $album = "Bassdrive";
                 }
                 break;
         }
 
-        $image = (array_key_exists('Image', $filedata) && $filedata['Image'] !== null) ?
-            unwanted_array($filedata['Image']) : $image;
-        $duration = (array_key_exists('Time', $filedata) && $filedata['Time'] != 0) ?
-            unwanted_array($filedata['Time']) : $duration;
+        $image = ($filedata['X-AlbumImage'][0] != null) ? $filedata['X-AlbumImage'][0] : $image;
+        $duration = ($filedata['Time'][0] != 0) ? $filedata['Time'][0] : $duration;
     }
 
 	return array( $name,

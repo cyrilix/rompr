@@ -7,6 +7,39 @@ if (!$dtz) {
     date_default_timezone_set('UTC');
 }
 
+// These are the parameters we care about, and suitable default values for them all.
+$mpd_file_model = array (
+    'file' => null,
+    'domain' => 'local',
+    'type' => 'local',
+    'station' => null,
+    'stream' => '',
+    'Title' => null,
+    'Album' => null,
+    'Artist' => null,
+    'Track' => null,
+    'Name' => null,
+    'AlbumArtist' => null,
+    'Time' => array(0),
+    'X-AlbumUri' => array(null),
+    'playlist' => array(''),
+    'X-AlbumImage' => array(null),
+    'Date' => array(null),
+    'Last-Modified' => array(0),
+    'Disc' => null,
+    'Composer' => null,
+    'Performer' => null,
+    'Genre' => array(null),
+    // Never send null in any musicbrainz id as it prevents plugins from
+    // waiting on lastfm to find one
+    'MUSICBRAINZ_ALBUMID' => array(''),
+    'MUSICBRAINZ_ARTISTID' => array(''),
+    'MUSICBRAINZ_ALBUMARTISTID' => array(''),
+    'MUSICBRAINZ_TRACKID' => array(''),
+    'Id' => array(null),
+    'Pos' => array(null)
+);
+
 @open_mpd_connection();
 
 function doCollection($command, $domains = null) {
@@ -27,10 +60,10 @@ function doCollection($command, $domains = null) {
 
 function doMpdParse($command, &$dirs, $domains) {
 
-    global $connection, $collection;
+    global $connection, $collection, $mpd_file_model;
     if (!$connection) return;
     fputs($connection, $command."\n");
-    $filedata = array();
+    $filedata = $mpd_file_model;
     $parts = true;
     $foundfile = false;
     if (count($domains) == 0) {
@@ -54,7 +87,7 @@ function doMpdParse($command, &$dirs, $domains) {
                                 in_array(getDomain(unwanted_array($filedata['file'])),$domains)) {
                                 process_file($filedata);
                             }
-                            $filedata = array();
+                            $filedata = $mpd_file_model;
                         }
                     }
 
@@ -73,22 +106,14 @@ function doMpdParse($command, &$dirs, $domains) {
                             break;
                     }
 
-                    // Things like Performer can come back with multiple lines
-                    // (in fact this could happen with any tag!)
-
-                    // if (array_key_exists($parts[0], $filedata)) {
-                    //     $filedata[$parts[0]] = array_unique(
-                    //         array_merge($filedata[$parts[0]], $multivalues));
-                    // } else {
-                        $filedata[$parts[0]] = array_unique($multivalues);
-                    // }
+                    $filedata[$parts[0]] = array_unique($multivalues);
                     break;
             }
         }
     }
 
-    if (array_key_exists('file', $filedata) && $filedata['file']) {
-        if (!is_array($domains) || in_array(getDomain(unwanted_array($filedata['file'])),$domains)) {
+    if (is_array($filedata['file'])) {
+        if (!is_array($domains) || in_array(getDomain($filedata['file'][0]),$domains)) {
             process_file($filedata);
         }
     }

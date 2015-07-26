@@ -12,6 +12,7 @@ function playerController() {
     var thenowplayinghack = false;
     var lastsearchcmd = "search";
     var monitortimer = null;
+    var monitorduration = 1000;
 
     function updateStreamInfo() {
 
@@ -192,7 +193,7 @@ function playerController() {
                 player.updatingcollection = false;
             }
         });
-        monitortimer = setTimeout(self.checkUpdateMonitor,2000);
+        monitortimer = setTimeout(self.checkUpdateMonitor,monitorduration);
     }
 
     this.checkUpdateMonitor = function() {
@@ -204,13 +205,13 @@ function playerController() {
                 debug.log("UPDATE",data);
                 $('#updatemonitor').html(data.current);
                 if (player.updatingcollection) {
-                    monitortimer = setTimeout(self.checkUpdateMonitor,2000);
+                    monitortimer = setTimeout(self.checkUpdateMonitor,monitorduration);
                 }
             },
             error: function(data) {
                 debug.log("UPDATE","ERROR",data);
                 if (player.updatingcollection) {
-                    monitortimer = setTimeout(self.checkUpdateMonitor,2000);
+                    monitortimer = setTimeout(self.checkUpdateMonitor,monitorduration);
                 }
             }
         })

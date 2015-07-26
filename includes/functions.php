@@ -175,6 +175,8 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
             print ' style="width:3em"';
         }
         print '>'.$number.'</div>';
+    } else if ($image) {
+        print '<div class="smallspacer fixed"></div>';
     }
     
     // Track Image and Backend Image

@@ -381,6 +381,11 @@ button
     font-weight:bold;
 }
 
+.smallspacer
+{
+    width:2px;
+}
+
 .noselection
 {
     -webkit-user-select: none;
