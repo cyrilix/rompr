@@ -16,6 +16,7 @@ function musicCollectionUpdate() {
 	        doMpdParse('lsinfo "'.format_for_mpd(local_media_check($dir)).'"', $dirs, null);
 	    }
     }
+    fwrite($monitor, "\nUpdating Database");
     fclose($monitor);
 }
 

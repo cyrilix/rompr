@@ -115,12 +115,12 @@ if (array_key_exists('item', $_REQUEST)) {
 } else if (array_key_exists('rebuild', $_REQUEST)) {
     // This is a request to rebuild the music collection coming from either
     // the mpd or mopidy controller
-    debuglog("======================================================================","TIMINGS");
+    debuglog("======================================================================","TIMINGS",4);
     include ("player/mpd/connection.php");
     include ("collection/collection.php");
-    debuglog("== Starting Collection Update","TIMINGS");
+    debuglog("== Starting Collection Update","TIMINGS",4);
     $initmem = memory_get_usage();
-    debuglog("Memory Used is ".$initmem,"COLLECTION");
+    debuglog("Memory Used is ".$initmem,"COLLECTION",4);
     $now2 = time();
     $trackbytrack = true;
     cleanSearchTables();
@@ -129,11 +129,11 @@ if (array_key_exists('item', $_REQUEST)) {
     createAlbumsList();
     dumpAlbums('aalbumroot');
     close_mpd();
-    debuglog("== Collection Update And Send took ".format_time(time() - $now2),"TIMINGS");
+    debuglog("== Collection Update And Send took ".format_time(time() - $now2),"TIMINGS",4);
     $peakmem = memory_get_peak_usage();
     $ourmem = $peakmem - $initmem;
-    debuglog("Peak Memory Used Was ".number_format($peakmem)." bytes  - meaning we used ".number_format($ourmem)." bytes.","COLLECTION");
-    debuglog("======================================================================","TIMINGS");
+    debuglog("Peak Memory Used Was ".number_format($peakmem)." bytes  - meaning we used ".number_format($ourmem)." bytes.","COLLECTION",4);
+    debuglog("======================================================================","TIMINGS",4);
 }
 
 function checkDomains($d) {

@@ -91,22 +91,20 @@ function doMpdParse($command, &$dirs, $domains) {
                         }
                     }
 
-                    $multivalues = array();
                     switch ($parts[0]) {
                         case "Last-Modified":
                             if (array_key_exists('file', $filedata)) {
                                 // We don't want the Last-Modified stamps of the directories
                                 // to be used for the files.
-                                $multivalues[] = strtotime($parts[1]);
+                                $filedata[$parts[0]] = array(strtotime($parts[1]));
                             }
                             break;
 
                         default:
-                            $multivalues = explode(ROMPR_MULTIVALUE_SEPARATOR,$parts[1]);
+                            $filedata[$parts[0]] = array_unique(explode(ROMPR_MULTIVALUE_SEPARATOR,$parts[1]));
                             break;
                     }
 
-                    $filedata[$parts[0]] = array_unique($multivalues);
                     break;
             }
         }

@@ -5,12 +5,11 @@ $streamdomains = array(
 
 function is_stream($domain, $filedata) {
     global $streamdomains;
-    $f = $filedata['file'][0];
 	if (in_array($domain, $streamdomains) &&
         !preg_match('#/item/\d+/file$#', $f) &&
-        strpos($f, 'vk.me') === false &&
-        strpos($f, 'oe1:archive') === false &&
-        strpos($f, 'http://leftasrain.com') === false)
+        strpos($filedata['file'][0], 'vk.me') === false &&
+        strpos($filedata['file'][0], 'oe1:archive') === false &&
+        strpos($filedata['file'][0], 'http://leftasrain.com') === false)
     {
         return true;
 	} else {

@@ -767,15 +767,15 @@ function process_file($filedata) {
 
     $file = $filedata['file'][0];
 
-    list ( $domain, $type, $station, $stream) = array ( getDomain($file), $filedata['type'],
-        $filedata['station'], $filedata['stream']);
-
     if ($dbterms['tags'] !== null || $dbterms['rating'] !== null) {
         // If this is a search and we have tags or ratings to search for, check them here.
         if (check_url_against_database($file, $dbterms['tags'], $dbterms['rating']) == false) {
             return false;
         }
     }
+
+    list ( $domain, $type, $station, $stream) = array ( getDomain($file), $filedata['type'],
+        $filedata['station'], $filedata['stream']);
 
     $unmopfile  = preg_replace('/^.+?:(track|album|artist):/', '', $file);
 
@@ -792,6 +792,9 @@ function process_file($filedata) {
     $albumartist = $filedata['AlbumArtist'];
     // Track Duration
     $duration = $filedata['Time'][0];
+    // Album Image
+    $image = $filedata['X-AlbumImage'][0];
+    
     // External Album URI (mopidy only)
     // OR cue sheet link (mpd only). We're only doing CUE sheets, not M3U
     $albumuri = $filedata['X-AlbumUri'][0];
@@ -800,8 +803,6 @@ function process_file($filedata) {
         $albumuri = $filedata['playlist'][0];
         debuglog("Found CUE sheet for album ".$album,"COLLECTION");
     }
-    // Album Image
-    $image = $filedata['X-AlbumImage'][0];
     // Date
     $date = $filedata['Date'][0];
     // Backend-Supplied LastModified Date
@@ -846,8 +847,7 @@ function process_file($filedata) {
     }
 
     if (strpos($file, 'archives.bassdrivearchive.com') !== false) {
-        // Slightly annoyingly, bassdrive archive tracks come back with
-        // http uris.\
+        // Slightly annoyingly, bassdrive archive tracks come back with http uris.
         $domain = "bassdrive";
     }
 

@@ -10,6 +10,7 @@ function musicCollectionUpdate() {
         fwrite($monitor, "\nScanning Directory ".$dir);
         doMpdParse('lsinfo "'.format_for_mpd($dir).'"', $dirs, null);
     }
+    fwrite($monitor, "\nUpdating Database");
     fclose($monitor);
 }
 
