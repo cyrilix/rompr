@@ -100,7 +100,6 @@ $languages['it'] = array (
 	"button_consume" => "CONSUMA",
 	"label_yes" => "Sì",
 	"label_no" => "No",
-	"mopidy_down" => "La connessione a Mopidy è stata persa!",
 	"label_updating" => "Aggiornamento Collezione Musicale",
 	"label_update_error" => "Creazione della Collezione Musicale fallita!",
 	"label_notsupported" => "Operazione non supportata!",
@@ -257,8 +256,6 @@ $languages['it'] = array (
 	"setup_leaveblank" => "Lasciale vuote se non sei sicuro di averne bisogno",
 	"setup_password" => "Password",
 	"setup_unixsocket" => "Socket dominio UNIX",
-	"setup_mopidy" => "Impostazioni specifiche di Mopidy",
-	"setup_mopidyport" => "Porta HTTP di Mopidy:",
 
 	// Intro Window
 	"intro_title" => "Informazioni su questa versione",

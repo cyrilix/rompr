@@ -64,7 +64,6 @@ function doMpdParse($command, &$dirs, $domains) {
     if (!$connection) return;
     fputs($connection, $command."\n");
     $filedata = $mpd_file_model;
-    $files = array();
     $parts = true;
     $foundfile = false;
     if (count($domains) == 0) {
@@ -86,8 +85,7 @@ function doMpdParse($command, &$dirs, $domains) {
                         } else {
                             if (!is_array($domains) ||
                                 in_array(getDomain(unwanted_array($filedata['file'])),$domains)) {
-                                $files[] = $filedata;
-                                // process_file($filedata);
+                                process_file($filedata);
                             }
                             $filedata = $mpd_file_model;
                         }
@@ -114,13 +112,8 @@ function doMpdParse($command, &$dirs, $domains) {
 
     if (is_array($filedata['file'])) {
         if (!is_array($domains) || in_array(getDomain($filedata['file'][0]),$domains)) {
-            $files[] = $filedata;
-            // process_file($filedata);
+            process_file($filedata);
         }
-    }
-
-    foreach ($files as $f) {
-        process_file($f);
     }
 }
 

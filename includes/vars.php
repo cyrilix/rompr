@@ -5,6 +5,7 @@ define('ROMPR_COLLECTION_VERSION', 2);
 define('ROMPR_SCHEMA_VERSION', 14);
 define('ROMPR_PLAYLIST_FILE', 'prefs/playlist.json');
 define('ROMPR_VERSION', 0.70);
+define('ROMPR_MOPIDY_MIN_VERSION', 1.1);
 $connection = null;
 $is_connected = false;
 $mysqlc = null;
@@ -138,6 +139,19 @@ foreach ($_COOKIE as $a => $v) {
         }
         debuglog("Pref ".$a." overridden by Cookie  - Value : ".$v,"COOKIE",8);
     }
+}
+if (!property_exists($prefs['multihosts'], $prefs['currenthost'])) {
+    debuglog($prefs['currenthost']." is not defined in the hosts defs. Falling back to Default","INIT");
+    if (!property_exists($prefs['multihosts'], 'Default')) {
+        $prefs['multihosts']->Default = (object) [
+        'host' => 'localhost',
+        'port' => 6600,
+        'password' => '',
+        'socket' => ''
+        ];
+    }
+    $prefs['currenthost'] = 'Default';
+    setcookie('currenthost',$prefs['currenthost'],time()+365*24*60*60*10);
 }
 
 debuglog("Using MPD Host ".$prefs['currenthost'],"INIT",8);

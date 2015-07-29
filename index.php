@@ -1,12 +1,12 @@
 <?php
 include("includes/vars.php");
 
+debuglog("=================****==================","INIT",2);
+
 // SVN versions of this release had composergenrename as a string but it's now an array
 if (!is_array($prefs['composergenrename'])) {
     $prefs['composergenrename'] = array($prefs['composergenrename']);
 }
-
-debuglog("=================****==================","INIT",2);
 
 include("includes/functions.php");
 include("international.php");
@@ -17,20 +17,15 @@ include("international.php");
 
 if (array_key_exists('mpd_host', $_POST)) {
     foreach ($_POST as $i => $value) {
-        debuglog("Setting Pref ".$i." to ".$value,"INIT", 1);
+        debuglog("Setting Pref ".$i." to ".$value,"INIT", 3);
         $prefs[$i] = $value;
     }
-    if (!array_key_exists('multihosts', $prefs)) {
-        $prefs['multihosts'] = new stdClass;
-    }
-    $prefs['multihosts']->Default = (object) [
+    $prefs['multihosts']->$prefs['currenthost'] = (object) [
             'host' => $prefs['mpd_host'],
             'port' => $prefs['mpd_port'],
             'password' => $prefs['mpd_password'],
             'socket' => $prefs['unix_socket']
     ];
-    setcookie('currenthost','Default',time()+365*24*60*60*10);
-    $prefs['currenthost'] = 'Default';
     $logger->setLevel($prefs['debug_enabled']);
     savePrefs();
 }
@@ -88,7 +83,7 @@ if (!$is_connected) {
 } else {
     $mpd_status = do_mpd_command("status", true);
     if (array_key_exists('error', $mpd_status)) {
-        debuglog("MPD Password Failed or other status failure","INIT",2);
+        debuglog("MPD Password Failed or other status failure","INIT",1);
         close_mpd();
         askForMpdValues(get_int_text("setup_connecterror").$mpd_status['error']);
         exit();
@@ -96,16 +91,21 @@ if (!$is_connected) {
 }
 
 // Let's do a test to see if we're running mpd or mopidy
-// Mopidy doesn't support 'readmessages' and the website says its unlikely
-// ever to support it, so if we get an error on that
-// we're running mopidy. It's flaky but I don't see another way.
-$r = do_mpd_command('readmessages', false);
-if ($r === false) {
-    debuglog("Looks like we're running Mopidy","INIT",4);
-    $prefs['player_backend'] = "mopidy";
+$oldmopidy = false;
+debuglog("Probing Player Type....","INIT",4);
+$r = do_mpd_command('tagtypes', true, true);
+if (is_array($r) && array_key_exists('tagtype', $r)) {
+    if (in_array('X-AlbumUri', $r['tagtype'])) {
+        debuglog("    ....tagtypes test says we're running Mopidy","INIT",4);
+        $prefs['player_backend'] = "mopidy";
+    } else {
+        debuglog("    ....tagtypes test says we're running MPD","INIT",4);
+        $prefs['player_backend'] = "mpd";
+    }
 } else {
-    debuglog("Looks like we're running MPD","INIT",4);
-    $prefs['player_backend'] = "mpd";
+    debuglog("WARNING! No output for 'tagtypes' - probably an old version of Mopidy. Rompr may not function correctly","INIT",2);
+    $prefs['player_backend'] = "mopidy";
+    $oldmopidy = true;
 }
 
 if ($prefs['unix_socket'] != '') {
@@ -240,18 +240,19 @@ var trackFinder = new faveFinder(false);
 <?php
 $inc = glob("browser/helpers/*.js");
 foreach($inc as $i) {
+    debuglog("Including Browser Helper ".$i,"INIT",5);
     print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
 }
 $inc = glob("browser/plugins/*.js");
 ksort($inc);
 foreach($inc as $i) {
-    debuglog("Including Info Panel Plugin ".$i,"INIT",6);
+    debuglog("Including Info Panel Plugin ".$i,"INIT",5);
     print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
 }
 $inc = glob("radios/*.js");
 ksort($inc);
 foreach($inc as $i) {
-    debuglog("Including Smart Radio Plugin ".$i,"INIT",7);
+    debuglog("Including Smart Radio Plugin ".$i,"INIT",5);
     print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
 }
 if ($skin == "desktop") {
@@ -269,7 +270,7 @@ foreach ($skinrequires as $s) {
     $s = trim($s);
     $ext = strtolower(pathinfo($s, PATHINFO_EXTENSION));
     if ($ext == "js") {
-        debuglog("Including Skin Requirement ".$s,"INIT",7);
+        debuglog("Including Skin Requirement ".$s,"INIT",5);
         print '<script type="text/javascript" src="'.$s.'"></script>'."\n";
     }
 }
@@ -279,7 +280,7 @@ print '<script type="text/javascript" src="skins/'.$skin.'/skin.js"></script>'."
 </head>
 
 <?php
-debuglog("Including skins/".$skin.'/skin.php',"LAYOUT",7);
+debuglog("Including skins/".$skin.'/skin.php',"LAYOUT",5);
 include('skins/'.$skin.'/skin.php');
 ?>
 

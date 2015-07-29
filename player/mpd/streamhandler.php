@@ -6,7 +6,7 @@ $streamdomains = array(
 function is_stream($domain, $filedata) {
     global $streamdomains;
 	if (in_array($domain, $streamdomains) &&
-        !preg_match('#/item/\d+/file$#', $f) &&
+        !preg_match('#/item/\d+/file$#', $filedata['file'][0]) &&
         strpos($filedata['file'][0], 'vk.me') === false &&
         strpos($filedata['file'][0], 'oe1:archive') === false &&
         strpos($filedata['file'][0], 'http://leftasrain.com') === false)

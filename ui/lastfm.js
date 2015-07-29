@@ -8,7 +8,7 @@ function LastFM(user) {
     var lovebanshown = false;
     var queue = new Array();
     var throttle = null;
-    var throttleTime = 500;
+    var throttleTime = 1000;
 
     if (prefs.lastfm_session_key !== "" || typeof lastfm_session_key !== 'undefined') {
         logged_in = true;
@@ -158,10 +158,12 @@ function LastFM(user) {
         throttle = setTimeout(lastfm.getRequest, throttleTime);
     }
 
-    function LastFMGetRequest(options, success, fail, reqid) {
+    function LastFMGetRequest(options, cache, success, fail, reqid) {
         debug.trace("LASTFM","New Request");
         options.format = "json";
-        options.callback = "?";
+        if (!cache) {
+            options.callback = "?";
+        }
         var url = "http://ws.audioscrobbler.com/2.0/";
         var adder = "?";
         var keys = getKeys(options);
@@ -169,7 +171,7 @@ function LastFM(user) {
             url=url+adder+keys[key]+"="+(options[keys[key]] == "?" ? "?" : encodeURIComponent(options[keys[key]]));
             adder = "&";
         }
-        queue.push({url: url, success: success, fail: fail, flag: false, reqid: reqid});
+        queue.push({url: url, success: success, fail: fail, flag: false, cache: cache, reqid: reqid, retries: 0});
         if (throttle == null && queue.length == 1) {
             lastfm.getRequest();
         }
@@ -187,39 +189,117 @@ function LastFM(user) {
             debug.trace("LASTFM","Taking next request from queue",req.url);
             // Don't use JQuery's getJSON function for cross-site requests as it ignores any
             // error callbacks you give it. I'm using the jsonp plugin, which works.
-            $.jsonp({
-                url: req.url,
-                timeout: 30000,
-                success: function(data) {
-                    debug.trace("LASTFM","Request success",data);
-                    throttle = setTimeout(lastfm.getRequest, throttleTime);
-                    req = queue.shift();
-                    if (data.error) {
-                        if (req.reqid || req.reqid === 0) {
-                            req.fail(data, req.reqid);
+            if (req.url == "POST") {
+                debug.log("LASTFM", "Handling POST request via queue");
+                $.ajax({
+                    method: "POST",
+                    url: "http://ws.audioscrobbler.com/2.0/",
+                    data: req.options,
+                    dataType: 'xml',
+                    timeout: 5000,
+                    success: function(data,status,xhr) {
+                        throttle = setTimeout(lastfm.getRequest, throttleTime);
+                        req = queue.shift();
+                        debug.log("LASTFM", req.options.method,"request success");
+                        var s = $(data).find('lfm').attr("status");
+                        if (s == "ok") {
+                            req.success(data);
                         } else {
+                            debug.warn("LASTFM","Last FM signed request failed with status",$(data).find('error').text(),xhr.status);
                             req.fail(data);
                         }
-                    } else {
-                        debug.trace("LASTFM","Calling success callback");
-                        if (req.reqid || req.reqid === 0) {
-                            req.success(data, req.reqid);
+                    },
+                    error: function(xhr,status,err) {
+                        throttle = setTimeout(lastfm.getRequest, throttleTime);
+                        req = queue.shift();
+                        debug.error("LASTFM",req.options.method,"request error",xhr.status,status,err);
+                        if (req.retries < 3) {
+                            debug.log("LASTFM","Retrying...");
+                            req.retries++;
+                            req.flag = false;
+                            queue.unshift(req);
                         } else {
-                            req.success(data);
+                            req.fail(null);
                         }
                     }
-                },
-                error: function() {
-                    throttle = setTimeout(lastfm.getRequest, throttleTime);
-                    req = queue.shift();
-                    if (req.reqid || req.reqid === 0) {
-                        debug.warn("LASTFM", "Get Request Failed",req.reqid);
-                        req.fail(null, req.reqid);
-                    } else {
-                        req.fail();
+                });
+            } else if (req.cache) {
+                var getit = $.ajax({
+                    dataType: 'json',
+                    url: 'browser/backends/getlfmdata.php?uri='+encodeURIComponent(req.url),
+                    success: function(data) {
+                        var c = getit.getResponseHeader('Pragma');
+                        debug.debug("LASTFM","Request success",c,data);
+                        if (c == "From Cache") {
+                            throttle = setTimeout(lastfm.getRequest, 100);
+                        } else {
+                            throttle = setTimeout(lastfm.getRequest, throttleTime);
+                        }
+                        req = queue.shift();
+                        if (data === null) {
+                            data = {error: language.gettext("lastfm_error")};
+                        }
+                        if (data.error) {
+                            if (req.reqid || req.reqid === 0) {
+                                req.fail(data, req.reqid);
+                            } else {
+                                req.fail(data);
+                            }
+                        } else {
+                            debug.trace("LASTFM","Calling success callback");
+                            if (req.reqid || req.reqid === 0) {
+                                req.success(data, req.reqid);
+                            } else {
+                                req.success(data);
+                            }
+                        }
+                    },
+                    error: function(xhr,status,err) {
+                        throttle = setTimeout(lastfm.getRequest, throttleTime);
+                        req = queue.shift();
+                        debug.warn("LASTFM", "Get Request Failed",xhr.status,status,err);
+                        if (req.reqid || req.reqid === 0) {
+                            req.fail(null, req.reqid);
+                        } else {
+                            req.fail();
+                        }
                     }
-                }
-            });
+                });
+            } else {
+                $.jsonp({
+                    url: req.url,
+                    timeout: 30000,
+                    success: function(data) {
+                        debug.trace("LASTFM","Request success",data);
+                        throttle = setTimeout(lastfm.getRequest, throttleTime);
+                        req = queue.shift();
+                        if (data.error) {
+                            if (req.reqid || req.reqid === 0) {
+                                req.fail(data, req.reqid);
+                            } else {
+                                req.fail(data);
+                            }
+                        } else {
+                            debug.trace("LASTFM","Calling success callback");
+                            if (req.reqid || req.reqid === 0) {
+                                req.success(data, req.reqid);
+                            } else {
+                                req.success(data);
+                            }
+                        }
+                    },
+                    error: function(xhr,status,err) {
+                        throttle = setTimeout(lastfm.getRequest, throttleTime);
+                        req = queue.shift();
+                        if (req.reqid || req.reqid === 0) {
+                            debug.warn("LASTFM", "Get Request Failed",xhr.status,status,err);
+                            req.fail(null, req.reqid);
+                        } else {
+                            req.fail();
+                        }
+                    }
+                });
+            }
         } else {
             throttle = null;
         }
@@ -257,20 +337,31 @@ function LastFM(user) {
         }
         it = it+lastfm_secret;
         options.api_sig = hex_md5(it);
-        $.post("http://ws.audioscrobbler.com/2.0/", options)
-            .done( function(data) {
-                var s = $(data).find('lfm').attr("status");
-                if (s == "ok") {
-                    success(data);
-                } else {
-                    debug.warn("LASTFM","Last FM signed request failed with status",$(data).find('error').text());
-                    fail(data);
-                }
-            })
-            .fail( function(data) {
-                debug.error("LASTFM","Last FM signed request error",$(data.responseText).find('error').text());
-                fail(data);
-            });
+        queue.push({
+            url: "POST",
+            options: options,
+            success: success,
+            fail: fail,
+            flag: false,
+            retries : 0
+        });
+        if (throttle == null && queue.length == 1) {
+            lastfm.getRequest();
+        }
+        // $.post("http://ws.audioscrobbler.com/2.0/", options)
+        //     .done( function(data) {
+        //         var s = $(data).find('lfm').attr("status");
+        //         if (s == "ok") {
+        //             success(data);
+        //         } else {
+        //             debug.warn("LASTFM","Last FM signed request failed with status",$(data).find('error').text());
+        //             fail(data);
+        //         }
+        //     })
+        //     .fail( function(data) {
+        //         debug.error("LASTFM","Last FM signed request error",$(data.responseText).find('error').text());
+        //         fail(data);
+        //     });
     }
 
     var getKeys = function(obj) {
@@ -352,6 +443,7 @@ function LastFM(user) {
             }
             LastFMGetRequest(
                 options,
+                true,
                 callback,
                 function(data) { failcallback({ error: 1,
                                                 message: language.gettext("label_notrackinfo")}) },
@@ -364,6 +456,7 @@ function LastFM(user) {
             addGetOptions(options, "track.getTags");
             LastFMGetRequest(
                 options,
+                false,
                 callback,
                 failcallback,
                 reqid
@@ -420,6 +513,7 @@ function LastFM(user) {
             options.country = prefs.lastfm_country_code;
             LastFMGetRequest(
                 options,
+                true,
                 callback,
                 failcallback
             );
@@ -438,6 +532,7 @@ function LastFM(user) {
             }
             LastFMGetRequest(
                 options,
+                true,
                 callback,
                 function() { failcallback({ error: 1,
                                             message: language.gettext("label_noalbuminfo")}); }
@@ -449,6 +544,7 @@ function LastFM(user) {
             if (username != "") { options.user = username }
             LastFMGetRequest(
                 options,
+                false,
                 callback,
                 failcallback
             );
@@ -481,6 +577,7 @@ function LastFM(user) {
             options.country = prefs.lastfm_country_code;
             LastFMGetRequest(
                 options,
+                true,
                 callback,
                 failcallback
             );
@@ -498,6 +595,7 @@ function LastFM(user) {
             }
             LastFMGetRequest(
                 options,
+                true,
                 callback,
                 function() { failcallback({error: 1,
                                             message: language.gettext("label_noartistinfo")}); }
@@ -509,6 +607,7 @@ function LastFM(user) {
             addGetOptions(options, "artist.getTags");
             LastFMGetRequest(
                 options,
+                false,
                 callback,
                 failcallback
             );
@@ -519,6 +618,7 @@ function LastFM(user) {
                 addSetOptions(options, "artist.addTags");
                 LastFMSignedRequest(
                     options,
+                    false,
                     function() { callback("artist", options.tags) },
                     function() { failcallback("artist", options.tags) }
                 );
@@ -535,17 +635,7 @@ function LastFM(user) {
                     function() { failcallback("artist", options.tag); }
                 );
             }
-        },
-
-        getImages: function(options, callback, failcallback) {
-            addGetOptions(options, "artist.getImages");
-            options.limit = "100";
-            LastFMGetRequest(
-                options,
-                callback,
-                function() { failcallback( {images: {}}); }
-            );
-        },
+        }
 
     }
 

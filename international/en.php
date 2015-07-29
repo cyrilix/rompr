@@ -45,7 +45,6 @@ $languages['en'] = array (
 	"config_theme" => "THEME",
 	"config_hidealbumlist" => "Hide Music Collection",
 	"config_hidefileslist" => "Hide Files List",
-	"config_hidelastfm" => "Hide Last.FM Stations",
 	"config_hideradio" => "Hide Radio Stations",
 	"config_hidebrowser" => "Hide Info Panel",
 	"config_fullbio" => "Retrieve full artist biographies from Last.FM",
@@ -98,7 +97,6 @@ $languages['en'] = array (
 	"button_consume" => "CONSUME",
 	"label_yes" => "Yes",
 	"label_no" => "No",
-	"mopidy_down" => "The connection to Mopidy has been lost!",
 	"label_updating" => "Updating Music Collection",
 	"label_update_error" => "Failed to generate music collection.",
 	"label_notsupported" => "Operation not supported!",
@@ -565,6 +563,7 @@ $languages['en'] = array (
 	"google_error" => "Could not contact Google",
 	"label_allrandom" => "All Tracks At Random",
 	"config_background" => "BACKGROUND IMAGE",
+	"lastfm_error" => "Could not find information on Last.FM",
 
 	//CHANGED in 0.60
 	"config_country" => "COUNTRY (for Last.FM and Spotify)",

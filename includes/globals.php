@@ -192,7 +192,13 @@ print "debug.setLevel(".$prefs['debug_enabled'].");\n";
 print "var interfaceLanguage = '".$interface_language."';\n";
 print "var browserLanguage = '".$browser_language."';\n";
 print "var rompr_version = '".ROMPR_VERSION."';\n";
-print "var player_ip = '".get_player_ip()."'\n";
+print "var mopidy_min_version = '".ROMPR_MOPIDY_MIN_VERSION."';\n";
+print "var player_ip = '".get_player_ip()."';\n";
+if ($oldmopidy) {
+    print "var mopidy_is_old = true;\n";
+} else {
+    print "var mopidy_is_old = false;\n";
+}
 // Three translation keys are needed so regularly it makes sense to
 // have them as static variables, instead of looking them up every time
 print "var frequentLabels = {\n";

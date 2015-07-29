@@ -95,7 +95,6 @@ $languages['fr'] = array (
 	"button_consume" => "CONSOMMER",
 	"label_yes" => "Oui",
 	"label_no" => "Non",
-	"mopidy_down" => "La connexion à Mopidy a été perdue!",
 	"label_updating" => "Mise A Jour Des Fichiers Locaux",
 	"label_update_error" => "Echec de la génération de la liste de musique locale !",
 	"label_notsupported" => "Opération non supportée !",
@@ -249,8 +248,6 @@ $languages['fr'] = array (
 	"setup_leaveblank" => "Laissez les vides à moins que vous n'en ayez utilité",
 	"setup_password" => "Mot de passe",
 	"setup_unixsocket" => "socket UNIX",
-	"setup_mopidy" => "Paramètres spécifiques à Mopidy",
-	"setup_mopidyport" => "Port HTTP de Mopidy:",
 
 	// Intro Window
 	"intro_title" => "Informations Concernant Cette Version",

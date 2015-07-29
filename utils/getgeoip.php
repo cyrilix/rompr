@@ -9,7 +9,7 @@ if ($content['status'] == "200") {
 	print $content['contents'];
 } else {
 	debuglog("Request to telize.com failed with status ".$content['status'],"GETLOCATION");
-    header('HTTP/1.1 400 Bad Request');
+    print json_encode(array('country' => 'ERROR', 'country_code' => 'unclepeter'));
 }
 ob_flush();
 ?>

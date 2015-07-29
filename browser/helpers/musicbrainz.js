@@ -34,7 +34,7 @@ var musicbrainz = function() {
 	                url: "browser/backends/getmbdata.php?uri="+encodeURIComponent(req.url),
 	                success: function(data) {
 	                	var c = getit.getResponseHeader('Pragma');
-	                	debug.debug("MUSICBRAINZ","Request success",c);
+	                	debug.debug("MUSICBRAINZ","Request success",c,data);
 	                	if (c == "From Cache") {
 	                		throttle = setTimeout(musicbrainz.getrequest, 100);
 	                	} else {

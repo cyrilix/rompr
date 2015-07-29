@@ -101,7 +101,6 @@ $languages['de'] = array (
 	"button_consume" => "NACH APSPIELEN LÖSCHEN",
 	"label_yes" => "Ja",
 	"label_no" => "Nein",
-	"mopidy_down" => "Keine Verbindung zu Mopidy / MPD!",
 	"label_updating" => "Aktualisiere Musiksammlung",
 	"label_update_error" => "Erstellen der Musiksammlung gescheitert!",
 	"label_notsupported" => "Vorgang nicht unterstützt!",
@@ -261,8 +260,6 @@ $languages['de'] = array (
 	"setup_leaveblank" => "Lassen Sie diese Felder leer solange Sie diese nicht brauchen",
 	"setup_password" => "Passwort",
 	"setup_unixsocket" => "UNIX-Domain Socket",
-	"setup_mopidy" => "Mopidy-spezifische Einstellungen",
-	"setup_mopidyport" => "Mopidy HTTP Port:",
 
 	// Intro Window
 	"intro_title" => "Information über diese Version",

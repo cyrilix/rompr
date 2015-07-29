@@ -31,6 +31,7 @@ var info_lastfm = function() {
         if (bio) {
             bio = bio.replace(/\n/g, "</p><p>");
             bio = bio.replace(/(<a .*?href="http:\/\/.*?")/g, '$1 target="_blank"');
+            bio = bio.replace(/\[url=(.*?) .*?\](.*?)\[\/url\]/g, '<a href="$1" target="_blank">$2</a>');
             if (link) {
                 link = link.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
                 var re = new RegExp("<a href=\""+link+"\" target=\"_blank\">Read more about.*?</a>");
@@ -519,7 +520,7 @@ var info_lastfm = function() {
 
                     somethingfailed: function(data) {
                         $("#tagaddartist").stopSpinner();
-                        debug.warn(medebug,"Something went wrong",data);
+                        debug.log(medebug,"Something went wrong getting artist user tags",data);
                     },
 
                     gotUserTags: function(data) {
@@ -663,7 +664,7 @@ var info_lastfm = function() {
 
                     somethingfailed: function(data) {
                         $("#tagaddalbum").stopSpinner();
-                        debug.warn(medebug,"Something went wrong",data);
+                        debug.log(medebug,"Something went wrong getting album user tags",data);
                     },
 
                     gotUserTags: function(data) {
@@ -825,7 +826,7 @@ var info_lastfm = function() {
 
                     somethingfailed: function(data) {
                         $("#tagaddtrack").stopSpinner();
-                        debug.warn(medebug,"Something went wrong",data);
+                        debug.log(medebug,"Something went wrong getting track user tags",data);
                     },
 
                     gotUserTags: function(data) {

@@ -95,7 +95,6 @@ $languages['pirate'] = array (
 	"button_consume" => "DOWN YE GROG",
 	"label_yes" => "Arrr",
 	"label_no" => "Never!",
-	"mopidy_down" => "Avast! Ye Mopidy be dead!",
 	"label_updating" => "Diggin' fer shantys",
 	"label_update_error" => "Avast! Ye shanty list be broken!",
 	"label_notsupported" => "Ye canna do that, ye scurvy dog!",
@@ -239,8 +238,6 @@ $languages['pirate'] = array (
 	"setup_leaveblank" => "Scurvy dogs should fear to enter here",
 	"setup_password" => "Password",
 	"setup_unixsocket" => "UNIX-domain socket",
-	"setup_mopidy" => "Mopidy-specific Settings",
-	"setup_mopidyport" => "Mopidy HTTP port:",
 
 	// Intro Window
 	"intro_title" => "Yarrrrrrrrrrrrr!",

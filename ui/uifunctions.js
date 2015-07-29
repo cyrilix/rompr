@@ -24,7 +24,6 @@ function saveSelectBoxes(event) {
 
     switch(prefname) {
         case "theme":
-            // $("#theme").attr({href: 'themes/'+$("#themeselector").val()});
             setTheme($("#themeselector").val());
             setTimeout(layoutProcessor.adjustLayout, 1000);
             break;
@@ -1099,37 +1098,42 @@ function displayRating(where, what) {
 }
 
 function showUpdateWindow() {
-    if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < rompr_version) {
-        var fnarkle = popupWindow.create(550,900,"fnarkle",true,language.gettext("intro_title"));
-        $("#popupcontents").append('<div id="fnarkler" class="mw-headline"></div>');
-        $("#fnarkler").append('<p align="center">'+language.gettext("intro_welcome")+' '+rompr_version+'</p>');
-        if (skin != "desktop") {
-            $("#fnarkler").append('<p align="center">'+language.gettext("intro_viewingmobile")+
-                ' <a href="/rompr/?skin=desktop">/rompr/?skin=desktop</a></p>');
-        } else {
-            $("#fnarkler").append('<p align="center">'+language.gettext("intro_viewmobile")+
-                ' <a href="/rompr/?skin=phone">/rompr/?skin=phone</a></p>');
+    if (mopidy_is_old) {
+        alert(language.gettext("mopidy_tooold", [mopidy_min_version]));
+    } else {
+        if (prefs.shownupdatewindow === true || prefs.shownupdatewindow < rompr_version) {
+            var fnarkle = popupWindow.create(550,900,"fnarkle",true,language.gettext("intro_title"));
+            $("#popupcontents").append('<div id="fnarkler" class="mw-headline"></div>');
+            $("#fnarkler").append('<p align="center">'+language.gettext("intro_welcome")+' '+rompr_version+'</p>');
+            if (skin != "desktop") {
+                $("#fnarkler").append('<p align="center">'+language.gettext("intro_viewingmobile")+
+                    ' <a href="/rompr/?skin=desktop">/rompr/?skin=desktop</a></p>');
+            } else {
+                $("#fnarkler").append('<p align="center">'+language.gettext("intro_viewmobile")+
+                    ' <a href="/rompr/?skin=phone">/rompr/?skin=phone</a></p>');
+            }
+            $("#fnarkler").append('<p align="center">'+language.gettext("intro_basicmanual")+
+                ' <a href="https://sourceforge.net/p/rompr/wiki/Basic%20Manual/" target="_blank">'+
+                'http://sourceforge.net/p/rompr/wiki/Basic%20Manual/</a></p>');
+            $("#fnarkler").append('<p align="center">'+language.gettext("intro_forum")+
+                ' <a href="https://sourceforge.net/p/rompr/discussion/" target="_blank">'+
+                'http://sourceforge.net/p/rompr/discussion/</a></p>');
+            $("#fnarkler").append('<p align="center">RompR needs translators! If you want to get'+
+                ' involved, please read <a href="https://sourceforge.net/p/rompr/wiki/Translating%20RompR/"'+
+                ' target="_blank">this</a></p>');
+            if (prefs.player_backend == "mopidy") {
+                $("#fnarkler").append('<p align="center"><b>Mopidy is STILL SUPPORTED! Rompr now uses '+
+                    'the Mopidy MPD frontend</b></p>');
+                $("#fnarkler").append('<p align="center"><b>'+language.gettext("intro_mopidy")+'</b></p>');
+                $("#fnarkler").append('<p align="center"><a href="https://sourceforge.net/p/rompr/wiki/Rompr%20and%20Mopidy/"'+
+                    ' target="_blank">'+language.gettext("intro_mopidywiki")+'</a></p>');
+            }
+            $("#fnarkler").append('<p><button style="width:8em" class="tright" onclick="popupWindow.close()">OK</button></p>');
+            popupWindow.open();
+            prefs.save({shownupdatewindow: rompr_version});
         }
-        $("#fnarkler").append('<p align="center">'+language.gettext("intro_basicmanual")+
-            ' <a href="https://sourceforge.net/p/rompr/wiki/Basic%20Manual/" target="_blank">'+
-            'http://sourceforge.net/p/rompr/wiki/Basic%20Manual/</a></p>');
-        $("#fnarkler").append('<p align="center">'+language.gettext("intro_forum")+
-            ' <a href="https://sourceforge.net/p/rompr/discussion/" target="_blank">'+
-            'http://sourceforge.net/p/rompr/discussion/</a></p>');
-        $("#fnarkler").append('<p align="center">RompR needs translators! If you want to get'+
-            ' involved, please read <a href="https://sourceforge.net/p/rompr/wiki/Translating%20RompR/"'+
-            ' target="_blank">this</a></p>');
-        if (prefs.player_backend == "mopidy") {
-            $("#fnarkler").append('<p align="center"><b>Mopidy is STILL SUPPORTED! Rompr now uses '+
-                'the Mopidy MPD frontend</b></p>');
-            $("#fnarkler").append('<p align="center"><b>'+language.gettext("intro_mopidy")+'</b></p>');
-            $("#fnarkler").append('<p align="center"><a href="https://sourceforge.net/p/rompr/wiki/Rompr%20and%20Mopidy/"'+
-                ' target="_blank">'+language.gettext("intro_mopidywiki")+'</a></p>');
-        }
-        $("#fnarkler").append('<p><button style="width:8em" class="tright" onclick="popupWindow.close()">OK</button></p>');
-        popupWindow.open();
-        prefs.save({shownupdatewindow: rompr_version});
     }
+
 }
 
 function removeOpenItems(index) {

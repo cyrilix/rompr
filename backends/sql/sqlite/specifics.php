@@ -12,6 +12,11 @@ function connect_to_database() {
 		$dsn = "sqlite:prefs/collection_".$prefs['player_backend'].".sq3";
 		$mysqlc = new PDO($dsn);
 		debuglog("Connected to SQLite","MYSQL",8);
+		// This, apparently, increases performance
+		generic_sql_query('PRAGMA journal_mode=MEMORY', false, true);
+		generic_sql_query('PRAGMA cache_size=4000', false, true);
+		generic_sql_query('PRAGMA synchronous=OFF', false, true);
+		generic_sql_query('PRAGMA threads=4', false, true);
 	} catch (Exception $e) {
 		debuglog("Couldn't Connect To SQLite - ".$e,"MYSQL",1);
 		sql_init_fail($e->getMessage());
