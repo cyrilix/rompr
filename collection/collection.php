@@ -763,7 +763,7 @@ function artist_from_path($p, $f) {
 
 function process_file($filedata) {
 
-    global $numtracks, $totaltime, $prefs, $dbterms, $collection;
+    global $numtracks, $totaltime, $prefs, $dbterms, $collection, $putinplaylistarray;
 
     $file = $filedata['file'][0];
 
@@ -917,8 +917,8 @@ function process_file($filedata) {
             break;
     }
 
-    if (is_stream($domain, $filedata)) {
-
+    if (($playlistpos !== null || $putinplaylistarray) && is_stream($domain, $filedata)) {
+        // No need to do this check when building the collection
         list (  $name,
                 $duration,
                 $artist,
