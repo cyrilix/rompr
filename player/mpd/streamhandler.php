@@ -4,6 +4,10 @@ $streamdomains = array(
     "rtmps", "dirble", "tunein", "radio-de", "audioaddict", "oe1");
 
 function is_stream($domain, $filedata) {
+    // Althought we are running these checks on every single file,
+    // the time it takes is un-measurablem - at least on Intel Atom with 20,000 tracks.
+    // It may perhaps be measurable on slower devices but it will never be significant
+    // compared to the database speed.
     global $streamdomains;
 	if (in_array($domain, $streamdomains) &&
         !preg_match('#/item/\d+/file$#', $filedata['file'][0]) &&

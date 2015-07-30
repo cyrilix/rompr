@@ -6,6 +6,7 @@ function trackDataCollection(currenttrack, nowplayingindex, artistindex, playlis
 	this.currenttrack = currenttrack;
 	this.nowplayingindex = nowplayingindex;
 	this.artistindex = artistindex;
+	this.populated = false;
 
 	this.isCurrentTrack = function() {
 		return nowplaying.isThisCurrent(self.currenttrack);
@@ -121,6 +122,7 @@ function trackDataCollection(currenttrack, nowplayingindex, artistindex, playlis
 	// Create the data collections we need
 
 	this.populate = function(source, isartistswitch) {
+		self.populated = true;
 		if (collections['ratings'] === undefined) startSource('ratings');
 		// Last.FM needs to be running as it's used for love, ban, and autocorrect
 		if (collections['lastfm'] === undefined && (prefs.lastfm_autocorrect || lastfm.isLoggedIn())) {
@@ -152,7 +154,7 @@ var nowplaying = function() {
 
     function findCurrentTrack() {
     	for (var i in history) {
-    		if (history[i] !== undefined && history[i].currenttrack == currenttrack) {
+    		if (history[i] !== undefined && history[i].currenttrack == currenttrack && history[i].populated == true) {
     			return i;
     		}
     	}
@@ -279,6 +281,7 @@ var nowplaying = function() {
 				// have been assigned, resulting in the html containing an undefined value.
 				if (i == 0) to_populate = nowplayingindex;
 				if (isCurrentDisplayedArtist(playlistinfo.metadata.artists[i].name)) {
+					debug.log("NOWPLAYING","Telling nowplaying index",nowplayingindex,"to populate");
 					to_populate = nowplayingindex;
 					isartistswitch = false;
 				}

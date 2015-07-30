@@ -2110,7 +2110,7 @@ function displayCollectionInsert(details) {
 
     debug.log("COLLECTION","Displaying New Insert",details);
 
-    if ($('i[name="aartist'+details.artistindex+'"]').isClosed()) {
+    if (prefs.sortcollectionby == "artist" && $('i[name="aartist'+details.artistindex+'"]').isClosed()) {
         debug.log("COLLECTION","Opening Menu","aartist"+details.artistindex);
         doAlbumMenu(null, $('i[name="aartist'+details.artistindex+'"]'), false, function() {
             if ($('i[name="aalbum'+details.albumindex+'"]').isClosed()) {

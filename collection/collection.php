@@ -917,8 +917,7 @@ function process_file($filedata) {
             break;
     }
 
-    if (($playlistpos !== null || $putinplaylistarray) && is_stream($domain, $filedata)) {
-        // No need to do this check when building the collection
+    if (is_stream($domain, $filedata)) {
         list (  $name,
                 $duration,
                 $artist,
