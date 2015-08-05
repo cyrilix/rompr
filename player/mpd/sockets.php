@@ -38,21 +38,17 @@ function open_mpd_connection() {
 }
 
 function getline($connection, $rd = false) {
-    global $is_connected;
-    if ($is_connected) {
-        $got = trim(fgets($connection));
-        if(strncmp("OK", $got, 2) == 0 || strncmp("ACK", $got, 3) == 0) {
-            return false;
-        }
-        $key = trim(strtok($got, ":"));
-        $val = trim(strtok("\0"));
-        if ($val != '' && $val != null && ($rd || $key != "directory")) {
-            return array($key, $val);
-        } else {
-            return true;
-        }
-    } else {
+    $got = stream_get_line($connection, 1024, "\n");
+    // strpos is faster than strncmp
+    if (strpos($got, 'OK') === 0 || strpos($got, 'ACK') === 0) {
         return false;
+    }
+    $key = trim(strtok($got, ":"));
+    $val = trim(strtok("\0"));
+    if ($val != '' && ($rd || $key != "directory")) {
+        return array($key, $val);
+    } else {
+        return true;
     }
 }
 
@@ -60,9 +56,9 @@ function parse_mpd_var($in_str) {
     $got = trim($in_str);
     if(!isset($got))
         return null;
-    if(strncmp("OK", $got,strlen("OK"))==0)
+    if(strncmp("OK", $got, 2) == 0)
         return true;
-    if(strncmp("ACK", $got,strlen("ACK"))==0) {
+    if(strncmp("ACK", $got, 3) == 0) {
         return array(0 => false, 1 => $got);
     }
     $key = trim(strtok($got, ":"));

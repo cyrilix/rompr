@@ -54,7 +54,7 @@ $array_params = array(
 function doCollection($command, $domains = null) {
 
     global $connection, $collection;
-    $collection = new musicCollection($connection);
+    $collection = new musicCollection();
 
     debuglog("Starting Collection Scan ".$command, "MPD",4);
     if ($command == "listallinfo") {
@@ -74,7 +74,6 @@ function doMpdParse($command, &$dirs, $domains) {
     fputs($connection, $command."\n");
     $filedata = $mpd_file_model;
     $parts = true;
-    $foundfile = false;
     if (count($domains) == 0) {
         $domains = null;
     }
@@ -87,46 +86,38 @@ function doMpdParse($command, &$dirs, $domains) {
                     $dirs[] = trim($parts[1]);
                     break;
 
+                case "Last-Modified":
+                    if ($filedata['file'] != null) {
+                        // We don't want the Last-Modified stamps of the directories
+                        // to be used for the files.
+                        $filedata[$parts[0]] = strtotime($parts[1]);
+                    }
+                    break;
+
+                case 'file':
+                    if ($filedata['file'] != null && (!is_array($domains) ||
+                        in_array(getDomain($filedata['file']),$domains))) {
+                        process_file($filedata);
+                    }
+                    $filedata = $mpd_file_model;
+                    // Fall through to default
+
                 default:
-                    if ($parts[0] == "file") {
-                        if (!$foundfile) {
-                            $foundfile = true;
-                        } else {
-                            if (!is_array($domains) ||
-                                in_array(getDomain($filedata['file']),$domains)) {
-                                process_file($filedata);
-                            }
-                            $filedata = $mpd_file_model;
-                        }
+                    if (in_array($parts[0], $array_params)) {
+                        $filedata[$parts[0]] =
+                            array_unique(explode(ROMPR_MULTIVALUE_SEPARATOR,$parts[1]));
+                    } else {
+                        $filedata[$parts[0]] =
+                            explode(ROMPR_MULTIVALUE_SEPARATOR,$parts[1])[0];
                     }
-
-                    switch ($parts[0]) {
-                        case "Last-Modified":
-                            if (array_key_exists('file', $filedata)) {
-                                // We don't want the Last-Modified stamps of the directories
-                                // to be used for the files.
-                                $filedata[$parts[0]] = strtotime($parts[1]);
-                            }
-                            break;
-
-                        default:
-                            if (in_array($parts[0], $array_params)) {
-                                $filedata[$parts[0]] = array_unique(explode(ROMPR_MULTIVALUE_SEPARATOR,$parts[1]));
-                            } else {
-                                $filedata[$parts[0]] = explode(ROMPR_MULTIVALUE_SEPARATOR,$parts[1])[0];
-                            }
-                            break;
-                    }
-
                     break;
             }
         }
     }
 
-    if ($filedata['file'] !== null) {
-        if (!is_array($domains) || in_array(getDomain($filedata['file']),$domains)) {
-            process_file($filedata);
-        }
+    if ($filedata['file'] !== null && (!is_array($domains) ||
+            in_array(getDomain($filedata['file']),$domains))) {
+        process_file($filedata);
     }
 }
 

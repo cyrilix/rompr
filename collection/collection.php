@@ -391,8 +391,7 @@ class track {
 
 class musicCollection {
 
-    public function __construct($connection) {
-        $this->connection = $connection;
+    public function __construct() {
         $this->artists = array();
     }
 
@@ -718,7 +717,8 @@ function process_file($filedata) {
 
     if ($dbterms['tags'] !== null || $dbterms['rating'] !== null) {
         // If this is a search and we have tags or ratings to search for, check them here.
-        if (check_url_against_database($filedata['file'], $dbterms['tags'], $dbterms['rating']) == false) {
+        if (check_url_against_database($filedata['file'], $dbterms['tags'],
+            $dbterms['rating']) == false) {
             return false;
         }
     }
@@ -738,9 +738,12 @@ function process_file($filedata) {
     check_is_stream($filedata);
 
     if ($filedata['type'] != 'stream') {
-        if ($filedata['Title'] == null) $filedata['Title'] = rawurldecode(basename($filedata['file']));
-        if ($filedata['Album'] == null) $filedata['Album'] = album_from_path($unmopfile);
-        if ($filedata['Artist'] == null) $filedata['Artist'] = artist_from_path($unmopfile, $filedata['file']);
+        if ($filedata['Title'] == null) $filedata['Title'] =
+            rawurldecode(basename($filedata['file']));
+        if ($filedata['Album'] == null) $filedata['Album'] =
+            album_from_path($unmopfile);
+        if ($filedata['Artist'] == null) $filedata['Artist'] =
+            artist_from_path($unmopfile, $filedata['file']);
     }
     if ($filedata['Track'] == null) {
         $filedata['Track'] = format_tracknum(rawurldecode(basename($filedata['file'])));
@@ -762,7 +765,8 @@ function process_file($filedata) {
 
     if (strpos($filedata['file'], ':artist:') !== false) {
         $filedata['X-AlbumUri'] = $filedata['file'];
-        $filedata['Album'] = get_int_text("label_allartist").concatenate_artist_names($filedata['Artist']);
+        $filedata['Album'] = get_int_text("label_allartist").
+            concatenate_artist_names($filedata['Artist']);
         if ($filedata['X-AlbumImage'] == null) {
             $filedata['X-AlbumImage'] = "newimages/artist-icon.png";
         }
@@ -776,7 +780,8 @@ function process_file($filedata) {
 
     // Sometimes the file domain can be http but the album domain is correct
     // this is true eg for bassdrive
-    if ($filedata['X-AlbumUri'] !== null && getDomain($filedata['X-AlbumUri']) != getDomain($filedata['file'])) {
+    if ($filedata['X-AlbumUri'] !== null && getDomain($filedata['X-AlbumUri']) !=
+            getDomain($filedata['file'])) {
         $filedata['domain'] = getDomain($filedata['X-AlbumUri']);
     }
 
