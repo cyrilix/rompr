@@ -38,9 +38,8 @@ function open_mpd_connection() {
 }
 
 function getline($connection, $rd = false) {
-    $got = stream_get_line($connection, 1024, "\n");
-    // strpos is faster than strncmp
-    if (strpos($got, 'OK') === 0 || strpos($got, 'ACK') === 0) {
+    $got = fgets($connection);
+    if (strncmp("OK", $got, 2) == 0 || strncmp("ACK", $got, 3) == 0) {
         return false;
     }
     $key = trim(strtok($got, ":"));
