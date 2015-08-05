@@ -38,31 +38,40 @@ class album {
         $this->artistobject = null;
         $this->numOfDiscs = -1;
         $this->numOfTrackOnes = 0;
+        $this->key = null;
         $numalbums++;
     }
 
-    public function newTrack($object) {
-        $this->tracks[] = $object;
+    public function newTrack($object, $clear = false) {
+        if ($clear) {
+            $this->tracks = array($object);
+        } else {
+            $this->tracks[] = $object;
+        }
         if ($this->folder == null) {
-            $this->folder = $object->folder;
+            $this->folder = $object->tags['folder'];
         }
         // These parameters are NOT set at create time because we could have
         // some files where only one of them has these tags, so we check it
         // for every incoming track.
         if ($this->image == null) {
-            $this->image = $object->image;
+            $this->image = $object->tags['X-AlbumImage'];
         }
         if ($this->datestamp == null) {
-            $this->datestamp = $object->datestamp;
+            $this->datestamp = $object->tags['Date'];
         }
         if ($this->musicbrainz_albumid == '') {
-            $this->musicbrainz_albumid = $object->musicbrainz_albumid;
+            $this->musicbrainz_albumid = $object->tags['MUSICBRAINZ_ALBUMID'];
         }
-        if ($object->disc !== null && $this->numOfDiscs < $object->disc) {
-            $this->numOfDiscs = $object->disc;
+        if ($object->tags['Disc'] !== null && $this->numOfDiscs < $object->tags['Disc']) {
+            $this->numOfDiscs = $object->tags['Disc'];
         }
-        if ($object->number == 1) {
+        if ($object->tags['Track'] == 1) {
             $this->numOfTrackOnes++;
+        }
+        if ($this->uri == null && $object->tags['X-AlbumUri'] != null) {
+            debuglog("Setting Album URI for ".$this->name,"COLLECTION");
+            $this->uri = $object->tags['X-AlbumUri'];
         }
         $object->setAlbumObject($this);
     }
@@ -75,27 +84,11 @@ class album {
         return $this->iscompilation;
     }
 
-    public function setAlbumUri($link) {
-        if ($this->uri != null && $link != $this->uri) {
-            debuglog("WARNING! Album ".$this->name." has more than one URI","COLLECTION",5);
-        }
-        $this->uri = $link;
-    }
-
-    public function setImage($image) {
-        $this->image = $image;
-    }
-
-    public function setDate($date) {
-        $this->date = $date;
-    }
-
-    public function setFolder($folder) {
-        $this->folder = $folder;
-    }
-
     public function getKey() {
-        return md5($this->artist." ".$this->name);
+        if ($this->key == null) {
+            $this->key = md5($this->artist." ".$this->name);
+        }
+        return $this->key;
     }
 
     public function getImage($size) {
@@ -192,13 +185,13 @@ class album {
         $discs = array();
         $number = 1;
         foreach ($this->tracks as $ob) {
-            if ($ob->number !== '') {
-                $track_no = intval($ob->number);
+            if ($ob->tags['Track'] !== '') {
+                $track_no = intval($ob->tags['Track']);
             } else {
                 $track_no = $number;
             }
             # Just in case we have a multiple disc album with no disc number tags
-            $discno = intval($ob->disc);
+            $discno = intval($ob->tags['Disc']);
             if (!array_key_exists($discno, $discs)) {
             	$discs[$discno] = array();
             }
@@ -232,8 +225,8 @@ class album {
     public function getAllTracks($cmd) {
         $tracks = array();
         foreach ($this->tracks as $track) {
-            if (preg_match('/:track:/', $track->url)) {
-                $tracks[] = $cmd.' "'.format_for_mpd($track->url).'"';
+            if (preg_match('/:track:/', $track->tags['file'])) {
+                $tracks[] = $cmd.' "'.format_for_mpd($track->tags['file']).'"';
             }
         }
         return $tracks;
@@ -303,46 +296,19 @@ class artist {
 }
 
 class track {
-    public function __construct($name, $file, $duration, $number, $date, $genre, $artist, $album,
-                                $directory, $type, $image, $backendid, $playlistpos, $station,
-                                $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist,
-                                $mbtrack, $lastmodified, $composer, $performers) {
+    public function __construct($filedata) {
 
-        $this->artist = $artist;
-        $this->album = $album;
-        $this->name = $name;
-        $this->url = $file;
-        $this->duration = $duration;
-        $this->number = $number;
-        $this->datestamp = $date;
-        $this->genre = $genre;
-        $this->folder = $directory;
-        $this->albumartist = $albumartist;
-        $this->disc = $disc === null ? 1 : $disc;
-        $this->lastmodified = $lastmodified;
-        $this->image = $image;
         $this->albumobject = null;
-        $this->type = $type;
-        $this->backendid = $backendid;
-        $this->playlistpos = $playlistpos;
-        $this->station = $station;
-        $this->stream = $stream;
-        $this->musicbrainz_artistid = $mbartist;
-        $this->musicbrainz_albumid = $mbalbum;
-        $this->musicbrainz_albumartistid = $mbalbumartist;
-        $this->musicbrainz_trackid = $mbtrack;
-        $this->composer = $composer;
-        $this->performers = $performers;
+        $this->tags = $filedata;
     }
 
     public function getImage() {
-        $d = getDomain($this->url);
-        switch ($d) {
+        switch ($this->tags['domain']) {
             case "soundcloud":
             case "youtube":
             case "yt":
-                if ($this->image) {
-                    return $this->image;
+                if ($this->tags['X-AlbumImage']) {
+                    return $this->tags['X-AlbumImage'];
                 } else {
                     return "";
                 }
@@ -371,15 +337,54 @@ class track {
     }
 
     public function updateDiscNo($disc) {
-        $this->disc = $disc;
+        $this->tags['Disc'] = $disc;
     }
 
     public function get_artist_string() {
-        $a = concatenate_artist_names($this->artist);
+        $a = concatenate_artist_names($this->tags['Artist']);
         if ($a != '.' && $a != "") {
             return $a;
         } else {
             return null;
+        }
+    }
+
+    public function get_sort_artist() {
+        global $prefs;
+        $sortartist = null;
+        if ($prefs['sortbycomposer'] && $this->tags['Composer'] !== null) {
+            if ($prefs['composergenre'] && $this->tags['Genre'] &&
+                checkComposerGenre($this->tags['Genre'], $prefs['composergenrename'])) {
+                    $sortartist = $this->tags['Composer'];
+            } else if (!$prefs['composergenre']) {
+                $sortartist = $this->tags['Composer'];
+            }
+        }
+        if ($sortartist == null) {
+            if ($this->tags['AlbumArtist'] != null) {
+                $sortartist = $this->tags['AlbumArtist'];
+            } else if ($this->tags['Artist'] != null) {
+                $sortartist = $this->tags['Artist'];
+            } else if ($this->tags['station'] != null) {
+                $sortartist = $this->tags['station'];
+            }
+        }
+        $sortartist = concatenate_artist_names($sortartist);
+        //Some discogs tags have 'Various' instead of 'Various Artists'
+        if ($sortartist == "Various") {
+            $sortartist = "Various Artists";
+        }
+        return $sortartist;
+    }
+
+    public function get_checked_url() {
+        global $prefs;
+        $matches = array();
+        if ($prefs['player_backend'] == 'mpd' &&
+            preg_match("/api\.soundcloud\.com\/tracks\/(\d+)\//", $this->tags['file'], $matches)) {
+            return array('clickcue', "soundcloud://track/".$matches[1]);
+        } else {
+            return array('clicktrack', $this->tags['file']);
         }
     }
 }
@@ -434,11 +439,7 @@ class musicCollection {
         return false;
     }
 
-    public function newTrack($name, $file, $duration, $number, $date, $genre, $artist, $album,
-                                $directory, $type, $image, $backendid, $playlistpos, $station,
-                                $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist,
-                                $mbtrack, $albumuri, $domain, $lastmodified,
-                                $composer, $performers) {
+    public function newTrack($track) {
 
         global $playlist, $prefs, $trackbytrack, $putinplaylistarray;
 
@@ -446,49 +447,7 @@ class musicCollection {
         static $current_album = null;
         static $abm = false;
 
-        if ($prefs['ignore_unplayable'] && substr($name, 0, 12) == "[unplayable]") {
-            debuglog("Ignoring unplayable track ".$file,"COLLECTION",9);
-            return true;
-        }
-        if (substr($name, 0, 9) == "[loading]") {
-            debuglog("Ignoring unloaded track ".$file,"COLLECTION",9);
-            return true;
-        }
-
-        $sortartist = ($albumartist == null) ? $artist : $albumartist;
-
-        // For sorting internet streams from mopidy backends that don't
-        // supply an artist
-        if ($sortartist == null && $station !== null) {
-            $sortartist = $station;
-        }
-
-        if ($prefs['sortbycomposer'] && $composer !== null) {
-            if ($prefs['composergenre'] && $genre &&
-                checkComposerGenre($genre, $prefs['composergenrename'])) {
-                    $sortartist = $composer;
-            } else if (!$prefs['composergenre']) {
-                $sortartist = $composer;
-            }
-        }
-        // All of the above possibilites (except $station) come in
-        // as an array of strings. For sorting the collection we want one string.
-        $sortartist = concatenate_artist_names($sortartist);
-        //Some discogs tags have 'Various' instead of 'Various Artists'
-        if ($sortartist == "Various") {
-            $sortartist = "Various Artists";
-        }
-
-        if ($trackbytrack && $albumartist !== null && $disc !== null) {
-            $t = new track($name, $file, $duration, $number, $date, $genre, $artist, $album,
-                            $directory, $type, $image, $backendid, $playlistpos, $station,
-                            $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist,
-                            $mbtrack, $lastmodified, $composer, $performers);
-
-            do_track_by_track($sortartist, $album, $domain, $albumuri, $t);
-            return true;
-        }
-
+        $sortartist = $track->get_sort_artist();
         $artistkey = strtolower($sortartist);
 
         // If artist doesn't exist, create it -
@@ -500,16 +459,10 @@ class musicCollection {
         // NOTE: Spotify can have mutliple albums with the same name.
         // if ($domain == "spotify" || $album != $current_album || $sortartist != $current_artist || $domain != $current_domain) {
         if (($current_album && $current_artist) &&
-            ($album != $current_album->name || $sortartist != $current_artist->name ||
-            $domain != $current_album->domain)) {
+            ($track->tags['Album'] != $current_album->name || $sortartist != $current_artist->name ||
+            $track->tags['domain'] != $current_album->domain)) {
             $abm = false;
         }
-
-        // Create a track object then find an artist and album to associate it with
-        $t = new track($name, $file, $duration, $number, $date, $genre, $artist, $album, $directory,
-                        $type, $image, $backendid, $playlistpos, $station,
-                        $albumartist, $disc, $stream, $mbartist, $mbalbum, $mbalbumartist,
-                        $mbtrack, $lastmodified, $composer, $performers);
 
         // Albums are not indexed by name, since we may have 2 or more albums with the same name
         // by multiple artists
@@ -518,14 +471,14 @@ class musicCollection {
         // Therefore MUST be sortartist != current_artist and therefore this is a compilation
         // (or domain *could* be different but we mitigate that by setting folder carefully)
         // This check goes first, because it's the most likely.
-        if ($abm === false && $albumartist == null &&
-            $current_album && $album == $current_album->name &&
-            $directory == $current_album->folder) {
+        if ($abm === false && $track->tags['AlbumArtist'] == null &&
+            $current_album && $track->tags['Album'] == $current_album->name &&
+            $track->tags['folder'] == $current_album->folder) {
 
             $abm = $current_album;
             if (!$abm->isCompilation()) {
                 debuglog(
-                    "Album ".$album." has no AlbumArtist tags but is a compilation","COLLECTION",6);
+                    "Album ".$track->tags['Album']." has no AlbumArtist tags but is a compilation","COLLECTION",6);
                 // Create various artists group if it isn't there
                 if (!array_key_exists("various artists", $this->artists)) {
                     $this->artists["various artists"] = new artist("Various Artists");
@@ -541,7 +494,7 @@ class musicCollection {
         if ($abm === false) {
             // Still not found. Do we have an album by this sort artist with this name
             // in this directory on this domain?
-            $abm = $this->checkAlbum($album, $artistkey, $directory, $domain);
+            $abm = $this->checkAlbum($track->tags['Album'], $artistkey, $track->tags['folder'], $track->tags['domain']);
             if ($abm) {
                 $current_artist = $this->artists[$artistkey];
                 $current_album = $abm;
@@ -553,21 +506,21 @@ class musicCollection {
         // into directories the above two checks should find the album.
         // That only leaves these to run once for every new album with null albumartist.... hmmmm...
 
-        if ($albumartist == null && $abm === false) {
+        if ($track->tags['AlbumArtist'] == null && $abm === false) {
             // Do we have an album by this sortartist with this name, in any directory
-            $abm = $this->findAlbum($album, $artistkey, null, $domain);
+            $abm = $this->findAlbum($track->tags['Album'], $artistkey, null, $track->tags['domain']);
             if ($abm) {
-                debuglog("Found album ".$album." using artist with no directory","COLLECTION",6);
+                debuglog("Found album ".$track->tags['Album']." using artist with no directory","COLLECTION",6);
                 $current_artist = $this->artists[$artistkey];
                 $current_album = $abm;
             }
         }
 
-        if ($albumartist == null && $abm === false) {
+        if ($track->tags['AlbumArtist'] == null && $abm === false) {
             // Do we have an album by this name, in the same directory
-            $abm = $this->findAlbum($album, null, $directory, $domain);
+            $abm = $this->findAlbum($track->tags['Album'], null, $track->tags['folder'], $track->tags['domain']);
             if ($abm !== false) {
-                debuglog("Found album ".$album." using directory","COLLECTION",6);
+                debuglog("Found album ".$track->tags['Album']." using directory","COLLECTION",6);
                 // Yes we do, and as all the previous checks failed it MUST be a compilation
                 if (!($abm->isCompilation())) {
                     // Create various artists group if it isn't there
@@ -585,22 +538,18 @@ class musicCollection {
 
         if ($abm === false) {
             // We didn't find the album, so create it
-            $abm = new album($album, $sortartist, $domain, $directory);
+            $abm = new album($track->tags['Album'], $sortartist, $track->tags['domain'], $track->tags['folder']);
             $this->artists[$artistkey]->newAlbum($abm);
             $current_artist = $this->artists[$artistkey];
             $current_album = $abm;
         }
 
-        $abm->newTrack($t);
-        if ($abm->uri == null && $albumuri != null) {
-            debuglog("Setting Album URI for ".$abm->name,"COLLECTION");
-            $abm->setAlbumUri($albumuri);
-        }
+        $abm->newTrack($track);
 
-        if ($playlistpos !== null) {
-            $playlist[$playlistpos] = $t;
+        if ($track->tags['Pos'] !== null) {
+            $playlist[$track->tags['Pos']] = $track;
         } else if ($putinplaylistarray) {
-            $playlist[] = $t;
+            $playlist[] = $track;
         }
     }
 
@@ -664,13 +613,13 @@ class musicCollection {
                         $a = $trackobj->get_artist_string();
                         $trackartist = ($a != null) ? $a : $albumartist;
                         $track = array(
-                            "uri" => $trackobj->url,
+                            "uri" => $trackobj->tags['file'],
                             "album" => $album->name,
-                            "title" => $trackobj->name,
+                            "title" => $trackobj->tags['Title'],
                             "artist" => $a,
                             "albumartist" => $albumartist,
-                            "trackno" => $trackobj->number,
-                            "disc" => $trackobj->disc,
+                            "trackno" => $trackobj->tags['Track'],
+                            "disc" => $trackobj->tags['Disc'],
                             "albumuri" => $album->uri,
                             "image" => $album->getImage('asdownloaded'),
                             "trackimage" => $trackobj->getImage(),
@@ -763,185 +712,155 @@ function artist_from_path($p, $f) {
 
 function process_file($filedata) {
 
-    global $numtracks, $totaltime, $prefs, $dbterms, $collection, $putinplaylistarray;
+    global $numtracks, $totaltime, $prefs, $dbterms, $collection, $putinplaylistarray, $trackbytrack;
 
-    $file = $filedata['file'][0];
+    // Pre-process the file data
 
     if ($dbterms['tags'] !== null || $dbterms['rating'] !== null) {
         // If this is a search and we have tags or ratings to search for, check them here.
-        if (check_url_against_database($file, $dbterms['tags'], $dbterms['rating']) == false) {
+        if (check_url_against_database($filedata['file'], $dbterms['tags'], $dbterms['rating']) == false) {
             return false;
         }
     }
 
-    list ( $domain, $type, $station, $stream) = array ( getDomain($file), $filedata['type'],
-        $filedata['station'], $filedata['stream']);
+    if ($prefs['ignore_unplayable'] && substr($filedata['Title'], 0, 12) == "[unplayable]") {
+        debuglog("Ignoring unplayable track ".$filedata['file'],"COLLECTION",9);
+        return false;
+    }
+    if (substr($filedata['Title'], 0, 9) == "[loading]") {
+        debuglog("Ignoring unloaded track ".$filedata['file'],"COLLECTION",9);
+        return false;
+    }
 
-    $unmopfile  = preg_replace('/^.+?:(track|album|artist):/', '', $file);
+    $filedata['domain'] = getDomain($filedata['file']);
+    $unmopfile  = preg_replace('/^.+?:(track|album|artist):/', '', $filedata['file']);
 
-    // Track Name
-    $name = ($filedata['Title'] != null) ? $filedata['Title'][0] : rawurldecode(basename($file));
-    // Album Name
-    $album = ($filedata['Album'] != null) ? $filedata['Album'][0] : album_from_path($unmopfile);
-    // Track Artist(s)
-    $artist = ($filedata['Artist'] != null) ? $filedata['Artist'] : artist_from_path($unmopfile, $file);
-    // Track Number
-    $number = ($filedata['Track'] != null) ? format_tracknum(ltrim($filedata['Track'][0], '0')) :
-        format_tracknum(rawurldecode(basename($file)));
-    // Album Artist(s)
-    $albumartist = $filedata['AlbumArtist'];
-    // Track Duration
-    $duration = $filedata['Time'][0];
-    // Album Image
-    $image = $filedata['X-AlbumImage'][0];
-    
+    check_is_stream($filedata);
+
+    if ($filedata['type'] != 'stream') {
+        if ($filedata['Title'] == null) $filedata['Title'] = rawurldecode(basename($filedata['file']));
+        if ($filedata['Album'] == null) $filedata['Album'] = album_from_path($unmopfile);
+        if ($filedata['Artist'] == null) $filedata['Artist'] = artist_from_path($unmopfile, $filedata['file']);
+    }
+    if ($filedata['Track'] == null) {
+        $filedata['Track'] = format_tracknum(rawurldecode(basename($filedata['file'])));
+    } else {
+        $filedata['Track'] = format_tracknum(ltrim($filedata['Track'], '0'));
+    }
+
     // External Album URI (mopidy only)
     // OR cue sheet link (mpd only). We're only doing CUE sheets, not M3U
-    $albumuri = $filedata['X-AlbumUri'][0];
-    if ($albumuri === null &&
-            strtolower(pathinfo($filedata['playlist'][0], PATHINFO_EXTENSION)) == "cue") {
-        $albumuri = $filedata['playlist'][0];
-        debuglog("Found CUE sheet for album ".$album,"COLLECTION");
+    if ($filedata['X-AlbumUri'] === null &&
+            strtolower(pathinfo($filedata['playlist'], PATHINFO_EXTENSION)) == "cue") {
+        $filedata['X-AlbumUri'] = $filedata['playlist'];
+        debuglog("Found CUE sheet for album ".$filedata['Album'],"COLLECTION");
     }
-    // Date
-    $date = $filedata['Date'][0];
-    // Backend-Supplied LastModified Date
-    $lastmodified = $filedata['Last-Modified'][0];
     // Disc Number
-    $disc = ($filedata['Disc'] != null) ? format_tracknum(ltrim($filedata['Disc'][0], '0')) : null;
-    // Composer(s)
-    $composer = $filedata['Composer'];
-    // Performer(s)
-    $performers = $filedata['Performer'];
-    // Genre
-    $genre = $filedata['Genre'][0];
-    // Musicbrainz Album ID
-    $mbalbum = $filedata['MUSICBRAINZ_ALBUMID'][0];
-    // Musicbrainz Track Artist ID(s)
-    $mbartist = $filedata['MUSICBRAINZ_ARTISTID'];
-    // Musicbrainz Album Artist ID - we can only handle one album artist
-    $mbalbumartist = $filedata['MUSICBRAINZ_ALBUMARTISTID'][0];
-    // Musicbrainz Track ID
-    $mbtrack = $filedata['MUSICBRAINZ_TRACKID'][0];
-    // Backend-Supplied playlist ID
-    $backendid = $filedata['Id'][0];
-    // Backend-supplied playlist position
-    $playlistpos = $filedata['Pos'][0];
+    if ($filedata['Disc'] != null) {
+        $filedata['Disc'] = format_tracknum(ltrim($filedata['Disc'], '0'));
+    }
 
-    if (strpos($file, ':artist:') !== false) {
-        $albumuri = $file;
-        $album = get_int_text("label_allartist").concatenate_artist_names($artist);
-        $image = "newimages/artist-icon.png";
-        $disc = 0;
-        $number = 0;
-    } else if (strpos($file, ':album:') !== false) {
-        $albumuri = $file;
-        $disc = 0;
-        $number = 0;
+    if (strpos($filedata['file'], ':artist:') !== false) {
+        $filedata['X-AlbumUri'] = $filedata['file'];
+        $filedata['Album'] = get_int_text("label_allartist").concatenate_artist_names($filedata['Artist']);
+        if ($filedata['X-AlbumImage'] == null) {
+            $filedata['X-AlbumImage'] = "newimages/artist-icon.png";
+        }
+        $filedata['Disc'] = 0;
+        $filedata['Track'] = 0;
+    } else if (strpos($filedata['file'], ':album:') !== false) {
+        $filedata['X-AlbumUri'] = $filedata['file'];
+        $filedata['Disc'] = 0;
+        $filedata['Track'] = 0;
     }
 
     // Sometimes the file domain can be http but the album domain is correct
     // this is true eg for bassdrive
-    if ($albumuri !== null && getDomain($albumuri) != getDomain($file)) {
-        $domain = getDomain($albumuri);
+    if ($filedata['X-AlbumUri'] !== null && getDomain($filedata['X-AlbumUri']) != getDomain($filedata['file'])) {
+        $filedata['domain'] = getDomain($filedata['X-AlbumUri']);
     }
 
-    if (strpos($file, 'archives.bassdrivearchive.com') !== false) {
+    if (strpos($filedata['file'], 'archives.bassdrivearchive.com') !== false) {
         // Slightly annoyingly, bassdrive archive tracks come back with http uris.
-        $domain = "bassdrive";
+        $filedata['domain'] = "bassdrive";
     }
 
-    switch($domain) {
+    switch($filedata['domain']) {
         // Some domain-specific fixups for mpd's soundcloud playlist plugin and various unhelpful
         // mopidy backends. There's no consistency of behaviour in the Mopidy backends
         // so to provide some kind of consistency of display we have to do a lot of work.
         case "soundcloud":
             if ($prefs['player_backend'] == "mpd") {
-                if (array_key_exists('Name', $filedata)) {
-                    $name = $filedata['Name'][0];
-                    $album = "SoundCloud";
-                    $arse = explode(' - ',$name);
-                    $artist = $arse[0];
+                if ($filedata['Name'] != null) {
+                    $filedata['Title'] = $filedata['Name'];
+                    $filedata['Album'] = "SoundCloud";
+                    $arse = explode(' - ',$filedata['Name']);
+                    $filedata['Artist'] = $arse[0];
                 } else {
-                    $artist = "Unknown Artist";
-                    $name = "Unknown Track";
-                    $album = "SoundCloud";
+                    $filedata['Artist'] = "Unknown Artist";
+                    $filedata['Title'] = "Unknown Track";
+                    $filedata['Album'] = "SoundCloud";
                 }
             } else {
-                $folder = concatenate_artist_names($artist);
-                $albumartist = $artist;
+                $filedata['folder'] = concatenate_artist_names($filedata['Artist']);
+                $filedata['AlbumArtist'] = $filedata['Artist'];
             }
             break;
 
         case "youtube":
-            $folder = $file;
-            $artist = munge_youtube_track_into_artist($name);
-            $album = munge_youtube_track_into_album($name);
-            $name = munge_youtube_track_into_title($name);
-            $albumartist = $artist;
+            $filedata['folder'] = $filedata['file'];
+            $filedata['Artist'] = munge_youtube_track_into_artist($filedata['Title']);
+            $filedata['Album'] = munge_youtube_track_into_album($filedata['Title']);
+            $filedata['Title'] = munge_youtube_track_into_title($filedata['Title']);
+            $filedata['AlbumArtist'] = $filedata['Artist'];
             break;
 
         case "spotify":
-            $folder = $albumuri;
+            $filedata['folder'] = $filedata['X-AlbumUri'];
             break;
 
         case "internetarchive":
-            $albumuri = $file;
-            $folder = $file;
-            $albumartist = "Internet Archive";
+            $filedata['X-AlbumUri'] = $filedata['file'];
+            $filedata['folder'] = $filedata['file'];
+            $filedata['AlbumArtist'] = "Internet Archive";
             break;
 
         case "podcast http":
         case "podcast https":
         case "podcast ftp":
         case "podcast file":
-            $folder = dirname($file);
+            $filedata['folder'] = dirname($file);
             $matches = array();
-            $a = preg_match('/podcast\+http:\/\/(.*?)\//', $file, $matches);
+            $a = preg_match('/podcast\+http:\/\/(.*?)\//', $filedata['file'], $matches);
             if ($a == 1) {
-                $albumartist = $matches[1];
-                $album = $name;
-                $album = preg_replace('/^Album\:\s*/','',$album);
+                $filedata['AlbumArtist'] = $matches[1];
+                $filedata['Album'] = $filedata['Title'];
+                $filedata['Album'] = preg_replace('/^Album\:\s*/','',$filedata['Album']);
                 $albumuri = $file;
             } else {
-                $albumartist = "Podcasts";
+                $filedata['AlbumArtist'] = "Podcasts";
             }
-            if ($artist == "http" || $artist == "https" || $artist == "ftp" || $artist == "file" ||
-                substr($artist,0,7) == "podcast") {
-                $artist = $albumartist;
+            if ($filedata['Artist'] == "http" || $filedata['Artist'] == "https" ||
+                $filedata['Artist'] == "ftp" || $filedata['Artist'] == "file" ||
+                substr($filedata['Artist'],0,7) == "podcast") {
+                $filedata['Artist'] = $filedata['AlbumArtist'];
             }
             break;
 
         default:
-            $folder = dirname($unmopfile);
+            $filedata['folder'] = dirname($unmopfile);
             break;
     }
 
-    if (is_stream($domain, $filedata)) {
-        list (  $name,
-                $duration,
-                $artist,
-                $album,
-                $folder,
-                $type,
-                $image,
-                $station,
-                $stream,
-                $albumartist) = getStreamInfo($filedata, $domain);
-
-        $number = null;
-
+    if ($trackbytrack && $filedata['AlbumArtist'] && $filedata['Disc'] !== null) {
+        do_track_by_track( new track($filedata) );
+    } else {
+        if ($filedata['Disc'] === null) $filedata['Disc'] = 1;
+        $collection->newTrack( new track($filedata) );
     }
 
-    $collection->newTrack(  $name, $file, $duration, $number, $date, $genre, $artist, $album, $folder,
-                            $type, $image, $backendid, $playlistpos, $station, $albumartist, $disc,
-                            $stream, $mbartist, $mbalbum, $mbalbumartist, $mbtrack,
-                            $albumuri, $domain, $lastmodified,
-                            $composer, $performers);
-
     $numtracks++;
-    // debuglog("Processed ".$numtracks." tracks. Memory used is ".memory_get_usage(),"COLLECTION");
-    $totaltime += $duration;
+    $totaltime += $filedata['Time'];
 }
 
 function getStuffFromXSPF($url) {
@@ -987,14 +906,14 @@ function getStuffFromXSPF($url) {
                     true,
                     (string) $track->title,
                     0,
-                    (string) $track->creator,
+                    array((string) $track->creator),
                     (string) $track->album,
                     getStreamFolder($url),
                     $type,
                     $image,
                     getDummyStation($url),
                     (string) $track->stream,
-                    ""
+                    array("")
                 );
             }
         }
@@ -1008,14 +927,14 @@ function getStuffFromXSPF($url) {
                     true,
                     (string) $track->title,
                     (string) $track->duration,
-                    (string) $track->artist,
+                    array((string) $track->artist),
                     (string) $x->album,
                     md5((string) $x->album),
                     "podcast",
                     (string) $x->image,
                     null,
                     "",
-                    (string) $x->albumartist
+                    array((string) $x->albumartist)
                 );
             }
         }
@@ -1025,14 +944,14 @@ function getStuffFromXSPF($url) {
         false,
         "",
         0,
-        "",
+        array(""),
         "Unknown Internet Stream",
         getStreamFolder(unwanted_array($url)),
         "stream",
         "newimages/broadcast.svg",
         getDummyStation(unwanted_array($url)),
         "",
-        ""
+        array("")
     );
 
 }

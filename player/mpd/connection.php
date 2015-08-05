@@ -14,30 +14,39 @@ $mpd_file_model = array (
     'type' => 'local',
     'station' => null,
     'stream' => '',
+    'folder' => null,
     'Title' => null,
     'Album' => null,
     'Artist' => null,
     'Track' => null,
     'Name' => null,
     'AlbumArtist' => null,
-    'Time' => array(0),
-    'X-AlbumUri' => array(null),
-    'playlist' => array(''),
-    'X-AlbumImage' => array(null),
-    'Date' => array(null),
-    'Last-Modified' => array(0),
+    'Time' => 0,
+    'X-AlbumUri' => null,
+    'playlist' => '',
+    'X-AlbumImage' => null,
+    'Date' => null,
+    'Last-Modified' => 0,
     'Disc' => null,
     'Composer' => null,
     'Performer' => null,
-    'Genre' => array(null),
+    'Genre' => null,
     // Never send null in any musicbrainz id as it prevents plugins from
     // waiting on lastfm to find one
-    'MUSICBRAINZ_ALBUMID' => array(''),
+    'MUSICBRAINZ_ALBUMID' => '',
     'MUSICBRAINZ_ARTISTID' => array(''),
-    'MUSICBRAINZ_ALBUMARTISTID' => array(''),
-    'MUSICBRAINZ_TRACKID' => array(''),
-    'Id' => array(null),
-    'Pos' => array(null)
+    'MUSICBRAINZ_ALBUMARTISTID' => '',
+    'MUSICBRAINZ_TRACKID' => '',
+    'Id' => null,
+    'Pos' => null
+);
+
+$array_params = array(
+    "Artist",
+    "AlbumArtist",
+    "Composer",
+    "Performer",
+    "MUSICBRAINZ_ARTISTID",
 );
 
 @open_mpd_connection();
@@ -60,7 +69,7 @@ function doCollection($command, $domains = null) {
 
 function doMpdParse($command, &$dirs, $domains) {
 
-    global $connection, $collection, $mpd_file_model;
+    global $connection, $collection, $mpd_file_model, $array_params;
     if (!$connection) return;
     fputs($connection, $command."\n");
     $filedata = $mpd_file_model;
@@ -84,7 +93,7 @@ function doMpdParse($command, &$dirs, $domains) {
                             $foundfile = true;
                         } else {
                             if (!is_array($domains) ||
-                                in_array(getDomain(unwanted_array($filedata['file'])),$domains)) {
+                                in_array(getDomain($filedata['file']),$domains)) {
                                 process_file($filedata);
                             }
                             $filedata = $mpd_file_model;
@@ -96,12 +105,16 @@ function doMpdParse($command, &$dirs, $domains) {
                             if (array_key_exists('file', $filedata)) {
                                 // We don't want the Last-Modified stamps of the directories
                                 // to be used for the files.
-                                $filedata[$parts[0]] = array(strtotime($parts[1]));
+                                $filedata[$parts[0]] = strtotime($parts[1]);
                             }
                             break;
 
                         default:
-                            $filedata[$parts[0]] = array_unique(explode(ROMPR_MULTIVALUE_SEPARATOR,$parts[1]));
+                            if (in_array($parts[0], $array_params)) {
+                                $filedata[$parts[0]] = array_unique(explode(ROMPR_MULTIVALUE_SEPARATOR,$parts[1]));
+                            } else {
+                                $filedata[$parts[0]] = explode(ROMPR_MULTIVALUE_SEPARATOR,$parts[1])[0];
+                            }
                             break;
                     }
 
@@ -110,15 +123,15 @@ function doMpdParse($command, &$dirs, $domains) {
         }
     }
 
-    if (is_array($filedata['file'])) {
-        if (!is_array($domains) || in_array(getDomain($filedata['file'][0]),$domains)) {
+    if ($filedata['file'] !== null) {
+        if (!is_array($domains) || in_array(getDomain($filedata['file']),$domains)) {
             process_file($filedata);
         }
     }
 }
 
 function doFileSearch($cmd, $domains = null) {
-    global $connection, $dbterms;
+    global $connection, $dbterms, $array_params;
     $tree = new mpdlistthing(null);
     $parts = true;
     $fcount = 0;
@@ -141,25 +154,25 @@ function doFileSearch($cmd, $domains = null) {
                             if (check_url_against_database($filedata['file'],
                                     $dbterms['tags'], $dbterms['rating']) == true) {
                                 if (!is_array($domains) || in_array(
-                                        getDomain(unwanted_array($filedata['file'])),$domains)) {
+                                        getDomain($filedata['file']),$domains)) {
                                     $tree->newItem($filedata);
                                     $fcount++;
                                 }
                             }
                         }  else {
                             if (!is_array($domains) || in_array(
-                                    getDomain(unwanted_array($filedata['file'])),$domains)) {
+                                    getDomain($filedata['file']),$domains)) {
                                 $tree->newItem($filedata);
                                 $fcount++;
                             }
                         }
                         $filedata = array();
                     }
-                    $filedata[$parts[0]] = array(trim($parts[1]));
+                    $filedata[$parts[0]] = trim($parts[1]);
                     break;
 
                 case "playlist":
-                    $filedata[$parts[0]] = array(trim($parts[1]));
+                    $filedata[$parts[0]] = trim($parts[1]);
                     if ($dbterms['tags'] === null && $dbterms['rating'] === null) {
                         $tree->newItem($filedata);
                         $fcount++;
@@ -172,7 +185,11 @@ function doFileSearch($cmd, $domains = null) {
                 case "AlbumArtist":
                 case "Album":
                 case "Artist":
-                    $filedata[$parts[0]] = explode(ROMPR_MULTIVALUE_SEPARATOR,trim($parts[1]));
+                    if (in_array($parts[0], $array_params)) {
+                        $filedata[$parts[0]] = array_unique(explode(ROMPR_MULTIVALUE_SEPARATOR,trim($parts[1])));
+                    } else {
+                        $filedata[$parts[0]] = explode(ROMPR_MULTIVALUE_SEPARATOR,trim($parts[1]))[0];
+                    }
                     break;
             }
         }
@@ -258,10 +275,10 @@ class mpdlistthing {
         // This is the root object's pre-parser
 
         if (array_key_exists('playlist', $filedata)) {
-            $decodedpath = $filedata['playlist'][0];
+            $decodedpath = $filedata['playlist'];
             $filedata['file_display_name'] = basename($decodedpath);
         } else {
-            $decodedpath = rawurldecode($filedata['file'][0]);
+            $decodedpath = rawurldecode($filedata['file']);
         }
 
         if ($prefs['ignore_unplayable'] && substr($decodedpath, 0, 12) == "[unplayable]") {
@@ -272,13 +289,13 @@ class mpdlistthing {
         // and their various random ways of doing things.
         if (preg_match('/podcast\+http:\/\//', $decodedpath)) {
             $filedata['file_display_name'] = (array_key_exists('Title', $filedata)) ?
-                $filedata['Title'][0] : basename($decodedpath);
+                $filedata['Title'] : basename($decodedpath);
             $filedata['file_display_name'] =
                 preg_replace('/Album: /','',$filedata['file_display_name']);
             $decodedpath = preg_replace('/podcast\+http:\/\//','podcast/',$decodedpath);
         
         } else if (preg_match('/:artist:/', $decodedpath)) {
-            $filedata['file_display_name'] = $filedata['Artist'][0];
+            $filedata['file_display_name'] = concatenate_artist_names($filedata['Artist']);
             $decodedpath = preg_replace('/(.+?):(.+?):/','$1/$2/',$decodedpath);
         
         } else if (preg_match('/:album:/', $decodedpath)) {
@@ -286,7 +303,7 @@ class mpdlistthing {
             $a = preg_match('/(.*?):(.*?):(.*)/',$decodedpath,$matches);
             $decodedpath = $matches[1]."/".$matches[2]."/".
                 concatenate_artist_names($filedata['AlbumArtist'])."/".$matches[3];
-            $filedata['file_display_name'] = $filedata['Album'][0];
+            $filedata['file_display_name'] = $filedata['Album'];
         
         } else if (preg_match('/local:track:/', $decodedpath)) {
             $filedata['file_display_name'] = basename($decodedpath);
@@ -297,30 +314,30 @@ class mpdlistthing {
             $a = preg_match('/(.*?):(.*?):(.*)/',$decodedpath,$matches);
             $decodedpath = $matches[1]."/".$matches[2]."/".
                 concatenate_artist_names($filedata['Artist'])."/".
-                $filedata['Album'][0]."/".$matches[3];
-            $filedata['file_display_name'] = $filedata['Title'][0];
+                $filedata['Album']."/".$matches[3];
+            $filedata['file_display_name'] = $filedata['Title'];
         
         } else if (preg_match('/soundcloud:song\//', $decodedpath)) {
             $filedata['file_display_name'] = (array_key_exists('Title', $filedata)) ?
-                $filedata['Title'][0] : basename($decodedpath);
+                $filedata['Title'] : basename($decodedpath);
             $decodedpath = preg_replace('/soundcloud:song/','soundcloud/'.
                 concatenate_artist_names($filedata['Artist']),$decodedpath);
         
         } else if (preg_match('/^internetarchive:/', $decodedpath)) {
-            $filedata['file_display_name'] = $filedata['Album'][0];
+            $filedata['file_display_name'] = $filedata['Album'];
             $decodedpath = preg_replace('/internetarchive:/','internetarchive/',$decodedpath);
         
         } else if (preg_match('/youtube:video\//', $decodedpath)) {
             $filedata['file_display_name'] = (array_key_exists('Title', $filedata)) ?
-                $filedata['Title'][0] : basename($decodedpath);
+                $filedata['Title'] : basename($decodedpath);
             $decodedpath = preg_replace('/youtube:video/','youtube',$decodedpath);
         
         } else {
             if ($prefs['player_backend'] == "mopidy") {
                 $filedata['file_display_name'] = (array_key_exists('Title', $filedata)) ?
-                    $filedata['Title'][0] : basename($decodedpath);
+                    $filedata['Title'] : basename($decodedpath);
             } else {
-                $filedata['file_display_name'] = basename($filedata['file'][0]);
+                $filedata['file_display_name'] = basename($filedata['file']);
             }
         }
 
@@ -359,10 +376,10 @@ class mpdlistthing {
                 print '</div>';
             } else {
                 if (array_key_exists('playlist', $this->filedata)) {
-                    printPlaylistItem($this->filedata['file_display_name'],$this->filedata['file'][0]);
+                    printPlaylistItem($this->filedata['file_display_name'],$this->filedata['file']);
                 } else {
                     printFileItem($this->filedata['file_display_name'],
-                        $this->filedata['file'][0], $this->filedata['Time'][0]);
+                        $this->filedata['file'], $this->filedata['Time']);
                 }
             }
         } else {

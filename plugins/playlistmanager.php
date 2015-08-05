@@ -32,19 +32,14 @@ function print_playlists_as_json() {
             	$plimage = 'albumart/asdownloaded/'.$key.".jpg";
             }
             foreach($playlist as $track) {
-    	        $matches = array();
-    	        $link = $track->url;
-    	        if ($prefs['player_backend'] == "mpd" && preg_match("/api\.soundcloud\.com\/tracks\/(\d+)\//", $track->url, $matches)) {
-    	            debuglog(" ... Link is SoundCloud","PLAYLISTS");
-    	            $link = "soundcloud://track/".$matches[1];
-    	        }
+                list($flag, $link) = $track->get_checked_url();
     	        $pls[rawurlencode($name)][] = array(
     	        	'Uri' => $link,
-    	        	'Title' => $track->name,
-    	            "Album" => $track->album,
-        	        "Artist" => $track->artist,
+    	        	'Title' => $track->tags['Title'],
+    	            "Album" => $track->albumobject->name,
+        	        "Artist" => $track->get_artist_string(),
     	        	'albumartist' => $track->albumobject->artist,
-    	        	'duration' => $track->duration,
+    	        	'duration' => $track->tags['Time'],
     	        	'Image' => $track->albumobject->getImage('small'),
     	        	'key' => $track->albumobject->getKey(),
     	        	'pos' => $c,

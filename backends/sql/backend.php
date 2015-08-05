@@ -1638,7 +1638,7 @@ function do_artist_database_stuff($artistkey) {
             $album->getImage('small'),
             $album->getDate(),
             "0",
-            md5($album->artist." ".$album->name),
+            $album->getKey(),
             $album->musicbrainz_albumid,
             $album->domain,
             false
@@ -1649,7 +1649,6 @@ function do_artist_database_stuff($artistkey) {
     		continue;
         }
 
-        $ttidupdate = false;
         foreach($album->tracks as $trackobj) {
 			check_and_update_track($trackobj, $albumindex, $artistindex, $artistname);
         }
@@ -1658,7 +1657,7 @@ function do_artist_database_stuff($artistkey) {
 
 }
 
-function do_track_by_track($artistname, $albumname, $domain, $albumuri, $trackobject) {
+function do_track_by_track($trackobject) {
 
 	// The difference between this and the above function is that this one takes tracks as they come in direct
 	// from the backend - without being collectionised. This is faster and uses less RAM but does rely on the tags
@@ -1673,9 +1672,12 @@ function do_track_by_track($artistname, $albumname, $domain, $albumuri, $trackob
 	static $current_album = null;
 	static $current_domain = null;
 	static $current_albumlink= null;
+	static $albumobj = null;
 
 	static $albumindex = null;
 	static $albumartistindex = null;
+
+	$artistname = $trackobject->get_sort_artist();
 
 	if ($current_albumartist != $artistname) {
 		$albumartistindex = check_artist($artistname, false);
@@ -1685,13 +1687,14 @@ function do_track_by_track($artistname, $albumname, $domain, $albumuri, $trackob
         return false;
     }
 
-    $albumobj = new album($albumname, $artistname, $domain);
-    $albumobj->newTrack($trackobject);
-    $albumobj->uri = $albumuri;
+    if ($current_albumartist != $artistname || $current_album != $trackobject->tags['Album'] ||
+    		$current_domain != $trackobject->tags['domain'] ||
+    		($trackobject->tags['X-AlbumUri'] != null &&
+    			$trackobject->tags['X-AlbumUri'] != $current_albumlink)) {
 
-    if ($current_albumartist != $artistname || $current_album != $albumname ||
-    	$current_domain != $domain ||
-    	($albumuri != null && $albumuri != $current_albumlink)) {
+    	$albumobj = new album($trackobject->tags['Album'], $artistname, $trackobject->tags['domain']);
+    	$albumobj->newTrack($trackobject);
+
         $albumindex = check_album(
             $albumobj->name,
             $albumartistindex,
@@ -1699,7 +1702,7 @@ function do_track_by_track($artistname, $albumname, $domain, $albumuri, $trackob
             $albumobj->getImage('small'),
             $albumobj->getDate(),
             "0",
-            md5($albumobj->artist." ".$albumobj->name),
+            $albumobj->getKey(),
             $albumobj->musicbrainz_albumid,
             $albumobj->domain,
             false
@@ -1709,12 +1712,14 @@ function do_track_by_track($artistname, $albumname, $domain, $albumuri, $trackob
         	debuglog("ERROR! Album index for ".$albumobj->name." is still null!","MYSQL_TBT",1);
     		return false;
         }
+    } else {
+    	$albumobj->newTrack($trackobject, true);
     }
 
     $current_albumartist = $artistname;
-    $current_album = $albumname;
-    $current_domain = $domain;
-    $current_albumlink = $albumuri;
+    $current_album = $albumobj->name;
+    $current_domain = $albumobj->domain;
+    $current_albumlink = $albumobj->uri;
 
 	foreach ($albumobj->tracks as $trackobj) {
 		// The album we've just created must only have one track, but this makes sure we use the track object
@@ -1729,7 +1734,6 @@ function check_and_update_track($trackobj, $albumindex, $artistindex, $artistnam
 	global $find_track, $update_track, $numdone, $prefs, $doing_search;
 	static $current_trackartist = null;
 	static $trackartistindex = null;
-	$ttidupdate = false;
     $ttid = null;
     $lastmodified = null;
     $hidden = 0;
@@ -1752,8 +1756,8 @@ function check_and_update_track($trackobj, $albumindex, $artistindex, $artistnam
 		prepare_findtracks();
 	}
 
-    if ($find_track->execute(array($trackobj->name, $albumindex, $trackobj->number,
-    	$trackobj->disc, $artistindex))) {
+    if ($find_track->execute(array($trackobj->tags['Title'], $albumindex, $trackobj->tags['Track'],
+    	$trackobj->tags['Disc'], $artistindex))) {
     	$obj = $find_track->fetch(PDO::FETCH_OBJ);
     	if ($obj) {
     		$ttid = $obj->TTindex;
@@ -1775,27 +1779,27 @@ function check_and_update_track($trackobj, $albumindex, $artistindex, $artistnam
     // is how we detect user-added tracks and prevent them being deleted on collection updates
 
     if ($ttid) {
-    	if ((!$doing_search && $trackobj->lastmodified != $lastmodified) ||
+    	if ((!$doing_search && $trackobj->tags['Last-Modified'] != $lastmodified) ||
     		($doing_search && $issearchresult == 0) ||
-    		($trackobj->disc != $disc && $trackobj->disc !== '') ||
+    		($trackobj->tags['Disc'] != $disc && $trackobj->tags['Disc'] !== '') ||
     		$hidden != 0) {
     		if ($prefs['debug_enabled'] > 6) {
     			# Don't bother doing all these string comparisons if debugging is disabled. It's slow.
 		    	debuglog("  Updating track with ttid $ttid because :","MYSQL",7);
 		    	if (!$doing_search && $lastmodified === null) debuglog(
 		    		"    LastModified is not set in the database","MYSQL",7);
-		    	if (!$doing_search && $trackobj->lastmodified === null) debuglog(
+		    	if (!$doing_search && $trackobj->tags['Last-Modified'] === null) debuglog(
 		    		"    TrackObj LastModified is NULL too!","MYSQL",7);
-		    	if (!$doing_search && $lastmodified != $trackobj->lastmodified) debuglog(
+		    	if (!$doing_search && $lastmodified != $trackobj->tags['Last-Modified']) debuglog(
 		    		"    LastModified has changed: We have ".$lastmodified." but track has ".
-		    		$trackobj->lastmodified,"MYSQL",7);
-		    	if ($disc != $trackobj->disc) debuglog(
+		    		$trackobj->tags['Last-Modified'],"MYSQL",7);
+		    	if ($disc != $trackobj->tags['Disc']) debuglog(
 		    		"    Disc Number has changed: We have ".$disc." but track has ".
-		    		$trackobj->disc,"MYSQL",7);
+		    		$trackobj->tags['Disc'],"MYSQL",7);
 		    	if ($hidden != 0) debuglog("    It is hidden","MYSQL",7);
 		    }
 	    	$newsearchresult = 0;
-	    	$newlastmodified = $trackobj->lastmodified;
+	    	$newlastmodified = $trackobj->tags['Last-Modified'];
 	    	if ($issearchresult == 0 && $doing_search) {
 	    		$newsearchresult = ($hidden != 0) ? 3 : 1;
 	    		debuglog(
@@ -1803,8 +1807,8 @@ function check_and_update_track($trackobj, $albumindex, $artistindex, $artistnam
 	    		$newlastmodified = $lastmodified;
 	    	}
 
-			if ($update_track->execute(array($trackobj->number, $trackobj->duration,
-				$trackobj->disc, $newlastmodified, $trackobj->url, $albumindex,
+			if ($update_track->execute(array($trackobj->tags['Track'], $trackobj->tags['Time'],
+				$trackobj->tags['Disc'], $newlastmodified, $trackobj->tags['file'], $albumindex,
 				$newsearchresult, $ttid))) {
 				$numdone++;
 				check_transaction();
@@ -1828,23 +1832,23 @@ function check_and_update_track($trackobj, $albumindex, $artistindex, $artistnam
         $current_trackartist = $a;
         $sflag = ($doing_search) ? 2 : 0;
         $ttid = create_new_track(
-            $trackobj->name,
+            $trackobj->tags['Title'],
             null,
-            $trackobj->number,
-            $trackobj->duration,
-            null,
-            null,
+            $trackobj->tags['Track'],
+            $trackobj->tags['Time'],
             null,
             null,
             null,
-            $trackobj->url,
+            null,
+            null,
+            $trackobj->tags['file'],
             $trackartistindex,
             $artistindex,
             $albumindex,
             null,
             null,
-            $trackobj->lastmodified,
-            $trackobj->disc,
+            $trackobj->tags['Last-Modified'],
+            $trackobj->tags['Disc'],
             null,
             null,
             0,
@@ -1855,7 +1859,7 @@ function check_and_update_track($trackobj, $albumindex, $artistindex, $artistnam
 		check_transaction();
 	}
     if ($ttid == null) {
-    	debuglog("ERROR! No ttid for track ".$trackobj->name,"MYSQL",1);
+    	debuglog("ERROR! No ttid for track ".$trackobj->tags['file'],"MYSQL",1);
     } else {
     	if (!$doing_search) {
     		generic_sql_query("INSERT INTO Foundtracks (TTindex) VALUES (".$ttid.")", false, false);

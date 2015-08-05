@@ -24,44 +24,44 @@ function outputPlaylist() {
     foreach ($playlist as $track) {
         // Track artists are held in the track object possibly as an array
         $c = $track->get_artist_string();
-        $t = $track->name;
+        $t = $track->tags['Title'];
         // We can't return NULL in the JSON data for some reason that escapes me
         if ($c === null) $c = "";
         if ($t === null) $t = "";
         $info = array(
             "title" => $t,
-            "album" => $track->album,
+            "album" => $track->albumobject->name,
             "creator" => $c,
             // Albumartist is always stored as a string, since the metadata bit doesn't really use it
             "albumartist" => $track->albumobject->artist,
             "compilation" => $track->albumobject->isCompilation() ? "yes" : "no",
-            "duration" => $track->duration,
-            "type" => $track->type,
+            "duration" => $track->tags['Time'],
+            "type" => $track->tags['type'],
             "date" => $track->albumobject->getDate(),
-            "tracknumber" => $track->number,
-            "station" => $track->station,
-            "disc" => $track->disc,
-            "location" => $track->url,
-            "backendid" => (int) $track->backendid,
+            "tracknumber" => $track->tags['Track'],
+            "station" => $track->tags['station'],
+            "disc" => $track->tags['Disc'],
+            "location" => $track->tags['file'],
+            "backendid" => (int) $track->tags['Id'],
             "dir" => rawurlencode($track->albumobject->folder),
             "key" => $track->albumobject->getKey(),
             "image" => $track->albumobject->getImage('asdownloaded'),
             "trackimage" => $track->getImage(),
-            "stream" => $track->stream,
-            "playlistpos" => $track->playlistpos,
-            "genre" => $track->genre,
+            "stream" => $track->tags['stream'],
+            "playlistpos" => $track->tags['Pos'],
+            "genre" => $track->tags['Genre'],
             "metadata" => array(
                 "iscomposer" => 'false',
                 "artists" => array(),
                 "album" => array(
-                    "name" => $track->album,
+                    "name" => $track->albumobject->name,
                     "artist" => $track->albumobject->artist,
                     "musicbrainz_id" => $track->albumobject->musicbrainz_albumid,
                     "uri" => $track->getAlbumUri(null)
                 ),
                 "track" => array(
-                    "name" => $track->name,
-                    "musicbrainz_id" => $track->musicbrainz_trackid,
+                    "name" => $track->tags['Title'],
+                    "musicbrainz_id" => $track->tags['MUSICBRAINZ_TRACKID'],
                 ),
             )
         );
@@ -80,9 +80,10 @@ function outputPlaylist() {
             // a) There is composer/performer information AND
             // bi) Specific Genre Selected, Track Has Genre, Genre Matches Specific Genre OR
             // bii) No Specific Genre Selected, Track Has Genre
-            if (($track->composer !== null || $track->performers !== null) &&
-                (($prefs['composergenre'] && $track->genre && checkComposerGenre($track->genre, $prefs['composergenrename'])) ||
-                (!$prefs['composergenre'] && $track->genre)))
+            if (($track->tags['Composer'] !== null || $track->tags['Performer'] !== null) &&
+                (($prefs['composergenre'] && $track->tags['Genre'] &&
+                    checkComposerGenre($track->tags['Genre'], $prefs['composergenrename'])) ||
+                (!$prefs['composergenre'] && $track->tags['Genre'])))
             {
                 // Track Genre matches selected 'Sort By Composer' Genre
                 // Display Compoer - Performer - AlbumArtist
@@ -100,7 +101,7 @@ function outputPlaylist() {
                 do_performers($track, $info);
                 do_composers($track, $info);
             }
-            if ($track->composer !== null || $track->performers !== null) {
+            if ($track->tags['Composer'] !== null || $track->tags['Performer'] !== null) {
                 $info['metadata']['iscomposer'] = 'true';
             }
         } else {
@@ -131,18 +132,22 @@ function artist_not_found_yet($a) {
     }
 }
 
-function do_composers(&$track, &$info) {
-    $c = getArray($track->composer);
-    foreach ($c as $comp) {
+function do_composers($track, &$info) {
+    if ($track->tags['Composer'] == null) {
+        return;
+    }
+    foreach ($track->tags['Composer'] as $comp) {
         if (artist_not_found_yet($comp)) {
             array_push($info['metadata']['artists'], array( "name" => $comp, "musicbrainz_id" => "", "type" => "composer", "ignore" => "false"));
         }
     }
 }
 
-function do_performers(&$track, &$info) {
-    $c = getArray($track->performers);
-    foreach ($c as $comp) {
+function do_performers($track, &$info) {
+    if ($track->tags['Performer'] == null) {
+        return;
+    }
+    foreach ($track->tags['Performer'] as $comp) {
         $toremove = null;
         foreach($info['metadata']['artists'] as $i => $artist) {
             if ($artist['type'] == "albumartist" || $artist['type'] == "artist") {
@@ -162,27 +167,30 @@ function do_performers(&$track, &$info) {
     }
 }
 
-function do_albumartist(&$track, &$info) {
+function do_albumartist($track, &$info) {
     $albumartist = null;
-    if (!($track->type == "stream" && $track->albumobject->artist == "Radio") &&
+    if (!($track->tags['type'] == "stream" && $track->albumobject->artist == "Radio") &&
         strtolower($track->albumobject->artist) != "various artists" &&
         strtolower($track->albumobject->artist) != "various")
     {
         $albumartist = $track->albumobject->artist;
     }
     if ($albumartist !== null && artist_not_found_yet($albumartist)) {
-        array_push($info['metadata']['artists'], array( "name" => $albumartist, "musicbrainz_id" => $track->musicbrainz_albumartistid, "type" => "albumartist", "ignore" => "false"));
+        array_push($info['metadata']['artists'], array( "name" => $albumartist, "musicbrainz_id" => $track->tags['MUSICBRAINZ_ALBUMARTISTID'], "type" => "albumartist", "ignore" => "false"));
     }
 }
 
-function do_track_artists(&$track, &$info) {
-    $c = getArray($track->artist);
-    $m = getArray($track->musicbrainz_artistid);
+function do_track_artists($track, &$info) {
+    if ($track->tags['Artist'] == null) {
+        return;
+    }
+    $c = $track->tags['Artist'];
+    $m = $track->tags['MUSICBRAINZ_ARTISTID'];
     while (count($m) < count($c)) {
         array_push($m, "");
     }
     foreach ($c as $i => $comp) {
-        if (($track->type != "stream" && $comp != "") || ($track->type == "stream" && $comp != $track->album && $comp != "")) {
+        if (($track->tags['type'] != "stream" && $comp != "") || ($track->tags['type'] == "stream" && $comp != $track->tags['Album'] && $comp != "")) {
             if (artist_not_found_yet($comp)) {
                 array_push($info['metadata']['artists'], array( "name" => $comp, "musicbrainz_id" => $m[$i], "type" => "artist", "ignore" => "false"));
             }

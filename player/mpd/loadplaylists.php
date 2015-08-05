@@ -63,16 +63,9 @@ function do_playlist_tracks($pl, $icon) {
         doCollection('listplaylistinfo "'.$pl.'"');
         $c = 0;
         foreach($playlist as $track) {
-            $matches = array();
-            $link = $track->url;
-            $class = "clicktrack";
-            if (preg_match("/api\.soundcloud\.com\/tracks\/(\d+)\//", $track->url, $matches)) {
-                debuglog(" ... Link is SoundCloud","PLAYLISTS",8);
-                $link = "soundcloud://track/".$matches[1];
-                $class = "clickcue";
-            }
+            list($class, $link) = $track->get_checked_url();
             add_playlist(rawurlencode($link),
-                htmlentities($track->get_artist_string().' - '.$track->name),
+                htmlentities($track->get_artist_string().' - '.$track->tags['Title']),
                 'icon-music', $class, true, $c, false);
             $c++;
         }
