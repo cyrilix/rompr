@@ -38,8 +38,12 @@ function open_mpd_connection() {
 }
 
 function getline($connection, $rd = false) {
-    $got = fgets($connection);
-    if (strncmp("OK", $got, 2) == 0 || strncmp("ACK", $got, 3) == 0) {
+    // Speed : Everything in here is either as fast as it can be or completely negligible.
+    $got = fgets($connection, 2048);
+    // if (strncmp("OK", $got, 2) == 0 || strncmp("ACK", $got, 3) == 0) {
+    //     return false;
+    // }
+    if (strpos($got, "OK") === 0 || strpos($got, "ACK") === 0) {
         return false;
     }
     $key = trim(strtok($got, ":"));

@@ -1761,3 +1761,11 @@ div.lyrics p
 {
     white-space: nowrap;
 }
+
+a.infoclick.clickreleasepage
+{
+    margin:2px;
+    line-height:2em;
+    padding-left:2px;
+    padding-right:2px;
+}

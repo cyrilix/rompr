@@ -162,7 +162,7 @@ var nowplaying = function() {
     }
 
     function isCurrentDisplayedArtist(name) {
-    	if (name == $("#artistchooser").find(".bsel").html()) {
+    	if (name == unescapeHtml($("#artistchooser").find(".bsel").html())) {
     		return true;
     	}
     	return false;

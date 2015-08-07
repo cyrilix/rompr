@@ -242,7 +242,7 @@ var info_musicbrainz = function() {
 
 				case "review":
 					if (u.match(/bbc\.co\.uk/i)) {
-						html += '<li<i class="icon-bbc-logo smallicon padright"></i><a href="'+u+'" target="_blank">BBC Music Review</a></li>';
+						html += '<li><i class="icon-bbc-logo smallicon padright"></i><a href="'+u+'" target="_blank">BBC Music Review</a></li>';
 					} else {
 						html += '<li><i class="icon-noicon smallicon padright"></i><a href="'+u+'" target="_blank">'+language.gettext("musicbrainz_review", [d[1]])+'</a></li>';
 					}

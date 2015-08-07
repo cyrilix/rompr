@@ -713,6 +713,8 @@ function process_file($filedata) {
 
     global $numtracks, $totaltime, $prefs, $dbterms, $collection, $putinplaylistarray, $trackbytrack;
 
+    global $db_time, $coll_time;
+
     // Pre-process the file data
 
     if ($dbterms['tags'] !== null || $dbterms['rating'] !== null) {
@@ -858,10 +860,14 @@ function process_file($filedata) {
     }
 
     if ($trackbytrack && $filedata['AlbumArtist'] && $filedata['Disc'] !== null) {
+        $tstart = microtime(true);
         do_track_by_track( new track($filedata) );
+        $db_time += microtime(true) - $tstart;
     } else {
+        $cstart = microtime(true);
         if ($filedata['Disc'] === null) $filedata['Disc'] = 1;
         $collection->newTrack( new track($filedata) );
+        $coll_time += microtime(true) - $cstart;
     }
 
     $numtracks++;

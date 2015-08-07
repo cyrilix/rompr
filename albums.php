@@ -126,6 +126,11 @@ if (array_key_exists('item', $_REQUEST)) {
     cleanSearchTables();
     prepareCollectionUpdate();
 	doCollection("listallinfo");
+
+    debuglog("== Time Spent Reading Socket Data                      : ".$parse_time,"TIMTINGS",4);
+    debuglog("== Time Spent Checking/Writing to Database             : ".$db_time,"TIMTINGS",4);
+    debuglog("== Time Spent Putting Stuff into Collection Structures : ".$coll_time,"TIMTINGS",4);
+
     createAlbumsList();
     dumpAlbums('aalbumroot');
     close_mpd();

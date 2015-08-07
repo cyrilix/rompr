@@ -199,6 +199,7 @@ var browser = function() {
     return {
 
         areweatfront: function() {
+            debug.log("BROWSER","displaypointer:",displaypointer,"historylength",history.length);
             return (displaypointer == history.length - 1);
         },
 
@@ -277,7 +278,7 @@ var browser = function() {
             if (prefs.hidebrowser) {
                 return false;
             }
-            debug.mark("BROWSER", "Got",type,"info from",source,"for index",nowplayingindex);
+            debug.mark("BROWSER", "Got",type,"info from",source,"for index",nowplayingindex,force,waitingon);
             if (force === true || (source == waitingon.source && nowplayingindex == waitingon.index)) {
                 if (force === true || waitingon[type]) {
                     debug.trace("BROWSER", "  .. and we are going to display it");

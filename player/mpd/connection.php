@@ -51,6 +51,10 @@ $array_params = array(
 
 @open_mpd_connection();
 
+$parse_time = 0;
+$db_time = 0;
+$coll_time = 0;
+
 function doCollection($command, $domains = null) {
 
     global $connection, $collection;
@@ -70,6 +74,9 @@ function doCollection($command, $domains = null) {
 function doMpdParse($command, &$dirs, $domains) {
 
     global $connection, $collection, $mpd_file_model, $array_params;
+
+    global $parse_time;
+
     if (!$connection) return;
     fputs($connection, $command."\n");
     $filedata = $mpd_file_model;
@@ -77,6 +84,8 @@ function doMpdParse($command, &$dirs, $domains) {
     if (count($domains) == 0) {
         $domains = null;
     }
+
+    $pstart = microtime(true);
 
     while(!feof($connection) && $parts) {
         $parts = getline($connection, true);
@@ -97,7 +106,12 @@ function doMpdParse($command, &$dirs, $domains) {
                 case 'file':
                     if ($filedata['file'] != null && (!is_array($domains) ||
                         in_array(getDomain($filedata['file']),$domains))) {
+
+                        $parse_time += microtime(true) - $pstart;
+
                         process_file($filedata);
+
+                        $pstart = microtime(true);
                     }
                     $filedata = $mpd_file_model;
                     // Fall through to default
@@ -117,6 +131,9 @@ function doMpdParse($command, &$dirs, $domains) {
 
     if ($filedata['file'] !== null && (!is_array($domains) ||
             in_array(getDomain($filedata['file']),$domains))) {
+
+        $parse_time += microtime(true) - $pstart;
+
         process_file($filedata);
     }
 }
