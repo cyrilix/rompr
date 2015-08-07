@@ -5,9 +5,9 @@ function open_mpd_connection() {
     global $is_connected;
     $is_connected = false;
     if ($prefs['unix_socket'] != "") {
-        $connection = fsockopen('unix://'.$prefs['unix_socket']);
+        $connection = stream_socket_client('unix://'.$prefs['unix_socket']);
     } else {
-        $connection = fsockopen($prefs["mpd_host"], $prefs["mpd_port"], $errno, $errstr, 10);
+        $connection = stream_socket_client('tcp://'.$prefs["mpd_host"].':'.$prefs["mpd_port"]);
     }
 
     if(isset($connection) && is_resource($connection)) {
@@ -40,16 +40,16 @@ function open_mpd_connection() {
 function getline($connection, $rd = false) {
     // Speed : Everything in here is either as fast as it can be or completely negligible.
     $got = fgets($connection, 2048);
-    // if (strncmp("OK", $got, 2) == 0 || strncmp("ACK", $got, 3) == 0) {
-    //     return false;
-    // }
-    if (strpos($got, "OK") === 0 || strpos($got, "ACK") === 0) {
-        return false;
-    }
     $key = trim(strtok($got, ":"));
     $val = trim(strtok("\0"));
-    if ($val != '' && ($rd || $key != "directory")) {
-        return array($key, $val);
+    if ($val != '') {
+        if ($rd || $key != "directory") {
+            return array($key, $val);
+        } else {
+            return true;
+        }
+    } else if (strpos($got, "OK") === 0 || strpos($got, "ACK") === 0) {
+        return false;
     } else {
         return true;
     }

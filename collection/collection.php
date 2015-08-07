@@ -713,9 +713,11 @@ function process_file($filedata) {
 
     global $numtracks, $totaltime, $prefs, $dbterms, $collection, $putinplaylistarray, $trackbytrack;
 
-    global $db_time, $coll_time;
+    global $db_time, $coll_time, $rtime;
 
     // Pre-process the file data
+
+    $mytime = microtime(true);
 
     if ($dbterms['tags'] !== null || $dbterms['rating'] !== null) {
         // If this is a search and we have tags or ratings to search for, check them here.
@@ -725,11 +727,11 @@ function process_file($filedata) {
         }
     }
 
-    if ($prefs['ignore_unplayable'] && substr($filedata['Title'], 0, 12) == "[unplayable]") {
+   if ($prefs['ignore_unplayable'] && strpos($filedata['Title'], "[unplayable]") === 0) {
         debuglog("Ignoring unplayable track ".$filedata['file'],"COLLECTION",9);
         return false;
     }
-    if (substr($filedata['Title'], 0, 9) == "[loading]") {
+    if (strpos($filedata['Title'], "[loading]") === 0) {
         debuglog("Ignoring unloaded track ".$filedata['file'],"COLLECTION",9);
         return false;
     }
@@ -858,6 +860,8 @@ function process_file($filedata) {
             $filedata['folder'] = dirname($unmopfile);
             break;
     }
+
+    $rtime += microtime(true) - $mytime;
 
     if ($trackbytrack && $filedata['AlbumArtist'] && $filedata['Disc'] !== null) {
         $tstart = microtime(true);

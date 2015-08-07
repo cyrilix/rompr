@@ -54,6 +54,7 @@ $array_params = array(
 $parse_time = 0;
 $db_time = 0;
 $coll_time = 0;
+$rtime = 0;
 
 function doCollection($command, $domains = null) {
 
