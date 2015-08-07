@@ -303,6 +303,12 @@ function check_sql_tables() {
 				generic_sql_query("UPDATE Statstable SET Value = 14 WHERE Item = 'SchemaVer'");
 				break;
 
+			case 14:
+				debuglog("Updating FROM Schema version 14 TO Scheme version 15","SQL");
+				generic_sql_query("ALTER TABLE Tracktable MODIFY LastModified CHAR(32)");
+				generic_sql_query("UPDATE Statstable SET Value = 15 WHERE Item = 'SchemaVer'");
+				break;
+
 		}
 		$sv++;
 	}

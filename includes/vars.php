@@ -1,8 +1,8 @@
 <?php
 
 define('ROMPR_MAX_TRACKS_PER_TRANSACTION', 500);
-define('ROMPR_COLLECTION_VERSION', 2);
-define('ROMPR_SCHEMA_VERSION', 14);
+define('ROMPR_COLLECTION_VERSION', 3);
+define('ROMPR_SCHEMA_VERSION', 15);
 define('ROMPR_PLAYLIST_FILE', 'prefs/playlist.json');
 define('ROMPR_VERSION', 0.70);
 define('ROMPR_MOPIDY_MIN_VERSION', 1.1);

@@ -39,7 +39,7 @@ function check_sql_tables() {
 		"Artistindex INTEGER, ".
 		"Disc TINYINT(3), ".
 		"Uri VARCHAR(2000) ,".
-		"LastModified INTEGER, ".
+		"LastModified CHAR(32), ".
 		"Hidden TINYINT(1) DEFAULT 0, ".
 		"DateAdded TIMESTAMP DEFAULT CURRENT_TIMESTAMP, ".
 		"isSearchResult TINYINT(1) DEFAULT 0)"))
@@ -232,7 +232,7 @@ function check_sql_tables() {
 
 			case 13:
 				// SQLite doesn't let you rename or remove a column. Holy Shitting heck.
-				debuglog("Updating FROM Schema version 13 TO Scheme version 14","SQL");
+				debuglog("Updating FROM Schema version 13 TO Schema version 14","SQL");
 				generic_sql_query("CREATE TABLE Albumtable_New(".
 					"Albumindex INTEGER PRIMARY KEY NOT NULL UNIQUE, ".
 					"Albumname VARCHAR(255), ".
@@ -254,6 +254,35 @@ function check_sql_tables() {
 				generic_sql_query("CREATE INDEX IF NOT EXISTS di ON Albumtable (Domain)");
 				generic_sql_query("CREATE INDEX IF NOT EXISTS ii ON Albumtable (ImgKey)");
 				generic_sql_query("UPDATE Statstable SET Value = 14 WHERE Item = 'SchemaVer'");
+				break;
+
+			case 14:
+				// SQLite doesn't let you rename or remove a column. Holy Shitting heck.
+				debuglog("Updating FROM Schema version 14 TO Schema version 15","SQL");
+				generic_sql_query("CREATE TABLE Tracktable_New(".
+					"TTindex INTEGER PRIMARY KEY NOT NULL UNIQUE, ".
+					"Title VARCHAR(255), ".
+					"Albumindex INTEGER, ".
+					"TrackNo SMALLINT, ".
+					"Duration INTEGER, ".
+					"Artistindex INTEGER, ".
+					"Disc TINYINT(3), ".
+					"Uri VARCHAR(2000) ,".
+					"LastModified CHAR(32), ".
+					"Hidden TINYINT(1) DEFAULT 0, ".
+					"DateAdded TIMESTAMP DEFAULT CURRENT_TIMESTAMP, ".
+					"isSearchResult TINYINT(1) DEFAULT 0)");
+				generic_sql_query("INSERT INTO Tracktable_New SELECT TTindex, Title, Albumindex,
+					TrackNo, Duration, Artistindex, Disc, Uri, LastModified, Hidden, DateAdded, isSearchResult
+					FROM Tracktable");
+				generic_sql_query("DROP TABLE Tracktable");
+				generic_sql_query("ALTER TABLE Tracktable_New RENAME TO Tracktable");
+				generic_sql_query("CREATE TRIGGER IF NOT EXISTS updatetime AFTER UPDATE ON Tracktable BEGIN UPDATE Tracktable SET DateAdded = CURRENT_TIMESTAMP WHERE TTindex = old.TTindex; END");
+				generic_sql_query("CREATE INDEX IF NOT EXISTS ai ON Tracktable (Albumindex)");
+				generic_sql_query("CREATE INDEX IF NOT EXISTS ti ON Tracktable (Title)");
+				generic_sql_query("CREATE INDEX IF NOT EXISTS tn ON Tracktable (TrackNo)");
+				generic_sql_query("CREATE INDEX IF NOT EXISTS di ON Tracktable (Disc)");
+				generic_sql_query("UPDATE Statstable SET Value = 15 WHERE Item = 'SchemaVer'");
 				break;
 
 		}

@@ -100,18 +100,15 @@ function doMpdParse($command, &$dirs, $domains) {
                     if ($filedata['file'] != null) {
                         // We don't want the Last-Modified stamps of the directories
                         // to be used for the files.
-                        $filedata[$parts[0]] = strtotime($parts[1]);
+                        $filedata[$parts[0]] = $parts[1];
                     }
                     break;
 
                 case 'file':
                     if ($filedata['file'] != null && (!is_array($domains) ||
                         in_array(getDomain($filedata['file']),$domains))) {
-
                         $parse_time += microtime(true) - $pstart;
-
                         process_file($filedata);
-
                         $pstart = microtime(true);
                     }
                     $filedata = $mpd_file_model;
@@ -132,9 +129,7 @@ function doMpdParse($command, &$dirs, $domains) {
 
     if ($filedata['file'] !== null && (!is_array($domains) ||
             in_array(getDomain($filedata['file']),$domains))) {
-
         $parse_time += microtime(true) - $pstart;
-
         process_file($filedata);
     }
 }
