@@ -5,6 +5,18 @@
 
 print '<div class="textcentre configtitle"><b>'.get_int_text('settings_appearance').'</b></div>';
 
+// Skin
+print '<div class="pref containerbox dropdown-container"><div class="divlabel">'.
+    get_int_text('config_skin').
+    '</div><div class="selectholder"><select id="skinselector" class="saveomatic">';
+$skins = glob("skins/*");
+foreach($skins as $skin) {
+    if (is_dir($skin)) {
+        print '<option value="'.basename($skin).'">'.ucfirst(basename($skin)).'</option>';
+    }
+}
+print '</select></div></div>';
+
 // Theme
 print '<div class="pref containerbox dropdown-container"><div class="divlabel">'.
     get_int_text('config_theme').

@@ -24,6 +24,11 @@ a:hover,a:active
     cursor:pointer;
 }
 
+#custombackground
+{
+    display:none;
+}
+
 /*-- divs used to create infobar layout --*/
 
 .bordered
@@ -74,7 +79,7 @@ input.inbrowser, div.inbrowser
     border: 1px solid #000000;
 }
 
-select 
+select
 {
     color:#000000;
 }
@@ -360,7 +365,7 @@ tr.clickaddtrack:hover
 
 #artistcoverslist
 {
-    background-color:rgba(0,0,0,0.2);    
+    background-color:rgba(0,0,0,0.2);
 }
 
 .tagholder table tr th {
@@ -371,7 +376,7 @@ tr.clickaddtrack:hover
 #artistchooser
 {
     background-color:rgba(0,0,0,0.3);
-    color:#aaaaaa;    
+    color:#aaaaaa;
 }
 
 .currentbun

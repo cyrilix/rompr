@@ -47,6 +47,11 @@ a:hover,a:active
     background-image: -ms-linear-gradient(#aaaaaa, #999999);
 }
 
+#custombackground
+{
+    display:none;
+}
+
 #pscroller, #horse td, #playlistbuttons td
 {
     color: #dddddd;
@@ -166,7 +171,7 @@ input.inbrowser, div.inbrowser
     border: 1px solid #888888;
 }
 
-select 
+select
 {
     color:#000000;
     border-radius:1em !important;
@@ -573,7 +578,7 @@ tr.clickaddtrack:hover
 {
     border-bottom:1px solid #555555;
     border-top:1px solid #555555;
-    color:#555555;    
+    color:#555555;
 }
 
 .currentbun

@@ -539,7 +539,7 @@ $languages['en'] = array (
 	"podcast_oldestfirst" => "Oldest First",
 	"podcast_hidedescriptions" => "Hide Descriptions",
 
-	// New in 0.64/0.65
+	// New in 0.64/0.65/0.70
 	"label_metabackup" => "Metadata Backup",
 	"button_backup" => "Create Backup",
 	"button_restore" => "Restore Backup",
@@ -564,6 +564,7 @@ $languages['en'] = array (
 	"label_allrandom" => "All Tracks At Random",
 	"config_background" => "BACKGROUND IMAGE",
 	"lastfm_error" => "Could not find information on Last.FM",
+	"config_skin" => "SKIN",
 
 	//CHANGED in 0.60
 	"config_country" => "COUNTRY (for Last.FM and Spotify)",

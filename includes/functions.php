@@ -483,7 +483,7 @@ function getDomain($d) {
     if ($d === null || $d == "") {
         return "local";
     }
-    $d = unwanted_array($d);
+    // $d = unwanted_array($d);
     $d = urldecode($d);
     $pos = strpos($d, ":");
     $a = substr($d,0,$pos);
@@ -878,17 +878,18 @@ function getWishlist() {
 function get_player_ip() {
     global $prefs;
     // SERVER_ADDR reflects the address typed into the browser
-    debuglog("Server Address is ".$_SERVER['SERVER_ADDR'],"INIT");
+    debuglog("Server Address is ".$_SERVER['SERVER_ADDR'],"INIT",7);
     // REMOTE_ADDR is the address of the machine running the browser
-    debuglog("Remote Address is ".$_SERVER['REMOTE_ADDR'],"INIT");
-    debuglog("mpd host is ".$prefs['mpd_host'],"INIT");
-
+    debuglog("Remote Address is ".$_SERVER['REMOTE_ADDR'],"INIT",7);
+    debuglog("Prefs for mpd host is ".$prefs['mpd_host'],"INIT",7);
+    $pip = '';
     if ($prefs['unix_socket'] != "" || $prefs['mpd_host'] == "localhost" || $prefs['mpd_host'] == "127.0.0.1") {
-        return $_SERVER['SERVER_ADDR'] != "::1" ? $_SERVER['SERVER_ADDR'] : $prefs['mpd_host'];
+        $pip = $_SERVER['SERVER_ADDR'] != "::1" ? $_SERVER['SERVER_ADDR'] : $prefs['mpd_host'];
     } else {
-        return $prefs['mpd_host'];
+        $pip = $prefs['mpd_host'];
     }
-
+    debuglog("Displaying Player IP as: ".$pip,"INIT",7);
+    return $pip;
 }
 
 function getCacheData($uri, $cache) {

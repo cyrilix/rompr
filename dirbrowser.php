@@ -19,7 +19,7 @@ if ($is_connected) {
     }
 	doFileBrowse($path, $prefix);
 } else {
-    header("HTTP/1.1 500 Internal Server Error");	
+    header("HTTP/1.1 500 Internal Server Error");
 }
 
 close_mpd();
@@ -33,7 +33,7 @@ function doFileBrowse($path, $prefix) {
     $dircount = 0;
 	fputs($connection, 'lsinfo "'.format_for_mpd($path).'"'."\n");
     while(!feof($connection) && $parts) {
-        $parts = getline($connection, true);
+        $parts = getline($connection);
         if (is_array($parts)) {
 			$s = trim($parts[1]);
 			if (substr($s,0,1) != ".") {

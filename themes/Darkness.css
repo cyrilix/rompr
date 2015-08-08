@@ -56,6 +56,11 @@ a:hover,a:active
     background-color:#181818;
 }
 
+#custombackground
+{
+    display:none;
+}
+
 /*-- divs used to create infobar layout --*/
 
 .bordered
@@ -369,7 +374,7 @@ tr.clickaddtrack:hover
 {
     border-bottom:1px solid #777777;
     border-top:1px solid #777777;
-    color:#555555;    
+    color:#555555;
 }
 
 .currentbun

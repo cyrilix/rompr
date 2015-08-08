@@ -37,17 +37,12 @@ function open_mpd_connection() {
     }
 }
 
-function getline($connection, $rd = false) {
-    // Speed : Everything in here is either as fast as it can be or completely negligible.
+function getline($connection) {
     $got = fgets($connection, 2048);
     $key = trim(strtok($got, ":"));
     $val = trim(strtok("\0"));
     if ($val != '') {
-        if ($rd || $key != "directory") {
-            return array($key, $val);
-        } else {
-            return true;
-        }
+        return array($key, $val);
     } else if (strpos($got, "OK") === 0 || strpos($got, "ACK") === 0) {
         return false;
     } else {

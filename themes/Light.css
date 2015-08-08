@@ -58,7 +58,12 @@ select
     color:#000000;
 }
 
- input.inbrowser, div.inbrowser
+#custombackground
+{
+    display:none;
+}
+
+input.inbrowser, div.inbrowser
 {
     border: 1px solid #888888;
 }
@@ -326,14 +331,14 @@ tr.clickaddtrack:hover
 
 .albumthing
 {
-    background-color:#f9f9f9;    
+    background-color:#f9f9f9;
 }
 
 #artistchooser
 {
     border-bottom:1px solid #777777;
     border-top:1px solid #777777;
-    color:#555555;    
+    color:#555555;
 }
 
 .currentbun

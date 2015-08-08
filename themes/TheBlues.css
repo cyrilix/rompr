@@ -69,6 +69,11 @@ input.inbrowser, div.inbrowser
     background-color:#181850;
 }
 
+#custombackground
+{
+    display:none;
+}
+
 /*-- divs used to create infobar layout --*/
 
 .bordered
@@ -301,14 +306,14 @@ tr.clickaddtrack:hover
 
 .albumthing
 {
-    background-color:#f9f9f9;    
+    background-color:#f9f9f9;
 }
 
 #artistchooser
 {
     border-top:1px solid #cccccc;
     border-bottom:1px solid #cccccc;
-    color:#aaaaaa;    
+    color:#aaaaaa;
 }
 
 .currentbun

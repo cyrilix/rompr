@@ -89,7 +89,7 @@ function doMpdParse($command, &$dirs, $domains) {
     $pstart = microtime(true);
 
     while(!feof($connection) && $parts) {
-        $parts = getline($connection, true);
+        $parts = getline($connection);
         if (is_array($parts)) {
             switch ($parts[0]) {
                 case "directory":
@@ -117,10 +117,10 @@ function doMpdParse($command, &$dirs, $domains) {
                 default:
                     if (in_array($parts[0], $array_params)) {
                         $filedata[$parts[0]] =
-                            array_unique(explode(ROMPR_MULTIVALUE_SEPARATOR,$parts[1]));
+                            array_unique(explode(';',$parts[1]));
                     } else {
                         $filedata[$parts[0]] =
-                            explode(ROMPR_MULTIVALUE_SEPARATOR,$parts[1])[0];
+                            explode(';',$parts[1])[0];
                     }
                     break;
             }
@@ -190,9 +190,9 @@ function doFileSearch($cmd, $domains = null) {
                 case "Album":
                 case "Artist":
                     if (in_array($parts[0], $array_params)) {
-                        $filedata[$parts[0]] = array_unique(explode(ROMPR_MULTIVALUE_SEPARATOR,trim($parts[1])));
+                        $filedata[$parts[0]] = array_unique(explode(';',trim($parts[1])));
                     } else {
-                        $filedata[$parts[0]] = explode(ROMPR_MULTIVALUE_SEPARATOR,trim($parts[1]))[0];
+                        $filedata[$parts[0]] = explode(';',trim($parts[1]))[0];
                     }
                     break;
             }
@@ -200,7 +200,7 @@ function doFileSearch($cmd, $domains = null) {
     }
 
     if (array_key_exists('file', $filedata)) {
-        if (!is_array($domains) || in_array(getDomain(unwanted_array($filedata['file'])),$domains)) {
+        if (!is_array($domains) || in_array(getDomain($filedata['file']),$domains)) {
             $tree->newItem($filedata);
             $fcount++;
         }
@@ -416,7 +416,7 @@ function getDirItems($path) {
     // because we only have the one connection to mpd so this function
     // is not strictly re-entrant and recursing doesn't work unless we do this.
     while(!feof($connection) && $parts) {
-        $parts = getline($connection, true);
+        $parts = getline($connection);
         if ($parts === false) {
             debuglog("Got OK or ACK from MPD","DIRBROWSER",8);
         } else {

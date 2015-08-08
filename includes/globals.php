@@ -50,8 +50,12 @@ prefs.prefsInLocalStorage = [
     "scrobblepercent",
     "updateeverytime",
     "fullbiobydefault",
-    "mopidy_search_domains"
+    "mopidy_search_domains",
+    "skin"
 ];
+
+// 'skin' is stored in local storage - it's only use is for setting the correct item
+// in the dropdown.
 
 // Update old pre-JSON prefs
 if (localStorage.getItem("prefs.prefversion") == null) {
@@ -187,6 +191,7 @@ print "    var tags = ".json_encode($translations);
 
 <?php
 print "var collection_status = ".checkCollectionStatus().";\n";
+print "prefs.skin = '".$skin."';\n";
 print "debug.setLevel(".$prefs['debug_enabled'].");\n";
 
 print "var interfaceLanguage = '".$interface_language."';\n";

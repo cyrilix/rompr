@@ -84,6 +84,11 @@ input.inbrowser, div.inbrowser
     background-image: -ms-linear-gradient(#b9b9b9, #b4b4b4);
 }
 
+#custombackground
+{
+    display:none;
+}
+
 #infopane
 {
     border-top:1px solid #000000;
@@ -398,14 +403,14 @@ tr.clickaddtrack:hover
 
 .albumthing
 {
-    background-color:#f9f9f9;    
+    background-color:#f9f9f9;
 }
 
 #artistchooser
 {
     border-bottom:1px solid #777777;
     border-top:1px solid #777777;
-    color:#555555;    
+    color:#555555;
 }
 
 .currentbun

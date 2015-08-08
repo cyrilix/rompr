@@ -28,6 +28,11 @@ a:hover,a:active
     color:#ff4800;
 }
 
+#custombackground
+{
+    display:none;
+}
+
 #headerbar
 {
     background-image: linear-gradient(#b3b3b3, #afafaf);

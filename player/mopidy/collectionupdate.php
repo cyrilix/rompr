@@ -1,7 +1,5 @@
 <?php
 
-define('ROMPR_MULTIVALUE_SEPARATOR',';');
-
 function musicCollectionUpdate() {
 	global $prefs;
 	$monitor = fopen('prefs/monitor','w');

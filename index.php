@@ -3,6 +3,38 @@ include("includes/vars.php");
 
 debuglog("=================****==================","INIT",2);
 
+//
+// Check to see if this is a mobile browser
+//
+
+if (array_key_exists('mobile', $_REQUEST)) {
+    $skin = ($_REQUEST['mobile'] == "phone") ? "phone" : "desktop";
+    debuglog("Request asked for skin: ".$skin,"INIT",6);
+} else if(array_key_exists('skin', $_REQUEST)) {
+    $skin = $_REQUEST['skin'];
+    debuglog("Request asked for skin: ".$skin,"INIT",6);
+} else if (array_key_exists('skin', $_COOKIE)) {
+    $skin = $_COOKIE['skin'];
+    debuglog("Using skin as set by Cookie: ".$skin,"INIT",6);
+} else {
+    debuglog("Detecting window size to decide which skin to use....","INIT",4);
+    include('checkwindowsize.php');
+    exit(0);
+}
+
+debuglog("Using skin : ".$skin,"INIT",6);
+if (!is_dir('skins/'.$skin)) {
+    print '<h3>Skin '.$skin.' does not exist!</h3>';
+    exit(0);
+}
+
+if (file_exists('skins/'.$skin.'/skin.requires')) {
+    debuglog("Loading Skin Requirements File","INIT",9);
+    $skinrequires = file('skins/'.$skin.'/skin.requires');
+} else {
+    $skinrequires = array();
+}
+
 // SVN versions of this release had composergenrename as a string but it's now an array
 if (!is_array($prefs['composergenrename'])) {
     $prefs['composergenrename'] = array($prefs['composergenrename']);
@@ -40,39 +72,6 @@ debuglog($_SERVER['PHP_SELF'],"INIT",9);
 if (array_key_exists('setup', $_REQUEST)) {
     askForMpdValues(get_int_text("setup_request"));
     exit();
-}
-
-//
-// Check to see if this is a mobile browser
-//
-
-include 'utils/Mobile_Detect.php';
-if (array_key_exists('mobile', $_REQUEST)) {
-    $skin = ($_REQUEST['mobile'] == "phone") ? "phone" : "desktop";
-    debuglog("Request asked for skin: ".$skin,"INIT",6);
-} else if(array_key_exists('skin', $_REQUEST)) {
-    $skin = $_REQUEST['skin'];
-    debuglog("Request asked for skin: ".$skin,"INIT",6);
-    if (!is_dir('skins/'.$skin)) {
-        print '<h3>Skin '.$skin.' does not exist!</h3>';
-        exit(0);
-    }
-} else {
-    $detect = new Mobile_Detect();
-    if ($detect->isMobile() && !$detect->isTablet()) {
-        debuglog("Mobile Browser Detected!","INIT",4);
-        $skin = "phone";
-    } else {
-        debuglog("Not a mobile browser","INIT",4);
-        $skin = "desktop";
-    }
-}
-debuglog("Using skin : ".$skin,"INIT",6);
-if (file_exists('skins/'.$skin.'/skin.requires')) {
-    debuglog("Loading Skin Requirements File","INIT",9);
-    $skinrequires = file('skins/'.$skin.'/skin.requires');
-} else {
-    $skinrequires = array();
 }
 
 include("player/mpd/connection.php");
