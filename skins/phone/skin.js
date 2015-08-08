@@ -96,18 +96,17 @@ function addCustomScrollBar(value) {
 }
 
 function setTopIconSize(panels) {
-    var imw = (parseInt($('.topimg').first().css('margin-left')) + parseInt($('.topimg').
-        first().css('margin-right')));
-    var imh = parseInt($('.topimg').first().css('max-height'))
     panels.forEach( function(div) {
         if ($(div).is(':visible')) {
-            var icons = $(div+" .topimg");
-            var numicons = icons.length;
+            var jq = $(div+' .topimg');
+            var imw = (parseInt(jq.first().css('margin-left')) + parseInt(jq.first().css('margin-right')));
+            var imh = parseInt(jq.first().css('max-height'))
+            var numicons = jq.length+1;
             var mw = imw*numicons;
             var iw = Math.floor(($(div).width() - mw - 8)/numicons);
             if (iw > imh) iw = imh;
             if (iw < 8) iw = 6;
-            icons.css({width: iw+"px", height: iw+"px", "font-size": iw+"px"});
+            jq.css({width: iw+"px", height: iw+"px", "font-size": iw+"px"});
         }
     });
 }
