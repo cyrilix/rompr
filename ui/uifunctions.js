@@ -346,7 +346,6 @@ var imagePopup = function() {
             }
             mousepos = getPosition(event);
             clickedelement = element;
-            var scrollPos=getScrollXY();
             var top = (mousepos.y - 24);
             var left = (mousepos.x - 24);
             wikipopup.css({       width: '48px',
@@ -392,20 +391,13 @@ var imagePopup = function() {
             var popupwidth = imgwidth+36;
             var popupheight = imgheight+36;
 
-            var scrollPos=getScrollXY();
             var top = (mousepos.y - (popupheight/2));
             var left = (mousepos.x - (popupwidth/2));
-            if ((left-scrollPos.x+popupwidth) > winsize.x) {
-                left = winsize.x - popupwidth + scrollPos.x;
+            if ((left+popupwidth) > winsize.x) {
+                left = winsize.x - popupwidth;
             }
-            if ((top-scrollPos.y+popupheight) > winsize.y) {
-                top = winsize.y - popupheight + scrollPos.y;
-            }
-            if (top< scrollPos.y) {
-                top = scrollPos.y;
-            }
-            if (left < scrollPos.x) {
-                left = scrollPos.x;
+            if ((top+popupheight) > winsize.y) {
+                top = winsize.y - popupheight;
             }
             wikipopup.empty();
             wikipopup.animate(
@@ -475,13 +467,12 @@ var popupWindow = function() {
                 '</i></td></tr></table>');
             $(popup).append('<div id="popupcontents"></div>');
             var winsize = getWindowSize();
-            var windowScroll = getScrollXY();
             var lsize = layoutProcessor.maxPopupSize(winsize);
             if (lsize.width > w) { lsize.width = w; }
             if (lsize.height > h) { lsize.height = h; }
             if (typeof xpos == "undefined") {
-                var x = (winsize.x - lsize.width)/2 + windowScroll.x;
-                var y = (winsize.y - lsize.height)/2 + windowScroll.y;
+                var x = (winsize.x - lsize.width)/2;
+                var y = (winsize.y - lsize.height)/2;
             } else {
                 var x = Math.min(xpos, (winsize.x - lsize.width));
                 var y = Math.min(ypos, (winsize.y - lsize.height));

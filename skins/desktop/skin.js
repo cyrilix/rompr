@@ -417,6 +417,14 @@ var layoutProcessor = function() {
             }
         },
 
+        stayAwake: function() {
+
+        },
+
+        allowSleep: function() {
+
+        },
+
         initialise: function() {
             $("#sortable").disableSelection();
             setDraggable('collection');

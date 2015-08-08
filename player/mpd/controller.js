@@ -693,6 +693,7 @@ function playerController() {
         infobar.setProgress(percent.toFixed(2),progress,duration);
 
         if (player.status.state == "play") {
+            layoutProcessor.stayAwake();
             if (duration > 0 && progress >= duration) {
                 setTheClock(self.checkchange, safetytimer);
                 if (safetytimer < 5000) { safetytimer += 500 }
@@ -707,6 +708,7 @@ function playerController() {
             }
         } else {
             setTheClock(self.checkchange, 10000);
+            layoutProcessor.allowSleep();
         }
     }
 

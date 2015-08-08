@@ -21,7 +21,7 @@ if (array_key_exists('mobile', $_REQUEST)) {
     include('checkwindowsize.php');
     exit(0);
 }
-
+$skin = trim($skin);
 debuglog("Using skin : ".$skin,"INIT",6);
 if (!is_dir('skins/'.$skin)) {
     print '<h3>Skin '.$skin.' does not exist!</h3>';

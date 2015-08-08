@@ -12,10 +12,8 @@ $(document).ready(function() {
 	var ws = getWindowSize();
 	var mw = Math.max(ws.x, ws.y);
 	if (mw <= 1024) {
-		console.log("Small Window");
 		setCookie('skin','phone',3650);
 	} else {
-		console.log("Big Window");
 		setCookie('skin','desktop',3650);
 	}
 	location.reload(true);

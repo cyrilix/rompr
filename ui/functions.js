@@ -17,41 +17,13 @@ function getPosition(e) {
 }
 
 function getWindowSize() {
-    var size = {x:0, y:0};
-    if (document.body && document.body.offsetWidth) {
-        size.x = document.body.offsetWidth;
-        size.y = document.body.offsetHeight;
-    }
-    if (document.compatMode=='CSS1Compat' &&
-        document.documentElement &&
-        document.documentElement.offsetWidth ) {
-            size.x = document.documentElement.offsetWidth;
-            size.y = document.documentElement.offsetHeight;
-    }
-    if (window.innerWidth && window.innerHeight) {
-        size.x = window.innerWidth;
-        size.y = window.innerHeight;
-    }
-    size.o = window.orientation;
-    return size;
-}
 
-function getScrollXY() {
-    var scroll = {x:0, y:0};
-    if( typeof( window.pageYOffset ) == 'number' ) {
-        //Netscape compliant
-        scroll.y = window.pageYOffset;
-        scroll.x = window.pageXOffset;
-    } else if( document.body && ( document.body.scrollLeft || document.body.scrollTop ) ) {
-        //DOM compliant
-        scroll.y = document.body.scrollTop;
-        scroll.x = document.body.scrollLeft;
-    } else if( document.documentElement && ( document.documentElement.scrollLeft || document.documentElement.scrollTop ) ) {
-        //IE6 standards compliant mode
-        scroll.y = document.documentElement.scrollTop;
-        scroll.x = document.documentElement.scrollLeft;
-    }
-    return scroll;
+    return {
+        x: $(window).width(),
+        y: $(window).height(),
+        o: window.orientation
+    };
+
 }
 
 function zeroPad(num, count)

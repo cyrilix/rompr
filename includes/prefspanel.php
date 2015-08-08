@@ -10,9 +10,9 @@ print '<div class="pref containerbox dropdown-container"><div class="divlabel">'
     get_int_text('config_skin').
     '</div><div class="selectholder"><select id="skinselector" class="saveomatic">';
 $skins = glob("skins/*");
-foreach($skins as $skin) {
-    if (is_dir($skin)) {
-        print '<option value="'.basename($skin).'">'.ucfirst(basename($skin)).'</option>';
+foreach($skins as $sk) {
+    if (is_dir($sk)) {
+        print '<option value="'.basename($sk).'">'.ucfirst(basename($sk)).'</option>';
     }
 }
 print '</select></div></div>';
@@ -230,9 +230,15 @@ print '<div class="pref styledinputs">
 <input class="autoset toggle" type="checkbox" id="displaycomposer">
 <label for="displaycomposer">'.get_int_text('config_displaycomposer').'</label>
 </div>';
+debuglog("SKIN IS '".$skin."'","PERFS",4);
 if ($skin != "phone") {
 print '<div class="pref textcentre"><button onclick="shortcuts.edit()">'.
     get_int_text('config_editshortcuts').'</button></div>'."\n";
+} else {
+print '<div class="pref styledinputs">
+<input class="autoset toggle" type="checkbox" id="stayawake">
+<label for="stayawake">'.get_int_text('config_stayawake').'</label>
+</div>';
 }
 
 // Click Policy
