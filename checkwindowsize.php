@@ -11,7 +11,7 @@
 $(document).ready(function() {
 	var ws = getWindowSize();
 	var mw = Math.max(ws.x, ws.y);
-	if (mw <= 1024) {
+	if (!mw || mw <= 1024) {
 		setCookie('skin','phone',3650);
 	} else {
 		setCookie('skin','desktop',3650);

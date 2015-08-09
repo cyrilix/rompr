@@ -30,7 +30,7 @@ $prefs = array(
     "country_userset" => false,
     "debug_enabled" => 0,
     "custom_logfile" => "",
-    "player_backend" => "",
+    "player_backend" => "mpd",
 
     // Things that could be set on a per-user basis but need to be known by the backend
     "mpd_host" => "localhost",

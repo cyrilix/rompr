@@ -856,20 +856,20 @@ var tagAdder = function() {
                 index = idx;
                 var position = getPosition(evt);
                 layoutProcessor.setTagAdderPosition(position);
-                $("#tagadder").fadeIn('fast');
+                $("#tagadder").slideDown('fast');
                 lastelement = evt.target;
             }
         },
 
         close: function() {
-            $("#tagadder").fadeOut('fast');
+            $("#tagadder").slideUp('fast');
             lastelement = null;
         },
 
         add: function(toadd) {
             debug.log("TAGADDER","New Tags :",toadd);
             nowplaying.addTags(index, toadd);
-            $("#tagadder").slideToggle('fast');
+            $("#tagadder").slideUp('fast');
         }
     }
 }();
@@ -1933,7 +1933,9 @@ $.widget("rompr.sortableTrackList", $.ui.mouse, {
 $.widget("rompr.floatingMenu", $.ui.mouse, {
     options: {
         handleClass: null,
-        addClassTo: null
+        addClassTo: null,
+        siblings: '',
+        handleshow: true
     },
 
     _create: function() {
@@ -1944,9 +1946,11 @@ $.widget("rompr.floatingMenu", $.ui.mouse, {
             this.element.find('.'+this.options.addClassTo).first().addClass(this.options.handleClass)
                 .append('<i class="icon-cancel-circled playlisticonr tright clickicon closemenu"></i>');
         }
-        this._parent = this.element.parent();
-        this.element.find('.closemenu').click($.proxy(self.toggleMenu, self));
-        this._parent.click($.proxy(self.toggleMenu, self));
+        if (self.options.handleshow) {
+            this._parent = this.element.parent();
+            this.element.find('.closemenu').click($.proxy(self.toggleMenu, self));
+            this._parent.click($.proxy(self.toggleMenu, self));
+        }
     },
 
     _mouseCapture: function() {
@@ -1999,7 +2003,7 @@ $.widget("rompr.floatingMenu", $.ui.mouse, {
                 self.element.css({left: "", top: ""}).detach().appendTo(self._parent);
             });
         } else {
-            $('.topdropmenu').each(function() {
+            $(self.options.siblings).each(function() {
                 if ($(this).is(':visible') && $(this) != self.element && !$(this).parent().is('body')) {
                     $(this).slideToggle('fast');
                 }

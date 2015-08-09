@@ -39,6 +39,11 @@ if (file_exists('skins/'.$skin.'/skin.requires')) {
 if (!is_array($prefs['composergenrename'])) {
     $prefs['composergenrename'] = array($prefs['composergenrename']);
 }
+// Workaround bug where thsi wasn't initialised to a value, meaning an error could be thrown
+// on the first inclusion of connection.php
+if ($prefs['player_backend'] == '') {
+    $prefs['player_backend'] = 'mpd';
+}
 
 include("includes/functions.php");
 include("international.php");
@@ -237,6 +242,8 @@ var trackFinder = new faveFinder(false);
 
 <script type="text/javascript" src="ui/podcasts.js"></script>
 <?php
+debuglog("Including skins/".$skin.'/skinvars.php',"LAYOUT",5);
+include('skins/'.$skin.'/skinvars.php');
 $inc = glob("browser/helpers/*.js");
 foreach($inc as $i) {
     debuglog("Including Browser Helper ".$i,"INIT",5);
@@ -248,13 +255,15 @@ foreach($inc as $i) {
     debuglog("Including Info Panel Plugin ".$i,"INIT",5);
     print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
 }
-$inc = glob("radios/*.js");
-ksort($inc);
-foreach($inc as $i) {
-    debuglog("Including Smart Radio Plugin ".$i,"INIT",5);
-    print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
+if ($use_smartradio) {
+    $inc = glob("radios/*.js");
+    ksort($inc);
+    foreach($inc as $i) {
+        debuglog("Including Smart Radio Plugin ".$i,"INIT",5);
+        print '<script type="text/javascript" src="'.$i.'"></script>'."\n";
+    }
 }
-if ($skin == "desktop") {
+if ($use_plugins) {
     $inc = glob("plugins/*.js");
     foreach($inc as $i) {
         debuglog("Including Plugin ".$i,"INIT",5);
@@ -284,7 +293,7 @@ include('skins/'.$skin.'/skin.php');
 ?>
 
 <div id="tagadder" class="funkymusic dropmenu dropshadow">
-    <div class="configtitle textcentre" style="padding-top:4px"><b>
+    <div class="configtitle textcentre hound" style="padding-top:4px"><b>
 <?php
 print get_int_text("lastfm_addtags").'</b><i class="icon-cancel-circled clickicon playlisticonr tright" onclick="tagAdder.close()"></i></div><div>'.get_int_text("lastfm_addtagslabel");
 ?>

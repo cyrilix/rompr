@@ -160,8 +160,10 @@ include($p);
         get_int_text('button_playlist').'</a></div>';
     print '<div class="chooser choose_playlistman"><a href="#">'.
         get_int_text('button_playman').'</a></div>';
+if ($use_smartradio) {
     print '<div class="chooser choose_pluginplaylists"><a href="#">'.
         get_int_text('label_pluginplaylists').'</a></div>';
+}
     print '<div class="chooser choose_prefs"><a href="#">'.
         get_int_text('button_prefs').'</a></div>';
     print '<div class="chooser choose_history"><a href="#">'.
@@ -172,6 +174,9 @@ include($p);
 <div id="historypanel" class="noborder scroller mainpane invisible">
 </div>
 
+<?php
+if ($use_smartradio) {
+?>
 <div id="pluginplaylistholder" class="containerbox vertical scroller mainpane invisible">
 <?php
 print '<div class="containerbox spacer configtitle"><div class="expand textcentre"><b>'.
@@ -203,6 +208,9 @@ if ($prefs['player_backend'] == "mopidy") {
 </div>
 </div>
 </div>
+<?php
+}
+?>
 
 <div id="playlistman" class="noborder scroller mainpane invisible">
     <div class="pref containerbox dropdown-container"><div class="fixed padright">

@@ -541,3 +541,8 @@ div.rightmenu.normalmenu
 {
     text-align:center;
 }
+
+.hound
+{
+    cursor: move;
+}

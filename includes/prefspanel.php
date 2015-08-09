@@ -230,7 +230,6 @@ print '<div class="pref styledinputs">
 <input class="autoset toggle" type="checkbox" id="displaycomposer">
 <label for="displaycomposer">'.get_int_text('config_displaycomposer').'</label>
 </div>';
-debuglog("SKIN IS '".$skin."'","PERFS",4);
 if ($skin != "phone") {
 print '<div class="pref textcentre"><button onclick="shortcuts.edit()">'.
     get_int_text('config_editshortcuts').'</button></div>'."\n";

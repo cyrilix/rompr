@@ -479,7 +479,13 @@ var layoutProcessor = function() {
 
             $(".topdropmenu").floatingMenu({
                 handleClass: 'dragmenu',
-                addClassTo: 'configtitle'
+                addClassTo: 'configtitle',
+                siblings: '.topdropmenu'
+            });
+
+            $("#tagadder").floatingMenu({
+                handleClass: 'configtitle',
+                handleshow: false
             });
 
             $(".stayopen").click(function(ev) {ev.stopPropagation() });

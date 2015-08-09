@@ -514,7 +514,7 @@ h2
     position:absolute;
     width:100%;
     padding:4px;
-    top:0px;
+    bottom:0px;
     left:0px;
     display:none;
     opacity:1.0;
