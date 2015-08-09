@@ -28,6 +28,7 @@ foreach($themes as $theme) {
 print '</select></div></div>';
 
 // Custom Background
+if ($skin != 'phone') {
 print '<div id="custombackground" class="pref containerbox dropdown-container">
 <div class="divlabel">'.get_int_text('config_background').'
 <div id="cusbgname" class="tiny" style="font-weight:normal"></div>
@@ -41,6 +42,7 @@ print '<div id="custombackground" class="pref containerbox dropdown-container">
 </form>
 </div>
 </div>';
+}
 
 // Icon Theme
 print '<div class="pref containerbox dropdown-container"><div class="divlabel">'.
@@ -233,11 +235,6 @@ print '<div class="pref styledinputs">
 if ($skin != "phone") {
 print '<div class="pref textcentre"><button onclick="shortcuts.edit()">'.
     get_int_text('config_editshortcuts').'</button></div>'."\n";
-} else {
-print '<div class="pref styledinputs">
-<input class="autoset toggle" type="checkbox" id="stayawake">
-<label for="stayawake">'.get_int_text('config_stayawake').'</label>
-</div>';
 }
 
 // Click Policy

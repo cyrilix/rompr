@@ -95,9 +95,7 @@ $prefs = array(
     "scrobblepercent" => 50,
     "updateeverytime" => false,
     "fullbiobydefault" => true,
-    "mopidy_search_domains" => array("local", "spotify"),
-    "stayawake" => false
-
+    "mopidy_search_domains" => array("local", "spotify")
 );
 
 // ====================================================================

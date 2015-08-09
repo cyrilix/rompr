@@ -565,7 +565,6 @@ $languages['en'] = array (
 	"config_background" => "BACKGROUND IMAGE",
 	"lastfm_error" => "Could not find information on Last.FM",
 	"config_skin" => "SKIN",
-	"config_stayawake" => 'Prevent device from sleeping while playing (experimental)',
 
 	//CHANGED in 0.60
 	"config_country" => "COUNTRY (for Last.FM and Spotify)",

@@ -113,8 +113,6 @@ function setTopIconSize(panels) {
 
 var layoutProcessor = function() {
 
-    var waketimer = null;
-
     return {
 
         shrinkerRatio: 1,
@@ -254,23 +252,6 @@ var layoutProcessor = function() {
 
         scrollCollectionTo: function(jq) {
 
-        },
-
-        stayAwake: function() {
-            if (prefs.stayawake && waketimer === null) {
-                clearInterval(waketimer);
-                debug.shout("LAYOUT","Setting Stay Awake Timer");
-                waketimer = setInterval(function () {
-                    location.href = location.href.replace(/\/#$/,''); //try refreshing
-                    window.setTimeout(window.stop, 0); //stop it soon after
-                }, 30000);
-            }
-        },
-
-        allowSleep: function() {
-            debug.shout("LAYOUT","Clearing Stay Awakw Timer");
-            clearInterval(waketimer);
-            waketimer = null;
         },
 
         initialise: function() {
