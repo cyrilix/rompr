@@ -88,10 +88,10 @@ var browser = function() {
         } else {
             html += '<h2 class="expand">' + data.name + '</h2>';
         }
-        html += '<div class="fixed" style="vertical-align:middle;padding:12px">'+
-            '<a href="#" class="infoclick frog">';
-        html += '<i class="icon-menu topimg"></i>';
-        html += '</a></div>';
+        html += '<div class="fixed" style="vertical-align:middle;padding:12px">';
+            // '<a href="#" class="infoclick frog">';
+        html += '<i class="icon-menu topimg infoclick clickicon frog"></i>';
+        html += '</div>';
         if (source) {
             if (data.link === null) {
                 html += '<div class="fixed" style="vertical-align:middle"><i class="'+

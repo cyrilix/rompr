@@ -259,9 +259,9 @@ var layoutProcessor = function() {
         stayAwake: function() {
             if (prefs.stayawake && waketimer === null) {
                 clearInterval(waketimer);
-                debug.shout("LAYOUT","Setting Stay Awakw Timer");
+                debug.shout("LAYOUT","Setting Stay Awake Timer");
                 waketimer = setInterval(function () {
-                    location.href = location.href; //try refreshing
+                    location.href = location.href.replace(/#/,''); //try refreshing
                     window.setTimeout(window.stop, 0); //stop it soon after
                 }, 30000);
             }

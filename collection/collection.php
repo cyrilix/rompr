@@ -750,7 +750,7 @@ function process_file($filedata) {
             artist_from_path($unmopfile, $filedata['file']);
     }
     if ($filedata['Track'] == null) {
-        $filedata['Track'] = format_tracknum(rawurldecode(basename($filedata['file'])));
+        $filedata['Track'] = format_tracknum(basename(rawurldecode($filedata['file'])));
     } else {
         $filedata['Track'] = format_tracknum(ltrim($filedata['Track'], '0'));
     }
