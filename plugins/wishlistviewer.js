@@ -10,7 +10,11 @@ var wishlistViewer = function() {
 		}
 		var trackDiv = element;
 		var trackDivContainer = trackDiv.parent();
-		var tracktitle = trackDiv.find('.expand').first().children('.fixed').first().html();
+		if (trackDiv.hasClass('containerbox')) {
+			var tracktitle = unescapeHtml(trackDiv.find('.fixed').first().html());
+		} else {
+			var tracktitle = unescapeHtml(trackDiv.find('.expand').first().html());
+		}
 
 		var albumtitle = null;
 		var artistname = null;
@@ -75,7 +79,11 @@ var wishlistViewer = function() {
 			element = element.parent();
 		}
 		var trackDiv = element;
-		var tracktitle = unescapeHtml(trackDiv.find('.expand').first().html());
+		if (trackDiv.hasClass('containerbox')) {
+			var tracktitle = unescapeHtml(trackDiv.find('.fixed').first().html());
+		} else {
+			var tracktitle = unescapeHtml(trackDiv.find('.expand').first().html());
+		}
 
 		var test = trackDiv.parent().attr('id');
 		if (test.match(/wishlistartist/)) {

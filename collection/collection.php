@@ -628,7 +628,7 @@ class musicCollection {
                         // but the following code is to friggicate it into something that
                         // makes faveFinder still work because it's late and this is easier than
                         // fucking about with everything that depends on this.
-                        $d = getDomain($trackobj->url);
+                        $d = getDomain($track['uri']);
                         $fuckyou = false;
                         foreach ($results as $c => $piss) {
                             if ($piss["uri"] == $d.':bodgehack') {

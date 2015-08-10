@@ -88,7 +88,7 @@ jQuery.fn.tipTip = function() {
 }
 
 function showVolumeControl() {
-    $("#volumecontrol").slideToggle('fast');
+    $("#outputbits").animate({width: 'toggle'});
 }
 
 function addCustomScrollBar(value) {

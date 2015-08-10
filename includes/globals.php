@@ -51,7 +51,8 @@ prefs.prefsInLocalStorage = [
     "updateeverytime",
     "fullbiobydefault",
     "mopidy_search_domains",
-    "skin"
+    "skin",
+    "outputsvisible"
 ];
 
 // 'skin' is stored in local storage - it's only use is for setting the correct item

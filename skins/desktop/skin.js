@@ -418,6 +418,9 @@ var layoutProcessor = function() {
         },
 
         initialise: function() {
+            if (prefs.outputsvisible) {
+                toggleAudioOutputs();
+            }
             $("#sortable").disableSelection();
             setDraggable('collection');
             setDraggable('filecollection');

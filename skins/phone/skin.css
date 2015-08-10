@@ -52,11 +52,19 @@ h2
     cursor: pointer;
 }
 
-#volumecontrol
+#outputbits
 {
     z-index:102;
     position:absolute;
-    display: none;
+    right:0px;
+    display:none;
+}
+
+#volumecontrol
+{
+    /*z-index:102;*/
+    /*position:absolute;*/
+    /*display: none;*/
     width:3em;
 }
 

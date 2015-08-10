@@ -645,6 +645,7 @@ function LastFM(user) {
             addGetOptions(options, "user.getNeighbours");
             LastFMGetRequest(
                 options,
+                false,
                 callback,
                 failcallback
             )
@@ -654,6 +655,7 @@ function LastFM(user) {
             addGetOptions(options, "user.getFriends");
             LastFMGetRequest(
                 options,
+                false,
                 callback,
                 failcallback
             )
@@ -663,6 +665,7 @@ function LastFM(user) {
             addGetOptions(options, "user.getTopTags");
             LastFMGetRequest(
                 options,
+                false,
                 callback,
                 failcallback
             )
@@ -672,6 +675,7 @@ function LastFM(user) {
             addGetOptions(options, "user.getTopArtists");
             LastFMGetRequest(
                 options,
+                false,
                 callback,
                 failcallback
             )
@@ -689,6 +693,7 @@ function LastFM(user) {
             addGetOptions(options, "library.getTracks");
             LastFMGetRequest(
                 options,
+                false,
                 callback,
                 failcallback,
                 1

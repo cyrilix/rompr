@@ -1,9 +1,11 @@
 <?php
+$is_connected = false;
+
 function open_mpd_connection() {
-    global $prefs;
-    global $connection;
-    global $is_connected;
-    $is_connected = false;
+    global $prefs, $connection, $is_connected;
+    if ($is_connected) {
+        return true;
+    }
     if ($prefs['unix_socket'] != "") {
         $connection = stream_socket_client('unix://'.$prefs['unix_socket']);
     } else {

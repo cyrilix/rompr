@@ -293,6 +293,17 @@ function removeUserStream(xspf) {
     } );
 }
 
+function outputswitch(id) {
+    player.controller.doOutput(id, !$('#outputbutton_'+id).is(':checked'));
+}
+
+function toggleAudioOutputs() {
+    prefs.save({outputsvisible: !$('#outputbox').is(':visible')});
+    $("#outputbox").animate({width: 'toggle'},'fast',function() {
+        infobar.biggerize();
+    });
+}
+
 function changeBackgroundImage() {
     $('[name="currbackground"]').val(prefs.theme);
     var formElement = document.getElementById('backimageform');
@@ -399,6 +410,9 @@ var imagePopup = function() {
             if ((top+popupheight) > winsize.y) {
                 top = winsize.y - popupheight;
             }
+            if (top < 0) {
+                top = 0;
+            }
             wikipopup.empty();
             wikipopup.animate(
                 {
@@ -430,10 +444,6 @@ var imagePopup = function() {
         }
     }
 }();
-
-function outputswitch(id) {
-    player.controller.doOutput(id, !$('#outputbutton_'+id).is(':checked'));
-}
 
 var popupWindow = function() {
 

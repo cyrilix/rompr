@@ -562,13 +562,33 @@ function playerController() {
 		self.do_command_list([["single",0]]);
 	}
 
-	this.doOutput = function(id, state) {
-		if (state) {
-	        self.do_command_list([["enableoutput",id]]);
-		} else {
-	        self.do_command_list([["disableoutput",id]]);
-		}
-	}
+    this.doOutput = function(id, state) {
+        if (state) {
+            self.do_command_list([["enableoutput",id]]);
+        } else {
+            self.do_command_list([["disableoutput",id]]);
+        }
+    }
+
+    this.doMute = function() {
+        if (prefs.player_backend == "mopidy") {
+            if ($("#mutebutton").hasClass('icon-output-mute')) {
+                $("#mutebutton").removeClass('icon-output-mute').addClass('icon-output');
+                self.do_command_list([["disableoutput", 0]]);
+            } else {
+                $("#mutebutton").removeClass('icon-output').addClass('icon-output-mute');
+                self.do_command_list([["enableoutput", 0]]);
+            }
+        } else {
+            if ($("#mutebutton").hasClass('icon-output-mute')) {
+                $("#mutebutton").removeClass('icon-output-mute').addClass('icon-output');
+                self.do_command_list([["enableoutput", 0]]);
+            } else {
+                $("#mutebutton").removeClass('icon-output').addClass('icon-output-mute');
+                self.do_command_list([["disableoutput", 0]]);
+            }
+        }
+    }
 
     this.search = function(command) {
         var terms = {};

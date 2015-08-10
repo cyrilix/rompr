@@ -9,8 +9,7 @@ function faveFinder(returnall) {
     var priority = [];
 
     // Prioritize - local, beetslocal, beets, gmusic, spotify - in that order
-    // Everything else can take its chance. This is only really relevant for
-    // lastFmImporter. These are the default priorities, but they can be changed
+    // Everything else can take its chance. These are the default priorities, but they can be changed
     // from the lastfm importer gui.
     // There's currently no way to change these for tracks that are rated from radio stations
     // which means that these are the only domains that will be searched.
@@ -32,23 +31,21 @@ function faveFinder(returnall) {
         return im;
     }
 
-    function compare_tracks(lookingfor, found, titleonly) {
+    function compare_tracks(lookingfor, found) {
         if (lookingfor.title.removePunctuation().toLowerCase() !=
                 found.title.removePunctuation().toLowerCase()) {
             return false;
         }
-        if (titleonly) return true;
+        return true;
+    }
 
-        var artists = new Array();
-        artists = artists.concat(found.albumartist.split(/&/));
-        artists = artists.concat(found.artist.split(/&/));
-        var sa = lookingfor.artist.removePunctuation().toLowerCase();
-        for (var i in artists) {
-            if (artists[i].removePunctuation().toLowerCase() == sa) {
-                return true;
-            }
+    function foundNothing(req) {
+        debug.log("FAVEFINDER","Nothing found");
+        if (returnall) {
+            req.callback([req.data]);
+        } else {
+            req.callback(req.data);
         }
-        return false;
     }
 
     this.getPriorities = function() {
@@ -66,7 +63,6 @@ function faveFinder(returnall) {
 
     this.handleResults = function(data) {
 
-        var f = false;
         var req = queue[0];
 
         debug.trace("FAVEFINDER","Raw Results for",req,data);
@@ -87,84 +83,79 @@ function faveFinder(returnall) {
             }
         );
 
-        debug.mark("FAVEFINDER","Sorted Search Results are",data);
+        debug.log("FAVEFINDER","Sorted Search Results are",data);
 
         var results = new Array();
-        if (returnall) {
-            // Using $.each here creates too many closures and leaks.
-            for (var i in data) {
-                if (data[i].tracks) {
-                    for (var k = 0; k < data[i].tracks.length; k++) {
-                        debug.trace("FAVEFINDER","Found Track",data[i].tracks[k]);
-                        f = true;
-                        var r = cloneObject(req);
-                        // r.data = data[i].tracks[k];
-                        for (var g in data[i].tracks[k]) {
-                            r.data[g] = data[i].tracks[k][g];
-                        }
-                        // Prioritise results with a matching album, unless that's
-                        // already been done
-                        if (req.data.album &&
-                            r.data.album &&
-                            r.data.album.toLowerCase() == req.data.album.toLowerCase() &&
-                            results[0] &&
-                            results[0].album &&
-                            results[0].album.toLowerCase() != req.data.album.toLowerCase()) {
-                            
-                            results.unshift(r.data);
-                        } else {
-                            results.push(r.data);
-                        }
+        var results_without_album = new Array();
+        // Sort the results
+        for (var i in data) {
+            if (data[i].tracks) {
+                for (var k = 0; k < data[i].tracks.length; k++) {
+                    debug.log("FAVEFINDER","Found Track",data[i].tracks[k]);
+                    var r = cloneObject(req);
+                    for (var g in data[i].tracks[k]) {
+                        r.data[g] = data[i].tracks[k][g];
                     }
-                }
-            }
-        } else {
-            for (var i in data) {
-                if (data[i].tracks) {
-                    for (var k = 0; k < data[i].tracks.length; k++) {
-                        if (compare_tracks(req.data, data[i].tracks[k], true)) {
-                            debug.log("FAVEFINDER","Found Track",data[i].tracks[k]);
-                            f = true;
-                            for (var g in data[i].tracks[k]) {
-                                req.data[g] = data[i].tracks[k][g];
+                    // Prioritise results with a matching album if the track name matches
+                    // and it's not a compilation
+                    if (withalbum &&
+                        req.data.album &&
+                        r.data.album &&
+                        r.data.album.toLowerCase() == req.data.album.toLowerCase() &&
+                        r.data.albumartist != "Various Artists" &&
+                        compare_tracks(r.data, req.data)) {
+                        results.push(r.data);
+                    } else {
+                        if (r.data.albumartist != "Various Artists") {
+                            if (compare_tracks(r.data, req.data)) {
+                                // Exactly matching track titles are preferred...
+                                results_without_album.unshift(r.data);
+                            } else {
+                                // .. over non-matching track titles ..
+                                results_without_album.push(r.data);
                             }
-                            break;
+                        } else {
+                            // .. and compilation albums ..
+                            results_without_album.push(r.data);
                         }
                     }
                 }
-                if (f) break;
             }
         }
-        if (f) {
-            debug.log("FAVEFINDER","Track Found - Updating Database");
-            if (returnall) {
-                req.callback(results);
-                results = null;
-            } else {
-                req.callback(req.data);
-            }
-            throttle = setTimeout(self.next, 4000);
-            queue.shift();
-            // I know 4 seconds between requests is a long time
-            // but we risk killing Mopidy if we go much faster than this
-            // (as I found out). Also it's nicer to Spotify.
-        } else {
+        results = results.concat(results_without_album);
+        debug.log("FAVEFINDER","Prioritised Results are",results);
+        if (results.length == 0) {
             if (withalbum) {
                 debug.log("FAVEFINDER", "Trying without album name");
                 withalbum = false;
                 queue[0].image = null;
                 self.searchForTrack();
             } else {
-                debug.log("FAVEFINDER","Nothing found");
-                if (returnall) {
-                    req.callback([req.data]);
-                } else {
-                    req.callback(req.data);
+                foundNothing(req);
+            }
+        } else {
+            if (returnall) {
+                req.callback(results);
+            } else {
+                var f = false;
+                for (var i in results) {
+                    if (compare_tracks(req.data, results[i])) {
+                        for (var g in results[i]) {
+                            req.data[g] = results[i][g];
+                        }
+                        f = true;
+                        req.callback(req.data);
+                        break;
+                    }
                 }
-                throttle = setTimeout(self.next, 4000);
-                queue.shift();
+                if (!f) {
+                    foundNothing(req);
+                }
             }
         }
+
+        throttle = setTimeout(self.next, 4000);
+        queue.shift();
     }
 
     this.findThisOne = function(data, callback, withalbum) {

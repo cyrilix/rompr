@@ -40,7 +40,7 @@
 .icon-doc-text { background-image: url('playlist.svg') }
 .icon-floppy { background-image: url('document-save.svg') }
 .icon-cancel-circled { background-image: url('edit-delete.svg') }
-.icon-plus { 
+.icon-plus {
 	background-image: url('add.svg');
   	opacity:0.9;
 }
@@ -80,6 +80,8 @@
 .icon-toggle-open { background-image: url('toggle-open.svg') }
 .icon-toggle-closed { background-image: url('toggle-closed.svg') }
 .icon-spin6 { background-image: url('spinner.svg') }
+.icon-output { background-image: url('output.svg') }
+.icon-output-mute { background-image: url('output_mute.svg') }
 
 .icon-0-stars { background-image: url('0stars.svg') }
 .icon-1-stars { background-image: url('1stars.svg') }
@@ -117,17 +119,17 @@ img.notexist,img.notfound
     line-height:1.5em;
 }
 
-.styledinputs input[type=radio] 
+.styledinputs input[type=radio]
 {
     display:none;
 }
 
-.styledinputs input[type=checkbox] 
+.styledinputs input[type=checkbox]
 {
     display:none;
 }
 
-.styledinputs label:before 
+.styledinputs label:before
 {
     content:"";
     display:inline-block;

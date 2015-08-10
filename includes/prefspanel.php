@@ -250,18 +250,6 @@ print '<input class="autoset toggle" type="checkbox" id="mediacentremode">
 <label for="mediacentremode">'.get_int_text('config_mediacentremode').'</label>
 </div>';
 
-// Audio Outputs
-print '<div class="textcentre configtitle"><b>'.get_int_text('config_audiooutputs').
-    '</b></div><div class="pref">';
-include("player/mpd/outputs.php");
-if ($prefs['player_backend'] == "mpd") {
-print '</div><div class="pref containerbox dropdown-container"><div class="fixed" style="margin-right:2em">'.
-    get_int_text('config_crossfade').
-    '</div>'.
-    '<input class="saveotron prefinput expand" style="margin-right:1em" id="crossfade_duration" type="text" size="3""/>';
-}
-print '</div>';
-
 // Players
 print '<div class="textcentre configtitle"><b>Players</b></div>';
 print '<div class="pref styledinputs" id="playerdefs">';
@@ -269,6 +257,14 @@ print '</div>';
 print '<div class="pref textcentre">
 <button onclick="editPlayerDefs()">Edit Players...</button>
 </div>';
+if ($prefs['player_backend'] == "mpd") {
+print '<div class="pref containerbox dropdown-container">
+    <div class="fixed" style="margin-right:2em">'.
+    get_int_text('config_crossfade').
+    '</div>
+    <input class="saveotron prefinput expand" style="margin-right:1em" id="crossfade_duration" type="text" size="3"/>
+    </div>';
+}
 
 
 // Last.FM

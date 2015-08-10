@@ -17,11 +17,11 @@
 
 .controlbutton-small
 {
-    margin:0px;
+    margin:2px;
     padding:0px;
     font-size:30px;
     vertical-align:middle;
-    display:inline-flex;    
+    display:inline-flex;
 }
 
 .controlbutton:hover,.controlbutton-small:hover
@@ -36,7 +36,7 @@
     margin-top:0px;
     margin-bottom:0px;
     margin-left:2px;
-    margin-right:2px;    
+    margin-right:2px;
 }
 
 .controlbutton-small:before
@@ -44,7 +44,7 @@
     margin-top:0px;
     margin-bottom:0px;
     margin-left:2px;
-    margin-right:2px;        
+    margin-right:2px;
 }
 
 @media screen and (min-height: 900px) and (max-height: 1039px) {

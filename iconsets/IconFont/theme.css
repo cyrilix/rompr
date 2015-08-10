@@ -56,8 +56,8 @@
 .icon-doc-text:before { content: '\e824'; } /* '' */
 .icon-floppy:before { content: '\e81e'; } /* '' */
 .icon-cancel-circled:before { content: '\e830'; } /* '' */
-.icon-plus:before { 
-  content: '\e830'; 
+.icon-plus:before {
+  content: '\e830';
     -ms-transform: rotate(45deg); /* IE 9 */
     -webkit-transform: rotate(45deg); /* Chrome, Safari, Opera */
     transform: rotate(45deg);
@@ -104,7 +104,7 @@
 .icon-no-response-playbutton:before { content: '\e800'; } /* '' */
 .icon-tags:before { content: '\e845'; } /* '' */
 .icon-volume-up:before { content: '\e846'; } /* '' */
-.icon-toggle-open:before { 
+.icon-toggle-open:before {
   content: '\e83a';
   -ms-transform: rotate(90deg); /* IE 9 */
   -webkit-transform: rotate(90deg); /* Chrome, Safari, Opera */
@@ -112,6 +112,14 @@
  } /* '' */
 .icon-toggle-closed:before { content: '\e83a'; } /* '' */
 .icon-spin6:before { content: '\e832'; } /* '' */
+.icon-output:before {
+  content: '\e82f';
+  opacity:1;
+} /* '' */
+.icon-output-mute:before {
+  content: '\e82f';
+  opacity:0.2;
+} /* '' */
 
 .icon-0-stars {
   background-image: url('0stars.svg');
@@ -199,36 +207,38 @@ img.notexist,img.notfound
     display:inline-block;
     cursor:pointer;
     position:relative;
-    padding-left:2.5em;
+    padding-left:2em;
     line-height:1.5em;
 }
 
-.styledinputs input[type=radio] 
+.styledinputs input[type=radio]
 {
     display:none;
 }
 
-.styledinputs input[type=checkbox] 
+.styledinputs input[type=checkbox]
 {
     display:none;
 }
 
-.styledinputs label:before 
+.styledinputs label:before
 {
-    content:"";
-    display:inline-block;
-    width:2em;
-    height:1.5em;
-    position:absolute;
-    left:0;
-    bottom:0.2em;
-    background-image: url('togglebutton-new2-off.svg');
-  background-size:contain;
-  background-position: center;
-  background-repeat:no-repeat;
+  content: '\e847';
+  font-family: "rompr";
+  font-style: normal;
+  font-weight: normal;
+  speak: none;
+  display: inline-block;
+  text-decoration: inherit;
+  text-align: center;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1.3em;
+  position:absolute;
+  left:0;
 }
 
 .styledinputs input:checked + label:before
 {
-    background-image: url('togglebutton-new2-on.svg') !important;
+    content: '\e848';
 }

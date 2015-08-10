@@ -13,8 +13,20 @@
 <div class="expand"></div>
 <div id="playlistcontrols" class="fixed noborder">
 <div class="tleft">
-<i class="icon-volume-up topimg"></i>
+<i class="icon-volume-up topimg" style="position:relative"></i>
+<?php
+include('player/mpd/outputs.php');
+?>
+<div id="outputbits" class="topdropmenu dropshadow">
+<table><tr><td valign="top"><b>
+<?php
+print get_int_text('config_audiooutputs').'</b><br/>';
+printOutputCheckboxes();
+?>
+</td><td>
 <div id="volumecontrol"><div id="volume"></div></div>
+</td></tr></table>
+</div>
 </div>
 <i class="icon-doc-text topimg tleft choose_playlist"></i>
 <i class="icon-cog-alt topimg tleft"></i>

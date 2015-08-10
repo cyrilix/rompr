@@ -25,14 +25,40 @@
     </div>
 
     <div id="volumebox" class="fixed">
-        <div class="infobarlayout bordered">
+        <div class="infobarlayout bordered containerbox vertical">
 <?php
             print '<div title="'.get_int_text('button_volume').
-                '" id="volumecontrol" class="lettuce"><div id="volume"></div></div>';
+                '" id="volumecontrol" class="lettuce expand containerbox vertical"><div id="volume" class="expand"></div></div>';
+            include('player/mpd/outputs.php');
+            if (count($outputdata) == 1) {
+                // There's only one output so we'll treat it like a Mute button
+                print '<div class="tooltip fixed" title="'.$outputdata[0]['outputname'].'">';
+                $f = ($outputdata[0]['outputname'] == "Mute") ? 0 : 1;
+                $c = ($outputdata[0]['outputenabled'] == $f) ? 'icon-output' : 'icon-output-mute';
+                print '<i id="mutebutton" onclick="player.controller.doMute()" class="'.$c.' outhack clickicon"></i>';
+                print '</div>';
+            } else {
+                print '<div class="tooltip fixed" title="'.get_int_text('config_audiooutputs').'">';
+                print '<i id="mutebutton" onclick="toggleAudioOutputs()" class="icon-output outhack clickicon"></i>';
+                print '</div>';
+            }
+
 ?>
         </div>
     </div>
 
+<?php
+    if (count($outputdata) > 1) {
+        print '<div id="outputbox" class="fixed" style="display:none">';
+        print '<div class="infobarlayout bordered">';
+        print '<div style="padding:4px">';
+        printOutputCheckboxes();
+        print '</div>';
+        print '</div>';
+        print '</div>';
+    }
+
+?>
     <div id="patrickmoore" class="infobarlayout bordered noselection expand containerbox">
         <div id="albumcover" class="fixed">
             <img id="albumpicture" class="notexist" />
