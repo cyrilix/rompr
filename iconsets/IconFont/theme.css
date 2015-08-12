@@ -104,7 +104,7 @@
 .icon-spin6:before { content: '\e832'; } /* '' */
 .icon-output:before { content: '\e82f'; } /* '' */
 .icon-output-mute:before { content: '\e807'; } /* '' */
-
+.icon-sliders:before{ content: '\e821'; }
 .icon-0-stars:before { content: '\e810\e810\e810\e810\e810'; }
 .icon-1-stars:before { content: '\e80E\e810\e810\e810\e810'; }
 .icon-2-stars:before { content: '\e80E\e80E\e810\e810\e810'; }

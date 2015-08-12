@@ -39,7 +39,7 @@
                 print '</div>';
             } else {
                 print '<div class="tooltip fixed" title="'.get_int_text('config_audiooutputs').'" style="height:14px">';
-                print '<i id="mutebutton" onclick="toggleAudioOutputs()" class="icon-output outhack clickicon"></i>';
+                print '<i id="mutebutton" onclick="toggleAudioOutputs()" class="icon-sliders outhack clickicon"></i>';
                 print '</div>';
             }
 
