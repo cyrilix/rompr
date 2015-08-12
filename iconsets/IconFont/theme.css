@@ -133,7 +133,7 @@ img.notexist,img.notfound
 .icon-imdb-logo:before { content: '\e820'; }
 .icon-facebook-logo:before { content: '\e839'; } /* '' */
 .icon-twitter-logo:before { content: '\e850'; } /* '' */
-.icon-video { content: '\e80B'; }
+.icon-video:before{ content: '\e80B'; }
 
 .styledinputs label
 {

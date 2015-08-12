@@ -32,13 +32,13 @@
             include('player/mpd/outputs.php');
             if (count($outputdata) == 1) {
                 // There's only one output so we'll treat it like a Mute button
-                print '<div class="tooltip fixed" title="'.$outputdata[0]['outputname'].'">';
+                print '<div class="tooltip fixed" title="'.$outputdata[0]['outputname'].'" style="height:14px">';
                 $f = ($outputdata[0]['outputname'] == "Mute") ? 0 : 1;
                 $c = ($outputdata[0]['outputenabled'] == $f) ? 'icon-output' : 'icon-output-mute';
                 print '<i id="mutebutton" onclick="player.controller.doMute()" class="'.$c.' outhack clickicon"></i>';
                 print '</div>';
             } else {
-                print '<div class="tooltip fixed" title="'.get_int_text('config_audiooutputs').'">';
+                print '<div class="tooltip fixed" title="'.get_int_text('config_audiooutputs').'" style="height:14px">';
                 print '<i id="mutebutton" onclick="toggleAudioOutputs()" class="icon-output outhack clickicon"></i>';
                 print '</div>';
             }
