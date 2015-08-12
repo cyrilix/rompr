@@ -259,9 +259,7 @@
 {
     padding:0px;
     margin:4px;
-    width:16px;
     height:16px;
-    font-size:16px;
     vertical-align:middle;
 }
 
@@ -304,9 +302,6 @@
     margin-right:4px;
     margin-bottom:2px;
     margin-top:2px;
-    width:12px;
-    height:12px;
-    font-size:14px;
     vertical-align:middle;
 }
 
@@ -317,9 +312,6 @@
     margin-right:2px;
     margin-bottom:2px;
     margin-top:2px;
-    width:12px;
-    height:12px;
-    font-size:14px;
     vertical-align:middle;
 }
 
@@ -476,6 +468,11 @@ div.rightmenu.normalmenu
     align-items: center;
 }
 
+.playlistitem.menuitem
+{
+    align-items: inherit !important;
+}
+
 .playlistalbum
 {
     font-weight:bold;
@@ -500,6 +497,7 @@ div.rightmenu.normalmenu
 {
     width:14px;
     height: 14px;
+    font-size:18px;
     vertical-align:middle;
     cursor:pointer;
 }

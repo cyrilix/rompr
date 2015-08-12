@@ -110,16 +110,6 @@
     }
 }
 
-/* Nasty nasty hacky hacky for where we're using a png icon
-   for discogs because if we don't do this it throws
-   the alignment out and the spinners don't work */
-
-.icon-discogs.smallcover-svg:before
-{
-  height:32px;
-  width:32px;
-}
-
 #headerbar:hover i.topimg:before
 {
     text-shadow:0 0 3px #AAA;
@@ -144,4 +134,39 @@
 .npicon
 {
     height: auto !important;
+}
+
+.desktop .playlisticon
+{
+    font-size:14px;
+}
+
+.mobile .playlisticon
+{
+    font-size:16px;
+}
+
+.desktop .playlisticonr
+{
+    font-size:14px;
+}
+
+.mobile .playlisticonr
+{
+    font-size:20px;
+}
+
+.desktop .smallicon
+{
+    font-size:16px;
+}
+
+.mobile .smallicon
+{
+    font-size:20px;
+}
+
+.spinner
+{
+    display:inline-block;
 }

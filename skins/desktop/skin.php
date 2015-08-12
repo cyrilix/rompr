@@ -1,4 +1,4 @@
-<body>
+<body class="desktop">
 <div id="notifications"></div>
 
 <div id="infobar" class="containerbox">

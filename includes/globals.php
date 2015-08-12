@@ -89,7 +89,6 @@ setCookie('player_backend',prefs.player_backend,1);
 
 $("#albumcoversize").attr("href", "coversizes/"+prefs.coversize);
 setTheme(prefs.theme);
-// $("#theme").attr("href", "themes/"+prefs.theme);
 $("#fontsize").attr("href", "sizes/"+prefs.fontsize);
 $("#fontfamily").attr("href", "fonts/"+prefs.fontfamily);
 $("#icontheme-theme").attr("href", "iconsets/"+prefs.icontheme+"/theme.css");
