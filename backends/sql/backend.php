@@ -964,17 +964,17 @@ function do_artists_from_database($which) {
 	if ($result = generic_sql_query(albumartist_sort_query(substr($which,0,1)))) {
 		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			if ($which == "aalbumroot") {
-				artistHeader('aartist'.$obj->Artistindex, null, $obj->Artistname);
+				artistHeader('aartist'.$obj->Artistindex, $obj->Artistname);
 				$count++;
 			} else if ($which == "balbumroot") {
-				artistHeader('bartist'.$obj->Artistindex, null, $obj->Artistname);
+				artistHeader('bartist'.$obj->Artistindex, $obj->Artistname);
 			} else {
 				if ($obj->Artistindex != $which) {
 					$singleheader['where'] = "aartist".$obj->Artistindex;
 					$singleheader['type'] = 'insertAfter';
 				} else {
 					ob_start();
-					artistHeader('aartist'.$obj->Artistindex, null, $obj->Artistname);
+					artistHeader('aartist'.$obj->Artistindex, $obj->Artistname);
 					$singleheader['html'] = ob_get_contents();
 					ob_end_clean();
 					return $singleheader;

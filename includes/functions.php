@@ -227,32 +227,13 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
     print '</div>';
 }
 
-function artistHeader($id, $albumuri, $name, $numalbums = null) {
+function artistHeader($id, $name) {
     global $divtype;
-    if ($albumuri) {
-        print '<div class="clickable clicktrack draggable containerbox menuitem'.$divtype.
-            '" name="'.$albumuri.'">';
-        print '<i class="icon-toggle-closed menu mh fixed" name="'.$id.'"></i>';
-        $d = getDomain($albumuri);
-        $d = preg_replace('/\+.*/','', $d);
-        switch ($d) {
-            case "spotify":
-            case "gmusic":
-            case "podcast":
-            case "internetarchive":
-                print '<i class="icon-'.$d.'-circled fixed playlisticon"></i>';
-                break;
-
-        }
-        print '<div class="expand saname">'.$name.'</div>';
-        print '</div>';
-    } else {
-        print '<div class="clickable clickalbum draggable containerbox menuitem '.
-            $divtype.'" name="'.$id.'">';
-        print '<i class="icon-toggle-closed menu mh fixed" name="'.$id.'"></i>';
-        print '<div class="expand">'.$name.'</div>';
-        print '</div>';
-    }
+    print '<div class="clickable clickalbum draggable containerbox menuitem '.
+        $divtype.'" name="'.$id.'">';
+    print '<i class="icon-toggle-closed menu mh fixed" name="'.$id.'"></i>';
+    print '<div class="expand">'.$name.'</div>';
+    print '</div>';
 }
 
 function noAlbumsHeader() {
@@ -261,7 +242,7 @@ function noAlbumsHeader() {
 }
 
 function albumHeader($name, $albumuri, $id, $exists, $searched, $imgname, $src,
-    $date, $numtracks = null, $aname = null) {
+                        $date, $numtracks = null, $aname = null) {
     
     global $prefs;
     if ($albumuri) {
@@ -497,110 +478,6 @@ function getDomain($d) {
     return $a;
 }
 
-function askForMpdValues($title) {
-    global $prefs;
-print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" '.
-'"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-<head>
-<title>RompR</title>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="viewport" content="width=100%, initial-scale=1.0, maximum-scale=1.0, '.
-'minimum-scale=1.0, user-scalable=0" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<link rel="stylesheet" type="text/css" href="css/layout.css" />
-<link rel="shortcut icon" href="newimages/favicon.ico" />
-<link rel="stylesheet" type="text/css" href="themes/Darkness.css" />
-<style>
-input[type=text] { width: 50% }
-input[type=submit] { width: 40% }
-</style>
-</head>
-<body style="padding:8px;overflow-y:auto">
-    <div class="bordered simar dingleberry" style="max-width:40em">
-    <h3>';
-print $title;
-print '</h3>';
-print '<p>'.get_int_text("setup_labeladdresses").'</p>';
-print '<p class="tiny">'.get_int_text("setup_addressnote").'</p>';
-print '<p>NOTE: Mopidy is still supported, but you must now use the MPD frontend in Mopidy</p>';
-print '<p>Input details for connection : '.$prefs['currenthost'].'</p>';
-print '<form name="mpdetails" action="index.php" method="post">';
-print '<p>'.get_int_text("setup_ipaddress").'<br><input type="text" name="mpd_host" value="'.
-    $prefs['mpd_host'].'" /></p>'."\n";
-print '<hr class="dingleberry" />';
-print '<h3>'.get_int_text("setup_mpd").'</h3>';
-print '<p>'.get_int_text("setup_port").'<br><input type="text" name="mpd_port" value="'.
-    $prefs['mpd_port'].'" /></p>'."\n";
-print '<p>'.get_int_text("setup_password").'<br><input type="text" name="mpd_password" value="'.
-    $prefs['mpd_password'].'" /></p>'."\n";
-print '<p>'.get_int_text("setup_unixsocket").'</p>';
-print '<input type="text" name="unix_socket" value="'.$prefs['unix_socket'].'" /></p>';
-
-print '<hr class="dingleberry" />';
-print '<h3>Collection Settings</h3>';
-print '<p><input type="radio" name="collection_type" value="sqlite"';
-if (array_key_exists('collection_type', $prefs) && $prefs['collection_type'] == "sqlite") {
-    print " checked";
-}
-print '>Lite Database Collection</input></p>';
-print '<p class="tiny">Full featured but may be slow with a large collection</p>';
-print '<p><input type="radio" name="collection_type" value="mysql"';
-if (array_key_exists('collection_type', $prefs) && $prefs['collection_type'] == "mysql") {
-    print " checked";
-}
-print '>Full Database Collection</input></p>';
-print '<p class="tiny">Fast and full featured - requires MySQL Server:</p>';
-print '<p>Server<br><input type="text" name="mysql_host" value="'.
-    $prefs['mysql_host'].'" /></p>'."\n";
-print '<p>Port<br><input type="text" name="mysql_port" value="'.
-    $prefs['mysql_port'].'" /></p>'."\n";
-print '<p>Database<br><input type="text" name="mysql_database" value="'.
-    $prefs['mysql_database'].'" /></p>'."\n";
-print '<p>Username<br><input type="text" name="mysql_user" value="'.
-    $prefs['mysql_user'].'" /></p>'."\n";
-print '<p>Password<br><input type="text" name="mysql_password" value="'.
-    $prefs['mysql_password'].'" /></p>'."\n";
-print '<hr class="dingleberry" />';
-print '<h3>Proxy Settings</h3>';
-print '<p>Proxy Server (eg 192.168.3.4:8800)<br><input type="text" name="proxy_host" value="'.
-    $prefs['proxy_host'].'" /></p>'."\n";
-print '<p>Proxy Username<br><input type="text" name="proxy_user" value="'.
-    $prefs['proxy_user'].'" /></p>'."\n";
-print '<p>Proxy Password<br><input type="text" name="proxy_password" value="'.
-    $prefs['proxy_password'].'" /></p>'."\n";
-print '<hr class="dingleberry" />';
-print '<h3>Debug Logging</h3>';
-print '<table width="100%"><tr>';
-for ($i = 0; $i<10; $i++) {
-    print '<td><input type="radio" name="debug_enabled" value="'.$i.'"';
-    if ($prefs['debug_enabled'] == $i) {
-        print " checked";
-    }
-    print '>Level '.$i;
-    if ($i == 0) {
-        print ' (Off)';
-    }
-    print '</input></td>';
-    if ($i == 4) {
-        print '</tr><tr>';
-    }
-}
-print '</tr></table>';
-print '<p>Custom Log File</p>';
-print '<p class=tiny>Rompr debug output will be sent to this file, but PHP error messages will
- still go to the web server error log. The web server needs write access to this file, it must
- already exist, and you should ensure it gets rotated as it will get large</p>';
-print '<p><input type="text" style="width:90%" name="custom_logfile" value="'.
-    $prefs['custom_logfile'].'" /></p>';
-print '<p><input type="submit" value="OK" /></p>';
-print'    </form>
-    </div>
-</body>
-</html>';
-print "\n";
-}
-
 function sql_init_fail($message) {
 
     global $prefs;
@@ -834,7 +711,7 @@ function getWishlist() {
                     $bothclosed = true;
                 }
                 $current_artist = $obj->artist;
-                artistHeader("wishlistartist_".$count, null, $obj->artist, null);
+                artistHeader("wishlistartist_".$count, $obj->artist);
                 print '<div id="wishlistartist_'.$count.'" class="dropmenu '.$divtype.'">';
                 $count++;
                 $divtype = ($divtype == "album1") ? "album2" : "album1";

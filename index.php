@@ -35,11 +35,11 @@ if (file_exists('skins/'.$skin.'/skin.requires')) {
     $skinrequires = array();
 }
 
-// SVN versions of this release had composergenrename as a string but it's now an array
+// SVN had composergenrename as a string but it's now an array
 if (!is_array($prefs['composergenrename'])) {
     $prefs['composergenrename'] = array($prefs['composergenrename']);
 }
-// Workaround bug where thsi wasn't initialised to a value, meaning an error could be thrown
+// Workaround bug where this wasn't initialised to a value, meaning an error could be thrown
 // on the first inclusion of connection.php
 if ($prefs['player_backend'] == '') {
     $prefs['player_backend'] = 'mpd';
@@ -57,6 +57,7 @@ if (array_key_exists('mpd_host', $_POST)) {
         debuglog("Setting Pref ".$i." to ".$value,"INIT", 3);
         $prefs[$i] = $value;
     }
+    setcookie('currenthost',$prefs['currenthost'],time()+365*24*60*60*10);
     $prefs['multihosts']->$prefs['currenthost'] = (object) [
             'host' => $prefs['mpd_host'],
             'port' => $prefs['mpd_port'],
@@ -75,21 +76,24 @@ debuglog($_SERVER['PHP_SELF'],"INIT",9);
 //
 
 if (array_key_exists('setup', $_REQUEST)) {
-    askForMpdValues(get_int_text("setup_request"));
+    $title = get_int_text("setup_request");
+    include("setupscreen.php");
     exit();
 }
 
 include("player/mpd/connection.php");
 if (!$is_connected) {
     debuglog("MPD Connection Failed","INIT",1);
-    askForMpdValues(get_int_text("setup_connectfail"));
+    $title = get_int_text("setup_connectfail");
+    include("setupscreen.php");
     exit();
 } else {
     $mpd_status = do_mpd_command("status", true);
     if (array_key_exists('error', $mpd_status)) {
         debuglog("MPD Password Failed or other status failure","INIT",1);
         close_mpd();
-        askForMpdValues(get_int_text("setup_connecterror").$mpd_status['error']);
+        $title = get_int_text("setup_connecterror").$mpd_status['error'];
+        include("setupscreen.php");
         exit();
     }
 }
