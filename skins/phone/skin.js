@@ -205,6 +205,10 @@ var layoutProcessor = function() {
             if (source == 'infopane') {
                 setTopIconSize(['#chooserbuttons']);
             }
+            if (source == "radiolist") {
+                podcasts.loadList();
+                $("#yourradiolist").load("streamplugins/00_yourradio.php?populate");
+            }
         },
 
         adjustLayout: function() {

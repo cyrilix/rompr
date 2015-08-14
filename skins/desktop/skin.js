@@ -387,6 +387,10 @@ var layoutProcessor = function() {
                 }
             }
             switchsource(source);
+            if (source == "radiolist") {
+                podcasts.loadList();
+                $("#yourradiolist").load("streamplugins/00_yourradio.php?populate");
+            }
             return false;
         },
 

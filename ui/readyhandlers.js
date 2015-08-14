@@ -8,9 +8,6 @@ $(document).ready(function(){
     $.get('utils/cleancache.php', function() {
         debug.shout("INIT","Cache Has Been Cleaned");
     });
-    if (!prefs.hide_radiolist) {
-        $("#yourradiolist").load("streamplugins/00_yourradio.php?populate");
-    }
     if (prefs.country_userset == false) {
         // Have to pull this data in via the webserver as it's cross-domain
         // It's helpful and important to get the country code set, as many users won't see it
@@ -42,9 +39,6 @@ $(document).ready(function(){
         $("#collectionbuttons").show();
     }
     showUpdateWindow();
-    if (!prefs.hide_radiolist) {
-        podcasts.loadList();
-    }
     window.addEventListener("storage", onStorageChanged, false);
     $("#sortable").click(onPlaylistClicked);
     layoutProcessor.sourceControl(prefs.chooser, setSearchLabelWidth);

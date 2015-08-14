@@ -4,6 +4,7 @@ var podcasts = function() {
 	var downloadRunning = false;
 	var updatenext = null;
 	var updateTimer = null;
+	var loaded = false;
 
 	function checkDownloadQueue() {
 		if (downloadRunning == false) {
@@ -132,11 +133,12 @@ var podcasts = function() {
 	return {
 
 		loadList: function() {
-			if (!prefs.hide_radiolist) {
+			if (!loaded) {
 		        $("#podcastslist").load("streamplugins/01_podcasts.php?populate=1", function() {
 		            $(".fridge").tipTip({delay: 1000, edgeOffset: 8});
 		            podcasts.doNewCount();
 		        });
+		        loaded = true;
 		    }
     	},
 

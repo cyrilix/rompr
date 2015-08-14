@@ -266,14 +266,14 @@ h2
 
     #albumcover
     {
-        height:320px;
+        height:240px;
         margin-top:8px;
     }
 
     #albumpicture
     {
         width:auto;
-        height:320px;
+        height:240px;
         margin-left:auto;
         margin-right:auto;
         display:block;
@@ -302,14 +302,14 @@ h2
 
     #albumcover
     {
-        height:380px;
+        height:300px;
         margin-top:8px;
     }
 
     #albumpicture
     {
         width:auto;
-        height:380px;
+        height:300px;
         margin-left:auto;
         margin-right:auto;
         display:block;
