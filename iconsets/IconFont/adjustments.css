@@ -170,3 +170,8 @@
 {
     display:inline-block;
 }
+
+body.mobile #sourcescontrols
+{
+    padding-top:4px;
+}
