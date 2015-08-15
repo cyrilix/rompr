@@ -127,7 +127,7 @@ var infobar = function() {
         }
         if (s != "") {
             npinfo.artist = s;
-            doctitle = doctitle + " . " + s;
+            doctitle = doctitle + " : " + s;
         }
         if (info.album) {
             npinfo.album = info.album;

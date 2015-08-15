@@ -173,9 +173,12 @@ debuglog("=================****==================","STARTED UP",2);
 <head>
 <title>RompR</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="shortcut icon" href="newimages/favicon.ico" />
+<link rel="shortcut icon" sizes="196x196" href="newimages/favicon-196.png" />
+<link rel="shortcut icon" sizes="128x128" href="newimages/favicon-128.png" />
+<link rel="shortcut icon" sizes="16x16" href="newimages/favicon.ico" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
 <link rel="stylesheet" type="text/css" href="css/layout.css" />
 <?php
 print '<link rel="stylesheet" type="text/css" href="skins/'.$skin.'/skin.css" />'."\n";
