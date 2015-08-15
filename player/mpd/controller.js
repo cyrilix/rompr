@@ -488,8 +488,8 @@ function playerController() {
 		debug.log("MPD","Adding Tracks",tracks,playpos,at_pos);
 		var cmdlist = [];
         if (prefs.mediacentremode) {
-            cmdlist.push("clear");
-            cmdlist.push('consume "1"');
+            cmdlist.push(["clear"]);
+            cmdlist.push(['consume', '1']);
             at_pos = false;
         }
 		var pl = player.status.playlistlength;
