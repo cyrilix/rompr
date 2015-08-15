@@ -246,11 +246,9 @@ if ($prefs['player_backend'] == "mopidy") {
     </div>
 </div>
 <div id="prefsm" class="noborder scroller mainpane invisible">
-    <div id="configpanel">
 <?php
 include("includes/prefspanel.php")
 ?>
-    </div>
 </div>
 
 <div id="playlistm" class="scroller mainpane invisible">
@@ -259,4 +257,6 @@ include("skins/playlist.php");
 ?>
 </div>
 
+<div id="popupwindow" class="noborder scroller mainpane invisible">
+</div>
 

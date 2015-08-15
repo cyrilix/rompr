@@ -301,7 +301,7 @@ function playerController() {
         openpl = null;
         oldplname = name;
         debug.log("MPD","Renaming Playlist",name,e);
-        var rmppu = popupWindow.create(400,300,"rmppu",true,language.gettext("label_renameplaylist"),
+        popupWindow.create(400,300,"rmppu",true,language.gettext("label_renameplaylist"),
             e.clientX,e.clientY);
         $("#popupcontents").append('<div class="containerbox" style="margin-left:8px">'+
             '<div class="expand"><input class="enter" id="newplname" type="text" size="200" />'+

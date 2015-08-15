@@ -82,13 +82,13 @@ input[type=text]
 
 select
 {
-    width:115%;
+    width:100%;
     background-color:transparent;
     border:0px none;
     margin:0px;
     height:2em;
     font-size:100%;
-    /*-webkit-appearance:none;*/
+    -webkit-appearance:none;
     pointer-events:all;
     z-index:99;
 }
@@ -219,7 +219,6 @@ button
 
 .pref .selectholder
 {
-    margin-bottom:0px;
     margin-left: 1em;
 }
 

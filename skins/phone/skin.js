@@ -317,3 +317,41 @@ var layoutProcessor = function() {
     }
 
 }();
+
+var popupWindow = function() {
+
+    var closeCall = null;
+    var returnTo = null;
+
+    return {
+        create: function(w,h,id,s,title,x,y) {
+            $('#popupwindow').empty();
+            closeCall = null;
+            var ourdiv = $('<div>', {id: id}).appendTo('#popupwindow');
+            ourdiv.append('<div id="cheese"></div>');
+            $("#cheese").append('<table width="100%"><tr><td width="30px"></td><td align="center"><h2>'+
+                title+
+                '</h2></td><td align="right" width="30px">'+
+                '<i class="icon-cancel-circled playlisticon clickicon" onclick="popupWindow.close()">'+
+                '</i></td></tr></table>');
+            ourdiv.append('<div id="popupcontents"></div>');
+        },
+        open: function() {
+            returnTo = prefs.chooser;
+            layoutProcessor.sourceControl('popupwindow');
+        },
+        close: function() {
+            layoutProcessor.sourceControl(returnTo);
+            if (closeCall) {
+                closeCall();
+            }
+        },
+        setsize: function() {
+
+        },
+        onClose: function(callback) {
+            closeCall = callback;
+        }
+    }
+
+}();

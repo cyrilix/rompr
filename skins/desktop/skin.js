@@ -546,3 +546,89 @@ var layoutProcessor = function() {
         }
     }
 }();
+
+var popupWindow = function() {
+
+    var popup;
+    var userheight;
+    var wantedwidth;
+    var wantedheight;
+    var wantshrink;
+    var closeCall = null;
+
+    return {
+        create:function(w,h,id,shrink,title,xpos,ypos) {
+            if (popup == null) {
+                popup = document.createElement('div');
+                $(popup).addClass("popupwindow");
+                $(popup).addClass("dropshadow");
+                document.body.appendChild(popup);
+            }
+            $(popup).empty();
+            closeCall = null;
+            wantedwidth = w;
+            wantedheight = h;
+            wantshrink = shrink;
+            popup.setAttribute('id',id);
+            popup.style.height = 'auto';
+            $(popup).append('<div id="cheese"></div>');
+            $("#cheese").append('<table width="100%"><tr><td width="30px"></td><td align="center"><h2>'+
+                title+
+                '</h2></td><td align="right" width="30px">'+
+                '<i class="icon-cancel-circled playlisticon clickicon" onclick="popupWindow.close()">'+
+                '</i></td></tr></table>');
+            $(popup).append('<div id="popupcontents"></div>');
+            var winsize = getWindowSize();
+            var lsize = layoutProcessor.maxPopupSize(winsize);
+            if (lsize.width > w) { lsize.width = w; }
+            if (lsize.height > h) { lsize.height = h; }
+            if (typeof xpos == "undefined") {
+                var x = (winsize.x - lsize.width)/2;
+                var y = (winsize.y - lsize.height)/2;
+            } else {
+                var x = Math.min(xpos, (winsize.x - lsize.width));
+                var y = Math.min(ypos, (winsize.y - lsize.height));
+            }
+            popup.style.width = parseInt(lsize.width) + 'px';
+            userheight = lsize.height;
+            if (!shrink) {
+                popup.style.height = parseInt(lsize.height) + 'px';
+            }
+            popup.style.top = parseInt(y) + 'px';
+            popup.style.left = parseInt(x) + 'px';
+        },
+        open:function() {
+            $(popup).show();
+            var calcheight = $(popup).outerHeight(true);
+            if (userheight > calcheight) {
+                popup.style.height = parseInt(calcheight) + 'px';
+                $("#popupcontents").css("height", parseInt(calcheight - $("#cheese").height()) + 'px');
+            } else {
+                popup.style.height = parseInt(userheight) + 'px';
+                $("#popupcontents").css("height", parseInt(userheight - $("#cheese").height()) + 'px');
+            }
+            addCustomScrollBar("#popupcontents");
+        },
+        close:function() {
+            $(popup).hide();
+            if (closeCall) {
+                closeCall();
+            }
+        },
+        setsize:function() {
+            var winsize = getWindowSize();
+            var lsize = layoutProcessor.maxPopupSize(winsize);
+            var psize = $("#cheese").outerHeight(true)+$("#popupcontents")
+                .children().first().children().first().outerHeight(true)+16;
+            if (psize < wantedheight && psize < winsize.y && psize < lsize.height) {
+                $(popup).css('height',(psize+16)+"px");
+                $("#popupcontents").css('height', $("#popupcontents").children().first()
+                    .children().first().outerHeight(true)+"px");
+            }
+        },
+        onClose: function(callback) {
+            closeCall = callback;
+        }
+    };
+}();
+
