@@ -25,11 +25,8 @@ set_time_limit(240);
 <link rel="stylesheet" id="icontheme-theme" type="text/css" />
 <link rel="stylesheet" id="icontheme-adjustments" type="text/css" />
 <link type="text/css" href="css/jquery.mCustomScrollbar.css" rel="stylesheet" />
-<!-- <script type="text/javascript" src="jquery/jquery-1.8.3-min.js"></script> -->
-
 <script type="text/javascript" src="jquery/jquery-2.1.4.min.js"></script>
 <script type="text/javascript" src="jquery/jquery-migrate-1.2.1.js"></script>
-
 <script type="text/javascript" src="jquery/jquery-ui.min.js"></script>
 <script type="text/javascript" src="jquery/jquery.mCustomScrollbar.concat.min.js"></script>
 <script type="text/javascript" src="skins/desktop/skin.js"></script>

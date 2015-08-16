@@ -315,34 +315,6 @@
     vertical-align:middle;
 }
 
-.bigalarm
-{
-    width: 250px;
-    height: 250px;
-    font-size:250px;
-}
-
-/*-- Styles for drop-down menus --*/
-
-div.topdrop
-{
-    margin:0;
-    padding:0;
-    float:left;
-    position:relative;
-}
-
-div.topdropmenu
-{
-    z-index:1000;
-    overflow-y:auto;
-    overflow-x:hidden;
-    display:none;
-    position: absolute;
-    opacity:1;
-    padding:4px;
-}
-
 div.normalmenu
 {
     width:200px;
@@ -369,6 +341,13 @@ div.rightmenu.normalmenu
 {
     top:30px;
     left:-188px;
+}
+
+.bigalarm
+{
+    width: 250px;
+    height: 250px;
+    font-size:250px;
 }
 
 .rating-icon-big

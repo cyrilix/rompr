@@ -170,6 +170,10 @@ print '<div class="textcentre ucfirst configtitle"><b>'.get_int_text('config_sor
     '</b></div>';
 // Album Sorting
 print '<div class="pref styledinputs">
+<input class="autoset toggle" type="checkbox" id="sortbydate">
+<label for="sortbydate">'.get_int_text('config_sortbydate').'</label>
+</div>';
+print '<div class="pref styledinputs">
 <input class="autoset toggle" type="checkbox" id="notvabydate">
 <label for="notvabydate">'.get_int_text('config_notvabydate').'</label><br/>
 </div>';

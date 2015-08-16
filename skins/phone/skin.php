@@ -29,7 +29,14 @@ printOutputCheckboxes();
 </div>
 </div>
 <i class="icon-doc-text topimg tleft choose_playlist"></i>
-<i class="icon-cog-alt topimg tleft"></i>
+<div class="topdrop fixed"><i class="icon-menu topimg tleft"></i>
+    <div class="topdropmenu rightmenu normalmenu dropdown">
+        <i class="clear_playlist icon-trash topimg"></i>
+        <i class="choose_playlistman icon-doc-text topimg"></i>
+        <i class="choose_pluginplaylists icon-wifi topimg"></i>
+        <i class="choose_prefs icon-cog-alt topimg"></i>
+    </div>
+</div>
 </div>
 </div>
 
@@ -102,8 +109,6 @@ printOutputCheckboxes();
     <label for="sortbyartist">'.ucfirst(get_int_text('label_artists')).'</label><br/>
     <input type="radio" class="topcheck savulon" name="sortcollectionby" value="album" id="sortbyalbum">
     <label for="sortbyalbum">'.ucfirst(get_int_text('label_albums')).'</label><br/>
-    <input class="autoset toggle" type="checkbox" id="sortbydate">
-    <label for="sortbydate">'.get_int_text('config_sortbydate').'</label>
     </div><div class="pref textcentre">
     <button name="donkeykong" onclick="checkCollection(true, false)">'.get_int_text('config_updatenow').'</button>
     </div>';
@@ -129,6 +134,7 @@ include("player/".$prefs['player_backend']."/search.php");
 <div id="infopane" class="infowiki scroller mainpane invisible">
     <div class="containerbox headercontainer">
         <div id="chooserbuttons" class="noborder expand center topbox containerbox">
+            <i id="choose_history" class="icon-versions topimg fixed"></i>
             <i id="backbutton" class="icon-left-circled topimg button-disabled fixed"></i>
             <i id="forwardbutton" class="icon-right-circled topimg button-disabled fixed"></i>
         </div>
@@ -149,37 +155,6 @@ $sp = glob("streamplugins/*.php");
 foreach($sp as $p) {
 include($p);
 }
-?>
-</div>
-
-<div id="chooser" class="noborder scroller mainpane invisible">
-<?php
-// For some bizzarre reason, removing the 'a' tags from here makes the browser crash on iOS when you
-// select anything from the preferences panel. WTF?
-    print '<div class="chooser choose_nowplaying"><a href="#">'.
-        get_int_text('button_now_playing').'</a></div>';
-    print '<div class="chooser choose_albumlist"><a href="#">'.
-        get_int_text('button_local_music').'</a></div>';
-    print '<div class="chooser choose_searcher"><a href="#">'.
-        get_int_text('button_searchmusic').'</a></div>';
-    print '<div class="chooser choose_filelist"><a href="#">'.
-        get_int_text('button_file_browser').'</a></div>';
-    print '<div class="chooser choose_radiolist"><a href="#">'.
-        get_int_text('button_internet_radio').'</a></div>';
-    print '<div class="chooser choose_infopanel"><a href="#">'.
-        get_int_text('button_infopanel').'</a></div>';
-    print '<div class="chooser choose_playlist"><a href="#">'.
-        get_int_text('button_playlist').'</a></div>';
-    print '<div class="chooser choose_playlistman"><a href="#">'.
-        get_int_text('button_playman').'</a></div>';
-if ($use_smartradio) {
-    print '<div class="chooser choose_pluginplaylists"><a href="#">'.
-        get_int_text('label_pluginplaylists').'</a></div>';
-}
-    print '<div class="chooser choose_prefs"><a href="#">'.
-        get_int_text('button_prefs').'</a></div>';
-    print '<div class="chooser choose_history"><a href="#">'.
-        get_int_text('button_mob_history').'</a></div>';
 ?>
 </div>
 

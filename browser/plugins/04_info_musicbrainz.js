@@ -58,7 +58,7 @@ var info_musicbrainz = function() {
 	        html += '</ul>';
 	    }
 
-        if (data.begin_area) {
+        if (data.begin_area && data.area) {
         	html += '<br><ul><li><b>'+language.gettext("musicbrainz_origin")+': </b>'+data.begin_area.name+", "+data.area.name+'</li></ul>';
         } else if (data.area) {
         	html += '<br><ul><li><b>'+language.gettext("musicbrainz_origin")+': </b>'+data.area.name+'</li></ul>';

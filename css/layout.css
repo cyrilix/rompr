@@ -250,6 +250,27 @@ button
     display:none;
 }
 
+/*-- Styles for drop-down menus --*/
+
+div.topdrop
+{
+    margin:0;
+    padding:0;
+    float:left;
+    position:relative;
+}
+
+div.topdropmenu
+{
+    z-index:1000;
+    overflow-y:auto;
+    overflow-x:hidden;
+    display:none;
+    position: absolute;
+    opacity:1;
+    padding:4px;
+}
+
 /*-- divs and classes used in the albums list --*/
 
 .topbox

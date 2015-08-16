@@ -291,6 +291,8 @@ var layoutProcessor = function() {
                  e.stopImmediatePropagation();
                  e.target.focus();
             });
+            $(".dropdown").floatingMenu({
+            });
             setControlClicks();
             $('.choose_nowplaying').click(function(){layoutProcessor.sourceControl('infobar')});
             $('.choose_albumlist').click(function(){layoutProcessor.sourceControl('albumlist')});
@@ -302,12 +304,11 @@ var layoutProcessor = function() {
             $('.choose_pluginplaylists').click(function(){layoutProcessor.sourceControl(
                 'pluginplaylistholder')});
             $('.choose_prefs').click(function(){layoutProcessor.sourceControl('prefsm')});
-            $('.choose_history').click(function(){layoutProcessor.sourceControl('historypanel')});
+            $('#choose_history').click(function(){layoutProcessor.sourceControl('historypanel')});
             $('.icon-rss.npicon').click(function(){podcasts.doPodcast('nppodiput')});
             $('#love').click(nowplaying.love);
             $('#ban').click(infobar.ban);
             $('.icon-volume-up.topimg').click(showVolumeControl);
-            $('.icon-cog-alt.topimg').click(function(){layoutProcessor.sourceControl('chooser')});
             $('.choose_playlist').click(function(){layoutProcessor.sourceControl('playlistm')});
             $("#ratingimage").click(nowplaying.setRating);
             $("#playlistname").parent().next('button').click(player.controller.savePlaylist);
