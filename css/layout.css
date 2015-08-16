@@ -89,6 +89,8 @@ select
     height:2em;
     font-size:100%;
     -webkit-appearance:none;
+    -moz-appearance:none;
+    appearance:none;
     pointer-events:all;
     z-index:99;
 }

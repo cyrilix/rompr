@@ -668,6 +668,9 @@ var infobar = function() {
         },
 
         vCalc: function(e) {
+            if (!e) {
+                return;
+            }
             var t = $("#volumecontrol").offset().top;
             var h = $("#volumecontrol").height();
             var v = ((h-(e.pageY-t))/h)*100;
