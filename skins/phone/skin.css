@@ -685,7 +685,8 @@ div.rightmenu.normalmenu
 {
     height: 26px;
     width: 130px;
-    font-size:26px;
+    font-size:25px;
+    line-height:1em;
     padding-bottom:4px;
     cursor: pointer;
     vertical-align:middle;
