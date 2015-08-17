@@ -87,10 +87,6 @@ jQuery.fn.tipTip = function() {
     return this;
 }
 
-function showVolumeControl() {
-    $("#outputbits").animate({width: 'toggle'});
-}
-
 function addCustomScrollBar(value) {
     // Dummy function - custom scrollbars are not used in the mobile version
 }
@@ -98,7 +94,13 @@ function addCustomScrollBar(value) {
 function setTopIconSize(panels) {
     panels.forEach( function(div) {
         if ($(div).is(':visible')) {
-            var jq = $(div+' .topimg');
+            var jq = $(div+' .topimg').filter(function() {
+                if ($(this).parent().hasClass('topdropmenu')) {
+                    return false;
+                } else {
+                    return true;
+                }
+            });
             var imw = (parseInt(jq.first().css('margin-left')) + parseInt(jq.first().css('margin-right')));
             var imh = parseInt(jq.first().css('max-height'))
             var numicons = jq.length+1;
@@ -308,7 +310,6 @@ var layoutProcessor = function() {
             $('.icon-rss.npicon').click(function(){podcasts.doPodcast('nppodiput')});
             $('#love').click(nowplaying.love);
             $('#ban').click(infobar.ban);
-            $('.icon-volume-up.topimg').click(showVolumeControl);
             $('.choose_playlist').click(function(){layoutProcessor.sourceControl('playlistm')});
             $("#ratingimage").click(nowplaying.setRating);
             $("#playlistname").parent().next('button').click(player.controller.savePlaylist);

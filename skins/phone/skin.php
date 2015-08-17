@@ -2,42 +2,40 @@
 
 <div id="notifications"></div>
 <div id="headerbar" class="noborder fullwidth containerbox">
-<div id="sourcescontrols" class="fixed noborder">
-<i class="icon-play-circled topimg choose_nowplaying"></i>
-<i class="icon-music topimg choose_albumlist"></i>
-<i class="icon-search topimg choose_searcher"></i>
-<i class="icon-folder-open-empty topimg choose_filelist"></i>
-<i class="icon-radio-tower topimg choose_radiolist"></i>
-<i class="icon-info-circled topimg choose_infopanel"></i>
-</div>
-<div class="expand"></div>
-<div id="playlistcontrols" class="fixed noborder">
-<div class="tleft">
-<i class="icon-volume-up topimg" style="position:relative"></i>
+    <div id="sourcescontrols" class="fixed noborder">
+        <i class="icon-play-circled topimg choose_nowplaying"></i>
+        <i class="icon-music topimg choose_albumlist"></i>
+        <i class="icon-search topimg choose_searcher"></i>
+        <i class="icon-folder-open-empty topimg choose_filelist"></i>
+        <i class="icon-radio-tower topimg choose_radiolist"></i>
+        <i class="icon-info-circled topimg choose_infopanel"></i>
+    </div>
+    <div class="expand"></div>
+    <div id="playlistcontrols" class="fixed noborder">
+        <div class="topdrop fixed"><i class="icon-volume-up topimg tleft"></i>
+            <div class="topdropmenu rightmenu widemenu dropdown">
+                <table><tr><td valign="top"><b>
 <?php
 include('player/mpd/outputs.php');
-?>
-<div id="outputbits" class="topdropmenu dropshadow">
-<table><tr><td valign="top"><b>
-<?php
 print get_int_text('config_audiooutputs').'</b><br/>';
 printOutputCheckboxes();
 ?>
-</td><td>
-<div id="volumecontrol"><div id="volume"></div></div>
-</td></tr></table>
-</div>
-</div>
-<i class="icon-doc-text topimg tleft choose_playlist"></i>
-<div class="topdrop fixed"><i class="icon-menu topimg tleft"></i>
-    <div class="topdropmenu rightmenu normalmenu dropdown">
-        <i class="clear_playlist icon-trash topimg"></i>
-        <i class="choose_playlistman icon-doc-text topimg"></i>
-        <i class="choose_pluginplaylists icon-wifi topimg"></i>
-        <i class="choose_prefs icon-cog-alt topimg"></i>
+                </td><td>
+                    <div id="volumecontrol"><div id="volume"></div></div>
+                </td></tr></table>
+
+            </div>
+        </div>
+        <i class="icon-doc-text topimg tleft choose_playlist"></i>
+        <div class="topdrop fixed"><i class="icon-menu topimg tleft"></i>
+            <div class="topdropmenu rightmenu normalmenu dropdown">
+                <i class="clear_playlist icon-trash topimg"></i>
+                <i class="choose_playlistman icon-doc-text topimg"></i>
+                <i class="choose_pluginplaylists icon-wifi topimg"></i>
+                <i class="choose_prefs icon-cog-alt topimg"></i>
+            </div>
+        </div>
     </div>
-</div>
-</div>
 </div>
 
 <div id="infobar" class="noborder mainpane containerbox vertical invisible">

@@ -51,14 +51,6 @@ h2
     cursor: pointer;
 }
 
-#outputbits
-{
-    z-index:102;
-    position:absolute;
-    right:0px;
-    display:none;
-}
-
 #volumecontrol
 {
     width:3em;
@@ -343,6 +335,17 @@ h2
         max-height:36px;
     }
 
+    div.normalmenu
+    {
+        width:44px !important;
+    }
+
+    div.rightmenu
+    {
+        top:44px !important;
+        right:0px;
+    }
+
     .controlbutton
     {
         height:52px;
@@ -477,7 +480,7 @@ div.normalmenu
     width:34px;
 }
 
-div.rightmenu.normalmenu
+div.rightmenu
 {
     top:30px;
     right:0px;

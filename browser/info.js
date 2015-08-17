@@ -333,7 +333,7 @@ var browser = function() {
                 if (prefs.clickmode == "double") {
                     trackSelect(event, element);
                 } else {
-                    playlist.addItem(element);
+                    playlist.addItems(element, null);
                 }
             } else if (element.hasClass('clickartistchoose')) {
                 nowplaying.switchArtist(history[displaypointer].source, element.next().val());
