@@ -30,6 +30,7 @@ set_time_limit(240);
 <script type="text/javascript" src="jquery/jquery-ui.min.js"></script>
 <script type="text/javascript" src="jquery/jquery.mCustomScrollbar.concat.min.js"></script>
 <script type="text/javascript" src="skins/desktop/skin.js"></script>
+<script type="text/javascript" src="includes/globals.js"></script>
 <script type="text/javascript" src="ui/functions.js"></script>
 <script type="text/javascript" src="ui/uifunctions.js"></script>
 <script type="text/javascript" src="ui/debug.js"></script>

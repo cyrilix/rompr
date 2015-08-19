@@ -10,6 +10,13 @@ function changeradiocountry() {
 }
 
 function loadBigRadioHtml(qstring) {
-    $("#bbcwait").makeSpinner();
-    $("#bbclist").load("streamplugins/02_nationalradio.php?"+qstring, function() { $("#bbcwait").stopSpinner() });
+    $('[name="bbclist"]').makeSpinner();
+    $("#bbclist").load("streamplugins/02_nationalradio.php?"+qstring, function() {
+    	$('[name="bbclist"]').stopSpinner().removeClass('icon-toggle-closed');
+    	if (!$('[name="bbclist"]').hasClass('icon-toggle-open')) {
+    		$('[name="bbclist"]').addClass('icon-toggle-open');
+    	}
+    });
 }
+
+menuOpeners['bbclist'] = loadBigRadio;

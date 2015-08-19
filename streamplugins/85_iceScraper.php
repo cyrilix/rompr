@@ -105,7 +105,7 @@ if (array_key_exists('populate', $_REQUEST)) {
 
 	$('form[name="searchice"]').ajaxForm(function(data) {
 	    $('#icecastlist').html(data);
-	    $("#icewait").stopSpinner();
+	    spaghetti();
 	});
 
 	<?php
@@ -119,11 +119,10 @@ if (array_key_exists('populate', $_REQUEST)) {
 ?>
 <div class="containerbox menuitem noselection multidrop">
 <?php
-print '<i class="icon-toggle-closed menu mh fixed" onclick="refreshMyDrink()" name="icecastlist"></i>';
+print '<i class="icon-toggle-closed menu mh fixed" name="icecastlist"></i>';
 print '<i class="icon-icecast fixed smallcover-svg"></i>';
 print '<div class="expand"><h3>'.get_int_text('label_icecast').'</h3></div>';
 ?>
-<i id="icewait" class="smallicon invisible"></i>
 </div>
 <div id="icecastlist" class="dropmenu"></div>
 

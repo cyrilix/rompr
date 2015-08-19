@@ -207,11 +207,10 @@ if (array_key_exists('populate', $_REQUEST)) {
 ?>
 <div class="containerbox menuitem noselection multidrop">
 <?php
-print '<i class="icon-toggle-closed mh menu fixed" onclick="loadBigRadio()" name="bbclist"></i>';
+print '<i class="icon-toggle-closed mh menu fixed" name="bbclist"></i>';
 print '<i class="icon-radio-tower fixed smallcover-svg"></i>';
 print '<div class="expand"><h3>'.get_int_text('label_streamradio').'</h3></div>';
 ?>
-<i id="bbcwait" class="smallicon invisible"></i>
 </div>
 <div id="bbclist" class="dropmenu"></div>
 

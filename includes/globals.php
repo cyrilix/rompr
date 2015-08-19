@@ -212,13 +212,4 @@ print "    by: '".get_int_text("label_by")."',\n";
 print "    on: '".get_int_text("label_on")."'\n";
 print "};\n";
 ?>
-var lastfm_api_key = "15f7532dff0b8d84635c757f9f18aaa3";
-var sources = new Array();
-var update_load_timer = 0;
-var update_load_timer_running = false;
-var last_selected_element = null;
-var textSaveTimer = null;
-var scrobwrangler = null;
-var serverTimeOffset = 0;
-var resizeTimer = null;
 </script>

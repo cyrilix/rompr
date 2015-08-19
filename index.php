@@ -211,6 +211,7 @@ foreach ($skinrequires as $s) {
 <!-- Masonry layout engine : http://masonry.desandro.com/ -->
 <script type="text/javascript" src="jquery/imagesloaded.pkgd.min.js"></script>
 <script type="text/javascript" src="jquery/masonry.pkgd.min.js"></script>
+<script type="text/javascript" src="includes/globals.js"></script>
 <script type="text/javascript" src="ui/readyhandlers.js"></script>
 <script type="text/javascript" src="ui/debug.js"></script>
 <script type="text/javascript" src="ui/functions.js"></script>

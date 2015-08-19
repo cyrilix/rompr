@@ -272,6 +272,9 @@ function doMenu(event, element) {
     if (element.isClosed()) {
         element.toggleOpen();
         $('#'+menutoopen).menuReveal();
+        if (menuOpeners[menutoopen]) {
+            menuOpeners[menutoopen]();
+        }
     } else {
         element.toggleClosed();
         $('#'+menutoopen).menuHide();
