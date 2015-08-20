@@ -130,7 +130,7 @@ function add_playlist($link, $name, $icon, $class, $delete, $count, $is_user) {
 function do_playlist_header() {
     print '<div class="configtitle textcentre"><b>'.get_int_text('button_loadplaylist').'</b></div>';
     print '<div class="containerbox spacer dropdown-container">';
-    print '<div class="fixed padright"><span style="vertical-align:middle">External URL</span></div>';
+    print '<div class="fixed padright"><span style="vertical-align:middle;padding-left:8px">External URL</span></div>';
     print '<div class="expand dropdown-holder">
         <input class="enter" id="godfreybiggins" type="text" onkeyup="onKeyUp(event)" /></div>';
     print '<button class="fixed" style="margin-left:8px;vertical-align:middle" '.
