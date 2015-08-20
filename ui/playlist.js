@@ -172,8 +172,8 @@ function Playlist() {
         $("#sortable").append('<div id="waiter" class="containerbox"></div>');
         layoutProcessor.setPlaylistHeight();
         if (lookforcurrenttrack !== false) {
-            lookforcurrenttrack = false;
             self.trackHasChanged(lookforcurrenttrack);
+            lookforcurrenttrack = false;
         }
         self.radioManager.setHeader();
         if (playlist.radioManager.isPopulating()) {
