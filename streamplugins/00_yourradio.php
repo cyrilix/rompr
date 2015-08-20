@@ -73,8 +73,7 @@ print '<i class="icon-radio-tower fixed smallcover-svg"></i>';
 print '<div class="expand"><h3>'.get_int_text('label_yourradio').'</h3></div>';
 ?>
 </div>
-<div id="yourradiolist" class="dropmenu">
-</div>
+<div id="yourradiolist" class="dropmenu"></div>
 <?php
 }
 ?>

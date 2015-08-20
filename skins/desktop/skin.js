@@ -238,21 +238,16 @@ function addCustomScrollBar(value) {
 
 var layoutProcessor = function() {
 
-    function switchsource(source) {
-
-        var togo = sources.shift();
-        if (togo && typeof togo != "function") {
-            if ($("#"+togo).is(':visible')) {
-                $("#"+togo).fadeOut(200, function() { switchsource(source) });
-            } else {
-                switchsource(source);
-            }
+    function showPanel(source, callback) {
+        if (callback) {
+            $('#'+source).fadeIn('fast', callback);
         } else {
-            prefs.save({chooser: source});
-            if (typeof togo == "function") {
-                $("#"+source).fadeIn(200, togo);
-            } else {
-                $("#"+source).fadeIn(200);
+            $('#'+source).fadeIn('fast');
+        }
+        if (source == "radiolist") {
+            podcasts.loadList();
+            if ($("#yourradiolist").is(':empty')) {
+                $("#yourradiolist").load("streamplugins/00_yourradio.php?populate");
             }
         }
     }
@@ -376,20 +371,13 @@ var layoutProcessor = function() {
         },
 
         sourceControl: function(source, callback) {
-            sources = ["albumlist", "searcher", "filelist", "radiolist"];
-            if (callback) {
-                sources.push(callback);
-            }
-            for(var i in sources) {
-                if (sources[i] == source) {
-                    sources.splice(i, 1);
-                    break;
-                }
-            }
-            switchsource(source);
-            if (source == "radiolist") {
-                podcasts.loadList();
-                $("#yourradiolist").load("streamplugins/00_yourradio.php?populate");
+            if (source != prefs.chooser) {
+                $('#'+prefs.chooser).fadeOut('fast', function() {
+                    prefs.save({chooser: source});
+                    showPanel(source, callback);
+                });
+            } else {
+                showPanel(source, callback);
             }
             return false;
         },
