@@ -100,7 +100,7 @@ var starRadios = function() {
                 html += '<div class="containerbox backhi spacer dropdown-container" '+
                         'onclick="playlist.radioManager.load(\'starRadios\', \''+v+'\')">'+
                         '<div class="fixed"><i class="'+cn+' rating-icon-small"></i></div>'+
-                        '<div class="expand">'+language.gettext('playlist_xstar', [i+1])+
+                        '<div class="expand">&nbsp;'+language.gettext('playlist_xstar', [i+1])+
                         '</div>'+
                         '</div>';
 
