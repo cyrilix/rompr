@@ -329,12 +329,6 @@ var layoutProcessor = function() {
         },
 
         playlistLoading: function() {
-            if ($("#lpscr").is(':visible')) {
-                $("#lpscr").slideToggle('fast');
-            }
-            if ($("#ppscr").is(':visible')) {
-                $("#ppscr").slideToggle('fast');
-            }
         },
 
         scrollPlaylistToCurrentTrack: function() {
@@ -371,6 +365,10 @@ var layoutProcessor = function() {
         },
 
         sourceControl: function(source, callback) {
+            if ($('#'+source).length == 0) {
+                prefs.save({chooser: 'albumlist'});
+                source = 'albumlist';
+            }
             if (source != prefs.chooser) {
                 $('#'+prefs.chooser).fadeOut('fast', function() {
                     prefs.save({chooser: source});
@@ -511,6 +509,8 @@ var layoutProcessor = function() {
                 setSearchLabelWidth)});
             $('.choose_filelist').click(function(){layoutProcessor.sourceControl('filelist')});
             $('.choose_radiolist').click(function(){layoutProcessor.sourceControl('radiolist')});
+            $('.choose_playlistslist').click(function(){layoutProcessor.sourceControl('playlistslist')});
+            $('.choose_pluginplaylistslist').click(function(){layoutProcessor.sourceControl('pluginplaylistslist')});
             $('.open_albumart').click(openAlbumArtManager);
             $('#love').click(nowplaying.love);
             $('#ban').click(infobar.ban);

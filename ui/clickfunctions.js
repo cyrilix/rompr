@@ -380,25 +380,17 @@ function doFileMenu(event, element) {
             }
             $('#'+menutoopen).load(string, function() {
                 $(this).removeClass("notfilled");
-                var callback = null;
-                if (string.match(/loadplaylists\.php/)) {
-                    callback = plMenuHack;
-                }
-                $(this).menuReveal(callback);
+                $(this).menuReveal();
                 element.stopSpinner();
             });
         } else {
-            $('#'+menutoopen).menuReveal(plMenuHack);
+            $('#'+menutoopen).menuReveal();
         }
     } else {
-        $('#'+menutoopen).menuHide(plMenuHack);
+        $('#'+menutoopen).menuHide();
         element.toggleClosed();
     }
     return false;
-}
-
-function plMenuHack() {
-    layoutProcessor.fanoogleMenus($("#lpscr"));
 }
 
 function setDraggable(divname) {

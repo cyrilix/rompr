@@ -1,7 +1,7 @@
 
 <div class="containerbox padright">
 <?php
-print '<h3>'.get_int_text("label_searchfor").'</h3>';
+    print '<div class="configtitle textcentre expand"><b>'.get_int_text('label_searchfor').'</b></div>';
 ?>
 </div>
 <div class="containerbox padright">

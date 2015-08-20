@@ -8,7 +8,8 @@
         <i class="icon-search topimg choose_searcher"></i>
         <i class="icon-folder-open-empty topimg choose_filelist"></i>
         <i class="icon-radio-tower topimg choose_radiolist"></i>
-        <i class="icon-info-circled topimg choose_infopanel"></i>
+        <i class="choose_playlistman icon-doc-text topimg"></i>
+        <i class="choose_pluginplaylists icon-wifi topimg"></i>
     </div>
     <div class="expand"></div>
     <div id="playlistcontrols" class="fixed noborder">
@@ -29,9 +30,8 @@ printOutputCheckboxes();
         <i class="icon-doc-text topimg tleft choose_playlist"></i>
         <div class="topdrop fixed"><i class="icon-menu topimg tleft"></i>
             <div class="topdropmenu rightmenu normalmenu dropdown">
+                <i class="icon-info-circled topimg choose_infopanel"></i>
                 <i class="clear_playlist icon-trash topimg"></i>
-                <i class="choose_playlistman icon-doc-text topimg"></i>
-                <i class="choose_pluginplaylists icon-wifi topimg"></i>
                 <i class="choose_prefs icon-cog-alt topimg"></i>
             </div>
         </div>
@@ -96,8 +96,8 @@ printOutputCheckboxes();
     print '<div class="fixed" style="padding-right:4px"><i onclick="toggleCollectionButtons()" '.
         'title="'.get_int_text('button_collectioncontrols').
         '" class="icon-menu playlisticon clickicon lettuce"></i></div>';
-    print '<div class="expand" style="font-weight:bold;font-size:120%;padding-top:0.4em">'.
-        get_int_text("button_local_music").'</div></div>';
+    print '<div class="configtitle textcentre expand"><b>'.get_int_text('button_local_music').'</b></div>';
+    print '</div>';
 ?>
     <div id="collectionbuttons" class="invisible searchbox">
 <?php
@@ -147,6 +147,9 @@ include("player/".$prefs['player_backend']."/search.php");
 </div>
 
 <div id="radiolist" class="scroller mainpane invisible">
+<?php
+    print '<div class="configtitle textcentre"><b>'.get_int_text('button_internet_radio').'</b></div>';
+?>
 
 <?php
 $sp = glob("streamplugins/*.php");
@@ -198,10 +201,10 @@ if ($prefs['player_backend'] == "mopidy") {
 ?>
 
 <div id="playlistman" class="noborder scroller mainpane invisible">
-    <div class="pref containerbox dropdown-container"><div class="fixed padright">
 <?php
-        print get_int_text('button_saveplaylist');
+    print '<div class="configtitle textcentre"><b>'.get_int_text('button_saveplaylist').'</b></div>';
 ?>
+    <div class="pref containerbox dropdown-container"><div class="fixed padright">
         </div><div class="expand"><input id="playlistname" type="text" size="200"/></div>
 <?php
         print '<button class="fixed" onclick="player.controller.savePlaylist()">'.
@@ -210,11 +213,7 @@ if ($prefs['player_backend'] == "mopidy") {
     </div>
     <div class="pref">
         <div id="playlistslist">
-<?php
-            print '<div class="configtitle textcentre"><b>'.
-                get_int_text("button_loadplaylist").'</b></div>';
-            print '<div id="storedplaylists"></div>';
-?>
+            <div id="storedplaylists"></div>
         </div>
     </div>
 </div>

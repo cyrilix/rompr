@@ -108,8 +108,10 @@ print '<i title="'.get_int_text('button_file_browser').
     '" class="icon-folder-open-empty tooltip topimg choose_filelist"></i>';
 print '<i title="'.get_int_text('button_internet_radio').
     '" class="icon-radio-tower tooltip topimg choose_radiolist"></i>';
-print '<i title="'.get_int_text('button_albumart').
-    '" class="icon-cd tooltip topimg open_albumart"></i>';
+print '<i title="'.get_int_text('button_loadplaylist').
+    '" class="icon-doc-text tooltip topimg choose_playlistslist"></i>';
+print '<i title="'.get_int_text('label_pluginplaylists').
+    '" class="icon-wifi tooltip topimg choose_pluginplaylistslist"></i>';
 ?>
 </div>
 <?php
@@ -164,6 +166,8 @@ print '<div class="expand"><i id="playlistresizer" class="icon-resize-horizontal
 <div class="fixed topbox" id="righthandtop">
 
 <?php
+print '<div class="topdrop"><i title="'.get_int_text('button_albumart').
+    '" class="icon-cd tooltip topimg open_albumart"></i></div>';
 print '<div class="topdrop"><i class="icon-cog-alt topimg tooltip" title="'.
     get_int_text('button_prefs').'"></i>';
 ?>
@@ -184,51 +188,6 @@ print '<div class="configtitle textcentre"><b>'.get_int_text('button_clearplayli
 print '<div class="textcentre"><button class="clear_playlist">'.get_int_text('button_imsure').
     '</button></div>';
 ?>
-</div>
-</div>
-
-<?php
-print '<div class="topdrop"><i class="icon-wifi topimg tooltip" title="'.
-    get_int_text('label_pluginplaylists').'"></i>';
-?>
-<div class="topdropmenu dropshadow rightmenu widemenu stayopen" id="ppscr">
-<?php
-print '<div class="configtitle textcentre"><b>'.get_int_text('label_pluginplaylists').'</b></div>';
-?>
-<div class="clearfix containerbox vertical" id="pluginplaylists">
-<?php
-if ($prefs['player_backend'] == "mopidy") {
-    print '<div class="textcentre textunderline"><b>Music From Your Collection</b></div>';
-}
-?>
-</div>
-<div class="clearfix containerbox vertical" id="pluginplaylists_spotify">
-<?php
-if ($prefs['player_backend'] == "mopidy") {
-    print '<div class="textcentre textunderline"><b>Music From Spotify</b></div>';
-}
-?>
-</div>
-<div class="clearfix containerbox vertical" id="pluginplaylists_everywhere">
-<?php
-if ($prefs['player_backend'] == "mopidy") {
-    print '<div class="textcentre textunderline"><b>Music From Everywhere</b></div>';
-    print '<div id="radiodomains" class="pref"><b>Play From These Sources:</b></div>';
-}
-?>
-</div>
-</div>
-</div>
-
-<?php
-print '<div class="topdrop"><i class="icon-doc-text topimg tooltip" title="'.
-    get_int_text('button_loadplaylist').'"></i>';
-?>
-<div class="topdropmenu dropshadow rightmenu widemenu stayopen" id="lpscr">
-<?php
-print '<div class="configtitle textcentre"><b>'.get_int_text('button_loadplaylist').'</b></div>';
-?>
-<div class="clearfix selecotron" id="storedplaylists"></div>
 </div>
 </div>
 
@@ -260,8 +219,8 @@ print '<button class="fixed">'.get_int_text('button_save').'</button></div>';
     print '<div class="fixed" style="padding-right:4px"><i onclick="toggleCollectionButtons()" title="'.
         get_int_text('button_collectioncontrols').
         '" class="icon-menu playlisticon clickicon lettuce"></i></div>';
-    print '<div class="expand" style="font-weight:bold;font-size:120%;padding-top:0.4em">'.
-        get_int_text("button_local_music").'</div></div>';
+    print '<div class="configtitle textcentre expand"><b>'.get_int_text('button_local_music').'</b></div>';
+    print '</div>';
 ?>
     <div id="collectionbuttons" class="invisible searchbox">
 <?php
@@ -291,14 +250,48 @@ include("player/".$prefs['player_backend']."/search.php");
     </div>
 
     <div id="radiolist" class="invisible">
-
+<?php
+    print '<div class="configtitle textcentre"><b>'.get_int_text('button_internet_radio').'</b></div>';
+?>
 <?php
 $sp = glob("streamplugins/*.php");
 foreach($sp as $p) {
     include($p);
 }
 ?>
+    </div>
+    <div id="playlistslist" class="invisible">
+        <div id="storedplaylists" class="noborder selecotron"></div>
+    </div>
+
+    <div id="pluginplaylistslist" class="invisible">
+<?php
+print '<div class="configtitle textcentre"><b>'.get_int_text('label_pluginplaylists').'</b></div>';
+?>
+<div class="clearfix containerbox vertical" id="pluginplaylists">
+<?php
+if ($prefs['player_backend'] == "mopidy") {
+    print '<div class="textcentre textunderline"><b>Music From Your Collection</b></div>';
+}
+?>
 </div>
+<div class="clearfix containerbox vertical" id="pluginplaylists_spotify">
+<?php
+if ($prefs['player_backend'] == "mopidy") {
+    print '<div class="textcentre textunderline"><b>Music From Spotify</b></div>';
+}
+?>
+</div>
+<div class="clearfix containerbox vertical" id="pluginplaylists_everywhere">
+<?php
+if ($prefs['player_backend'] == "mopidy") {
+    print '<div class="textcentre textunderline"><b>Music From Everywhere</b></div>';
+    print '<div id="radiodomains" class="pref"><b>Play From These Sources:</b></div>';
+}
+?>
+</div>
+</div>
+
 </div>
 
 <div id="infopane" class="cmiddle noborder infowiki tleft">
