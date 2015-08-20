@@ -10,6 +10,7 @@ function Playlist() {
     var updateErrorFlag = 0;
     var pscrolltimer = null;
     var pageloading = true;
+    var lookforcurrenttrack = false;
 
     // Minimal set of information - just what infobar requires to make sure
     // it blanks everything out
@@ -170,7 +171,10 @@ function Playlist() {
         // Invisible empty div tacked on the end is where we add our 'Incoming' animation
         $("#sortable").append('<div id="waiter" class="containerbox"></div>');
         layoutProcessor.setPlaylistHeight();
-
+        if (lookforcurrenttrack !== false) {
+            lookforcurrenttrack = false;
+            self.trackHasChanged(lookforcurrenttrack);
+        }
         self.radioManager.setHeader();
         if (playlist.radioManager.isPopulating()) {
             playlist.waiting();
@@ -332,19 +336,6 @@ function Playlist() {
         doSomethingUseful('waiter', language.gettext("label_incoming"));
     }
 
-    // This is used for adding stream playlists ONLY
-    // this.newInternetRadioStation = function(list) {
-    //     var tracks = [];
-    //     $(list).find("track").each( function() {
-    //         tracks.push({   type: "uri",
-    //                         name: $(this).find("location").text()}
-    //         );
-    //     });
-    //     if (tracks.length > 0) {
-    //         player.controller.addTracks(tracks, playlist.playFromEnd(), null);
-    //     }
-    // }
-
     this.hideItem = function(i) {
         tracklist[i].rollUp();
     }
@@ -364,17 +355,27 @@ function Playlist() {
     }
 
     this.trackHasChanged = function(backendid) {
+
+        if (updatecounter > 0) {
+            debug.log("PLAYLIST","Deferring looking for current track - there is an ongoing update");
+            lookforcurrenttrack = backendid;
+            return;
+        }
+        lookforcurrenttrack = false;
         if (backendid != currentTrack.backendid) {
             debug.log("PLAYLIST","Looking For Current Track",backendid);
             $(".playlistcurrentitem").removeClass('playlistcurrentitem').addClass('playlistitem');
-            $('.track[romprid="'+backendid+'"],.booger[romprid="'+backendid+'"]').removeClass('playlistitem').addClass('playlistcurrentitem');
+            $('.track[romprid="'+backendid+'"],.booger[romprid="'+backendid+'"]').
+                removeClass('playlistitem').addClass('playlistcurrentitem');
             if (backendid && tracklist.length > 0) {
                 for(var i in tracklist) {
                     if (tracklist[i].findcurrent(backendid)) {
                         if (currentalbum != i) {
                             currentalbum = i;
-                            $(".playlistcurrenttitle").removeClass('playlistcurrenttitle').addClass('playlisttitle');
-                            $('.item[name="'+i+'"]').removeClass('playlisttitle').addClass('playlistcurrenttitle');
+                            $(".playlistcurrenttitle").removeClass('playlistcurrenttitle').
+                                addClass('playlisttitle');
+                            $('.item[name="'+i+'"]').removeClass('playlisttitle').
+                                addClass('playlistcurrenttitle');
                         }
                         break;
                     }
