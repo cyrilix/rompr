@@ -1801,3 +1801,8 @@ a.infoclick.clickreleasepage
     margin-top:2px;
     margin-bottom:2px;
 }
+
+#pluginplaylistslist
+{
+    padding-left:8px;
+}
