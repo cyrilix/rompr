@@ -265,8 +265,8 @@ var layoutProcessor = function() {
 
         },
 
-        scrollCollectionTo: function(jq) {
-
+        displayCollectionInsert: function(d) {
+            infobar.notify(infobar.NOTIFY,"Added track to Collection");
         },
 
         initialise: function() {

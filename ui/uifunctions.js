@@ -1438,9 +1438,7 @@ function updateCollectionDisplay(rdata, markit) {
 
     if (markit && rdata && rdata.hasOwnProperty('displaynewtrack')
         && rdata.displaynewtrack.albumindex != null && rdata.displaynewtrack.trackuri != "") {
-        layoutProcessor.sourceControl('albumlist', function() {
-            displayCollectionInsert(rdata.displaynewtrack);
-        });
+        layoutProcessor.displayCollectionInsert(rdata.displaynewtrack);
     }
 
     if (rdata && rdata.hasOwnProperty('deletedtracks')) {
@@ -1471,37 +1469,6 @@ function updateCollectionDisplay(rdata, markit) {
         $("#fothergill").html(rdata.stats);
     }
     scootTheAlbums($("#collection"));
-}
-
-function flashTrack(uri) {
-    $('[name="'+uri+'"]').makeFlasher({flashtime: 0.5, repeats: 5});
-    layoutProcessor.scrollCollectionTo($('[name="'+uri+'"]'));
-}
-
-function displayCollectionInsert(details) {
-
-    debug.log("COLLECTION","Displaying New Insert",details);
-
-    if (prefs.sortcollectionby == "artist" && $('i[name="aartist'+details.artistindex+'"]').isClosed()) {
-        debug.log("COLLECTION","Opening Menu","aartist"+details.artistindex);
-        doAlbumMenu(null, $('i[name="aartist'+details.artistindex+'"]'), false, function() {
-            if ($('i[name="aalbum'+details.albumindex+'"]').isClosed()) {
-                debug.log("COLLECTION","Opening Menu","aalbum"+details.albumindex);
-                doAlbumMenu(null, $('i[name="aalbum'+details.albumindex+'"]'), false, function() {
-                    flashTrack(details.trackuri);
-                });
-            } else {
-                flashTrack(details.trackuri);
-            }
-        });
-    } else if ($('i[name="aalbum'+details.albumindex+'"]').isClosed()) {
-        debug.log("COLLECTION","Opening Menu","aalbum"+details.albumindex);
-        doAlbumMenu(null, $('i[name="aalbum'+details.albumindex+'"]'), false, function() {
-            flashTrack(details.trackuri);
-        });
-    } else {
-        flashTrack(details.trackuri);
-    }
 }
 
 // The world's smallest jQuery plugin :)
