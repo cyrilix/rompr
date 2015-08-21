@@ -1,4 +1,4 @@
-body
+html
 {
     background-image:url("sunset_loch.jpg");
     background-size:cover;
@@ -27,12 +27,12 @@ body
 
 #infopane
 {
-    background-color:rgba(0,0,0,0.5);    
+    background-color:rgba(0,0,0,0.5);
 }
 
 .albumthing
 {
-    background-color:rgba(0,0,0,0.1);    
+    background-color:rgba(0,0,0,0.1);
 }
 
 #artistbio, #spartistinfo
@@ -99,7 +99,7 @@ input
     color:#181818;
 }
 
-select 
+select
 {
     color:#000000;
 }
@@ -386,7 +386,7 @@ tr.clickaddtrack:hover
 #artistchooser
 {
     background-color:rgba(0,0,0,0.3);
-    color:#aaaaaa;    
+    color:#aaaaaa;
 }
 
 .currentbun

@@ -133,15 +133,15 @@ prefs.save = function(options, callback) {
 }
 
 function setTheme(theme) {
-    $('body').css('background-image', '');
-    $('body').css('background-size', '');
-    $('body').css('background-repeat', '');
+    $('html').css('background-image', '');
+    $('html').css('background-size', '');
+    $('html').css('background-repeat', '');
     $("#theme").attr("href", "themes/"+theme);
     $.getJSON('backimage.php?getbackground='+theme, function(data) {
         if (data.image) {
-            $('body').css('background-image', 'url("'+data.image+'")');
-            $('body').css('background-size', 'cover');
-            $('body').css('background-repeat', 'no-repeat');
+            $('html').css('background-image', 'url("'+data.image+'")');
+            $('html').css('background-size', 'cover');
+            $('html').css('background-repeat', 'no-repeat');
             $('#cusbgname').html(data.image.split(/[\\/]/).pop())
         } else {
             $('#cusbgname').html('');
@@ -150,7 +150,7 @@ function setTheme(theme) {
 }
 
 function clearBgImage() {
-    $('body').css('background-image', '');
+    $('html').css('background-image', '');
     $.getJSON('backimage.php?clearbackground='+prefs.theme, function(data) {
         $('[name=imagefile').val('');
     });

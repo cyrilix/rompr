@@ -314,9 +314,9 @@ function changeBackgroundImage() {
         if (xhr.status === 200) {
             debug.log("BIMAGE", xhr.response);
             if (xhr.response.image) {
-                $('body').css('background-image', 'url("'+xhr.response.image+'")');
-                $('body').css('background-size', 'cover');
-                $('body').css('background-repeat', 'no-repeat');
+                $('html').css('background-image', 'url("'+xhr.response.image+'")');
+                $('html').css('background-size', 'cover');
+                $('html').css('background-repeat', 'no-repeat');
                 $('#cusbgname').html(xhr.response.image.split(/[\\/]/).pop());
             }
         } else {

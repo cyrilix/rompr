@@ -471,10 +471,10 @@ var imageEditor = function() {
             var fiddleheight = bo.top - (to.top + here.parent().next().height()) - 4;
 
             $("#fiddler").css("height", fiddleheight+"px");
-            if ($("body").css('background-image') != "none") {
-                $("#fiddler").css("background-image", $("body").css('background-image'));
+            if ($("html").css('background-image') != "none") {
+                $("#fiddler").css("background-image", $("html").css('background-image'));
             } else {
-                $("#fiddler").css("background-color", $("body").css('background-color'));
+                $("#fiddler").css("background-color", $("html").css('background-color'));
             }
         },
 

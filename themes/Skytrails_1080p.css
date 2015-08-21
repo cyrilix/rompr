@@ -1,4 +1,4 @@
-body
+html
 {
     background-image:url("skytrailscrop.jpg");
     background-size:cover;
@@ -12,7 +12,7 @@ body
 
 .mainpane
 {
-    background-color:rgba(255,255,255,0.3);    
+    background-color:rgba(255,255,255,0.3);
 }
 
 .album2
@@ -27,12 +27,12 @@ body
 
 #infopane
 {
-    background-color:rgba(255,255,255,0.4);    
+    background-color:rgba(255,255,255,0.4);
 }
 
 .albumthing
 {
-    background-color:rgba(255,255,255,0.1);    
+    background-color:rgba(255,255,255,0.1);
 }
 
 #artistbio, #spartistinfo
@@ -76,7 +76,7 @@ a:hover,a:active
 button, input[type="button"], .gradbutton
 {
     color:#000000;
-    background-color:rgba(255,255,255,0.5);    
+    background-color:rgba(255,255,255,0.5);
     border:1px solid #222222;
 }
 
@@ -99,7 +99,7 @@ input
     color:#181818;
 }
 
-select 
+select
 {
     color:#000000;
 }
@@ -241,7 +241,7 @@ div.topdropmenu
 
 div.topdropmenu td
 {
-    color:white;    
+    color:white;
 }
 
 .configtitle
@@ -399,7 +399,7 @@ tr.clickaddtrack:hover
 #artistchooser
 {
     background-color:rgba(255,255,255,0.2);
-    color:#777777;    
+    color:#777777;
 }
 
 .currentbun

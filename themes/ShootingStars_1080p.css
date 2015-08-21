@@ -1,4 +1,4 @@
-body
+html
 {
     background-image:url("shootingstars.jpg");
     background-size:cover;
@@ -7,7 +7,7 @@ body
 
 .albumthing
 {
-    background-color:rgba(255,255,255,0.2);    
+    background-color:rgba(255,255,255,0.2);
 }
 
 #artistbio, #spartistinfo
@@ -74,7 +74,7 @@ input
     color:#181818;
 }
 
-select 
+select
 {
     color:#000000;
 }
@@ -362,7 +362,7 @@ tr.clickaddtrack:hover
 #artistchooser
 {
     background-color:rgba(255,255,255,0.1);
-    color:#aaaaaa;    
+    color:#aaaaaa;
 }
 
 .currentbun
