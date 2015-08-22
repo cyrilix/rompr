@@ -5,6 +5,7 @@ include ("international.php");
 include ("backends/sql/backend.php");
 include("player/mpd/connection.php");
 set_time_limit(240);
+$oldmopidy = false;
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -43,6 +44,7 @@ include ("includes/globals.php");
 
 var imagekey = '';
 var imgobj = null;
+var nosource = false;
 var running = false;
 var clickindex = null;
 var wobblebottom;
@@ -331,6 +333,7 @@ function handleDrop(ev) {
     imageEditor.update($(ev.target));
     imgobj = $(ev.target);
     imagekey = imgobj.attr("name");
+    nosource = (imgobj.hasClass('notfound') || imgobj.hasClass('notexist'));
     clickindex = null;
     dropProcessor(ev.originalEvent, imgobj, imagekey, uploadComplete, searchFail);
 }
@@ -376,6 +379,7 @@ var imageEditor = function() {
                 imgobj = where;
                 imagekey = imgobj.attr('name');
                 stream = imgobj.attr('romprstream');
+                nosource = (imgobj.hasClass('notfound') || imgobj.hasClass('notexist'));
                 var phrase =  decodeURIComponent(where.prev('input').val());
                 var path =  where.prev('input').prev('input').val();
 
@@ -415,11 +419,13 @@ var imageEditor = function() {
                 $("#searchphrase").val(phrase);
 
                 var bigsauce = imgobj.attr("src");
-                var m = bigsauce.match(/albumart\/small\/(.*)/);
-                if (m && m[1]) {
-                    bigsauce = 'albumart/asdownloaded/'+m[1];
+                if (bigsauce) {
+                    var m = bigsauce.match(/albumart\/small\/(.*)/);
+                    if (m && m[1]) {
+                        bigsauce = 'albumart/asdownloaded/'+m[1];
+                    }
+                    bigimg.src = bigsauce;
                 }
-                bigimg.src = bigsauce;
 
                 imageEditor.search();
                 if (path) {
@@ -429,6 +435,7 @@ var imageEditor = function() {
                 $("#imagekey").val(imagekey);
                 $('#searchphrase').keyup(imageEditor.bumblefuck);
             }
+            $('#coverslist').mCustomScrollbar('scrollTo', where);
         },
 
         update: function(where) {
@@ -511,7 +518,11 @@ var imageEditor = function() {
                 success: imageEditor.googleSearchComplete,
                 error: function(data) {
                     debug.log("IMAGEEDITOR","FUCKING RAT'S COCKS",data);
-                    imageEditor.showError($.parseJSON(data.responseText).error.message);
+                    if (data == null) {
+                        imageEditor.showError("No Response!");
+                    } else {
+                        imageEditor.showError($.parseJSON(data.responseText).error.message);
+                    }
                 }
             });
 
@@ -580,7 +591,7 @@ var imageEditor = function() {
 
         showError: function(message) {
             $("#morebutton").remove();
-            $("#searchresults").append('<div id="morebutton" class="gradbutton"><b>'+language.gettext("albumart_googleproblem")+' "'+message+'"</b></div>');
+            $("#searchresults").append('<h3>'+language.gettext("albumart_googleproblem")+' "'+message+'"</h3>');
         },
 
         gotLocalImages: function(data) {
@@ -694,8 +705,9 @@ function uploadComplete(data) {
     }
     animationStop();
     debug.log("ALBUMART","Success for",imagekey);
-    if (imgobj.attr("src") == "") {
+    if (nosource) {
         covergetter.updateInfo(1);
+        nosource = false;
     }
     imgobj.removeClass("notexist notfound");
     firefoxcrapnesshack++;
@@ -714,7 +726,7 @@ function uploadComplete(data) {
 
 </script>
 </head>
-<body>
+<body class="desktop">
 
 <div class="albumcovers">
 <div class="infosection">

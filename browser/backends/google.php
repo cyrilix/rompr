@@ -21,8 +21,8 @@ if (file_exists('prefs/jsoncache/google/'.md5($uri))) {
 		file_put_contents('prefs/jsoncache/google/'.md5($uri), $content['contents']);
 	} else {
 		header("HTTP/1.1 500 Internal Server Error");
-		debuglog("Error From Google","GOOGLE");
-		print $contents['contents'];
+		debuglog("Error From Google - status".$s ,"GOOGLE");
+		print $content['contents'];
 	}
 }
 
