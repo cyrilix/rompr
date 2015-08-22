@@ -305,7 +305,7 @@ function doPodcast($c) {
         $aa = $aa . ' - ';
     }
     print '<div class="whatdoicallthis">'.format_text((string) $y->description).'</div>';
-    print '<div class="clearfix bumpad">';
+    print '<div class="clearfix bumpad podhackshit">';
     print '<i title="'.get_int_text("podcast_delete").'" class="icon-cancel-circled podicon '.
         'clickable clickicon podremove tright fridge" name="podremove_'.$pm.'"></i>';
     print '<i title="'.get_int_text("podcast_configure").'" class="icon-cog-alt podicon clickable '.

@@ -641,7 +641,6 @@ div.rightmenu
 
 .podicon
 {
-    padding:0px;
     margin-top:4px;
     margin-bottom:4px;
     margin-left:4px;
@@ -739,3 +738,7 @@ div.rightmenu
     margin-bottom: 8px;
 }
 
+.podhackshit
+{
+    margin-bottom:1em;
+}
