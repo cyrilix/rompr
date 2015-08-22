@@ -642,7 +642,10 @@ div.rightmenu
 .podicon
 {
     padding:0px;
-    margin:4px;
+    margin-top:4px;
+    margin-bottom:4px;
+    margin-left:4px;
+    margin-right:16px;
     height:32px;
     width:32px;
     font-size:32px;
@@ -729,5 +732,10 @@ div.rightmenu
 {
     margin-top:4px;
     margin-bottom:4px;
+}
+
+.whatdoicallthis
+{
+    margin-bottom: 8px;
 }
 

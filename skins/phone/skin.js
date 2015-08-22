@@ -195,14 +195,14 @@ var layoutProcessor = function() {
                 if (source == "searchpane") {
                     setSearchLabelWidth();
                 }
-                return;
-            }
-            $("#"+prefs.chooser).hide();
-            $("#"+source).show();
-            prefs.save({chooser: source});
-            layoutProcessor.adjustLayout();
-            if (callback) {
-                callback();
+            } else {
+                $("#"+prefs.chooser).hide();
+                $("#"+source).show();
+                prefs.save({chooser: source});
+                layoutProcessor.adjustLayout();
+                if (callback) {
+                    callback();
+                }
             }
             if (source == 'infopane') {
                 setTopIconSize(['#chooserbuttons']);
