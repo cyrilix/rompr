@@ -622,6 +622,7 @@ class musicCollection {
                             "albumuri" => $album->uri,
                             "image" => $album->getImage('asdownloaded'),
                             "trackimage" => $trackobj->getImage(),
+                            "duration" => $trackobj->tags['Time']
                         );
                         // A lot of code that depends on this was written to handle
                         // mopidy model search results. The above is not mopidy model,

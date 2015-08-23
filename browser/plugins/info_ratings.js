@@ -66,6 +66,8 @@ var info_ratings = function() {
                 }
                 if (parent.playlistinfo.duration) {
                     data.duration = parent.playlistinfo.duration;
+                } else {
+                    data.duration = 0;
                 }
                 if (parent.playlistinfo.disc) {
                     data.disc = parent.playlistinfo.disc;
