@@ -950,7 +950,8 @@ function do_playlists() {
                 $albums_without_cover++;
             }
 
-            print '<input type="hidden" value="'.rawurlencode($pl).'" />';
+            $plsearch = preg_replace('/ \(by .*?\)$/', '', $pl);
+            print '<input type="hidden" value="'.rawurlencode($plsearch).'" />';
             print '<img class="clickable clickicon clickalbumcover droppable'.$class.'" name="'.$artname.'" height="82px" width="82px" src="'.$src.'" />';
             print '</div>';
             print '<div class="albumimg fixed"><table><tr><td align="center">'.htmlentities($pl).'</td></tr></table></div>';

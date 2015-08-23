@@ -33,10 +33,10 @@ if (array_key_exists('playlist', $_REQUEST)) {
 }
 
 function plsort($a, $b) {
-    if ($a == "Discover Weekly by spotifydiscover") {
+    if ($a == "Discover Weekly (by spotifydiscover)") {
         return -1;
     }
-    if ($b == "Discover Weekly by spotifydiscover") {
+    if ($b == "Discover Weekly (by spotifydiscover)") {
         return 1;
     }
     return (strtolower($a) < strtolower($b)) ? -1 : 1;
