@@ -92,6 +92,7 @@ var ratingManager = function() {
 	            });
 	        	browser.goToPlugin("rmg");
 	            browser.rePoint();
+	            infobar.markCurrentTrack();
             });
 		},
 
@@ -135,6 +136,7 @@ var ratingManager = function() {
 		        		putTracks(holders[i], data[i], i);
 	        		}
 	        		browser.rePoint();
+		            infobar.markCurrentTrack();
 	        	},
 	        	error: function() {
 	        		infobar.notify(infobar.ERROR, "Failed to get Rating list");

@@ -1469,6 +1469,7 @@ function updateCollectionDisplay(rdata, markit) {
         $("#fothergill").html(rdata.stats);
     }
     scootTheAlbums($("#collection"));
+    infobar.markCurrentTrack();
 }
 
 // The world's smallest jQuery plugin :)

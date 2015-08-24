@@ -538,10 +538,24 @@ var infobar = function() {
             }
         },
 
+        markCurrentTrack: function() {
+            if (trackinfo.location) {
+                $.each($('[name="'+encodeURIComponent(trackinfo.location)+'"]'), function() {
+                    if (!$(this).hasClass('playlistcurrentitem')) {
+                        $(this).addClass('playlistcurrentitem');
+                    }
+                });
+            }
+        },
+
         setNowPlayingInfo: function(info) {
             //Now playing info
             debug.trace("INFOBAR","NPinfo",info);
+            if (trackinfo.location) {
+                $('[name="'+encodeURIComponent(trackinfo.location)+'"]').removeClass('playlistcurrentitem');
+            }
             trackinfo = info;
+            infobar.markCurrentTrack();
             lfminfo = {};
             scrobbled = false;
             nowplaying_updated = false;

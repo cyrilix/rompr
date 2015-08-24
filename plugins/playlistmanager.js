@@ -45,6 +45,7 @@ var playlistManager = function() {
         	success: function(data) {
         		putTracks(holders[list], data[list], list);
         		browser.rePoint();
+	            infobar.markCurrentTrack();
         	},
         	error: function() {
         		infobar.notify(infobar.ERROR, "Failed to remove track");
@@ -124,6 +125,7 @@ var playlistManager = function() {
 	          	cement = true;
 	        	browser.goToPlugin("pmg");
 	            browser.rePoint();
+	            infobar.markCurrentTrack();
             });
 		},
 

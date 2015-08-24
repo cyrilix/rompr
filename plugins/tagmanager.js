@@ -96,6 +96,7 @@ var tagManager = function() {
 	            	gutter: 0
 	            });
 	        	browser.goToPlugin("tmg");
+	            infobar.markCurrentTrack();
 	            browser.rePoint();
             });
 		},
@@ -123,6 +124,7 @@ var tagManager = function() {
 	        	success: function(data) {
 	        		putTracks(holders[tag], data[tag], tag);
 	        		browser.rePoint();
+            		infobar.markCurrentTrack();
 	        	},
 	        	error: function() {
 	        		infobar.notify(infobar.ERROR, "Failed to get Taglist");

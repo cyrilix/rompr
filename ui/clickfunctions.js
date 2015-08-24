@@ -307,6 +307,7 @@ function doAlbumMenu(event, element, inbrowser, callback) {
                 $(this).menuReveal(function() {
                     scootTheAlbums($(this));
                     if (callback) callback();
+                    infobar.markCurrentTrack();
                     $.each($(this).find('input.expandalbum'), function() {
                         debug.log("CLICKFUNCTIONS", "Album has link to get all tracks");
                         element.makeSpinner();
@@ -315,6 +316,7 @@ function doAlbumMenu(event, element, inbrowser, callback) {
                             url: 'albums.php?browsealbum='+menutoopen,
                             success: function(data) {
                                 element.stopSpinner();
+                                infobar.markCurrentTrack();
                                 $("#"+menutoopen).html(data);
                             },
                             error: function(data) {
@@ -333,6 +335,7 @@ function doAlbumMenu(event, element, inbrowser, callback) {
                                 var spunk = $("#"+menutoopen).parent();
                                 spunk.html(data);
                                 scootTheAlbums(spunk);
+                                infobar.markCurrentTrack();
                             },
                             error: function(data) {
                                 element.stopSpinner();
@@ -381,6 +384,7 @@ function doFileMenu(event, element) {
             $('#'+menutoopen).load(string, function() {
                 $(this).removeClass("notfilled");
                 $(this).menuReveal();
+                infobar.markCurrentTrack();
                 element.stopSpinner();
             });
         } else {

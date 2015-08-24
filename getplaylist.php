@@ -22,7 +22,7 @@ function outputPlaylist() {
     $output = array();
 
     foreach ($playlist as $track) {
-        // Track artists are held in the track object possibly as an array
+        // Track artists are held in the track object as an array
         $c = $track->get_artist_string();
         $t = $track->tags['Title'];
         // We can't return NULL in the JSON data for some reason that escapes me
