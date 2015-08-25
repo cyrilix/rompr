@@ -239,7 +239,11 @@ function addCustomScrollBar(value) {
 function flashTrack(uri) {
     infobar.markCurrentTrack();
     $('[name="'+uri+'"]').makeFlasher({flashtime: 0.5, repeats: 5});
-    layoutProcessor.scrollCollectionTo($('[name="'+uri+'"]'));
+    // The timeout is so that markCurrentTrack doesn't fuck it up - these often
+    // have CSS transitions that affect the scrollbar size
+    setTimeout(function() {
+        layoutProcessor.scrollCollectionTo($('[name="'+uri+'"]');
+    }, 1000);
 }
 
 var layoutProcessor = function() {
