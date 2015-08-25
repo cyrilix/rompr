@@ -1057,15 +1057,20 @@ function do_albums_from_database($which, $fragment = false, $use_artistindex = f
 		} else {
 			$qstring .= "LOWER(Artisttable.Artistname),";
 		}
-	}
-	$qstring .= " CASE WHEN Albumname LIKE '".get_int_text('label_allartist')."%' THEN 1 ELSE 2 END,";
-	if (!$prefs['sortbydate'] ||
-		(is_various_artists($matches[1]) && $prefs['notvabydate'])) {
-		$qstring .= ' LOWER(Albumname)';
+		if ($prefs['notvabydate']) {
+			$qstring .= " CASE WHEN Artisttable.Artistname = 'Various Artists' THEN LOWER(Albumname) ELSE Year END";
+		} else {
+			$qstring .= ' Year, LOWER(Albumname)';
+		}
 	} else {
-		$qstring .= ' Year, LOWER(Albumname)';
+		$qstring .= " CASE WHEN Albumname LIKE '".get_int_text('label_allartist')."%' THEN 1 ELSE 2 END,";
+		if (!$prefs['sortbydate'] ||
+			(is_various_artists($matches[1]) && $prefs['notvabydate'])) {
+			$qstring .= ' LOWER(Albumname)';
+		} else {
+			$qstring .= ' Year, LOWER(Albumname)';
+		}
 	}
-
 	$count = 0;
 	if ($result = generic_sql_query($qstring)) {
 		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
