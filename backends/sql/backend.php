@@ -1029,7 +1029,7 @@ function do_albums_from_database($which, $fragment = false, $use_artistindex = f
 	$qstring .= "WHERE ";
 
 	if (!$use_artistindex && $matches[1] != "root" &&
-		!($fragment !== false && $prefs['sortcollectionby'] == "album")) {
+		!($fragment !== false && ($prefs['sortcollectionby'] == "album") || $prefs['sortcollectionby'] == "albumbyartist")) {
 		$qstring .= "AlbumArtistindex = '".$matches[1]."' AND ";
 	}
 	if ($use_artistindex) {
@@ -1041,8 +1041,24 @@ function do_albums_from_database($which, $fragment = false, $use_artistindex = f
 	}
 
 	$qstring .= "Tracktable.Uri IS NOT NULL AND Tracktable.Hidden = 0 ".$sflag.")";
-	$qstring .= " ORDER BY CASE WHEN Albumname LIKE '".
-		get_int_text('label_allartist')."%' THEN 1 ELSE 2 END,";
+	$qstring .= " ORDER BY ";
+	if ($prefs['sortcollectionby'] == "albumbyartist" && !$use_artistindex) {
+		foreach ($prefs['artistsatstart'] as $a) {
+			$qstring .= "CASE WHEN LOWER(Artisttable.Artistname) = LOWER('".$a."') THEN 1 ELSE 2 END, ";
+		}
+		if (count($prefs['nosortprefixes']) > 0) {
+			$qstring .= "(CASE ";
+			foreach($prefs['nosortprefixes'] AS $p) {
+				$phpisshitsometimes = strlen($p)+2;
+				$qstring .= "WHEN LOWER(Artisttable.Artistname) LIKE '".strtolower($p).
+					" %' THEN LOWER(SUBSTR(Artisttable.Artistname,".$phpisshitsometimes.")) ";
+			}
+			$qstring .= "ELSE LOWER(Artisttable.Artistname) END),";
+		} else {
+			$qstring .= "LOWER(Artisttable.Artistname),";
+		}
+	}
+	$qstring .= " CASE WHEN Albumname LIKE '".get_int_text('label_allartist')."%' THEN 1 ELSE 2 END,";
 	if (!$prefs['sortbydate'] ||
 		(is_various_artists($matches[1]) && $prefs['notvabydate'])) {
 		$qstring .= ' LOWER(Albumname)';
@@ -1053,7 +1069,7 @@ function do_albums_from_database($which, $fragment = false, $use_artistindex = f
 	$count = 0;
 	if ($result = generic_sql_query($qstring)) {
 		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
-			$artistthing = (!$use_artistindex && $prefs['sortcollectionby'] == "album") ?
+			$artistthing = (!$use_artistindex && ($prefs['sortcollectionby'] == "album" || $prefs['sortcollectionby'] == "albumbyartist")) ?
 				$obj->Artistname : null;
 			if ($fragment === false) {
 				$exists = ($obj->Image && $obj->Image !== "") ? "yes" : "no";
@@ -1219,9 +1235,6 @@ function do_tracks_from_database($which, $fragment = false) {
 	                print '<div class="discnumber indent">'.
 	                ucfirst(strtolower(get_int_text("musicbrainz_disc"))).' '.$currdisc.'</div>';
 				}
-				// $track_is_album = (preg_match('/^.+?:album:/', $obj->Uri) || preg_match('/^podcast/', $obj->Uri)) ? $obj->Uri : false;
-				// $track_is_album = (preg_match('/^.+?:album:/', $obj->Uri) || preg_match('/^internetarchive/', $obj->Uri)) ? $obj->Uri : false;
-				// browsing the album doesn't work for podcasts or internetarchive
 				$track_is_album = (preg_match('/^.+?:album:/', $obj->Uri)) ? $obj->Uri : false;
 				$track_is_artist = (preg_match('/^.+?:artist:/', $obj->Uri)) ? $obj->Uri : false;
 				albumTrack(
@@ -1880,7 +1893,7 @@ function dumpAlbums($which) {
 	        	get_stat('TrackCount'), format_time(get_stat('TotalTime')));
 	        print '</div>';
 	        $count = 0;
-	        if ($prefs['sortcollectionby'] == "album") {
+	        if ($prefs['sortcollectionby'] == "album" || $prefs['sortcollectionby'] == "albumbyartist") {
 	        	$count = do_albums_from_database('aartistroot');
 	        } else {
 	        	$divtype = "album1";
@@ -1934,7 +1947,7 @@ function dumpAlbums($which) {
 
 	        print alistheader($numartists, $numalbums, $numtracks, format_time($numtime));
 
-	        if ($prefs['sortcollectionby'] == "album") {
+	        if ($prefs['sortcollectionby'] == "album" || $prefs['sortcollectionby'] == "albumbyartist") {
 	        	do_albums_from_database('bartistroot');
 	        } else {
 	        	$divtype = "album1";

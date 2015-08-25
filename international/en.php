@@ -566,6 +566,9 @@ $languages['en'] = array (
 	"lastfm_error" => "Could not find information on Last.FM",
 	"config_skin" => "SKIN",
 
+	// New in 0.71
+	"label_albumsbyartist" => "Albums (by Artist)",
+
 	//CHANGED in 0.60
 	"config_country" => "COUNTRY (for Last.FM and Spotify)",
 	"setup_labeladdresses" => "If you are having connection issues, try using an IP address instead of 'localhost'",

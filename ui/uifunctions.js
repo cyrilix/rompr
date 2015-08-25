@@ -1439,6 +1439,8 @@ function updateCollectionDisplay(rdata, markit) {
     if (markit && rdata && rdata.hasOwnProperty('displaynewtrack')
         && rdata.displaynewtrack.albumindex != null && rdata.displaynewtrack.trackuri != "") {
         layoutProcessor.displayCollectionInsert(rdata.displaynewtrack);
+    } else {
+        infobar.markCurrentTrack();
     }
 
     if (rdata && rdata.hasOwnProperty('deletedtracks')) {
@@ -1469,7 +1471,6 @@ function updateCollectionDisplay(rdata, markit) {
         $("#fothergill").html(rdata.stats);
     }
     scootTheAlbums($("#collection"));
-    infobar.markCurrentTrack();
 }
 
 // The world's smallest jQuery plugin :)

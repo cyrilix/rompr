@@ -640,6 +640,7 @@ function playerController() {
                     data: st,
                     success: function(data) {
                         $("#searchresultholder").html(data);
+                        scootTheAlbums($("#searchresultholder"));
                         data = null;
                     }
             });

@@ -267,6 +267,7 @@ var layoutProcessor = function() {
 
         displayCollectionInsert: function(d) {
             infobar.notify(infobar.NOTIFY,"Added track to Collection");
+            infobar.markCurrentTrack();
         },
 
         initialise: function() {

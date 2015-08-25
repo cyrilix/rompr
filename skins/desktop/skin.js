@@ -237,6 +237,7 @@ function addCustomScrollBar(value) {
 }
 
 function flashTrack(uri) {
+    infobar.markCurrentTrack();
     $('[name="'+uri+'"]').makeFlasher({flashtime: 0.5, repeats: 5});
     layoutProcessor.scrollCollectionTo($('[name="'+uri+'"]'));
 }
