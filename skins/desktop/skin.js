@@ -242,7 +242,7 @@ function flashTrack(uri) {
     // The timeout is so that markCurrentTrack doesn't fuck it up - these often
     // have CSS transitions that affect the scrollbar size
     setTimeout(function() {
-        layoutProcessor.scrollCollectionTo($('[name="'+uri+'"]');
+        layoutProcessor.scrollCollectionTo($('[name="'+uri+'"]'));
     }, 1000);
 }
 
