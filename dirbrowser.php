@@ -83,7 +83,8 @@ function getFormatName($filedata) {
     global $prefs;
     if ($prefs['player_backend'] == "mopidy" && !preg_match('/local:track:/', $filedata['file'])) {
         if (array_key_exists('Title', $filedata) && array_key_exists('Artist', $filedata)) {
-            return $filedata['Artist'].' - '.$filedata['Title'];
+
+            return concatenate_artist_names(array_unique(explode(';',$filedata['Artist']))).' - '.$filedata['Title'];
         }
         if (array_key_exists('Title', $filedata)) {
             return $filedata['Title'];
