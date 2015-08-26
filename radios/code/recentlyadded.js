@@ -76,34 +76,10 @@ var recentlyaddedtracks = function() {
         stop: function() {
             running = false;
             tracks = new Array();
-        },
-
-        setup: function() {
-
-            var html = '<div class="containerbox spacer backhi dropdown-container" '+
-                'onclick="playlist.radioManager.load(\'recentlyaddedtracks\', \'random\')">';
-
-            html += '<div class="fixed">';
-            html += '<i class="icon-music smallicon"></i></div>';
-            html += '<div class="expand">'+
-                language.gettext('label_recentlyadded_random')+'</div>';
-
-            html += '</div>';
-            html += '<div class="containerbox spacer backhi dropdown-container" '+
-                'onclick="playlist.radioManager.load(\'recentlyaddedtracks\', \'byalbum\')">';
-
-            html += '<div class="fixed">';
-            html += '<i class="icon-music smallicon"></i></div>';
-            html += '<div class="expand">'+language.gettext('label_recentlyadded_byalbum')+
-                '</div>';
-
-            html += '</div>';
-            $("#pluginplaylists").append(html);
-
         }
 
 	}
 
 }();
 
-playlist.radioManager.register("recentlyaddedtracks", recentlyaddedtracks);
+playlist.radioManager.register("recentlyaddedtracks", recentlyaddedtracks, null);

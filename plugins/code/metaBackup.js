@@ -220,4 +220,5 @@ var metaBackup = function() {
 
 }();
 
-pluginManager.addPlugin(language.gettext("label_metabackup"), metaBackup.open, null);
+pluginManager.setAction(language.gettext("label_metabackup"), metaBackup.open);
+metaBackup.open();

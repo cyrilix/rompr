@@ -137,11 +137,11 @@ foreach ($_COOKIE as $a => $v) {
         if ($a == 'debug_enabled') {
             $logger->setLevel($v);
         }
-        debuglog("Pref ".$a." overridden by Cookie  - Value : ".$v,"COOKIE",8);
+        debuglog("Pref ".$a." overridden by Cookie  - Value : ".$v,"COOKIE",9);
     }
 }
 if (!property_exists($prefs['multihosts'], $prefs['currenthost'])) {
-    debuglog($prefs['currenthost']." is not defined in the hosts defs. Falling back to Default","INIT");
+    debuglog($prefs['currenthost']." is not defined in the hosts defs. Falling back to Default","INIT",3);
     if (!property_exists($prefs['multihosts'], 'Default')) {
         $prefs['multihosts']->Default = (object) [
         'host' => 'localhost',
@@ -154,7 +154,7 @@ if (!property_exists($prefs['multihosts'], $prefs['currenthost'])) {
     setcookie('currenthost',$prefs['currenthost'],time()+365*24*60*60*10);
 }
 
-debuglog("Using MPD Host ".$prefs['currenthost'],"INIT",8);
+debuglog("Using MPD Host ".$prefs['currenthost'],"INIT",9);
 
 if (!array_key_exists('currenthost', $_COOKIE)) {
     setcookie('currenthost',$prefs['currenthost'],time()+365*24*60*60*10);

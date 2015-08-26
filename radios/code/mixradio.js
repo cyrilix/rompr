@@ -56,13 +56,14 @@ var mixRadio = function() {
 		populate: function(p, numtracks) {
 			if (!populating) {
 				debug.shout("MIX RADIO","Populating");
-				fartists = new Array();
-				tuner = new spotifyRadio();
-				tuner.sending = numtracks;
-				tuner.running = true;
-				tuner.artistindex = 0;
-				numfartists = 0;
-				getFaveArtists();
+				if (typeof(spotifyRadio) == 'undefined') {
+					debug.log("ARTIST RADIO","Loading Spotify Radio Tuner");
+					$.getScript('radios/code/spotifyRadio.js',function() {
+						mixRadio.actuallyGo(numtracks)
+					});
+				} else {
+					mixRadio.actuallyGo(numtracks);
+				}
 			} else {
 				debug.shout("MIX RADIO","RePopulating");
 				var a = tuner.sending;
@@ -71,6 +72,16 @@ var mixRadio = function() {
 					tuner.startSending();
 				}
 			}
+		},
+
+		actuallyGo: function(numtracks) {
+			fartists = new Array();
+			tuner = new spotifyRadio();
+			tuner.sending = numtracks;
+			tuner.running = true;
+			tuner.artistindex = 0;
+			numfartists = 0;
+			getFaveArtists();
 		},
 
 		stop: function() {
@@ -83,22 +94,6 @@ var mixRadio = function() {
 			return '<i class="icon-wifi modeimg"/></i><span class="modespan">'+
 				language.gettext("label_radio_mix")+'</span>';
 		},
-
-        setup: function() {
-
-            if (player.canPlay('spotify')) {
-
-	            var html = '<div class="containerbox spacer backhi dropdown-container" '+
-	            	'onclick="playlist.radioManager.load(\'mixRadio\', null)">';
-
-	            html += '<div class="fixed">';
-	            html += '<i class="icon-spotify-circled smallicon"></i></div>';
-	            html += '<div class="expand">'+language.gettext('label_radio_mix')+'</div>';
-
-	            html += '</div>';
-	            $("#pluginplaylists_spotify").append(html);
-	        }
-        },
 
 		lookupFail: function() {
 			debug.warn("MIX RADIO","Failed to lookup artist");
@@ -137,4 +132,4 @@ var mixRadio = function() {
 	}
 }();
 
-playlist.radioManager.register("mixRadio", mixRadio);
+playlist.radioManager.register("mixRadio", mixRadio, null);

@@ -156,4 +156,5 @@ var wishlistViewer = function() {
 
 }();
 
-pluginManager.addPlugin(language.gettext("label_viewwishlist"), wishlistViewer.open, null);
+pluginManager.setAction(language.gettext("label_viewwishlist"), wishlistViewer.open);
+wishlistViewer.open();

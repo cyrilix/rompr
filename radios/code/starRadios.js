@@ -89,51 +89,10 @@ var starRadios = function() {
 
         tagPopulate: function(tags) {
             playlist.radioManager.load('starRadios', tags);
-        },
-
-        setup: function() {
-
-            var html = '';
-
-            $.each(['1stars','2stars','3stars','4stars','5stars'], function(i, v) {
-                var cn = v.replace(/(\d)/, 'icon-$1-');
-                html += '<div class="containerbox backhi spacer dropdown-container" '+
-                        'onclick="playlist.radioManager.load(\'starRadios\', \''+v+'\')">'+
-                        '<div class="fixed"><i class="'+cn+' rating-icon-small"></i></div>'+
-                        '<div class="expand">&nbsp;'+language.gettext('playlist_xstar', [i+1])+
-                        '</div>'+
-                        '</div>';
-
-            });
-            $("#pluginplaylists").append(html);
-
-            var a = $('<div>', {class: "containerbox"}).appendTo("#pluginplaylists");
-            var c = $('<div>', {class: "containerbox expand spacer dropdown-container"}).
-                appendTo(a).makeTagMenu({
-                textboxname: 'cynthia',
-                labelhtml: '<i class="icon-tags smallicon"></i>',
-                populatefunction: populateTagMenu,
-                buttontext: language.gettext('button_playradio'),
-                buttonfunc: starRadios.tagPopulate
-            });
-
-            html = '<div class="containerbox backhi spacer dropdown-container" '+
-                    'onclick="playlist.radioManager.load(\'starRadios\', \'allrandom\')">'+
-                    '<div class="fixed"><i class="icon-music smallicon"></i></div>'+
-                    '<div class="expand">'+language.gettext('label_allrandom')+'</div>'+
-                    '</div>';
-
-            $("#pluginplaylists").append(html);
-
-            html = '<div class="containerbox backhi spacer dropdown-container" '+
-                    'onclick="playlist.radioManager.load(\'starRadios\', \'neverplayed\')">'+
-                    '<div class="fixed"><i class="icon-music smallicon"></i></div>'+
-                    '<div class="expand">'+language.gettext('label_neverplayed')+'</div>'+
-                    '</div>';
-
-            $("#pluginplaylists").append(html);
         }
-	}
+    }
 }();
 
-playlist.radioManager.register("starRadios", starRadios);
+debug.log("STARRADIOS","Real script Loaded");
+
+playlist.radioManager.register("starRadios", starRadios, null);

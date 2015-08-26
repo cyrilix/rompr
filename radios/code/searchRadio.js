@@ -17,6 +17,8 @@ function searchRadio() {
 		this.populate = function() {
 			if (!myself.populated) {
 				debug.log("SEARCHRADIO","Getting tracks for",name);
+				// Don't limit domains at the search stage - this allows the user to
+				// change the dmoain selection afterwards and we'll honour it.
 				player.controller.rawsearch({artist: [name]}, [], true, myself.gotTracks);
 				myself.populated = true;
 			}

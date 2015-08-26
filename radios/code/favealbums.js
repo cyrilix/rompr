@@ -71,22 +71,10 @@ var faveAlbums = function() {
         stop: function() {
             running = false;
             tracks = new Array();
-        },
-
-        setup: function() {
-
-            var html = '<div class="containerbox spacer backhi dropdown-container" '+
-                'onclick="playlist.radioManager.load(\'faveAlbums\', null)">';
-            html += '<div class="fixed">';
-            html += '<i class="icon-music smallicon"></i></div>';
-            html += '<div class="expand">'+language.gettext('label_favealbums')+'</div>';
-            html += '</div>';
-            $("#pluginplaylists").append(html);
-
         }
-
+        
 	}
 
 }();
 
-playlist.radioManager.register("faveAlbums", faveAlbums);
+playlist.radioManager.register("faveAlbums", faveAlbums, null);

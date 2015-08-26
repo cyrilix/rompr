@@ -116,4 +116,5 @@ var charts = function() {
 
 }();
 
-pluginManager.addPlugin(language.gettext("label_charts"), charts.open, null);
+pluginManager.setAction(language.gettext("label_charts"), charts.open);
+charts.open();

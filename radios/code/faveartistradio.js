@@ -39,12 +39,14 @@ var faveArtistRadio = function() {
 
 		populate: function(p, numtracks) {
 			if (!populating) {
-				debug.shout("FAVE ARTIST RADIO","Populating");
-				tuner = new searchRadio();
-				tuner.sending = numtracks;
-				tuner.running = true;
-				tuner.artistindex = 0;
-				getFaveArtists();
+				if (typeof(searchRadio) == 'undefined') {
+					debug.log("FAVE ARTIST RADIO","Loading Search Radio Tuner");
+					$.getScript('radios/code/searchRadio.js',function() {
+						faveArtistRadio.actuallyGo(numtracks)
+					});
+				} else {
+					faveArtistRadio.actuallyGo(numtracks);
+				}
 			} else {
 				debug.log("FAVE ARTIST RADIO","RePopulating",numtracks);
 				var a = tuner.sending;
@@ -53,6 +55,15 @@ var faveArtistRadio = function() {
 					tuner.startSending();
 				}
 			}
+		},
+
+		actuallyGo: function(numtracks) {
+			debug.shout("FAVE ARTIST RADIO","Populating");
+			tuner = new searchRadio();
+			tuner.sending = numtracks;
+			tuner.running = true;
+			tuner.artistindex = 0;
+			getFaveArtists();
 		},
 
 		stop: function() {
@@ -64,20 +75,8 @@ var faveArtistRadio = function() {
 		modeHtml: function(p) {
 			return '<i class="icon-wifi modeimg"/></i><span class="modespan">'+
 				language.gettext("label_radio_fartist")+'</span>';
-		},
-
-        setup: function() {
-            var html = '<div class="containerbox spacer backhi dropdown-container" '+
-            	'onclick="playlist.radioManager.load(\'faveArtistRadio\', null)">';
-
-            html += '<div class="fixed">';
-            html += '<i class="icon-wifi smallicon"></i></div>';
-            html += '<div class="expand">'+language.gettext('label_radio_fartist')+'</div>';
-
-            html += '</div>';
-            $("#pluginplaylists_everywhere").append(html);
-        }
+		}
 	}
 }();
 
-playlist.radioManager.register("faveArtistRadio", faveArtistRadio);
+playlist.radioManager.register("faveArtistRadio", faveArtistRadio, null);

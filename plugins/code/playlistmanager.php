@@ -1,5 +1,5 @@
 <?php
-chdir('..');
+chdir('../..');
 
 include ("includes/vars.php");
 include ("includes/functions.php");

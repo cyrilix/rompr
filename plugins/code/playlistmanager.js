@@ -38,7 +38,7 @@ var playlistManager = function() {
 
 	function reloadPlaylist(list) {
         $.ajax({
-        	url: 'plugins/playlistmanager.php',
+        	url: 'plugins/code/playlistmanager.php',
         	type: "POST",
         	data: {action: 'getlist'},
         	dataType: 'json',
@@ -56,7 +56,7 @@ var playlistManager = function() {
 
 	function getAllPlaylists() {
         $.ajax({
-        	url: 'plugins/playlistmanager.php',
+        	url: 'plugins/code/playlistmanager.php',
         	type: "POST",
         	data: {action: 'getlist'},
         	dataType: 'json',
@@ -267,4 +267,6 @@ var playlistManager = function() {
 
 }();
 
-pluginManager.addPlugin(language.gettext("label_playlistmanager"), playlistManager.open, null);
+pluginManager.setAction(language.gettext("label_playlistmanager"), playlistManager.open);
+playlistManager.open();
+

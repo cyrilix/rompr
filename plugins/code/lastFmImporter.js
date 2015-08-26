@@ -645,4 +645,6 @@ var lastfmImporter = function() {
 
 }();
 
-pluginManager.addPlugin(language.gettext("lastfm_import"), lastfmImporter.open, null);
+pluginManager.setAction(language.gettext("lastfm_import"), lastfmImporter.open);
+lastfmImporter.open();
+

@@ -485,15 +485,15 @@ function Playlist() {
 
         return {
 
-            register: function(name, fn) {
+            register: function(name, fn, script) {
                 debug.log("RADIO MANAGER","Registering Plugin",name);
-                radios[name] = fn;
+                radios[name] = {func: fn, script: script};
             },
 
             init: function() {
                 for(var i in radios) {
                     debug.log("RADIO MANAGER","Activating Plugin",i);
-                    radios[i].setup();
+                    radios[i].func.setup();
                 }
                 if (prefs.player_backend == "mopidy") {
                     $("#radiodomains").makeDomainChooser({
@@ -537,8 +537,14 @@ function Playlist() {
                 }
                 populating = true;
                 startplaybackfrom = 0;
-                // Clearing the playlist causes us to repopulate and is best done there
-                player.controller.clearPlaylist();
+                if (radios[mode].script) {
+                    debug.shout("RADIO MANAGER","Loading Script",radios[mode].script,"for",mode);
+                    $.getScript(radios[mode].script).done(player.controller.clearPlaylist)
+                        .fail(function() {debug.error("RADIO MANAGER","Failed to Load Script")});
+                } else {
+                    // Clearing the playlist causes us to repopulate and is best done there
+                    player.controller.clearPlaylist();
+                }
             },
 
             beffuddle: function(originalstate) {
@@ -568,14 +574,14 @@ function Playlist() {
                     debug.blurt("RADIO MANAGER","Repopulate Check : Final Track :",playlist.getfinaltrack()+1,"Fromend :",fromend,"Chunksize :",chunksize,"Mode :",mode);
                     if (fromend < chunksize && mode) {
                         playlist.waiting();
-                        radios[mode].populate(prefs.radioparam, chunksize - fromend);
+                        radios[mode].func.populate(prefs.radioparam, chunksize - fromend);
                     }
                 }
             },
 
             stop: function() {
                 if (mode) {
-                    radios[mode].stop();
+                    radios[mode].func.stop();
                     prefs.save({radiomode: '', radioparam: ''});
                     mode = null;
                     populating = false;
@@ -592,7 +598,7 @@ function Playlist() {
             setHeader: function() {
                 var html = '';
                 if (mode) {
-                    var x = radios[mode].modeHtml(prefs.radioparam);
+                    var x = radios[mode].func.modeHtml(prefs.radioparam);
                     if (x) {
                         html = x + '<i class="icon-cancel-circled playlisticon clickicon" style="margin-left:8px" onclick="playlist.radioManager.stop()"></i>';
                     }

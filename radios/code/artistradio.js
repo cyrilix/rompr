@@ -17,16 +17,13 @@ var artistRadio = function() {
 		populate: function(artist, numtracks) {
 			if (artist && artist != artistname) {
 				debug.shout("ARTIST RADIO","Populating with",artist);
-				tuner = new spotifyRadio();
-				tuner.sending = numtracks;
-				tuner.running = true;
-				tuner.artistindex = 0;
-				if (artist.substr(0,15) == "spotify:artist:") {
-					getArtistName(artist.substr(15,artist.length));
+				if (typeof(spotifyRadio) == 'undefined') {
+					debug.log("ARTIST RADIO","Loading Spotify Radio Tuner");
+					$.getScript('radios/code/spotifyRadio.js',function() {
+						artistRadio.actuallyGo(artist, numtracks)
+					});
 				} else {
-					debug.shout("ARTIST RADIO","Searching for artist",artist);
-					artistname = artist;
-					searchForArtist(artist);
+					artistRadio.actuallyGo(artist, numtracks);
 				}
 			} else {
 				debug.log("ARTIST RADIO", "Repopulating");
@@ -35,6 +32,20 @@ var artistRadio = function() {
 				if (a == 0 && tuner.sending > 0) {
 					tuner.startSending();
 				}
+			}
+		},
+
+		actuallyGo: function(artist, numtracks) {
+			tuner = new spotifyRadio();
+			tuner.sending = numtracks;
+			tuner.running = true;
+			tuner.artistindex = 0;
+			if (artist.substr(0,15) == "spotify:artist:") {
+				getArtistName(artist.substr(15,artist.length));
+			} else {
+				debug.shout("ARTIST RADIO","Searching for artist",artist);
+				artistname = artist;
+				searchForArtist(artist);
 			}
 		},
 
@@ -70,27 +81,10 @@ var artistRadio = function() {
             debug.error("ARTIST RADIO","Failed to create playlist",data);
             infobar.notify(infobar.NOTIFY,language.gettext('label_gotnotracks'));
             playlist.radioManager.stop();
-		},
-
-		setup: function() {
-			if (player.canPlay('spotify')) {
-	            var html = '<div class="containerbox dropdown-container spacer">';
-	            html += '<div class="fixed"><i class="icon-spotify-circled smallicon"></i></div>';
-	            html += '<div class="fixed padright"><span style="vertical-align:middle">'+
-	            	language.gettext('lastfm_simar')+'</span></div>';
-	            html += '<div class="expand dropdown-holder"><input class="enter" '+
-	            	'id="bubbles" type="text" onkeyup="onKeyUp(event)" /></div>';
-	            html += '<button class="fixed" style="margin-left:8px;vertical-align:middle" '+
-	            	'onclick="playlist.radioManager.load(\'artistRadio\', $(\'#bubbles\').val())">'+
-	            	language.gettext('button_playradio')+'</button>';
-	            html += '</div>';
-	            html += '</div>';
-	            $("#pluginplaylists_spotify").append(html);
-	        }
 		}
 
 	}
 
 }();
 
-playlist.radioManager.register("artistRadio", artistRadio);
+playlist.radioManager.register("artistRadio", artistRadio, null);

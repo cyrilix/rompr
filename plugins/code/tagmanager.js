@@ -219,4 +219,5 @@ var tagManager = function() {
 	}
 }();
 
-pluginManager.addPlugin(language.gettext("label_tagmanager"), tagManager.open, null);
+pluginManager.setAction(language.gettext("label_tagmanager"), tagManager.open);
+tagManager.open();

@@ -805,6 +805,9 @@ var pluginManager = function() {
     // The setup function will be called as soon as all the page scripts have loaded,
     // before the layout is initialised. If a plugin wishes to add icons to the layout,
     // or hotkeys, it should do it here.
+    // Alternatively, a script name can be provided. This script will be dynamically loaded
+    // the first time the plugin is clicked on. The script MUST call setAction to set the
+    // action function (for the next time it's clicked on), and call its own action function.
     // If an action function is provided the plugin's label will be added to the dropdown list
     // above the info panel and the action function will be called when the label is clicked.
     // Note that plugins are not used in the mobile layout - for memory reasons. Most plugins
@@ -813,9 +816,9 @@ var pluginManager = function() {
     var plugins = new Array();
 
     return {
-        addPlugin: function(label, action, setup) {
+        addPlugin: function(label, action, setup, script) {
             debug.log("PLUGINS","Adding Plugin",label);
-            plugins.push({label: label, action: action, setup: setup});
+            plugins.push({label: label, action: action, setup: setup, script: script});
         },
 
         doEarlyInit: function() {
@@ -829,7 +832,7 @@ var pluginManager = function() {
 
         setupPlugins: function() {
             for (var i in plugins) {
-                if (plugins[i].action) {
+                if (plugins[i].action || plugins[i].script) {
                     debug.log("PLUGINS","Setting up Plugin",plugins[i].label);
                     $("#specialplugins").append('<div class="backhi clickable clickicon noselection'+
                         ' menuitem" name="'+i+'">'+plugins[i].label+'</div>');
@@ -837,8 +840,22 @@ var pluginManager = function() {
             }
             $("#specialplugins .clickicon").click(function() {
                 var index = parseInt($(this).attr('name'));
-                plugins[index].action();
+                if (typeof plugins[index].action == 'function') {
+                    plugins[index].action();
+                } else {
+                    debug.log("PLUGINS","Loading script",plugins[index].script,"for",plugins[index].label);
+                    $.getScript(plugins[index].script);
+                }
             });
+        },
+
+        setAction: function(label, action) {
+            for (var i in plugins) {
+                if (plugins[i].label == label) {
+                    debug.log("PLUGINS","Setting Action for",label);
+                    plugins[i].action = action;
+                }
+            }
         }
     }
 }();

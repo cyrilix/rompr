@@ -14,16 +14,11 @@ var genreRadio = function() {
 		}
 		populating = true;
 		var domains = new Array();
-		// Am finding some mopidy backends don't support search by genre
-		// and actually return an error instead of failing gracefully
-		var testdoms = ["local","spotify", "beets", "beetslocal"];
-		for (var i in testdoms) {
-			if (player.canPlay(testdoms[i])) {
-				domains.push(testdoms[i]+":");
-			}
+		if (prefs.player_backend == "mopidy") {
+			domains = $("#radiodomains").makeDomainChooser("getSelection");
 		}
 		debug.shout("GENRE RADIO","Searching for Genre",genre,"in domains",domains);
-		player.controller.rawsearch({genre: [genre]}, domains, genreRadio.checkResults);
+		player.controller.rawsearch({genre: [genre]}, domains, false, genreRadio.checkResults);
 	}
 
 	function sendTracks() {
@@ -55,6 +50,9 @@ var genreRadio = function() {
 		populate: function(g,numtracks) {
 			if (g && g != genre) {
 				debug.log("GENRE RADIO","Populating Genre",g);
+				if (player.canPlay('spotify') && typeof(spotifyRadio) == 'undefined') {
+					$.getScript('radios/code/spotifyRadio.js');
+				}
 				running = true;
 				tracks = new Array();
 				genre = g;
@@ -63,7 +61,11 @@ var genreRadio = function() {
 				tracksneeded = numtracks;
 			} else {
 				debug.log("GENRE RADIO","Repopulating");
-				tracksneeded += (numtracks - tracksneeded - tuner.sending);
+				if (tuner) {
+					tracksneeded += (numtracks - tracksneeded - tuner.sending);
+				} else {
+					tracksneeded += (numtracks - tracksneeded);
+				}
 				sendTracks();
 			}
 		},
@@ -109,30 +111,17 @@ var genreRadio = function() {
 				tuner.running = false;
 			}
 			populating = false;
+			genre = null;
 		},
 
 		modeHtml: function(g) {
             return '<i class="icon-wifi modeimg"/></i><span class="modespan ucfirst">'+g+' '+
             	language.gettext('label_radio')+'</span>';
-		},
-
-		setup: function() {
-            var html = '<div class="containerbox dropdown-container spacer">';
-            html += '<div class="fixed"><i class="icon-wifi smallicon"/></i></div>';
-            html += '<div class="fixed padright"><span style="vertical-align:middle">'+
-            	language.gettext('label_genre')+'</span></div>';
-            html += '<div class="expand dropdown-holder"><input class="enter" id="humphrey" '+
-            	'type="text" onkeyup="onKeyUp(event)" /></div>';
-            html += '<button class="fixed" style="margin-left:8px;vertical-align:middle" '+
-            	'onclick="playlist.radioManager.load(\'genreRadio\', $(\'#humphrey\').val())">'+
-            	language.gettext('button_playradio')+'</button>';
-            html += '</div>';
-            html += '</div>';
-            $("#pluginplaylists_everywhere").append(html);
 		}
 
 	}
 
 }();
 
-playlist.radioManager.register("genreRadio", genreRadio);
+playlist.radioManager.register("genreRadio", genreRadio, null);
+

@@ -50,22 +50,10 @@ var mostPlayed = function() {
         stop: function() {
             running = false;
             started = false;
-        },
-
-        setup: function() {
-
-            var html = '<div class="containerbox spacer backhi dropdown-container" '+
-                'onclick="playlist.radioManager.load(\'mostPlayed\', null)">';
-            html += '<div class="fixed">';
-            html += '<i class="icon-music smallicon"></i></div>';
-            html += '<div class="expand">'+language.gettext('label_mostplayed')+'</div>';
-            html += '</div>';
-            $("#pluginplaylists").append(html);
-
         }
 
 	}
 
 }();
 
-playlist.radioManager.register("mostPlayed", mostPlayed);
+playlist.radioManager.register("mostPlayed", mostPlayed, null);

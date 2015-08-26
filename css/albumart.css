@@ -16,7 +16,7 @@
     flex-grow: 0;
     flex-shrink: 0;
     flex-basis: auto;
-    justify-content:center;    
+    justify-content:center;
 
     border-left: 1px solid #fe6500;
     margin:8px;
@@ -28,7 +28,7 @@
     -webkit-box-flex:100.0;
     flex-grow: 10;
     flex-shrink: 10;
-    flex-basis: auto; 
+    flex-basis: auto;
     padding:8px;
 }
 
@@ -37,9 +37,14 @@
     padding-left:8px;
     padding-right:8px;
     padding-top:8px;
-    width:82px;
+    /*width:82px;*/
     -webkit-box-align:center;
     align-items: center;
+}
+
+.albumimg table
+{
+    width:100%;
 }
 
 #brian {

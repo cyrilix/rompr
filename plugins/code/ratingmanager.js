@@ -185,4 +185,5 @@ var ratingManager = function() {
 
 }();
 
-pluginManager.addPlugin(language.gettext("label_ratingmanager"), ratingManager.open, null);
+pluginManager.setAction(language.gettext("label_ratingmanager"), ratingManager.open);
+ratingManager.open();
