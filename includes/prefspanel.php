@@ -237,6 +237,9 @@ print '<div class="pref styledinputs">
 <label for="displaycomposer">'.get_int_text('config_displaycomposer').'</label>
 </div>';
 if ($skin != "phone") {
+print '<div class="pref styledinputs">'.get_int_text('config_wheelspeed').
+    '<input class="saveotron" id="wheelscrollspeed" style="width:4em;margin-left:1em" type="text" size="4" />
+    </div>';
 print '<div class="pref textcentre"><button onclick="shortcuts.edit()">'.
     get_int_text('config_editshortcuts').'</button></div>'."\n";
 }

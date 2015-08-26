@@ -225,7 +225,7 @@ function addCustomScrollBar(value) {
         scrollInertia: 300,
         contentTouchScroll: 25,
         mouseWheel: {
-            scrollAmount: 40,
+            scrollAmount: parseInt(prefs.wheelscrollspeed),
         },
         advanced: {
             updateOnContentResize: true,
@@ -261,6 +261,8 @@ var layoutProcessor = function() {
             }
         }
     }
+
+    my_scrollers = [ "#sources", "#infopane", "#pscroller", ".topdropmenu", ".drop-box" ];
 
     return {
 
@@ -529,7 +531,7 @@ var layoutProcessor = function() {
                 return false;
             });
             $(".enter").keyup( onKeyUp );
-            $.each([ "#sources", "#infopane", "#pscroller", ".topdropmenu", ".drop-box" ],
+            $.each(my_scrollers,
                 function( index, value ) {
                 addCustomScrollBar(value);
             });

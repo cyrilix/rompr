@@ -96,7 +96,8 @@ $prefs = array(
     "updateeverytime" => false,
     "fullbiobydefault" => true,
     "mopidy_search_domains" => array("local", "spotify"),
-    "outputsvisible" => false
+    "outputsvisible" => false,
+    "wheelscrollspeed" => "150"
 );
 
 // ====================================================================

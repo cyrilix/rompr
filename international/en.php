@@ -568,6 +568,7 @@ $languages['en'] = array (
 
 	// New in 0.71
 	"label_albumsbyartist" => "Albums (by Artist)",
+	"config_wheelspeed" => "Mouse Wheel Scroll Speed",
 
 	//CHANGED in 0.60
 	"config_country" => "COUNTRY (for Last.FM and Spotify)",

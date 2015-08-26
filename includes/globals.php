@@ -52,7 +52,8 @@ prefs.prefsInLocalStorage = [
     "fullbiobydefault",
     "mopidy_search_domains",
     "skin",
-    "outputsvisible"
+    "outputsvisible",
+    "wheelscrollspeed"
 ];
 
 // 'skin' is stored in local storage - it's only use is for setting the correct item

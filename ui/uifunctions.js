@@ -160,6 +160,18 @@ function saveTextBoxes() {
     textSaveTimer = setTimeout(doTheSave, 1000);
 }
 
+function arraycompare(a, b) {
+    if (a.length != b.length) {
+        return false;
+    }
+    for (var i in a) {
+        if (a[i] != b[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 function doTheSave() {
     var felakuti = new Object;
     var callback = null;
@@ -171,15 +183,19 @@ function doTheSave() {
         }
         switch ($(this).attr("id")) {
             case "composergenrename":
-                if (felakuti.composergenrename != prefs.composergenrename) {
+                if (!arraycompare(felakuti.composergenrename, prefs.composergenrename)) {
                     $('[name="donkeykong"]').makeFlasher({flashtime:0.5, repeats: 3});
                 }
                 break;
 
             case "artistsatstart":
+                if (!arraycompare(felakuti.artistsatstart, prefs.artistsatstart)) {
+                    callback = forceCollectionReload;
+                }
+                break;
+
             case "nosortprefixes":
-                if (felakuti.artistsatstart != prefs.artistsatstart ||
-                    felakuti.nosortprefixes != prefs.nosortprefixes) {
+                if (!arraycompare(felakuti.nosortprefixes, prefs.nosortprefixes)) {
                     callback = forceCollectionReload;
                 }
                 break;
@@ -190,6 +206,12 @@ function doTheSave() {
                     player.status.xfade !== null &&
                     player.status.xfade > 0) {
                     callback = function() { player.controller.setCrossfade(felakuti.crossfade_duration) }
+                }
+                break;
+
+            case "wheelscrollspeed":
+                if (felakuti.wheelscrollspeed != prefs.wheelscrollspeed) {
+                    callback = reloadWindow;
                 }
                 break;
         }
