@@ -536,7 +536,7 @@ function Playlist() {
                     }
                 }
                 populating = true;
-                startplaybackfrom = 0;
+                startplaybackfrom = (player.status.state == 'play') ? -1 : 0;
                 if (radios[mode].script) {
                     debug.shout("RADIO MANAGER","Loading Script",radios[mode].script,"for",mode);
                     $.getScript(radios[mode].script).done(playlist.repopulate)

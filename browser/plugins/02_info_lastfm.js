@@ -105,17 +105,13 @@ var info_lastfm = function() {
 
         html += '</div><div class="statsbox">';
 
-        var bigurl = lfmdata.image("mega");
-        var imageurl = lfmdata.image("extralarge");
+        // var bigurl = lfmdata.image("mega");
+        var imageurl = lfmdata.image("mega");
         if (imageurl != '') {
             html +=  '<img class="stright standout'
-            if (bigurl && bigurl != imageurl) {
-                html += ' infoclick clickzoomimage';
-            }
+            html += ' infoclick clickzoomimage cshrinker';
             html += '" src="getRemoteImage.php?url=' + imageurl + '" />';
-            if (bigurl && bigurl != imageurl) {
-                html += '<input type="hidden" value="getRemoteImage.php?url='+bigurl+'" />';
-            }
+            html += '<input type="hidden" value="getRemoteImage.php?url='+imageurl+'" />';
         }
         html +=  '<div id="artistbio">';
         if (artistmeta.lastfm.fullbio !== undefined &&

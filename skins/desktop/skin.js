@@ -266,7 +266,6 @@ var layoutProcessor = function() {
 
     return {
 
-        shrinkerRatio: 2.5,
         supportsDragDrop: true,
         hasCustomScrollbars: true,
         usesKeyboard: true,

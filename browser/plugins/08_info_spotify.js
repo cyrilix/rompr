@@ -38,14 +38,8 @@ var info_spotify = function() {
 	    html += trackListing(data)+'</div>';
         html += '<div class="cleft info-box-fixed">';
     	if (data.images && data.images[0]) {
-    		html += '<img class="shrinker infoclick clickzoomimage" src="getRemoteImage.php?url='+
-                data.images[0].url+'" ';
-    		var w = $("#infopane").width();
-    		var imgwidth = data.images[0].width;
-    		if (imgwidth > w/layoutProcessor.shrinkerRatio) imgwidth =
-                w/layoutProcessor.shrinkerRatio;
-            imgwidth -= 48;
-    		html += 'width="'+imgwidth+'" name="'+data.images[0].width+'"/>';
+    		html += '<img class="cshrinker infoclick clickzoomimage" src="getRemoteImage.php?url='+
+                data.images[0].url+'" />';
     	}
     	html += '</div>';
     	html += '</div>';
@@ -102,14 +96,8 @@ var info_spotify = function() {
 	    }
     	h += '</ul></div>';
     	if (data.images && data.images[0]) {
-    		var w = $("#infopane").width();
-    		var imgwidth = data.images[0].width;
-            if (imgwidth > (w/layoutProcessor.shrinkerRatio)) imgwidth =
-                w/layoutProcessor.shrinkerRatio;
-            imgwidth -= 48;
-            h += '<img class="stright standout shrinker infoclick clickzoomimage" '+
-                'src="getRemoteImage.php?url='+data.images[0].url+'" width="'+
-                imgwidth+'" name="'+data.images[0].width+'"/>';
+            h += '<img class="stright standout cshrinker infoclick clickzoomimage" '+
+                'src="getRemoteImage.php?url='+data.images[0].url+'" />';
     	}
 
     	h += '<div id="spartistinfo"></div>';

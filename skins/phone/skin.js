@@ -117,7 +117,6 @@ var layoutProcessor = function() {
 
     return {
 
-        shrinkerRatio: 1,
         supportsDragDrop: false,
         hasCustomScrollbars: false,
         playlistInNowplaying: false,

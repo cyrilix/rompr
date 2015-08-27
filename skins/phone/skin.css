@@ -581,14 +581,16 @@ div.rightmenu
     width:90% !important;
 }
 
-.stleft
-{
-    float:none;
-    width:auto;
-    max-width:95%;
-    clear:both;
-    border-right:none !important;
-    border-bottom: 1px solid #dddddd !important;
+@media screen and (max-width: 640px) {
+    .stleft
+    {
+        float:none;
+        width:auto;
+        max-width:95%;
+        clear:both;
+        border-right:none !important;
+        border-bottom: 1px solid #dddddd !important;
+    }
 }
 
 .thumb
@@ -741,4 +743,9 @@ div.rightmenu
 .podhackshit
 {
     margin-bottom:2em;
+}
+
+.cshrinker
+{
+    max-width:35%;
 }
