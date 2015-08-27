@@ -581,7 +581,7 @@ div.rightmenu
     width:90% !important;
 }
 
-@media screen and (max-width: 640px) {
+@media screen and (max-width: 540px) {
     .stleft
     {
         float:none;

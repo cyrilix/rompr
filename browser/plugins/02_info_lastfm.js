@@ -105,7 +105,6 @@ var info_lastfm = function() {
 
         html += '</div><div class="statsbox">';
 
-        // var bigurl = lfmdata.image("mega");
         var imageurl = lfmdata.image("mega");
         if (imageurl != '') {
             html +=  '<img class="stright standout'
