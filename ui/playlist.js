@@ -539,11 +539,10 @@ function Playlist() {
                 startplaybackfrom = 0;
                 if (radios[mode].script) {
                     debug.shout("RADIO MANAGER","Loading Script",radios[mode].script,"for",mode);
-                    $.getScript(radios[mode].script).done(player.controller.clearPlaylist)
+                    $.getScript(radios[mode].script).done(playlist.repopulate)
                         .fail(function() {debug.error("RADIO MANAGER","Failed to Load Script")});
                 } else {
-                    // Clearing the playlist causes us to repopulate and is best done there
-                    player.controller.clearPlaylist();
+                    playlist.repopulate();
                 }
             },
 
@@ -608,6 +607,10 @@ function Playlist() {
 
             isPopulating: function() {
                 return populating;
+            },
+
+            isRunning: function() {
+                return (mode !== null);
             }
         }
     }();

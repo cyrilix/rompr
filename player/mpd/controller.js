@@ -487,7 +487,7 @@ function playerController() {
         layoutProcessor.notifyAddTracks();
 		debug.log("MPD","Adding Tracks",tracks,playpos,at_pos);
 		var cmdlist = [];
-        if (prefs.mediacentremode) {
+        if (prefs.mediacentremode && !playlist.radioManager.isRunning()) {
             cmdlist.push(["clear"]);
             cmdlist.push(['consume', '1']);
             at_pos = false;
