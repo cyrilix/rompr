@@ -1022,7 +1022,7 @@ function do_albums_from_database($which, $fragment = false, $use_artistindex = f
 	$qstring = "SELECT Albumtable.*, Artisttable.Artistname FROM Albumtable JOIN Artisttable ON
 			(Albumtable.AlbumArtistindex = Artisttable.Artistindex) WHERE ";
 
-	if (!$use_artistindex && $matches[1] != "root" {
+	if (!$use_artistindex && $matches[1] != "root") {
 		$qstring .= "AlbumArtistindex = '".$matches[1]."' AND ";
 	}
 	if ($use_artistindex) {
