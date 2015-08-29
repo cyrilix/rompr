@@ -486,20 +486,6 @@ var browser = function() {
                 h.masonry();
             }
 
-            // $.each($(".shrinker"), function(){
-            //     var mw = $(this).attr("name");
-            //     var cw = $(this).attr("width");
-            //     var tw = w/layoutProcessor.shrinkerRatio;
-            //     tw -= 48;
-            //     if (cw < tw) {
-            //         $(this).attr("width", tw);
-            //     } else {
-            //         if (mw > tw && cw != mw) {
-            //             $(this).attr("width", tw);
-            //         }
-            //     }
-            // });
-
         },
 
         calcMWidth: function() {

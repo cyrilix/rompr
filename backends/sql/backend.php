@@ -1019,17 +1019,10 @@ function do_albums_from_database($which, $fragment = false, $use_artistindex = f
 	$t = substr($which,0,1);
 	$sflag = ($t == "b") ? "AND Tracktable.isSearchResult > 0" : "AND Tracktable.isSearchResult < 2";
 
-	$qstring = "SELECT";
-	if ($use_artistindex) {
-		$qstring .= "* FROM Albumtable ";
-	} else {
-		$qstring .= " Albumtable.*, Artisttable.Artistname FROM Albumtable JOIN Artisttable ON
-			(Albumtable.AlbumArtistindex = Artisttable.Artistindex) ";
-	}
-	$qstring .= "WHERE ";
+	$qstring = "SELECT Albumtable.*, Artisttable.Artistname FROM Albumtable JOIN Artisttable ON
+			(Albumtable.AlbumArtistindex = Artisttable.Artistindex) WHERE ";
 
-	if (!$use_artistindex && $matches[1] != "root" &&
-		!($fragment !== false && ($prefs['sortcollectionby'] == "album") || $prefs['sortcollectionby'] == "albumbyartist")) {
+	if (!$use_artistindex && $matches[1] != "root" {
 		$qstring .= "AlbumArtistindex = '".$matches[1]."' AND ";
 	}
 	if ($use_artistindex) {
@@ -1057,20 +1050,17 @@ function do_albums_from_database($which, $fragment = false, $use_artistindex = f
 		} else {
 			$qstring .= "LOWER(Artisttable.Artistname),";
 		}
+	}
+	$qstring .= " CASE WHEN Albumname LIKE '".get_int_text('label_allartist')."%' THEN 1 ELSE 2 END,";
+	if ($prefs['sortbydate']) {
 		if ($prefs['notvabydate']) {
-			$qstring .= " CASE WHEN Artisttable.Artistname = 'Various Artists' THEN LOWER(Albumname) ELSE Year END";
+			$qstring .= " CASE WHEN Artisttable.Artistname = 'Various Artists' THEN LOWER(Albumname) ELSE Year END,";
 		} else {
-			$qstring .= ' Year, LOWER(Albumname)';
-		}
-	} else {
-		$qstring .= " CASE WHEN Albumname LIKE '".get_int_text('label_allartist')."%' THEN 1 ELSE 2 END,";
-		if (!$prefs['sortbydate'] ||
-			(is_various_artists($matches[1]) && $prefs['notvabydate'])) {
-			$qstring .= ' LOWER(Albumname)';
-		} else {
-			$qstring .= ' Year, LOWER(Albumname)';
+			$qstring .= ' Year,';
 		}
 	}
+	$qstring .= ' LOWER(Albumname)';
+
 	$count = 0;
 	if ($result = generic_sql_query($qstring)) {
 		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
