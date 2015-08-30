@@ -123,7 +123,7 @@ var info_lastfm = function() {
         html += '</div>';
 
         var similies = lfmdata.similar();
-        if (similies.length > 0) {
+        if (similies.length > 0 && typeof similies[0].name != 'undefined') {
             html += '<div id="similarartists" class="bordered"><h3 align="center">'+language.gettext("lastfm_simar")+'</h3>';
             html += '<table width="100%" cellspacing="0" cellpadding="0"><tr><td align="center"><div class="smlrtst">';
             for(var i in similies) {

@@ -229,11 +229,12 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
 
 function artistHeader($id, $name) {
     global $divtype;
-    print '<div class="clickable clickalbum draggable containerbox menuitem '.
+    $h = '<div class="clickable clickalbum draggable containerbox menuitem '.
         $divtype.'" name="'.$id.'">';
-    print '<i class="icon-toggle-closed menu mh fixed" name="'.$id.'"></i>';
-    print '<div class="expand">'.$name.'</div>';
-    print '</div>';
+    $h .= '<i class="icon-toggle-closed menu mh fixed" name="'.$id.'"></i>';
+    $h .= '<div class="expand">'.$name.'</div>';
+    $h .= '</div>';
+    return $h;
 }
 
 function noAlbumsHeader() {
@@ -245,34 +246,35 @@ function albumHeader($name, $albumuri, $id, $exists, $searched, $imgname, $src,
                         $date, $numtracks = null, $aname = null) {
     
     global $prefs;
+    $h = '';
     if ($albumuri) {
         if (preg_match('/spotify%3Aartist%3A/', $albumuri)) {
-            print '<div class="clickable clickartist draggable containerbox menuitem" name="'.
+            $h .= '<div class="clickable clickartist draggable containerbox menuitem" name="'.
                 preg_replace('/'.get_int_text('label_allartist').'/', '', $name).'">';
         } else if (strtolower(pathinfo($albumuri, PATHINFO_EXTENSION)) == "cue") {
             debuglog("Cue Sheet found for album ".$name,"FUNCTIONS");
-            print '<div class="clickable clickcue draggable containerbox menuitem" name="'
+            $h .= '<div class="clickable clickcue draggable containerbox menuitem" name="'
                 .$albumuri.'">';
         } else {
-            print '<div class="clickable clicktrack draggable containerbox menuitem" name="'
+            $h .= '<div class="clickable clicktrack draggable containerbox menuitem" name="'
                 .$albumuri.'">';
         }
     } else {
-        print '<div class="clickable clickalbum draggable containerbox menuitem" name="'.$id.'">';
+        $h .= '<div class="clickable clickalbum draggable containerbox menuitem" name="'.$id.'">';
     }
-    print '<i class="icon-toggle-closed menu mh fixed" name="'.$id.'"></i>';
+    $h .= '<i class="icon-toggle-closed menu mh fixed" name="'.$id.'"></i>';
 
     // For BLOODY FIREFOX only we have to wrap the image in a div of the same size,
     // because firefox won't squash the image horizontally if it's in a box-flex layout.
-    print '<div class="smallcover fixed">';
+    $h .= '<div class="smallcover fixed">';
     if ($exists == "no" && $searched == "no") {
-        print '<img class="smallcover fixed notexist" name="'.$imgname.'" />'."\n";
+        $h .= '<img class="smallcover fixed notexist" name="'.$imgname.'" />'."\n";
     } else  if ($exists == "no" && $searched == "yes") {
-        print '<img class="smallcover fixed notfound" name="'.$imgname.'" />'."\n";
+        $h .= '<img class="smallcover fixed notfound" name="'.$imgname.'" />'."\n";
     } else {
-        print '<img class="smallcover fixed" name="'.$imgname.'" src="'.$src.'" />'."\n";
+        $h .= '<img class="smallcover fixed" name="'.$imgname.'" src="'.$src.'" />'."\n";
     }
-    print '</div>';
+    $h .= '</div>';
     if ($albumuri) {
         $d = getDomain($albumuri);
         $d = preg_replace('/\+.*/','', $d);
@@ -282,37 +284,38 @@ function albumHeader($name, $albumuri, $id, $exists, $searched, $imgname, $src,
             case "youtube":
             case "soundcloud":
             case "internetarchive":
-                print '<i class="icon-'.$d.'-circled playlisticon fixed"></i>';
+                $h .= '<i class="icon-'.$d.'-circled playlisticon fixed"></i>';
                 break;
 
             case "podcast":
             case "podcast http":
             case "podcast ftp":
             case "podcast file":
-                print '<i class="icon-podcast-circled playlisticon fixed"></i>';
+                $h .= '<i class="icon-podcast-circled playlisticon fixed"></i>';
                 break;
 
             case "tunein":
             case "radio-de":
             case "dirble":
             case "bassdrive":
-                print '<div class="playlisticon fixed"><img height="12px" src="newimages/'.
+                $h .= '<div class="playlisticon fixed"><img height="12px" src="newimages/'.
                     $d.'-logo.png" /></div>';
                 break;
         }
         if (strtolower(pathinfo($albumuri, PATHINFO_EXTENSION)) == "cue") {
-            print '<i class="icon-doc-text playlisticon fixed"></i>';
+            $h .= '<i class="icon-doc-text playlisticon fixed"></i>';
         }
     }
 
-    print '<div class="expand">'.$name;
+    $h .= '<div class="expand">'.$name;
     if ($date && $date != "" && $prefs['sortbydate']) {
-        print ' <span class="notbold">('.$date.')</span>';
+        $h .= ' <span class="notbold">('.$date.')</span>';
     }
     if ($aname) {
-        print '<br><span class="notbold">'.$aname.'</span>';
+        $h .= '<br><span class="notbold">'.$aname.'</span>';
     }
-    print '</div></div>';
+    $h .= '</div></div>';
+    return $h;
 }
 
 function get_base_url() {
@@ -711,7 +714,7 @@ function getWishlist() {
                     $bothclosed = true;
                 }
                 $current_artist = $obj->artist;
-                artistHeader("wishlistartist_".$count, $obj->artist);
+                print artistHeader("wishlistartist_".$count, $obj->artist);
                 print '<div id="wishlistartist_'.$count.'" class="dropmenu '.$divtype.'">';
                 $count++;
                 $divtype = ($divtype == "album1") ? "album2" : "album1";
@@ -721,7 +724,7 @@ function getWishlist() {
                     print '</div>';
                 }
                 $current_album = $obj->album;
-                albumHeader(
+                print albumHeader(
                     $obj->album,
                     null,
                     'wishlistalbum_'.$count,

@@ -104,6 +104,8 @@ var info_ratings = function() {
                 }
                 if (parent.playlistinfo.date) {
                     data.date = parent.playlistinfo.date;
+                } else {
+                    data.date = 0;
                 }
                 return data;
             }

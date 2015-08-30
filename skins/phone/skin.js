@@ -167,9 +167,9 @@ var layoutProcessor = function() {
         },
 
         setPlaylistHeight: function() {
-            var newheight = $("#playlistm").parent().height() - $("#horse").height();
+            var newheight = $("#playlistm").height() - $("#horse").outerHeight(true);
             if ($("#playlistbuttons").is(":visible")) {
-                newheight = newheight - $("#playlistbuttons").height() - 2;
+                newheight = newheight - $("#playlistbuttons").outerHeight(true) - 2;
             }
             $("#pscroller").css("height", newheight.toString()+"px");
         },
@@ -214,15 +214,6 @@ var layoutProcessor = function() {
 
         adjustLayout: function() {
             var ws = getWindowSize();
-            if (ws.x <= 320) {
-                layoutProcessor.shrinkerRatio = 1;
-            } else if (ws.x > 320 && ws.x <= 512 && ws.x < ws.y) {
-                layoutProcessor.shrinkerRatio = 1.5;
-            } else if (ws.x > 512 && ws.x < 800 && ws.x < ws.y) {
-                layoutProcessor.shrinkerRatio = 2;
-            } else {
-                layoutProcessor.shrinkerRatio = 2.5;
-            }
             var newheight = ws.y-$("#headerbar").outerHeight(true);
             // Set the height of the volume control bar
             var v = newheight - 32;

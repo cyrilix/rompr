@@ -941,42 +941,32 @@ function albumartist_sort_query($flag) {
 	return $qstring;
 }
 
-function is_various_artists($index) {
-	$qstring = "SELECT Artistname FROM Artisttable WHERE Artistindex = '".$index."'";
-	$va = false;
-	if ($result = generic_sql_query($qstring)) {
-		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
-			if ($obj->Artistname == "Various Artists") {
-				$va = true;
-			}
-		}
-	}
-	return $va;
-}
-
 function do_artists_from_database($which) {
 	global $divtype;
 	$singleheader = array();
-	debuglog("Generating ".$which." from database","DUMPALBUMS",7);
+	debuglog("Generating artist ".$which." from database","DUMPALBUMS",7);
 	$singleheader['type'] = 'insertAfter';
 	$singleheader['where'] = 'fothergill';
 	$count = 0;
-	if ($result = generic_sql_query(albumartist_sort_query(substr($which,0,1)))) {
+	$a = preg_match('/(a|b)album(\d+|root)/', $which, $matches);
+	if (!$a) {
+		print '<h3>'.get_int_text("label_general_error").' (artists_from_database)</h3>';
+		debuglog('Artist dump failed - regexp failed to match '.$which,"DUMPALBUMS",3);
+		return false;
+	}
+	$why = $matches[1];
+	$what = $matches[2];
+	if ($result = generic_sql_query(albumartist_sort_query($why))) {
 		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
-			if ($which == "aalbumroot") {
-				artistHeader('aartist'.$obj->Artistindex, $obj->Artistname);
+			if ($what == "root") {
+				print artistHeader($why.'artist'.$obj->Artistindex, $obj->Artistname);
 				$count++;
-			} else if ($which == "balbumroot") {
-				artistHeader('bartist'.$obj->Artistindex, $obj->Artistname);
 			} else {
-				if ($obj->Artistindex != $which) {
-					$singleheader['where'] = "aartist".$obj->Artistindex;
+				if ($obj->Artistindex != $what) {
 					$singleheader['type'] = 'insertAfter';
+					$singleheader['where'] = "aartist".$obj->Artistindex;
 				} else {
-					ob_start();
-					artistHeader('aartist'.$obj->Artistindex, $obj->Artistname);
-					$singleheader['html'] = ob_get_contents();
-					ob_end_clean();
+					$singleheader['html'] = artistHeader('aartist'.$obj->Artistindex, $obj->Artistname);
 					return $singleheader;
 				}
 			}
@@ -986,7 +976,6 @@ function do_artists_from_database($which) {
 		print '<h3>'.get_int_text("label_general_error").'</h3>';
 	}
 	if ($which == "aalbumroot") return $count;
-
 }
 
 function get_list_of_artists() {
@@ -1009,25 +998,28 @@ function do_albums_from_database($which, $fragment = false, $use_artistindex = f
 		$singleheader['type'] = 'insertAfter';
 		$singleheader['where'] = 'fothergill';
 	}
-	debuglog("Generating ".$which." from database","DUMPALBUMS",7);
-	$a = preg_match("/artist(\d+|root)/", $which, $matches);
+	debuglog("Generating albums for ".$which." from database","DUMPALBUMS",7);
+	$a = preg_match("/(a|b)artist(\d+|root)/", $which, $matches);
 	if (!$a) {
-		print '<h3>'.get_int_text("label_general_error").'</h3>';
+		print '<h3>'.get_int_text("label_general_error").' (albums_from_database)</h3>';
+		debuglog('Album dump failed - regexp failed to match '.$which,"DUMPALBUMS",3);
 		return false;
 	}
-	debuglog("Looking for artistID ".$matches[1],"DUMPALBUMS",8);
-	$t = substr($which,0,1);
-	$sflag = ($t == "b") ? "AND Tracktable.isSearchResult > 0" : "AND Tracktable.isSearchResult < 2";
+	$why = $matches[1];
+	$what = $matches[2];
+	debuglog("Looking for artistID ".$what,"DUMPALBUMS",8);
+	$sflag = ($why == "b") ? "AND Tracktable.isSearchResult > 0" : "AND Tracktable.isSearchResult < 2";
 
 	$qstring = "SELECT Albumtable.*, Artisttable.Artistname FROM Albumtable JOIN Artisttable ON
 			(Albumtable.AlbumArtistindex = Artisttable.Artistindex) WHERE ";
 
-	if (!$use_artistindex && $matches[1] != "root") {
-		$qstring .= "AlbumArtistindex = '".$matches[1]."' AND ";
+	if (!$use_artistindex && $what != "root" && $prefs['sortcollectionby'] != 'album' &&
+		$prefs['sortcollectionby'] != 'albumbyartist') {
+		$qstring .= "AlbumArtistindex = '".$what."' AND ";
 	}
 	if ($use_artistindex) {
 		$qstring .= "Albumindex IN (SELECT DISTINCT Albumindex FROM Tracktable WHERE
-			Tracktable.Artistindex = ".$matches[1]." AND ";
+			Tracktable.Artistindex = ".$what." AND ";
 	} else {
 		$qstring .= "Albumindex IN (SELECT Albumindex FROM Tracktable WHERE
 			Tracktable.Albumindex = Albumtable.Albumindex AND ";
@@ -1064,16 +1056,18 @@ function do_albums_from_database($which, $fragment = false, $use_artistindex = f
 	$count = 0;
 	if ($result = generic_sql_query($qstring)) {
 		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
-			$artistthing = (!$use_artistindex && ($prefs['sortcollectionby'] == "album" || $prefs['sortcollectionby'] == "albumbyartist")) ?
-				$obj->Artistname : null;
+			$artistthing = (!$use_artistindex &&
+							($prefs['sortcollectionby'] == "album" ||
+								$prefs['sortcollectionby'] == "albumbyartist")) ?
+									$obj->Artistname : null;
+			$exists = ($obj->Image && $obj->Image !== "") ? "yes" : "no";
+			$albumlink = ($why == "a" || preg_match('/:album:|:artist:/', $obj->AlbumUri) ||
+				preg_match('/^podcast/', $obj->AlbumUri)) ? rawurlencode($obj->AlbumUri) : null;
 			if ($fragment === false) {
-				$exists = ($obj->Image && $obj->Image !== "") ? "yes" : "no";
-				$albumlink = ($t == "a" || preg_match('/:album:|:artist:/', $obj->AlbumUri) ||
-					preg_match('/^podcast/', $obj->AlbumUri)) ? rawurlencode($obj->AlbumUri) : null;
-				albumHeader(
+				print albumHeader(
 					$obj->Albumname,
 					$albumlink,
-					$t."album".$obj->Albumindex,
+					$why."album".$obj->Albumindex,
 					$exists,
 					($obj->Searched == 1 || $exists == "yes") ? "yes" : "no",
 					$obj->ImgKey,
@@ -1087,11 +1081,9 @@ function do_albums_from_database($which, $fragment = false, $use_artistindex = f
 					$singleheader['where'] = 'aalbum'.$obj->Albumindex;
 					$singleheader['type'] = 'insertAfter';
 				} else {
-					ob_start();
-					$exists = ($obj->Image && $obj->Image !== "") ? "yes" : "no";
-					albumHeader(
+					$singleheader['html'] = albumHeader(
 						$obj->Albumname,
-						rawurlencode($obj->AlbumUri),
+						$albumlink,
 						"aalbum".$obj->Albumindex,
 						$exists,
 						($obj->Searched == 1 || $exists == "yes") ? "yes" : "no",
@@ -1101,8 +1093,6 @@ function do_albums_from_database($which, $fragment = false, $use_artistindex = f
 						null,
 						$artistthing
 					);
-					$singleheader['html'] = ob_get_contents();
-					ob_end_clean();
 					return $singleheader;
 				}
 			}
@@ -1176,13 +1166,16 @@ function get_artist_tracks_from_database($index, $cmd, $flag) {
 	global $prefs;
 	$retarr = array();
 	debuglog("Getting Tracks for AlbumArtist ".$index,"MYSQL",7);
-	$qstring = "SELECT Albumindex FROM Albumtable WHERE AlbumArtistindex = ".$index;
-	if (!$prefs['sortbydate'] ||
-		(is_various_artists($index) && $prefs['notvabydate'])) {
-		$qstring .= ' ORDER BY LOWER(Albumname)';
-	} else {
-		$qstring .= ' ORDER BY Year, LOWER(Albumname)';
+	$qstring = "SELECT Albumindex, Artistname FROM Albumtable JOIN Artisttable ON
+		(Albumtable.AlbumArtistindex = Artisttable.Artistindex) WHERE AlbumArtistindex = ".$index." ORDER BY";
+	if ($prefs['sortbydate']) {
+		if ($prefs['notvabydate']) {
+			$qstring .= " CASE WHEN Artistname = 'Various Artists' THEN LOWER(Albumname) ELSE Year END,";
+		} else {
+			$qstring .= ' Year,';
+		}
 	}
+	$qstring .= ' LOWER(Albumname)';
 	if ($result = generic_sql_query($qstring)) {
 		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
 			$retarr = array_merge($retarr, get_album_tracks_from_database($obj->Albumindex, $cmd, $flag));
@@ -1987,7 +1980,7 @@ function send_list_updates($artist_created, $album_created, $ttid, $send = true)
 		debuglog("Artist ".$artist_created." was created","USER RATING",8);
 		// We had to create a new albumartist, so we send back the artist HTML header
 		// We need to know the artist details and where in the list it is supposed to go.
-		array_push($returninfo['inserts'], do_artists_from_database($artist_created));
+		array_push($returninfo['inserts'], do_artists_from_database('aalbum'.$artist_created));
 	} else if ($album_created !== false) {
 		debuglog("Album ".$album_created." was created","USER RATING",8);
 		// Find the artist

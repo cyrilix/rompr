@@ -33,7 +33,7 @@ $albumuri = array_key_exists('albumuri', $_POST) ? $_POST['albumuri'] : null;
 $image = array_key_exists('image', $_POST) ? $_POST['image'] : null;
 $album = array_key_exists('album', $_POST) ? $_POST['album'] : null;
 $uri = array_key_exists('uri', $_POST) ? $_POST['uri'] : null;
-$date = array_key_exists('date', $_POST) ? getYear($_POST['date']) : null;
+$date = (array_key_exists('date', $_POST) && $_POST['date'] != 0) ? getYear($_POST['date']) : null;
 $urionly = array_key_exists('urionly', $_POST) ? true : false;
 $disc = array_key_exists('disc', $_POST) ? $_POST['disc'] : 1;
 $trackimage = array_key_exists('trackimage', $_POST) ? $_POST['trackimage'] : null;
