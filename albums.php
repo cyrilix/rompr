@@ -52,23 +52,29 @@ if (array_key_exists('item', $_REQUEST)) {
     include ("collection/collection.php");
     $doing_search = true;
     $domains = array();
-    $albumlink = get_albumlink($_REQUEST['browsealbum']);
+    $a = preg_match('/(a|b)(.*?)(\d+|root)/', $_REQUEST['browsealbum'], $matches);
+    if (!$a) {
+        print '<h3>'.get_int_text("label_general_error").'</h3>';
+        debuglog('Browse Album Failed - regexp failed to match '.$_REQUEST['browsealbum'],"DUMPALBUMS",3);
+        return false;
+    }
+    $why = $matches[1];
+    $what = $matches[2];
+    $who = $matches[3];
+    $albumlink = get_albumlink($who);
     $cmd = 'find file "'.$albumlink.'"';
     debuglog("Doing Album Browse : ".$cmd,"MPD");
     prepareCollectionUpdate();
     doCollection($cmd, $domains);
     createAlbumsList();
     if (preg_match('/^.+?:album:/', $albumlink)) {
-        print do_tracks_from_database($_REQUEST['browsealbum'], true);
+        print do_tracks_from_database($why, $what, $who, true);
     } else {
         $matches = array();
-        if (preg_match('/(\d+)/', $_REQUEST['browsealbum'], $matches)) {
-            $albumid = $matches[1];
-            $artistid = find_artist_from_album($albumid);
-            // Remove the 'Artist Link' album as it's no longer relevant
-            remove_album_from_database($albumid);
-            do_albums_from_database('bartist'.$artistid, false, true);
-        }
+        $artistid = find_artist_from_album($who);
+        // Remove the 'Artist Link' album as it's no longer relevant
+        remove_album_from_database($who);
+        do_albums_from_database($why, 'album', $artistid, false, true);
     }
     close_mpd();
 } else if (array_key_exists("rawterms", $_REQUEST)) {

@@ -568,16 +568,7 @@ function checkCollection(forceup, rescan) {
 }
 
 function collectionKey(w) {
-    switch (prefs.sortcollectionby) {
-        case 'album':
-        case 'albumbyartist':
-            return w+'artistroot';
-            break;
-
-        default:
-            return w+'albumroot';
-            break;
-    }
+    return w+prefs.sortcollectionby+'root';
 }
 
 function loadCollection(albums, files) {
