@@ -44,7 +44,7 @@ if (array_key_exists('item', $_REQUEST)) {
         prepareCollectionUpdate();
         doCollection($cmd, $domains);
         createAlbumsList();
-        dumpAlbums('balbumroot');
+        dumpAlbums($_REQUEST['dump']);
     }
     close_mpd();
 } else if (array_key_exists('browsealbum', $_REQUEST)) {
@@ -105,7 +105,7 @@ if (array_key_exists('item', $_REQUEST)) {
     if ($_REQUEST['resultstype'] == "tree") {
     } else {
         createAlbumsList();
-        dumpAlbums('balbumroot');
+        dumpAlbums($_REQUEST['dump']);
     }
     close_mpd();
 } else if (array_key_exists('wishlist', $_REQUEST)) {
@@ -133,7 +133,12 @@ if (array_key_exists('item', $_REQUEST)) {
     debuglog("== Time Spent Putting Stuff into Collection Structures : ".$coll_time,"TIMTINGS",4);
 
     createAlbumsList();
-    dumpAlbums('aalbumroot');
+    $whattodump = (array_key_exists('dump', $_REQUEST)) ? $_REQUEST['dump'] : false;
+    if ($whattodump === false) {
+        print '<html></html>';
+    } else {
+        dumpAlbums($whatdodump);
+    }
     close_mpd();
     debuglog("== Collection Update And Send took ".format_time(time() - $now2),"TIMINGS",4);
     $peakmem = memory_get_peak_usage();

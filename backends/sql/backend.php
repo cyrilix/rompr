@@ -941,28 +941,20 @@ function albumartist_sort_query($flag) {
 	return $qstring;
 }
 
-function do_artists_from_database($which) {
+function do_artists_from_database($why, $who) {
 	global $divtype;
 	$singleheader = array();
-	debuglog("Generating artist ".$which." from database","DUMPALBUMS",7);
+	debuglog("Generating artist ".$who." from database","DUMPALBUMS",7);
 	$singleheader['type'] = 'insertAfter';
 	$singleheader['where'] = 'fothergill';
 	$count = 0;
-	$a = preg_match('/(a|b)album(\d+|root)/', $which, $matches);
-	if (!$a) {
-		print '<h3>'.get_int_text("label_general_error").' (artists_from_database)</h3>';
-		debuglog('Artist dump failed - regexp failed to match '.$which,"DUMPALBUMS",3);
-		return false;
-	}
-	$why = $matches[1];
-	$what = $matches[2];
 	if ($result = generic_sql_query(albumartist_sort_query($why))) {
 		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
-			if ($what == "root") {
+			if ($who == "root") {
 				print artistHeader($why.'artist'.$obj->Artistindex, $obj->Artistname);
 				$count++;
 			} else {
-				if ($obj->Artistindex != $what) {
+				if ($obj->Artistindex != $who) {
 					$singleheader['type'] = 'insertAfter';
 					$singleheader['where'] = "aartist".$obj->Artistindex;
 				} else {
@@ -975,7 +967,7 @@ function do_artists_from_database($which) {
 	} else {
 		print '<h3>'.get_int_text("label_general_error").'</h3>';
 	}
-	if ($which == "aalbumroot") return $count;
+	return $count;
 }
 
 function get_list_of_artists() {
@@ -1104,7 +1096,7 @@ function do_albums_from_database($which, $fragment = false, $use_artistindex = f
 	} else {
 		print '<h3>'.get_int_text("label_general_error").'</h3>';
 	}
-	if ($which == 'aartistroot') return $count;
+	return $count;
 }
 
 function remove_album_from_database($albumid) {
@@ -1872,84 +1864,102 @@ function dumpAlbums($which) {
 
     global $divtype, $prefs;
 
-    $t = substr($which,1,3);
-    switch ($which) {
-    	case 'aalbumroot':
-    		// Dump the collection as HTML
-	        print '<div id="fothergill">';
-	        print alistheader(get_stat('ArtistCount'), get_stat('AlbumCount'),
-	        	get_stat('TrackCount'), format_time(get_stat('TotalTime')));
-	        print '</div>';
-	        $count = 0;
-	        if ($prefs['sortcollectionby'] == "album" || $prefs['sortcollectionby'] == "albumbyartist") {
-	        	$count = do_albums_from_database('aartistroot');
-	        } else {
-	        	$divtype = "album1";
-	        	$count = do_artists_from_database($which);
-	        }
+    $a = preg_match('/(a|b)(album|artist)(\d+|root)/', $which, $matches);
+	if (!$a) {
+		print '<h3>'.get_int_text("label_general_error").'</h3>';
+		debuglog('Artist dump failed - regexp failed to match '.$which,"DUMPALBUMS",3);
+		return false;
+	}
+    $why = $matches[1];
+    $what = $matches[2];
+    $who = $matches[3];
+    $count = null;
+
+    switch ($who) {
+    	case 'root':
+	    	if ($why == 'a') {
+	    		collectionStats();
+	    	} else {
+	    		searchStats();
+	    	}
+        	$divtype = "album1";
+        	switch ($what) {
+        		case 'artist':
+		        	$count = do_albums_from_database($which);
+		        	break;
+		        case 'album':
+		        	$count = do_artists_from_database($why, $who);
+		        	break;
+        	}
 	        if ($count == 0) {
-	        	emptyCollectionDisplay();
-	        }
-	        break;
-
-	    case 'balbumroot':
-	    	// Dump the search results as HTML
-            print '<div class="menuitem"><h3>'.get_int_text("label_searchresults").'</h3></div>';
-            $numartists = 0;
-            $numalbums = 0;
-            $numtracks = 0;
-            $numtime = 0;
-			if ($result = generic_sql_query(
-				"SELECT COUNT(*) AS NumArtists FROM (SELECT DISTINCT AlbumArtistIndex FROM Albumtable
-				INNER JOIN Tracktable USING (Albumindex) WHERE Albumname IS NOT NULL AND Uri IS NOT
-				NULL AND Hidden = 0 AND isSearchResult > 0) AS t")) {
-				while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
-					$numartists = $obj->NumArtists;
-				}
-			}
-
-			if ($result = generic_sql_query(
-				"SELECT COUNT(*) AS NumAlbums FROM (SELECT DISTINCT Albumindex FROM Albumtable
-				INNER JOIN Tracktable USING (Albumindex) WHERE Albumname IS NOT NULL AND Uri IS NOT
-				NULL AND Hidden = 0 AND isSearchResult > 0) AS t")) {
-				while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
-					$numalbums = $obj->NumAlbums;
-				}
-			}
-
-			if ($result = generic_sql_query(
-				"SELECT COUNT(*) AS NumTracks FROM Tracktable WHERE Uri IS NOT NULL
-				AND Hidden=0 AND isSearchResult > 0")) {
-				while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
-					$numtracks = $obj->NumTracks;
-				}
-			}
-
-			if ($result = generic_sql_query(
-				"SELECT SUM(Duration) AS TotalTime FROM Tracktable WHERE Uri IS NOT NULL AND
-				Hidden=0 AND isSearchResult > 0")) {
-				while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
-					$numtime = $obj->TotalTime;
-				}
-			}
-
-	        print alistheader($numartists, $numalbums, $numtracks, format_time($numtime));
-
-	        if ($prefs['sortcollectionby'] == "album" || $prefs['sortcollectionby'] == "albumbyartist") {
-	        	do_albums_from_database('bartistroot');
-	        } else {
-	        	$divtype = "album1";
-	        	do_artists_from_database($which);
+	        	if ($why == 'a') {
+	        		emptyCollectionDisplay();
+	        	} else {
+		        	emptySearchDisplay();
+	        	}
 	        }
 	        break;
 
 	    default:
-	    	if ($t == "art") {
-	    		do_albums_from_database($which);
-	    	} else {
-	    		do_tracks_from_database($which);
+	    	switch ($what) {
+	    		case 'artist':
+		    		do_albums_from_database($which);
+		    		break;
+		    	case 'album':
+		    		do_tracks_from_database($which);
+		    		break;
 	    	}
     }
+
+}
+
+function collectionStats() {
+    print '<div id="fothergill">';
+    print alistheader(get_stat('ArtistCount'), get_stat('AlbumCount'),
+    	get_stat('TrackCount'), format_time(get_stat('TotalTime')));
+    print '</div>';
+}
+
+function searchStats() {
+    $numartists = 0;
+    $numalbums = 0;
+    $numtracks = 0;
+    $numtime = 0;
+	if ($result = generic_sql_query(
+		"SELECT COUNT(*) AS NumArtists FROM (SELECT DISTINCT AlbumArtistIndex FROM Albumtable
+		INNER JOIN Tracktable USING (Albumindex) WHERE Albumname IS NOT NULL AND Uri IS NOT
+		NULL AND Hidden = 0 AND isSearchResult > 0) AS t")) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+			$numartists = $obj->NumArtists;
+		}
+	}
+
+	if ($result = generic_sql_query(
+		"SELECT COUNT(*) AS NumAlbums FROM (SELECT DISTINCT Albumindex FROM Albumtable
+		INNER JOIN Tracktable USING (Albumindex) WHERE Albumname IS NOT NULL AND Uri IS NOT
+		NULL AND Hidden = 0 AND isSearchResult > 0) AS t")) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+			$numalbums = $obj->NumAlbums;
+		}
+	}
+
+	if ($result = generic_sql_query(
+		"SELECT COUNT(*) AS NumTracks FROM Tracktable WHERE Uri IS NOT NULL
+		AND Hidden=0 AND isSearchResult > 0")) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+			$numtracks = $obj->NumTracks;
+		}
+	}
+
+	if ($result = generic_sql_query(
+		"SELECT SUM(Duration) AS TotalTime FROM Tracktable WHERE Uri IS NOT NULL AND
+		Hidden=0 AND isSearchResult > 0")) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+			$numtime = $obj->TotalTime;
+		}
+	}
+
+    print alistheader($numartists, $numalbums, $numtracks, format_time($numtime));
 
 }
 
@@ -1980,7 +1990,7 @@ function send_list_updates($artist_created, $album_created, $ttid, $send = true)
 		debuglog("Artist ".$artist_created." was created","USER RATING",8);
 		// We had to create a new albumartist, so we send back the artist HTML header
 		// We need to know the artist details and where in the list it is supposed to go.
-		array_push($returninfo['inserts'], do_artists_from_database('aalbum'.$artist_created));
+		array_push($returninfo['inserts'], do_artists_from_database('a', $artist_created));
 	} else if ($album_created !== false) {
 		debuglog("Album ".$album_created." was created","USER RATING",8);
 		// Find the artist
@@ -2138,6 +2148,12 @@ function emptyCollectionDisplay() {
 	print '<div id="emptycollection" class="pref textcentre">
 	<p>Your Music Collection Is Empty</p>
 	<p>You can add files to it by tagging and rating them, or you can build a collection of all your music</p>
+	</div>';
+}
+
+function emptySearchDisplay() {
+	print '<div class="pref textcentre">
+	<p>No Results</p>
 	</div>';
 }
 

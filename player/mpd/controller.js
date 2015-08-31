@@ -623,7 +623,8 @@ function playerController() {
             var st = {
                 command: command,
                 resultstype: prefs.displayresultsas,
-                domains: domains
+                domains: domains,
+                dump: collectionKey('b')
             };
             debug.log("PLAYER","Doing Search:", terms,st);
             if ((termcount == 1 && (terms.tag || terms.rating)) ||

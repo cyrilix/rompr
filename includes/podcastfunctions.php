@@ -294,6 +294,8 @@ function format_text($d) {
     $d = preg_replace('/<p>\s*<\/p>/', '', $d);
     $d = preg_replace('/<p>&nbsp;<\/p>/', '', $d);
     $d = preg_replace('/\n|\r\n/', '<br>', $d);
+    $d = preg_replace('/(<br>)+/', '<br>', $d);
+    $d = preg_replace('/<\/p><br>/', '</p>', $d);
     return $d;
 }
 

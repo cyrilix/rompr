@@ -558,12 +558,25 @@ function checkCollection(forceup, rescan) {
         player.controller.scanFiles(rescan ? 'rescan' : 'update');
     } else {
         if (prefs.hide_filelist && !prefs.hide_albumlist) {
-            loadCollection('albums.php?item=aalbumroot', null);
+            loadCollection('albums.php?item='+collectionKey('a'), null);
         } else if (prefs.hide_albumlist && !prefs.hide_filelist) {
             loadCollection(null, 'dirbrowser.php');
         } else if (!prefs.hide_albumlist && !prefs.hide_filelist) {
-            loadCollection('albums.php?item=aalbumroot', 'dirbrowser.php');
+            loadCollection('albums.php?item='+collectionKey('a'), 'dirbrowser.php');
         }
+    }
+}
+
+function collectionKey(w) {
+    switch (prefs.sortcollectionby) {
+        case 'album':
+        case 'albumbyartist':
+            return w+'artistroot';
+            break;
+
+        default:
+            return w+'albumroot';
+            break;
     }
 }
 
@@ -584,11 +597,11 @@ function checkPoll(data) {
         update_load_timer_running = true;
     } else {
         if (prefs.hide_filelist && !prefs.hide_albumlist) {
-            loadCollection('albums.php?rebuild=yes', null);
+            loadCollection('albums.php?rebuild=yes&dump='+collectionKey('a'), null);
         } else if (prefs.hidealbumlist && !prefs.hide_filelist) {
             loadCollection(null, 'dirbrowser.php');
         } else if (!prefs.hidealbumlist && !prefs.hide_filelist) {
-            loadCollection('albums.php?rebuild=yes', 'dirbrowser.php');
+            loadCollection('albums.php?rebuild=yes&dump='+collectionKey('a'), 'dirbrowser.php');
         }
     }
 }
@@ -641,7 +654,7 @@ function hidePanel(panel) {
                 break;
             case "albumlist":
                 if (update_load_timer_running == false) {
-                    loadCollection('albums.php?item=aalbumroot', null);
+                    loadCollection('albums.php?item='+collectionKey('a'), null);
                 }
                 $("#collection").prev().show();
                 $("#collection").prev().prev().show();
