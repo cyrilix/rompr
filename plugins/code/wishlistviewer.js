@@ -103,7 +103,6 @@ var wishlistViewer = function() {
 	    lastfm.track.getBuylinks({track: tracktitle, artist: artistname},
 	    	function(data) {
 	    		bugger.fadeOut('fast', function() {
-	    			// bugger.prev().removeClass('expand').addClass('fixed');
 	    			bugger.removeClass('fixed').addClass('expand')
 	    				.html('<div class="standout"><ul>'+lastfm.getBuyLinks(data)+'</ul></div>')
 		    			.slideToggle('fast');
@@ -111,7 +110,9 @@ var wishlistViewer = function() {
 	    	},
 	    	function(data) {
 	    		bugger.html('No Buy Links Found');
-                infobar.notify(infobar.NOTIFY, data.message);
+	    		if (data.message) {
+                	infobar.notify(infobar.NOTIFY, data.message);
+                }
 	    	}
 	    );
 	}

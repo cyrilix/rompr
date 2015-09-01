@@ -407,12 +407,6 @@ switch ($_POST['action']) {
 		print json_encode($uris);
 		break;
 
-	case 'artistfromalbum':
-		debuglog("Getting Artist From Album ".$album,"USERRATINGS",8);
-		$result = array('artistid' => find_artist_from_album($album));
-		print json_encode($result);
-		break;
-
 }
 
 close_transaction();

@@ -20,7 +20,9 @@ var info_lastfm = function() {
     	debug.trace(medebug,"    Doing Tags");
         var html = '<ul><li><b>'+language.gettext("lastfm_toptags")+'</b></li><li><table class="tablehundred">';
         for(var i in taglist) {
-            html += '<tr><td><a href="'+taglist[i].url+'" target="_blank">'+taglist[i].name+'</a></td>';
+            if (taglist[i].name) {
+                html += '<tr><td><a href="'+taglist[i].url+'" target="_blank">'+taglist[i].name+'</a></td>';
+            }
         }
         html += '</table></li></ul>';
         return html;
