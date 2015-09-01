@@ -307,12 +307,20 @@ function albumHeader($name, $albumuri, $id, $exists, $searched, $imgname, $src,
         }
     }
 
-    $h .= '<div class="expand">'.$name;
-    if ($date && $date != "" && $prefs['sortbydate']) {
-        $h .= ' <span class="notbold">('.$date.')</span>';
-    }
-    if ($aname) {
-        $h .= '<br><span class="notbold">'.$aname.'</span>';
+    if ($prefs['sortcollectionby'] == 'albumbyartist' && $aname) {
+        $h .= '<div class="expand">'.$aname;
+        $h .= '<br><span class="notbold">'.$name.'</span>';
+        if ($date && $date != "" && $prefs['sortbydate']) {
+            $h .= ' <span class="notbold">('.$date.')</span>';
+        }
+    } else {
+        $h .= '<div class="expand">'.$name;
+        if ($date && $date != "" && $prefs['sortbydate']) {
+            $h .= ' <span class="notbold">('.$date.')</span>';
+        }
+        if ($aname) {
+            $h .= '<br><span class="notbold">'.$aname.'</span>';
+        }
     }
     $h .= '</div></div>';
     return $h;

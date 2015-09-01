@@ -267,14 +267,14 @@ function create_new_track($title, $artist, $trackno, $duration, $albumartist, $a
 }
 
 function check_artist($artist, $upflag = false) {
-	global $artist_created;
+	global $artist_created, $prefs;
 	$index = null;
 	if ($stmt = sql_prepare_query(
 		"SELECT Artistindex FROM Artisttable WHERE LOWER(Artistname) = LOWER(?)", $artist)) {
 		$obj = $stmt->fetch(PDO::FETCH_OBJ);
 		$index = $obj ? $obj->Artistindex : null;
 	    if ($index) {
-	    	if ($upflag) {
+	    	if ($upflag && $prefs['sortcollectionby'] == 'artist') {
 				// For when we add new album artists...
 				// Need to check whether the artist we now have has any VISIBLE albums -
 				// we need to know if we've added a new albumartist so we can return the correct
@@ -299,12 +299,12 @@ function check_artist($artist, $upflag = false) {
 
 function create_new_artist($artist, $upflag) {
 	global $mysqlc;
-	global $artist_created;
+	global $artist_created, $prefs;
 	$retval = null;
 	if ($stmt = sql_prepare_query("INSERT INTO Artisttable (Artistname) VALUES (?)", $artist)) {
 		$retval = $mysqlc->lastInsertId();
 		debuglog("Created artist ".$artist." with Artistindex ".$retval,"MYSQL",7);
-		if ($upflag) {
+		if ($upflag && $prefs['sortcollectionby'] == 'artist') {
 			$artist_created = $retval;
 			debuglog("  Adding artist to display ".$retval,"MYSQL",6);
 		}
@@ -440,7 +440,7 @@ function set_attribute($ttid, $attribute, $value) {
 	if (track_is_hidden($ttid)) {
 		$unhidden = true;
 		debuglog("Setting attribute on a hidden track","MYSQL",6);
-		if ($artist_created == false) {
+		if ($artist_created == false && $prefs['sortcollectionby'] == 'artist') {
 			// See if this means we're revealing a new artist
 			if ($result = generic_sql_query(
 				"SELECT COUNT(AlbumArtistindex) AS num FROM Albumtable LEFT JOIN Tracktable USING
@@ -484,7 +484,7 @@ function set_attribute($ttid, $attribute, $value) {
 	if (track_is_searchresult($ttid)) {
 		$unhidden = true;
 		debuglog("Setting attribute on a search result track","MYSQL",6);
-		if ($artist_created == false && $album_created == false) {
+		if ($artist_created == false && $album_created == false && $prefs['sortcollectionby'] == 'artist') {
 			// See if this means we're revealing a new artist
 			if ($result = generic_sql_query("SELECT COUNT(AlbumArtistindex) AS num FROM Albumtable
 				LEFT JOIN Tracktable USING (Albumindex) WHERE AlbumArtistindex IN
@@ -1463,6 +1463,314 @@ function get_stat($item) {
 	return $retval;
 }
 
+
+function dumpAlbums($which) {
+
+    global $divtype, $prefs;
+
+    $a = preg_match('/(a|b)(.*?)(\d+|root)/', $which, $matches);
+	if (!$a) {
+		print '<h3>'.get_int_text("label_general_error").'</h3>';
+		debuglog('Artist dump failed - regexp failed to match '.$which,"DUMPALBUMS",3);
+		return false;
+	}
+    $why = $matches[1];
+    $what = $matches[2];
+    $who = $matches[3];
+    $count = null;
+
+    switch ($who) {
+    	case 'root':
+	    	if ($why == 'a') {
+	    		collectionStats();
+	    	} else {
+	    		searchStats();
+	    	}
+        	$divtype = "album1";
+        	switch ($what) {
+        		case 'artist':
+        			$count = do_artists_from_database($why, $what, $who);
+        			break;
+
+        		case 'album':
+        		case 'albumbyartist':
+        			$count = do_albums_from_database($why, 'album', $who, false, false);
+        			break;
+
+        	}
+	        if ($count == 0) {
+	        	if ($why == 'a') {
+	        		emptyCollectionDisplay();
+	        	} else {
+		        	emptySearchDisplay();
+	        	}
+	        }
+	        break;
+
+	    default:
+	    	switch ($what) {
+	    		case 'artist':
+		    		do_albums_from_database($why, 'album', $who, false, false);
+		    		break;
+		    	case 'album':
+		    		do_tracks_from_database($why, $what, $who, false);
+		    		break;
+	    	}
+    }
+
+}
+
+function collectionStats() {
+    print '<div id="fothergill">';
+    print alistheader(get_stat('ArtistCount'), get_stat('AlbumCount'),
+    	get_stat('TrackCount'), format_time(get_stat('TotalTime')));
+    print '</div>';
+}
+
+function searchStats() {
+    $numartists = 0;
+    $numalbums = 0;
+    $numtracks = 0;
+    $numtime = 0;
+	if ($result = generic_sql_query(
+		"SELECT COUNT(*) AS NumArtists FROM (SELECT DISTINCT AlbumArtistIndex FROM Albumtable
+		INNER JOIN Tracktable USING (Albumindex) WHERE Albumname IS NOT NULL AND Uri IS NOT
+		NULL AND Hidden = 0 AND isSearchResult > 0) AS t")) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+			$numartists = $obj->NumArtists;
+		}
+	}
+
+	if ($result = generic_sql_query(
+		"SELECT COUNT(*) AS NumAlbums FROM (SELECT DISTINCT Albumindex FROM Albumtable
+		INNER JOIN Tracktable USING (Albumindex) WHERE Albumname IS NOT NULL AND Uri IS NOT
+		NULL AND Hidden = 0 AND isSearchResult > 0) AS t")) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+			$numalbums = $obj->NumAlbums;
+		}
+	}
+
+	if ($result = generic_sql_query(
+		"SELECT COUNT(*) AS NumTracks FROM Tracktable WHERE Uri IS NOT NULL
+		AND Hidden=0 AND isSearchResult > 0")) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+			$numtracks = $obj->NumTracks;
+		}
+	}
+
+	if ($result = generic_sql_query(
+		"SELECT SUM(Duration) AS TotalTime FROM Tracktable WHERE Uri IS NOT NULL AND
+		Hidden=0 AND isSearchResult > 0")) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+			$numtime = $obj->TotalTime;
+		}
+	}
+
+    print alistheader($numartists, $numalbums, $numtracks, format_time($numtime));
+
+}
+
+function getItemsToAdd($which, $cmd = null) {
+    $a = preg_match('/(a|b)(.*?)(\d+|root)/', $which, $matches);
+    if (!$a) {
+        debuglog('Regexp failed to match '.$which,"GETITEMSTOADD",3);
+        return array();
+    }
+    $why = $matches[1];
+    $what = $matches[2];
+    $who = $matches[3];
+    switch ($what) {
+    	case "artist":
+    		return get_artist_tracks_from_database($who, $cmd, $why);
+    		break;
+
+    	case "album":
+    		return get_album_tracks_from_database($who, $cmd, $why);
+    		break;
+
+    	default:
+	        debuglog('Unknown type '.$which,"GETITEMSTOADD",3);
+	        return array();
+	        break;
+    }
+}
+
+function send_list_updates($artist_created, $album_created, $ttid, $send = true) {
+	global $mysqlc, $returninfo, $prefs;
+	if (!array_key_exists('inserts', $returninfo)) {
+		$returninfo['inserts'] = array();
+	}
+	if ($artist_created !== false && $prefs['sortcollectionby'] == "artist") {
+		debuglog("Artist ".$artist_created." was created","USER RATING",8);
+		// We had to create a new albumartist, so we send back the artist HTML header
+		// We need to know the artist details and where in the list it is supposed to go.
+		array_push($returninfo['inserts'], do_artists_from_database('a', $prefs['sortcollectionby'], $artist_created));
+	} else if ($album_created !== false) {
+		debuglog("Album ".$album_created." was created","USER RATING",8);
+		// Find the artist
+		$artistid = find_artist_from_album($album_created);
+		if ($artistid === null) {
+			debuglog("ERROR - no artistID found!","USER RATING",1);
+		} else {
+			array_push($returninfo['inserts'],
+				do_albums_from_database('a', 'album', $artistid, $album_created, false));
+		}
+	}  else if ($ttid !== null) {
+		debuglog("Track ".$ttid." was modified","USER RATING",8);
+		$albumid = find_album_from_track($ttid);
+		if ($albumid === null) {
+			debuglog("ERROR - no albumID found!","USER RATING",1);
+		} else {
+			array_push($returninfo['inserts'], array(
+				'type' => 'insertInto',
+				'where' => 'aalbum'.$albumid,
+				'html' => do_tracks_from_database('a', 'album', $albumid, true)));
+		}
+	}
+	if ($send) {
+		$returninfo['stats'] = alistheader(get_stat('ArtistCount'), get_stat('AlbumCount'),
+			get_stat('TrackCount'), format_time(get_stat('TotalTime')));
+		if ($ttid) $returninfo['metadata'] = get_all_data($ttid);
+		print json_encode($returninfo);
+	}
+}
+
+function checkAlbumsAndArtists() {
+
+	global $mysqlc;
+	global $returninfo;
+	// Now we need to find any albums or artists that need to be removed from the collection display
+	// (because this is being done on-the-fly and not as part of a collection update).
+	// This takes two SQL queries. We still use remove_cruft to actually remove them
+	// because the two produce different results - this produces albums and albumartists with no
+	// visible tracks, of which the cruft may only be a subset.
+
+	// NOTE: this query does return albums for which we have only hidden tracks.
+	// This is what we want, because one of those may still be displayed.
+	// Any that aren't displayed don't matter because they can't be removed from the display anyway
+	if ($result = generic_sql_query(
+		"SELECT Albumindex FROM Albumtable WHERE Albumindex NOT IN (SELECT DISTINCT Albumindex FROM
+			Tracktable WHERE Albumindex IS NOT NULL AND Hidden = 0 AND isSearchResult < 2)")) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+			if (!array_key_exists('deletedalbums', $returninfo)) {
+				$returninfo['deletedalbums'] = array();
+			}
+			array_push($returninfo['deletedalbums'], "aalbum".$obj->Albumindex);
+		}
+	}
+
+	// Now find which artists have either no tracks or only hidden tracks
+	if ($result = generic_sql_query(
+		"SELECT hidden.AlbumArtistindex FROM ".
+		"(SELECT COUNT(Tracktable.Albumindex) AS numtracks, AlbumArtistindex FROM Albumtable ".
+			"LEFT JOIN Tracktable USING (Albumindex) ".
+		"WHERE Hidden = 1 ".
+		"OR isSearchResult > 1 ".
+		"OR Tracktable.Albumindex IS NULL ".
+		"GROUP BY AlbumArtistindex) AS hidden ".
+		"LEFT OUTER JOIN ".
+		"(SELECT COUNT(Tracktable.Albumindex) AS numtracks, AlbumArtistindex FROM Albumtable ".
+			"LEFT JOIN Tracktable USING (Albumindex) ".
+		"WHERE Hidden = 0 OR Hidden = 1 ".
+		"OR Tracktable.Albumindex IS NULL ".
+		"GROUP BY AlbumArtistindex) AS alltracks ".
+		"ON hidden.numtracks = alltracks.numtracks AND ".
+			"hidden.AlbumArtistindex = alltracks.AlbumArtistindex WHERE alltracks.numtracks IS NOT NULL")) {
+		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
+			if (!array_key_exists('deletedartists', $returninfo)) {
+				$returninfo['deletedartists'] = array();
+			}
+			array_push($returninfo['deletedartists'], "aartist".$obj->AlbumArtistindex);
+		}
+	}
+}
+
+function check_url_against_database($url, $itags, $rating) {
+	global $mysqlc;
+	if ($mysqlc === null) {
+		connect_to_database();
+	}
+
+	$qstring = "SELECT t.TTindex FROM Tracktable AS t ";
+	$tags = array();
+	if ($itags !== null) {
+		$qstring .= "JOIN (SELECT DISTINCT TTindex FROM TagListtable JOIN Tagtable AS tag USING (Tagindex) WHERE";
+		$tagterms = array();
+		foreach ($itags as $tag) {
+			$tags[] = trim($tag);
+			array_push($tagterms, " tag.Name LIKE ?");
+		}
+		$qstring .= implode(" OR",$tagterms);
+		$qstring .=") AS j ON j.TTindex = t.TTindex ";
+	}
+	if ($rating !== null) {
+		$qstring .= "JOIN (SELECT * FROM Ratingtable WHERE Rating >= ".$rating.") AS rat ON rat.TTindex = t.TTindex ";
+	}
+	$tags[] = $url;
+	$qstring .= "WHERE t.Uri = ?";
+	if ($stmt = sql_prepare_query_later($qstring)) {
+		if ($stmt->execute($tags)) {
+			// rowCount() doesn't work for SELECT with SQLite
+			while($obj = $stmt->fetch(PDO::FETCH_OBJ)) {
+				return true;
+			}
+		} else {
+			show_sql_error();
+		}
+	} else {
+		show_sql_error();
+	}
+	return false;
+}
+
+function cleanSearchTables() {
+	// Clean up the database tables before performing a new search or updating the collection
+
+	debuglog("Cleaning Search Results","MYSQL",6);
+	// Any track that was previously hidden needs to be re-hidden
+	generic_sql_query("UPDATE Tracktable SET Hidden = 1, isSearchResult = 0 WHERE isSearchResult = 3");
+
+	// Any track that was previously a '2' (added to database as search result) but now
+	// has a playcount needs to become a zero and be hidden.
+	hide_played_tracks();
+
+	// remove any remaining '2's
+	generic_sql_query("DELETE FROM Tracktable WHERE isSearchResult = 2");
+
+	// Set '1's back to '0's
+	generic_sql_query("UPDATE Tracktable SET isSearchResult = 0 WHERE isSearchResult = 1");
+
+	// This may leave some orphaned albums and artists
+	remove_cruft();
+
+	//
+	// remove_cruft creates some temporary tables and we need to remove them because
+	// remove cruft will be called again later on if we're doing a collection update.
+	// Sadly, DROP TABLE runs into locking problems, at least with SQLite, so instead
+	// we close the DB connection and start again.
+	// So this function must be called BEFORE prepareCollectionUpdate, as that creates
+	// temporary tables of its own.
+	//
+
+	close_database();
+	sleep(1);
+	connect_to_database();
+
+}
+
+function emptyCollectionDisplay() {
+	print '<div id="emptycollection" class="pref textcentre">
+	<p>Your Music Collection Is Empty</p>
+	<p>You can add files to it by tagging and rating them, or you can build a collection of all your music</p>
+	</div>';
+}
+
+function emptySearchDisplay() {
+	print '<div class="pref textcentre">
+	<p>No Results</p>
+	</div>';
+}
+
 //
 // Stuff to do with creating the database from a music collection (collection.php)
 //
@@ -1840,313 +2148,6 @@ function check_and_update_track($trackobj, $albumindex, $artistindex, $artistnam
     		generic_sql_query("INSERT INTO Foundtracks (TTindex) VALUES (".$ttid.")", false, false);
     	}
     }
-}
-
-function dumpAlbums($which) {
-
-    global $divtype, $prefs;
-
-    $a = preg_match('/(a|b)(.*?)(\d+|root)/', $which, $matches);
-	if (!$a) {
-		print '<h3>'.get_int_text("label_general_error").'</h3>';
-		debuglog('Artist dump failed - regexp failed to match '.$which,"DUMPALBUMS",3);
-		return false;
-	}
-    $why = $matches[1];
-    $what = $matches[2];
-    $who = $matches[3];
-    $count = null;
-
-    switch ($who) {
-    	case 'root':
-	    	if ($why == 'a') {
-	    		collectionStats();
-	    	} else {
-	    		searchStats();
-	    	}
-        	$divtype = "album1";
-        	switch ($what) {
-        		case 'artist':
-        			$count = do_artists_from_database($why, $what, $who);
-        			break;
-
-        		case 'album':
-        		case 'albumbyartist':
-        			$count = do_albums_from_database($why, 'album', $who, false, false);
-        			break;
-
-        	}
-	        if ($count == 0) {
-	        	if ($why == 'a') {
-	        		emptyCollectionDisplay();
-	        	} else {
-		        	emptySearchDisplay();
-	        	}
-	        }
-	        break;
-
-	    default:
-	    	switch ($what) {
-	    		case 'artist':
-		    		do_albums_from_database($why, 'album', $who, false, false);
-		    		break;
-		    	case 'album':
-		    		do_tracks_from_database($why, $what, $who, false);
-		    		break;
-	    	}
-    }
-
-}
-
-function collectionStats() {
-    print '<div id="fothergill">';
-    print alistheader(get_stat('ArtistCount'), get_stat('AlbumCount'),
-    	get_stat('TrackCount'), format_time(get_stat('TotalTime')));
-    print '</div>';
-}
-
-function searchStats() {
-    $numartists = 0;
-    $numalbums = 0;
-    $numtracks = 0;
-    $numtime = 0;
-	if ($result = generic_sql_query(
-		"SELECT COUNT(*) AS NumArtists FROM (SELECT DISTINCT AlbumArtistIndex FROM Albumtable
-		INNER JOIN Tracktable USING (Albumindex) WHERE Albumname IS NOT NULL AND Uri IS NOT
-		NULL AND Hidden = 0 AND isSearchResult > 0) AS t")) {
-		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
-			$numartists = $obj->NumArtists;
-		}
-	}
-
-	if ($result = generic_sql_query(
-		"SELECT COUNT(*) AS NumAlbums FROM (SELECT DISTINCT Albumindex FROM Albumtable
-		INNER JOIN Tracktable USING (Albumindex) WHERE Albumname IS NOT NULL AND Uri IS NOT
-		NULL AND Hidden = 0 AND isSearchResult > 0) AS t")) {
-		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
-			$numalbums = $obj->NumAlbums;
-		}
-	}
-
-	if ($result = generic_sql_query(
-		"SELECT COUNT(*) AS NumTracks FROM Tracktable WHERE Uri IS NOT NULL
-		AND Hidden=0 AND isSearchResult > 0")) {
-		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
-			$numtracks = $obj->NumTracks;
-		}
-	}
-
-	if ($result = generic_sql_query(
-		"SELECT SUM(Duration) AS TotalTime FROM Tracktable WHERE Uri IS NOT NULL AND
-		Hidden=0 AND isSearchResult > 0")) {
-		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
-			$numtime = $obj->TotalTime;
-		}
-	}
-
-    print alistheader($numartists, $numalbums, $numtracks, format_time($numtime));
-
-}
-
-function getItemsToAdd($which, $cmd = null) {
-    $a = preg_match('/(a|b)(.*?)(\d+|root)/', $which, $matches);
-    if (!$a) {
-        debuglog('Regexp failed to match '.$which,"GETITEMSTOADD",3);
-        return array();
-    }
-    $why = $matches[1];
-    $what = $matches[2];
-    $who = $matches[3];
-    switch ($what) {
-    	case "artist":
-    		return get_artist_tracks_from_database($who, $cmd, $why);
-    		break;
-
-    	case "album":
-    		return get_album_tracks_from_database($who, $cmd, $why);
-    		break;
-
-    	default:
-	        debuglog('Unknown type '.$which,"GETITEMSTOADD",3);
-	        return array();
-	        break;
-    }
-}
-
-function send_list_updates($artist_created, $album_created, $ttid, $send = true) {
-	global $mysqlc, $returninfo, $prefs;
-	if (!array_key_exists('inserts', $returninfo)) {
-		$returninfo['inserts'] = array();
-	}
-	if ($artist_created !== false && $prefs['sortcollectionby'] == "artist") {
-		debuglog("Artist ".$artist_created." was created","USER RATING",8);
-		// We had to create a new albumartist, so we send back the artist HTML header
-		// We need to know the artist details and where in the list it is supposed to go.
-		array_push($returninfo['inserts'], do_artists_from_database('a', $prefs['sortcollectionby'], $artist_created));
-	} else if ($album_created !== false) {
-		debuglog("Album ".$album_created." was created","USER RATING",8);
-		// Find the artist
-		$artistid = find_artist_from_album($album_created);
-		if ($artistid === null) {
-			debuglog("ERROR - no artistID found!","USER RATING",1);
-		} else {
-			array_push($returninfo['inserts'],
-				do_albums_from_database('a', 'album', $artistid, $album_created, false));
-		}
-	}  else if ($ttid !== null) {
-		debuglog("Track ".$ttid." was modified","USER RATING",8);
-		$albumid = find_album_from_track($ttid);
-		if ($albumid === null) {
-			debuglog("ERROR - no albumID found!","USER RATING",1);
-		} else {
-			array_push($returninfo['inserts'], array(
-				'type' => 'insertInto',
-				'where' => 'aalbum'.$albumid,
-				'html' => do_tracks_from_database('aalbum'.$albumid, true)));
-		}
-	}
-	if ($send) {
-		$returninfo['stats'] = alistheader(get_stat('ArtistCount'), get_stat('AlbumCount'),
-			get_stat('TrackCount'), format_time(get_stat('TotalTime')));
-		if ($ttid) $returninfo['metadata'] = get_all_data($ttid);
-		print json_encode($returninfo);
-	}
-}
-
-function checkAlbumsAndArtists() {
-
-	global $mysqlc;
-	global $returninfo;
-	// Now we need to find any albums or artists that need to be removed from the collection display
-	// (because this is being done on-the-fly and not as part of a collection update).
-	// This takes two SQL queries. We still use remove_cruft to actually remove them
-	// because the two produce different results - this produces albums and albumartists with no
-	// visible tracks, of which the cruft may only be a subset.
-
-	// NOTE: this query does return albums for which we have only hidden tracks.
-	// This is what we want, because one of those may still be displayed.
-	// Any that aren't displayed don't matter because they can't be removed from the display anyway
-	if ($result = generic_sql_query(
-		"SELECT Albumindex FROM Albumtable WHERE Albumindex NOT IN (SELECT DISTINCT Albumindex FROM
-			Tracktable WHERE Albumindex IS NOT NULL AND Hidden = 0 AND isSearchResult < 2)")) {
-		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
-			if (!array_key_exists('deletedalbums', $returninfo)) {
-				$returninfo['deletedalbums'] = array();
-			}
-			array_push($returninfo['deletedalbums'], "aalbum".$obj->Albumindex);
-		}
-	}
-
-	// Now find which artists have either no tracks or only hidden tracks
-	if ($result = generic_sql_query(
-		"SELECT hidden.AlbumArtistindex FROM ".
-		"(SELECT COUNT(Tracktable.Albumindex) AS numtracks, AlbumArtistindex FROM Albumtable ".
-			"LEFT JOIN Tracktable USING (Albumindex) ".
-		"WHERE Hidden = 1 ".
-		"OR isSearchResult > 1 ".
-		"OR Tracktable.Albumindex IS NULL ".
-		"GROUP BY AlbumArtistindex) AS hidden ".
-		"LEFT OUTER JOIN ".
-		"(SELECT COUNT(Tracktable.Albumindex) AS numtracks, AlbumArtistindex FROM Albumtable ".
-			"LEFT JOIN Tracktable USING (Albumindex) ".
-		"WHERE Hidden = 0 OR Hidden = 1 ".
-		"OR Tracktable.Albumindex IS NULL ".
-		"GROUP BY AlbumArtistindex) AS alltracks ".
-		"ON hidden.numtracks = alltracks.numtracks AND ".
-			"hidden.AlbumArtistindex = alltracks.AlbumArtistindex WHERE alltracks.numtracks IS NOT NULL")) {
-		while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
-			if (!array_key_exists('deletedartists', $returninfo)) {
-				$returninfo['deletedartists'] = array();
-			}
-			array_push($returninfo['deletedartists'], "aartist".$obj->AlbumArtistindex);
-		}
-	}
-}
-
-function check_url_against_database($url, $itags, $rating) {
-	global $mysqlc;
-	if ($mysqlc === null) {
-		connect_to_database();
-	}
-
-	$qstring = "SELECT t.TTindex FROM Tracktable AS t ";
-	$tags = array();
-	if ($itags !== null) {
-		$qstring .= "JOIN (SELECT DISTINCT TTindex FROM TagListtable JOIN Tagtable AS tag USING (Tagindex) WHERE";
-		$tagterms = array();
-		foreach ($itags as $tag) {
-			$tags[] = trim($tag);
-			array_push($tagterms, " tag.Name LIKE ?");
-		}
-		$qstring .= implode(" OR",$tagterms);
-		$qstring .=") AS j ON j.TTindex = t.TTindex ";
-	}
-	if ($rating !== null) {
-		$qstring .= "JOIN (SELECT * FROM Ratingtable WHERE Rating >= ".$rating.") AS rat ON rat.TTindex = t.TTindex ";
-	}
-	$tags[] = $url;
-	$qstring .= "WHERE t.Uri = ?";
-	if ($stmt = sql_prepare_query_later($qstring)) {
-		if ($stmt->execute($tags)) {
-			// rowCount() doesn't work for SELECT with SQLite
-			while($obj = $stmt->fetch(PDO::FETCH_OBJ)) {
-				return true;
-			}
-		} else {
-			show_sql_error();
-		}
-	} else {
-		show_sql_error();
-	}
-	return false;
-}
-
-function cleanSearchTables() {
-	// Clean up the database tables before performing a new search or updating the collection
-
-	debuglog("Cleaning Search Results","MYSQL",6);
-	// Any track that was previously hidden needs to be re-hidden
-	generic_sql_query("UPDATE Tracktable SET Hidden = 1, isSearchResult = 0 WHERE isSearchResult = 3");
-
-	// Any track that was previously a '2' (added to database as search result) but now
-	// has a playcount needs to become a zero and be hidden.
-	hide_played_tracks();
-
-	// remove any remaining '2's
-	generic_sql_query("DELETE FROM Tracktable WHERE isSearchResult = 2");
-
-	// Set '1's back to '0's
-	generic_sql_query("UPDATE Tracktable SET isSearchResult = 0 WHERE isSearchResult = 1");
-
-	// This may leave some orphaned albums and artists
-	remove_cruft();
-
-	//
-	// remove_cruft creates some temporary tables and we need to remove them because
-	// remove cruft will be called again later on if we're doing a collection update.
-	// Sadly, DROP TABLE runs into locking problems, at least with SQLite, so instead
-	// we close the DB connection and start again.
-	// So this function must be called BEFORE prepareCollectionUpdate, as that creates
-	// temporary tables of its own.
-	//
-
-	close_database();
-	sleep(1);
-	connect_to_database();
-
-}
-
-function emptyCollectionDisplay() {
-	print '<div id="emptycollection" class="pref textcentre">
-	<p>Your Music Collection Is Empty</p>
-	<p>You can add files to it by tagging and rating them, or you can build a collection of all your music</p>
-	</div>';
-}
-
-function emptySearchDisplay() {
-	print '<div class="pref textcentre">
-	<p>No Results</p>
-	</div>';
 }
 
 ?>

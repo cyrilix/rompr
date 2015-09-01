@@ -107,7 +107,18 @@ printOutputCheckboxes();
     <label for="sortbyartist">'.ucfirst(get_int_text('label_artists')).'</label><br/>
     <input type="radio" class="topcheck savulon" name="sortcollectionby" value="album" id="sortbyalbum">
     <label for="sortbyalbum">'.ucfirst(get_int_text('label_albums')).'</label><br/>
-    </div><div class="pref textcentre">
+    <input type="radio" class="topcheck savulon" name="sortcollectionby" value="albumbyartist" id="sortbyalbumbyartist">
+    <label for="sortbyalbumbyartist">'.ucfirst(get_int_text('label_albumsbyartist')).'</label>
+    </div>
+    <div class="pref styledinputs">
+    <input class="autoset toggle" type="checkbox" id="sortbydate">
+    <label for="sortbydate">'.get_int_text('config_sortbydate').'</label>
+    </div>
+    <div class="pref styledinputs">
+    <input class="autoset toggle" type="checkbox" id="notvabydate">
+    <label for="notvabydate">'.get_int_text('config_notvabydate').'</label>
+    </div>
+    <div class="pref textcentre">
     <button name="donkeykong" onclick="checkCollection(true, false)">'.get_int_text('config_updatenow').'</button>
     </div>';
 ?>
