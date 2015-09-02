@@ -13,7 +13,7 @@ $prefix = (array_key_exists('prefix', $_REQUEST)) ? $_REQUEST['prefix'].'_' : "d
 
 if ($is_connected) {
     if ($path == "") {
-    print '<div class="configtitle textcentre expand"><b>'.get_int_text('button_file_browser').'</b></div>';
+    print '<div class="configtitle textcentre expand" style="margin-left:6px"><b>'.get_int_text('button_file_browser').'</b></div>';
     }
 	doFileBrowse($path, $prefix);
 } else {

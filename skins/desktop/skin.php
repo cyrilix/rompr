@@ -262,7 +262,7 @@ include("player/".$prefs['player_backend']."/search.php");
 
     <div id="radiolist" class="invisible">
 <?php
-    print '<div class="configtitle textcentre"><b>'.get_int_text('button_internet_radio').'</b></div>';
+    print '<div class="configtitle textcentre" style="margin-left:6px"><b>'.get_int_text('button_internet_radio').'</b></div>';
 ?>
 <?php
 $sp = glob("streamplugins/*.php");
