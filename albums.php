@@ -143,7 +143,7 @@ if (array_key_exists('item', $_REQUEST)) {
     if ($whattodump === false) {
         print '<html></html>';
     } else {
-        dumpAlbums($whatdodump);
+        dumpAlbums($whattodump);
     }
     close_mpd();
     debuglog("== Collection Update And Send took ".format_time(time() - $now2),"TIMINGS",4);
