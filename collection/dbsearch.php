@@ -6,17 +6,12 @@ function doDbCollection($terms, $domains, $resultstype) {
 	// But it isn't because we let Mopidy/MPD search for anything they support because otherwise we
 	// have to duplicate their entire database, which is daft.
 	// This function was written before I realised that... :)
-	// It's still used for searches where we're only looking for tags and/or ratings
+	// It's still used for searches where we're only looking for tags and/or ratings in conjunction with
+	// any of the above terms, because mopidy often returns incomplete search results.
 
-	global $mysqlc, $collection;
+	global $mysqlc, $tree;
 	if ($mysqlc === null) {
 		connect_to_database();
-	}
-
-	if ($resultstype == "tree") {
-		$tree = new mpdlistthing(null);
-	} else {
-		$collection = new musicCollection(null);
 	}
 
 	$parameters = array();
@@ -96,6 +91,44 @@ function doDbCollection($terms, $domains, $resultstype) {
 		$qstring .= "OR t.Title LIKE ? ";
 	}
 
+	if (array_key_exists('file', $terms)) {
+		$qstring .= "AND ";
+		if (array_key_exists('any', $terms)) {
+			$qstring .= "(";
+		}
+		$parameters[] = "%".trim($terms['file'][0])."%";
+		$qstring .= "t.Uri LIKE ? ";
+		if (array_key_exists('any', $terms)) {
+			$parameters[] = "%".trim($terms['any'][0])."%";
+			$qstring .= "OR t.Uri LIKE ?) ";
+		}
+	} else if (array_key_exists('any', $terms)) {
+		$parameters[] = "%".trim($terms['any'][0])."%";
+		$qstring .= "OR t.Uri LIKE ? ";
+	}
+
+	if (array_key_exists('albumartist', $terms)) {
+		$qstring .= "AND ";
+		if (array_key_exists('any', $terms)) {
+			$qstring .= "(";
+		}
+		$parameters[] = "%".trim($terms['albumartist'][0])."%";
+		$qstring .= "AlbumArtistName LIKE ? ";
+		if (array_key_exists('any', $terms)) {
+			$parameters[] = "%".trim($terms['any'][0])."%";
+			$qstring .= "OR AlbumArtistName LIKE ?) ";
+		}
+	} else if (array_key_exists('any', $terms)) {
+		$parameters[] = "%".trim($terms['any'][0])."%";
+		$qstring .= "OR AlbumArtistName LIKE ? ";
+	}
+
+	if (array_key_exists('date', $terms)) {
+		$qstring .= "AND ";
+		$parameters[] = trim($terms['date'][0]);
+		$qstring .= "al.Year = ? ";
+	}
+
 	if ($domains !== null) {
 		$qstring .= "AND (";
 		$domainterms = array();
@@ -113,28 +146,26 @@ function doDbCollection($terms, $domains, $resultstype) {
 	if ($result = sql_prepare_query_later($qstring)) {
 		if ($result->execute($parameters)) {
 			while ($obj = $result->fetch(PDO::FETCH_OBJ)) {
-				$filedata = array(
-					'Artist' => array($obj->Artistname),
-					'Album' => $obj->Albumname,
-					'AlbumArtist' => array($obj->AlbumArtistName),
-					'file' => $obj->Uri,
-					'Title' => $obj->Title,
-					'Track' => $obj->TrackNo,
-					'Image' => $obj->Image,
-					'Time' => $obj->Duration,
-					'AlbumUri' => $obj->AlbumUri,
-					'Date' => $obj->Year,
-					'Last-Modified' => $obj->LastModified
-				);
 				if ($resultstype == "tree") {
+					$filedata = array(
+						'Artist' => array($obj->Artistname),
+						'Album' => $obj->Albumname,
+						'AlbumArtist' => array($obj->AlbumArtistName),
+						'file' => $obj->Uri,
+						'Title' => $obj->Title,
+						'Track' => $obj->TrackNo,
+						'Image' => $obj->Image,
+						'Time' => $obj->Duration,
+						'AlbumUri' => $obj->AlbumUri,
+						'Date' => $obj->Year,
+						'Last-Modified' => $obj->LastModified
+					);
                     $tree->newItem($filedata);
 					$fcount++;
 				} else {
-					process_file($filedata);
+					debuglog('Updating isSearchResult for TTindex '.$obj->TTindex,"DBSEARCH",8);
+					generic_sql_query("UPDATE Tracktable SET isSearchResult = 1 WHERE TTindex = ".$obj->TTindex);
 				}
-			}
-			if ($resultstype == "tree") {
-				printFileSearch($tree, $fcount);
 			}
 		} else {
 			show_sql_error();
@@ -142,6 +173,8 @@ function doDbCollection($terms, $domains, $resultstype) {
 	} else {
 		show_sql_error();
 	}
+
+	return $fcount;
 
 }
 ?>

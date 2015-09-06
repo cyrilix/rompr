@@ -986,7 +986,7 @@ function do_albums_from_database($why, $what, $who, $fragment = false, $use_arti
 		$singleheader['type'] = 'insertAfter';
 		$singleheader['where'] = 'fothergill';
 	}
-	debuglog("Generating albums for ".$who." from database","DUMPALBUMS",7);
+	debuglog("Generating albums for ".$why.$what.$who." from database","DUMPALBUMS",7);
 
 	$sflag = ($why == "b") ? "AND Tracktable.isSearchResult > 0" : "AND Tracktable.isSearchResult < 2";
 
@@ -1078,7 +1078,7 @@ function do_albums_from_database($why, $what, $who, $fragment = false, $use_arti
 			}
 			$count++;
 		}
-		if ($count == 0 && $which != 'aartistroot') {
+		if ($count == 0 && !($why == 'a' && $who=='root')) {
 			noAlbumsHeader();
 		}
 	} else {

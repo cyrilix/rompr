@@ -12,6 +12,10 @@ $sterms = array(
     "label_anything" => "any"
 );
 include("skins/search.php");
+print '<div class="podoptions dropdown-container styledinputs" style="padding-top:4px">';
+print '<input class="autoset toggle" type="checkbox" id="searchcollectiononly">
+<label for="searchcollectiononly">'.get_int_text("label_searchcollectiononly").'</label>';
+print '</div>';
 print '<div id="searchdomaincontrol" class="podoptions containerbox padright dropdown-container styledinputs" style="padding-top:4px">';
 print '<input class="autoset toggle" type="checkbox" id="search_limit_limitsearch">
 <label for="search_limit_limitsearch">'.get_int_text("label_limitsearch").'</label>';

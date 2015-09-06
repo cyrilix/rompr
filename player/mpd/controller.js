@@ -629,7 +629,8 @@ function playerController() {
             debug.log("PLAYER","Doing Search:",terms,st);
             if ((termcount == 1 && (terms.tag || terms.rating)) ||
                 (termcount == 2 && (terms.tag && terms.rating)) ||
-                ((terms.tag || terms.rating) && !(terms.genre || terms.date || terms.composer || terms.performer || terms.file))) {
+                (prefs.player_backend == 'mopidy' && prefs.searchcollectiononly) ||
+                ((terms.tag || terms.rating) && !(terms.genre || terms.composer || terms.performer))) {
                 // Use the sql search engine if we're looking only for things it supports
                 debug.log("PLAYER","Searching using database search engine");
                 st.terms = terms;

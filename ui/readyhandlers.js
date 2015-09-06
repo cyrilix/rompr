@@ -46,4 +46,5 @@ $(document).ready(function(){
     $(window).bind('resize', layoutProcessor.adjustLayout);
     pluginManager.setupPlugins();
     setTheme(prefs.theme);
+    ferretMaster();
 });

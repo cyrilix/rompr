@@ -53,7 +53,8 @@ prefs.prefsInLocalStorage = [
     "mopidy_search_domains",
     "skin",
     "outputsvisible",
-    "wheelscrollspeed"
+    "wheelscrollspeed",
+    "searchcollectiononly"
 ];
 
 // 'skin' is stored in local storage - it's only use is for setting the correct item

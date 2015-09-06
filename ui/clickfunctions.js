@@ -418,6 +418,16 @@ function weaselBurrow() {
     $("#mopidysearchdomains").slideToggle('fast');
 }
 
+function ferretMaster() {
+    $.each(['genre', 'composer', 'performer'], function(v,i) {
+        if (prefs.searchcollectiononly) {
+            $('#collectionsearcher [name="'+i+'"]').val('').parent().parent().fadeOut('fast');
+        } else {
+            $('#collectionsearcher [name="'+i+'"]').val('').parent().parent().fadeIn('fast');
+        }
+    });
+}
+
 function albumSelect(event, element) {
 
     // Is the clicked element currently selected?

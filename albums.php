@@ -103,14 +103,16 @@ if (array_key_exists('item', $_REQUEST)) {
     include("collection/dbsearch.php");
     $doing_search = true;
     if ($_REQUEST['resultstype'] == "tree") {
+        $tree = new mpdlistthing(null);
     } else {
         cleanSearchTables();
-        prepareCollectionUpdate();
+        open_transaction();
      }
-    doDbCollection($_REQUEST['terms'], $domains, $_REQUEST['resultstype']);
+    $fcount = doDbCollection($_REQUEST['terms'], $domains, $_REQUEST['resultstype']);
     if ($_REQUEST['resultstype'] == "tree") {
+        printFileSearch($tree, $fcount);
     } else {
-        createAlbumsList();
+        close_transaction();
         dumpAlbums($_REQUEST['dump']);
     }
     close_mpd();

@@ -102,6 +102,10 @@ function togglePref(event) {
             callback = weaselBurrow;
             break;
 
+        case 'searchcollectiononly':
+            callback = ferretMaster;
+            break;
+
         case 'ignore_unplayable':
         case 'sortbycomposer':
         case 'composergenre':
