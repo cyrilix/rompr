@@ -626,11 +626,12 @@ function playerController() {
                 domains: domains,
                 dump: collectionKey('b')
             };
-            debug.log("PLAYER","Doing Search:", terms,st);
+            debug.log("PLAYER","Doing Search:",terms,st);
             if ((termcount == 1 && (terms.tag || terms.rating)) ||
-                (termcount == 2 && (terms.tag && terms.rating))) {
-                // Use the sql search engine if we're only looking for
-                // tags and/or ratings
+                (termcount == 2 && (terms.tag && terms.rating)) ||
+                ((terms.tag || terms.rating) && !(terms.genre || terms.date || terms.composer || terms.performer || terms.file))) {
+                // Use the sql search engine if we're looking only for things it supports
+                debug.log("PLAYER","Searching using database search engine");
                 st.terms = terms;
             } else {
                 st.mpdsearch = terms;
