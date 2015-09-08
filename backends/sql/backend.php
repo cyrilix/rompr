@@ -1164,6 +1164,18 @@ function get_artist_tracks_from_database($index, $cmd, $flag) {
 	return $retarr;
 }
 
+function count_num_tracks($a) {
+	$c = 0;
+	$tti = -1;
+	foreach ($a as $to) {
+		if ($to->TTindex != $tti) {
+			$tti = $to->TTindex;
+			$c++;
+		}
+	}
+	return $c;
+}
+
 function do_tracks_from_database($why, $what, $who, $fragment = false) {
     debuglog("Generating tracks for album ".$who." from database","DUMPALBUMS",7);
 	if ($fragment) {
@@ -1183,33 +1195,76 @@ function do_tracks_from_database($why, $what, $who, $fragment = false) {
 	}
 	$t = ($why == "b") ? "AND isSearchResult > 0" : "AND isSearchResult < 2";
 	if ($result = generic_sql_query(
-		"SELECT t.*, a.Artistname, b.AlbumArtistindex, r.Rating, ti.Image FROM Tracktable AS t
-		JOIN Artisttable AS a ON t.Artistindex = a.Artistindex JOIN Albumtable AS b ON
-		t.Albumindex = b.Albumindex LEFT JOIN Ratingtable AS r ON r.TTindex = t.TTindex LEFT JOIN
-		Trackimagetable AS ti ON ti.TTindex = t.TTindex WHERE t.Albumindex = '".$who.
-		"' AND Uri IS NOT NULL AND Hidden=0 ".$t." ORDER BY
+		"SELECT t.*, a.Artistname, b.AlbumArtistindex, r.Rating, ti.Image, tg.Name FROM
+		Tracktable AS t JOIN Artisttable AS a ON t.Artistindex = a.Artistindex
+		JOIN Albumtable AS b ON t.Albumindex = b.Albumindex
+		LEFT JOIN Ratingtable AS r ON r.TTindex = t.TTindex
+		LEFT JOIN Trackimagetable AS ti ON ti.TTindex = t.TTindex
+		LEFT JOIN TagListtable AS tl oN tl.TTindex = t.TTindex
+		LEFT JOIN Tagtable AS tg ON tl.Tagindex = tg.Tagindex
+		WHERE t.Albumindex = '".$who."' AND Uri IS NOT NULL AND Hidden=0 ".$t." ORDER BY
 		CASE WHEN t.Title LIKE 'Album: %' THEN 1 ELSE 2 END, t.Disc, t.TrackNo")) {
 		$trackarr = $result->fetchAll(PDO::FETCH_OBJ);
-		$numtracks = count($trackarr);
+		$numtracks = count_num_tracks($trackarr);
 		$currdisc = -1;
+		$count = 0;
+		$current_tti = -1;
+		$track = array();
 		while ($obj = array_shift($trackarr)) {
 			if ($numdiscs > 1 && $obj->Disc != $currdisc && $obj->Disc > 0) {
                 $currdisc = $obj->Disc;
                 print '<div class="discnumber indent">'.
                 ucfirst(strtolower(get_int_text("musicbrainz_disc"))).' '.$currdisc.'</div>';
 			}
+			if ($obj->TTindex != $current_tti) {
+				if ($count > 0) {
+					albumTrack(
+						$track['artist'],
+						$track['rating'],
+						$track['uri'],
+						$track['numtracks'],
+						$track['trackno'],
+						$track['title'],
+						$track['time'],
+						$track['lm'],
+						$track['image'],
+						$track['tags']
+					);
+
+				}
+				$track = array(
+					'artist' => $obj->Artistindex != $obj->AlbumArtistindex ? $obj->Artistname : null,
+					'rating' => $obj->Rating,
+					'uri' => rawurlencode($obj->Uri),
+					'numtracks' => $numtracks,
+					'trackno' => $obj->TrackNo,
+					'title' => $obj->Title,
+					'time' => $obj->Duration,
+					'lm' => $obj->LastModified,
+					'image' => $obj->Image,
+					'tags' => array()
+				);
+				$current_tti = $obj->TTindex;
+			}
+			if ($obj->Name) {
+				$track['tags'][] = $obj->Name;
+			}
 			$track_is_album = (preg_match('/^.+?:album:/', $obj->Uri)) ? $obj->Uri : false;
 			$track_is_artist = (preg_match('/^.+?:artist:/', $obj->Uri)) ? $obj->Uri : false;
+			$count++;
+		}
+		if ($count > 0) {
 			albumTrack(
-				$obj->Artistindex != $obj->AlbumArtistindex ? $obj->Artistname : null,
-				$obj->Rating,
-				rawurlencode($obj->Uri),
-				$numtracks,
-				$obj->TrackNo,
-				$obj->Title,
-				$obj->Duration,
-				$obj->LastModified,
-				$obj->Image
+				$track['artist'],
+				$track['rating'],
+				$track['uri'],
+				$track['numtracks'],
+				$track['trackno'],
+				$track['title'],
+				$track['time'],
+				$track['lm'],
+				$track['image'],
+				$track['tags']
 			);
 		}
 		if ($track_is_artist !== false) {

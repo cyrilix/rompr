@@ -147,7 +147,7 @@ function alistheader($nart, $nalb, $ntra, $tim) {
     '</div>';
 }
 
-function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duration, $lm, $image) {
+function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duration, $lm, $image, $tags = null) {
     global $prefs;
     if (substr($name,0,6) == "Album:") return true;
     if (substr($name,0,7) == "Artist:") return true;
@@ -208,6 +208,11 @@ function albumTrack($artist, $rating, $url, $numtracks, $number, $name, $duratio
     if ($rating > 0) {
         print '<div class="fixed playlistrow2">';
         print '<i class="icon-'.trim($rating).'-stars rating-icon-small"></i>';
+        print '</div>';
+    }
+    if (is_array($tags) && count($tags) > 0) {
+        print '<div class="fixed playlistrow2">';
+        print '<i class="icon-tags smallicon"></i>'.implode(', ',$tags);
         print '</div>';
     }
     print '</div>';
