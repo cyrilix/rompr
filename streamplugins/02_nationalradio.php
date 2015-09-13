@@ -96,6 +96,10 @@ if (array_key_exists('populate', $_REQUEST)) {
     }
     print '</select></div></div>';
 
+    print '<div class="containerbox indent padright noselection"><div class="expand">
+        <input class="enter clearbox" name="radiosearcher" type="text" /></div>
+        <button class="fixed" onclick="searchBigRadio()">'.get_int_text('button_search').'</button></div>';
+
     $getstr = $prefs['radiocountry'];
     $content = url_get_contents($getstr);
     $DOM = new DOMDocument;
@@ -175,6 +179,7 @@ if (array_key_exists('populate', $_REQUEST)) {
 
             if (array_key_exists('title', $track) && $track['title'] && count($track['links']) > 0) {
                 $imgname = getStationImage($track['title']);
+                print '<div class="radiostation">';
                 print '<div class="containerbox indent padright menuitem">';
                 if ($imgname === null) {
                     // print '<i class="icon-radio-tower fixed smallcover-svg"></i>';
@@ -182,10 +187,10 @@ if (array_key_exists('populate', $_REQUEST)) {
                 } else {
                     print '<div class="smallcover fixed"><img class="smallcover" src="'.$imgname.'" /></div>';
                 }
-                print '<div class="expand" style="margin-top:6px"><span style="font-size:120%">'.$track['title'].'</span></div>';
+                print '<div class="expand" style="margin-top:6px"><span style="font-size:120%" class="searchable">'.$track['title'].'</span></div>';
                 print '</div>';
                 print '<div class="containerbox padright bum">';
-                print '<div class="smallcoverpadder fixed"></div><div class="expand">'.implode(' ', $track['meta']).'</div>';
+                print '<div class="smallcoverpadder fixed"></div><div class="expand searchable">'.implode(' ', $track['meta']).'</div>';
                 print '</div>';
                 foreach ($track['links'] as $k) {
                     print '<div class="clickable clickstream draggable containerbox padright menuitem" name="'.$k['url'].'" streamname="'.$track['title'].'" streamimg="'.$imgname.'">';
@@ -195,6 +200,7 @@ if (array_key_exists('populate', $_REQUEST)) {
                     print '</div>';
                 }
                 print '<div style="border-top:1px solid #999999"></div>';
+                print '</div>';
             }
         }
     }
