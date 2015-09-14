@@ -1211,13 +1211,13 @@ function do_tracks_from_database($why, $what, $who, $fragment = false) {
 		$current_tti = -1;
 		$track = array();
 		while ($obj = array_shift($trackarr)) {
-			if ($numdiscs > 1 && $obj->Disc != $currdisc && $obj->Disc > 0) {
-                $currdisc = $obj->Disc;
-                print '<div class="discnumber indent">'.
-                ucfirst(strtolower(get_int_text("musicbrainz_disc"))).' '.$currdisc.'</div>';
-			}
 			if ($obj->TTindex != $current_tti) {
 				if ($count > 0) {
+					if ($numdiscs > 1 && $track['disc'] != $currdisc && $track['disc'] > 0) {
+		                $currdisc = $track['disc'];
+		                print '<div class="discnumber indent">'.
+		                ucfirst(strtolower(get_int_text("musicbrainz_disc"))).' '.$currdisc.'</div>';
+					}
 					albumTrack(
 						$track['artist'],
 						$track['rating'],
@@ -1242,7 +1242,8 @@ function do_tracks_from_database($why, $what, $who, $fragment = false) {
 					'time' => $obj->Duration,
 					'lm' => $obj->LastModified,
 					'image' => $obj->Image,
-					'tags' => array()
+					'tags' => array(),
+					'disc' => $obj->Disc
 				);
 				$current_tti = $obj->TTindex;
 			}
