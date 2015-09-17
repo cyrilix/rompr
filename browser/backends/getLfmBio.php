@@ -21,14 +21,17 @@ function get_lfm_page($page, $lang) {
         debuglog("Returning cached data","LFMBIO");
         print file_get_contents('prefs/jsoncache/lastfm/'.md5($url));
     } else {
+        debuglog("Getting Bio Page ".$url,"LFMBIO");
         $content = url_get_contents($url);
         if ($content['status'] == "200") {
+            debuglog("  .. Success","LFMBIO");
             $html = $content['contents'];
             $html = preg_replace('/\n/', '</p><p>', $html);
             $html = preg_replace('/<br \/>/', '', $html);
             $matches = array();
-            preg_match('/<div id=\"wiki\">(.*?)<\/div>/', $html, $matches);
+            preg_match('/<div class=\"wiki-content\">(.*?)<\/div>/', $html, $matches);
             if (array_key_exists(1, $matches)) {
+                debuglog("  ... Found Wiki Data","LFMBIO");
                 file_put_contents('prefs/jsoncache/lastfm/'.md5($url), '<p>'.$matches[1].'</p>');
                 print "<p>".$matches[1]."</p>";
             } else {
