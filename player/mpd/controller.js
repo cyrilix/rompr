@@ -539,9 +539,9 @@ function playerController() {
 			itemstomove = itemstomove + ":" + (parseInt(first)+parseInt(num));
 		}
         if (itemstomove == moveto) {
-            // This can happen if you drag the final track from one album to a position below the next album's
-            // header but before its first track. This doesn't change its position in the playlist but the item
-            // in the display will have moved and we need to move it back.
+            // This can happen if you drag the final track from one album to a position below the
+            // next album's header but before its first track. This doesn't change its position in
+            // the playlist but the item in the display will have moved and we need to move it back.
             playlist.repopulate();
         } else {
 		    debug.log("PLAYER", "Move command is move&arg="+itemstomove+"&arg2="+moveto);
