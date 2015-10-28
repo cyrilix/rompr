@@ -43,6 +43,10 @@ var starRadios = function() {
                     '</div>';
 
             $("#pluginplaylists").append(html);
+        },
+
+        tagPopulate: function() {
+            playlist.radioManager.load('starRadios', $('[name="cynthia"]').val());
         }
 	}
 }();

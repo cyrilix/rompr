@@ -36,7 +36,7 @@ var info_spotify = function() {
 
         html += '<div class="info-box-expand stumpy selecotron">';
 	    html += trackListing(data)+'</div>';
-        html += '<div class="cleft info-box-fixed">';
+        html += '<div class="cleft info-box-expand">';
     	if (data.images && data.images[0]) {
     		html += '<img class="cshrinker infoclick clickzoomimage" src="getRemoteImage.php?url='+
                 data.images[0].url+'" />';
