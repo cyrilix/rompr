@@ -183,7 +183,8 @@ function emptysections2() {
 }
 
 function joinEmTogether(flag) {
-    var maxinarow = Math.round($("#coverslist").width() / 136);
+    // 164? Yeah, cool seems to work... ?? :o
+    var maxinarow = Math.round($("#coverslist").width() / 164);
     imageEditor.save();
     var container = 0;
     $(".covercontainer").addClass("getridofit");

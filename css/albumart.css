@@ -47,6 +47,13 @@
     width:100%;
 }
 
+.covercontainer .albumimg
+{
+    margin-left:4px;
+    margin-right:4px;
+    box-sizing:border-box;
+}
+
 #brian {
     padding-left:8px;
     padding-right:8px;
