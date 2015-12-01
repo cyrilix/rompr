@@ -855,7 +855,7 @@ function Playlist() {
             html += '</div>';
             html += '</div>';
             html += '<div class="trackgroup';
-            if (rolledup) {
+            if (self.visible()) {
                 html += ' invisible';
             }
             html += '" name="'+self.index+'">';
@@ -871,13 +871,13 @@ function Playlist() {
 
         this.rollUp = function() {
             $('.trackgroup[name="'+self.index+'"]').slideToggle('slow');
-            rolledup = !rolledup;
             // Logic is backwards for streams, because they're hidden by default
-            if (rolledup) {
+            if (self.visible()) {
                 playlist.rolledup["StReAm"+this.album] = undefined;
             } else {
                 playlist.rolledup["StReAm"+this.album] = true;
             }
+            rolledup = !rolledup;
         }
 
         this.getFirst = function() {
@@ -922,6 +922,14 @@ function Playlist() {
 
         this.nexttrackcommand = function() {
             player.controller.playByPosition(parseInt(tracks[(tracks.length)-1].playlistpos)+1);
+        }
+
+        this.visible = function() {
+            if (self.album == "Unknown Internet Stream") {
+                return !rolledup;
+            } else {
+                return rolledup;
+            }
         }
     }
 

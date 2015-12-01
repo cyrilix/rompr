@@ -66,7 +66,7 @@ function do_playlist_tracks($pl, $icon) {
         foreach($playlist as $track) {
             list($class, $link) = $track->get_checked_url();
             add_playlist(rawurlencode($link),
-                htmlentities($track->get_artist_string().' - '.$track->tags['Title']),
+                htmlentities($track->get_artist_track_title()),
                 'icon-music', $class, true, $c, false);
             $c++;
         }

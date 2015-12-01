@@ -43,7 +43,8 @@ function print_playlists_as_json() {
     	        	'Image' => $track->albumobject->getImage('small'),
     	        	'key' => $track->albumobject->getKey(),
     	        	'pos' => $c,
-    	        	'plimage' => $plimage
+    	        	'plimage' => $plimage,
+                    'Type' => $track->tags['type']
     	        );
     	        $c++;
     	    }

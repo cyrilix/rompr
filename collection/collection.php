@@ -387,6 +387,18 @@ class track {
             return array('clicktrack', $this->tags['file']);
         }
     }
+
+    public function get_artist_track_title() {
+        if ($this->albumobject->name == "Unknown Internet Stream") {
+            return $this->tags['file'];
+        } else {
+            if ($this->tags['type'] == "stream") {
+                return $this->albumobject->name;
+            } else {
+                return $this->get_artist_string().' - '.$this->tags['Title'];
+            }
+        }
+    }
 }
 
 class musicCollection {
@@ -959,7 +971,7 @@ function getStuffFromXSPF($url) {
 
     return array(
         false,
-        "",
+        null,
         0,
         array(""),
         "Unknown Internet Stream",

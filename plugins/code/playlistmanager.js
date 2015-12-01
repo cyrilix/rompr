@@ -27,8 +27,16 @@ var playlistManager = function() {
 				} else {
 					html += ' notfound';
 				}
-				html += '" /></td><td colspan="2" class="dan"><b>'+tracks[i].Title+'</b><br><i>by</i> <b>'+tracks[i].Artist+
-					'</b><br><i>on</i> <b>'+tracks[i].Album+'</b></td>';
+				if (tracks[i].Type == "stream") {
+					html += '" /></td><td colspan="2" class="dan"><b>'+tracks[i].Album+'</b>';
+					if (tracks[i].Album == "Unknown Internet Stream") {
+						html += '<br>'+tracks[i].Uri;
+					}
+					html += '</td>';
+				} else {
+					html += '" /></td><td colspan="2" class="dan"><b>'+tracks[i].Title+'</b><br><i>by</i> <b>'+tracks[i].Artist+
+						'</b><br><i>on</i> <b>'+tracks[i].Album+'</b></td>';
+				}
 				html += '<td class="dogsticks" align="center" style="vertical-align:middle"><i class="icon-cancel-circled playlisticon clickicon infoclick plugclickable clickremplay" name="'+tracks[i].pos+'"></i></td></tr>';
 			}
 		}
