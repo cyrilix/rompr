@@ -75,7 +75,8 @@ function findClickableBrowserElement(event) {
     var clickedElement = $(event.target);
     // Search upwards through the parent elements to find the clickable object
     while ( !clickedElement.hasClass("infoclick") &&
-            !clickedElement.hasClass("infotext")) {
+            !clickedElement.hasClass("infotext") &&
+            clickedElement.prop("id") != "bottompage") {
         clickedElement = clickedElement.parent();
     }
     return clickedElement;
@@ -256,6 +257,7 @@ function findClickableElement(event) {
     // Search upwards through the parent elements to find the clickable object
     while (!clickedElement.hasClass("clickable") && !clickedElement.hasClass("menu") &&
             clickedElement.prop("id") != "sources" && clickedElement.prop("id") != "sortable" &&
+            clickedElement.prop("id") != "bottompage" &&
             !clickedElement.hasClass("mainpane") && !clickedElement.hasClass("topdropmenu")) {
         clickedElement = clickedElement.parent();
     }
