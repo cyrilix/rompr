@@ -409,10 +409,6 @@ function Playlist() {
         } else if (player.status.state == "play") {
             if (player.status.single == 0) {
                 player.controller.stopafter();
-                var timeleft = currentTrack.duration - infobar.progress();
-                if (timeleft < 4) { timeleft = 300 };
-                var repeats = Math.round(timeleft / 4);
-                $(".icon-to-end-1").makeFlasher({flashtime:4, repeats: repeats});
             } else {
                 player.controller.cancelSingle();
                 $(".icon-to-end-1").stopFlasher();

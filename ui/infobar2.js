@@ -532,6 +532,12 @@ var infobar = function() {
             volumeslider.setState(player.status.volume);
             infobar.playbutton.setState(player.status.state);
             setPlaylistButtons();
+            if (player.status.single == 0 && $('.icon-to-end-1').css('animation') != "") {
+                $('.icon-to-end-1').stopFlasher();
+            }
+            if (player.status.single == 1 && $('.icon-to-end-1').css('animation') == "") {
+                $('.icon-to-end-1').makeFlasher({flashtime: 5, repeats: 2});
+            }
             if (player.status.error && player.status.error != null) {
                 infobar.notify(infobar.ERROR, language.gettext("label_playererror")+": "+player.status.error);
                 playlist.repopulate();
