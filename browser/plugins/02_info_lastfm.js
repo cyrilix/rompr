@@ -178,18 +178,20 @@ var info_lastfm = function() {
         html += '<b>'+language.gettext("lastfm_releasedate")+' : </b>'+lfmdata.releasedate();
         html += '<p>'+formatBio(lfmdata.bio())+'</p>';
         html +=  '</p>';
-        html += '<p><b>'+language.gettext("discogs_tracklisting")+'</b></p><table>';
         var tracks = lfmdata.tracklisting();
-        for(var i in tracks) {
-            if (tracks[i].name) {
-                html += '<tr><td>';
-                if (tracks[i]['@attr']) { html += tracks[i]['@attr'].rank+':'; }
-                html += '</td><td>'+tracks[i].name+'</td><td>'+formatTimeString(tracks[i].duration)+'</td>';
-                html += '<td align="right"><a target="_blank" title="'+language.gettext("lastfm_viewtrack")+'" href="'+tracks[i].url+'"><i class="icon-lastfm-1 smallicon"></i></a></td><td align="right">';
-                html += '</td></tr>';
+        if (tracks && tracks.length > 0) {
+            html += '<p><b>'+language.gettext("discogs_tracklisting")+'</b></p><table>';
+            for(var i in tracks) {
+                if (tracks[i].name) {
+                    html += '<tr><td>';
+                    if (tracks[i]['@attr']) { html += tracks[i]['@attr'].rank+':'; }
+                    html += '</td><td>'+tracks[i].name+'</td><td>'+formatTimeString(tracks[i].duration)+'</td>';
+                    html += '<td align="right"><a target="_blank" title="'+language.gettext("lastfm_viewtrack")+'" href="'+tracks[i].url+'"><i class="icon-lastfm-1 smallicon"></i></a></td><td align="right">';
+                    html += '</td></tr>';
+                }
             }
+            html += '</table>';
         }
-        html += '</table>';
         html += '</div>'
         html += '</div>';
         return html;
