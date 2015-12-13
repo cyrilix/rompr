@@ -13,10 +13,12 @@ $(document).ready(function(){
         // It's helpful and important to get the country code set, as many users won't see it
         // and it's necessary for the Spotify info panel to return accurate data
         $.getJSON("utils/getgeoip.php", function(result) {
-            debug.shout("GET COUNTRY", 'Country:',result.country,'Code:',result.country_code);
-            if (result.country != 'ERROR') {
+            debug.shout("GET COUNTRY", 'Country:',result.country_name,'Code:',result.country_code);
+            if (result.country_name && result.country_name != 'ERROR') {
                 $("#lastfm_country_codeselector").val(result.country_code);
                 prefs.save({lastfm_country_code: result.country_code});
+            } else {
+                debug.error("GET COUNTRY","Country code error",result);
             }
         });
     }
