@@ -1,0 +1,163 @@
+#imageeditor {
+    width:99%;
+    margin-right:auto;
+    margin-left:auto;
+    min-height:400px;
+    margin-bottom: 8px;
+}
+
+/* Ideally this would all be classed up, but CSS is so fucking clunky */
+
+#origimage {
+    display:-webkit-box;
+    -webkit-box-flex:1;
+    -webkit-box-align:center;
+    display: flex;
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: auto;
+    justify-content:center;
+
+    border-left: 1px solid #fe6500;
+    margin:8px;
+    padding:8px;
+}
+
+#searchcontent
+{
+    -webkit-box-flex:100.0;
+    flex-grow: 10;
+    flex-shrink: 10;
+    flex-basis: auto;
+    padding:8px;
+}
+
+.albumimg
+{
+    padding-left:8px;
+    padding-right:8px;
+    padding-top:8px;
+    /*width:82px;*/
+    -webkit-box-align:center;
+    align-items: center;
+}
+
+.albumimg table
+{
+    width:100%;
+}
+
+.covercontainer .albumimg
+{
+    margin-left:4px;
+    margin-right:4px;
+    box-sizing:border-box;
+}
+
+#brian {
+    padding-left:8px;
+    padding-right:8px;
+}
+
+#editcontrols {
+    padding-right:8px;
+    padding-top:2px;
+    padding-bottom:4px;
+}
+
+#fiddler {
+    position:absolute;
+    height:48px;
+    width:100%;
+    left:-4px;
+}
+
+#artistcoverslist
+{
+    overflow-y:auto;
+    height:100%;
+    width:20%;
+}
+
+#coverslist
+{
+    overflow-y:auto;
+    height:100%;
+    width:80%;
+}
+
+#progress
+{
+    font-size:12pt;
+}
+
+.artistrow
+{
+    padding-top:2px;
+    padding-bottom:2px;
+}
+
+.albumsection .tleft h2
+{
+    margin:8px;
+}
+
+.albumsection .tleft button
+{
+    margin-top:8px;
+}
+
+#morebutton
+{
+    width:80%;
+    display:table;
+}
+
+.flasher {
+     -webkit-animation: flash 1s linear infinite;
+     -moz-animation: flash 1s linear infinite;
+     animation: flash 1s linear infinite;
+}
+
+.noflash {
+    opacity: 1;
+}
+
+@-webkit-keyframes flash{
+     0%{
+          opacity: 1;
+     }
+     50%{
+          opacity: 0;
+     }
+     100%{
+          opacity: 1;
+     }
+}
+@-moz-keyframes flash{
+     0%{
+          opacity: 1;
+     }
+     50%{
+          opacity: 0;
+     }
+     100%{
+          opacity: 1;
+     }
+}
+@keyframes flash{
+     0%{
+          opacity: 1;
+     }
+     50%{
+          opacity: 0;
+     }
+     100%{
+          opacity: 1;
+     }
+}
+
+.crackbaby
+{
+    margin-left:4px;
+}

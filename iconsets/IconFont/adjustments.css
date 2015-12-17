@@ -1,0 +1,177 @@
+#buttons
+{
+    padding-left:24px;
+    padding-right:24px;
+    padding-top:16px;
+    padding-bottom:6px;
+}
+
+.controlbutton
+{
+    margin:0px;
+    padding:0px;
+    font-size:38px;
+    vertical-align:middle;
+    display:inline-flex;
+}
+
+.controlbutton-small
+{
+    margin:2px;
+    padding:0px;
+    font-size:30px;
+    vertical-align:middle;
+    display:inline-flex;
+}
+
+.controlbutton:hover,.controlbutton-small:hover
+{
+    color: #FFF;
+    text-shadow: 0 0 15px #C16700;
+    
+}
+
+.controlbutton:before
+{
+    margin-top:0px;
+    margin-bottom:0px;
+    margin-left:2px;
+    margin-right:2px;
+}
+
+.controlbutton-small:before
+{
+    margin-top:0px;
+    margin-bottom:0px;
+    margin-left:2px;
+    margin-right:2px;
+}
+
+@media screen and (min-height: 900px) and (max-height: 1039px) {
+    .controlbutton {
+        font-size:42px;
+    }
+    .controlbutton-small {
+        font-size:34px;
+    }
+    #buttons {
+        padding-top:12px;
+    }
+    #progress {
+        margin-top:8px;
+    }
+    #playbackTime {
+        margin-top:8px;
+        font-size:16px;
+        line-height:18px;
+        height:18px;
+    }
+}
+
+@media screen  and (min-height: 1040px) and (max-height: 1199px) {
+    .controlbutton {
+        font-size:48px;
+    }
+    .controlbutton-small {
+        font-size:40px;
+    }
+    #buttons {
+        padding-top:18px;
+    }
+    #progress {
+        margin-top:8px;
+    }
+    #playbackTime {
+        margin-top:12px;
+        font-size:16px;
+        line-height:18px;
+        height:18px;
+    }
+}
+
+@media screen and (min-height: 1200px) {
+    .controlbutton {
+        font-size:64px;
+    }
+    .controlbutton-small {
+        font-size:48px;
+    }
+    #buttons {
+        padding-top:20px;
+    }
+    #progress {
+        margin-top:8px;
+    }
+    #playbackTime {
+        margin-top:16px;
+        font-size:16px;
+        line-height:18px;
+        height:18px;
+    }
+}
+
+#headerbar:hover i.topimg:before
+{
+    text-shadow:0 0 3px #AAA;
+    opacity:0.4;
+}
+#headerbar i.topimg:hover:before
+{
+    opacity:1;
+    text-shadow:0 0 15px #C16700;
+}
+
+.topimg
+{
+  margin-top:0px;
+}
+
+.progressbar
+{
+   border-radius: 0.4em;
+}
+
+.npicon
+{
+    height: auto !important;
+}
+
+.desktop .playlisticon
+{
+    font-size:14px;
+}
+
+.mobile .playlisticon
+{
+    font-size:16px;
+}
+
+.desktop .playlisticonr
+{
+    font-size:14px;
+}
+
+.mobile .playlisticonr
+{
+    font-size:20px;
+}
+
+.desktop .smallicon
+{
+    font-size:16px;
+}
+
+.mobile .smallicon
+{
+    font-size:20px;
+}
+
+.spinner
+{
+    display:inline-block;
+}
+
+body.mobile #sourcescontrols
+{
+    padding-top:4px;
+}

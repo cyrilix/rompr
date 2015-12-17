@@ -1,0 +1,633 @@
+body
+{
+    background-color:#aaaaaa;
+}
+
+body,p,h1,h2,h3,h4,table,td,th,ul,ol,textarea,input
+{
+    color:#000000;
+}
+
+h1,h2,h3,h4,h5,h6
+{
+    color:#000000;
+}
+
+a:link
+{
+    color:#0b0080;
+}
+
+a:visited
+{
+    color:#0b0080;
+}
+
+a:hover,a:active
+{
+    text-shadow: 0 0 15px #ff4800;
+    cursor:pointer;
+}
+
+#infobar
+{
+    background-image: linear-gradient(#999999, #eeeeee, #aaaaaa);
+    background-image: -o-linear-gradient(#999999, #eeeeee, #aaaaaa);
+    background-image: -moz-linear-gradient(#999999, #eeeeee, #aaaaaa);
+    background-image: -webkit-linear-gradient(#999999, #eeeeee, #aaaaaa);
+    background-image: -ms-linear-gradient(#999999, #eeeeee, #aaaaaa);
+}
+
+#headerbar
+{
+    background-image: linear-gradient(#aaaaaa, #999999);
+    background-image: -o-linear-gradient(#aaaaaa, #999999);
+    background-image: -moz-linear-gradient(#aaaaaa, #999999);
+    background-image: -webkit-linear-gradient(#aaaaaa, #999999);
+    background-image: -ms-linear-gradient(#aaaaaa, #999999);
+}
+
+#custombackground
+{
+    display:none;
+}
+
+#pscroller, #horse td, #playlistbuttons td
+{
+    color: #dddddd;
+}
+
+#sources, #sources p
+{
+    color: #eeeeee !important;
+}
+
+#sources h3, #sources td
+{
+    color: #222222;
+}
+
+/*-- divs used to create infobar layout --*/
+
+.bordered
+{
+    border-left:1px solid #9a9a9a;
+    border-bottom:1px solid #e0e0e0;
+    border-right:1px solid #e0e0e0;
+    border-top:1px solid #9a9a9a;
+    border-radius:15px;
+}
+
+.progressbar_v, .progressbar
+{
+    border-radius:1em;
+}
+
+#horse
+{
+    background-image: linear-gradient(#999999, #909090);
+    background-image: -o-linear-gradient(#999999, #909090);
+    background-image: -moz-linear-gradient(#999999, #909090);
+    background-image: -webkit-linear-gradient(#999999, #909090);
+    background-image: -ms-linear-gradient(#999999, #909090);
+}
+
+#playlistbuttons
+{
+    background-image: linear-gradient(#909090, #888888);
+    background-image: -o-linear-gradient(#909090, #888888);
+    background-image: -moz-linear-gradient(#909090, #888888);
+    background-image: -webkit-linear-gradient(#909090, #888888);
+    background-image: -ms-linear-gradient(#909090, #888888);
+}
+
+#playlist
+{
+    background-image: linear-gradient(#909090, #333333);
+    background-image: -o-linear-gradient(#909090, #333333);
+    background-image: -moz-linear-gradient(#909090, #333333);
+    background-image: -webkit-linear-gradient(#909090, #333333);
+    background-image: -ms-linear-gradient(#909090, #333333);
+}
+
+#sources, body.mobile .mainpane
+{
+    background-image: linear-gradient(#999999, #333333);
+    background-image: -o-linear-gradient(#999999, #333333);
+    background-image: -moz-linear-gradient(#999999, #333333);
+    background-image: -webkit-linear-gradient(#999999, #333333);
+    background-image: -ms-linear-gradient(#999999, #333333);
+}
+
+body.mobile .mainpane
+{
+    color: #dddddd;
+}
+
+body.mobile #infopane
+{
+    color: #000000;
+    background-color: #eeeeee;
+    background-image:none;
+}
+
+body.mobile #infobar
+{
+    color:#000000;
+}
+
+button, input[type="button"], .gradbutton
+{
+    background-image: linear-gradient(#999999, #cccccc, #999999);
+    background-image: -o-linear-gradient(#999999, #cccccc, #999999);
+    background-image: -moz-linear-gradient(#999999, #cccccc, #999999);
+    background-image: -webkit-linear-gradient(#999999, #cccccc, #999999);
+    background-image: -ms-linear-gradient(#999999, #cccccc, #999999);
+    color:#ee3700;
+    border:0px none;
+    border-radius:1em;
+}
+
+.crackbaby button, .albumcovers .infosection button
+{
+    background-image:none !important;
+    background-color:transparent !important;
+}
+
+button:hover, input[type="button"]:hover, .gradbutton:hover
+{
+    color:#ff4800;
+    text-shadow: 0 0 15px #ff4800;
+}
+
+input
+{
+    color:#181818;
+    border-radius: 1em !important;
+}
+
+input.inbrowser, div.inbrowser
+{
+    border: 1px solid #888888;
+}
+
+select
+{
+    color:#000000;
+    border-radius:1em !important;
+}
+
+.selectholder
+{
+    border-radius:1em !important;
+}
+
+#notifications
+{
+    background-image: linear-gradient(#999999, #cccccc, #999999);
+    background-image: -o-linear-gradient(#999999, #cccccc, #999999);
+    background-image: -moz-linear-gradient(#999999, #cccccc, #999999);
+    background-image: -webkit-linear-gradient(#999999, #cccccc, #999999);
+    background-image: -ms-linear-gradient(#999999, #cccccc, #999999);
+    border-bottom-left-radius:1em;
+    border-bottom-right-radius:1em;
+}
+
+a.album:visited
+{
+    color:#220000;
+}
+
+a.album:hover,a.album:active
+{
+    text-shadow: 0 0 15px #ff4800;
+    cursor:pointer;
+}
+
+#filemenu
+{
+    border-left:1px solid #444444;
+}
+
+div.clickable:hover, .infoclick:hover
+{
+    text-shadow: 0 0 15px #ff4800;
+    cursor:pointer;
+}
+
+div.clickable.selected:hover
+{
+    color:#000000;
+}
+
+.selected
+{
+    background-color:#ff4800;
+}
+
+
+/*-- divs and classes used in the playlist --*/
+
+.playlistcurrentitem
+{
+    font-weight:bold;
+    font-size:120%;
+    text-shadow: 0 0 15px #ff4800;
+    transition:all 0.3s;
+}
+
+.playlistitem
+{
+    transition: all 0.4s;
+}
+
+.playlistcurrenttitle
+{
+    text-shadow: 0 0 15px #ff4800;
+    font-weight:bold;
+}
+
+.inbrowser
+{
+    color:#000000;
+}
+
+/*-- For Wikipedia and Last.FM pages --*/
+
+.stleft
+{
+    border-right:1px solid #888888;
+}
+
+#wikipopup
+{
+    background-color:#000000;
+}
+
+#imagecontainer
+{
+    background-color:#ffffff;
+}
+
+.infosection
+{
+    background-image: linear-gradient(#999999, #eeeeee, #999999);
+    background-image: -o-linear-gradient(#999999, #eeeeee, #999999);
+    background-image: -moz-linear-gradient(#999999, #eeeeee, #999999);
+    background-image: -webkit-linear-gradient(#999999, #eeeeee, #999999);
+    background-image: -ms-linear-gradient(#999999, #eeeeee, #999999);
+    border-radius:3em;
+    padding-left:1em;
+}
+
+.albumsection
+{
+    background-color:#b9d2fd;
+}
+
+.translucent
+{
+    opacity:0.7;
+}
+
+.infowiki
+{
+    background-image: linear-gradient(#ffffff, #aaaaaa);
+    background-image: -o-linear-gradient(#ffffff, #aaaaaa);
+    background-image: -moz-linear-gradient(#ffffff, #aaaaaa);
+    background-image: -webkit-linear-gradient(#ffffff, #aaaaaa);
+    background-image: -ms-linear-gradient(#ffffff, #aaaaaa);
+}
+
+#wobblebottom {
+    background-color:#aaaaaa;
+}
+
+.infoslideshow
+{
+    background-color:#000000;
+}
+
+/*-- For Album Cover Art --*/
+
+.crackbaby
+{
+    background-image: linear-gradient(#999999, #eeeeee, #999999);
+    background-image: -o-linear-gradient(#999999, #eeeeee, #999999);
+    background-image: -moz-linear-gradient(#999999, #eeeeee, #999999);
+    background-image: -webkit-linear-gradient(#999999, #eeeeee, #999999);
+    background-image: -ms-linear-gradient(#999999, #eeeeee, #999999);
+    border-radius:3em;
+    padding-left:1em;
+    box-sizing:border-box;
+}
+
+#albumcovers
+{
+    background-image: linear-gradient(#ffffff, #aaaaaa);
+    background-image: -o-linear-gradient(#ffffff, #aaaaaa);
+    background-image: -moz-linear-gradient(#ffffff, #aaaaaa);
+    background-image: -webkit-linear-gradient(#ffffff, #aaaaaa);
+    background-image: -ms-linear-gradient(#ffffff, #aaaaaa);
+}
+
+.popupwindow
+{
+    background-image: linear-gradient(#999999, #cccccc, #999999);
+    background-image: -o-linear-gradient(#999999, #cccccc, #999999);
+    background-image: -moz-linear-gradient(#999999, #cccccc, #999999);
+    background-image: -webkit-linear-gradient(#999999, #cccccc, #999999);
+    background-image: -ms-linear-gradient(#999999, #cccccc, #999999);
+    border-left:1px solid #eeeeee;
+    border-bottom:1px solid #9a9a9a;
+    border-right:1px solid #9a9a9a;
+    border-top:1px solid #eeeeee;
+    border-radius:1em;
+}
+
+.underlined
+{
+    border-bottom:1px solid #666666;
+}
+
+/*-- Styles for drop-down menus --*/
+
+div.topdropmenu
+{
+    background-image: linear-gradient(#999999, #cccccc, #999999);
+    background-image: -o-linear-gradient(#999999, #cccccc, #999999);
+    background-image: -moz-linear-gradient(#999999, #cccccc, #999999);
+    background-image: -webkit-linear-gradient(#999999, #cccccc, #999999);
+    background-image: -ms-linear-gradient(#999999, #cccccc, #999999);
+    border-left:1px solid #eeeeee;
+    border-bottom:1px solid #9a9a9a;
+    border-right:1px solid #9a9a9a;
+}
+
+div.rightmenu
+{
+    border-top-left-radius: 1em;
+    border-top-right-radius: 0;
+    border-bottom-left-radius: 1em;
+    border-bottom-right-radius: 1em;
+}
+
+div.leftmenu
+{
+    border-top-left-radius: 0;
+    border-top-right-radius: 1em;
+    border-bottom-left-radius: 1em;
+    border-bottom-right-radius: 1em;
+}
+
+.configtitle
+{
+    background-image: linear-gradient(#999999, #cccccc, #999999);
+    background-image: -o-linear-gradient(#999999, #cccccc, #999999);
+    background-image: -moz-linear-gradient(#999999, #cccccc, #999999);
+    background-image: -webkit-linear-gradient(#999999, #cccccc, #999999);
+    background-image: -ms-linear-gradient(#999999, #cccccc, #999999);
+    border-radius:1em;
+    color:#000000;
+}
+
+body.mobile .configtitle
+{
+    width:95%;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+/*-- Styles to make the Wikipedia nav boxes look prettier --*/
+
+table.navbox th
+{
+    background-color: rgba(0,0,0,0.1);
+}
+
+div.toc
+{
+    border-radius:1em;
+}
+
+.infobox
+{
+    border-radius:1em;
+}
+
+table.infobox th
+{
+    border-radius:1em;
+}
+
+.quotebox
+{
+    border-radius:1em;
+}
+
+.infotext table
+{
+    border-radius:1em !important;
+}
+
+.navbox-abovebelow
+{
+    padding-bottom:4px;
+}
+
+.navbox-title a:link,
+.navbox-abovebelow a:link,
+.navbox-group a:link
+{
+    text-decoration:none;
+}
+
+.navbox-title a:visited,
+.navbox-abovebelow a:visited,
+.navbox-group a:visited
+{
+    text-decoration:none;
+}
+
+.navbox-title a:hover,a:active,
+.navbox-abovebelow a:hover,a:active,
+.navbox-group a:hover,a:active
+{
+    text-decoration:none;
+}
+
+table.tracklist {
+    line-height:1.5em;
+}
+
+.tracklist tbody tr th
+{
+    font-weight:bold;
+}
+
+.description
+{
+    margin-top:4px;
+}
+
+.underline
+{
+    border-bottom: 1px solid #444444;
+}
+
+.infosection h2
+{
+    border-bottom:2px solid #444444;
+}
+
+.funkymusic
+{
+    background-color:#cccccc;
+    border-radius:1em;
+}
+
+.tagmenu
+{
+    border-radius:1em;
+}
+
+table.histable tr:hover {
+    font-size:105%;
+    text-shadow: 0 0 15px #ff4800;
+    transition:all 0.1s;
+}
+
+table.histable tr
+{
+    transition:all 0.2s;
+}
+
+.backhi:hover {
+    font-size:105%;
+    text-shadow: 0 0 15px #ff4800;
+    cursor:pointer;
+    transition:all 0.1s;
+}
+
+.backhi
+{
+    transition:all 0.2s;
+}
+
+tr.clickaddtrack:hover
+{
+    background-color:#e1e4ea;
+}
+
+.edged
+{
+    border-left:1px solid #222222;
+    border-right:1px solid #222222;
+    border-bottom:1px solid #222222;
+}
+
+.albumthing
+{
+    background-color: #f0f0f0;
+}
+
+.topimg
+{
+    opacity:0.8;
+}
+
+.topimg:not(.button-disabled):hover
+{
+    opacity:1;
+}
+
+#fiddler {
+    border-left: 4px solid #fe6500;
+    border-right: 4px solid #fe6500;
+}
+
+.highlighted {
+    border-top: 4px solid #fe6800 !important;
+    border-left: 4px solid #fe6800 !important;
+    border-right: 4px solid #fe6800 !important;
+    border-radius:12px !important;
+}
+
+#imageeditor
+{
+    border: 4px solid #fe6500;
+    border-radius:12px !important;
+}
+
+.tagholder table tr th {
+    background-color:rgba(255,255,255,0.5);
+    border-bottom:1px solid #cccccc;
+}
+
+.bsel
+{
+    color:#ff4800;
+}
+
+.bmid
+{
+    border-left:2px solid #ff4800;
+}
+
+#artistchooser
+{
+    border-bottom:1px solid #555555;
+    border-top:1px solid #555555;
+    color:#555555;
+}
+
+.currentbun
+{
+    border-bottom:1px solid #fe6500;
+    padding-bottom:2px;
+}
+
+#wikipopup
+{
+    border-radius: 1em;
+}
+
+.dropshadow
+{
+    -webkit-box-shadow: 7px 7px 5px rgba(50, 50, 50, 0.6);
+    -moz-box-shadow:    7px 7px 5px rgba(50, 55, 50, 0.6);
+    box-shadow:         7px 7px 5px rgba(50, 50, 50, 0.6);
+}
+
+.progressbar
+{
+    border:1px solid #414141;
+}
+
+.progressbar_v
+{
+    border-left:1px solid #9a9a9a;
+    border-bottom:1px solid #e0e0e0;
+    border-right:1px solid #e0e0e0;
+    border-top:1px solid #9a9a9a;
+}
+
+.podcastitem
+{
+    border-top:1px solid #000000;
+}
+
+.mCSB_draggerRail
+{
+    background:rgba(0,0,0,0.1) !important;
+}
+
+.mCSB_dragger_bar
+{
+    background:rgba(0,0,0,0.75) !important;
+}
+
+#dragger
+{
+    background-color:rgba(0,0,0,0.5);
+}

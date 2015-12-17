@@ -1,0 +1,456 @@
+body
+{
+    background-color:#e8ebf0;
+}
+
+body,p,h1,h2,h3,h4,table,td,th,ul,ol,textarea,input
+{
+    color:#000000;
+}
+
+h1,h2,h3,h4,h5,h6
+{
+    color:#000000;
+}
+
+a:link
+{
+    color:#0b0080;
+}
+
+a:visited
+{
+    color:#0b0080;
+}
+
+a:hover,a:active
+{
+    color:#ff4800;
+}
+
+#custombackground
+{
+    display:none;
+}
+
+#headerbar
+{
+    background-image: linear-gradient(#b3b3b3, #afafaf);
+    background-image: -o-linear-gradient(#b3b3b3, #afafaf);
+    background-image: -moz-linear-gradient(#b3b3b3, #afafaf);
+    background-image: -webkit-linear-gradient(#b3b3b3, #afafaf);
+    background-image: -ms-linear-gradient(#b3b3b3, #afafaf);
+}
+
+#infobar
+{
+    background-image: linear-gradient(#E5E5E5, #b3b3b3);
+    background-image: -o-linear-gradient(#E5E5E5, #b3b3b3);
+    background-image: -moz-linear-gradient(#E5E5E5, #b3b3b3);
+    background-image: -webkit-linear-gradient(#E5E5E5, #b3b3b3);
+    background-image: -ms-linear-gradient(#E5E5E5, #b3b3b3);
+}
+
+/*-- divs used to create infobar layout --*/
+
+.bordered
+{
+    border-left:1px solid #9a9a9a;
+    border-bottom:1px solid #e0e0e0;
+    border-right:1px solid #e0e0e0;
+    border-top:1px solid #9a9a9a;
+}
+
+#horse
+{
+    background-image: linear-gradient(#afafaf, #b4b4b4);
+    background-image: -o-linear-gradient(#afafaf, #b4b4b4);
+    background-image: -moz-linear-gradient(#afafaf, #b4b4b4);
+    background-image: -webkit-linear-gradient(#afafaf, #b4b4b4);
+    background-image: -ms-linear-gradient(#afafaf, #b4b4b4);
+}
+
+#playlist
+{
+    background-image: linear-gradient(#b4b4b4, #e5e5e5);
+    background-image: -o-linear-gradient(#b4b4b4, #e5e5e5);
+    background-image: -moz-linear-gradient(#b4b4b4, #e5e5e5);
+    background-image: -webkit-linear-gradient(#b4b4b4, #e5e5e5);
+    background-image: -ms-linear-gradient(#b4b4b4, #e5e5e5);
+}
+
+button, input[type="button"], .gradbutton
+{
+    background-image: linear-gradient(#ccdcf2, #c0d0e7);
+    background-image: -o-linear-gradient(#ccdcf2, #c0d0e7);
+    background-image: -moz-linear-gradient(#ccdcf2, #c0d0e7);
+    background-image: -webkit-linear-gradient(#ccdcf2, #c0d0e7);
+    background-image: -ms-linear-gradient(#ccdcf2, #c0d0e7);
+    color:#000000;
+    border:1px solid #adadad;
+}
+
+button:hover, input[type="button"]:hover, .gradbutton:hover
+{
+    color:#3875d7;
+    border:1px solid #ccdcf2;
+    text-shadow: 0 0 15px #3875d7;
+}
+
+input
+{
+    color:#181818;
+}
+
+input.inbrowser, div.inbrowser
+{
+    border: 1px solid #888888;
+}
+
+select
+{
+    color:#000000;
+}
+
+#notifications
+{
+    background-color:#ccdcf2;
+}
+
+#sources
+{
+    border-top:1px solid #000000;
+}
+
+#infopane
+{
+    border-top:1px solid #000000;
+}
+
+/*-- divs and classes used in the albums list --*/
+
+.album1
+{
+    /*background-color:#e8ebf0;*/
+}
+
+.album2
+{
+    /*background-color:#e1e4ea;*/
+    background-color:rgba(225,228,234,0.75);
+}
+
+a.album:visited
+{
+    color:#220000;
+}
+
+a.album:hover,a.album:active
+{
+    color:#ff4800;
+}
+
+#filemenu
+{
+    border-left:1px solid #444444;
+}
+
+div.clickable:hover, .infoclick:hover
+{
+    color:#3875d7;
+}
+
+div.clickable.selected:hover
+{
+    color:#000000;
+}
+
+.selected
+{
+    background-color:#3875d7;
+}
+
+
+/*-- divs and classes used in the playlist --*/
+
+.playlistcurrentitem
+{
+    color:#3875d7;
+}
+
+.playlistcurrenttitle
+{
+    color:#3875d7;
+}
+
+.item
+{
+    border-top:1px solid #cccccc;
+}
+
+.inbrowser
+{
+    color:#000000;
+}
+
+/*-- For Wikipedia and Last.FM pages --*/
+
+.stleft
+{
+    border-right:1px solid #888888;
+}
+
+#wikipopup
+{
+    background-color:#000000;
+}
+
+#imagecontainer
+{
+    background-color:#ffffff;
+}
+
+.infosection
+{
+    background-image: linear-gradient(#E5E5E5, #b3b3b3);
+    background-image: -o-linear-gradient(#E5E5E5, #b3b3b3);
+    background-image: -moz-linear-gradient(#E5E5E5, #b3b3b3);
+    background-image: -webkit-linear-gradient(#E5E5E5, #b3b3b3);
+    background-image: -ms-linear-gradient(#E5E5E5, #b3b3b3);
+    /*border-bottom:1px solid #000000;*/
+}
+
+.albumsection
+{
+    background-color:#b9d2fd;
+}
+
+.translucent
+{
+    opacity:0.7;
+}
+
+.infowiki
+{
+    background-color:#ffffff;
+}
+
+.infoslideshow
+{
+    background-color:#000000;
+}
+
+/*-- For Album Cover Art --*/
+
+.crackbaby
+{
+    background-color:#adb4cd;
+}
+
+#albumcovers
+{
+    background-color:#adb4cd;
+}
+
+.popupwindow
+{
+    background-color:#cccccc;
+    border-left:1px solid #eeeeee;
+    border-bottom:1px solid #9a9a9a;
+    border-right:1px solid #9a9a9a;
+    border-top:1px solid #eeeeee;
+}
+
+.underlined
+{
+    border-bottom:1px solid #666666;
+}
+
+/*-- Styles for drop-down menus --*/
+
+div.topdropmenu
+{
+    background-image: linear-gradient(#E5E5E5, #b3b3b3);
+    background-image: -o-linear-gradient(#E5E5E5, #b3b3b3);
+    background-image: -moz-linear-gradient(#E5E5E5, #b3b3b3);
+    background-image: -webkit-linear-gradient(#E5E5E5, #b3b3b3);
+    background-image: -ms-linear-gradient(#E5E5E5, #b3b3b3);
+    border-left:1px solid #eeeeee;
+    border-bottom:1px solid #9a9a9a;
+    border-right:1px solid #9a9a9a;
+}
+
+.configtitle
+{
+    background-image: linear-gradient(#E5E5E5, #b3b3b3);
+    background-image: -o-linear-gradient(#E5E5E5, #b3b3b3);
+    background-image: -moz-linear-gradient(#E5E5E5, #b3b3b3);
+    background-image: -webkit-linear-gradient(#E5E5E5, #b3b3b3);
+    background-image: -ms-linear-gradient(#E5E5E5, #b3b3b3);
+}
+
+/*-- Styles to make the Wikipedia nav boxes look prettier --*/
+
+table.navbox th
+{
+    background-color: #e5e5e5;
+}
+
+.navbox-abovebelow
+{
+    padding-bottom:4px;
+}
+
+.navbox-title a:link,
+.navbox-abovebelow a:link,
+.navbox-group a:link
+{
+    text-decoration:none;
+}
+
+.navbox-title a:visited,
+.navbox-abovebelow a:visited,
+.navbox-group a:visited
+{
+    text-decoration:none;
+}
+
+.navbox-title a:hover,a:active,
+.navbox-abovebelow a:hover,a:active,
+.navbox-group a:hover,a:active
+{
+    text-decoration:none;
+}
+
+table.tracklist {
+    line-height:1.5em;
+}
+
+.tracklist tbody tr th
+{
+    font-weight:bold;
+}
+
+.description
+{
+    margin-top:4px;
+}
+
+.underline
+{
+    border-bottom: 1px solid #444444;
+}
+
+.infosection h2
+{
+    border-bottom:2px solid #444444;
+}
+
+.funkymusic
+{
+    background-color:#cccccc;
+}
+
+table.histable tr:hover {
+    background-color:#ccdcf2;
+}
+
+.backhi:hover {
+    background-color:#ccdcf2;
+    cursor:pointer;
+}
+
+tr.clickaddtrack:hover
+{
+    background-color:#e1e4ea;
+}
+
+.edged
+{
+    border-left:1px solid #222222;
+    border-right:1px solid #222222;
+    border-bottom:1px solid #222222;
+}
+
+#fiddler {
+    border-left: 4px solid #fe6500;
+    border-right: 4px solid #fe6500;
+}
+
+.highlighted {
+    border-top: 4px solid #fe6800 !important;
+    border-left: 4px solid #fe6800 !important;
+    border-right: 4px solid #fe6800 !important;
+    border-radius:2px !important;
+}
+
+#imageeditor
+{
+    border: 4px solid #fe6500;
+}
+
+.tagholder table tr th {
+    background-color:#e8ebf0;
+    border-bottom:1px solid #000000;
+}
+
+.bsel
+{
+    color:#ff4800;
+}
+
+.bmid
+{
+    border-left:2px solid #ff4800;
+}
+
+.albumthing
+{
+    background-color:#f9f9f9;
+}
+
+#artistchooser
+{
+    border-bottom:1px solid #555555;
+    border-top:1px solid #555555;
+    color:#555555;
+}
+
+.currentbun
+{
+    border-bottom:1px solid #fe6500;
+    padding-bottom:2px;
+}
+
+.dropshadow
+{
+    -webkit-box-shadow: 7px 7px 5px rgba(50, 50, 50, 0.6);
+    -moz-box-shadow:    7px 7px 5px rgba(50, 55, 50, 0.6);
+    box-shadow:         7px 7px 5px rgba(50, 50, 50, 0.6);
+}
+
+.progressbar
+{
+    border:1px solid #414141;
+}
+
+.podcastitem
+{
+    border-top:1px solid #000000;
+}
+
+.mCSB_draggerRail
+{
+    background:rgba(0,0,0,0.1) !important;
+}
+
+.mCSB_dragger_bar
+{
+    background:rgba(0,0,0,0.75) !important;
+}
+
+#dragger
+{
+    background-color:rgba(0,0,0,0.5);
+}
+
